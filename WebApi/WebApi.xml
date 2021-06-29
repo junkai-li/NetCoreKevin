@@ -195,6 +195,13 @@
             <remarks>用于在微信商户平台创建订单</remarks>
             <returns></returns>
         </member>
+        <member name="M:WebApi.Controllers.v1.PayController.CreateWeiXinPcPay(System.String,System.Guid)">
+            <summary>
+            微信网页商户平台下单接口
+            </summary>
+            <remarks>用于在微信商户平台创建订单</remarks>
+            <returns></returns>
+        </member>
         <member name="M:WebApi.Controllers.v1.PayController.CreateWeiXinAppPay(System.String,System.String)">
             <summary>
             微信APP商户平台下单接口
@@ -476,7 +483,47 @@
             <param name="openId"></param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Libraries.WeiXin.H5.WeiXinHelper.#ctor(System.String,System.String)">
+        <member name="T:WebApi.Libraries.WeiXin.H5.Models.dtoCreatePayPCH">
+            <summary>
+            PC
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.H5.Models.dtoCreatePayPCH.timeStamp">
+            <summary>
+            时间戳，从 1970 年 1 月 1 日 00:00:00 至今的秒数，即当前的时间
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.H5.Models.dtoCreatePayPCH.nonceStr">
+            <summary>
+            随机字符串，长度为32个字符以下
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.H5.Models.dtoCreatePayPCH.package">
+            <summary>
+            统一下单接口返回的 prepay_id 参数值，提交格式如：prepay_id=***
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.H5.Models.dtoCreatePayPCH.signType">
+            <summary>
+            签名算法
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.H5.Models.dtoCreatePayPCH.paySign">
+            <summary>
+            签名
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.H5.Models.dtoCreatePayPCH.appId">
+            <summary>
+            appid
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.H5.Models.dtoCreatePayPCH.Ip">
+            <summary>
+            ip
+            </summary>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.H5.WeiXinHelper.#ctor(System.String,System.String,System.String,System.String,System.String)">
             <summary>
             微信H5网页开发帮助类
             </summary>
@@ -499,6 +546,18 @@
             <summary>
             获取 JsSDK 签名信息
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.H5.WeiXinHelper.CreatePayUrl(System.String,System.String,System.String,System.String,System.Int32,System.String)">
+            <summary>
+            微信H5支付商户平台下单方法
+            </summary>
+            <param name="openid">用户 OpenId</param>
+            <param name="orderno">订单号</param>
+            <param name="title">商品名称</param>
+            <param name="body">商品描述</param>
+            <param name="price">价格，单位为分</param>
+            <param name="ip">价格，单位为分</param>
             <returns></returns>
         </member>
         <member name="T:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayMiniApp">

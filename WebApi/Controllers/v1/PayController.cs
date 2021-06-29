@@ -11,6 +11,8 @@ using WebApi.Libraries.WeiXin.MiniApp.Models;
 using WebApi.Libraries.WeiXin.Public;
 using System.IO;
 using WebApi.Libraries.WeiXin.App.Models;
+using WebApi.Controllers.Bases;
+using WebApi.Libraries.WeiXin.H5.Models;
 
 namespace WebApi.Controllers.v1
 {
@@ -20,12 +22,8 @@ namespace WebApi.Controllers.v1
     [ApiVersion("1")]
     [Route("api/[controller]")]
     [ApiController]
-    public class PayController : ControllerBase
+    public class PayController : PubilcControllerBase
     {
-
-
-        private readonly dbContext db;
-
         public PayController(dbContext context)
         {
             db = context;
@@ -64,7 +62,35 @@ namespace WebApi.Controllers.v1
 
         }
 
+        /// <summary>
+        /// 微信网页商户平台下单接口
+        /// </summary>
+        /// <remarks>用于在微信商户平台创建订单</remarks>
+        /// <returns></returns>
+        [HttpGet("CreateWeiXinPcPay")]
+        public dtoCreatePayPCH CreateWeiXinPcPay(string orderno, Guid weixinkeyid)
+        {
 
+
+            var order = db.TOrder.Where(t => t.OrderNo == orderno).FirstOrDefault();
+
+            var userinfo = db.TUser.Where(t => t.Id == order.CreateUserId).FirstOrDefault();
+
+            var weixinkey = db.TWeiXinKey.Where(t => t.Id == weixinkeyid).FirstOrDefault();
+
+            WebApi.Libraries.WeiXin.H5.WeiXinHelper weiXinHelper = new WebApi.Libraries.WeiXin.H5.WeiXinHelper(weixinkey.WxAppId, weixinkey.WxAppSecret, weixinkey.MchId, weixinkey.MchKey, "https://lianaiapi.hudonge.cn/api/Pay/WeiXinPayNotify");
+
+            int price = Convert.ToInt32(order.Price * 100);
+            string productname = "";
+            //string ProductId = db.TOrder.Where(t => t.OrderNo == orderno).Select(t => t.ProductId).FirstOrDefault();
+            ////商品名称
+            //productname = db.TVipPackage.Where(t => t.Id == productname).Select(t => t.Name).FirstOrDefault();
+            var openid = db.TUserBindWeixin.Where(t => t.UserId == order.CreateUserId & t.WeiXinKeyId == weixinkeyid).Select(t => t.WeiXinOpenId).FirstOrDefault();
+            var ip = HttpContext.Connection.RemoteIpAddress.ToString().Replace("::ffff:", "");
+            var pay = weiXinHelper.CreatePayUrl(openid, order.OrderNo, productname, productname + "购买", price, ip);
+
+            return pay;
+        }
 
         /// <summary>
         /// 微信APP商户平台下单接口

@@ -135,6 +135,72 @@
             具体数据内容
             </summary>
         </member>
+        <member name="M:Models.Extension.ObjectExtension.MapTo``2(``0,``1)">
+            <summary>
+            Execute a mapping from the source object to the existing destination object
+            There must be a mapping between objects before calling this method.
+            
+            </summary>
+            <typeparam name="TSource">Source type</typeparam><typeparam name="TDestination">Destination type</typeparam><param name="source">Source object</param><param name="destination">Destination object</param>
+            <returns/>
+        </member>
+        <member name="M:Models.Extension.ObjectExtension.IsEnumerableType(System.Type)">
+            <summary>
+            Does class implement IEnumerable
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Models.Extension.ObjectExtension.MapToGenericEnumerable``2(``0,``1)">
+            <summary>
+            Map to generic type which inherit IEnumerable
+            </summary>
+            <typeparam name="TSource"></typeparam>
+            <typeparam name="TDestination"></typeparam>
+            <param name="source"></param>
+            <param name="destination"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Models.Extension.ObjectExtension.MapToSimpleObject``2(``0,``1)">
+            <summary>
+            Map to simple object
+            </summary>
+            <typeparam name="TSource"></typeparam>
+            <typeparam name="TDestination"></typeparam>
+            <param name="source"></param>
+            <param name="destination"></param>
+        </member>
+        <member name="M:Models.Extension.ObjectExtension.SerializeToJson(System.Object)">
+            <summary>
+            序列化为Json串
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Models.Extension.ObjectExtension.As``1(System.Object)">
+            <summary>
+            Used to simplify and beautify casting an object to a type. 
+            </summary>
+            <typeparam name="T">Type to be casted</typeparam>
+            <param name="obj">Object to cast</param>
+            <returns>Casted object</returns>
+        </member>
+        <member name="M:Models.Extension.ObjectExtension.To``1(System.Object)">
+            <summary>
+            Converts given object to a value type using <see cref="M:System.Convert.ChangeType(System.Object,System.TypeCode)"/> method.
+            </summary>
+            <param name="obj">Object to be converted</param>
+            <typeparam name="T">Type of the target object</typeparam>
+            <returns>Converted object</returns>
+        </member>
+        <member name="M:Models.Extension.ObjectExtension.IsIn``1(``0,``0[])">
+            <summary>
+            Check if an item is in a list.
+            </summary>
+            <param name="item">Item to check</param>
+            <param name="list">List of items</param>
+            <typeparam name="T">Type of the items</typeparam>
+        </member>
         <member name="T:Models.JwtBearer.JwtSettings">
             <summary>
             JWT 配置信息

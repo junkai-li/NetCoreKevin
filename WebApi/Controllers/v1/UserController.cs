@@ -4,6 +4,7 @@ using Models.Dtos;
 using Repository.Database;
 using System;
 using System.Linq;
+using WebApi.Controllers.Bases;
 using WebApi.Filters;
 using WebApi.Models.v1.User;
 
@@ -19,11 +20,8 @@ namespace WebApi.Controllers.v1
     [Authorize]
     [JwtTokenVerify]
     [ApiController]
-    public class UserController : ControllerBase
-    {
-
-
-        private readonly dbContext db;
+    public class UserController : PubilcControllerBase
+    { 
 
         public UserController(dbContext context)
         {

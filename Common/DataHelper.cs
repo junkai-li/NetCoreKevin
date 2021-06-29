@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Common.Action;
+using Microsoft.EntityFrameworkCore;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -61,6 +62,14 @@ namespace Common
                             else if (piFullName.Contains("System.Boolean"))
                             {
                                 pi.SetValue(model, Convert.ToBoolean(drValue), null);
+                            }
+                            else if (piFullName.Contains("System.Decimal"))
+                            {
+                                pi.SetValue(model, Convert.ToDecimal(string.IsNullOrEmpty(drValue.ToString()) ? "0.0" : System.Text.RegularExpressions.Regex.Replace(drValue.ToString(), @"[^0-9,.]+", "")), null);
+                            }
+                            else if (piFullName.Contains("System.Int32"))
+                            {
+                                pi.SetValue(model, Convert.ToInt32(string.IsNullOrEmpty(drValue.ToString()) ? "0" : System.Text.RegularExpressions.Regex.Replace(drValue.ToString(), @"[^0-9]+", "")), null);
                             }
                             else
                             {
@@ -206,8 +215,10 @@ namespace Common
         /// </summary>  
         /// <param name="filePath">excel路径</param>  
         /// <param name="isColumnName">第一行是否是列名</param>  
+        /// <param name="PicturesInfo">图片文件流信息</param>  
+        /// <param name="isImg">是否读取图片信息</param> 
         /// <returns>返回datatable</returns>  
-        public static DataTable ExcelToDataTable(string filePath, bool isColumnName)
+        public static DataTable ExcelToDataTable(string filePath, bool isColumnName, ref Dictionary<int, List<XSSFPictureData>> picturesInfos, bool isImg = false)
         {
             DataTable dataTable = null;
             FileStream fs = null;
@@ -225,7 +236,7 @@ namespace Common
                     // 2007版本  
                     if (filePath.IndexOf(".xlsx") > 0)
                         workbook = new XSSFWorkbook(fs);
-                    // 2003版本  
+                    //// 2003版本  
                     else if (filePath.IndexOf(".xls") > 0)
                         workbook = new HSSFWorkbook(fs);
 
@@ -307,6 +318,12 @@ namespace Common
                                         }
                                     }
                                     dataTable.Rows.Add(dataRow);
+                                }
+
+                                //读取图片文件 
+                                if (isImg == true)
+                                {
+                                    picturesInfos = NpoiExtendAction.GetAllXSSFPictureDics((XSSFWorkbook)workbook);
                                 }
                             }
                         }

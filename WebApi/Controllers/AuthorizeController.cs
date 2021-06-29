@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
+using WebApi.Controllers.Bases;
 
 namespace WebApi.Controllers
 {
@@ -17,11 +18,9 @@ namespace WebApi.Controllers
     [ApiVersionNeutral]
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthorizeController : ControllerBase
+    public class AuthorizeController : PubilcControllerBase
     {
-
-
-        private readonly dbContext db;
+         
 
         public AuthorizeController(dbContext context)
         {

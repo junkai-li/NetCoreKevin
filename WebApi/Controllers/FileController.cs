@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using WebApi.Controllers.Bases;
 using WebApi.Filters;
 
 namespace WebApi.Controllers
@@ -25,10 +26,9 @@ namespace WebApi.Controllers
     [JwtTokenVerify]
     [Route("api/[controller]")]
     [ApiController]
-    public class FileController : ControllerBase
+    public class FileController :  PubilcControllerBase
     {
-
-        private readonly dbContext db;
+         
 
         public FileController(dbContext context)
         {

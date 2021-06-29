@@ -6,6 +6,7 @@ using Repository.Database;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using WebApi.Controllers.Bases;
 
 namespace WebApi.Controllers
 {
@@ -15,10 +16,8 @@ namespace WebApi.Controllers
     [ApiVersionNeutral]
     [Route("api/[controller]")]
     [ApiController]
-    public class BaseController : ControllerBase
-    {
-
-        private readonly dbContext db;
+    public class BaseController : PubilcControllerBase
+    { 
 
         public BaseController(dbContext context)
         {

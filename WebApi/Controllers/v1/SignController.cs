@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Repository.Database;
 using System;
 using System.Linq;
+using WebApi.Controllers.Bases;
 using WebApi.Filters;
 using WebApi.Models.v1.Sign;
 
@@ -16,10 +17,8 @@ namespace WebApi.Controllers.v1
     [Route("api/[controller]")]
     [Authorize]
     [JwtTokenVerify]
-    public class SignController : ControllerBase
-    {
-
-        private readonly dbContext db;
+    public class SignController : PubilcControllerBase
+    { 
 
         public SignController(dbContext context)
         {
