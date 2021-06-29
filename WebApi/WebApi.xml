@@ -1,0 +1,849 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WebApi</name>
+    </assembly>
+    <members>
+        <member name="T:WebApi.Actions.AuthorizeAction">
+            <summary>
+            认证模块静态方法
+            </summary>
+        </member>
+        <member name="M:WebApi.Actions.AuthorizeAction.SmsVerifyPhone(Models.Dtos.dtoKeyValue)">
+            <summary>
+            校验短信身份验证码
+            </summary>
+            <param name="keyValue">key 为手机号，value 为验证码</param>
+            <returns></returns>
+        </member>
+        <member name="T:WebApi.Controllers.AuthorizeController">
+            <summary>
+            系统访问授权模块
+            </summary>
+        </member>
+        <member name="M:WebApi.Controllers.AuthorizeController.GetToken(Models.Dtos.dtoLogin)">
+            <summary>
+            获取Token认证信息
+            </summary>
+            <param name="login">登录信息集合</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.AuthorizeController.GetTokenByWeiXinMiniAppCode(Models.Dtos.dtoKeyValue)">
+            <summary>
+            通过微信小程序Code获取Token认证信息
+            </summary>
+            <param name="keyValue">key 为weixinkeyid, value 为 code</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.AuthorizeController.GetTokenBySms(Models.Dtos.dtoKeyValue)">
+            <summary>
+            利用手机号和短信验证码获取Token认证信息
+            </summary>
+            <param name="keyValue">key 为手机号，value 为验证码</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.AuthorizeController.SendSmsVerifyPhone(Models.Dtos.dtoKeyValue)">
+            <summary>
+            发送短信验证手机号码所有权
+            </summary>
+            <param name="keyValue">key 为手机号，value 可为空</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.AuthorizeController.GetTokenByWeiXinAppCode(Models.Dtos.dtoKeyValue)">
+            <summary>
+            通过微信APP Code获取Token认证信息
+            </summary>
+            <param name="keyValue">key 为weixinkeyid, value 为 code</param>
+            <returns></returns>
+        </member>
+        <member name="T:WebApi.Controllers.BaseController">
+            <summary>
+            系统基础方法控制器
+            </summary>
+        </member>
+        <member name="M:WebApi.Controllers.BaseController.GetRegion(System.Int32,System.Int32)">
+            <summary>
+            获取省市级联地址数据
+            </summary>
+            <param name="provinceId">省份ID</param>
+            <param name="cityId">城市ID</param>
+            <returns></returns>
+            <remarks>不传递任何参数返回省份数据，传入省份ID返回城市数据，传入城市ID返回区域数据</remarks>
+        </member>
+        <member name="M:WebApi.Controllers.BaseController.GetRegionAll">
+            <summary>
+            获取全部省市级联地址数据
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.BaseController.GetQrCode(System.String)">
+            <summary>
+            自定义二维码生成方法
+            </summary>
+            <param name="text">数据内容</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.BaseController.GetSelectValue(System.String)">
+            <summary>
+            获取指定Key的可选值
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.BaseController.GetSnowflakeId">
+            <summary>
+            获取一个雪花ID
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:WebApi.Controllers.FileController">
+            <summary>
+            文件上传控制器
+            </summary>
+        </member>
+        <member name="M:WebApi.Controllers.FileController.RemoteUploadFile(System.String,System.Guid,System.String,Models.Dtos.dtoKeyValue)">
+            <summary>
+            远程单文件上传接口
+            </summary>
+            <param name="business">业务领域</param>
+            <param name="key">记录值</param>
+            <param name="sign">自定义标记</param>
+            <param name="fileInfo">Key为文件URL,Value为文件名称</param>
+            <returns>文件ID</returns>
+        </member>
+        <member name="M:WebApi.Controllers.FileController.UploadFile(System.String,System.Guid,System.String,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            单文件上传接口
+            </summary>
+            <param name="business">业务领域</param>
+            <param name="key">记录值</param>
+            <param name="sign">自定义标记</param>
+            <param name="file">file</param>
+            <returns>文件ID</returns>
+        </member>
+        <member name="M:WebApi.Controllers.FileController.BatchUploadFile(System.String,System.Guid,System.String)">
+            <summary>
+            多文件上传接口
+            </summary>
+            <param name="business">业务领域</param>
+            <param name="key">记录值</param>
+            <param name="sign">标记</param>
+            <returns></returns>
+            <remarks>swagger 暂不支持多文件接口测试，请使用 postman</remarks>
+        </member>
+        <member name="M:WebApi.Controllers.FileController.GetFile(System.Guid)">
+            <summary>
+            通过文件ID获取文件
+            </summary>
+            <param name="fileid">文件ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.FileController.GetImage(System.Guid,System.Int32,System.Int32)">
+            <summary>
+            通过图片文件ID获取图片
+            </summary>
+            <param name="fileId">图片ID</param>
+            <param name="width">宽度</param>
+            <param name="height">高度</param>
+            <returns></returns>
+            <remarks>不指定宽高参数,返回原图</remarks>
+        </member>
+        <member name="M:WebApi.Controllers.FileController.GetFilePath(System.Guid)">
+            <summary>
+            通过文件ID获取文件静态访问路径
+            </summary>
+            <param name="fileid">文件ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.FileController.CreateGroupFileId(System.String,System.Guid,System.String,System.String,System.Int32,System.String)">
+            <summary>
+            多文件切片上传，获取初始化文件ID
+            </summary>
+            <param name="business">业务领域</param>
+            <param name="key">记录值</param>
+            <param name="sign">自定义标记</param>
+            <param name="fileName">文件名称</param>
+            <param name="slicing">总切片数</param>
+            <param name="unique">文件校验值</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.FileController.UploadGroupFile(System.Guid,System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            文件切片上传接口
+            </summary>
+            <param name="fileId">文件组ID</param>
+            <param name="index">切片索引</param>
+            <param name="file">file</param>
+            <returns>文件ID</returns>
+        </member>
+        <member name="M:WebApi.Controllers.FileController.DeleteFile(System.Guid)">
+            <summary>
+            通过文件ID删除文件方法
+            </summary>
+            <param name="id">文件ID</param>
+            <returns></returns>
+        </member>
+        <member name="T:WebApi.Controllers.v1.PayController">
+            <summary>
+            第三方支付发起集合，依赖于订单号
+            </summary>
+        </member>
+        <member name="M:WebApi.Controllers.v1.PayController.CreateWeiXinMiniAppPay(System.String,System.Guid)">
+            <summary>
+            微信小程序商户平台下单接口
+            </summary>
+            <remarks>用于在微信商户平台创建订单</remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.PayController.CreateWeiXinAppPay(System.String,System.String)">
+            <summary>
+            微信APP商户平台下单接口
+            </summary>
+            <remarks>用于在微信商户平台创建订单</remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.PayController.GetWeiXinPayPCUrl(System.String)">
+            <summary>
+            获取微信支付PC版URL
+            </summary>
+            <param name="orderNo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.PayController.WeiXinPayNotify">
+            <summary>
+            微信支付异步通知接口
+            </summary>
+        </member>
+        <member name="M:WebApi.Controllers.v1.PayController.CreateAliPayMiniApp(System.String,System.Guid)">
+            <summary>
+            支付宝小程序商户平台下单接口
+            </summary>
+            <remarks>用于在支付宝商户平台创建订单</remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.PayController.GetAliPayWebUrl(System.String)">
+            <summary>
+            通过订单号获取支付宝电脑网页付款URL
+            </summary>
+            <param name="orderNo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.PayController.GetAliPayH5Url(System.String)">
+            <summary>
+            通过订单号获取支付宝H5网页付款URL
+            </summary>
+            <param name="orderNo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.PayController.AliPayNotify">
+            <summary>
+            支付宝异步通知接口
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:WebApi.Controllers.v1.SignController">
+            <summary>
+            标记相关控制器
+            </summary>
+        </member>
+        <member name="M:WebApi.Controllers.v1.SignController.GetSignCount(System.String,System.Guid,System.String)">
+            <summary>
+            获取标记总数
+            </summary>
+            <param name="table"></param>
+            <param name="tableId"></param>
+            <param name="sign"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.SignController.AddSign(WebApi.Models.v1.Sign.dtoSign)">
+            <summary>
+            新增标记
+            </summary>
+            <param name="addSign"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.SignController.DeleteSign(WebApi.Models.v1.Sign.dtoSign)">
+            <summary>
+            删除标记
+            </summary>
+            <param name="deleteSign"></param>
+            <returns></returns>
+        </member>
+        <member name="T:WebApi.Controllers.v1.UserController">
+            <summary>
+            用户数据操作控制器
+            </summary>
+        </member>
+        <member name="M:WebApi.Controllers.v1.UserController.GetWeiXinMiniAppOpenId(System.Guid,System.String)">
+            <summary>
+            获取微信小程序OpenId
+            </summary>
+            <param name="weixinkeyid">微信配置密钥ID</param>
+            <param name="code">微信临时code</param>
+            <returns>openid,userid</returns>
+            <remarks>传入租户ID和微信临时 code 获取 openid，如果 openid 在系统有中对应用户，则一并返回用户的ID值，否则用户ID值为空</remarks>
+        </member>
+        <member name="M:WebApi.Controllers.v1.UserController.GetWeiXinMiniAppPhone(System.String,System.String,System.String,System.Guid)">
+            <summary>
+            获取微信小程序手机号
+            </summary>
+            <param name="iv">加密算法的初始向量</param>
+            <param name="encryptedData">包括敏感数据在内的完整用户信息的加密数据</param>
+            <param name="code">微信临时code</param>
+            <param name="weixinkeyid">微信配置密钥ID</param>
+        </member>
+        <member name="M:WebApi.Controllers.v1.UserController.GetUser(System.Guid)">
+            <summary>
+            通过 UserId 获取用户信息 
+            </summary>
+            <param name="userId">用户ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.UserController.EditUserPhoneBySms(Models.Dtos.dtoKeyValue)">
+            <summary>
+            通过短信验证码修改账户手机号
+            </summary>
+            <param name="keyValue">key 为新手机号，value 为短信验证码</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.UserController.EditUserPassWordBySms(Models.Dtos.dtoKeyValue)">
+            <summary>
+            通过短信验证码修改账户密码</summary>
+            <param name="keyValue">key为新密码，value为短信验证码</param>
+            <returns></returns>
+        </member>
+        <member name="P:WebApi.Filters.CacheData.TTL">
+            <summary>
+            缓存时效有效期，单位 秒
+            </summary>
+        </member>
+        <member name="P:WebApi.Filters.CacheData.UseToken">
+            <summary>
+            是否使用 Token
+            </summary>
+        </member>
+        <member name="M:WebApi.Filters.GlobalFilter.resultFormatting(Microsoft.AspNetCore.Mvc.ObjectResult)">
+            <summary>
+            返回对象格式化方法
+            </summary>
+            <param name="result"></param>
+            <remarks>处理 string null 为 "" ，List null 为 []</remarks>
+        </member>
+        <member name="T:WebApi.Filters.JwtTokenVerify">
+            <summary>
+            JWT 访问鉴权 Token 验证方法
+            </summary>
+        </member>
+        <member name="P:WebApi.Filters.JwtTokenVerify.IsSkip">
+            <summary>
+            是否跳过Token验证，可用于控制器下单个接口指定跳过Token验证
+            </summary>
+        </member>
+        <member name="T:WebApi.Filters.TokenVerify">
+            <summary>
+            预设固定 PrivateKey 双方验签 Token 验证方法
+            </summary>
+        </member>
+        <member name="P:WebApi.Filters.TokenVerify.IsSkip">
+            <summary>
+            是否跳过Token验证，可用于控制器下单个接口指定跳过Token验证
+            </summary>
+        </member>
+        <member name="M:WebApi.Libraries.Http.HttpContext.GetUrl">
+            <summary>
+            获取Url信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Libraries.Http.HttpContext.GetBaseUrl">
+            <summary>
+            获取基础Url信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Libraries.Http.HttpContext.GetRequestBody">
+            <summary>
+            RequestBody中的内容
+            </summary>
+        </member>
+        <member name="M:WebApi.Libraries.Http.HttpContext.GetParameter">
+            <summary>
+            获取 http 请求中的全部参数
+            </summary>
+        </member>
+        <member name="M:WebApi.Libraries.IO.Path.WebRootPath">
+            <summary>
+            获取 wwwroot 路径
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Libraries.IO.Path.ContentRootPath">
+            <summary>
+            获取 项目运行 路径
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:WebApi.Libraries.Swagger.SwaggerConfigureOptions">
+            <summary>
+            配置swagger生成选项。
+            </summary>
+        </member>
+        <member name="T:WebApi.Libraries.Swagger.SwaggerOperationFilter">
+            <summary>
+            swagger 集成多版本api自定义设置
+            </summary>
+        </member>
+        <member name="M:WebApi.Libraries.Verify.JwtToken.GetClaims(System.String)">
+            <summary>
+            通过Key获取Claims中的值
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Libraries.Verify.JwtToken.GetToken(System.Security.Claims.Claim[])">
+            <summary>
+            生成一个Token
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:WebApi.Libraries.WeiXin.App.Models.dtoCreatePayApp">
+            <summary>
+            APP微信支付统一下单接口返回类型
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.App.Models.dtoCreatePayApp.appid">
+            <summary>
+            应用ID
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.App.Models.dtoCreatePayApp.partnerid">
+            <summary>
+            商户号
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.App.Models.dtoCreatePayApp.prepayid">
+            <summary>
+            预支付交易会话ID
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.App.Models.dtoCreatePayApp.package">
+            <summary>
+            扩展字段
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.App.Models.dtoCreatePayApp.noncestr">
+            <summary>
+            随机字符串，长度为32个字符以下
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.App.Models.dtoCreatePayApp.timestamp">
+            <summary>
+            时间戳，从 1970 年 1 月 1 日 00:00:00 至今的秒数，即当前的时间
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.App.Models.dtoCreatePayApp.sign">
+            <summary>
+            签名
+            </summary>
+        </member>
+        <member name="T:WebApi.Libraries.WeiXin.App.Models.GetUserInfo">
+            <summary>
+            获取用户信息接口返回数据类型
+            </summary>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.App.WeiXinHelper.CreatePay(System.String,System.String,System.String,System.Int32,System.String)">
+            <summary>
+            微信APP支付商户平台下单方法
+            </summary>
+            <param name="orderno">订单号</param>
+            <param name="title">商品名称</param>
+            <param name="body">商品描述</param>
+            <param name="price">价格，单位为分</param>
+            <param name="ip">服务器IP</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.App.WeiXinHelper.GetAccessToken(System.String)">
+            <summary>
+            获取 AccessToken
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.App.WeiXinHelper.GetUserInfo(System.String,System.String)">
+            <summary>
+            获取用户信息
+            </summary>
+            <param name="accessToken"></param>
+            <param name="openId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.H5.WeiXinHelper.#ctor(System.String,System.String)">
+            <summary>
+            微信H5网页开发帮助类
+            </summary>
+            <param name="in_appid">微信公众号APPID</param>
+            <param name="in_appsecret">微信公众号密钥</param>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.H5.WeiXinHelper.GetAccessToken">
+            <summary>
+            获取 AccessToken
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.H5.WeiXinHelper.GetTicketID">
+            <summary>
+            获取 TicketID
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.H5.WeiXinHelper.GetJsSDKSign">
+            <summary>
+            获取 JsSDK 签名信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayMiniApp">
+            <summary>
+            小程序微信支付统一下单接口返回类型
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayMiniApp.timeStamp">
+            <summary>
+            时间戳，从 1970 年 1 月 1 日 00:00:00 至今的秒数，即当前的时间
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayMiniApp.nonceStr">
+            <summary>
+            随机字符串，长度为32个字符以下
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayMiniApp.package">
+            <summary>
+            统一下单接口返回的 prepay_id 参数值，提交格式如：prepay_id=***
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayMiniApp.signType">
+            <summary>
+            签名算法
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayMiniApp.paySign">
+            <summary>
+            签名
+            </summary>
+        </member>
+        <member name="T:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp">
+            <summary>
+            小程序微信支付统一下单接口返回类型
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.return_code">
+            <summary>
+            返回状态码,SUCCESS/FAIL
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.return_msg">
+            <summary>
+            返回信息
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.result_code">
+            <summary>
+            业务结果，SUCCESS/FAIL,SUCCESS退款申请接收成功，结果通过退款查询接口查询,FAIL 提交业务失败
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.err_code">
+            <summary>
+            错误代码
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.err_code_des">
+            <summary>
+            错误代码描述
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.appid">
+            <summary>
+            小程序ID
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.mch_id">
+            <summary>
+            商户号
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.nonce_str">
+            <summary>
+            随机字符串
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.sign">
+            <summary>
+            签名
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.transaction_id">
+            <summary>
+            微信支付订单号
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.out_trade_no">
+            <summary>
+            商户订单号
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.out_refund_no">
+            <summary>
+            商户退款单号
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.refund_id">
+            <summary>
+            微信退款单号
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.refund_fee">
+            <summary>
+            退款金额,退款总金额,单位为分,可以做部分退款
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.total_fee">
+            <summary>
+            订单总金额，单位为分，只能为整数
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.cash_fee">
+            <summary>
+            现金支付金额，单位为分，只能为整数
+            </summary>
+        </member>
+        <member name="P:WebApi.Libraries.WeiXin.MiniApp.Models.dtoCreatePayRefundMiniApp.cash_refund_fee">
+            <summary>
+            现金退款金额，单位为分，只能为整数
+            </summary>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.MiniApp.WeiXinHelper.GetOpenIdAndSessionKey(System.String)">
+            <summary>
+            获取用户OpenId 和 SessionKey
+            </summary>
+            <param name="code"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.MiniApp.WeiXinHelper.CreatePay(System.String,System.String,System.String,System.String,System.Int32)">
+            <summary>
+            微信小程序支付商户平台下单方法
+            </summary>
+            <param name="openid">用户 OpenId</param>
+            <param name="orderno">订单号</param>
+            <param name="title">商品名称</param>
+            <param name="body">商品描述</param>
+            <param name="price">价格，单位为分</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.MiniApp.WeiXinHelper.DecryptionData(System.String,System.String,System.String)">
+            <summary>
+            微信小程序 encryptedData 解密
+            </summary>
+            <param name="encryptedDataStr">encryptedDataStr</param>
+            <param name="key">session_key</param>
+            <param name="iv">iv</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.MiniApp.WeiXinHelper.UseCretPost(System.String,System.String)">
+            <summary>
+            证书双向校验POST
+            </summary>
+            <param name="url"></param>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.MiniApp.WeiXinHelper.CreateRefund(System.String,System.Int32,System.Int32,System.String)">
+            <summary>
+            微信小程序支付创建退款申请方法
+            </summary>
+            <param name="out_refund_no">商户退款单号</param>
+            <param name="refund_fee">退款金额</param>
+            <param name="total_fee">支付单总金额</param>
+            <param name="transaction_id">微信支付订单号</param>
+            <returns></returns>
+        </member>
+        <member name="T:WebApi.Libraries.WeiXin.Public.HttpService">
+            <summary>
+            http连接基础类，负责底层的http通信
+            </summary>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.HttpService.Get(System.String)">
+            <summary>
+            处理http GET请求，返回数据
+            </summary>
+            <param name="url">请求的url地址</param>
+            <returns>http GET成功后返回的数据，失败抛WebException异常</returns>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.JsApiPay.ReportCostTime(System.String,System.Int32,WebApi.Libraries.WeiXin.Public.WxPayData)">
+            
+            测速上报
+            @param string interface_url 接口URL
+            @param int timeCost 接口耗时
+            @param WxPayData inputObj参数数组
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.JsApiPay.Report(WebApi.Libraries.WeiXin.Public.WxPayData,System.Int32)">
+            
+            测速上报接口实现
+            @param WxPayData inputObj 提交给测速上报接口的参数
+            @param int timeOut 测速上报接口超时时间
+            @throws WxPayException
+            @return 成功时返回测速上报接口返回的结果，其他抛异常
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.JsApiPay.GenerateTimeStamp">
+                    * 生成时间戳，标准北京时间，时区为东八区，自1970年1月1日 0点0分0秒以来的秒数
+                     * @return 时间戳
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.JsApiPay.GenerateNonceStr">
+            生成随机串，随机串包含字母或数字
+            @return 随机串
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.JsApiPay.GetNotifyData">
+            <summary>
+            接收从微信支付后台发送过来的数据暂不验证签名
+            </summary>
+            <returns>微信支付后台返回的数据</returns>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.JsApiPay.OrderQuery(WebApi.Libraries.WeiXin.Public.WxPayData,System.Int32)">
+               
+            查询订单
+            @param WxPayData inputObj 提交给查询订单API的参数
+            @param int timeOut 超时时间
+            @throws WxPayException
+            @return 成功时返回订单查询结果，其他抛异常
+        </member>
+        <member name="T:WebApi.Libraries.WeiXin.Public.WxPayData">
+            <summary>
+            微信支付协议接口数据类，所有的API接口通信都依赖这个数据结构，
+            在调用接口之前先填充各个字段的值，然后进行接口通信，
+            这样设计的好处是可扩展性强，用户可随意对协议进行更改而不用重新设计数据结构，
+            还可以随意组合出不同的协议数据包，不用为每个协议设计一个数据包结构
+            </summary>
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.WxPayData.SetValue(System.String,System.Object)">
+                    * 设置某个字段的值
+                    * @param key 字段名
+                     * @param value 字段值
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.WxPayData.GetValue(System.String)">
+                    * 根据字段名获取某个字段的值
+                    * @param key 字段名
+                     * @return key对应的字段值
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.WxPayData.IsSet(System.String)">
+            判断某个字段是否已设置
+            @param key 字段名
+            @return 若字段key已被设置，则返回true，否则返回false
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.WxPayData.ToXml">
+             @将Dictionary转成xml
+             @return 经转换得到的xml串
+             @throws WxPayException
+            
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.WxPayData.GetRequest">
+            @接收从微信后台POST过来的数据(未验证签名)
+            @return 经转换得到的Dictionary
+            @throws WxPayException
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.WxPayData.FromXml(System.String,System.String)">
+            @将xml转为WxPayData对象并返回对象内部的数据
+            @param string 待转换的xml串
+            @return 经转换得到的Dictionary
+            @throws WxPayException
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.WxPayData.FromXml(System.String)">
+            @将xml转为WxPayData对象并返回对象内部的数据(未验证签名)
+            @param string 待转换的xml串
+            @return 经转换得到的Dictionary
+            @throws WxPayException
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.WxPayData.ToUrl">
+            @Dictionary格式转化成url参数格式
+            @ return url格式串, 该串不包含sign字段值
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.WxPayData.ToJson">
+                    * @Dictionary格式化成Json
+                     * @return json串数据
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.WxPayData.ToPrintStr">
+            @values格式化成能在Web页面上显示的结果（因为web页面上不能直接输出xml格式的字符串）
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.WxPayData.MakeSign(System.String)">
+            @生成签名，详见签名生成算法
+            @return 签名, sign字段不参加签名
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.WxPayData.CheckSign(System.String)">
+            
+            检测签名是否正确
+            正确返回true，错误抛异常
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Public.WxPayData.GetValues">
+            @获取Dictionary
+        </member>
+        <member name="M:WebApi.Libraries.WeiXin.Web.WeiXinHelper.CreatePay(System.Guid,System.String,System.String,System.Int32,System.String)">
+            <summary>
+            微信网页支付商户平台下单方法
+            </summary>
+            <param name="productid">产品ID</param>
+            <param name="orderno">订单号</param>
+            <param name="body">商品描述</param>
+            <param name="price">价格，单位为分</param>
+            <param name="ip">服务器IP</param>
+            <returns></returns>
+        </member>
+        <member name="T:WebApi.Models.v1.Sign.dtoSign">
+            <summary>
+            标记喜欢方法入参
+            </summary>
+        </member>
+        <member name="P:WebApi.Models.v1.Sign.dtoSign.Table">
+            <summary>
+            表名
+            </summary>
+        </member>
+        <member name="P:WebApi.Models.v1.Sign.dtoSign.TableId">
+            <summary>
+            记录ID
+            </summary>
+        </member>
+        <member name="P:WebApi.Models.v1.Sign.dtoSign.Sign">
+            <summary>
+            标记
+            </summary>
+        </member>
+        <member name="P:WebApi.Models.v1.User.dtoUser.Name">
+            <summary>
+            用户名
+            </summary>
+        </member>
+        <member name="P:WebApi.Models.v1.User.dtoUser.NickName">
+            <summary>
+            昵称
+            </summary>
+        </member>
+        <member name="P:WebApi.Models.v1.User.dtoUser.Phone">
+            <summary>
+            手机号
+            </summary>
+        </member>
+        <member name="P:WebApi.Models.v1.User.dtoUser.Email">
+            <summary>
+            邮箱
+            </summary>
+        </member>
+        <member name="P:WebApi.Models.v1.User.dtoUser.Role">
+            <summary>
+            角色
+            </summary>
+        </member>
+        <member name="P:WebApi.Models.v1.User.dtoUser.CreateTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
+    </members>
+</doc>

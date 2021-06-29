@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Models</name>
+    </assembly>
+    <members>
+        <member name="T:Models.Dtos.dtoFileInfo">
+            <summary>
+            文件信息
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoFileInfo.FileId">
+            <summary>
+            文件ID
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoFileInfo.FileName">
+            <summary>
+            文件名称
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoFileInfo.FileUrl">
+            <summary>
+            文件地址
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoFileInfo.Length">
+            <summary>
+            文件大小
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoFileInfo.DisplayLength">
+            <summary>
+            显示文件大小
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoFileInfo.CreateTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoFileInfo.CreateUserId">
+            <summary>
+            创建人ID
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoFileInfo.CreateUserName">
+            <summary>
+            创建人名称
+            </summary>
+        </member>
+        <member name="T:Models.Dtos.dtoFormItem">
+            <summary>
+            Post 提交 From 表单数据模型结构
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoFormItem.Key">
+            <summary>
+            表单键，request["key"]
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoFormItem.Value">
+            <summary>
+            表单值,上传文件时忽略，request["key"].value
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoFormItem.IsFile">
+            <summary>
+            是否是文件
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoFormItem.FileName">
+            <summary>
+            上传的文件名
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoFormItem.FileContent">
+            <summary>
+            上传的文件内容
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoKeyValue.Key">
+            <summary>
+            键
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoKeyValue.Value">
+            <summary>
+            值
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoKeyValueChild.Key">
+            <summary>
+            键
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoKeyValueChild.Value">
+            <summary>
+            值
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoKeyValueChild.ChildList">
+            <summary>
+            子级集合信息
+            </summary>
+        </member>
+        <member name="T:Models.Dtos.dtoLogin">
+            <summary>
+            登录信息
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoLogin.Name">
+            <summary>
+            用户名
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoLogin.PassWord">
+            <summary>
+            密码
+            </summary>
+        </member>
+        <member name="T:Models.Dtos.dtoPageList`1">
+            <summary>
+            分页数据信息基类
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:Models.Dtos.dtoPageList`1.Total">
+            <summary>
+            数据总量
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoPageList`1.List">
+            <summary>
+            具体数据内容
+            </summary>
+        </member>
+        <member name="T:Models.JwtBearer.JwtSettings">
+            <summary>
+            JWT 配置信息
+            </summary>
+        </member>
+        <member name="P:Models.JwtBearer.JwtSettings.Issuer">
+            <summary>
+            token是谁颁发的
+            </summary>
+        </member>
+        <member name="P:Models.JwtBearer.JwtSettings.Audience">
+            <summary>
+            token可以给哪些客户端使用
+            </summary>
+        </member>
+        <member name="P:Models.JwtBearer.JwtSettings.SecretKey">
+            <summary>
+            加密的key
+            </summary>
+        </member>
+    </members>
+</doc>

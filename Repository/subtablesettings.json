@@ -1,0 +1,10 @@
+[
+  {
+    "table": "t_user",
+    "subtype": "yyyyMMddHHmmssfff"
+  },
+  {
+    "table": "t_log",
+    "subtype": "yyyyMMdd"
+  }
+]

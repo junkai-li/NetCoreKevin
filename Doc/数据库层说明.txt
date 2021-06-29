@@ -1,0 +1,31 @@
+﻿All
+Microsoft.EntityFrameworkCore.Tool
+Microsoft.EntityFrameworkCore.Relational
+
+
+懒加载
+Microsoft.EntityFrameworkCore.Proxies
+
+
+MsSql
+Microsoft.EntityFrameworkCore.SqlServer
+Scaffold-DbContext "Data Source=127.0.0.1;Initial Catalog=WebCore;User ID=WebCore;Password=123456" Microsoft.EntityFrameworkCore.SqlServer -OutputDir WebCore -Force
+
+
+Sqlite
+Microsoft.EntityFrameworkCore.Sqlite
+Scaffold-DbContext "Data Source=../Repository/database.db" Microsoft.EntityFrameworkCore.Sqlite -OutputDir webcore -Force
+
+
+PostgreSql
+Npgsql.EntityFrameworkCore.PostgreSQL
+Scaffold-DbContext "Host=127.0.0.1;Database=webcore;Username=postgres;Password=123456"  Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir webcore -Force
+
+
+MySql
+MySql.EntityFrameworkCore  或   Pomelo.EntityFrameworkCore.MySql
+Scaffold-DbContext "server=127.0.0.1;userid=webcore;pwd=123456;port=3306;database=webcore;sslmode=none;" MySql.EntityFrameworkCore -OutputDir webcore -Force
+
+
+Add-Migration init 生成命令
+Update-Database 刷新数据库命令

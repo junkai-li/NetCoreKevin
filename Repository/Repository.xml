@@ -1,0 +1,865 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Repository</name>
+    </assembly>
+    <members>
+        <member name="T:Repository.Bases.CD">
+            <summary>
+            创建，删除
+            </summary>
+        </member>
+        <member name="P:Repository.Bases.CD.Id">
+            <summary>
+            主键标识ID
+            </summary>
+        </member>
+        <member name="P:Repository.Bases.CD.CreateTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
+        <member name="P:Repository.Bases.CD.IsDelete">
+            <summary>
+            是否删除
+            </summary>
+        </member>
+        <member name="P:Repository.Bases.CD.DeleteTime">
+            <summary>
+            删除时间
+            </summary>
+        </member>
+        <member name="T:Repository.Bases.CUD">
+            <summary>
+            创建，编辑，删除
+            </summary>
+        </member>
+        <member name="P:Repository.Bases.CUD.UpdateTime">
+            <summary>
+            更新时间
+            </summary>
+        </member>
+        <member name="T:Repository.Database.Bases.CD_User">
+            <summary>
+            创建，编辑，删除，并关联了用户
+            </summary>
+        </member>
+        <member name="P:Repository.Database.Bases.CD_User.CreateUserId">
+            <summary>
+            创建人ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.Bases.CD_User.DeleteUserId">
+            <summary>
+            删除人ID
+            </summary>
+        </member>
+        <member name="T:Repository.Database.Bases.CUD_User">
+            <summary>
+            创建，编辑，删除，并关联了用户
+            </summary>
+        </member>
+        <member name="P:Repository.Database.Bases.CUD_User.CreateUserId">
+            <summary>
+            创建人ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.Bases.CUD_User.UpdateUserId">
+            <summary>
+            编辑人ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.Bases.CUD_User.DeleteUserId">
+            <summary>
+            删除人ID
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TAlipayKey">
+            <summary>
+            支付宝平台账户配置表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TAlipayKey.AppId">
+            <summary>
+            AppId
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TAlipayKey.AppPrivateKey">
+            <summary>
+            App私钥
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TAlipayKey.AlipayPublicKey">
+            <summary>
+            支付宝公钥
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TAlipayKey.AesKey">
+            <summary>
+            支付宝加密解密密钥
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TAlipayKey.Sort">
+            <summary>
+            排序
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TAlipayKey.Remarks">
+            <summary>
+            备注
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TArticle">
+            <summary>
+            文章表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TArticle.CategoryId">
+            <summary>
+            类别ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TArticle.Title">
+            <summary>
+            标题
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TArticle.Content">
+            <summary>
+            内容
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TArticle.IsRecommend">
+            <summary>
+            是否推荐
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TArticle.IsDisplay">
+            <summary>
+            是否显示
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TArticle.Sort">
+            <summary>
+            排序
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TArticle.ClickCount">
+            <summary>
+            点击数
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TArticle.Abstract">
+            <summary>
+            摘要
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TCategory">
+            <summary>
+            栏目信息表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TCategory.ChannelId">
+            <summary>
+            频道ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TCategory.Name">
+            <summary>
+            栏目名目
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TCategory.Sort">
+            <summary>
+            排序
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TCategory.ParentId">
+            <summary>
+            父级栏目ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TCategory.Remarks">
+            <summary>
+            备注
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TChannel">
+            <summary>
+            频道信息表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TChannel.Name">
+            <summary>
+            频道名称
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TChannel.Sort">
+            <summary>
+            排序
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TChannel.Remarks">
+            <summary>
+            备注
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TChannel.TCategory">
+            <summary>
+            所包含的类别记录数据
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TCount">
+            <summary>
+            计数表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TCount.Tag">
+            <summary>
+            标记
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TCount.Count">
+            <summary>
+            计数
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TDictionary">
+            <summary>
+            字典信息表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TDictionary.Key">
+            <summary>
+            键
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TDictionary.Value">
+            <summary>
+            值
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TDictionary.Sort">
+            <summary>
+            排序
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TFile">
+            <summary>
+            文件表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TFile.Name">
+            <summary>
+            文件名称
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TFile.Path">
+            <summary>
+            保存路径
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TFile.Table">
+            <summary>
+            外链表名
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TFile.TableId">
+            <summary>
+            外链表ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TFile.Sign">
+            <summary>
+            标记
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TFile.Sort">
+            <summary>
+            排序
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TFileGroup">
+            <summary>
+            文件分片上传状态记录表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TFileGroup.FileId">
+            <summary>
+            文件ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TFileGroup.Unique">
+            <summary>
+            文件唯一值
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TFileGroup.Slicing">
+            <summary>
+            分片数
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TFileGroup.Issynthesis">
+            <summary>
+            合成状态
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TFileGroup.Isfull">
+            <summary>
+            是否已完整传输
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TFileGroupFile">
+            <summary>
+            分片上传时的切片文件记录表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TFileGroupFile.FileId">
+            <summary>
+            文件ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TFileGroupFile.Index">
+            <summary>
+            文件索引值
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TFileGroupFile.Path">
+            <summary>
+            文件保存路径
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TGuidToInt.Id">
+            <summary>
+            Id
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TGuidToInt.Guid">
+            <summary>
+            Guid 字符串
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TImgBaiduAI">
+            <summary>
+            产品图片对应百度AI信息表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TImgBaiduAI.FileId">
+            <summary>
+            图片文件ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TImgBaiduAI.Unique">
+            <summary>
+            图片库唯一标识符
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TImgBaiduAI.Result">
+            <summary>
+            接口返回值
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TLink">
+            <summary>
+            友情链接表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TLink.Name">
+            <summary>
+            名称
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TLink.Url">
+            <summary>
+            地址
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TLink.Sort">
+            <summary>
+            排序
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TLink.Remarks">
+            <summary>
+            备注
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TLog">
+            <summary>
+            日志表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TLog.Sign">
+            <summary>
+            标记
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TLog.Type">
+            <summary>
+            类型
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TLog.Content">
+            <summary>
+            内容
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TOrder">
+            <summary>
+            订单表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOrder.OrderNo">
+            <summary>
+            订单号
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOrder.Type">
+            <summary>
+            订单类型
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOrder.Price">
+            <summary>
+            价格
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOrder.SerialNo">
+            <summary>
+            支付流水号
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOrder.State">
+            <summary>
+            订单状态
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOrder.PayType">
+            <summary>
+            支付方式
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOrder.PayState">
+            <summary>
+            支付状态
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOrder.PayTime">
+            <summary>
+            支付时间
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOrder.PayPrice">
+            <summary>
+            实际支付金额
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOrder.OrderDetails">
+            <summary>
+            订单详情
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TOrderDetail">
+            <summary>
+            订单详情表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOrderDetail.OrderId">
+            <summary>
+            订单ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOrderDetail.ProductId">
+            <summary>
+            产品ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOrderDetail.Number">
+            <summary>
+            产品数量
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TProduct">
+            <summary>
+            产品表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TProduct.SKU">
+            <summary>
+            SKU
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TProduct.Name">
+            <summary>
+            名称
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TProduct.Price">
+            <summary>
+            价格
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TProduct.Detail">
+            <summary>
+            描述
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TRegionArea">
+            <summary>
+            区域信息表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRegionArea.Area">
+            <summary>
+            区域名称
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRegionArea.CityId">
+            <summary>
+            所属城市ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRegionArea.TRegionTown">
+            <summary>
+            城市下所有乡镇信息
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TRegionCity">
+            <summary>
+            城市信息表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRegionCity.City">
+            <summary>
+            城市名称
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRegionCity.ProvinceId">
+            <summary>
+            所属省份ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRegionCity.TRegionArea">
+            <summary>
+            城市下所有区域信息
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TRegionProvince">
+            <summary>
+            省份信息表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRegionProvince.Province">
+            <summary>
+            省份
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRegionProvince.TRegionCity">
+            <summary>
+            省份下包含的所有城市信息
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRegionTown.Town">
+            <summary>
+            街道名称
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRegionTown.AreaId">
+            <summary>
+            所属区域ID
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TRole">
+            <summary>
+            角色信息表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRole.Name">
+            <summary>
+            角色名称
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRole.Remarks">
+            <summary>
+            备注信息
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRole.RoleUserList">
+            <summary>
+            该角色所有用户
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TSign">
+            <summary>
+            点赞或标记喜欢记录表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TSign.Table">
+            <summary>
+            外链表名称
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TSign.TableId">
+            <summary>
+            外链记录ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TSign.Sign">
+            <summary>
+            自定义标记
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TUser">
+            <summary>
+            用户表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUser.Name">
+            <summary>
+            用户名
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUser.NickName">
+            <summary>
+            昵称
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUser.Phone">
+            <summary>
+            手机号
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUser.Email">
+            <summary>
+            邮箱
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUser.PassWord">
+            <summary>
+            密码
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUser.RoleId">
+            <summary>
+            角色ID
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TUserBindAlipay">
+            <summary>
+            用户和支付宝绑定关系表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserBindAlipay.UserId">
+            <summary>
+            用户ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserBindAlipay.AlipayKeyId">
+            <summary>
+            关联支付宝账户
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserBindAlipay.AlipayUserId">
+            <summary>
+            支付宝UserId
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TUserBindWeixin">
+            <summary>
+            用户和微信绑定关系表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserBindWeixin.UserId">
+            <summary>
+            用户ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserBindWeixin.WeiXinKeyId">
+            <summary>
+            关联微信账户
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserBindWeixin.WeiXinOpenId">
+            <summary>
+            微信OpenId
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TUserInfo">
+            <summary>
+            用户详细信息表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserInfo.UserId">
+            <summary>
+            用户ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserInfo.RegionAreaId">
+            <summary>
+            地址区域ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserInfo.Address">
+            <summary>
+            地址详细信息
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserInfo.Signature">
+            <summary>
+            个性签名
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserInfo.Sex">
+            <summary>
+            性别
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserInfo.Company">
+            <summary>
+            公司名称
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserInfo.Position">
+            <summary>
+            职务
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserInfo.WeChat">
+            <summary>
+            微信号
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserInfo.QQ">
+            <summary>
+            QQ
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TUserToken">
+            <summary>
+            用户Token记录表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserToken.UserId">
+            <summary>
+            用户ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserToken.Token">
+            <summary>
+            Token
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TUserToken.LastId">
+            <summary>
+            上一次有效的 tokenid
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TWebInfo">
+            <summary>
+            网站信息配置表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWebInfo.Id">
+            <summary>
+            标识ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWebInfo.WebUrl">
+            <summary>
+            网站域名
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWebInfo.ManagerName">
+            <summary>
+            管理者名称
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWebInfo.ManagerAddress">
+            <summary>
+            管理者地址
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWebInfo.ManagerPhone">
+            <summary>
+            管理者电话
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWebInfo.ManagerEmail">
+            <summary>
+            管理者邮箱
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWebInfo.RecordNumber">
+            <summary>
+            网站备案号
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWebInfo.SeoTitle">
+            <summary>
+            SEO标题
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWebInfo.SeoKeyWords">
+            <summary>
+            SEO关键字
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWebInfo.SeoDescription">
+            <summary>
+            SEO描述
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWebInfo.FootCode">
+            <summary>
+            网站底部代码
+            </summary>
+        </member>
+        <member name="T:Repository.Database.TWeiXinKey">
+            <summary>
+            微信商户平台账户配置表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWeiXinKey.WxAppId">
+            <summary>
+            WxAppId
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWeiXinKey.WxAppSecret">
+            <summary>
+            WxAppSecret
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWeiXinKey.MchId">
+            <summary>
+            MchId
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWeiXinKey.MchKey">
+            <summary>
+            MchKey
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWeiXinKey.Sort">
+            <summary>
+            排序
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWeiXinKey.Type">
+            <summary>
+            AppId 类型，['App','MiniApp','H5','Native']
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TWeiXinKey.Remarks">
+            <summary>
+            备注
+            </summary>
+        </member>
+        <member name="M:Repository.Interceptors.SubTableInterceptor.GetTimeById(System.Int64)">
+            <summary>
+            通过ID获取其中的时间戳
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

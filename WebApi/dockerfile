@@ -1,0 +1,37 @@
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+FROM registry.cn-shanghai.aliyuncs.com/onekib/dotnet-aspnet:5.0-buster-slim AS base
+#FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS base
+WORKDIR /app
+
+#修改镜像内部软件源采用阿里镜像
+RUN echo "deb https://mirrors.aliyun.com/debian buster main" > /etc/apt/sources.list
+RUN echo "deb https://mirrors.aliyun.com/debian-security buster/updates main" >> /etc/apt/sources.list
+RUN echo "deb https://mirrors.aliyun.com/debian buster-updates main" >> /etc/apt/sources.list
+
+#安装 libgdiplus 以解决 System.Drawing 在 linux 下无法运行的问题
+RUN apt-get update && apt-get -y install libgdiplus
+
+#设置时区为中国上海
+ENV TZ=Asia/Shanghai
+
+EXPOSE 80
+EXPOSE 443
+
+FROM registry.cn-shanghai.aliyuncs.com/onekib/dotnet-sdk:5.0-buster-slim AS build
+#FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
+
+WORKDIR /src
+COPY ["WebApi/WebApi.csproj", "WebApi/"]
+RUN dotnet restore "WebApi/WebApi.csproj"
+COPY . .
+WORKDIR "/src/WebApi"
+RUN dotnet build "WebApi.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "WebApi.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "WebApi.dll"]
