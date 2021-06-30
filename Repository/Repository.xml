@@ -4,6 +4,21 @@
         <name>Repository</name>
     </assembly>
     <members>
+        <member name="T:Repository.Attributes.ForeignTableAttribute">
+            <summary>
+            外连表名称
+            </summary>
+        </member>
+        <member name="P:Repository.Attributes.ForeignTableAttribute.TableName">
+            <summary>
+            表名
+            </summary>
+        </member>
+        <member name="T:Repository.Attributes.SkipDataComparisonAttribute">
+            <summary>
+            用于跳过数据比对
+            </summary>
+        </member>
         <member name="T:Repository.Bases.CD">
             <summary>
             创建，删除
