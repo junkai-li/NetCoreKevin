@@ -4,16 +4,6 @@
         <name>Repository</name>
     </assembly>
     <members>
-        <member name="T:Repository.Attributes.ForeignTableAttribute">
-            <summary>
-            外连表名称
-            </summary>
-        </member>
-        <member name="P:Repository.Attributes.ForeignTableAttribute.TableName">
-            <summary>
-            表名
-            </summary>
-        </member>
         <member name="T:Repository.Attributes.SkipDataComparisonAttribute">
             <summary>
             用于跳过数据比对
@@ -494,6 +484,46 @@
             产品数量
             </summary>
         </member>
+        <member name="P:Repository.Database.TOSLog.Table">
+            <summary>
+            外链表名
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOSLog.TableId">
+            <summary>
+            外链表ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOSLog.Sign">
+            <summary>
+            标记
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOSLog.Content">
+            <summary>
+            变动内容
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOSLog.ActionUserId">
+            <summary>
+            操作人信息
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOSLog.Remarks">
+            <summary>
+            备注
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOSLog.IP">
+            <summary>
+            IP
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TOSLog.DeviceMark">
+            <summary>
+             设备标记
+            </summary>
+        </member>
         <member name="T:Repository.Database.TProduct">
             <summary>
             产品表
@@ -656,7 +686,7 @@
         </member>
         <member name="P:Repository.Database.TUser.RoleId">
             <summary>
-            角色ID
+            角色信息
             </summary>
         </member>
         <member name="T:Repository.Database.TUserBindAlipay">

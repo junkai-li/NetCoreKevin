@@ -60,6 +60,7 @@ namespace Repository.Database
 
         public DbSet<TLog> TLog { get; set; }
 
+        public DbSet<TOSLog> TOSLog { get; set; }
 
         public DbSet<TOrder> TOrder { get; set; }
 
@@ -216,7 +217,7 @@ namespace Repository.Database
 
 
 
-        private string GetEntityComment(string typeName, string fieldName = null, List<string> baseTypeNames = null)
+        public string GetEntityComment(string typeName, string fieldName = null, List<string> baseTypeNames = null)
         {
             var path = AppContext.BaseDirectory + "/Repository.xml";
             var xml = new XmlDocument();
@@ -245,7 +246,7 @@ namespace Repository.Database
                     }
                 }
 
-                return fieldList.FirstOrDefault(t => t.Key.ToLower() == matchKey.ToLower()).Value;
+                return fieldList.FirstOrDefault(t => t.Key.ToLower() == matchKey.ToLower()).Value ?? typeName.ToString().Split(".").ToList().LastOrDefault();
             }
             else
             {
@@ -265,15 +266,18 @@ namespace Repository.Database
                             fieldList.Add(name, summary);
                         }
 
-                        foreach (var baseTypeName in baseTypeNames)
+                        if (baseTypeNames != null)
                         {
-                            if (baseTypeName != null)
+                            foreach (var baseTypeName in baseTypeNames)
                             {
-                                matchKey = "P:" + baseTypeName + ".";
-                                if (name.StartsWith(matchKey))
+                                if (baseTypeName != null)
                                 {
-                                    name = name.Replace(matchKey, "");
-                                    fieldList.Add(name, summary);
+                                    matchKey = "P:" + baseTypeName + ".";
+                                    if (name.StartsWith(matchKey))
+                                    {
+                                        name = name.Replace(matchKey, "");
+                                        fieldList.Add(name, summary);
+                                    }
                                 }
                             }
                         }
@@ -281,10 +285,156 @@ namespace Repository.Database
                     }
                 }
 
-                return fieldList.FirstOrDefault(t => t.Key.ToLower() == fieldName.ToLower()).Value;
+                return fieldList.FirstOrDefault(t => t.Key.ToLower() == fieldName.ToLower()).Value ?? fieldName;
             }
 
 
+        }
+
+
+
+        public string ComparisonEntity<T>(T original, T after) where T : new()
+        {
+            var retValue = "";
+
+            var fields = typeof(T).GetProperties();
+
+            var baseTypeNames = new List<string>();
+            var baseType = original.GetType().BaseType;
+            while (baseType != null)
+            {
+                baseTypeNames.Add(baseType.FullName);
+                baseType = baseType.BaseType;
+            }
+
+            for (int i = 0; i < fields.Length; i++)
+            {
+                var pi = fields[i];
+
+                string oldValue = pi.GetValue(original)?.ToString();
+                string newValue = pi.GetValue(after)?.ToString();
+
+                string typename = pi.PropertyType.FullName;
+
+                if ((typename != "System.Decimal" && oldValue != newValue) || (typename == "System.Decimal" && decimal.Parse(oldValue) != decimal.Parse(newValue)))
+                {
+
+                    retValue += GetEntityComment(original.GetType().ToString(), pi.Name, baseTypeNames) + ":";
+
+
+                    if (pi.Name != "Id" & pi.Name.EndsWith("Id"))
+                    {
+                        var foreignTable = fields.FirstOrDefault(t => t.Name == pi.Name.Replace("Id", ""));
+
+                        using (var db = new dbContext())
+                        {
+                            var foreignName = foreignTable.PropertyType.GetProperties().Where(t => t.CustomAttributes.Where(c => c.AttributeType.Name == "ForeignNameAttribute").Count() > 0).FirstOrDefault();
+
+                            if (foreignName != null)
+                            {
+
+                                if (oldValue != null)
+                                {
+                                    var oldForeignInfo = db.Find(foreignTable.PropertyType, Guid.Parse(oldValue));
+                                    oldValue = foreignName.GetValue(oldForeignInfo).ToString();
+                                }
+
+                                if (newValue != null)
+                                {
+                                    var newForeignInfo = db.Find(foreignTable.PropertyType, Guid.Parse(newValue));
+                                    newValue = foreignName.GetValue(newForeignInfo).ToString();
+                                }
+
+                            }
+
+                            retValue += (oldValue ?? "") + " -> ";
+                            retValue += (newValue ?? "") + "； \n";
+                        }
+
+                    }
+                    else if (typename == "System.Boolean")
+                    {
+                        retValue += (oldValue != null ? (bool.Parse(oldValue) ? "是" : "否") : "") + " -> ";
+                        retValue += (newValue != null ? (bool.Parse(newValue) ? "是" : "否") : "") + "； \n";
+                    }
+                    else if (typename == "System.DateTime")
+                    {
+                        retValue += (oldValue != null ? DateTime.Parse(oldValue).ToString("yyyy-MM-dd") : "") + " ->";
+                        retValue += (newValue != null ? DateTime.Parse(newValue).ToString("yyyy-MM-dd") : "") + "； \n";
+                    }
+                    else
+                    {
+                        retValue += (oldValue ?? "") + " -> ";
+                        retValue += (newValue ?? "") + "； \n";
+                    }
+
+                }
+
+
+
+            }
+
+            return retValue;
+        }
+
+
+
+
+        public int SaveChangesWithSaveLog(Guid? actionUserId = null)
+        {
+
+            dbContext db = this;
+
+            var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
+
+            foreach (var item in list)
+            {
+
+                var type = item.Entity.GetType();
+
+                var oldEntity = item.OriginalValues.ToObject();
+
+                var newEntity = item.CurrentValues.ToObject();
+
+                var entityId = item.CurrentValues.GetValue<Guid>("Id");
+
+                if (actionUserId == null)
+                {
+                    var isHaveUpdateUserId = item.Properties.Where(t => t.Metadata.Name == "UpdateUserId").Count();
+
+                    if (isHaveUpdateUserId > 0)
+                    {
+                        actionUserId = item.CurrentValues.GetValue<Guid?>("UpdateUserId");
+                    }
+                }
+
+                var actionUserName = "";
+
+                if (actionUserId != null)
+                {
+                    actionUserName = db.TUser.Where(t => t.Id == actionUserId.Value).Select(t => t.Name).FirstOrDefault();
+                }
+
+                object[] parameters = { oldEntity, newEntity };
+
+                var result = new dbContext().GetType().GetMethod("ComparisonEntity").MakeGenericMethod(type).Invoke(new dbContext(), parameters);
+
+                var osLog = new TOSLog();
+                osLog.Id = Guid.NewGuid();
+                osLog.CreateTime = DateTime.Now;
+                osLog.Table = type.Name;
+                osLog.TableId = entityId;
+                osLog.Sign = "Modified";
+                osLog.Content = result.ToString();
+                osLog.IP = "";
+                osLog.DeviceMark = "";
+                osLog.ActionUserId = actionUserId;
+
+                db.TOSLog.Add(osLog);
+
+            }
+
+            return db.SaveChanges();
         }
 
     }

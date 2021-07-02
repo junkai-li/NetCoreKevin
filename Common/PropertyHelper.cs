@@ -158,5 +158,57 @@ namespace Common
 
             return lift;
         }
+
+
+
+
+
+        /// <summary>
+        /// 比较两个实体的值输出差异结果
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="original">原始值</param>
+        /// <param name="after">修改后的值</param>
+        /// <returns></returns>
+        public static string ComparisonEntity<T>(T original, T after) where T : new()
+        {
+            var retValue = "";
+
+            var fields = typeof(T).GetProperties();
+
+            for (int i = 0; i < fields.Length; i++)
+            {
+                var pi = fields[i];
+
+                string oldValue = pi.GetValue(original)?.ToString();
+                string newValue = pi.GetValue(after)?.ToString();
+
+                string typename = pi.PropertyType.FullName;
+
+                if ((typename != "System.Decimal" && oldValue != newValue) || (typename == "System.Decimal" && decimal.Parse(oldValue) != decimal.Parse(newValue)))
+                {
+
+                    retValue += DBHelper.GetEntityComment<T>(pi.Name) + ":";
+
+                    if (typename == "System.Boolean")
+                    {
+                        retValue += (bool.Parse(oldValue) ? "是" : "否") + " -> ";
+                        retValue += (bool.Parse(newValue) ? "是" : "否") + "； \n";
+                    }
+                    else if (typename == "System.DateTime")
+                    {
+                        retValue += (oldValue != null ? DateTime.Parse(oldValue).ToString("yyyy-MM-dd") : "") + " ->";
+                        retValue += (newValue != null ? DateTime.Parse(newValue).ToString("yyyy-MM-dd") : "") + "； \n";
+                    }
+                    else
+                    {
+                        retValue += (oldValue ?? "") + " -> ";
+                        retValue += (newValue ?? "") + "； \n";
+                    }
+                }
+            }
+
+            return retValue;
+        }
     }
 }

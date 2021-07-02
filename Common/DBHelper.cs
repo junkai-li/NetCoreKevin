@@ -322,8 +322,6 @@ namespace Common
         }
 
 
-
-
         /// <summary>
         /// 获取一个表的注释信息
         /// </summary>
@@ -363,7 +361,7 @@ namespace Common
                     }
                 }
 
-                return fieldList.FirstOrDefault(t => t.Key.ToLower() == matchKey.ToLower()).Value;
+                return fieldList.FirstOrDefault(t => t.Key.ToLower() == matchKey.ToLower()).Value ?? t.ToString().Split(".").ToList().LastOrDefault();
             }
             else
             {
@@ -387,7 +385,7 @@ namespace Common
 
                         if (name.StartsWith(matchKey))
                         {
-                            name = name.Replace("P:" + t.ToString() + ".", "");
+                            name = name.Replace(matchKey, "");
                             fieldList.Add(name, summary);
                         }
 
@@ -406,11 +404,9 @@ namespace Common
                     }
                 }
 
-                return fieldList.FirstOrDefault(t => t.Key.ToLower() == fieldName.ToLower()).Value;
+                return fieldList.FirstOrDefault(t => t.Key.ToLower() == fieldName.ToLower()).Value ?? fieldName;
             }
 
         }
-
-
     }
 }

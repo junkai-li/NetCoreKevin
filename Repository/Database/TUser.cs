@@ -43,7 +43,7 @@ namespace Repository.Database
 
 
         /// <summary>
-        /// 角色ID
+        /// 角色信息
         /// </summary>
         public Guid RoleId { get; set; }
         public virtual TRole Role { get; set; }
