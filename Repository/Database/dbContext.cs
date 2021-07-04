@@ -142,6 +142,9 @@ namespace Repository.Database
             //optionsBuilder.UseLazyLoadingProxies();
 
 
+            //SQL日志记录消息写入控制台
+            optionsBuilder.LogTo(Console.WriteLine);
+
             return optionsBuilder.Options;
         }
 
