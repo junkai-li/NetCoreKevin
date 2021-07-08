@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Cms.Controllers
 {
-    [IsLogin]
+    [AuthenticationFilter]
     public class UserController : Controller
     {
 

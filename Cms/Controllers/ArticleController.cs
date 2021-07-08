@@ -9,7 +9,7 @@ using Repository.Database;
 namespace Cms.Controllers
 {
 
-    [IsLogin]
+    [AuthenticationFilter]
     public class ArticleController : Controller
     {
 

@@ -11,9 +11,9 @@ namespace WebApi.Filters
 
 
     /// <summary>
-    /// JWT 访问鉴权 Token 验证方法
+    /// JWT过滤器
     /// </summary>
-    public class JwtTokenVerify : Attribute, IActionFilter
+    public class JWTVerifyFilter : Attribute, IActionFilter
     {
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace WebApi.Filters
         void IActionFilter.OnActionExecuting(ActionExecutingContext context)
         {
 
-            var filter = (JwtTokenVerify)context.Filters.Where(t => t.ToString() == (typeof(JwtTokenVerify).Assembly.GetName().Name + ".Filters.JwtTokenVerify")).ToList().LastOrDefault();
+            var filter = (JWTVerifyFilter)context.Filters.Where(t => t.ToString() == (typeof(JWTVerifyFilter).Assembly.GetName().Name + ".Filters.JwtTokenVerify")).ToList().LastOrDefault();
 
             if (!filter.IsSkip)
             {
@@ -62,7 +62,7 @@ namespace WebApi.Filters
         void IActionFilter.OnActionExecuted(ActionExecutedContext context)
         {
 
-            var filter = (JwtTokenVerify)context.Filters.Where(t => t.ToString() == "WebApi.Filters.JwtTokenVerify").ToList().LastOrDefault();
+            var filter = (JWTVerifyFilter)context.Filters.Where(t => t.ToString() == "WebApi.Filters.JwtTokenVerify").ToList().LastOrDefault();
 
             if (!filter.IsSkip)
             {

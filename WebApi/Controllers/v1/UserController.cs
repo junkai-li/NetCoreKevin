@@ -18,7 +18,7 @@ namespace WebApi.Controllers.v1
     [ApiVersion("1")]
     [Route("api/[controller]")]
     [Authorize]
-    [JwtTokenVerify]
+    [JWTVerifyFilter]
     [ApiController]
     public class UserController : PubilcControllerBase
     { 
@@ -98,7 +98,7 @@ namespace WebApi.Controllers.v1
         /// <param name="userId">用户ID</param>
         /// <returns></returns>
         [HttpGet("GetUser")]
-        [CacheData(TTL = 60, UseToken = true)]
+        [CacheDataFilter(TTL = 60, UseToken = true)]
         public dtoUser GetUser(Guid userId)
         {
 

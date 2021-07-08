@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System; 
 
 namespace Cms.Filters
 {
-    public class GlobalFiler : Attribute, IActionFilter
+    public class GlobalFilter : Attribute, IActionFilter
     {
 
         void IActionFilter.OnActionExecuting(ActionExecutingContext context)

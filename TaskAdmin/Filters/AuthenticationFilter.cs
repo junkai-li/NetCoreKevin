@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Linq;
 
-namespace Cms.Filters
+namespace TaskAdmin.Filters
 {
 
 
-    public class IsLogin : Attribute, IActionFilter
+    public class AuthenticationFilter : Attribute, IActionFilter
     {
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace Cms.Filters
 
         void IActionFilter.OnActionExecuting(ActionExecutingContext context)
         {
-            var filter = (IsLogin)context.Filters.Where(t => t.ToString() == (typeof(IsLogin).Assembly.GetName().Name + ".Filters.IsLogin")).ToList().LastOrDefault();
+            var filter = (AuthenticationFilter)context.Filters.Where(t => t.ToString() == (typeof(AuthenticationFilter).Assembly.GetName().Name + ".Filters.IsLogin")).ToList().LastOrDefault();
 
             if (!filter.IsSkip)
             {
@@ -48,7 +48,7 @@ namespace Cms.Filters
 
 
                     //302跳转到登录页面 
-                    context.HttpContext.Response.Redirect("/User/Login/");
+                    context.HttpContext.Response.Redirect("/User/Login");
                 }
             }
         }

@@ -34,6 +34,11 @@
             删除时间
             </summary>
         </member>
+        <member name="P:Repository.Bases.CD.RowVersion">
+            <summary>
+            行版本标记
+            </summary>
+        </member>
         <member name="T:Repository.Bases.CUD">
             <summary>
             创建，编辑，删除
@@ -42,7 +47,7 @@
         <member name="P:Repository.Bases.CUD.UpdateTime">
             <summary>
             更新时间
-            </summary>
+            </summary> 
         </member>
         <member name="T:Repository.Database.Bases.CD_User">
             <summary>
@@ -334,16 +339,6 @@
             文件保存路径
             </summary>
         </member>
-        <member name="P:Repository.Database.TGuidToInt.Id">
-            <summary>
-            Id
-            </summary>
-        </member>
-        <member name="P:Repository.Database.TGuidToInt.Guid">
-            <summary>
-            Guid 字符串
-            </summary>
-        </member>
         <member name="T:Repository.Database.TImgBaiduAI">
             <summary>
             产品图片对应百度AI信息表
@@ -514,9 +509,9 @@
             备注
             </summary>
         </member>
-        <member name="P:Repository.Database.TOSLog.IP">
+        <member name="P:Repository.Database.TOSLog.IpAddress">
             <summary>
-            IP
+            Ip地址
             </summary>
         </member>
         <member name="P:Repository.Database.TOSLog.DeviceMark">

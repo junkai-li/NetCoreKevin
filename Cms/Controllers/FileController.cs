@@ -10,7 +10,7 @@ using System.Linq;
 namespace Cms.Controllers
 {
 
-    [IsLogin]
+    [AuthenticationFilter]
     public class FileController : Controller
     {
 

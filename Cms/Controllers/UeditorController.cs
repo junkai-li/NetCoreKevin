@@ -7,7 +7,7 @@ using System;
 
 namespace Cms.Controllers
 {
-    [IsLogin]
+    [AuthenticationFilter]
     public class UeditorController : Controller
     {
 

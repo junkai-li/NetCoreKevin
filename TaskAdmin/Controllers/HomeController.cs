@@ -16,7 +16,7 @@ namespace TaskAdmin.Controllers
         }
 
 
-        [IsLogin]
+        [AuthenticationFilter]
         public void Index()
         {
             //进行任务注册

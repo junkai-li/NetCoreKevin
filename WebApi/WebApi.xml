@@ -378,6 +378,19 @@
             获取 http 请求中的全部参数
             </summary>
         </member>
+        <member name="M:WebApi.Libraries.Http.HttpContext.GetIpAddress">
+            <summary>
+            获取IP地址
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Libraries.Http.HttpContext.GetHeader(System.String)">
+            <summary>
+            获取Header中的值
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
         <member name="M:WebApi.Libraries.IO.Path.WebRootPath">
             <summary>
             获取 wwwroot 路径

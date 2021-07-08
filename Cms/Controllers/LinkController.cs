@@ -11,7 +11,7 @@ namespace Web.Areas.Admin.Controllers
 {
 
 
-    [IsLogin]
+    [AuthenticationFilter]
     public class LinkController : Controller
     {
 

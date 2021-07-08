@@ -60,7 +60,7 @@ namespace Cms
             Libraries.Http.HttpContext.Add(services);
 
             //注册全局过滤器
-            services.AddMvc(config => config.Filters.Add(new GlobalFiler()));
+            services.AddMvc(config => config.Filters.Add(new GlobalFilter()));
 
             //注册跨域信息
             services.AddCors(option =>

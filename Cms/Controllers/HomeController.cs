@@ -9,7 +9,7 @@ using System.Linq;
 namespace Cms.Controllers
 {
 
-    [IsLogin]
+    [AuthenticationFilter]
     public class HomeController : Controller
     {
 

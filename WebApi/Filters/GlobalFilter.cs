@@ -4,6 +4,11 @@ using System;
 
 namespace WebApi.Filters
 {
+
+
+    /// <summary>
+    /// 全局过滤器
+    /// </summary>
     public class GlobalFilter : Attribute, IActionFilter
     {
 

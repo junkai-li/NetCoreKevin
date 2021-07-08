@@ -7,14 +7,14 @@ namespace WebApi.Filters
 {
 
     /// <summary>
-    /// 预设固定 PrivateKey 双方验签 Token 验证方法
+    /// 签名过滤器
     /// </summary>
-    public class TokenVerify : Attribute, IActionFilter
+    public class SignVerifyFilter : Attribute, IActionFilter
     {
 
 
         /// <summary>
-        /// 是否跳过Token验证，可用于控制器下单个接口指定跳过Token验证
+        /// 是否跳过签名验证，可用于控制器下单个接口指定跳过签名验证
         /// </summary>
         public bool IsSkip { get; set; }
 
@@ -22,7 +22,7 @@ namespace WebApi.Filters
         void IActionFilter.OnActionExecuting(ActionExecutingContext context)
         {
 
-            var filter = (TokenVerify)context.Filters.Where(t => t.ToString() == (typeof(TokenVerify).Assembly.GetName().Name + ".Filters.TokenVerify")).ToList().LastOrDefault();
+            var filter = (SignVerifyFilter)context.Filters.Where(t => t.ToString() == (typeof(SignVerifyFilter).Assembly.GetName().Name + ".Filters.TokenVerify")).ToList().LastOrDefault();
 
 
             if (!filter.IsSkip)

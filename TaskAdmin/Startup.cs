@@ -90,7 +90,7 @@ namespace TaskAdmin
 
 
             //注册全局过滤器
-            services.AddMvc(config => config.Filters.Add(new GlobalFiler()));
+            services.AddMvc(config => config.Filters.Add(new GlobalFilter()));
 
 
 
