@@ -26,14 +26,14 @@ namespace Cms.Controllers
         }
 
 
-        [IsLogin(IsSkip = true)]
+        [AuthenticationFilter(IsSkip = true)]
         public IActionResult Login()
         {
             return View();
         }
 
 
-        [IsLogin(IsSkip = true)]
+        [AuthenticationFilter(IsSkip = true)]
         public JsonResult LoginAction(string name, string pwd)
         {
             var Data = new { status = true };

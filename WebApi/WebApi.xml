@@ -319,14 +319,24 @@
             <param name="keyValue">key为新密码，value为短信验证码</param>
             <returns></returns>
         </member>
-        <member name="P:WebApi.Filters.CacheData.TTL">
+        <member name="T:WebApi.Filters.CacheDataFilter">
+            <summary>
+            缓存过滤器
+            </summary>
+        </member>
+        <member name="P:WebApi.Filters.CacheDataFilter.TTL">
             <summary>
             缓存时效有效期，单位 秒
             </summary>
         </member>
-        <member name="P:WebApi.Filters.CacheData.UseToken">
+        <member name="P:WebApi.Filters.CacheDataFilter.UseToken">
             <summary>
             是否使用 Token
+            </summary>
+        </member>
+        <member name="T:WebApi.Filters.GlobalFilter">
+            <summary>
+            全局过滤器
             </summary>
         </member>
         <member name="M:WebApi.Filters.GlobalFilter.resultFormatting(Microsoft.AspNetCore.Mvc.ObjectResult)">
@@ -336,24 +346,39 @@
             <param name="result"></param>
             <remarks>处理 string null 为 "" ，List null 为 []</remarks>
         </member>
-        <member name="T:WebApi.Filters.JwtTokenVerify">
+        <member name="T:WebApi.Filters.JWTVerifyFilter">
             <summary>
-            JWT 访问鉴权 Token 验证方法
+            JWT过滤器
             </summary>
         </member>
-        <member name="P:WebApi.Filters.JwtTokenVerify.IsSkip">
+        <member name="P:WebApi.Filters.JWTVerifyFilter.IsSkip">
             <summary>
             是否跳过Token验证，可用于控制器下单个接口指定跳过Token验证
             </summary>
         </member>
-        <member name="T:WebApi.Filters.TokenVerify">
+        <member name="T:WebApi.Filters.QueueLimitFilter">
             <summary>
-            预设固定 PrivateKey 双方验签 Token 验证方法
+            队列过滤器
             </summary>
         </member>
-        <member name="P:WebApi.Filters.TokenVerify.IsSkip">
+        <member name="P:WebApi.Filters.QueueLimitFilter.UseToken">
             <summary>
-            是否跳过Token验证，可用于控制器下单个接口指定跳过Token验证
+            是否使用 Token
+            </summary>
+        </member>
+        <member name="P:WebApi.Filters.QueueLimitFilter.IsBlock">
+            <summary>
+            是否阻断重复请求
+            </summary>
+        </member>
+        <member name="T:WebApi.Filters.SignVerifyFilter">
+            <summary>
+            签名过滤器
+            </summary>
+        </member>
+        <member name="P:WebApi.Filters.SignVerifyFilter.IsSkip">
+            <summary>
+            是否跳过签名验证，可用于控制器下单个接口指定跳过签名验证
             </summary>
         </member>
         <member name="M:WebApi.Libraries.Http.HttpContext.GetUrl">

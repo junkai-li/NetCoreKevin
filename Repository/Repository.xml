@@ -38,6 +38,7 @@
             <summary>
             行版本标记
             </summary>
+            <remarks>通用的RowVersion</remarks>
         </member>
         <member name="T:Repository.Bases.CUD">
             <summary>
