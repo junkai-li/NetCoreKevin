@@ -15,7 +15,7 @@
 	<ItemGroup>
 		<PackageReference Include="Hangfire.InMemory" Version="0.3.4" />
 		<PackageReference Include="Hangfire.MySqlStorage" Version="2.0.3" />
-		<PackageReference Include="Hangfire.PostgreSql" Version="1.8.5.1" />
+		<PackageReference Include="Hangfire.PostgreSql" Version="1.8.5.3" />
 		<PackageReference Include="Hangfire.Redis.StackExchange" Version="1.8.4" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.7">
 			<PrivateAssets>all</PrivateAssets>

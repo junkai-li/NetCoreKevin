@@ -33,7 +33,7 @@ namespace Cms.Libraries.Http
 
         public static Microsoft.AspNetCore.Http.HttpContext Current()
         {
-            object factory = ServiceProvider.GetService(typeof(Microsoft.AspNetCore.Http.IHttpContextAccessor));
+            object factory = ServiceProvider.GetService(typeof(IHttpContextAccessor));
             Microsoft.AspNetCore.Http.HttpContext context = ((IHttpContextAccessor)factory).HttpContext;
             return context;
         }
@@ -45,7 +45,7 @@ namespace Cms.Libraries.Http
         /// <returns></returns>
         public static string GetUrl()
         {
-            return GetBaseUrl() + $"{HttpContext.Current().Request.Path}{HttpContext.Current().Request.QueryString}";
+            return GetBaseUrl() + $"{Current().Request.Path}{Current().Request.QueryString}";
         }
 
 
@@ -56,11 +56,11 @@ namespace Cms.Libraries.Http
         public static string GetBaseUrl()
         {
 
-            var url = $"{HttpContext.Current().Request.Scheme}://{HttpContext.Current().Request.Host.Host}";
+            var url = $"{Current().Request.Scheme}://{Current().Request.Host.Host}";
 
-            if (HttpContext.Current().Request.Host.Port != null)
+            if (Current().Request.Host.Port != null)
             {
-                url = url + $":{HttpContext.Current().Request.Host.Port}";
+                url = url + $":{Current().Request.Host.Port}";
             }
 
             return url;
@@ -96,7 +96,7 @@ namespace Cms.Libraries.Http
 
             if (context.Request.Method == "POST")
             {
-                string body = HttpContext.GetRequestBody();
+                string body = GetRequestBody();
 
                 if (!string.IsNullOrEmpty(body))
                 {
@@ -124,5 +124,41 @@ namespace Cms.Libraries.Http
 
             return parameters;
         }
+
+
+
+        /// <summary>
+        /// 获取IP地址
+        /// </summary>
+        /// <returns></returns>
+        public static string GetIpAddress()
+        {
+            return Current().Connection.RemoteIpAddress.ToString();
+        }
+
+
+
+        /// <summary>
+        /// 获取Header中的值
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static string GetHeader(string key)
+        {
+            var query = Current().Request.Headers.Where(t => t.Key.ToLower() == key.ToLower()).Select(t => t.Value);
+
+            var ishave = query.Count();
+
+            if (ishave != 0)
+            {
+                return query.FirstOrDefault().ToString();
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+
     }
 }
