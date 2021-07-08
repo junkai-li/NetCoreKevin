@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Repository.Bases
 {
@@ -12,7 +13,7 @@ namespace Repository.Bases
 
         /// <summary>
         /// 更新时间
-        /// </summary>
+        /// </summary> 
         public DateTime? UpdateTime { get; set; }
 
     }

@@ -1,12 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Repository.Bases;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Repository.Database
 {
-    public class TRegionTown
+    public class TRegionTown : CD
     {
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int Id { get; set; }
+        public new int Id { get; set; }
+
 
 
         /// <summary>
@@ -15,11 +17,13 @@ namespace Repository.Database
         public string Town { get; set; }
 
 
+
         /// <summary>
         /// 所属区域ID
         /// </summary>
         public int AreaId { get; set; }
         public virtual TRegionArea Area { get; set; }
+
 
     }
 }

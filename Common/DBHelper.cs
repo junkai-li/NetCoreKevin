@@ -116,54 +116,7 @@ namespace Common
             command.Dispose();
             connection.Close();
         }
-
-
-
-
-
-        /// <summary>
-        /// 根据Guid获取Int
-        /// </summary>
-        /// <param name="guid"></param>
-        /// <returns></returns>
-        public static int GuidToInt(Guid guid)
-        {
-            using (var db = new dbContext())
-            {
-                var info = db.TGuidToInt.Where(t => t.Guid == guid).FirstOrDefault() ?? new TGuidToInt();
-
-                if (info.Id == 0)
-                {
-                    info.Guid = guid;
-
-                    var dbinfo = db.TGuidToInt.Add(info);
-
-                    db.SaveChanges();
-
-                    return dbinfo.Entity.Id;
-                }
-                else
-                {
-                    return info.Id;
-                }
-            }
-        }
-
-
-
-
-        /// <summary>
-        /// 根据Int获取Guid
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public static Guid IntToGuid(int id)
-        {
-            using (var db = new dbContext())
-            {
-                return db.TGuidToInt.Where(t => t.Id == id).Select(t => t.Guid).FirstOrDefault();
-            }
-        }
+         
 
 
 

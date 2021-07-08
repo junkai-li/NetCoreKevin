@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Repository.Interceptors;
 using System;
 using System.Collections.Generic;
@@ -49,8 +50,7 @@ namespace Repository.Database
 
         public DbSet<TFileGroupFile> TFileGroupFile { get; set; }
 
-
-        public DbSet<TGuidToInt> TGuidToInt { get; set; }
+         
 
 
         public DbSet<TImgBaiduAI> TImgBaiduAI { get; set; }
@@ -166,10 +166,12 @@ namespace Repository.Database
             {
                 modelBuilder.Entity(entity.Name, builder =>
                 {
-
                     //设置生成数据库时的表名为小写格式并添加前缀 t_
-                    builder.ToTable("t_" + entity.ClrType.Name.ToLower().Substring(1));
+                    var tableName = builder.Metadata.ClrType.CustomAttributes.Where(t => t.AttributeType.Name == "TableAttribute").Select(t => t.ConstructorArguments.Select(c => c.Value.ToString()).FirstOrDefault()).FirstOrDefault() ?? ("t_" + entity.ClrType.Name.Substring(1));
+                    builder.ToTable(tableName.ToLower());
 
+                    //开启 PostgreSQL 全库行并发乐观锁
+                    //builder.UseXminAsConcurrencyToken();
 
                     //设置表的备注
                     builder.HasComment(GetEntityComment(entity.Name));
@@ -177,8 +179,10 @@ namespace Repository.Database
 
                     foreach (var property in entity.GetProperties())
                     {
+                        string columnName = property.GetColumnName(StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table).Value);
+                      
                         //设置字段名为小写
-                        property.SetColumnName(property.Name.ToLower());
+                        property.SetColumnName(columnName.ToLower());
 
                         var baseTypeNames = new List<string>();
                         var baseType = entity.ClrType.BaseType;
@@ -381,8 +385,21 @@ namespace Repository.Database
             return retValue;
         }
 
+         
+        public override int SaveChanges()
+        {
 
+            dbContext db = this;
 
+            var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
+
+            foreach (var item in list)
+            {
+                item.Entity.GetType().GetProperty("RowVersion")?.SetValue(item.Entity, Guid.NewGuid());
+            }
+
+            return base.SaveChanges();
+        }
 
         public int SaveChangesWithSaveLog(Guid? actionUserId = null, string ipAddress = null, string deviceMark = null)
         {

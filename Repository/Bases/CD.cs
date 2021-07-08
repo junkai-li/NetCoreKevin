@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Repository.Bases
@@ -34,6 +35,15 @@ namespace Repository.Bases
         /// 删除时间
         /// </summary>
         public DateTime? DeleteTime { get; set; }
+
+
+
+
+        /// <summary>
+        /// 行版本标记
+        /// </summary>
+        [ConcurrencyCheck]
+        public Guid? RowVersion { get; set; }
 
     }
 }

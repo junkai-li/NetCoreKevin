@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Repository.Bases;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Repository.Database
@@ -7,11 +8,11 @@ namespace Repository.Database
     /// <summary>
     /// 城市信息表
     /// </summary>
-    public  class TRegionCity
+    public class TRegionCity : CD
     {
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int Id { get; set; }
+        public new int Id { get; set; }
 
 
         /// <summary>
