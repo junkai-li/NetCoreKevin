@@ -70,7 +70,7 @@ namespace WebApi.Filters
                 }
                 else
                 {
-                    if (result.Value.GetType().Namespace.Contains("System") == false)
+                    if (result.Value.GetType().Namespace != null && result.Value.GetType().Namespace.Contains("System") == false)
                     {
                         {
 
