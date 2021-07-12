@@ -161,7 +161,24 @@ namespace Repository.Database
                 foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
             }
 
+          //自定义外键
+          //  modelBuilder.Entity<TGroupBuyActivityGroupUser>()
+          //     .HasOne(p => p.GroupBuyActivityGroup)
+          //     .WithMany(b => b.GroupBuyActivityGroupUserList)
+          //     .HasForeignKey(p => p.GroupBuyActivityGroupId)
+          //     .HasConstraintName("FK_c_groupBuyActivityGroupId");
 
+          //  modelBuilder.Entity<TGroupBuyActivityProduct>()
+          //.HasOne(p => p.GroupBuyActivity)
+          //.WithMany(b => b.GroupBuyActivityProductList)
+          //.HasForeignKey(p => p.GroupBuyActivityId)
+          //.HasConstraintName("FK_c_groupBuyActivityIds");
+
+          //  modelBuilder.Entity<TGroupBuyActivityProduct>()
+          //  .HasOne(p => p.ProductPackage)
+          //  .WithMany()
+          //  .HasForeignKey(p => p.ProductPackageId)
+          //  .HasConstraintName("FK_c_productPackageIds");
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
                 modelBuilder.Entity(entity.Name, builder =>

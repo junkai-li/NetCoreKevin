@@ -319,6 +319,60 @@ namespace Common
             return database.LockRelease(key, value);
         }
 
+        /// <summary>
+        /// 订阅消息
+        /// </summary>
+        /// <param name="channel">频道</param>
+        /// <param name="handler">委托方法</param>
+        public static void Subscribe(string channel, Action<RedisChannel, RedisValue> handler = null)
+        {
+            var sub = ConnectionMultiplexer.GetSubscriber();
+            sub.Subscribe(channel, (channel, message) =>
+            {
+                if (handler != null)
+                {
+                    handler(channel, message);
+                }
+            });
+        }
+
+
+
+        /// <summary>
+        /// 发布消息
+        /// </summary>
+        /// <param name="channel">频道</param>
+        /// <param name="message">消息内容</param>
+        /// <returns>收到消息的客户端数量</returns>
+        public static long Publish(string channel, string message)
+        {
+            var sub = ConnectionMultiplexer.GetSubscriber();
+            return sub.Publish(channel, message);
+        }
+
+
+
+        /// <summary>
+        /// 取消订阅
+        /// </summary>
+        /// <param name="channel">频道</param>
+        public static void Unsubscribe(string channel)
+        {
+            var sub = ConnectionMultiplexer.GetSubscriber();
+            sub.Unsubscribe(channel);
+        }
+
+
+
+        /// <summary>
+        /// 取消全部订阅
+        /// </summary>
+        public static void UnsubscribeAll()
+        {
+            var sub = ConnectionMultiplexer.GetSubscriber();
+            sub.UnsubscribeAll();
+        }
+
 
 
     }
