@@ -36,8 +36,7 @@ namespace WebApi.Controllers
         [HttpPost("GetToken")]
         public string GetToken([FromBody] dtoLogin login)
         {
-
-
+             
 
             var user = db.TUser.Where(t => (t.Name == login.Name || t.Phone == login.Name || t.Email == login.Name) && t.PassWord == login.PassWord).FirstOrDefault();
 
