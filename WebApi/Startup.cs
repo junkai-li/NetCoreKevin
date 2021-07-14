@@ -241,9 +241,8 @@ namespace WebApi
 
 
         }
-
-
-
+         
+        //向 Startup.Configure 方法添加中间件组件的顺序定义了针对请求调用这些组件的顺序，以及响应的相反顺序。 此顺序对于安全性、性能和功能至关重要。
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
@@ -278,6 +277,8 @@ namespace WebApi
             //强制重定向到Https
             app.UseHttpsRedirection();
 
+            //静态文件中间件 (UseStaticFiles) 返回静态文件，并简化进一步请求处理。
+            //app.UseStaticFiles();
 
             app.UseRouting();
 
