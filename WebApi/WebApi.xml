@@ -356,6 +356,11 @@
             是否跳过Token验证，可用于控制器下单个接口指定跳过Token验证
             </summary>
         </member>
+        <member name="T:WebApi.Filters.PublicPortAuthorizeFilters">
+            <summary>
+            对外接口 密钥验证
+            </summary>
+        </member>
         <member name="T:WebApi.Filters.QueueLimitFilter">
             <summary>
             队列过滤器
