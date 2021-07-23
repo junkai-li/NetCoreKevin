@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
-namespace Common.Extension
+namespace System
 {
     public static class ConvertExtension
     {

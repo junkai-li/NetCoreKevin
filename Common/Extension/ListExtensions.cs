@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Common.Extension
+namespace System
 {
     /// <summary>
     /// Extension methods for <see cref="IList{T}"/>.

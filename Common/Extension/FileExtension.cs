@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Castle.Core.Internal;
 
-namespace Common.Extension
+namespace System
 {
     public static class FileExtension
     {

@@ -5,7 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 
-namespace Common.Extension
+namespace System
 {
     public static class CollectionExtension
     {
