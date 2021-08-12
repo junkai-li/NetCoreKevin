@@ -56,7 +56,7 @@ namespace WebApi.Controllers
                         };
 
 
-                var ret = Libraries.Verify.JwtToken.GetToken(claim);
+                var ret = WebApiService.Libraries.Verify.JwtToken.GetToken(claim);
 
                 return ret;
             }
@@ -90,7 +90,7 @@ namespace WebApi.Controllers
 
             var weixinkey = db.TWeiXinKey.Where(t => t.Id == weixinkeyid).FirstOrDefault();
 
-            var weiXinHelper = new Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey.WxAppId, weixinkey.WxAppSecret);
+            var weiXinHelper = new WebApiService.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey.WxAppId, weixinkey.WxAppSecret);
 
 
             var wxinfo = weiXinHelper.GetOpenIdAndSessionKey(code);
@@ -170,7 +170,7 @@ namespace WebApi.Controllers
         [HttpPost("GetTokenBySms")]
         public string GetTokenBySms(dtoKeyValue keyValue)
         {
-            if (Actions.AuthorizeAction.SmsVerifyPhone(keyValue))
+            if (WebApiService.Actions.AuthorizeAction.SmsVerifyPhone(keyValue))
             {
                 string phone = keyValue.Key.ToString();
 
@@ -277,7 +277,7 @@ namespace WebApi.Controllers
 
             var wxInfo = db.TWeiXinKey.Where(t => t.Id == weixinkeyid).FirstOrDefault();
 
-            var weiXinHelper = new Libraries.WeiXin.App.WeiXinHelper(wxInfo.WxAppId, wxInfo.WxAppSecret);
+            var weiXinHelper = new WebApiService.Libraries.WeiXin.App.WeiXinHelper(wxInfo.WxAppId, wxInfo.WxAppSecret);
 
             var accseetoken = weiXinHelper.GetAccessToken(code).accessToken;
 

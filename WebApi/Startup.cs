@@ -21,8 +21,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using WebApi.Actions;
-using WebApi.Filters;
-using WebApi.Libraries.Swagger;
+using WebApiService.Filters;
+using WebApiService.Libraries.Swagger;
 
 namespace WebApi
 {
@@ -111,7 +111,7 @@ namespace WebApi
 
 
             //注册HttpContext
-            Libraries.Http.HttpContext.Add(services);
+            WebApiService.Libraries.Http.HttpContext.Add(services);
 
             //注册全局过滤器
             services.AddMvc(config => config.Filters.Add(new GlobalFilter()));
@@ -140,7 +140,7 @@ namespace WebApi
 
 
             //注册配置文件信息
-            Libraries.Start.StartConfiguration.Add(Configuration);
+            WebApiService.Libraries.Start.StartConfiguration.Add(Configuration);
 
 
             services.AddApiVersioning(options =>
@@ -261,14 +261,14 @@ namespace WebApi
             else
             {
                 //注册全局异常处理机制
-                app.UseExceptionHandler(builder => builder.Run(async context => await GlobalError.ErrorEvent(context)));
+                app.UseExceptionHandler(builder => builder.Run(async context => await WebApiService.Actions.GlobalError.ErrorEvent(context)));
             }
 
             app.UseHsts();
 
 
             //注册HttpContext
-            Libraries.Http.HttpContext.Initialize(app, env);
+            WebApiService.Libraries.Http.HttpContext.Initialize(app, env);
 
 
             //注册跨域信息
@@ -292,7 +292,7 @@ namespace WebApi
             });
 
             //注册HostingEnvironment
-            Libraries.Start.StartHostingEnvironment.Add(env);
+            WebApiService.Libraries.Start.StartHostingEnvironment.Add(env);
 
 
             //启用中间件服务生成Swagger作为JSON端点
