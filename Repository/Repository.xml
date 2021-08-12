@@ -520,6 +520,106 @@
              设备标记
             </summary>
         </member>
+        <member name="T:Repository.Database.TPermission">
+            <summary>
+            系统权限表
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.Id">
+            <summary>
+            主键标识ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.CreateTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.IsDelete">
+            <summary>
+            是否删除
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.CreateUserId">
+            <summary>
+            创建人ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.UpdateUserId">
+            <summary>
+            编辑人ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.UpdatedTime">
+            <summary>
+            更新时间
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.DeleteUserId">
+            <summary>
+            删除人ID
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.DeleteTime">
+            <summary>
+            删除时间
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.AreaName">
+            <summary>
+            区域;
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.ModuleName">
+            <summary>
+            模块名;
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.ActionName">
+            <summary>
+            动作名;
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.FullName">
+            <summary>
+            模块全名;
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.Module">
+            <summary>
+            Module;
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.Action">
+            <summary>
+            Action;
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.Area">
+            <summary>
+            区域名称;
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.HttpMethod">
+            <summary>
+            Method;
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.IsManual">
+            <summary>
+            手动添加;
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.Seq">
+            <summary>
+            序号;
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TPermission.Icon">
+            <summary>
+            图标;
+            </summary>
+        </member>
         <member name="T:Repository.Database.TProduct">
             <summary>
             产品表
@@ -628,6 +728,26 @@
         <member name="P:Repository.Database.TRole.RoleUserList">
             <summary>
             该角色所有用户
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRolePermission.RoleId">
+            <summary>
+            角色编号;
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRolePermission.Role">
+            <summary>
+            角色编号;
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRolePermission.PermissionId">
+            <summary>
+            权限编号;
+            </summary>
+        </member>
+        <member name="P:Repository.Database.TRolePermission.Permission">
+            <summary>
+            权限编号;
             </summary>
         </member>
         <member name="T:Repository.Database.TSign">

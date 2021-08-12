@@ -23,6 +23,9 @@ namespace Repository.Database
         }
 
 
+        public DbSet<TPermission> TPermission { get; set; }
+
+        public DbSet<TRolePermission> TRolePermission { get; set; }
 
         public DbSet<TAlipayKey> TAlipayKey { get; set; }
 

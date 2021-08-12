@@ -112,10 +112,12 @@ namespace WebApi
 
             //注册HttpContext
             WebApiService.Libraries.Http.HttpContext.Add(services);
-
+             
             //注册全局过滤器
-            services.AddMvc(config => config.Filters.Add(new GlobalFilter()));
-
+            services.AddMvc(config => {
+                config.Filters.Add(new GlobalFilter());
+                config.Filters.Add(new PrivilegeFilter());//权限
+            });
 
             //注册跨域信息
             services.AddCors(option =>
