@@ -254,5 +254,28 @@ namespace AdminApi.Controllers
             } 
             return true;
         }
+
+
+        /// <summary>
+        /// 获取登录用户权限
+        /// </summary>
+        [HttpGet("GetUserPermissions")]
+        [SkipAuthority]
+        public List<string> GetUserPermissions()
+        {
+            using (var db = new dbContext())
+            {
+                var userid = Guid.Parse(WebApiService.Libraries.Verify.JwtToken.GetClaims("userid"));
+                var user = db.TUser.Where(x => x.IsDelete == false && x.Id == userid).FirstOrDefault();
+                if (user != null)
+                {
+                    if (user.IsSuperAdmin)
+                    {
+                        return PermissionsAction.GetUserPermissions(WebApiService.Libraries.Verify.JwtToken.GetClaims("userid")).Select(x => x.Key).ToList();
+                    }
+                }
+                return PermissionsAction.GetUserPermissions(WebApiService.Libraries.Verify.JwtToken.GetClaims("userid")).Where(x => x.Value == true).Select(x => x.Key).ToList();
+            } 
+        }
     }
 }

@@ -49,7 +49,10 @@ namespace Repository.Database
         public virtual TRole Role { get; set; }
 
 
-
+        /// <summary>
+        /// 是否超级管理员
+        /// </summary>
+        public virtual bool IsSuperAdmin { get; set; }
 
     }
 }
