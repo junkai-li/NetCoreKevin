@@ -1,15 +1,20 @@
-﻿using Common.Action;
+﻿using Common.AliYun;
 using Microsoft.EntityFrameworkCore;
 using NPOI.HSSF.UserModel;
+using NPOI.OpenXmlFormats.Spreadsheet;
 using NPOI.SS.UserModel;
+using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Common
 {
@@ -25,6 +30,28 @@ namespace Common
         /// <returns></returns>
         public static IList<T> DataTableToList<T>(DataTable table) where T : class
         {
+            ////去除空行
+            //List<DataRow> removelist = new List<DataRow>();
+            //for (int i = 0; i < table.Rows.Count; i++)
+            //{
+            //    bool IsNull = true;
+            //    for (int j = 0; j < table.Columns.Count; j++)
+            //    {
+            //        if (!string.IsNullOrEmpty(table.Rows[i][j].ToString().Trim()))
+            //        {
+            //            IsNull = false;
+            //        }
+            //    }
+            //    if (IsNull)
+            //    {
+            //        removelist.Add(table.Rows[i]);
+            //    }
+            //}
+            //for (int i = 0; i < removelist.Count; i++)
+            //{
+            //    table.Rows.Remove(removelist[i]);
+            //}
+
             if (table.Rows.Count == 0)
             {
                 return new List<T>();
@@ -42,7 +69,7 @@ namespace Common
                     {
                         object drValue = dr[dc.ColumnName];
 
-                        PropertyInfo pi = model.GetType().GetProperty(dc.ColumnName);
+                        PropertyInfo pi = model.GetType().GetProperty(dc.ColumnName.Replace("(必填)", "").Replace("（必填）", ""));
 
                         if (pi != null && pi.CanWrite && (drValue != null && !Convert.IsDBNull(drValue)))
                         {
@@ -52,7 +79,15 @@ namespace Common
                             {
                                 if (pi.PropertyType.FullName.StartsWith("System.Nullable`1[[System.DateTime"))
                                 {
-                                    pi.SetValue(model, null, null);
+                                    if (!string.IsNullOrEmpty(drValue.ToString()))
+                                    {
+                                        pi.SetValue(model, Convert.ToDateTime(drValue), null);
+                                    }
+                                    else
+                                    {
+                                        pi.SetValue(model, null, null);
+                                    }
+
                                 }
                                 else
                                 {
@@ -215,10 +250,8 @@ namespace Common
         /// </summary>  
         /// <param name="filePath">excel路径</param>  
         /// <param name="isColumnName">第一行是否是列名</param>  
-        /// <param name="PicturesInfo">图片文件流信息</param>  
-        /// <param name="isImg">是否读取图片信息</param> 
         /// <returns>返回datatable</returns>  
-        public static DataTable ExcelToDataTable(string filePath, bool isColumnName, ref Dictionary<int, List<XSSFPictureData>> picturesInfos, bool isImg = false)
+        public static DataTable ExcelToDataTable(string filePath, bool isColumnName)
         {
             DataTable dataTable = null;
             FileStream fs = null;
@@ -236,7 +269,7 @@ namespace Common
                     // 2007版本  
                     if (filePath.IndexOf(".xlsx") > 0)
                         workbook = new XSSFWorkbook(fs);
-                    //// 2003版本  
+                    // 2003版本  
                     else if (filePath.IndexOf(".xls") > 0)
                         workbook = new HSSFWorkbook(fs);
 
@@ -263,7 +296,7 @@ namespace Common
                                         {
                                             if (cell.StringCellValue != null)
                                             {
-                                                column = new DataColumn(cell.StringCellValue);
+                                                column = new DataColumn(cell.StringCellValue.Replace("(必填)", "").Replace("（必填）", ""));
                                                 dataTable.Columns.Add(column);
                                             }
                                         }
@@ -285,6 +318,11 @@ namespace Common
                                     if (row == null) continue;
 
                                     dataRow = dataTable.NewRow();
+                                    //第一行为空直接跳过
+                                    if (row.GetCell(0) == null)
+                                    {
+                                        continue;
+                                    }
                                     for (int j = row.FirstCellNum; j < cellCount; ++j)
                                     {
                                         cell = row.GetCell(j);
@@ -294,6 +332,7 @@ namespace Common
                                         }
                                         else
                                         {
+
                                             //CellType(Unknown = -1,Numeric = 0,String = 1,Formula = 2,Blank = 3,Boolean = 4,Error = 5,)  
                                             switch (cell.CellType)
                                             {
@@ -319,12 +358,6 @@ namespace Common
                                     }
                                     dataTable.Rows.Add(dataRow);
                                 }
-
-                                //读取图片文件 
-                                if (isImg == true)
-                                {
-                                    picturesInfos = NpoiExtendAction.GetAllXSSFPictureDics((XSSFWorkbook)workbook);
-                                }
                             }
                         }
                     }
@@ -349,10 +382,14 @@ namespace Common
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="list"></param>
+        /// <param name="exportDic">用于判断字段是否有导出权限</param>
         /// <returns></returns>
-        public static IO.NpoiMemoryStream ListToExcel<T>(List<T> list) where T : new()
+        public static IO.NpoiMemoryStream ListToExcel<T>(List<T> list, Dictionary<string, bool> exportDic = null, Dictionary<string, string> FieldList = default) where T : new()
         {
-
+            if (FieldList == null)
+            {
+                FieldList = new Dictionary<string, string>();
+            }
             //创建Excel文件的对象
             NPOI.XSSF.UserModel.XSSFWorkbook book = new NPOI.XSSF.UserModel.XSSFWorkbook();
             //添加一个sheet
@@ -367,11 +404,34 @@ namespace Common
             int x = 0;
             foreach (var item in dict)
             {
+                //判断是否有权限
+                if (exportDic != null && exportDic.Count > 0)
+                {
+                    if (exportDic.ContainsKey(item.Key.ToString()))
+                    {
+                        //无权限 跳过循环
+                        if (exportDic[item.Key.ToString()] == false)
+                        {
+                            continue;
+                        }
+                    }
+                }
                 row1.CreateCell(x).SetCellValue(item.Key.ToString());
                 x++;
             }
 
-
+            var fields = new List<string>();
+            //自定义属性数据 
+            foreach (var item in FieldList)
+            {
+                var key = item.Key.ToString().Split("_")[1];
+                if (!fields.Contains(key))
+                {
+                    row1.CreateCell(x).SetCellValue(key);
+                    fields.Add(key);
+                    x++;
+                }
+            }
             //将数据逐步写入sheet1各个行
 
             foreach (var item in list)
@@ -381,13 +441,53 @@ namespace Common
 
                 dict = PropertyHelper.GetProperties(item);
                 int d = 0;
+                var id = dict.Where(p => p.Key.ToString() == "Id").FirstOrDefault().Value;
+
                 foreach (var it in dict)
                 {
 
-                    rowtemp.CreateCell(d).SetCellValue(it.Value != null ? it.Value.ToString() : "");
+                    //判断是否有权限
+                    if (exportDic != null && exportDic.Count > 0)
+                    {
+                        if (exportDic.ContainsKey(it.Key.ToString()))
+                        {
+                            //无权限 跳过循环
+                            if (exportDic[it.Key.ToString()] == false)
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                    var val = it.Value == null ? "" : it.Value.ToString();
+                    //判断当前值是否是图片的路径并且不是文件，如果是就转成图片
+                    Regex fileFilt = new Regex(@".*\.[gif|jpg|php|jsp|jpeg|png]");
+
+                    if (fileFilt.IsMatch(val.ToLower()))//统一路径
+                    {
+                        MsgInsetImg(sheet1, rowtemp, i + 1, book, val, d);
+                    }
+                    else
+                    {
+                        rowtemp.CreateCell(d).SetCellValue(val);
+                    }
+
                     d++;
                 }
+
+                //自定义属性数据
+                foreach (var item2 in FieldList)
+                {
+                    var key = item2.Key.ToString();
+
+                    if (key.Contains(id + "_"))
+                    {
+                        rowtemp.CreateCell(d).SetCellValue(item2.Value == null ? "" : item2.Value.ToString());
+                        d++;
+                    }
+                }
             }
+
+
 
 
             //写入到客户端 
@@ -405,71 +505,419 @@ namespace Common
             return ms;
 
 
+        }
+
+        /// <summary>
+        /// 将 List 数据转换为 Excel 文件流
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="exportDic">用于判断字段是否有导出权限</param>
+        /// <returns></returns>
+        public static IO.NpoiMemoryStream HSSFListToExcel<T>(List<T> list, Dictionary<string, bool> exportDic = null, Dictionary<string, string> FieldList = default) where T : new()
+        {
+            if (FieldList == null)
+            {
+                FieldList = new Dictionary<string, string>();
+            }
+            //创建Excel文件的对象
+            NPOI.HSSF.UserModel.HSSFWorkbook book = new NPOI.HSSF.UserModel.HSSFWorkbook();
+            //添加一个sheet
+            NPOI.SS.UserModel.ISheet sheet1 = book.CreateSheet("Sheet1");
+
+            //给sheet1添加第一行的头部标题
+            NPOI.SS.UserModel.IRow row1 = sheet1.CreateRow(0);
+
+            T model = new T();
+            var dict = PropertyHelper.GetPropertiesDisplayName(model);
+
+            int x = 0;
+            foreach (var item in dict)
+            {
+                //判断是否有权限
+                if (exportDic != null && exportDic.Count > 0)
+                {
+                    if (exportDic.ContainsKey(item.Key.ToString()))
+                    {
+                        //无权限 跳过循环
+                        if (exportDic[item.Key.ToString()] == false)
+                        {
+                            continue;
+                        }
+                    }
+                }
+                row1.CreateCell(x).SetCellValue(item.Key.ToString());
+                x++;
+            }
+
+            var fields = new List<string>();
+            //自定义属性数据 
+            foreach (var item in FieldList)
+            {
+                var key = item.Key.ToString().Split("_")[1];
+                if (!fields.Contains(key))
+                {
+                    row1.CreateCell(x).SetCellValue(key);
+                    fields.Add(key);
+                    x++;
+                }
+            }
+            //将数据逐步写入sheet1各个行
+
+            foreach (var item in list)
+            {
+                int i = list.IndexOf(item);
+                NPOI.SS.UserModel.IRow rowtemp = sheet1.CreateRow(i + 1);
+
+                dict = PropertyHelper.GetProperties(item);
+                int d = 0;
+                var id = dict.Where(p => p.Key.ToString() == "Id").FirstOrDefault().Value;
+
+                foreach (var it in dict)
+                {
+
+                    //判断是否有权限
+                    if (exportDic != null && exportDic.Count > 0)
+                    {
+                        if (exportDic.ContainsKey(it.Key.ToString()))
+                        {
+                            //无权限 跳过循环
+                            if (exportDic[it.Key.ToString()] == false)
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                    var val = it.Value == null ? "" : it.Value.ToString();
+                    //判断当前值是否是图片的路径并且不是文件，如果是就转成图片
+                    Regex fileFilt = new Regex(@".*\.[gif|jpg|php|jsp|jpeg|png]");
+
+                    if (fileFilt.IsMatch(val.ToLower()))//统一路径
+                    {
+                        HSSFMsgInsetImg(sheet1, rowtemp, i + 1, book, val, d);
+                    }
+                    else
+                    {
+                        rowtemp.CreateCell(d).SetCellValue(val);
+                    }
+
+                    d++;
+                }
+
+                //自定义属性数据
+                foreach (var item2 in FieldList)
+                {
+                    var key = item2.Key.ToString();
+
+                    if (key.Contains(id + "_"))
+                    {
+                        rowtemp.CreateCell(d).SetCellValue(item2.Value == null ? "" : item2.Value.ToString());
+                        d++;
+                    }
+                }
+            }
+
+
+
+
+            //写入到客户端 
+            var ms = new IO.NpoiMemoryStream();
+            ms.AllowClose = false;
+            book.Write(ms);
+            ms.Flush();
+            ms.Seek(0, SeekOrigin.Begin);
+            ms.AllowClose = true;
+
+
+            //string filename = DateTime.Now.ToString("yyyyMMddHHmmssfff") + "运算结果.xlsx";
+            //return File(ms, "application/vnd.ms-excel", filename);
+
+            return ms;
+
+
+        }
+
+        /// <summary>
+        /// 将图标保存在Excel上
+        /// </summary>
+        /// <param name="sheet"></param>
+        /// <param name="row1"></param>
+        /// <param name="i"></param>
+        /// <param name="xssfworkbook"></param>
+        /// <param name="path"></param>
+        /// <param name="colnum"></param>
+        public static void MsgInsetImg(ISheet sheet, IRow row1, int i, XSSFWorkbook xssfworkbook, string path, int colnum)
+        {
+            try
+            {
+
+                //设置图片那的宽高
+                sheet.SetColumnWidth(colnum, 3531);
+
+                var oos = new OssHelper();
+                path = path.Substring(1, path.Length - 1);
+                using (Image original = Image.FromStream(oos.GetObjectStream(path)))
+                {
+                    System.Drawing.Image img = original.GetThumbnailImage(100, 145, null, IntPtr.Zero);
+
+                    //图片转换为文件流
+                    MemoryStream ms = new MemoryStream();
+                    img.Save(ms, ImageFormat.Bmp);
+                    //BinaryReader br = new BinaryReader(ms);
+                    var picBytes = ms.ToArray();
+                    ms.Close();
+                    row1.Height = 2220;
+                    //插入图片
+                    if (picBytes != null && picBytes.Length > 0)
+                    {
+                        var rows = i;
+                        var cols = colnum;
+                        /* Add Picture to Workbook, Specify picture type as PNG and Get an Index */
+                        int pictureIdx = xssfworkbook.AddPicture(picBytes, NPOI.SS.UserModel.PictureType.JPEG);  //添加图片
+                        /* Create the drawing container */
+                        XSSFDrawing drawing = (XSSFDrawing)sheet.CreateDrawingPatriarch();
+                        /* Create an anchor point */
+                        XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, cols, rows, 1, 1);
+
+                        /* Invoke createPicture and pass the anchor point and ID */
+                        XSSFPicture picture = (XSSFPicture)drawing.CreatePicture(anchor, pictureIdx);
+                        /* Call resize method, which resizes the image */
+                        picture.Resize();
+
+                        picBytes = null;
+                    }
+                }
+                //}
+                //else
+                //{
+
+                //    if (System.IO.File.Exists(dPath))//如果有图片就设置高
+                //    {
+                //        row1.Height = 2220;
+                //        using (FileStream fs = new FileStream(dPath, FileMode.Open, FileAccess.Read))
+
+                //        {
+
+                //            using (Image original = Image.FromStream(fs))
+
+                //            {
+                //                System.Drawing.Image img = original.GetThumbnailImage(100, 145, null, IntPtr.Zero);
+
+                //                //图片转换为文件流
+                //                MemoryStream ms = new MemoryStream();
+                //                img.Save(ms, ImageFormat.Bmp);
+                //                //BinaryReader br = new BinaryReader(ms);
+                //                var picBytes = ms.ToArray();
+                //                ms.Close();
+
+                //                //插入图片
+                //                if (picBytes != null && picBytes.Length > 0)
+                //                {
+                //                    var rows = i;
+                //                    var cols = colnum;
+                //                    /* Add Picture to Workbook, Specify picture type as PNG and Get an Index */
+                //                    int pictureIdx = xssfworkbook.AddPicture(picBytes, NPOI.SS.UserModel.PictureType.JPEG);  //添加图片
+                //                    /* Create the drawing container */
+                //                    XSSFDrawing drawing = (XSSFDrawing)sheet.CreateDrawingPatriarch();
+                //                    /* Create an anchor point */
+                //                    XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, cols, rows, 1, 1);
+
+                //                    /* Invoke createPicture and pass the anchor point and ID */
+                //                    XSSFPicture picture = (XSSFPicture)drawing.CreatePicture(anchor, pictureIdx);
+                //                    /* Call resize method, which resizes the image */
+                //                    picture.Resize();
+
+                //                    picBytes = null;
+                //                }
+                //            }
+                //        }
+                //    }
+
+                //}
+
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        /// <summary>
+        /// 将图标保存在Excel上
+        /// </summary>
+        /// <param name="sheet"></param>
+        /// <param name="row1"></param>
+        /// <param name="i"></param>
+        /// <param name="xssfworkbook"></param>
+        /// <param name="path"></param>
+        /// <param name="colnum"></param>
+        public static void HSSFMsgInsetImg(ISheet sheet, IRow row1, int i, HSSFWorkbook xssfworkbook, string path, int colnum)
+        {
+            try
+            {
+
+                //设置图片那的宽高
+                sheet.SetColumnWidth(colnum, 3531);
+                var oos = new OssHelper();
+                using (Image original = Image.FromStream(oos.GetObjectStream(path)))
+                {
+                    System.Drawing.Image img = original.GetThumbnailImage(100, 145, null, IntPtr.Zero);
+
+                    //图片转换为文件流
+                    MemoryStream ms = new MemoryStream();
+                    img.Save(ms, ImageFormat.Bmp);
+                    //BinaryReader br = new BinaryReader(ms);
+                    var picBytes = ms.ToArray();
+                    ms.Close();
+                    row1.Height = 2220;
+                    //插入图片
+                    if (picBytes != null && picBytes.Length > 0)
+                    {
+                        var rows = i;
+                        var cols = colnum;
+                        /* Add Picture to Workbook, Specify picture type as PNG and Get an Index */
+                        int pictureIdx = xssfworkbook.AddPicture(picBytes, NPOI.SS.UserModel.PictureType.JPEG);  //添加图片
+                        /* Create the drawing container */
+                        XSSFDrawing drawing = (XSSFDrawing)sheet.CreateDrawingPatriarch();
+                        /* Create an anchor point */
+                        XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, cols, rows, 1, 1);
+
+                        /* Invoke createPicture and pass the anchor point and ID */
+                        XSSFPicture picture = (XSSFPicture)drawing.CreatePicture(anchor, pictureIdx);
+                        /* Call resize method, which resizes the image */
+                        picture.Resize();
+
+                        picBytes = null;
+                    }
+                }
+
+                //else
+                //{
+
+                //    if (System.IO.File.Exists(dPath))//如果有图片就设置高
+                //    {
+                //        row1.Height = 2220;
+                //        using (FileStream fs = new FileStream(dPath, FileMode.Open, FileAccess.Read))
+
+                //        {
+
+                //            using (Image original = Image.FromStream(fs))
+
+                //            {
+                //                System.Drawing.Image img = original.GetThumbnailImage(100, 145, null, IntPtr.Zero);
+
+                //                //图片转换为文件流
+                //                MemoryStream ms = new MemoryStream();
+                //                img.Save(ms, ImageFormat.Bmp);
+                //                //BinaryReader br = new BinaryReader(ms);
+                //                var picBytes = ms.ToArray();
+                //                ms.Close();
+
+                //                //插入图片
+                //                if (picBytes != null && picBytes.Length > 0)
+                //                {
+                //                    var rows = i;
+                //                    var cols = colnum;
+                //                    /* Add Picture to Workbook, Specify picture type as PNG and Get an Index */
+                //                    int pictureIdx = xssfworkbook.AddPicture(picBytes, NPOI.SS.UserModel.PictureType.JPEG);  //添加图片
+                //                    /* Create the drawing container */
+                //                    XSSFDrawing drawing = (XSSFDrawing)sheet.CreateDrawingPatriarch();
+                //                    /* Create an anchor point */
+                //                    XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, cols, rows, 1, 1);
+
+                //                    /* Invoke createPicture and pass the anchor point and ID */
+                //                    XSSFPicture picture = (XSSFPicture)drawing.CreatePicture(anchor, pictureIdx);
+                //                    /* Call resize method, which resizes the image */
+                //                    picture.Resize();
+
+                //                    picBytes = null;
+                //                }
+                //            }
+                //        }
+                //    }
+
+                //}
+
+            }
+            catch (Exception ex)
+            {
+            }
         }
 
 
 
         /// <summary>
-        /// 将 List 数据转换为 Excel 文件流(使用DisplayName)
+        /// 添加下拉列表
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="list"></param>
-        /// <returns></returns>
-        public static IO.NpoiMemoryStream ListToExcelDispalyName<T>(List<T> list) where T : new()
+        /// <param name="workbook"></param>
+        /// <param name="sheet"></param>
+        /// <param name="name"></param>
+        /// <param name="firstcol"></param>
+        /// <param name="lastcol"></param>
+        /// <param name="vals"></param>
+        /// <param name="sheetindex"></param>
+        public static XSSFWorkbook SetCellDropdownList(XSSFWorkbook workbook, string name, int firstcol, int lastcol, string[] vals)
+        {
+            ISheet sheet = workbook.GetSheetAt(0);
+
+            //先创建一个Sheet专门用于存储下拉项的值
+            ISheet sheet2 = workbook.CreateSheet(name);
+
+            var sheet2Index = workbook.GetSheetIndex(name);
+
+            //隐藏
+            workbook.SetSheetHidden(sheet2Index, true);
+            int index = 0;
+            foreach (var item in vals)
+            {
+                sheet2.CreateRow(index).CreateCell(0).SetCellValue(item);
+                index++;
+            }
+            //创建的下拉项的区域：
+            var rangeName = name + "Range";
+            IName range = workbook.CreateName();
+            range.RefersToFormula = name + "!$A$1:$A$" + index;
+            range.NameName = rangeName;
+            CellRangeAddressList regions = new CellRangeAddressList(0, 65535, firstcol, lastcol);
+
+
+            CT_DataValidation dataValidation = new CT_DataValidation();
+
+            dataValidation.showErrorMessage = true;
+            dataValidation.showDropDown = true;
+            dataValidation.showInputMessage = true;
+            //XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper(workbook);
+            //XSSFDataValidationConstraint dvConstraint = (XSSFDataValidationConstraint)dvHelper.CreateFormulaListConstraint(name);
+            //CellRangeAddressList addressList = new CellRangeAddressList(0, 65535, firstcol, lastcol);
+            //XSSFDataValidation validation = (XSSFDataValidation)dvHelper.CreateValidation(dvConstraint, addressList);
+            ////XSSFDataValidation dataValidate = new XSSFDataValidation(regions, dataValidation);
+            ////dataValidate.CreateErrorBox("输入不合法", "请输入或选择下拉列表中的值。");
+            ////dataValidate.EmptyCellAllowed = true;
+            ////dataValidate.ShowPromptBox = false;
+            ////dataValidate.ShowErrorBox = false; 
+            //sheet.AddValidationData(dataValidate);
+            return workbook;
+        }
+        /// <summary>
+        /// 添加下拉列表数据
+        /// </summary>
+        /// <param name="workbook"></param>
+        /// <param name="sheet"></param>
+        /// <param name="name"></param> 
+        public static void SetCellValuelist(XSSFWorkbook workbook, string name, string[] vals)
         {
 
-            //创建Excel文件的对象
-            NPOI.XSSF.UserModel.XSSFWorkbook book = new NPOI.XSSF.UserModel.XSSFWorkbook();
-            //添加一个sheet
-            NPOI.SS.UserModel.ISheet sheet1 = book.CreateSheet("Sheet1");
 
-            //给sheet1添加第一行的头部标题
-            NPOI.SS.UserModel.IRow row1 = sheet1.CreateRow(0);
-
-            T model = new T();
-            var dict = PropertyHelper.GetPropertiesDisplayName(model);
-
-            int x = 0;
-            foreach (var item in dict)
+            //先创建一个Sheet专门用于存储下拉项的值
+            ISheet sheet2 = workbook.GetSheet(name);
+            int index = 0;
+            foreach (var item in vals)
             {
-                row1.CreateCell(x).SetCellValue(item.Key.ToString());
-                x++;
+                sheet2.CreateRow(index).CreateCell(0).SetCellValue(item);
+                index++;
             }
-
-
-            //将数据逐步写入sheet1各个行
-
-            foreach (var item in list)
-            {
-                int i = list.IndexOf(item);
-                NPOI.SS.UserModel.IRow rowtemp = sheet1.CreateRow(i + 1);
-
-                dict = PropertyHelper.GetProperties(item);
-                int d = 0;
-                foreach (var it in dict)
-                {
-
-                    rowtemp.CreateCell(d).SetCellValue(it.Value != null ? it.Value.ToString() : "");
-                    d++;
-                }
-            }
-
-
-            //写入到客户端 
-            var ms = new IO.NpoiMemoryStream();
-            ms.AllowClose = false;
-            book.Write(ms);
-            ms.Flush();
-            ms.Seek(0, SeekOrigin.Begin);
-            ms.AllowClose = true;
-
-
-            //string filename = DateTime.Now.ToString("yyyyMMddHHmmssfff") + "运算结果.xlsx";
-            //return File(ms, "application/vnd.ms-excel", filename);
-
-            return ms;
-
 
         }
+
     }
+
 }

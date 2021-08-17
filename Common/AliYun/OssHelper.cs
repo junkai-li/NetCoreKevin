@@ -337,8 +337,30 @@ namespace Common.AliYun
 
                 return false;
             }
-        }
+        } 
+        /// <summary>
+        /// 输出OSS的文件流
+        /// </summary>
+        /// <param name="remotepath"></param> 
+        /// <returns></returns>
+        public Stream GetObjectStream(string remotePath)
+        {
+            var objectName = remotePath;
 
+            // 创建OssClient实例。
+            var client = new OssClient(endpoint, accessKeyId, accessKeySecret);
+            try
+            {
+                // 下载文件到流。OssObject 包含了文件的各种信息，如文件所在的存储空间、文件名、元信息以及一个输入流。
+                var obj = client.GetObject(bucketName, objectName);
+
+                return obj.Content;
+            }
+            catch
+            {
+                return default;
+            }
+        }
 
 
     }
