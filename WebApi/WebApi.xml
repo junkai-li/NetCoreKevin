@@ -415,5 +415,10 @@
             </summary> 
             <returns></returns>
         </member>
+        <member name="M:AdminApi.Controllers.PermissionController.GetUserPermissions">
+            <summary>
+            获取登录用户权限
+            </summary>
+        </member>
     </members>
 </doc>

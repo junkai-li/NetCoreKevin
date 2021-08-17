@@ -805,6 +805,11 @@
             角色信息
             </summary>
         </member>
+        <member name="P:Repository.Database.TUser.IsSuperAdmin">
+            <summary>
+            是否超级管理员
+            </summary>
+        </member>
         <member name="T:Repository.Database.TUserBindAlipay">
             <summary>
             用户和支付宝绑定关系表
