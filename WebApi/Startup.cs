@@ -20,6 +20,8 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using TencentService;
+using TencentService._;
 using WebApi.Actions;
 using WebApiService.Filters;
 using WebApiService.Libraries.Swagger;
@@ -241,6 +243,11 @@ namespace WebApi
             //注册雪花ID算法示例
             services.AddSingleton(new Common.SnowflakeHelper(0, 0));
 
+            //腾讯MiniLive服务注册
+            MiniLive.AppId = "wxf164719d9baf8d83";
+            MiniLive.AppSecret = "7c635fbff5974b3919826e0cdcf4c8c4";
+            TencentService.Helper.RedisHelper.ConnectionString = Configuration.GetConnectionString("redisConnection");
+            services.AddSingleton<IMiniLive, MiniLive>();
 
         }
          
