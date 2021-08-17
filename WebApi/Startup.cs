@@ -23,6 +23,7 @@ using System.Text;
 using TencentService;
 using TencentService._;
 using WebApi.Actions;
+using WebApiService.Expand;
 using WebApiService.Filters;
 using WebApiService.Libraries.Swagger;
 
@@ -173,7 +174,6 @@ namespace WebApi
             });
 
 
-            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerConfigureOptions>();
 
 
             //注册Swagger生成器，定义一个和多个Swagger 文档
@@ -239,16 +239,13 @@ namespace WebApi
                 };
             });
 
-
-            //注册雪花ID算法示例
-            services.AddSingleton(new Common.SnowflakeHelper(0, 0));
-
             //腾讯MiniLive服务注册
             MiniLive.AppId = "wxf164719d9baf8d83";
             MiniLive.AppSecret = "7c635fbff5974b3919826e0cdcf4c8c4";
             TencentService.Helper.RedisHelper.ConnectionString = Configuration.GetConnectionString("redisConnection");
-            services.AddSingleton<IMiniLive, MiniLive>();
-
+            services.AddSingleton<IMiniLive, MiniLive>(); 
+            //其他
+            services.ConfigServies();
         }
          
         //向 Startup.Configure 方法添加中间件组件的顺序定义了针对请求调用这些组件的顺序，以及响应的相反顺序。 此顺序对于安全性、性能和功能至关重要。
