@@ -24,7 +24,7 @@ namespace WebApiService.Expand
     public static class ServiceConfiguration
     {
         public static IServiceCollection ConfigServies(this IServiceCollection services, IConfiguration Configuration)
-        {
+        { 
             services.Configure<FormOptions>(options =>
             {
                 options.MultipartBodyLengthLimit = long.MaxValue;
