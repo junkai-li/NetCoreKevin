@@ -4,28 +4,25 @@ FROM registry.cn-shanghai.aliyuncs.com/onekib/dotnet-aspnet:5.0-buster-slim AS b
 #FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS base
 WORKDIR /app
 
-#ĞŞ¸Ä¾µÏñÄÚ²¿Èí¼şÔ´²ÉÓÃ°¢Àï¾µÏñ
+#ä¿®æ”¹é•œåƒå†…éƒ¨è½¯ä»¶æºé‡‡ç”¨é˜¿é‡Œé•œåƒ
 RUN echo "deb https://mirrors.aliyun.com/debian buster main" > /etc/apt/sources.list
 RUN echo "deb https://mirrors.aliyun.com/debian-security buster/updates main" >> /etc/apt/sources.list
 RUN echo "deb https://mirrors.aliyun.com/debian buster-updates main" >> /etc/apt/sources.list
 
-#°²×° libgdiplus ÒÔ½â¾ö System.Drawing ÔÚ linux ÏÂÎŞ·¨ÔËĞĞµÄÎÊÌâ
+#å®‰è£… libgdiplus ä»¥è§£å†³ System.Drawing åœ¨ linux ä¸‹æ— æ³•è¿è¡Œçš„é—®é¢˜
 RUN apt-get update && apt-get -y install libgdiplus
 
-#ÉèÖÃÊ±ÇøÎªÖĞ¹úÉÏº£
+#è®¾ç½®æ—¶åŒºä¸ºä¸­å›½ä¸Šæµ·
 ENV TZ=Asia/Shanghai
 
 EXPOSE 80
 EXPOSE 443
+
 FROM registry.cn-shanghai.aliyuncs.com/onekib/dotnet-sdk:5.0-buster-slim AS build
-#FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build 
+#FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 
 WORKDIR /src
 COPY ["WebApi/WebApi.csproj", "WebApi/"]
-COPY ["WebApiService/WebApiService.csproj", "WebApiService/"]
-COPY ["Common/Common.csproj", "Common/"]
-COPY ["Models/Models.csproj", "Models/"]
-COPY ["Repository/Repository.csproj", "Repository/"]
 RUN dotnet restore "WebApi/WebApi.csproj"
 COPY . .
 WORKDIR "/src/WebApi"
