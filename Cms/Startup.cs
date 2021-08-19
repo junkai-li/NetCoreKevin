@@ -1,5 +1,5 @@
 ﻿using Cms.Filters;
-using Cms.Libraries;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -13,6 +13,7 @@ using System;
 using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using WebApiService.Actions;
 
 namespace Cms
 {
@@ -53,11 +54,21 @@ namespace Cms
                 options.MaxAge = TimeSpan.FromDays(365);
             });
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews();  
 
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            }).AddCookie(options =>
+            {
+                options.LoginPath = new PathString("/User/Login/");
+                options.AccessDeniedPath = new PathString("/User/Login/");
+                options.ExpireTimeSpan = TimeSpan.FromHours(20);
+            });
 
             //注册HttpContext
-            Libraries.Http.HttpContext.Add(services);
+            WebApiService.Libraries.Http.HttpContext.Add(services);
 
             //注册全局过滤器
             services.AddMvc(config => config.Filters.Add(new GlobalFilter()));
@@ -75,7 +86,7 @@ namespace Cms
             });
 
             //注册配置文件信息
-            Libraries.Start.StartConfiguration.Add(Configuration);
+            WebApiService.Libraries.Start.StartConfiguration.Add(Configuration);
 
 
 
@@ -158,7 +169,7 @@ namespace Cms
             else
             {
                 //注册全局异常处理机制
-                app.UseExceptionHandler(builder => builder.Run(async context => await GlobalError.ErrorEvent(context)));
+                app.UseExceptionHandler(builder => builder.Run(async context => await GlobalError.ErrorEvent(context,"Cms")));
             }
 
 
@@ -173,7 +184,7 @@ namespace Cms
 
 
             //注册HttpContext
-            Libraries.Http.HttpContext.Initialize(app, env);
+            WebApiService.Libraries.Http.HttpContext.Initialize(app, env);
 
             //注册跨域信息
             app.UseCors("cors");
@@ -182,10 +193,12 @@ namespace Cms
 
 
             //注册HostingEnvironment
-            Libraries.Start.StartHostingEnvironment.Add(env);
+            WebApiService.Libraries.Start.StartHostingEnvironment.Add(env);
 
 
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

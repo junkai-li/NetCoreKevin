@@ -7,7 +7,7 @@ namespace WebApiService.Actions
 {
     public class GlobalError
     {
-        public static Task ErrorEvent(HttpContext context)
+        public static Task ErrorEvent(HttpContext context,string ProjectName="WebApi")
         {
             var feature = context.Features.Get<IExceptionHandlerFeature>();
             var error = feature?.Error;
@@ -41,7 +41,7 @@ namespace WebApiService.Actions
 
             string strContent = JsonHelper.ObjectToJSON(content);
 
-            Common.DBHelper.LogSet("WebApi", "errorlog", strContent);
+            Common.DBHelper.LogSet(ProjectName, "errorlog", strContent);
 
             context.Response.StatusCode = 400;
 

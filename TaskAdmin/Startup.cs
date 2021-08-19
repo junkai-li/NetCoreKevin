@@ -16,7 +16,8 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using TaskAdmin.Filters;
-using TaskAdmin.Libraries;
+using WebApiService.Actions;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace TaskAdmin
 {
@@ -84,9 +85,19 @@ namespace TaskAdmin
 
             services.AddControllersWithViews();
 
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            }).AddCookie(options =>
+            {
+                options.LoginPath = new PathString("/User/Login/");
+                options.AccessDeniedPath = new PathString("/User/Login/");
+                options.ExpireTimeSpan = TimeSpan.FromHours(20);
+            });
 
             //注册HttpContext
-            Libraries.Http.HttpContext.Add(services);
+            WebApiService.Libraries.Http.HttpContext.Add(services);
 
 
             //注册全局过滤器
@@ -95,7 +106,7 @@ namespace TaskAdmin
 
 
             //注册配置文件信息
-            Libraries.Start.StartConfiguration.Add(Configuration);
+            WebApiService.Libraries.Start.StartConfiguration.Add(Configuration);
 
 
             //托管Session到Redis中
@@ -184,7 +195,7 @@ namespace TaskAdmin
             else
             {
                 //注册全局异常处理机制
-                app.UseExceptionHandler(builder => builder.Run(async context => await GlobalError.ErrorEvent(context)));
+                app.UseExceptionHandler(builder => builder.Run(async context => await GlobalError.ErrorEvent(context,"Task")));
             }
 
 
@@ -199,7 +210,7 @@ namespace TaskAdmin
 
 
             //注册HttpContext
-            Libraries.Http.HttpContext.Initialize(app, env);
+            WebApiService.Libraries.Http.HttpContext.Initialize(app, env);
 
 
             //注册Session
@@ -207,11 +218,13 @@ namespace TaskAdmin
 
 
             //注册HostingEnvironment
-            Libraries.Start.StartHostingEnvironment.Add(env);
+            WebApiService.Libraries.Start.StartHostingEnvironment.Add(env);
 
 
             app.UseRouting();
 
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseHangfireDashboard("/hangfire", new DashboardOptions
             {

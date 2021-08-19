@@ -25,12 +25,12 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj" />
+    <Folder Include="wwwroot\Upload\" />
   </ItemGroup>
 
 
   <ItemGroup>
-    <Folder Include="wwwroot\Upload\" />
+    <ProjectReference Include="..\WebApiService\WebApiService.csproj" />
   </ItemGroup>
 
 

@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Repository.Database;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cms.Controllers
 {
-    [AuthenticationFilter]
+    [Authorize]
     public class UeditorController : Controller
     {
 

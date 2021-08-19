@@ -21,9 +21,9 @@ namespace Cms.Libraries
             };
 
 
-            string path = Libraries.Http.HttpContext.GetUrl();
+            string path = WebApiService.Libraries.Http.HttpContext.GetUrl();
 
-            var parameter = Libraries.Http.HttpContext.GetParameter();
+            var parameter = WebApiService.Libraries.Http.HttpContext.GetParameter();
 
             var parameterStr = JsonHelper.ObjectToJSON(parameter);
 

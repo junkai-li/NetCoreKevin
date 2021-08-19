@@ -6,11 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cms.Controllers
 {
 
-    [AuthenticationFilter]
+    [Authorize]
     public class FileController : Controller
     {
 
@@ -64,7 +65,7 @@ namespace Cms.Controllers
                 var fileExtension = string.Empty;
                 var fullFileName = string.Empty;
 
-                string filepath = Libraries.IO.Path.WebRootPath() + "/Upload/" + DateTime.Now.ToString("yyyy/MM/dd");
+                string filepath = WebApiService.Libraries.IO.Path.WebRootPath() + "/Upload/" + DateTime.Now.ToString("yyyy/MM/dd");
 
 
                 foreach (var file in Attachments)
@@ -105,7 +106,7 @@ namespace Cms.Controllers
                             }
                             else
                             {
-                                path = path.Replace(Libraries.IO.Path.WebRootPath(), "");
+                                path = path.Replace(WebApiService.Libraries.IO.Path.WebRootPath(), "");
                             }
 
 

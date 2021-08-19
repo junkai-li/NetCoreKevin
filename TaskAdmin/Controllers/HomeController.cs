@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Repository.Database;
 using TaskAdmin.Filters;
 
 namespace TaskAdmin.Controllers
 {
 
+    [Authorize]
     public class HomeController : Controller
     {
 
@@ -16,7 +18,6 @@ namespace TaskAdmin.Controllers
         }
 
 
-        [AuthenticationFilter]
         public void Index()
         {
             //进行任务注册
