@@ -171,7 +171,6 @@ namespace WebApiService.Expand
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerConfigureOptions>();
             //注册雪花ID算法示例
             services.AddSingleton(new Common.SnowflakeHelper(0, 0));
-            GlobalServices.ServiceProvider= services.BuildServiceProvider();
             return services;
         }
 
@@ -206,6 +205,8 @@ namespace WebApiService.Expand
             //启用中间件服务生成Swagger作为JSON端点
             app.UseSwagger();
 
+
+            GlobalServices.ServiceProvider = (ServiceProvider)app.ApplicationServices;
             return app;
         }
     }

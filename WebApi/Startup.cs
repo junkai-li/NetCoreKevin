@@ -16,6 +16,8 @@ using System.IO;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using TencentService;
+using TencentService._;
 using WebApi.Subscribes;
 using WebApiService.Expand;
 using WebApiService.Filters;
@@ -121,10 +123,10 @@ namespace WebApi
             });
 
             //腾讯MiniLive服务注册
-            //MiniLive.AppId = "wxf164719d9baf8d83";
-            //MiniLive.AppSecret = "7c635fbff5974b3919826e0cdcf4c8c4";
-            //TencentService.Helper.RedisHelper.ConnectionString = Configuration.GetConnectionString("redisConnection");
-            //services.AddSingleton<IMiniLive, MiniLive>();  
+            MiniLive.AppId = "wxf164719d9baf8d83";
+            MiniLive.AppSecret = "7c635fbff5974b3919826e0cdcf4c8c4";
+            TencentService.Helper.RedisHelper.ConnectionString = Configuration.GetConnectionString("redisConnection");
+            services.AddSingleton<IMiniLive, MiniLive>();
         }
 
         //向 Startup.Configure 方法添加中间件组件的顺序定义了针对请求调用这些组件的顺序，以及响应的相反顺序。 此顺序对于安全性、性能和功能至关重要。
