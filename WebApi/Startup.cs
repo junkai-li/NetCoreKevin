@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Autofac;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -167,5 +168,15 @@ namespace WebApi
             });
 
         }
+
+        ///// <summary>
+        ///// autoFAC 服务注册   AutoFac支持方法和属性（可以自己控制注入 需要标记注入）注入 ServiceCollection只支持构造函数注入 需要在Program替换IOC容器
+        ///// </summary>
+        //public void ConfiguraContainer(ContainerBuilder containerBuilder)
+        //{
+        //    containerBuilder.RegisterType<DemoSubscribe>().As<DemoSubscribe>();
+        //    //PropertiesAutowired指定属性注入 
+        //    containerBuilder.RegisterType<DemoSubscribe>().As<DemoSubscribe>().PropertiesAutowired(new// 扩展满足条件注入);
+        //}
     }
 }

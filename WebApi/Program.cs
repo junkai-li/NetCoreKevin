@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
@@ -32,5 +33,6 @@ namespace WebApi
 
                     webBuilder.UseStartup<Startup>();
                 });
+            //替换IOC 使用AutoFac .UseServiceProviderFactory(new AutofacServiceProviderFactory());
     }
 }

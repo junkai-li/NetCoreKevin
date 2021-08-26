@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac" Version="6.2.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
     <PackageReference Include="DotNetCore.CAP" Version="5.1.2" />
     <PackageReference Include="DotNetCore.CAP.Dashboard" Version="5.1.2" />
     <PackageReference Include="DotNetCore.CAP.RedisStreams" Version="5.1.2" />
