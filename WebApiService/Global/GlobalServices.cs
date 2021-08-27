@@ -12,6 +12,6 @@ namespace WebApiService.Global
     /// </summary>
     public static class GlobalServices
     {
-        public static ServiceProvider ServiceProvider { get; set; }
+        public static IServiceProvider ServiceProvider { get; set; }
     }
 }

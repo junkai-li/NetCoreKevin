@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApiService.Cache;
 
 namespace WebApiService.Actions
 {
@@ -25,7 +26,7 @@ namespace WebApiService.Actions
 
             string key = "VerifyPhone_" + phone;
 
-            var code = Common.RedisHelper.StringGet(key);
+            var code = CacheHelper.GetString(key);
 
             if (string.IsNullOrEmpty(code) == false && code == keyValue.Value.ToString())
             {

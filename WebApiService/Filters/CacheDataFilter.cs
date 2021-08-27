@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Linq;
+using WebApiService.Cache;
 
 namespace WebApiService.Filters
 {
@@ -46,7 +47,7 @@ namespace WebApiService.Filters
             try
             {
 
-                var cacheInfo = Common.RedisHelper.StringGet(key);
+                var cacheInfo = CacheHelper.GetString(key);
 
                 if (!string.IsNullOrEmpty(cacheInfo))
                 {
@@ -85,7 +86,7 @@ namespace WebApiService.Filters
 
 
 
-                Common.RedisHelper.StringSet(key, value,TimeSpan.FromSeconds(TTL));
+                CacheHelper.SetString(key, value,TimeSpan.FromSeconds(TTL));
 
             }
             catch

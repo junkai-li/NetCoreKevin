@@ -6,6 +6,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml;
+using WebApiService.Cache;
 using WebApiService.Libraries.WeiXin.MiniApp.Models;
 using WebApiService.Libraries.WeiXin.Public;
 
@@ -50,7 +51,7 @@ namespace WebApiService.Libraries.WeiXin.MiniApp
                 string openid = Common.Json.JsonHelper.GetValueByKey(httpret, "openid");
                 string sessionkey = Common.Json.JsonHelper.GetValueByKey(httpret, "session_key");
 
-                Common.RedisHelper.StringSet(code, httpret, new TimeSpan(0, 0, 10));
+                CacheHelper.SetString(code, httpret, new TimeSpan(0, 0, 10));
 
                 return (openid, sessionkey);
             }
@@ -60,7 +61,7 @@ namespace WebApiService.Libraries.WeiXin.MiniApp
 
                 if (errcode == "40163")
                 {
-                    var cachHttpRet = Common.RedisHelper.StringGet(code);
+                    var cachHttpRet = CacheHelper.GetString(code);
 
                     if (!string.IsNullOrEmpty(cachHttpRet))
                     {

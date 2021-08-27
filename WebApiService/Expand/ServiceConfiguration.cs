@@ -171,6 +171,27 @@ namespace WebApiService.Expand
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerConfigureOptions>();
             //注册雪花ID算法示例
             services.AddSingleton(new Common.SnowflakeHelper(0, 0));
+
+            //注册缓存服务 内存模式
+            services.AddDistributedMemoryCache();
+
+
+            //注册缓存服务 SqlServer模式
+            //services.AddDistributedSqlServerCache(options =>
+            //{
+            //    options.ConnectionString = Configuration.GetConnectionString("dbConnection");
+            //    options.SchemaName = "dbo";
+            //    options.TableName = "t_cache";
+            //});
+
+
+            //注册缓存服务 Redis模式
+            //services.AddStackExchangeRedisCache(options =>
+            //{
+            //    options.Configuration = Configuration.GetConnectionString("redisConnection");
+            //    options.InstanceName = "cache";
+            //});
+
             return services;
         }
 
@@ -206,7 +227,7 @@ namespace WebApiService.Expand
             app.UseSwagger();
 
 
-            GlobalServices.ServiceProvider = (ServiceProvider)app.ApplicationServices;
+            GlobalServices.ServiceProvider = app.ApplicationServices;
             return app;
         }
     }
