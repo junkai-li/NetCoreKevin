@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "WebApi\WebApi.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{73CD8EA1-FE0F-488B-A68A-8C54C8AF9557}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Kevin", "Kevin", "{0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,6 +56,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8B22BA8F-2FDA-46FA-A7C5-612F1ACB1E0C} = {0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}
+		{8458CD7F-7E52-4794-9E13-E67A049565C8} = {0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}
+		{2803C9AB-360C-4097-8D38-4C83E5CD6015} = {0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}
+		{73CD8EA1-FE0F-488B-A68A-8C54C8AF9557} = {0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {87D265C7-413F-4CF5-A684-6D860C49A3AE}
