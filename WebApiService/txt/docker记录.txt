@@ -1,0 +1,83 @@
+登录
+docker login --username=berkerdong@qq.com registry.cn-shanghai.aliyuncs.com
+
+
+拉取仓库
+docker pull 仓库地址:版本
+
+
+查看本地仓库
+docker images
+
+
+删除仓库
+docker rmi 仓库名称:版本   
+docker rmi 镜像ID
+
+
+强制删除仓库
+docker rmi -f 仓库名称:版本   
+docker rmi -f 镜像ID
+
+
+标记镜像，副本到新的仓库地址
+docker tag 镜像ID 新仓库地址:版本
+docker tag 仓库地址:版本 新仓库地址:版本
+
+
+推送仓库
+docker push 仓库地址:版本
+
+
+通过 .net 项目发布 docker 镜像
+docker build -f "D:\Private\WebCore\WebApi\Dockerfile" --force-rm -t webapi:last "D:\Private\WebCore"
+
+
+创建一个容器应用
+docker run -d -p 宿主机端口:容器内部端口 镜像ID
+docker run -d -p 宿主机端口:容器内部端口 -p 宿主机端口:容器内部端口 镜像ID      (暴露多个端口)
+
+
+查看正在运行的容器应用
+docker ps
+
+
+查看全部容器应用
+docker ps -a
+
+
+停止容器应用
+docker stop 容器应用ID  （注意：不是镜像ID）
+
+
+删除一个容器应用
+docker rm 容器应用ID
+
+
+删除一个运行中的容器应用
+docker kill 容器应用ID
+
+
+
+首次使用 vsdbg 下载太慢解决方法
+从 vs 容器工具输出信息中 找到 GetVsDbg.ps1的路径，拷贝出来
+然后编辑文件，找到
+DownloadAndExtract $url $InstallPath
+
+注释掉这一行，在上面新加一行  
+echo $url
+
+然后把这个文件放入 d:\ceshi\路径下
+
+然后启动 powershell 执行如下命令
+d:
+cd ceshi
+./GetVsDbg.ps1 -Version vs2017u5 -RuntimeID linux-x64 -InstallPath "d:\ceshi\1"
+./GetVsDbg.ps1 -Version vs2017u5 -RuntimeID linux-musl-x64 -InstallPath "d:\ceshi\1"
+
+得到对应的文件下载地址之后，将文件下载下来，并记录其中的版本号
+
+解压完了,在路径 C:\Users\用户名\vsdbg\vs2017u5 里面 新建 success_rid.txt 编辑内容 linux-x64,再新建 success_version.txt 编辑内容 16.2.10709.2(版本号需要即时)
+在路径 C:\Users\用户名\vsdbg\vs2017u5\linux-musl-x64 里面 新建 success_rid.txt 编辑内容 linux-musl-x64,再新建 success_version.txt 编辑内容 16.2.10709.2(版本号需要即时)
+完成
+
