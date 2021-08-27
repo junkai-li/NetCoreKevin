@@ -4,7 +4,7 @@ using Repository.Database;
 using System;
 using System.Linq;
 using WebApi.Controllers.Bases;
-using WebApiService.Filters;
+using Web.Filters;
 using WebApi.Models.v1.Sign;
 
 namespace WebApi.Controllers.v1
@@ -51,7 +51,7 @@ namespace WebApi.Controllers.v1
         [HttpPost("AddSign")]
         public bool AddSign([FromBody] dtoSign addSign)
         {
-            var userId = Guid.Parse(WebApiService.Libraries.Verify.JwtToken.GetClaims("userId"));
+            var userId = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userId"));
 
 
             var like = new TSign();
@@ -80,7 +80,7 @@ namespace WebApi.Controllers.v1
         [HttpDelete("DeleteSign")]
         public bool DeleteSign(dtoSign deleteSign)
         {
-            var userId = Guid.Parse(WebApiService.Libraries.Verify.JwtToken.GetClaims("userId"));
+            var userId = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userId"));
 
 
             var like = db.TSign.Where(t => t.IsDelete == false && t.CreateUserId == userId && t.Table == deleteSign.Table && t.TableId == deleteSign.TableId && t.Sign == deleteSign.Sign).FirstOrDefault();

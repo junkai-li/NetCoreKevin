@@ -19,7 +19,7 @@ namespace Cms.Libraries.Ueditor
 
         public override string Process()
         {
-            Sources = WebApiService.Libraries.Http.HttpContext.Current().Request.Form["source[]"];
+            Sources = Web.Libraries.Http.HttpContext.Current().Request.Form["source[]"];
             if (Sources == null || Sources.Length == 0)
             {
                 return WriteJson(new
@@ -77,7 +77,7 @@ namespace Cms.Libraries.Ueditor
                     return this;
                 }
                 ServerUrl = PathFormatter.Format(Path.GetFileName(this.SourceUrl), Config.GetString("catcherPathFormat"));
-                var savePath = WebApiService.Libraries.IO.Path.WebRootPath() + ServerUrl;
+                var savePath = Web.Libraries.IO.Path.WebRootPath() + ServerUrl;
                 if (!Directory.Exists(Path.GetDirectoryName(savePath)))
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(savePath));

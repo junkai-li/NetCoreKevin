@@ -18,11 +18,11 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using TencentService;
-using TencentService._;
-using WebApi.Subscribes;
-using WebApiService.Expand;
-using WebApiService.Filters;
-using WebApiService.Libraries.Swagger;
+using TencentService._; 
+using Web.Extension;
+using Web.Filters;
+using Web.Libraries.Swagger;
+using Web.Subscribes;
 
 namespace WebApi
 {
@@ -148,14 +148,14 @@ namespace WebApi
             else
             {
                 //注册全局异常处理机制
-                app.UseExceptionHandler(builder => builder.Run(async context => await WebApiService.Actions.GlobalError.ErrorEvent(context)));
+                app.UseExceptionHandler(builder => builder.Run(async context => await Web.Actions.GlobalError.ErrorEvent(context)));
             }
             //kevin初始化
             app.UseKevin();
             //注册HttpContext
-            WebApiService.Libraries.Http.HttpContext.Initialize(app, env);
+            Web.Libraries.Http.HttpContext.Initialize(app, env);
             //注册HostingEnvironment
-            WebApiService.Libraries.Start.StartHostingEnvironment.Add(env);
+            Web.Libraries.Start.StartHostingEnvironment.Add(env);
             //启用中间件服务对swagger-ui，指定Swagger JSON端点
             app.UseSwaggerUI(options =>
             {

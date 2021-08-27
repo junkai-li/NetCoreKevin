@@ -13,7 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using WebApi.Controllers.Bases;
-using WebApiService.Filters;
+using Web.Filters;
 
 namespace WebApi.Controllers
 {
@@ -49,7 +49,7 @@ namespace WebApi.Controllers
         {
             string remoteFileUrl = fileInfo.Key.ToString();
 
-            var userId = Guid.Parse(WebApiService.Libraries.Verify.JwtToken.GetClaims("userId"));
+            var userId = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userId"));
 
             var fileExtension = Path.GetExtension(fileInfo.Value.ToString()).ToLower();
             var fileName = Guid.NewGuid().ToString() + fileExtension;
@@ -59,7 +59,7 @@ namespace WebApi.Controllers
             string basepath = "Files/" + DateTime.Now.ToString("yyyy/MM/dd");
 
 
-            var filePath = WebApiService.Libraries.IO.Path.ContentRootPath() + "/" + basepath + "/";
+            var filePath = Web.Libraries.IO.Path.ContentRootPath() + "/" + basepath + "/";
 
             //下载文件
             var dlPath = Common.IO.IOHelper.DownloadFile(remoteFileUrl, filePath, fileName);
@@ -70,7 +70,7 @@ namespace WebApi.Controllers
                 dlPath = Common.IO.IOHelper.DownloadFile(remoteFileUrl, filePath, fileName);
             }
 
-            filePath = dlPath.Replace(WebApiService.Libraries.IO.Path.ContentRootPath(), "");
+            filePath = dlPath.Replace(Web.Libraries.IO.Path.ContentRootPath(), "");
 
 
             if (dlPath != null)
@@ -138,10 +138,10 @@ namespace WebApi.Controllers
         public Guid UploadFile([FromQuery][Required] string business, [FromQuery][Required] Guid key, [FromQuery][Required] string sign, [Required] IFormFile file)
         {
 
-            var userId = Guid.Parse(WebApiService.Libraries.Verify.JwtToken.GetClaims("userId"));
+            var userId = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userId"));
 
             string basepath = "/Files/" + DateTime.Now.ToString("yyyy/MM/dd");
-            string filepath = WebApiService.Libraries.IO.Path.ContentRootPath() + basepath;
+            string filepath = Web.Libraries.IO.Path.ContentRootPath() + basepath;
 
             Directory.CreateDirectory(filepath);
 
@@ -265,7 +265,7 @@ namespace WebApi.Controllers
         {
 
             var file = db.TFile.Where(t => t.Id == fileid).FirstOrDefault();
-            string path = WebApiService.Libraries.IO.Path.ContentRootPath() + file.Path;
+            string path = Web.Libraries.IO.Path.ContentRootPath() + file.Path;
 
 
             //读取文件入流
@@ -304,7 +304,7 @@ namespace WebApi.Controllers
         {
 
             var file = db.TFile.Where(t => t.Id == fileId).FirstOrDefault();
-            var path = WebApiService.Libraries.IO.Path.ContentRootPath() + file.Path;
+            var path = Web.Libraries.IO.Path.ContentRootPath() + file.Path;
 
             var stream = System.IO.File.OpenRead(path);
 
@@ -520,7 +520,7 @@ namespace WebApi.Controllers
                 var fullFileName = string.Empty;
 
                 string basepath = "/Files/Group/" + DateTime.Now.ToString("yyyy/MM/dd") + "/" + fileId;
-                string filepath = WebApiService.Libraries.IO.Path.ContentRootPath() + basepath;
+                string filepath = Web.Libraries.IO.Path.ContentRootPath() + basepath;
 
                 Directory.CreateDirectory(filepath);
 
@@ -571,7 +571,7 @@ namespace WebApi.Controllers
 
                         var fileinfo = db.TFile.Where(t => t.Id == fileId).FirstOrDefault();
 
-                        var fullfilepath = WebApiService.Libraries.IO.Path.ContentRootPath() + fileinfo.Path;
+                        var fullfilepath = Web.Libraries.IO.Path.ContentRootPath() + fileinfo.Path;
 
                         using (FileStream outStream = new FileStream(fullfilepath, FileMode.Create))
                         {
@@ -582,7 +582,7 @@ namespace WebApi.Controllers
 
                             foreach (var item in filelist)
                             {
-                                string p = WebApiService.Libraries.IO.Path.ContentRootPath() + item.Path;
+                                string p = Web.Libraries.IO.Path.ContentRootPath() + item.Path;
                                 srcStream = new FileStream(p, FileMode.Open);
                                 while ((readedLen = srcStream.Read(buffer, 0, buffer.Length)) > 0)
                                 {

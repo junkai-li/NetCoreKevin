@@ -13,7 +13,7 @@ using System;
 using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
-using WebApiService.Actions;
+using Web.Actions;
 
 namespace Cms
 {
@@ -68,7 +68,7 @@ namespace Cms
             });
 
             //注册HttpContext
-            WebApiService.Libraries.Http.HttpContext.Add(services);
+            Web.Libraries.Http.HttpContext.Add(services);
 
             //注册全局过滤器
             services.AddMvc(config => config.Filters.Add(new GlobalFilter()));
@@ -86,7 +86,7 @@ namespace Cms
             });
 
             //注册配置文件信息
-            WebApiService.Libraries.Start.StartConfiguration.Add(Configuration);
+            Web.Libraries.Start.StartConfiguration.Add(Configuration);
 
 
 
@@ -184,7 +184,7 @@ namespace Cms
 
 
             //注册HttpContext
-            WebApiService.Libraries.Http.HttpContext.Initialize(app, env);
+            Web.Libraries.Http.HttpContext.Initialize(app, env);
 
             //注册跨域信息
             app.UseCors("cors");
@@ -193,7 +193,7 @@ namespace Cms
 
 
             //注册HostingEnvironment
-            WebApiService.Libraries.Start.StartHostingEnvironment.Add(env);
+            Web.Libraries.Start.StartHostingEnvironment.Add(env);
 
 
             app.UseRouting();

@@ -36,10 +36,10 @@ namespace Cms.Libraries.Ueditor
             if (UploadConfig.Base64)
             {
                 uploadFileName = UploadConfig.Base64Filename;
-                uploadFileBytes = Convert.FromBase64String(WebApiService.Libraries.Http.HttpContext.Current().Request.Form[UploadConfig.UploadFieldName]);
+                uploadFileBytes = Convert.FromBase64String(Web.Libraries.Http.HttpContext.Current().Request.Form[UploadConfig.UploadFieldName]);
 
                 var savePath = PathFormatter.Format(uploadFileName, UploadConfig.PathFormat);
-                var localPath = WebApiService.Libraries.IO.Path.WebRootPath() + savePath;
+                var localPath = Web.Libraries.IO.Path.WebRootPath() + savePath;
 
                 try
                 {
@@ -93,7 +93,7 @@ namespace Cms.Libraries.Ueditor
             }
             else
             {
-                var file = WebApiService.Libraries.Http.HttpContext.Current().Request.Form.Files[UploadConfig.UploadFieldName];
+                var file = Web.Libraries.Http.HttpContext.Current().Request.Form.Files[UploadConfig.UploadFieldName];
                 uploadFileName = file.FileName;
 
                 if (!CheckFileType(uploadFileName))
@@ -116,7 +116,7 @@ namespace Cms.Libraries.Ueditor
                     file.OpenReadStream();
 
                     var savePath = PathFormatter.Format(uploadFileName, UploadConfig.PathFormat);
-                    var localPath = WebApiService.Libraries.IO.Path.WebRootPath() + savePath;
+                    var localPath = Web.Libraries.IO.Path.WebRootPath() + savePath;
 
                     try
                     {

@@ -5,7 +5,7 @@ using Repository.Database;
 using System;
 using System.Linq;
 using WebApi.Controllers.Bases;
-using WebApiService.Filters;
+using Web.Filters;
 using WebApi.Models.v1.User;
 
 namespace WebApi.Controllers.v1
@@ -43,7 +43,7 @@ namespace WebApi.Controllers.v1
 
             var weixinkey = db.TWeiXinKey.Where(t => t.Id == weixinkeyid).FirstOrDefault();
 
-            var weiXinHelper = new WebApiService.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey.WxAppId, weixinkey.WxAppSecret);
+            var weiXinHelper = new Web.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey.WxAppId, weixinkey.WxAppSecret);
 
             var wxinfo = weiXinHelper.GetOpenIdAndSessionKey(code);
 
@@ -70,7 +70,7 @@ namespace WebApi.Controllers.v1
 
             var weixinkey = db.TWeiXinKey.Where(t => t.Id == weixinkeyid).FirstOrDefault();
 
-            var weiXinHelper = new WebApiService.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey.WxAppId, weixinkey.WxAppSecret);
+            var weiXinHelper = new Web.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey.WxAppId, weixinkey.WxAppSecret);
 
 
             var wxinfo = weiXinHelper.GetOpenIdAndSessionKey(code);
@@ -79,7 +79,7 @@ namespace WebApi.Controllers.v1
             string sessionkey = wxinfo.sessionkey;
 
 
-            var strJson = WebApiService.Libraries.WeiXin.MiniApp.WeiXinHelper.DecryptionData(encryptedData, sessionkey, iv);
+            var strJson = Web.Libraries.WeiXin.MiniApp.WeiXinHelper.DecryptionData(encryptedData, sessionkey, iv);
 
             var user = db.TUserBindWeixin.Where(t => t.WeiXinOpenId == openid & t.WeiXinKeyId == weixinkeyid).Select(t => t.User).FirstOrDefault();
 
@@ -104,7 +104,7 @@ namespace WebApi.Controllers.v1
 
             if (userId == default)
             {
-                userId = Guid.Parse(WebApiService.Libraries.Verify.JwtToken.GetClaims("userId"));
+                userId = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userId"));
             }
 
             var user = db.TUser.Where(t => t.Id == userId && t.IsDelete == false).Select(t => new dtoUser
@@ -131,9 +131,9 @@ namespace WebApi.Controllers.v1
         public bool EditUserPhoneBySms([FromBody] dtoKeyValue keyValue)
         {
 
-            if (WebApiService.Actions.AuthorizeAction.SmsVerifyPhone(keyValue))
+            if (Web.Actions.AuthorizeAction.SmsVerifyPhone(keyValue))
             {
-                var userId = Guid.Parse(WebApiService.Libraries.Verify.JwtToken.GetClaims("userId"));
+                var userId = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userId"));
 
                 string phone = keyValue.Key.ToString();
 
@@ -206,13 +206,13 @@ namespace WebApi.Controllers.v1
         public bool EditUserPassWordBySms([FromBody] dtoKeyValue keyValue)
         {
 
-            var userId = Guid.Parse(WebApiService.Libraries.Verify.JwtToken.GetClaims("userId"));
+            var userId = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userId"));
 
             string phone = db.TUser.Where(t => t.Id == userId).Select(t => t.Phone).FirstOrDefault();
 
             string smsCode = keyValue.Value.ToString();
 
-            var checkSms = WebApiService.Actions.AuthorizeAction.SmsVerifyPhone(new dtoKeyValue { Key = phone, Value = smsCode });
+            var checkSms = Web.Actions.AuthorizeAction.SmsVerifyPhone(new dtoKeyValue { Key = phone, Value = smsCode });
 
             if (checkSms)
             {

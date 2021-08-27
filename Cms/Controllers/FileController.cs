@@ -65,7 +65,7 @@ namespace Cms.Controllers
                 var fileExtension = string.Empty;
                 var fullFileName = string.Empty;
 
-                string filepath = WebApiService.Libraries.IO.Path.WebRootPath() + "/Upload/" + DateTime.Now.ToString("yyyy/MM/dd");
+                string filepath = Web.Libraries.IO.Path.WebRootPath() + "/Upload/" + DateTime.Now.ToString("yyyy/MM/dd");
 
 
                 foreach (var file in Attachments)
@@ -106,7 +106,7 @@ namespace Cms.Controllers
                             }
                             else
                             {
-                                path = path.Replace(WebApiService.Libraries.IO.Path.WebRootPath(), "");
+                                path = path.Replace(Web.Libraries.IO.Path.WebRootPath(), "");
                             }
 
 

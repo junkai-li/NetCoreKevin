@@ -16,7 +16,7 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using TaskAdmin.Filters;
-using WebApiService.Actions;
+using Web.Actions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace TaskAdmin
@@ -97,7 +97,7 @@ namespace TaskAdmin
             });
 
             //注册HttpContext
-            WebApiService.Libraries.Http.HttpContext.Add(services);
+            Web.Libraries.Http.HttpContext.Add(services);
 
 
             //注册全局过滤器
@@ -106,7 +106,7 @@ namespace TaskAdmin
 
 
             //注册配置文件信息
-            WebApiService.Libraries.Start.StartConfiguration.Add(Configuration);
+            Web.Libraries.Start.StartConfiguration.Add(Configuration);
 
 
             //托管Session到Redis中
@@ -210,7 +210,7 @@ namespace TaskAdmin
 
 
             //注册HttpContext
-            WebApiService.Libraries.Http.HttpContext.Initialize(app, env);
+            Web.Libraries.Http.HttpContext.Initialize(app, env);
 
 
             //注册Session
@@ -218,7 +218,7 @@ namespace TaskAdmin
 
 
             //注册HostingEnvironment
-            WebApiService.Libraries.Start.StartHostingEnvironment.Add(env);
+            Web.Libraries.Start.StartHostingEnvironment.Add(env);
 
 
             app.UseRouting();

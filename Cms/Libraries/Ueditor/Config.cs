@@ -19,7 +19,7 @@ namespace Cms.Libraries.Ueditor
         private static bool noCache = true;
         private static JObject BuildItems()
         {
-            var path = WebApiService.Libraries.IO.Path.WebRootPath()+  "/lib/ueditor/net/config.json";
+            var path = Web.Libraries.IO.Path.WebRootPath()+  "/lib/ueditor/net/config.json";
             var json = File.ReadAllText(path);
             return JObject.Parse(json);
         }

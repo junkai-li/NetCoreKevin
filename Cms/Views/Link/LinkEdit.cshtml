@@ -301,7 +301,7 @@
                                             @foreach (var item in (List<TFile>)ViewData["coverList"])
                                             {
                                                 <li class="weui-uploader__file" style="margin-bottom:50px" data-id="@item.Id">
-                                                    <div class="weui-uploader__file" style="background-image:url(@(WebApiService.Libraries.Http.HttpContext.GetBaseUrl()+item.Path.Replace("\\","/")));margin-bottom:0px" data-id="@item.Id"></div>
+                                                    <div class="weui-uploader__file" style="background-image:url(@(Web.Libraries.Http.HttpContext.GetBaseUrl()+item.Path.Replace("\\","/")));margin-bottom:0px" data-id="@item.Id"></div>
                                                     <input type="text" id="txt_imgsort_@item.Id" value="@item.Sort" style="width:2em;margin-left:1.25em;text-align: center;border-width: 1px;border-style: solid;background-color: #fff;border-radius: 2px;border-color: #e6e6e6;" onchange="SetCoverSort('@item.Id')" />
                                                 </li>
 

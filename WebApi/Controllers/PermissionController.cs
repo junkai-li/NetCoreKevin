@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using WebApiService.Permission;
-using WebApiService.Permisson;
-using WebApiService.Permisson.Attributes;
-using WebService.Actions;
+using Web.Permission;
+using Web.Permisson;
+using Web.Permisson.Attributes;
+using Web.Actions;
 
 namespace AdminApi.Controllers
 {
@@ -113,7 +113,7 @@ namespace AdminApi.Controllers
         {
             using (var Db = new dbContext())
             {
-                var userId = Guid.Parse(WebApiService.Libraries.Verify.JwtToken.GetClaims("userid"));
+                var userId = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userid"));
                 if (string.IsNullOrEmpty(entity.Id))
                 {
                     entity.Id = $"{entity.Area}.{entity.Module}.{entity.Action}";
@@ -265,16 +265,16 @@ namespace AdminApi.Controllers
         {
             using (var db = new dbContext())
             {
-                var userid = Guid.Parse(WebApiService.Libraries.Verify.JwtToken.GetClaims("userid"));
+                var userid = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userid"));
                 var user = db.TUser.Where(x => x.IsDelete == false && x.Id == userid).FirstOrDefault();
                 if (user != null)
                 {
                     if (user.IsSuperAdmin)
                     {
-                        return PermissionsAction.GetUserPermissions(WebApiService.Libraries.Verify.JwtToken.GetClaims("userid")).Select(x => x.Key).ToList();
+                        return PermissionsAction.GetUserPermissions(Web.Libraries.Verify.JwtToken.GetClaims("userid")).Select(x => x.Key).ToList();
                     }
                 }
-                return PermissionsAction.GetUserPermissions(WebApiService.Libraries.Verify.JwtToken.GetClaims("userid")).Where(x => x.Value == true).Select(x => x.Key).ToList();
+                return PermissionsAction.GetUserPermissions(Web.Libraries.Verify.JwtToken.GetClaims("userid")).Where(x => x.Value == true).Select(x => x.Key).ToList();
             } 
         }
     }

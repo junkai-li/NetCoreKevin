@@ -22,7 +22,7 @@ FROM registry.cn-shanghai.aliyuncs.com/onekib/dotnet-sdk:5.0-buster-slim AS buil
 
 WORKDIR /src
 COPY ["WebApi/WebApi.csproj", "WebApi/"]
-COPY ["WebApiService/WebApiService.csproj", "WebApiService/"]
+COPY ["WebApiService/Web.csproj", "WebApiService/"]
 COPY ["Common/Common.csproj", "Common/"]
 COPY ["Models/Models.csproj", "Models/"]
 COPY ["Repository/Repository.csproj", "Repository/"]

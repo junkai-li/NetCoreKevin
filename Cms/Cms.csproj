@@ -30,7 +30,7 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\WebApiService\WebApiService.csproj" />
+    <ProjectReference Include="..\Web\Web.csproj" />
   </ItemGroup>
 
 
