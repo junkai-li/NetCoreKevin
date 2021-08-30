@@ -174,13 +174,15 @@ namespace WebApi
         }
 
         ///// <summary>
-        ///// autoFAC 服务注册   AutoFac支持方法和属性（可以自己控制注入 需要标记注入）注入 ServiceCollection只支持构造函数注入 需要在Program替换IOC容器
+        ///// autoFAC 服务注册   AutoFac支持方法和属性（可以自己控制注入 需要标记注入）注入 ServiceCollection只支持构造函数注入 需要在Program替换IOC容器 
+        ///  Per Dependency Single Instance  Per Lifetime Scope
+        /// <param name="containerBuilder"></param>
         ///// </summary>
         public void ConfigureContainer(ContainerBuilder containerBuilder)
         {
             //containerBuilder.RegisterType<DemoSubscribe>().As<DemoSubscribe>();
-            containerBuilder.RegisterType<Service.Services.v1.UserService>().As<Service.Services.v1.IUserService>().PropertiesAutowired(new AutowiredPropertySelect());
-            containerBuilder.RegisterType<dbContext>().As<dbContext>().PropertiesAutowired(new AutowiredPropertySelect());
+            containerBuilder.RegisterType<Service.Services.v1.UserService>().As<Service.Services.v1.IUserService>().PropertiesAutowired(new AutowiredPropertySelect()).InstancePerDependency();
+            containerBuilder.RegisterType<dbContext>().As<dbContext>().PropertiesAutowired(new AutowiredPropertySelect()).InstancePerDependency();
             //PropertiesAutowired指定属性注入  
             //containerBuilder.RegisterAssemblyTypes().PropertiesAutowired(new AutowiredPropertySelect());
             //containerBuilder.RegisterModule<ConfigureAutofac>();
