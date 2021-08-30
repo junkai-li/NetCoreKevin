@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Models.JwtBearer;
+using Repository.Database;
 using System;
 using System.IO;
 using System.Text;
@@ -20,6 +22,7 @@ using System.Text.Unicode;
 using TencentService;
 using TencentService._; 
 using Web.Extension;
+using Web.Extension.Autofac;
 using Web.Filters;
 using Web.Libraries.Swagger;
 using Web.Subscribes;
@@ -128,6 +131,7 @@ namespace WebApi
             MiniLive.AppSecret = "7c635fbff5974b3919826e0cdcf4c8c4";
             TencentService.Helper.RedisHelper.ConnectionString = Configuration.GetConnectionString("redisConnection");
             services.AddSingleton<IMiniLive, MiniLive>();
+            services.AddControllers().AddControllersAsServices(); //控制器当做实例创建
         }
 
         //向 Startup.Configure 方法添加中间件组件的顺序定义了针对请求调用这些组件的顺序，以及响应的相反顺序。 此顺序对于安全性、性能和功能至关重要。
@@ -172,11 +176,18 @@ namespace WebApi
         ///// <summary>
         ///// autoFAC 服务注册   AutoFac支持方法和属性（可以自己控制注入 需要标记注入）注入 ServiceCollection只支持构造函数注入 需要在Program替换IOC容器
         ///// </summary>
-        //public void ConfiguraContainer(ContainerBuilder containerBuilder)
-        //{
-        //    containerBuilder.RegisterType<DemoSubscribe>().As<DemoSubscribe>();
-        //    //PropertiesAutowired指定属性注入 
-        //    containerBuilder.RegisterType<DemoSubscribe>().As<DemoSubscribe>().PropertiesAutowired(new// 扩展满足条件注入);
-        //}
+        public void ConfigureContainer(ContainerBuilder containerBuilder)
+        {
+            //containerBuilder.RegisterType<DemoSubscribe>().As<DemoSubscribe>();
+            containerBuilder.RegisterType<Service.Services.v1.UserService>().As<Service.Services.v1.IUserService>().PropertiesAutowired(new AutowiredPropertySelect());
+            containerBuilder.RegisterType<dbContext>().As<dbContext>().PropertiesAutowired(new AutowiredPropertySelect());
+            //PropertiesAutowired指定属性注入  
+            //containerBuilder.RegisterAssemblyTypes().PropertiesAutowired(new AutowiredPropertySelect());
+            //containerBuilder.RegisterModule<ConfigureAutofac>();
+            //var controllerBaseType = typeof(ControllerBase);
+            //containerBuilder.RegisterAssemblyTypes(typeof(Startup).Assembly)
+            //    .Where(t => controllerBaseType.IsAssignableFrom(t) && t != controllerBaseType)
+            //    .PropertiesAutowired();
+        }
     }
 }

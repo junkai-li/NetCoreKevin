@@ -27,4 +27,8 @@
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Attributes\" />
+  </ItemGroup>
+
 </Project>

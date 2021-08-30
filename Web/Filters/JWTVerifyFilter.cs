@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Repository.Database;
 using System;
@@ -25,6 +26,12 @@ namespace Web.Filters
 
         void IActionFilter.OnActionExecuting(ActionExecutingContext context)
         {
+            ControllerActionDescriptor ad = context.ActionDescriptor as ControllerActionDescriptor; 
+            var isPublic = ad.MethodInfo.IsDefined(typeof(AllowAnonymousAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(AllowAnonymousAttribute), false);
+            if (isPublic == true)
+            { 
+                return;
+            }
 
             var filter = (JWTVerifyFilter)context.Filters.Where(t => t.ToString() == (typeof(JWTVerifyFilter).Assembly.GetName().Name + ".Filters.JwtTokenVerify")).ToList().LastOrDefault();
 
@@ -61,7 +68,12 @@ namespace Web.Filters
 
         void IActionFilter.OnActionExecuted(ActionExecutedContext context)
         {
-
+            ControllerActionDescriptor ad = context.ActionDescriptor as ControllerActionDescriptor;
+            var isPublic = ad.MethodInfo.IsDefined(typeof(AllowAnonymousAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(AllowAnonymousAttribute), false);
+            if (isPublic == true)
+            {
+                return;
+            } 
             var filter = (JWTVerifyFilter)context.Filters.Where(t => t.ToString() == "WebApiService.Filters.JwtTokenVerify").ToList().LastOrDefault();
 
             if (!filter.IsSkip)

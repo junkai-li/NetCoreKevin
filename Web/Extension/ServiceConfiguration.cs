@@ -117,7 +117,7 @@ namespace Web.Extension
                 option.JsonSerializerOptions.Converters.Add(new Common.Json.LongConverter());
             });
 
-
+            services.AddControllers().AddControllersAsServices(); //控制器当做实例创建
 
             //注册配置文件信息
             Web.Libraries.Start.StartConfiguration.Add(Configuration);

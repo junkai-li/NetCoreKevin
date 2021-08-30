@@ -32,7 +32,7 @@ namespace WebApi
 
 
                     webBuilder.UseStartup<Startup>();
-                });
+                }).UseServiceProviderFactory(new AutofacServiceProviderFactory());
             //替换IOC 使用AutoFac .UseServiceProviderFactory(new AutofacServiceProviderFactory());
     }
 }

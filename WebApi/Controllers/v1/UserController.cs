@@ -7,6 +7,8 @@ using System.Linq;
 using WebApi.Controllers.Bases;
 using Web.Filters;
 using WebApi.Models.v1.User;
+using Web.Extension.Autofac;
+using Service.Services.v1;
 
 namespace WebApi.Controllers.v1
 {
@@ -16,18 +18,23 @@ namespace WebApi.Controllers.v1
     /// 用户数据操作控制器
     /// </summary>
     [ApiVersion("1")]
-    [Route("api/[controller]")]
-    [Authorize]
+    [Route("api/[controller]")] 
     [JWTVerifyFilter]
+    [AllowAnonymous]
     [ApiController]
     public class UserController : PubilcControllerBase
     { 
+        [Autowired]
+        public IUserService UserService { get; set; }
 
-        public UserController(dbContext context)
+        /// <summary>
+        /// 获取微信小程序OpenId
+        /// </summary> 
+        [HttpGet("GetintId")]
+        public int GetintId()
         {
-            db = context;
+            return UserService.GetId();
         }
-
 
         /// <summary>
         /// 获取微信小程序OpenId

@@ -269,6 +269,11 @@
             用户数据操作控制器
             </summary>
         </member>
+        <member name="M:WebApi.Controllers.v1.UserController.GetintId">
+            <summary>
+            获取微信小程序OpenId
+            </summary> 
+        </member>
         <member name="M:WebApi.Controllers.v1.UserController.GetWeiXinMiniAppOpenId(System.Guid,System.String)">
             <summary>
             获取微信小程序OpenId
