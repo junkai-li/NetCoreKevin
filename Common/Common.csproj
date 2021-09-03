@@ -26,6 +26,7 @@
     <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
     <PackageReference Include="Tencent.QCloud.Cos.Sdk" Version="5.4.21" />
     <PackageReference Include="TencentCloudSDK" Version="3.0.320" />
+    <PackageReference Include="Vintasoft.Imaging.Pdf" Version="7.1.6.2" />
   </ItemGroup>
 
   <ItemGroup>

@@ -27,7 +27,7 @@ namespace Web.Libraries.Verify
 
                 var securityToken = new JwtSecurityToken(Authorization);
 
-                var value = securityToken.Claims.ToList().Where(t => t.Type == key).FirstOrDefault().Value;
+                var value = securityToken.Claims.ToList().Where(t => t.Type.ToLower() == key.ToLower()).FirstOrDefault().Value;
 
                 return value;
             }

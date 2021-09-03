@@ -14,6 +14,8 @@ using System.Net;
 using System.Threading;
 using WebApi.Controllers.Bases;
 using Web.Filters;
+using Web.Permisson.Attributes;
+using Common;
 
 namespace WebApi.Controllers
 {
@@ -23,12 +25,12 @@ namespace WebApi.Controllers
     /// </summary>
     [ApiVersionNeutral]
     [Authorize]
-    [JWTVerifyFilter]
     [Route("api/[controller]")]
     [ApiController]
-    public class FileController :  PubilcControllerBase
+    [SkipAuthorityAttribute]
+    public class FileController : PubilcControllerBase
     {
-         
+
 
         public FileController(dbContext context)
         {
@@ -148,7 +150,6 @@ namespace WebApi.Controllers
             var fileName = Guid.NewGuid();
             var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
             var fullFileName = string.Format("{0}{1}", fileName, fileExtension);
-
             string path = "";
 
             var isSuccess = false;
@@ -161,8 +162,8 @@ namespace WebApi.Controllers
                 {
                     file.CopyTo(fs);
                     fs.Flush();
-                }
-
+                } 
+           
                 var upRemote = false;
 
                 if (upRemote)

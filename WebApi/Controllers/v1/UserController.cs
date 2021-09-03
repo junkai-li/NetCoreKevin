@@ -24,14 +24,15 @@ namespace WebApi.Controllers.v1
     [ApiController]
     public class UserController : PubilcControllerBase
     { 
-        [Autowired]
-        public IUserService UserService { get; set; }
+        //[Autowired]
+        //public IUserService UserService { get; set; }
+         
 
         /// <summary>
         /// 获取微信小程序OpenId
         /// </summary> 
         [HttpGet("GetintId")]
-        public int GetintId()
+        public int GetintId(IUserService UserService)
         {
             return UserService.GetId();
         }
