@@ -16,6 +16,7 @@ using Models.JwtBearer;
 using Repository.Database;
 using System;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
@@ -24,6 +25,7 @@ using TencentService._;
 using Web.Extension;
 using Web.Extension.Autofac;
 using Web.Filters;
+using Web.Global.User;
 using Web.Libraries.Swagger;
 using Web.Subscribes;
 
@@ -174,22 +176,28 @@ namespace WebApi
         }
 
         ///// <summary>
-        ///// autoFAC 服务注册   AutoFac支持方法和属性（可以自己控制注入 需要标记注入）注入 ServiceCollection只支持构造函数注入 需要在Program替换IOC容器 
+        ///// autoFAC 服务注册   AutoFac支持方法和属性（可以自己控制注入 需要标记注入）注入 ServiceCollection只支持构造函数注入 需要在Program替换IOC容器  
         ///  Per Dependency Single Instance  Per Lifetime Scope
         /// <param name="containerBuilder"></param>
         ///// </summary>
         public void ConfigureContainer(ContainerBuilder containerBuilder)
         {
-            //containerBuilder.RegisterType<DemoSubscribe>().As<DemoSubscribe>();
+            #region 生命周期
+            //InstancePerLifetimeScope：同一个Lifetime生成的对象是同一个实例 
+            //SingleInstance：单例模式，每次调用，都会使用同一个实例化的对象；每次都用同一个对象； 
+            //InstancePerDependency：默认模式，每次调用，都会重新实例化对象；每次请求都创建一个新的对象；
+            #endregion
+
             containerBuilder.RegisterType<Service.Services.v1.UserService>().As<Service.Services.v1.IUserService>().PropertiesAutowired(new AutowiredPropertySelect()).InstancePerDependency();
             containerBuilder.RegisterType<dbContext>().As<dbContext>().PropertiesAutowired(new AutowiredPropertySelect()).InstancePerDependency();
+            containerBuilder.RegisterType<CurrentUser>().As<ICurrentUser>().PropertiesAutowired(new AutowiredPropertySelect()).InstancePerDependency(); 
             //PropertiesAutowired指定属性注入  
-            //containerBuilder.RegisterAssemblyTypes().PropertiesAutowired(new AutowiredPropertySelect());
-            //containerBuilder.RegisterModule<ConfigureAutofac>();
-            //var controllerBaseType = typeof(ControllerBase);
-            //containerBuilder.RegisterAssemblyTypes(typeof(Startup).Assembly)
-            //    .Where(t => controllerBaseType.IsAssignableFrom(t) && t != controllerBaseType)
-            //    .PropertiesAutowired();
+            containerBuilder.RegisterAssemblyTypes().PropertiesAutowired(new AutowiredPropertySelect());
+            containerBuilder.RegisterModule<ConfigureAutofac>();
+            var controllerBaseType = typeof(ControllerBase);
+            containerBuilder.RegisterAssemblyTypes(AppDomain.CurrentDomain.GetAssemblies())
+                .Where(t => controllerBaseType.IsAssignableFrom(t) && t != controllerBaseType)
+                .PropertiesAutowired();
         }
     }
 }

@@ -17,12 +17,7 @@ namespace WebApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class BaseController : PubilcControllerBase
-    { 
-
-        public BaseController(dbContext context)
-        {
-            db = context;
-        }
+    {  
 
 
         /// <summary>

@@ -135,6 +135,26 @@
             具体数据内容
             </summary>
         </member>
+        <member name="P:Models.Dtos.System.dtoRole.Id">
+            <summary>
+            Id
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.System.dtoRole.Name">
+            <summary>
+            角色名称
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.System.dtoRole.Remarks">
+            <summary>
+            备注信息
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.System.dtoRole.CreateTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
         <member name="M:Models.Extension.ObjectExtension.MapTo``2(``0,``1)">
             <summary>
             Execute a mapping from the source object to the existing destination object

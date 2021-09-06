@@ -10,10 +10,10 @@ namespace Common.AliYun
     public class OssHelper
     {
         string endpoint = IO.Config.Get()["OSSEndpoint"];
-        string accessKeyId = "";
-        string accessKeySecret = "";
-        string bucketName = "";
-
+        string accessKeyId = "LTAI5tHQLqZKydSGcdDs6wEv";
+        string accessKeySecret = "cxya5ufzpPCzZ3FjMYiFk5ulqo2njC";
+        string bucketName = "qingxianshopsys";
+        public static string url = "https://qingxianshopsys.oss-cn-shanghai.aliyuncs.com";
         public OssHelper()
         {
 

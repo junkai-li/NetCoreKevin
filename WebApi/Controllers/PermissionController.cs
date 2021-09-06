@@ -9,6 +9,7 @@ using Web.Permission;
 using Web.Permisson;
 using Web.Permisson.Attributes;
 using Web.Actions;
+using WebApi.Controllers.Bases;
 
 namespace AdminApi.Controllers
 {
@@ -16,7 +17,7 @@ namespace AdminApi.Controllers
     [MyArea("系统管理", "System")]
     [ApiController]
     [ActionDescription("权限管理")]
-    public class PermissionController : ControllerBase
+    public class PermissionController : PubilcControllerBase
     {
         /// <summary>
         /// 初始化权限
@@ -31,22 +32,19 @@ namespace AdminApi.Controllers
             all.ForEach(r =>
             {
                 r.Id = $"{r.Area}.{r.Module}.{r.Action}";
-            });
-            using (var Db = new dbContext())
-            {
+            }); 
                 var areas = all.Select(x => x.Area).ToList();
-                var allExist = Db.Set<TPermission>().Where(r => r.IsManual == false && areas.Any(x => x == r.Area)).ToList();
+                var allExist = db.Set<TPermission>().Where(r => r.IsManual == false && areas.Any(x => x == r.Area)).ToList();
                 var allExistIds = allExist.Select(r => r.Id).ToList();
 
                 var preAdd = all.Where(r => !allExistIds.Contains(r.Id)).ToList();
                 var preDelete = allExist.Where(r => !all.Any(p => p.Id == r.Id));
                 var preDeleteIds = preDelete.Select(r => r.Id).ToList();
-                var preDeleteRoleP = Db.Set<TRolePermission>().Where(r => preDeleteIds.Contains(r.PermissionId)).ToList();
-                Db.AddRange(preAdd);
-                Db.RemoveRange(preDelete);
-                Db.RemoveRange(preDeleteRoleP);
-                return Db.SaveChanges() > 0;
-            }
+                var preDeleteRoleP = db.Set<TRolePermission>().Where(r => preDeleteIds.Contains(r.PermissionId)).ToList();
+                db.AddRange(preAdd);
+                db.RemoveRange(preDelete);
+                db.RemoveRange(preDeleteRoleP);
+                return db.SaveChanges() > 0; 
 
         }
 
@@ -70,13 +68,10 @@ namespace AdminApi.Controllers
         [HttpGet("GetDetails")]
         [ActionDescription("查看详情")]
         public TPermission GetDetails(string Id)
-        {
-            using (var Db = new dbContext())
-            {
-                var entity = Db.Set<TPermission>().Where(t => t.Id == Id).FirstOrDefault();
+        { 
+                var entity = db.Set<TPermission>().Where(t => t.Id == Id).FirstOrDefault();
                 if (entity != null) return entity;
-                else ResponseErrAction.ExceptionMessage("权限不存在"); return default;
-            }
+                else ResponseErrAction.ExceptionMessage("权限不存在"); return default; 
         }
 
         /// <summary>
@@ -87,19 +82,16 @@ namespace AdminApi.Controllers
         [HttpDelete("Del")]
         [ActionDescription("删除")]
         public bool Del(string id)
-        {
-            using (var Db = new dbContext())
-            {
-                var entity = Db.Set<TPermission>().Where(t => t.Id == id).FirstOrDefault();
+        { 
+                var entity = db.Set<TPermission>().Where(t => t.Id == id).FirstOrDefault();
                 if (entity == null) return false;
                 if (entity.IsManual.HasValue != true)
                 {
                     ResponseErrAction.ExceptionMessage("系统权限不能删除"); return default;
                 }
-                Db.RemoveRange(entity);
-                int res = Db.SaveChanges();
-                return res > 0;
-            }
+                db.RemoveRange(entity);
+                int res = db.SaveChanges();
+                return res > 0; 
         }
 
         /// <summary>
@@ -110,32 +102,28 @@ namespace AdminApi.Controllers
         [HttpPost("Edit")]
         [ActionDescription("编辑")]
         public bool Edit(TPermission entity)
-        {
-            using (var Db = new dbContext())
-            {
-                var userId = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userid"));
+        {  
                 if (string.IsNullOrEmpty(entity.Id))
                 {
                     entity.Id = $"{entity.Area}.{entity.Module}.{entity.Action}";
                     entity.CreateTime = DateTime.Now;
                     entity.IsManual = true;
-                    entity.CreateUserId = userId;
-                    Db.Set<TPermission>().Add(entity);
+                    entity.CreateUserId = CurrentUser.UserId;
+                    db.Set<TPermission>().Add(entity);
                 }
                 else
                 {
-                    var data = Db.Set<TPermission>().Where(t => t.Id == entity.Id).FirstOrDefault();
+                    var data = db.Set<TPermission>().Where(t => t.Id == entity.Id).FirstOrDefault();
                     if (data.IsManual.HasValue != true)
                     {
                         ResponseErrAction.ExceptionMessage("系统权限不能操作"); return default;
                     }
                     data.UpdatedTime = DateTime.Now;
-                    data.UpdateUserId = userId;
-                    entity.MapTo(data);
+                    data.UpdateUserId = CurrentUser.UserId;
+                     entity.MapTo(data);
                 }
-                int res = Db.SaveChanges();
-                return res > 0;
-            }
+                int res = db.SaveChanges();
+                return res > 0; 
         }
 
 
@@ -147,11 +135,8 @@ namespace AdminApi.Controllers
         [HttpGet("GetAllPermissions")]
         [ActionDescription("查看所有权限")]
         public List<TPermission> GetAllPermissions()
-        {
-            using (var Db = new dbContext())
-            {
-                return Db.TPermission.Where(x => x.IsDelete == false).ToList();
-            }
+        { 
+                return db.TPermission.Where(x => x.IsDelete == false).ToList(); 
         }
         /// <summary>
         /// 获取所有权限列表Ids
@@ -160,11 +145,8 @@ namespace AdminApi.Controllers
         [HttpGet("GetAllPermissionIds")]
         [SkipAuthority]
         public List<string> GetAllPermissionIds()
-        {
-            using (var Db = new dbContext())
-            {
-                return Db.TPermission.Where(x => x.IsDelete == false).Select(x => x.Id).ToList();
-            }
+        { 
+                return db.TPermission.Where(x => x.IsDelete == false).Select(x => x.Id).ToList(); 
         }
 
         /// <summary>
@@ -174,16 +156,13 @@ namespace AdminApi.Controllers
         [SkipAuthority]
         [HttpGet("GetAllAreaPermissions")]
         public List<AreaPermissionDto> GetAllAreaPermissions([Required] Guid roleId)
-        {
-            using (var Db = new dbContext())
-            {
-
-                var data = Db.TPermission.Where(x => x.IsDelete == false).ToList();
+        { 
+                var data = db.TPermission.Where(x => x.IsDelete == false).ToList();
 
 
                 var list = new List<AreaPermissionDto>();
                 var areas = data.Select(x => x.Area).Distinct().ToList();
-                var reolePer = Db.TRolePermission.Where(x => x.IsDelete == false && x.RoleId == roleId).Select(x => x.PermissionId).ToList();
+                var reolePer = db.TRolePermission.Where(x => x.IsDelete == false && x.RoleId == roleId).Select(x => x.PermissionId).ToList();
 
                 foreach (var area in areas)
                 {
@@ -215,8 +194,7 @@ namespace AdminApi.Controllers
                     areadto.modules = modulesDtos;
                     list.Add(areadto);
                 }
-                return list;
-            }
+                return list; 
         }
 
         /// <summary>
@@ -226,9 +204,7 @@ namespace AdminApi.Controllers
         [SkipAuthority]
         [HttpPost("EditAllAreaPermissions")]
         public bool EditAllAreaPermissions([Required] PermissionEditDto dto)
-        {
-            using (var Db = new dbContext())
-            {
+        { 
                 var rolepers = new List<TRolePermission>();
                 foreach (var perdto in dto.dtos)
                 {
@@ -245,13 +221,12 @@ namespace AdminApi.Controllers
                     }
                 }
                 var roleId = rolepers.FirstOrDefault().RoleId;
-                var allP = Db.TRolePermission.Where(r => r.RoleId == roleId).ToList();
+                var allP = db.TRolePermission.Where(r => r.RoleId == roleId).ToList();
                 var preAdd = rolepers.Where(r => !allP.Any(p => p.PermissionId == r.PermissionId));
                 var preDelete = allP.Where(r => !rolepers.Any(p => p.PermissionId == r.PermissionId));
-                Db.AddRange(preAdd);
-                Db.RemoveRange(preDelete);
-                Db.SaveChanges();
-            } 
+                db.AddRange(preAdd);
+                db.RemoveRange(preDelete);
+                db.SaveChanges(); 
             return true;
         }
 
@@ -262,11 +237,8 @@ namespace AdminApi.Controllers
         [HttpGet("GetUserPermissions")]
         [SkipAuthority]
         public List<string> GetUserPermissions()
-        {
-            using (var db = new dbContext())
-            {
-                var userid = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userid"));
-                var user = db.TUser.Where(x => x.IsDelete == false && x.Id == userid).FirstOrDefault();
+        { 
+                var user = db.TUser.Where(x => x.IsDelete == false && x.Id == CurrentUser.UserId).FirstOrDefault();
                 if (user != null)
                 {
                     if (user.IsSuperAdmin)
@@ -275,7 +247,7 @@ namespace AdminApi.Controllers
                     }
                 }
                 return PermissionsAction.GetUserPermissions(Web.Libraries.Verify.JwtToken.GetClaims("userid")).Where(x => x.Value == true).Select(x => x.Key).ToList();
-            } 
+        
         }
     }
 }

@@ -18,13 +18,7 @@ namespace WebApi.Controllers.v1
     [Authorize]
     [JWTVerifyFilter]
     public class SignController : PubilcControllerBase
-    { 
-
-        public SignController(dbContext context)
-        {
-            db = context;
-        }
-
+    {  
 
         /// <summary>
         /// 获取标记总数

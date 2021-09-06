@@ -269,11 +269,6 @@
             用户数据操作控制器
             </summary>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.GetintId">
-            <summary>
-            获取微信小程序OpenId
-            </summary> 
-        </member>
         <member name="M:WebApi.Controllers.v1.UserController.GetWeiXinMiniAppOpenId(System.Guid,System.String)">
             <summary>
             获取微信小程序OpenId
@@ -312,6 +307,81 @@
             <param name="keyValue">key为新密码，value为短信验证码</param>
             <returns></returns>
         </member>
+        <member name="M:WebApi.Controllers.v1.UserController.GetUserList(AdminApi.Models.dtoPageData{WebApi.Models.v1.User.dtoUser})">
+            <summary>
+            获取小程序用户列表信息
+            </summary>
+            <param name="dtoPage"></param> 
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.UserController.GetSysUserList(AdminApi.Models.dtoPageData{WebApi.Models.v1.User.dtoUser})">
+            <summary>
+            获取系统用户列表信息
+            </summary>
+            <param name="dtoPage"></param> 
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.UserController.GetSysUserWhereId(System.Guid)">
+            <summary>
+            后台管理通过 UserId 获取用户信息 
+            </summary>
+            <param name="Id">用户ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.UserController.EditUser(WebApi.Models.v1.User.dtoUser)">
+            <summary>
+            新增编辑用户信息 
+            </summary>
+            <param name="user">user</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.UserController.DeleteUser(System.Guid)">
+            <summary>
+            删除用户信息 
+            </summary>
+            <param name="Id">Id</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.UserController.GetUserRoleList(AdminApi.Models.dtoPageData{Models.Dtos.System.dtoRole})">
+            <summary>
+            获取用户角色列表信息
+            </summary>
+            <param name="dtoPage"></param> 
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.UserController.GetRoleWhereId(System.Guid)">
+            <summary>
+            通过id获取角色信息 
+            </summary>
+            <param name="Id">ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.UserController.EditUserRole(Models.Dtos.System.dtoRole)">
+            <summary>
+            新增编辑用户角色信息 
+            </summary>
+            <param name="role">user</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.UserController.DeleteUserRole(System.Guid)">
+            <summary>
+            删除用户角色信息 
+            </summary>
+            <param name="Id">Id</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.UserController.GetUserRoleKey">
+            <summary>
+            获取可用户角色的键值对列表信息
+            </summary> 
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.v1.UserController.GetUserSystemKey">
+            <summary>
+            获取可用系统用户
+            </summary> 
+            <returns></returns>
+        </member>
         <member name="T:WebApi.Models.v1.Sign.dtoSign">
             <summary>
             标记喜欢方法入参
@@ -330,6 +400,11 @@
         <member name="P:WebApi.Models.v1.Sign.dtoSign.Sign">
             <summary>
             标记
+            </summary>
+        </member>
+        <member name="P:WebApi.Models.v1.User.dtoUser.Id">
+            <summary>
+            Id
             </summary>
         </member>
         <member name="P:WebApi.Models.v1.User.dtoUser.Name">
@@ -352,9 +427,19 @@
             邮箱
             </summary>
         </member>
+        <member name="P:WebApi.Models.v1.User.dtoUser.RoleId">
+            <summary>
+            角色
+            </summary>
+        </member>
         <member name="P:WebApi.Models.v1.User.dtoUser.Role">
             <summary>
             角色
+            </summary>
+        </member>
+        <member name="P:WebApi.Models.v1.User.dtoUser.PassWord">
+            <summary>
+            密码
             </summary>
         </member>
         <member name="P:WebApi.Models.v1.User.dtoUser.CreateTime">
@@ -427,6 +512,52 @@
         <member name="M:AdminApi.Controllers.PermissionController.GetUserPermissions">
             <summary>
             获取登录用户权限
+            </summary>
+        </member>
+        <member name="T:AdminApi.Models.dtoPageData`1">
+            <summary>
+            分页dto
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:AdminApi.Models.dtoPageData`1.whereId">
+            <summary>
+            条件Id
+            </summary>
+        </member>
+        <member name="P:AdminApi.Models.dtoPageData`1.searchKey">
+            <summary>
+            条件Key
+            </summary>
+        </member>
+        <member name="P:AdminApi.Models.dtoPageData`1.state">
+            <summary>
+            状态
+            </summary>
+        </member>
+        <member name="P:AdminApi.Models.dtoPageData`1.sign">
+            <summary>
+            标识
+            </summary>
+        </member>
+        <member name="P:AdminApi.Models.dtoPageData`1.pageSize">
+            <summary>
+            分页大小
+            </summary>
+        </member>
+        <member name="P:AdminApi.Models.dtoPageData`1.pageNum">
+            <summary>
+            分页页数
+            </summary>
+        </member>
+        <member name="P:AdminApi.Models.dtoPageData`1.total">
+            <summary>
+            数据总量
+            </summary>
+        </member>
+        <member name="P:AdminApi.Models.dtoPageData`1.data">
+            <summary>
+            具体数据内容
             </summary>
         </member>
     </members>

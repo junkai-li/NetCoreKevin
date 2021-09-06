@@ -33,15 +33,13 @@ namespace Web.Filters
                 return;
             }
 
-            var filter = (JWTVerifyFilter)context.Filters.Where(t => t.ToString() == (typeof(JWTVerifyFilter).Assembly.GetName().Name + ".Filters.JwtTokenVerify")).ToList().LastOrDefault();
+            var filter = (JWTVerifyFilter)context.Filters.Where(t => t.ToString().Trim().ToLower() == (typeof(JWTVerifyFilter).Assembly.GetName().Name + ".Filters.JWTVerifyFilter").Trim().ToLower()).ToList().LastOrDefault();
 
             if (!filter.IsSkip)
             {
 
-                var exp = Convert.ToInt64(Libraries.Verify.JwtToken.GetClaims("exp"));
-
-                var exptime = Common.DateTimeHelper.UnixToTime(exp);
-
+                var exp = Convert.ToInt64(Libraries.Verify.JwtToken.GetClaims("exp")); 
+                var exptime = Common.DateTimeHelper.UnixToTime(exp); 
                 if (exptime < DateTime.Now)
                 {
                     var tokenId = Guid.Parse(Libraries.Verify.JwtToken.GetClaims("tokenId"));
@@ -73,8 +71,9 @@ namespace Web.Filters
             if (isPublic == true)
             {
                 return;
-            } 
-            var filter = (JWTVerifyFilter)context.Filters.Where(t => t.ToString() == "WebApiService.Filters.JwtTokenVerify").ToList().LastOrDefault();
+            }
+            var filter = (JWTVerifyFilter)context.Filters.Where(t => t.ToString().Trim().ToLower() == (typeof(JWTVerifyFilter).Assembly.GetName().Name + ".Filters.JWTVerifyFilter").Trim().ToLower()).ToList().LastOrDefault();
+
 
             if (!filter.IsSkip)
             {

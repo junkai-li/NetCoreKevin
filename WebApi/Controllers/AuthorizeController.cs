@@ -20,12 +20,7 @@ namespace WebApi.Controllers
     [ApiController]
     public class AuthorizeController : PubilcControllerBase
     {
-         
-
-        public AuthorizeController(dbContext context)
-        {
-            db = context;
-        }
+          
 
 
         /// <summary>

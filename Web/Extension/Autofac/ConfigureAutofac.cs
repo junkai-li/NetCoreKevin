@@ -47,17 +47,17 @@ namespace Web.Extension.Autofac
             //.AsImplementedInterfaces().PropertiesAutowired();
             #endregion
 
-            #region 方法3  使用 LoadFile 加载服务层的程序集  将程序集生成到bin目录 实现解耦 不需要引用
-            //获取项目路径
-            var basePath = Microsoft.DotNet.PlatformAbstractions.ApplicationEnvironment.ApplicationBasePath;
-            var ServicesDllFile = Path.Combine(basePath, "Service.dll");//获取注入项目绝对路径
-            var assemblysServices = Assembly.LoadFile(ServicesDllFile);//直接采用加载文件的方法
-            containerBuilder.RegisterAssemblyTypes(assemblysServices).AsImplementedInterfaces();
+            //#region 方法3  使用 LoadFile 加载服务层的程序集  将程序集生成到bin目录 实现解耦 不需要引用
+            ////获取项目路径
+            //var basePath = Microsoft.DotNet.PlatformAbstractions.ApplicationEnvironment.ApplicationBasePath;
+            //var ServicesDllFile = Path.Combine(basePath, "Service.dll");//获取注入项目绝对路径
+            //var assemblysServices = Assembly.LoadFile(ServicesDllFile);//直接采用加载文件的方法
+            //containerBuilder.RegisterAssemblyTypes(assemblysServices).AsImplementedInterfaces();
 
-            var RepositoryDllFile = Path.Combine(basePath, "Service.dll");
-            var RepositoryServices = Assembly.LoadFile(RepositoryDllFile);//直接采用加载文件的方法
-            containerBuilder.RegisterAssemblyTypes(RepositoryServices).AsImplementedInterfaces();
-            #endregion
+            //var RepositoryDllFile = Path.Combine(basePath, "Service.dll");
+            //var RepositoryServices = Assembly.LoadFile(RepositoryDllFile);//直接采用加载文件的方法
+            //containerBuilder.RegisterAssemblyTypes(RepositoryServices).AsImplementedInterfaces();
+            //#endregion
 
 
             #region 在控制器中使用属性依赖注入，其中注入属性必须标注为public

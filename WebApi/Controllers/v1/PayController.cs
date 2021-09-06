@@ -23,11 +23,7 @@ namespace WebApi.Controllers.v1
     [Route("api/[controller]")]
     [ApiController]
     public class PayController : PubilcControllerBase
-    {
-        public PayController(dbContext context)
-        {
-            db = context;
-        }
+    { 
 
 
         /// <summary>

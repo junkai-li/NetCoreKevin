@@ -16,6 +16,9 @@ using WebApi.Controllers.Bases;
 using Web.Filters;
 using Web.Permisson.Attributes;
 using Common;
+using Web.Extension.Autofac;
+using Web.Global.User;
+using Service.Services.v1;
 
 namespace WebApi.Controllers
 {
@@ -27,16 +30,9 @@ namespace WebApi.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    [SkipAuthorityAttribute]
+    [SkipAuthority]
     public class FileController : PubilcControllerBase
-    {
-
-
-        public FileController(dbContext context)
-        {
-            db = context;
-        }
-
+    {  
 
         /// <summary>
         /// 远程单文件上传接口
@@ -49,9 +45,7 @@ namespace WebApi.Controllers
         [HttpPost("RemoteUploadFile")]
         public Guid RemoteUploadFile([FromQuery][Required] string business, [FromQuery][Required] Guid key, [FromQuery][Required] string sign, [Required][FromBody] dtoKeyValue fileInfo)
         {
-            string remoteFileUrl = fileInfo.Key.ToString();
-
-            var userId = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userId"));
+            string remoteFileUrl = fileInfo.Key.ToString(); 
 
             var fileExtension = Path.GetExtension(fileInfo.Value.ToString()).ToLower();
             var fileName = Guid.NewGuid().ToString() + fileExtension;
@@ -108,7 +102,7 @@ namespace WebApi.Controllers
                     f.Table = business;
                     f.TableId = key;
                     f.Sign = sign;
-                    f.CreateUserId = userId;
+                    f.CreateUserId = CurrentUser.UserId;
                     f.CreateTime = DateTime.Now;
                     db.TFile.Add(f);
                     db.SaveChanges();
@@ -138,9 +132,7 @@ namespace WebApi.Controllers
         [DisableRequestSizeLimit]
         [HttpPost("UploadFile")]
         public Guid UploadFile([FromQuery][Required] string business, [FromQuery][Required] Guid key, [FromQuery][Required] string sign, [Required] IFormFile file)
-        {
-
-            var userId = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userId"));
+        { 
 
             string basepath = "/Files/" + DateTime.Now.ToString("yyyy/MM/dd");
             string filepath = Web.Libraries.IO.Path.ContentRootPath() + basepath;
@@ -200,7 +192,7 @@ namespace WebApi.Controllers
                 f.Table = business;
                 f.TableId = key;
                 f.Sign = sign;
-                f.CreateUserId = userId;
+                f.CreateUserId = CurrentUser.UserId;
                 f.CreateTime = DateTime.Now;
                 db.TFile.Add(f);
                 db.SaveChanges();

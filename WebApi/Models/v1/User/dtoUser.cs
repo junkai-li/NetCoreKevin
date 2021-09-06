@@ -1,9 +1,15 @@
-﻿using System;
+﻿using Models.Dtos;
+using System;
+using System.Collections.Generic;
 
 namespace WebApi.Models.v1.User
 {
     public class dtoUser
     {
+        /// <summary>
+        /// Id
+        /// </summary>
+        public Guid Id { get; set; }
         /// <summary>
         /// 用户名
         /// </summary>
@@ -26,18 +32,27 @@ namespace WebApi.Models.v1.User
         /// 邮箱
         /// </summary>
         public string Email { get; set; }
-
+        /// <summary>
+        /// 角色
+        /// </summary>
+        public Guid RoleId { get; set; }
 
         /// <summary>
         /// 角色
         /// </summary>
         public string Role { get; set; }
 
+        /// <summary>
+        /// 密码
+        /// </summary>
+        public string PassWord { get; set; }
 
         /// <summary>
         /// 创建时间
         /// </summary>
         public DateTime CreateTime { get; set; }
+
+        public List<dtoKeyValue> HeadImgs { get; set; }
 
     }
 }
