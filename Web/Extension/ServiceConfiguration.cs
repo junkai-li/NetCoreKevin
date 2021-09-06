@@ -24,7 +24,9 @@ namespace Web.Extension
     public static class ServiceConfiguration
     {
         public static IServiceCollection ConfigServies(this IServiceCollection services, IConfiguration Configuration)
-        { 
+        {
+            //json动态响应压缩https://docs.microsoft.com/zh-cn/aspnet/core/performance/response-compression?view=aspnetcore-5.0
+            services.AddResponseCompression();
             services.Configure<FormOptions>(options =>
             {
                 options.MultipartBodyLengthLimit = long.MaxValue;
@@ -202,7 +204,9 @@ namespace Web.Extension
         /// <param name="app"></param>
         /// <returns></returns>
         public static IApplicationBuilder UseKevin(this IApplicationBuilder app)
-        { 
+        {
+            ///json压缩
+            app.UseResponseCompression();
             app.UseHsts(); 
             //注册跨域信息
             app.UseCors("cors");
