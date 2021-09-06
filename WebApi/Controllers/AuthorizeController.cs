@@ -1,11 +1,19 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿ 
+using Common;
+using IdentityModel.Client;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Models.Dtos;
 using Repository.Database;
 using System;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
+using System.Threading.Tasks;
+using Web.Actions;
 using WebApi.Controllers.Bases;
 
 namespace WebApi.Controllers
@@ -18,53 +26,92 @@ namespace WebApi.Controllers
     [ApiVersionNeutral]
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class AuthorizeController : PubilcControllerBase
     {
-          
 
+        public IConfiguration Configuration { get; set; }
 
-        /// <summary>
-        /// 获取Token认证信息
-        /// </summary>
-        /// <param name="login">登录信息集合</param>
-        /// <returns></returns>
-        [HttpPost("GetToken")]
-        public string GetToken([FromBody] dtoLogin login)
+        public AuthorizeController(IConfiguration configuration)
         {
-             
+            this.Configuration = configuration;
+        }
+        ///// <summary>
+        ///// 获取Token认证信息
+        ///// </summary>
+        ///// <param name="login">登录信息集合</param>
+        ///// <returns></returns>
+        //[HttpPost("GetToken")]
+        //public string GetToken([FromBody] dtoLogin login)
+        //{
 
-            var user = db.TUser.Where(t => (t.Name == login.Name || t.Phone == login.Name || t.Email == login.Name) && t.PassWord == login.PassWord).FirstOrDefault();
 
-            if (user != null)
+        //    var user = db.TUser.Where(t => (t.Name == login.Name || t.Phone == login.Name || t.Email == login.Name) && t.PassWord == login.PassWord).FirstOrDefault();
+
+        //    if (user != null)
+        //    {
+        //        TUserToken userToken = new TUserToken();
+        //        userToken.Id = Guid.NewGuid();
+        //        userToken.UserId = user.Id;
+        //        userToken.CreateTime = DateTime.Now;
+
+        //        db.TUserToken.Add(userToken);
+        //        db.SaveChanges();
+
+        //        var claim = new Claim[]{
+        //                new Claim("tokenId",userToken.Id.ToString()),
+        //                     new Claim("userId",user.Id.ToString())
+        //                };
+
+
+        //        var ret = Web.Libraries.Verify.JwtToken.GetToken(claim);
+
+        //        return ret;
+        //    }
+        //    else
+        //    {
+
+        //        HttpContext.Response.StatusCode = 400;
+
+        //        HttpContext.Items.Add("errMsg", "Authorize.GetToken.'Wrong user name or password'");
+
+        //        return "";
+        //    }
+
+        //}
+        ///// <summary>
+        ///// 获取Token认证信息
+        ///// </summary>
+        ///// <param name="login">登录信息集合</param>
+        ///// <returns></returns>
+        [HttpPost("GetToken")]
+        public async Task<string> GetToken([FromBody] dtoLogin login)
+        {
+            var clinet = new HttpClient();
+            var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["IdentityServerUrl"]);
+            if (disco.IsError)
             {
-                TUserToken userToken = new TUserToken();
-                userToken.Id = Guid.NewGuid();
-                userToken.UserId = user.Id;
-                userToken.CreateTime = DateTime.Now;
-
-                db.TUserToken.Add(userToken);
-                db.SaveChanges();
-
-                var claim = new Claim[]{
-                        new Claim("tokenId",userToken.Id.ToString()),
-                             new Claim("userId",user.Id.ToString())
-                        };
-
-
-                var ret = Web.Libraries.Verify.JwtToken.GetToken(claim);
-
-                return ret;
+                ResponseErrAction.ExceptionMessage("登录异常");
+                return default;
             }
-            else
+
+            var tokenResponse = await clinet.RequestPasswordTokenAsync(new PasswordTokenRequest
             {
-
-                HttpContext.Response.StatusCode = 400;
-
-                HttpContext.Items.Add("errMsg", "Authorize.GetToken.'Wrong user name or password'");
-
-                return "";
+                Address = disco.TokenEndpoint,
+                ClientId = "UserClient",
+                ClientSecret = "UserClientSecrets",
+                Scope = "WebApi offline_access profile openid",
+                UserName = login.Name,
+                Password = login.PassWord,
+            });
+            if (tokenResponse.IsError)
+            {
+                ResponseErrAction.ExceptionMessage(tokenResponse.Error);
+                return default;
             }
-
+            //保存刷新令牌
+            RedisHelper.StringSet(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
+            return tokenResponse.AccessToken;
         }
 
 
@@ -75,11 +122,9 @@ namespace WebApi.Controllers
         /// <param name="keyValue">key 为weixinkeyid, value 为 code</param>
         /// <returns></returns>
         [HttpPost("GetTokenByWeiXinMiniAppCode")]
-        public string GetTokenByWeiXinMiniAppCode([FromBody] dtoKeyValue keyValue)
+        public async Task<string> GetTokenByWeiXinMiniAppCode([FromBody] dtoKeyValue keyValue)
         {
-
-
-
+              
             var weixinkeyid = Guid.Parse(keyValue.Key.ToString());
             string code = keyValue.Value.ToString();
 
@@ -150,8 +195,31 @@ namespace WebApi.Controllers
                 }
 
             }
+            var clinet = new HttpClient();
+            var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["IdentityServerUrl"]);
+            if (disco.IsError)
+            {
+                ResponseErrAction.ExceptionMessage("登录异常");
+                return default;
+            }
 
-            return GetToken(new dtoLogin { Name = user.Name, PassWord = user.PassWord });
+            var tokenResponse = await clinet.RequestPasswordTokenAsync(new PasswordTokenRequest
+            {
+                Address = disco.TokenEndpoint,
+                ClientId = "UMUserClient",
+                ClientSecret = "UMUserClientSecrets",
+                Scope = "WebApi offline_access profile openid",
+                UserName = user.Id.ToString(),
+                Password = user.Id.ToString(),
+            });
+            if (tokenResponse.IsError)
+            {
+                ResponseErrAction.ExceptionMessage(tokenResponse.Error);
+                return default;
+            }
+            //保存刷新令牌
+            RedisHelper.StringSet(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
+            return tokenResponse.AccessToken; 
         }
 
 
@@ -163,7 +231,7 @@ namespace WebApi.Controllers
         /// <param name="keyValue">key 为手机号，value 为验证码</param>
         /// <returns></returns>
         [HttpPost("GetTokenBySms")]
-        public string GetTokenBySms(dtoKeyValue keyValue)
+        public async Task<string> GetTokenBySms(dtoKeyValue keyValue)
         {
             if (Web.Actions.AuthorizeAction.SmsVerifyPhone(keyValue))
             {
@@ -191,7 +259,7 @@ namespace WebApi.Controllers
                     db.SaveChanges();
                 }
 
-                return GetToken(new dtoLogin { Name = user.Name, PassWord = user.PassWord });
+                return await GetToken(new dtoLogin { Name = user.Name, PassWord = user.PassWord });
             }
             else
             {
@@ -261,7 +329,7 @@ namespace WebApi.Controllers
         /// <param name="keyValue">key 为weixinkeyid, value 为 code</param>
         /// <returns></returns>
         [HttpPost("GetTokenByWeiXinAppCode")]
-        public string GetTokenByWeiXinAppCode(dtoKeyValue keyValue)
+        public async Task<string> GetTokenByWeiXinAppCode(dtoKeyValue keyValue)
         {
 
 
@@ -310,7 +378,7 @@ namespace WebApi.Controllers
                 db.SaveChanges();
             }
 
-            return GetToken(new dtoLogin { Name = user.Name, PassWord = user.PassWord });
+            return await GetToken(new dtoLogin { Name = user.Name, PassWord = user.PassWord });
 
         }
 

@@ -13,6 +13,7 @@ using System.IO;
 using Web.Libraries.WeiXin.App.Models;
 using WebApi.Controllers.Bases;
 using Web.Libraries.WeiXin.H5.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers.v1
 {
@@ -22,6 +23,7 @@ namespace WebApi.Controllers.v1
     [ApiVersion("1")]
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PayController : PubilcControllerBase
     { 
 

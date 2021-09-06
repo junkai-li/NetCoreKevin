@@ -251,8 +251,7 @@ namespace WebApi.Controllers
         /// </summary>
         /// <param name="fileid">文件ID</param>
         /// <returns></returns>
-        [AllowAnonymous]
-        [JWTVerifyFilter(IsSkip = true)]
+        [AllowAnonymous] 
         [HttpGet("GetFile")]
         public FileResult GetFile([Required] Guid fileid)
         {
@@ -290,8 +289,7 @@ namespace WebApi.Controllers
         /// <param name="height">高度</param>
         /// <returns></returns>
         /// <remarks>不指定宽高参数,返回原图</remarks>
-        [AllowAnonymous]
-        [JWTVerifyFilter(IsSkip = true)]
+        [AllowAnonymous] 
         [HttpGet("GetImage")]
         public FileResult GetImage([Required] Guid fileId, int width, int height)
         {

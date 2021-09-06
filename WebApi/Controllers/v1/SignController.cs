@@ -15,8 +15,7 @@ namespace WebApi.Controllers.v1
     /// </summary>
     [ApiVersion("1")]
     [Route("api/[controller]")]
-    [Authorize]
-    [JWTVerifyFilter]
+    [Authorize] 
     public class SignController : PubilcControllerBase
     {  
 

@@ -134,6 +134,17 @@ namespace WebApi
             TencentService.Helper.RedisHelper.ConnectionString = Configuration.GetConnectionString("redisConnection");
             services.AddSingleton<IMiniLive, MiniLive>();
             services.AddControllers().AddControllersAsServices(); //控制器当做实例创建
+
+            //IDSERVER 使用授权服务器 用于单点登录
+            services.AddAuthentication("Bearer")
+              .AddJwtBearer("Bearer", o =>
+              {
+                  o.Audience = "WebApi";
+                  o.Authority = Configuration["IdentityServerUrl"];
+                  o.RequireHttpsMetadata = false;
+                  o.TokenValidationParameters.RequireExpirationTime = true;
+                  o.TokenValidationParameters.ValidateAudience = false;
+              });
         }
 
         //向 Startup.Configure 方法添加中间件组件的顺序定义了针对请求调用这些组件的顺序，以及响应的相反顺序。 此顺序对于安全性、性能和功能至关重要。

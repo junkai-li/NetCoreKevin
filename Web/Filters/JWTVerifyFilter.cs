@@ -1,152 +1,116 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Common;
+using Common.IO;
+using IdentityModel.Client;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Repository.Database;
 using System;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
+using System.Threading.Tasks;
+using Web.Libraries.Http;
 
 namespace Web.Filters
 {
-
-
     /// <summary>
-    /// JWT过滤器
+    /// 身份令牌过滤器
     /// </summary>
-    public class JWTVerifyFilter : Attribute, IActionFilter
+    public class TokenVerifyFilter : Attribute, IActionFilter
     {
-
-        /// <summary>
-        /// 是否跳过Token验证，可用于控制器下单个接口指定跳过Token验证
-        /// </summary>
-        public bool IsSkip { get; set; }
-
-
 
         void IActionFilter.OnActionExecuting(ActionExecutingContext context)
         {
-            ControllerActionDescriptor ad = context.ActionDescriptor as ControllerActionDescriptor; 
-            var isPublic = ad.MethodInfo.IsDefined(typeof(AllowAnonymousAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(AllowAnonymousAttribute), false);
-            if (isPublic == true)
-            { 
+            var ctrl = context.Controller as ControllerBase;
+            if (ctrl == null)
+            {
                 return;
             }
 
-            var filter = (JWTVerifyFilter)context.Filters.Where(t => t.ToString().Trim().ToLower() == (typeof(JWTVerifyFilter).Assembly.GetName().Name + ".Filters.JWTVerifyFilter").Trim().ToLower()).ToList().LastOrDefault();
-
-            if (!filter.IsSkip)
+            var ad = context.ActionDescriptor as Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor;
+            var isPublic = ad.MethodInfo.IsDefined(typeof(AllowAnonymousAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(AllowAnonymousAttribute), false);
+            if (isPublic)
             {
-
-                var exp = Convert.ToInt64(Libraries.Verify.JwtToken.GetClaims("exp")); 
-                var exptime = Common.DateTimeHelper.UnixToTime(exp); 
-                if (exptime < DateTime.Now)
-                {
-                    var tokenId = Guid.Parse(Libraries.Verify.JwtToken.GetClaims("tokenId"));
-
-                    using (var db = new dbContext())
-                    {
-
-                        var endtime = DateTime.Now.AddMinutes(-3);
-
-                        var tokeninfo = db.TUserToken.Where(t => t.Id == tokenId || (t.LastId == tokenId & t.CreateTime > endtime)).FirstOrDefault();
-
-                        if (tokeninfo == null)
-                        {
-                            context.HttpContext.Response.StatusCode = 401;
-
-                            context.Result = new JsonResult(new { errMsg = "非法 Token ！" });
-                        }
-                    }
-                }
-
+                return;
             }
+            var exp = Convert.ToInt64(Libraries.Verify.JwtToken.GetClaims("exp"));
+            var exptime = Common.DateTimeHelper.UnixToTime(exp);
+            if (exptime < DateTime.Now)
+            {
+                context.HttpContext.Response.StatusCode = 401;
+                context.Result = new JsonResult(new { errMsg = "非法 Token ！" });
+            }
+
         }
 
 
         void IActionFilter.OnActionExecuted(ActionExecutedContext context)
         {
-            ControllerActionDescriptor ad = context.ActionDescriptor as ControllerActionDescriptor;
-            var isPublic = ad.MethodInfo.IsDefined(typeof(AllowAnonymousAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(AllowAnonymousAttribute), false);
-            if (isPublic == true)
+            var ctrl = context.Controller as ControllerBase;
+            if (ctrl == null)
             {
                 return;
             }
-            var filter = (JWTVerifyFilter)context.Filters.Where(t => t.ToString().Trim().ToLower() == (typeof(JWTVerifyFilter).Assembly.GetName().Name + ".Filters.JWTVerifyFilter").Trim().ToLower()).ToList().LastOrDefault();
-
-
-            if (!filter.IsSkip)
+            var ad = context.ActionDescriptor as Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor;
+            var isPublic = ad.MethodInfo.IsDefined(typeof(AllowAnonymousAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(AllowAnonymousAttribute), false);
+            if (isPublic)
             {
-
-
-                var exp = Convert.ToInt64(Libraries.Verify.JwtToken.GetClaims("exp"));
-
-                var exptime = Common.DateTimeHelper.UnixToTime(exp);
-
-                if (exptime < DateTime.Now)
-                {
-
-                    var tokenId = Guid.Parse(Libraries.Verify.JwtToken.GetClaims("tokenId"));
-                    var userId = Guid.Parse(Libraries.Verify.JwtToken.GetClaims("userId"));
-
-                    using (var db = new dbContext())
-                    {
-
-                        var endtime = DateTime.Now.AddMinutes(-3);
-
-                        var newtoken = db.TUserToken.Where(t => t.LastId == tokenId & t.CreateTime > endtime).FirstOrDefault();
-
-                        if (newtoken == null)
-                        {
-
-                            var tokeninfo = db.TUserToken.Where(t => t.Id == tokenId).FirstOrDefault();
-
-                            if (tokeninfo != null)
-                            {
-
-                                TUserToken userToken = new TUserToken();
-                                userToken.Id = Guid.NewGuid();
-                                userToken.UserId = userId;
-                                userToken.LastId = tokenId;
-                                userToken.CreateTime = DateTime.Now;
-
-
-                                var claim = new Claim[]{
-                                    new Claim("tokenId",userToken.Id.ToString()),
-                                    new Claim("userId",userId.ToString())
-                                };
-
-                                var token = Libraries.Verify.JwtToken.GetToken(claim);
-                                context.HttpContext.Response.Headers.Add("NewToken", token);
-
-                                //解决 Ionic 取不到 Header中的信息问题
-                                context.HttpContext.Response.Headers.Add("Access-Control-Expose-Headers", "NewToken");
-
-
-                                userToken.Token = token;
-
-                                db.TUserToken.Add(userToken);
-
-
-                                db.TUserToken.Remove(tokeninfo);
-                                db.SaveChanges();
-
-                                var oldtime = DateTime.Now.AddDays(-7);
-                                var oldlist = db.TUserToken.Where(t => t.CreateTime < oldtime).ToList();
-                                db.TUserToken.RemoveRange(oldlist);
-
-                                db.SaveChanges();
-                            }
-                        }
-                        else
-                        {
-                            context.HttpContext.Response.Headers.Add("NewToken", newtoken.Token);
-                        }
-                    }
-                }
-
+                return;
             }
 
+            var exp = Convert.ToInt64(Libraries.Verify.JwtToken.GetClaims("exp"));
+            var exptime = Common.DateTimeHelper.UnixToTime(exp);
+            if (exptime > DateTime.Now && exptime < DateTime.Now.AddMinutes(20))
+            {
+                try
+                {
+                    //获取刷新令牌
+                    var RefreshToken = RedisHelper.StringGet(HttpContext.Current().Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+                    var Result = RenewTokenAsync(RefreshToken);
+                    if (!string.IsNullOrEmpty(Result.Result))
+                    {
+                        context.HttpContext.Response.Headers.Add("NewToken", Result.Result);
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+        }
+
+        /// <summary>
+        /// 刷新token
+        /// </summary>
+        /// <returns></returns>
+        private async Task<string> RenewTokenAsync(string token)
+        {
+            var clinet = new HttpClient();
+            var disco = await clinet.GetDiscoveryDocumentAsync(Config.Get()["IdentityServerUrl"]);
+            if (!disco.IsError)
+            {
+                var refreshToken = await clinet.RequestRefreshTokenAsync(new RefreshTokenRequest
+                {
+                    ClientId = "YfcUserClient",
+                    Address = disco.TokenEndpoint,
+                    ClientSecret = "YfcUserClientSecrets",
+                    Scope = "YfcUserApi YfcMeetingApi YfcMarketingApi offline_access profile openid",
+                    GrantType = OpenIdConnectGrantTypes.RefreshToken,
+                    RefreshToken = token
+                });
+                if (!refreshToken.IsError)
+                {
+                    //保存刷新令牌
+                    RedisHelper.StringSet(refreshToken.AccessToken, refreshToken.RefreshToken, TimeSpan.FromDays(2));
+                    return refreshToken.AccessToken;
+                }
+            }
+
+            return "";
         }
     }
 }

@@ -51,44 +51,43 @@ namespace Web.Extension
 
 
 
-            //注册JWT认证机制
-            services.Configure<JwtSettings>(Configuration.GetSection("JwtSettings"));
-            var jwtSettings = new JwtSettings();
-            Configuration.Bind("JwtSettings", jwtSettings);
+            //注册JWT认证机制 之前的单机jwt 不适用 除非小项目 无单点登录情况下使用
+            //services.Configure<JwtSettings>(Configuration.GetSection("JwtSettings"));
+            //var jwtSettings = new JwtSettings();
+            //Configuration.Bind("JwtSettings", jwtSettings);
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(o =>
-            {
-                //主要是jwt  token参数设置
-                o.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                {
-                    ValidIssuer = jwtSettings.Issuer,
-                    ValidAudience = jwtSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
-                    ValidateLifetime = false
+            //services.AddAuthentication(options =>
+            //{
+            //    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            //})
+            //.AddJwtBearer(o =>
+            //{
+            //    //主要是jwt  token参数设置
+            //    o.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+            //    {
+            //        ValidIssuer = jwtSettings.Issuer,
+            //        ValidAudience = jwtSettings.Audience,
+            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+            //        ValidateLifetime = false
 
-                    /***********************************TokenValidationParameters的参数默认值***********************************/
-                    // RequireSignedTokens = true,
-                    // SaveSigninToken = false,
-                    // ValidateActor = false,
-                    // 将下面两个参数设置为false，可以不验证Issuer和Audience，但是不建议这样做。
-                    // ValidateAudience = true,
-                    // ValidateIssuer = true, 
-                    // ValidateIssuerSigningKey = false,
-                    // 是否要求Token的Claims中必须包含Expires
-                    // RequireExpirationTime = true,
-                    // 允许的服务器时间偏移量
-                    // ClockSkew = TimeSpan.FromSeconds(300),
-                    // 是否验证Token有效期，使用当前时间与Token的Claims中的NotBefore和Expires对比
-                    // ValidateLifetime = true
+            //        /***********************************TokenValidationParameters的参数默认值***********************************/
+            //        // RequireSignedTokens = true,
+            //        // SaveSigninToken = false,
+            //        // ValidateActor = false,
+            //        // 将下面两个参数设置为false，可以不验证Issuer和Audience，但是不建议这样做。
+            //        // ValidateAudience = true,
+            //        // ValidateIssuer = true, 
+            //        // ValidateIssuerSigningKey = false,
+            //        // 是否要求Token的Claims中必须包含Expires
+            //        // RequireExpirationTime = true,
+            //        // 允许的服务器时间偏移量
+            //        // ClockSkew = TimeSpan.FromSeconds(300),
+            //        // 是否验证Token有效期，使用当前时间与Token的Claims中的NotBefore和Expires对比
+            //        // ValidateLifetime = true
 
-                };
-            });
-
+            //    };
+            //});
 
             //注册HttpContext
             Web.Libraries.Http.HttpContext.Add(services);
@@ -97,6 +96,7 @@ namespace Web.Extension
             services.AddMvc(config => {
                 config.Filters.Add(new GlobalFilter());
                 config.Filters.Add(new PrivilegeFilter());//权限
+                config.Filters.Add(new TokenVerifyFilter());//authorze
             });
 
             //注册跨域信息

@@ -22,9 +22,10 @@ namespace WebApi.Controllers.v1
     /// 用户数据操作控制器
     /// </summary>
     [ApiVersion("1")]
-    [Route("api/[controller]")] 
-    [JWTVerifyFilter] 
+    [Route("api/[controller]")]  
+    [Authorize]
     [ApiController]
+    [SkipAuthority]
     public class UserController : PubilcControllerBase
     {   
         /// <summary>
