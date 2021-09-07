@@ -106,7 +106,7 @@ namespace WebApi.Controllers
             });
             if (tokenResponse.IsError)
             {
-                ResponseErrAction.ExceptionMessage(tokenResponse.Error);
+                ResponseErrAction.ExceptionMessage(tokenResponse.ErrorDescription);
                 return default;
             }
             //保存刷新令牌
@@ -214,7 +214,7 @@ namespace WebApi.Controllers
             });
             if (tokenResponse.IsError)
             {
-                ResponseErrAction.ExceptionMessage(tokenResponse.Error);
+                ResponseErrAction.ExceptionMessage(tokenResponse.ErrorDescription);
                 return default;
             }
             //保存刷新令牌
