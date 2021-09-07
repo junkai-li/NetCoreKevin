@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Web.Permisson.Attributes
 {
+    /// <summary>
+    /// 跳出权限控制属性
+    /// </summary>
     public class SkipAuthorityAttribute : Attribute
     {
     }
