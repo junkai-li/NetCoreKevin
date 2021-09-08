@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,7 @@ using System.Threading.Tasks;
 using Web.Filters;
 using Web.Global;
 using Web.Libraries.Swagger;
+using Web.Permission.Action;
 
 namespace Web.Extension
 {
@@ -25,6 +27,7 @@ namespace Web.Extension
     {
         public static IServiceCollection ConfigServies(this IServiceCollection services, IConfiguration Configuration)
         {
+            #region json配置
             //json动态响应压缩https://docs.microsoft.com/zh-cn/aspnet/core/performance/response-compression?view=aspnetcore-5.0
             services.AddResponseCompression();
             services.Configure<FormOptions>(options =>
@@ -46,10 +49,18 @@ namespace Web.Extension
             {
                 options.MaxAge = TimeSpan.FromDays(365);
             });
+            #endregion
+
+
+            //权限校验
+            services.AddAuthorization(options =>
+            {
+                options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().RequireAssertion(context => IdentityVerification.Authorization(context)).Build();
+            });
 
             services.AddControllers();
 
-
+            #region jwt
 
             //注册JWT认证机制 之前的单机jwt 不适用 除非小项目 无单点登录情况下使用
             //services.Configure<JwtSettings>(Configuration.GetSection("JwtSettings"));
@@ -89,14 +100,14 @@ namespace Web.Extension
             //    };
             //});
 
+            #endregion
+
             //注册HttpContext
             Web.Libraries.Http.HttpContext.Add(services);
 
             //注册全局过滤器
             services.AddMvc(config => {
-                config.Filters.Add(new GlobalFilter());
-                config.Filters.Add(new PrivilegeFilter());//权限
-                config.Filters.Add(new TokenVerifyFilter());//authorze
+                config.Filters.Add(new GlobalFilter()); 
             });
 
             //注册跨域信息
@@ -124,7 +135,7 @@ namespace Web.Extension
             //注册配置文件信息
             Web.Libraries.Start.StartConfiguration.Add(Configuration);
 
-
+            #region Api版本以及配置
             services.AddApiVersioning(options =>
             {
                 //通过Header向客户端通报支持的版本
@@ -148,7 +159,7 @@ namespace Web.Extension
             {
                 options.GroupNameFormat = "'v'VVV";
                 options.SubstituteApiVersionInUrl = true;
-            }); 
+            });
 
             //注册统一模型验证
             services.Configure<ApiBehaviorOptions>(options =>
@@ -171,9 +182,12 @@ namespace Web.Extension
                 };
             });
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerConfigureOptions>();
+            #endregion
+
             //注册雪花ID算法示例
             services.AddSingleton(new Common.SnowflakeHelper(0, 0));
 
+            #region 缓存服务模式
             //注册缓存服务 内存模式
             services.AddDistributedMemoryCache();
 
@@ -193,6 +207,7 @@ namespace Web.Extension
             //    options.Configuration = Configuration.GetConnectionString("redisConnection");
             //    options.InstanceName = "cache";
             //});
+            #endregion 
 
             return services;
         }

@@ -10,6 +10,7 @@ using Web.Permisson;
 using Web.Permisson.Attributes;
 using Web.Actions;
 using WebApi.Controllers.Bases;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AdminApi.Controllers
 {
@@ -17,6 +18,7 @@ namespace AdminApi.Controllers
     [MyArea("系统管理", "System")]
     [ApiController]
     [ActionDescription("权限管理")]
+    [Authorize]
     public class PermissionController : PubilcControllerBase
     {
         /// <summary>
