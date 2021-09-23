@@ -20,6 +20,8 @@ using Web.Filters;
 using Web.Global;
 using Web.Libraries.Swagger;
 using Web.Permission.Action;
+using Medallion.Threading;
+using Medallion.Threading.SqlServer;
 
 namespace Web.Extension
 {
@@ -207,8 +209,13 @@ namespace Web.Extension
             //    options.Configuration = Configuration.GetConnectionString("redisConnection");
             //    options.InstanceName = "cache";
             //});
-            #endregion 
+            #endregion
 
+            #region 分布式锁服务注册
+            services.AddSingleton<IDistributedLockProvider>(new SqlDistributedSynchronizationProvider(Configuration.GetConnectionString("dbConnection")));
+            services.AddSingleton<IDistributedSemaphoreProvider>(new SqlDistributedSynchronizationProvider(Configuration.GetConnectionString("dbConnection")));
+            services.AddSingleton<IDistributedUpgradeableReaderWriterLockProvider>(new SqlDistributedSynchronizationProvider(Configuration.GetConnectionString("dbConnection")));
+            #endregion
             return services;
         }
 
