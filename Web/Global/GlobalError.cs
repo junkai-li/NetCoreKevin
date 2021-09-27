@@ -43,11 +43,9 @@ namespace Web.Actions
 
             string strContent = JsonHelper.ObjectToJSON(content);
 
-            Common.DBHelper.LogSet(ProjectName, "errorlog", strContent);
-
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            context.Response.ContentType = "application/json;charset=utf-8"; 
-            return context.Response.WriteAsync(JsonConvert.SerializeObject(ret));
+            Common.DBHelper.LogSet(ProjectName, "errorlog", strContent); 
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError; 
+            return context.Response.WriteAsJsonAsync(ret);
         }
     }
 }
