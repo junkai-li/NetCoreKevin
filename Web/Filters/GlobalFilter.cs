@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Common.Json;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
+using Web.Libraries.Http;
 
 namespace Web.Filters
 {
@@ -20,15 +22,25 @@ namespace Web.Filters
 
         void IActionFilter.OnActionExecuted(ActionExecutedContext context)
         {
+            var Result = context.Result as ObjectResult; 
             //格式化返回值
-            resultFormatting(context.Result as ObjectResult);
-
-            if (context.HttpContext.Response.StatusCode == 400)
+            resultFormatting(Result);  
+            switch (context.HttpContext.Response.StatusCode)
             {
-                string errMsg = context.HttpContext.Items["errMsg"].ToString();
-
-                context.Result = new JsonResult(new { errMsg = errMsg });
-            }
+                case StatusCodes.Status400BadRequest:
+                    string errMsg = context.HttpContext.Items["errMsg"].ToString();
+                    context.Result = new JsonResult(new { code = StatusCodes.Status400BadRequest, msg = "errmsg", errMsg = errMsg });
+                    break;
+                case StatusCodes.Status401Unauthorized:
+                    context.Result = new JsonResult(new { code = StatusCodes.Status401Unauthorized, msg = "errmsg", errMsg = "未授权" });
+                    break;
+                case StatusCodes.Status500InternalServerError:
+                    context.Result = new JsonResult(new { code = StatusCodes.Status500InternalServerError, msg = "errmsg", errMsg = "系统内部异常" });
+                    break;
+                default:
+                    context.Result = new JsonResult(new { code = StatusCodes.Status200OK, msg = "success", data = context.Result != null ? Result.Value : null });
+                    break;
+            } 
         }
 
 

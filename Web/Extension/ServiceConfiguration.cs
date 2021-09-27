@@ -227,7 +227,7 @@ namespace Web.Extension
         /// <returns></returns>
         public static IApplicationBuilder UseKevin(this IApplicationBuilder app)
         {
-            ///json压缩
+            /////json压缩
             app.UseResponseCompression();
             app.UseHsts(); 
             //注册跨域信息

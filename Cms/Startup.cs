@@ -169,7 +169,7 @@ namespace Cms
             else
             {
                 //注册全局异常处理机制
-                app.UseExceptionHandler(builder => builder.Run(async context => await GlobalError.ErrorEvent(context,"Cms")));
+                app.UseExceptionHandler(builder => builder.Run(context => GlobalError.ErrorEvent(context,"Cms")));
             }
 
 

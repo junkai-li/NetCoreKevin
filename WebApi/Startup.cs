@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -21,7 +22,8 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using TencentService;
-using TencentService._; 
+using TencentService._;
+using Web.Auth;
 using Web.Extension;
 using Web.Extension.Autofac;
 using Web.Filters;
@@ -136,8 +138,12 @@ namespace WebApi
             services.AddControllers().AddControllersAsServices(); //控制器当做实例创建
 
             //IDSERVER 使用授权服务器 用于单点登录
-            services.AddAuthentication("Bearer")
-              .AddJwtBearer("Bearer", o =>
+            services.AddAuthentication(o =>
+            {
+                o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                //o.DefaultChallengeScheme = nameof(ApiResponseHandler);
+                //o.DefaultForbidScheme = nameof(ApiResponseHandler);
+            }).AddJwtBearer("Bearer", o =>
               {
                   o.Audience = "WebApi";
                   o.Authority = Configuration["IdentityServerUrl"];
@@ -145,13 +151,13 @@ namespace WebApi
                   o.TokenValidationParameters.RequireExpirationTime = true;
                   o.TokenValidationParameters.ValidateAudience = false;
               });
+            //.AddScheme<AuthenticationSchemeOptions, ApiResponseHandler>(nameof(ApiResponseHandler), o => { });
         }
 
         //向 Startup.Configure 方法添加中间件组件的顺序定义了针对请求调用这些组件的顺序，以及响应的相反顺序。 此顺序对于安全性、性能和功能至关重要。
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
-        {
-
+        { 
             //开启倒带模式运行多次读取HttpContext.Body中的内容
             app.Use(next => context =>
             {
@@ -160,11 +166,13 @@ namespace WebApi
             });
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                //app.UseDeveloperExceptionPage();
+                ////注册全局异常处理机制
+                app.UseExceptionHandler(builder => builder.Run(async context => await Web.Actions.GlobalError.ErrorEvent(context)));
             }
             else
             {
-                //注册全局异常处理机制
+                ////注册全局异常处理机制
                 app.UseExceptionHandler(builder => builder.Run(async context => await Web.Actions.GlobalError.ErrorEvent(context)));
             }
             //kevin初始化

@@ -130,7 +130,7 @@ namespace WebApi.Controllers.v1
         public bool EditUserPhoneBySms([FromBody] dtoKeyValue keyValue)
         {
 
-            if (Web.Actions.AuthorizeAction.SmsVerifyPhone(keyValue))
+            if (Web.Auth.AuthorizeAction.SmsVerifyPhone(keyValue))
             {
                 var userId = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userId"));
 
@@ -211,7 +211,7 @@ namespace WebApi.Controllers.v1
 
             string smsCode = keyValue.Value.ToString();
 
-            var checkSms = Web.Actions.AuthorizeAction.SmsVerifyPhone(new dtoKeyValue { Key = phone, Value = smsCode });
+            var checkSms = Web.Auth.AuthorizeAction.SmsVerifyPhone(new dtoKeyValue { Key = phone, Value = smsCode });
 
             if (checkSms)
             {

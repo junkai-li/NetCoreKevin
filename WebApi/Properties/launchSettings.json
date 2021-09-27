@@ -1,4 +1,4 @@
-{ 
+{
   "profiles": {
     "WebApi": {
       "commandName": "Project",
@@ -7,7 +7,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "https://localhost:9801"
+      "applicationUrl": "http://netCoreKevin.local.gejinet.com:9901"
     },
     "Docker": {
       "commandName": "Docker",

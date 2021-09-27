@@ -36,6 +36,18 @@ namespace WebApi.Controllers
         {
             this.Configuration = configuration;
         }
+
+        /// <summary>
+        /// GetErr
+        /// </summary> 
+        /// <returns></returns>
+        [HttpPost("GetErr")]
+        public string GetErr()
+        {
+            int i = int.Parse("ABD");
+            return i.ToString();
+
+        }
         ///// <summary>
         ///// 获取Token认证信息
         ///// </summary>
@@ -233,7 +245,7 @@ namespace WebApi.Controllers
         [HttpPost("GetTokenBySms")]
         public async Task<string> GetTokenBySms(dtoKeyValue keyValue)
         {
-            if (Web.Actions.AuthorizeAction.SmsVerifyPhone(keyValue))
+            if (Web.Auth.AuthorizeAction.SmsVerifyPhone(keyValue))
             {
                 string phone = keyValue.Key.ToString();
 

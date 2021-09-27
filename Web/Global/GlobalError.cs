@@ -1,12 +1,13 @@
 ﻿using Common.Json;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http; 
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 
 namespace Web.Actions
 {
     public class GlobalError
-    {
+    { 
         public static Task ErrorEvent(HttpContext context,string ProjectName="WebApi")
         {
             var feature = context.Features.Get<IExceptionHandlerFeature>();
@@ -14,6 +15,7 @@ namespace Web.Actions
 
             var ret = new
             {
+                code = StatusCodes.Status500InternalServerError,
                 errMsg = "Global internal exception of the system"
             };
 
@@ -32,7 +34,7 @@ namespace Web.Actions
             var authorization = Libraries.Http.HttpContext.Current().Request.Headers["Authorization"].ToString();
 
             var content = new
-            {
+            { 
                 path = path,
                 parameter = parameter,
                 authorization = authorization,
@@ -43,9 +45,9 @@ namespace Web.Actions
 
             Common.DBHelper.LogSet(ProjectName, "errorlog", strContent);
 
-            context.Response.StatusCode = 400;
-
-            return context.Response.WriteAsync(JsonHelper.ObjectToJSON(ret));
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            context.Response.ContentType = "application/json;charset=utf-8"; 
+            return context.Response.WriteAsync(JsonConvert.SerializeObject(ret));
         }
     }
 }
