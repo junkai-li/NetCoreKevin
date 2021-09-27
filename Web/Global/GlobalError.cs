@@ -16,6 +16,7 @@ namespace Web.Actions
             var ret = new
             {
                 code = StatusCodes.Status500InternalServerError,
+                IsSuccess=false,
                 errMsg = "Global internal exception of the system"
             };
 

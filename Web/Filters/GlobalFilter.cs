@@ -29,16 +29,16 @@ namespace Web.Filters
             {
                 case StatusCodes.Status400BadRequest:
                     string errMsg = context.HttpContext.Items["errMsg"].ToString();
-                    context.Result = new JsonResult(new { code = StatusCodes.Status400BadRequest, msg = "errmsg", errMsg = errMsg });
+                    context.Result = new JsonResult(new { code = StatusCodes.Status400BadRequest, IsSuccess = false, msg = "errmsg", errMsg = errMsg });
                     break;
                 case StatusCodes.Status401Unauthorized:
-                    context.Result = new JsonResult(new { code = StatusCodes.Status401Unauthorized, msg = "errmsg", errMsg = "未授权" });
+                    context.Result = new JsonResult(new { code = StatusCodes.Status401Unauthorized, IsSuccess = false, msg = "errmsg", errMsg = "未授权" });
                     break;
                 case StatusCodes.Status500InternalServerError:
-                    context.Result = new JsonResult(new { code = StatusCodes.Status500InternalServerError, msg = "errmsg", errMsg = "系统内部异常" });
+                    context.Result = new JsonResult(new { code = StatusCodes.Status500InternalServerError, IsSuccess = false, msg = "errmsg", errMsg = "系统内部异常" });
                     break;
                 default:
-                    context.Result = new JsonResult(new { code = StatusCodes.Status200OK, msg = "success", data = context.Result != null ? Result.Value : null });
+                    context.Result = new JsonResult(new { code = StatusCodes.Status200OK, msg = "success", IsSuccess = true, data = context.Result != null ? Result.Value : null });
                     break;
             } 
         }
