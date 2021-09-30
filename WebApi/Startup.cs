@@ -96,14 +96,12 @@ namespace WebApi
                 options.OperationFilter<SwaggerOperationFilter>();
 
                 options.MapType<long>(() => new OpenApiSchema { Type = "string", Format = "long" });
-
-
+                 
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{typeof(Startup).Assembly.GetName().Name}.xml"), true);
 
                 //其他类库的注释文件
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"Models.xml"), true);
-
-
+                 
                 //开启 Swagger JWT 鉴权模块
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
@@ -140,9 +138,7 @@ namespace WebApi
             //IDSERVER 使用授权服务器 用于单点登录
             services.AddAuthentication(o =>
             {
-                o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                //o.DefaultChallengeScheme = nameof(ApiResponseHandler);
-                //o.DefaultForbidScheme = nameof(ApiResponseHandler);
+                o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; 
             }).AddJwtBearer("Bearer", o =>
               {
                   o.Audience = "WebApi";
@@ -150,8 +146,7 @@ namespace WebApi
                   o.RequireHttpsMetadata = false;
                   o.TokenValidationParameters.RequireExpirationTime = true;
                   o.TokenValidationParameters.ValidateAudience = false;
-              });
-            //.AddScheme<AuthenticationSchemeOptions, ApiResponseHandler>(nameof(ApiResponseHandler), o => { });
+              }); 
         }
 
         //向 Startup.Configure 方法添加中间件组件的顺序定义了针对请求调用这些组件的顺序，以及响应的相反顺序。 此顺序对于安全性、性能和功能至关重要。
