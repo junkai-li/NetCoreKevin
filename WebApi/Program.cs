@@ -1,9 +1,9 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using NLog.Web;
+using Microsoft.Extensions.Hosting; 
 using System;
-using System.IO;
+using System.IO; 
+using NLog.Web;
 
 namespace WebApi
 {
