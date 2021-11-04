@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Repository.Interceptors;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -235,6 +236,13 @@ namespace Repository.Database
                         if (property.Name.ToLower() == "tableid")
                         {
                             builder.HasIndex(property.Name);
+                        }
+
+                        //设置字段的默认值 
+                        var defaultValueAttribute = property.PropertyInfo?.GetCustomAttribute<DefaultValueAttribute>();
+                        if (defaultValueAttribute != null)
+                        {
+                            property.SetDefaultValue(defaultValueAttribute.Value);
                         }
 
                     }
