@@ -7,35 +7,23 @@ using Models.Dtos;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Text;
+using Web.Global;
 
 namespace Web.Libraries.Http
 {
-    public static class HttpContext
+    public class HttpContext
     {
-        private static IServiceProvider ServiceProvider { get; set; }
-
-        private static IWebHostEnvironment HostingEnvironment { get; set; }
-
-
-        public static void Add(IServiceCollection services)
-        {
-            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        }
-
-
-        public static void Initialize(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            ServiceProvider = app.ApplicationServices;
-            HostingEnvironment = env;
-        }
-
 
         public static Microsoft.AspNetCore.Http.HttpContext Current()
         {
-            object factory = ServiceProvider.GetService(typeof(IHttpContextAccessor));
-            Microsoft.AspNetCore.Http.HttpContext context = ((IHttpContextAccessor)factory).HttpContext;
-            return context;
+            var httpContextAccessor = GlobalServices.ServiceProvider.GetService<IHttpContextAccessor>();
+
+            httpContextAccessor.HttpContext.Request.Body.Position = 0;
+
+            return httpContextAccessor.HttpContext;
         }
 
 
@@ -73,13 +61,21 @@ namespace Web.Libraries.Http
         /// </summary>
         public static string GetRequestBody()
         {
+            var requestContent = "";
 
-            Current().Request.Body.Position = 0;
+            using (Stream requestBody = new MemoryStream())
+            {
+                Current().Request.Body.CopyTo(requestBody);
+                Current().Request.Body.Position = 0;
 
-            var requestReader = new StreamReader(Current().Request.Body);
+                requestBody.Position = 0;
 
+                using (var requestReader = new StreamReader(requestBody))
+                {
+                    requestContent = requestReader.ReadToEnd();
+                }
+            }
 
-            var requestContent = requestReader.ReadToEnd();
             return requestContent;
         }
 
@@ -94,36 +90,32 @@ namespace Web.Libraries.Http
 
             var parameters = new List<dtoKeyValue>();
 
-            if (context.Request.Method == "POST")
+
+            var queryList = context.Request.Query.ToList();
+            foreach (var query in queryList)
             {
-                string body = GetRequestBody();
-
-                if (!string.IsNullOrEmpty(body))
-                {
-                    parameters.Add(new dtoKeyValue { Key = "body", Value = body });
-                }
-                else if (context.Request.HasFormContentType)
-                {
-                    var fromlist = context.Request.Form.OrderBy(t => t.Key).ToList();
-
-                    foreach (var fm in fromlist)
-                    {
-                        parameters.Add(new dtoKeyValue { Key = fm.Key, Value = fm.Value.ToString() });
-                    }
-                }
+                parameters.Add(new dtoKeyValue { Key = query.Key, Value = query.Value });
             }
-            else if (context.Request.Method == "GET")
-            {
-                var queryList = context.Request.Query.ToList();
 
-                foreach (var query in queryList)
+            string body = GetRequestBody();
+
+            if (!string.IsNullOrEmpty(body))
+            {
+                parameters.Add(new dtoKeyValue { Key = "body", Value = body });
+            }
+            else if (context.Request.HasFormContentType)
+            {
+                var fromlist = context.Request.Form.OrderBy(t => t.Key).ToList();
+
+                foreach (var fm in fromlist)
                 {
-                    parameters.Add(new dtoKeyValue { Key = query.Key, Value = query.Value });
+                    parameters.Add(new dtoKeyValue { Key = fm.Key, Value = fm.Value.ToString() });
                 }
             }
 
             return parameters;
         }
+
 
 
 
@@ -158,7 +150,5 @@ namespace Web.Libraries.Http
                 return "";
             }
         }
-
-
     }
 }
