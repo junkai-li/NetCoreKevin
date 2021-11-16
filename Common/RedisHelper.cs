@@ -11,19 +11,18 @@ namespace Common
 
         private static string ConnectionString = IO.Config.Get().GetConnectionString("redisConnection");
 
-        private static readonly ConnectionMultiplexer ConnectionMultiplexer = ConnectionMultiplexer.Connect(ConnectionString);
+        private static ConnectionMultiplexer ConnectionMultiplexer = ConnectionMultiplexer.Connect(ConnectionString);
 
-
+        private static string SystemSign = "QingQu";
 
         /// <summary>
         /// 删除指定key
         /// </summary>
         /// <param name="key"></param>
-        /// <returns></returns>
-        public static bool KeyDelete(string key)
+        public static void RemoveKey(string key)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.KeyDelete(key);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            Database.KeyDelete(key + SystemSign);
         }
 
 
@@ -33,11 +32,10 @@ namespace Common
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        /// <returns></returns>
-        public static bool StringSet(string key, string value)
+        public static void StrSet(string key, string value)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.StringSet(key, value);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            Database.StringSet(key + SystemSign, value);
         }
 
 
@@ -47,13 +45,13 @@ namespace Common
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        /// <param name="timeOut"></param>
-        /// <returns></returns>
-        public static bool StringSet(string key, string value, TimeSpan timeOut)
+        /// <param name="timeout"></param>
+        public static void StrSet(string key, string value, TimeSpan timeout)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.StringSet(key, value, timeOut);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            Database.StringSet(key + SystemSign, value, timeout);
         }
+
 
 
 
@@ -62,10 +60,10 @@ namespace Common
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static string StringGet(string key)
+        public static string StrGet(string key)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.StringGet(key);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            return Database.StringGet(key + SystemSign);
         }
 
 
@@ -75,9 +73,11 @@ namespace Common
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static bool IsContainString(string key)
+        public static bool IsContainStr(string key)
         {
-            if (string.IsNullOrEmpty(StringGet(key)))
+            var info = StrGet(key + SystemSign);
+
+            if (string.IsNullOrEmpty(info))
             {
                 return false;
             }
@@ -95,11 +95,12 @@ namespace Common
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static long StringAppend(string key, string value)
+        public static long StrAppend(string key, string value)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.StringAppend(key, value);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            return Database.StringAppend(key + SystemSign, value);
         }
+
 
 
 
@@ -111,10 +112,9 @@ namespace Common
         /// <returns></returns>
         public static long LongIncrement(string key, long value)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.StringIncrement(key, value);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            return Database.StringIncrement(key + SystemSign, value);
         }
-
 
 
         /// <summary>
@@ -125,9 +125,10 @@ namespace Common
         /// <returns></returns>
         public static long LongDecrement(string key, long value)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.StringDecrement(key, value);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            return Database.StringDecrement(key + SystemSign, value);
         }
+
 
 
 
@@ -137,11 +138,12 @@ namespace Common
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static long ListRightPush(string key, string value)
+        public static long ListSet(string key, string value)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.ListRightPush(key, value);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            return Database.ListRightPush(key + SystemSign, value);
         }
+
 
 
 
@@ -150,10 +152,10 @@ namespace Common
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        public static void ListAdd(string key, string value)
+        public static void SetAdd(string key, string value)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            database.SetAdd(key, value);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            Database.SetAdd(key + SystemSign, value);
         }
 
 
@@ -164,11 +166,12 @@ namespace Common
         /// <param name="key"></param>
         /// <param name="row"></param>
         /// <returns></returns>
-        public static string ListGetByIndex(string key, int row)
+        public static string ListGetRV(string key, int row)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.ListGetByIndex(key, row);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            return Database.ListGetByIndex(key + SystemSign, row);
         }
+
 
 
 
@@ -177,11 +180,12 @@ namespace Common
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static List<RedisValue> ListGetAll(string key)
+        public static List<RedisValue> ListGetKV(string key)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.ListRange(key).ToList();
+            var Database = ConnectionMultiplexer.GetDatabase();
+            return Database.ListRange(key + SystemSign).ToList();
         }
+
 
 
 
@@ -190,11 +194,12 @@ namespace Common
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        public static void ListRemove(string key, string value)
+        public static void ListDelV(string key, string value)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            database.ListRemove(key, value);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            Database.ListRemove(key + SystemSign, value);
         }
+
 
 
 
@@ -205,9 +210,10 @@ namespace Common
         /// <returns></returns>
         public static long ListCount(string key)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.ListLength(key);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            return Database.ListLength(key + SystemSign);
         }
+
 
 
 
@@ -219,9 +225,10 @@ namespace Common
         /// <param name="value"></param>
         public static void HashSet(string name, string key, string value)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            database.HashSet(name, key, value);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            Database.HashSet(name + SystemSign, key, value);
         }
+
 
 
 
@@ -233,9 +240,10 @@ namespace Common
         /// <returns></returns>
         public static string HashGet(string name, string key)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.HashGet(name, key);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            return Database.HashGet(name + SystemSign, key);
         }
+
 
 
 
@@ -244,11 +252,12 @@ namespace Common
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static List<HashEntry> HashGetAll(string name)
+        public static List<HashEntry> HashGet(string name)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.HashGetAll(name).ToList();
+            var Database = ConnectionMultiplexer.GetDatabase();
+            return Database.HashGetAll(name + SystemSign).ToList();
         }
+
 
 
 
@@ -257,11 +266,12 @@ namespace Common
         /// </summary>
         /// <param name="name"></param>
         /// <param name="key"></param>
-        public static void HashDelete(string name, string key)
+        public static void HashDelK(string name, string key)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            database.HashDelete(name, key);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            Database.HashDelete(name + SystemSign, key);
         }
+
 
 
 
@@ -271,11 +281,13 @@ namespace Common
         /// <param name="name"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static bool HashExists(string name, string key)
+        public static bool HashLike(string name, string key)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.HashExists(name, key);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            return Database.HashExists(name + SystemSign, key);
         }
+
+
 
 
 
@@ -286,9 +298,10 @@ namespace Common
         /// <returns></returns>
         public static long HashCount(string key)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.HashLength(key);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            return Database.HashLength(key + SystemSign);
         }
+
 
 
 
@@ -301,9 +314,10 @@ namespace Common
         /// <returns></returns>
         public static bool Lock(string key, string value, TimeSpan timeOut)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.LockTake(key, value, timeOut);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            return Database.LockTake(key + SystemSign, value, timeOut);
         }
+
 
 
 
@@ -315,65 +329,9 @@ namespace Common
         /// <returns></returns>
         public static bool UnLock(string key, string value)
         {
-            var database = ConnectionMultiplexer.GetDatabase();
-            return database.LockRelease(key, value);
+            var Database = ConnectionMultiplexer.GetDatabase();
+            return Database.LockRelease(key + SystemSign, value);
         }
-
-        /// <summary>
-        /// 订阅消息
-        /// </summary>
-        /// <param name="channel">频道</param>
-        /// <param name="handler">委托方法</param>
-        public static void Subscribe(string channel, Action<RedisChannel, RedisValue> handler = null)
-        {
-            var sub = ConnectionMultiplexer.GetSubscriber();
-            sub.Subscribe(channel, (channel, message) =>
-            {
-                if (handler != null)
-                {
-                    handler(channel, message);
-                }
-            });
-        }
-
-
-
-        /// <summary>
-        /// 发布消息
-        /// </summary>
-        /// <param name="channel">频道</param>
-        /// <param name="message">消息内容</param>
-        /// <returns>收到消息的客户端数量</returns>
-        public static long Publish(string channel, string message)
-        {
-            var sub = ConnectionMultiplexer.GetSubscriber();
-            return sub.Publish(channel, message);
-        }
-
-
-
-        /// <summary>
-        /// 取消订阅
-        /// </summary>
-        /// <param name="channel">频道</param>
-        public static void Unsubscribe(string channel)
-        {
-            var sub = ConnectionMultiplexer.GetSubscriber();
-            sub.Unsubscribe(channel);
-        }
-
-
-
-        /// <summary>
-        /// 取消全部订阅
-        /// </summary>
-        public static void UnsubscribeAll()
-        {
-            var sub = ConnectionMultiplexer.GetSubscriber();
-            sub.UnsubscribeAll();
-        }
-
-
 
     }
 }
