@@ -122,7 +122,7 @@ namespace WebApi.Controllers
                 return default;
             }
             //保存刷新令牌
-            RedisHelper.StringSet(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
+            RedisHelper.StrSet(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
             return tokenResponse.AccessToken;
         }
 
@@ -230,7 +230,7 @@ namespace WebApi.Controllers
                 return default;
             }
             //保存刷新令牌
-            RedisHelper.StringSet(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
+            RedisHelper.StrSet(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
             return tokenResponse.AccessToken; 
         }
 
@@ -300,7 +300,7 @@ namespace WebApi.Controllers
 
             string key = "VerifyPhone_" + phone;
 
-            if (Common.RedisHelper.IsContainString(key) == false)
+            if (Common.RedisHelper.IsContainStr(key) == false)
             {
 
                 Random ran = new Random();
@@ -316,7 +316,7 @@ namespace WebApi.Controllers
 
                 if (smsStatus)
                 {
-                    Common.RedisHelper.StringSet(key, code, new TimeSpan(0, 0, 5, 0));
+                    Common.RedisHelper.StrSet(key, code, new TimeSpan(0, 0, 5, 0));
 
                     return true;
                 }

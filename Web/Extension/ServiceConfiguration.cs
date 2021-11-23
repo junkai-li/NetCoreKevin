@@ -102,10 +102,7 @@ namespace Web.Extension
             //    };
             //});
 
-            #endregion
-
-            //注册HttpContext
-            Web.Libraries.Http.HttpContext.Add(services);
+            #endregion 
 
             //注册全局过滤器
             services.AddMvc(config => {

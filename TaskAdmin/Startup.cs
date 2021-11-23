@@ -95,9 +95,7 @@ namespace TaskAdmin
                 options.AccessDeniedPath = new PathString("/User/Login/");
                 options.ExpireTimeSpan = TimeSpan.FromHours(20);
             });
-
-            //注册HttpContext
-            Web.Libraries.Http.HttpContext.Add(services);
+             
 
 
             //注册全局过滤器
@@ -207,10 +205,7 @@ namespace TaskAdmin
 
 
             app.UseStaticFiles();
-
-
-            //注册HttpContext
-            Web.Libraries.Http.HttpContext.Initialize(app, env);
+             
 
 
             //注册Session

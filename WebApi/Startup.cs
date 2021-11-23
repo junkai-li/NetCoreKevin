@@ -171,9 +171,7 @@ namespace WebApi
                 app.UseExceptionHandler(builder => builder.Run(async context => await Web.Actions.GlobalError.ErrorEvent(context)));
             }
             //kevin初始化
-            app.UseKevin();
-            //注册HttpContext
-            Web.Libraries.Http.HttpContext.Initialize(app, env);
+            app.UseKevin(); 
             //注册HostingEnvironment
             Web.Libraries.Start.StartHostingEnvironment.Add(env);
             //启用中间件服务对swagger-ui，指定Swagger JSON端点

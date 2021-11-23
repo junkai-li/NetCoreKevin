@@ -99,7 +99,7 @@ namespace Web.Permission.Action
                 try
                 {
                     //获取刷新令牌
-                    var RefreshToken = RedisHelper.StringGet(httpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+                    var RefreshToken = RedisHelper.StrGet(httpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
                     var Result =   RenewTokenAsync(RefreshToken);
                     if (!string.IsNullOrEmpty(Result.Result))
                     {
@@ -136,7 +136,7 @@ namespace Web.Permission.Action
                 if (!refreshToken.IsError)
                 {
                     //保存刷新令牌
-                    RedisHelper.StringSet(refreshToken.AccessToken, refreshToken.RefreshToken, TimeSpan.FromDays(2));
+                    RedisHelper.StrSet(refreshToken.AccessToken, refreshToken.RefreshToken, TimeSpan.FromDays(2));
                     return refreshToken.AccessToken;
                 }
             }
