@@ -452,7 +452,7 @@
             创建时间
             </summary>
         </member>
-        <member name="M:WebApi.Startup.ConfigureContainer(Autofac.ContainerBuilder)">
+        <member name="M:WebApi.Program.ConfigureContainer(Autofac.ContainerBuilder)">
              Per Dependency Single Instance  Per Lifetime Scope
             <param name="containerBuilder"></param>
         </member>

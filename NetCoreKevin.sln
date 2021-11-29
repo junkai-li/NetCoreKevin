@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31005.135
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cms", "Cms\Cms.csproj", "{F3B44DF7-81F1-401F-AD02-E3AECEE86485}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{8B22BA8F-2FDA-46FA-A7C5-612F1ACB1E0C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "Models\Models.csproj", "{8458CD7F-7E52-4794-9E13-E67A049565C8}"
@@ -34,10 +32,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F3B44DF7-81F1-401F-AD02-E3AECEE86485}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F3B44DF7-81F1-401F-AD02-E3AECEE86485}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F3B44DF7-81F1-401F-AD02-E3AECEE86485}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F3B44DF7-81F1-401F-AD02-E3AECEE86485}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8B22BA8F-2FDA-46FA-A7C5-612F1ACB1E0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8B22BA8F-2FDA-46FA-A7C5-612F1ACB1E0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B22BA8F-2FDA-46FA-A7C5-612F1ACB1E0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
