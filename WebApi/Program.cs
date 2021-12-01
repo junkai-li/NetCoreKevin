@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -179,6 +180,10 @@ namespace WebApi
                     ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; }
                 });
 
+                builder.Services.AddControllers(options =>
+                {
+                    options.OutputFormatters.RemoveType<StringOutputFormatter>();
+                });
                 var app = builder.Build();
                 //开启倒带模式运行多次读取HttpContext.Body中的内容 
                 app.Use(async (context, next) =>

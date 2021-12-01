@@ -65,7 +65,7 @@
         </member>
         <member name="M:WebApi.Controllers.BaseController.GetQrCode(System.String)">
             <summary>
-            自定义二维码生成方法
+            二维码生成
             </summary>
             <param name="text">数据内容</param>
             <returns></returns>

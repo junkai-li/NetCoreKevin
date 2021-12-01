@@ -87,7 +87,7 @@ namespace WebApi.Controllers
 
 
         /// <summary>
-        /// 自定义二维码生成方法
+        /// 二维码生成
         /// </summary>
         /// <param name="text">数据内容</param>
         /// <returns></returns>
@@ -95,9 +95,7 @@ namespace WebApi.Controllers
         public FileResult GetQrCode(string text)
         {
             var image = ImgHelper.GetQrCode(text);
-            MemoryStream ms = new MemoryStream();
-            image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-            return File(ms.ToArray(), "image/png");
+            return File(image, "image/png");
         }
 
 
