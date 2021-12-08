@@ -1,13 +1,12 @@
 ﻿using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace Common
 {
-    public static class CryptoHelper
+    public class CryptoHelper
     {
 
 
@@ -17,7 +16,7 @@ namespace Common
         /// </summary>
         /// <param name="hex"></param>
         /// <returns></returns>
-        private static byte[] hexStringToByte(string hex)
+        private static byte[] HexStringToByte(string hex)
         {
             int target_length = hex.Length >> 1;
             byte[] result = new byte[target_length];
@@ -70,7 +69,7 @@ namespace Common
         /// </summary>
         /// <param name="b"></param>
         /// <returns></returns>
-        private static string byteToHexString(byte[] b)
+        private static string ByteToHexString(byte[] b)
         {
             char[] hex = {'0', '1', '2', '3', '4', '5', '6', '7',
                       '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
@@ -93,16 +92,16 @@ namespace Common
         /// <returns></returns>
         public static string AESEncode(string param, string skey)
         {
-            byte[] key = hexStringToByte(skey.ToLower());
-            AesCryptoServiceProvider aesProvider = new AesCryptoServiceProvider();
-            aesProvider.Key = key;
-            aesProvider.Mode = CipherMode.ECB;
-            aesProvider.Padding = PaddingMode.PKCS7;
+            byte[] key = HexStringToByte(skey.ToLower());
+
+            using var aes = Aes.Create();
+            aes.Key = key;
+            aes.Mode = CipherMode.ECB;
+            aes.Padding = PaddingMode.PKCS7;
             byte[] inputBuffers = Encoding.UTF8.GetBytes(param);
-            ICryptoTransform cryptoTransform = aesProvider.CreateEncryptor();
+            ICryptoTransform cryptoTransform = aes.CreateEncryptor();
             byte[] results = cryptoTransform.TransformFinalBlock(inputBuffers, 0, inputBuffers.Length);
-            aesProvider.Clear();
-            return byteToHexString(results);
+            return ByteToHexString(results);
         }
 
 
@@ -117,15 +116,15 @@ namespace Common
         {
             try
             {
-                byte[] key = hexStringToByte(skey.ToLower());
-                AesCryptoServiceProvider aesProvider = new AesCryptoServiceProvider();
-                aesProvider.Key = key;
-                aesProvider.Mode = CipherMode.ECB;
-                aesProvider.Padding = PaddingMode.PKCS7;
-                byte[] inputBuffers = hexStringToByte(param);
-                ICryptoTransform cryptoTransform = aesProvider.CreateDecryptor();
+                byte[] key = HexStringToByte(skey.ToLower());
+
+                using var aes = Aes.Create();
+                aes.Key = key;
+                aes.Mode = CipherMode.ECB;
+                aes.Padding = PaddingMode.PKCS7;
+                byte[] inputBuffers = HexStringToByte(param);
+                ICryptoTransform cryptoTransform = aes.CreateDecryptor();
                 byte[] results = cryptoTransform.TransformFinalBlock(inputBuffers, 0, inputBuffers.Length);
-                aesProvider.Clear();
                 return Encoding.UTF8.GetString(results);
             }
             catch
@@ -143,8 +142,8 @@ namespace Common
         /// <returns></returns>
         public static string GetMd5(string data)
         {
-            MD5CryptoServiceProvider MD5 = new MD5CryptoServiceProvider();
-            return BitConverter.ToString(MD5.ComputeHash(Encoding.GetEncoding("utf-8").GetBytes(data))).Replace("-", "").ToLower();
+            using var md5 = MD5.Create();
+            return BitConverter.ToString(md5.ComputeHash(Encoding.GetEncoding("utf-8").GetBytes(data))).Replace("-", "").ToLower();
         }
 
 
@@ -158,8 +157,7 @@ namespace Common
         public static string GetMd5(string data, string token)
         {
             string dataMD5 = data + token;
-            MD5CryptoServiceProvider MD5 = new MD5CryptoServiceProvider();
-            return BitConverter.ToString(MD5.ComputeHash(Encoding.GetEncoding("utf-8").GetBytes(dataMD5))).Replace("-", "").ToLower();
+            return GetMd5(dataMD5);
         }
 
 
@@ -198,14 +196,12 @@ namespace Common
         /// <returns></returns>
         public static string Sha256(string srcString)
         {
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                byte[] bytes_sha256_in = Encoding.UTF8.GetBytes(srcString);
-                byte[] bytes_sha256_out = sha256.ComputeHash(bytes_sha256_in);
-                string str_sha256_out = BitConverter.ToString(bytes_sha256_out);
-                str_sha256_out = str_sha256_out.Replace("-", "");
-                return str_sha256_out;
-            }
+            using SHA256 sha256 = SHA256.Create();
+            byte[] bytes_sha256_in = Encoding.UTF8.GetBytes(srcString);
+            byte[] bytes_sha256_out = sha256.ComputeHash(bytes_sha256_in);
+            string str_sha256_out = BitConverter.ToString(bytes_sha256_out);
+            str_sha256_out = str_sha256_out.Replace("-", "");
+            return str_sha256_out;
         }
 
 
@@ -250,11 +246,9 @@ namespace Common
             var paras = rsa.ExportParameters(true);
             rsaClear.ImportParameters(paras);
             //签名返回
-            using (var sha256 = new SHA256CryptoServiceProvider())
-            {
-                var signData = rsa.SignData(Encoding.UTF8.GetBytes(contentForSign), sha256);
-                return BytesToHex(signData);
-            }
+            using var sha256 = SHA256.Create();
+            var signData = rsa.SignData(Encoding.UTF8.GetBytes(contentForSign), sha256);
+            return BytesToHex(signData);
         }
 
 
@@ -266,7 +260,7 @@ namespace Common
         /// <returns></returns>
         public static string BytesToHex(byte[] data)
         {
-            StringBuilder sbRet = new StringBuilder(data.Length * 2);
+            var sbRet = new StringBuilder(data.Length * 2);
             for (int i = 0; i < data.Length; i++)
             {
                 sbRet.Append(Convert.ToString(data[i], 16).PadLeft(2, '0'));

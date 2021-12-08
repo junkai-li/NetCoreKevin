@@ -445,7 +445,7 @@ namespace WebApi.Controllers.v1
                     return true;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
                 return false;
@@ -476,7 +476,7 @@ namespace WebApi.Controllers.v1
                     return true;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
                 return false;
@@ -585,7 +585,7 @@ namespace WebApi.Controllers.v1
                     return true;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
                 return false;
@@ -626,7 +626,7 @@ namespace WebApi.Controllers.v1
                      return true;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
                 return false;

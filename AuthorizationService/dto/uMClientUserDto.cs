@@ -5,8 +5,14 @@ using System.Threading.Tasks;
 
 namespace AuthorizationService
 {
+    /// <summary>
+    /// 客户端Dto
+    /// </summary>
     public class uMClientUserDto
     {
+        /// <summary>
+        /// id
+        /// </summary>
         public string Id { get; set; }
 
         /// <summary>

@@ -5,6 +5,7 @@ using NPOI.OpenXmlFormats.Spreadsheet;
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -656,13 +657,15 @@ namespace Common
 
                 var oos = new OssHelper();
                 path = path.Substring(1, path.Length - 1);
-                using (Image original = Image.FromStream(oos.GetObjectStream(path)))
+                using (var original = SKBitmap.Decode(oos.GetObjectStream(path)))
                 {
-                    System.Drawing.Image img = original.GetThumbnailImage(100, 145, null, IntPtr.Zero);
+                    using var img = original.Resize(new SKImageInfo(100, 145), SKFilterQuality.High);
 
                     //图片转换为文件流
                     MemoryStream ms = new MemoryStream();
-                    img.Save(ms, ImageFormat.Bmp);
+                    using var image = SKImage.FromBitmap(img);
+                    using var imageData = image.Encode(SKEncodedImageFormat.Png, 100);
+                    imageData.SaveTo(ms);
                     //BinaryReader br = new BinaryReader(ms);
                     var picBytes = ms.ToArray();
                     ms.Close();
@@ -736,7 +739,7 @@ namespace Common
                 //}
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
         }
@@ -757,14 +760,16 @@ namespace Common
 
                 //设置图片那的宽高
                 sheet.SetColumnWidth(colnum, 3531);
-                var oos = new OssHelper();
-                using (Image original = Image.FromStream(oos.GetObjectStream(path)))
+                var oos = new OssHelper(); 
+                using (var original = SKBitmap.Decode(oos.GetObjectStream(path)))
                 {
-                    System.Drawing.Image img = original.GetThumbnailImage(100, 145, null, IntPtr.Zero);
+                    using var img = original.Resize(new SKImageInfo(100, 145), SKFilterQuality.High); 
 
                     //图片转换为文件流
                     MemoryStream ms = new MemoryStream();
-                    img.Save(ms, ImageFormat.Bmp);
+                    using var image = SKImage.FromBitmap(img);
+                    using var imageData = image.Encode(SKEncodedImageFormat.Png, 100);
+                    imageData.SaveTo(ms);
                     //BinaryReader br = new BinaryReader(ms);
                     var picBytes = ms.ToArray();
                     ms.Close();
@@ -838,7 +843,7 @@ namespace Common
                 //}
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
         }

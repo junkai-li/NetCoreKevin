@@ -50,7 +50,7 @@ namespace System
         /// <returns>加密后的字符串</returns>
         public static string EncryptAES(string str, string secretKey)
         {
-            using (AesCryptoServiceProvider aesProvider = new AesCryptoServiceProvider())
+            using (var aesProvider =Aes.Create())
             {
                 aesProvider.Key = GetAESKey(secretKey);
                 aesProvider.Mode = CipherMode.ECB;
@@ -73,7 +73,7 @@ namespace System
         /// <returns>解密后的字符串</returns>
         public static string DecryptAES(string str, string secretKey)
         {
-            using (AesCryptoServiceProvider aesProvider = new AesCryptoServiceProvider())
+            using (var aesProvider = Aes.Create())
             {
                 aesProvider.Key = GetAESKey(secretKey);
                 aesProvider.Mode = CipherMode.ECB;
@@ -101,12 +101,12 @@ namespace System
         {
             byte[] _sKey;
             byte[] _sIv;
-            DESCryptoServiceProvider des = new DESCryptoServiceProvider();
+            using  var des = DES.Create();
             if (secretKey == "")
                 secretKey = _default_key;
             byte[] inputByteArray = Encoding.UTF8.GetBytes(str);
             byte[] keyByteArray = Encoding.UTF8.GetBytes(secretKey);
-            SHA1 ha = new SHA1Managed();
+            SHA1 ha = SHA1.Create();
             byte[] hb = ha.ComputeHash(keyByteArray);
             _sKey = new byte[8];
             _sIv = new byte[8];
@@ -141,7 +141,7 @@ namespace System
         {
             byte[] _sKey;
             byte[] _sIv;
-            DESCryptoServiceProvider des = new DESCryptoServiceProvider();
+            using var des = DES.Create();
             if (secretKey == "")
                 secretKey = _default_key;
             byte[] inputByteArray = new byte[str.Length / 2];
@@ -151,7 +151,7 @@ namespace System
                 inputByteArray[x] = (byte)i;
             }
             byte[] keyByteArray = Encoding.UTF8.GetBytes(secretKey);
-            SHA1 ha = new SHA1Managed();
+            using SHA1 ha = SHA1.Create();
             byte[] hb = ha.ComputeHash(keyByteArray);
             _sKey = new byte[8];
             _sIv = new byte[8];
@@ -182,7 +182,7 @@ namespace System
         {
             byte[] _sKey;
             byte[] _sIv;
-            DESCryptoServiceProvider des = new DESCryptoServiceProvider();
+            using  var des = DES.Create();
             if (keyStr == "")
                 keyStr = _default_key;
             FileStream fs = File.OpenRead(filePath);
@@ -190,7 +190,7 @@ namespace System
             fs.Read(inputByteArray, 0, (int)fs.Length);
             fs.Close();
             byte[] keyByteArray = Encoding.UTF8.GetBytes(keyStr);
-            SHA1 ha = new SHA1Managed();
+            using SHA1 ha = SHA1.Create();
             byte[] hb = ha.ComputeHash(keyByteArray);
             _sKey = new byte[8];
             _sIv = new byte[8];
@@ -226,7 +226,7 @@ namespace System
         {
             byte[] _sKey;
             byte[] _sIv;
-            DESCryptoServiceProvider des = new DESCryptoServiceProvider();
+            using var des = DES.Create();
             if (keyStr == "")
                 keyStr = _default_key;
             FileStream fs = File.OpenRead(filePath);
@@ -234,7 +234,7 @@ namespace System
             fs.Read(inputByteArray, 0, (int)fs.Length);
             fs.Close();
             byte[] keyByteArray = Encoding.UTF8.GetBytes(keyStr);
-            SHA1 ha = new SHA1Managed();
+            using SHA1 ha = SHA1.Create();
             byte[] hb = ha.ComputeHash(keyByteArray);
             _sKey = new byte[8];
             _sIv = new byte[8];
@@ -291,7 +291,7 @@ namespace System
             }
             var bytes = Encoding.UTF8.GetBytes(text);
             //返回MD5值的字符串表示
-            MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
+            using var md5 =  MD5.Create();
             byte[] cryptBuffer = md5.ComputeHash(bytes);
             StringBuilder sb = new StringBuilder();
             foreach (byte item in cryptBuffer)
@@ -316,7 +316,7 @@ namespace System
             try
             {
                 //创建MD5密码服务提供程序
-                MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
+                var md5 =  MD5.Create();
 
                 //计算传入的字节数组的哈希值
                 byte[] result = md5.ComputeHash(data);

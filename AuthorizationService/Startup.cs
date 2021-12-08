@@ -45,8 +45,7 @@ namespace AuthorizationService
                 .AddInMemoryApiScopes(Config.ApiScopes)
                 .AddInMemoryClients(Config.Clients)
                  .AddProfileService<ImplicitProfileService>()
-                .AddResourceOwnerValidator<ResourceOwnerPasswordValidator>();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+                .AddResourceOwnerValidator<ResourceOwnerPasswordValidator>(); 
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

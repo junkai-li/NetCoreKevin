@@ -4,47 +4,47 @@
         <name>Models</name>
     </assembly>
     <members>
-        <member name="T:Models.Dtos.dtoFileInfo">
+        <member name="T:Models.Dtos.DtoFileInfo">
             <summary>
             文件信息
             </summary>
         </member>
-        <member name="P:Models.Dtos.dtoFileInfo.FileId">
+        <member name="P:Models.Dtos.DtoFileInfo.FileId">
             <summary>
             文件ID
             </summary>
         </member>
-        <member name="P:Models.Dtos.dtoFileInfo.FileName">
+        <member name="P:Models.Dtos.DtoFileInfo.FileName">
             <summary>
             文件名称
             </summary>
         </member>
-        <member name="P:Models.Dtos.dtoFileInfo.FileUrl">
+        <member name="P:Models.Dtos.DtoFileInfo.FileUrl">
             <summary>
             文件地址
             </summary>
         </member>
-        <member name="P:Models.Dtos.dtoFileInfo.Length">
+        <member name="P:Models.Dtos.DtoFileInfo.Length">
             <summary>
             文件大小
             </summary>
         </member>
-        <member name="P:Models.Dtos.dtoFileInfo.DisplayLength">
+        <member name="P:Models.Dtos.DtoFileInfo.DisplayLength">
             <summary>
             显示文件大小
             </summary>
         </member>
-        <member name="P:Models.Dtos.dtoFileInfo.CreateTime">
+        <member name="P:Models.Dtos.DtoFileInfo.CreateTime">
             <summary>
             创建时间
             </summary>
         </member>
-        <member name="P:Models.Dtos.dtoFileInfo.CreateUserId">
+        <member name="P:Models.Dtos.DtoFileInfo.CreateUserId">
             <summary>
             创建人ID
             </summary>
         </member>
-        <member name="P:Models.Dtos.dtoFileInfo.CreateUserName">
+        <member name="P:Models.Dtos.DtoFileInfo.CreateUserName">
             <summary>
             创建人名称
             </summary>

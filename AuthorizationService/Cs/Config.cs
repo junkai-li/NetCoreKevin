@@ -9,8 +9,14 @@ using static IdentityModel.OidcConstants;
 
 namespace AuthorizationService
 {
+    /// <summary>
+    /// 配置类
+    /// </summary>
     public static class Config
     {
+        /// <summary>
+        /// 返回信息
+        /// </summary>
         public static IEnumerable<IdentityResource> IdentityResources =>
                    new IdentityResource[]
                    {
@@ -20,13 +26,17 @@ namespace AuthorizationService
                     new IdentityResources.Phone(),
                     new IdentityResources.Email(),
                    };
-
+       /// <summary>
+       /// api配置
+       /// </summary>
         public static IEnumerable<ApiScope> ApiScopes =>
             new ApiScope[]
             {
                 new ApiScope("WebApi","My Yfc.User.Api"), 
             };
-
+        /// <summary>
+        /// 客户端配置
+        /// </summary>
         public static IEnumerable<Client> Clients =>
             new Client[]
             {

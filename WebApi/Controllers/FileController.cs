@@ -19,6 +19,7 @@ using Common;
 using Web.Extension.Autofac;
 using Web.Global.User;
 using Service.Services.v1;
+using SkiaSharp;
 
 namespace WebApi.Controllers
 {
@@ -311,92 +312,34 @@ namespace WebApi.Controllers
             }
             else
             {
-                Image img = Image.FromStream(stream);
-
-                if (Array.IndexOf(img.PropertyIdList, 274) > -1)
+                using var original = SKBitmap.Decode(path);
+                if (original.Width < width || original.Height < height)
                 {
-                    var orientation = 0;
-
-                    var platform = Environment.OSVersion.Platform;
-
-                    if (platform == PlatformID.Win32NT)
-                    {
-                        orientation = (int)img.GetPropertyItem(274).Value[0];
-                    }
-
-                    if (platform == PlatformID.Unix)
-                    {
-                        orientation = (int)img.GetPropertyItem(274).Value[1];
-                    }
-
-
-                    switch (orientation)
-                    {
-                        case 1:
-                            // No rotation required.
-                            break;
-                        case 2:
-                            img.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                            break;
-                        case 3:
-                            img.RotateFlip(RotateFlipType.Rotate180FlipNone);
-                            break;
-                        case 4:
-                            img.RotateFlip(RotateFlipType.Rotate180FlipX);
-                            break;
-                        case 5:
-                            img.RotateFlip(RotateFlipType.Rotate90FlipX);
-                            break;
-                        case 6:
-                            img.RotateFlip(RotateFlipType.Rotate90FlipNone);
-                            break;
-                        case 7:
-                            img.RotateFlip(RotateFlipType.Rotate270FlipX);
-                            break;
-                        case 8:
-                            img.RotateFlip(RotateFlipType.Rotate270FlipNone);
-                            break;
-                    }
-                    img.RemovePropertyItem(274);
-                }
-
-                if (img.Width < width || img.Height < height)
-                {
-                    img.Dispose();
-
-                    stream = System.IO.File.OpenRead(path);
-
                     return File(stream, memi, file.Name);
                 }
                 else
                 {
-                    MemoryStream ms = new MemoryStream();
-
 
                     if (width != 0 && height == 0)
                     {
-                        var percent = ((float)width / (float)img.Width);
+                        var percent = ((float)width / (float)original.Width);
 
-                        width = (int)(img.Width * percent);
-                        height = (int)(img.Height * percent);
+                        width = (int)(original.Width * percent);
+                        height = (int)(original.Height * percent);
                     }
 
                     if (width == 0 && height != 0)
                     {
-                        var percent = ((float)height / (float)img.Height);
+                        var percent = ((float)height / (float)original.Height);
 
-                        width = (int)(img.Width * percent);
-                        height = (int)(img.Height * percent);
+                        width = (int)(original.Width * percent);
+                        height = (int)(original.Height * percent);
                     }
 
-
-
-                    img.GetThumbnailImage(width, height, null, IntPtr.Zero).Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-
-                    img.Dispose();
-                    ms.Dispose();
-
-                    return File(ms.ToArray(), "image/png");
+                    using var resizeBitmap = original.Resize(new SKImageInfo(width, height), SKFilterQuality.High);
+                    using var image = SKImage.FromBitmap(resizeBitmap);
+                    using var imageData = image.Encode(SKEncodedImageFormat.Png, 100);
+                    return File(imageData.ToArray(), "image/png");
                 }
 
             }

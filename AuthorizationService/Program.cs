@@ -9,8 +9,15 @@ using System.Threading.Tasks;
 
 namespace AuthorizationService
 {
+    /// <summary>
+    /// ∆Ù∂Ø¿‡
+    /// </summary>
     public class Program
     {
+        /// <summary>
+        /// Mian
+        /// </summary>
+        /// <param name="args"></param>
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();

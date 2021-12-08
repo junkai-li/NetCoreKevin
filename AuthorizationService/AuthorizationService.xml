@@ -4,8 +4,50 @@
         <name>AuthorizationService</name>
     </assembly>
     <members>
-        <!-- Badly formed XML comment ignored for member "M:AuthorizationService.ResourceOwnerPasswordValidator.CacheUserListAsync(AuthorizationService.userDto)" -->
-        <!-- Badly formed XML comment ignored for member "M:AuthorizationService.ResourceOwnerPasswordValidator.CacheUserListAsync(AuthorizationService.uMClientUserDto)" -->
+        <member name="T:AuthorizationService.Config">
+            <summary>
+            配置类
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.Config.IdentityResources">
+            <summary>
+            返回信息
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.Config.ApiScopes">
+            <summary>
+            api配置
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.Config.Clients">
+            <summary>
+            客户端配置
+            </summary>
+        </member>
+        <member name="M:AuthorizationService.ResourceOwnerPasswordValidator.CacheUserListAsync(AuthorizationService.userDto)">
+            <summary>
+            异步保存缓存
+            </summary>
+            <param name="user"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthorizationService.ResourceOwnerPasswordValidator.CacheUserListAsync(AuthorizationService.uMClientUserDto)">
+            <summary>
+            异步保存缓存
+            </summary>
+            <param name="user"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthorizationService.uMClientUserDto">
+            <summary>
+            客户端Dto
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.uMClientUserDto.Id">
+            <summary>
+            id
+            </summary>
+        </member>
         <member name="P:AuthorizationService.uMClientUserDto.Name">
             <summary>
             用户名
@@ -31,10 +73,51 @@
             更新时间;
             </summary>
         </member>
+        <member name="T:AuthorizationService.userDto">
+            <summary>
+            系统用户dto
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.userDto.Id">
+            <summary>
+            Id
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.userDto.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.userDto.Password">
+            <summary>
+            Password
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.userDto.Phone">
+            <summary>
+            Phone
+            </summary>
+        </member>
         <member name="P:AuthorizationService.userDto.CreatedBy">
             <summary>
             创建人;
             </summary> 
+        </member>
+        <member name="P:AuthorizationService.userDto.CreatedTime">
+            <summary>
+            创建时间
+            </summary> 
+        </member>
+        <member name="T:AuthorizationService.Program">
+            <summary>
+            启动类
+            </summary>
+        </member>
+        <member name="M:AuthorizationService.Program.Main(System.String[])">
+            <summary>
+            Mian
+            </summary>
+            <param name="args"></param>
         </member>
         <member name="T:System.Crypto">
             <summary>

@@ -140,7 +140,7 @@ namespace Models.Extension
                     var str = JsonConvert.SerializeObject(obj);
                     return str;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     return null;
                 }

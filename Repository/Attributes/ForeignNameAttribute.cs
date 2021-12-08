@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Repository.Attributes
 {
-   public class ForeignNameAttribute : Attribute
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = true, Inherited = true)]
+    public class ForeignNameAttribute : Attribute
     {
     }
 }

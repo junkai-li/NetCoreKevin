@@ -1,9 +1,8 @@
-﻿using Common.IO.Tar;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Net;
-using System.Text;
+using System.Net.Http;
 
 namespace Common.IO
 {
@@ -96,21 +95,19 @@ namespace Common.IO
                     }
                     else
                     {
-                        string temp = filePath.Substring(0, filePath.LastIndexOf("/"));
+                        string temp = filePath[..filePath.LastIndexOf("/")];
                         Directory.CreateDirectory(temp);
 
                     }
                 }
 
-                WebClient webClient = new WebClient();
+                using var client = new HttpClient();
+                client.DefaultRequestVersion = new Version("2.0");
 
-                //添加来源属性，解决部分资源防盗链伪验证
-                webClient.Headers.Add(HttpRequestHeader.Referer, "");
-
+                using var httpResponse = client.GetAsync(url).Result;
                 string fullpath = filePath + fileName;
 
-                //下载文件
-                webClient.DownloadFile(url, fullpath);
+                File.WriteAllBytes(fullpath, httpResponse.Content.ReadAsByteArrayAsync().Result);
 
                 return fullpath;
             }
@@ -214,87 +211,6 @@ namespace Common.IO
             }
 
             return list;
-        }
-
-
-
-        /// <summary>
-        /// 将指定目录下的文件压缩为Tar文件
-        /// </summary>
-        /// <param name="folderPath">文件夹地址 D:/1/ </param>
-        /// <param name="filePath">文件地址 D:/1.tar </param>
-        /// <remarks>依赖于SharpZipLib，如果缺失请独立安装</remarks>
-        public static void CompressTarFile(string folderPath, string filePath)
-        {
-            var outStream = new FileStream(filePath, FileMode.OpenOrCreate);
-            var archive = TarArchive.CreateOutputTarArchive(outStream);
-            var files = GetFolderAllFiles(folderPath);
-
-            foreach (var file in files)
-            {
-
-                TarEntry entry = TarEntry.CreateEntryFromFile(file);
-                entry.Name = file.Replace(folderPath, "");
-                entry.TarHeader.Mode = 511;
-                archive.WriteEntry(entry, true);
-            }
-            if (archive != null)
-            {
-                archive.Close();
-            }
-        }
-
-
-
-        /// <summary>
-        /// 解压Tar文件到指定目录
-        /// </summary>
-        /// <param name="filePath">文件地址 D:/1.tar</param>
-        /// <param name="folderPath">文件夹地址 D:/1/</param>
-        /// <remarks>依赖于SharpZipLib，如果缺失请独立安装</remarks>
-        public static void DecompressTarFile(string filePath, string folderPath)
-        {
-
-            using (var s = new TarInputStream(File.OpenRead(filePath), Encoding.Default))
-            {
-
-                TarEntry theEntry;
-                while ((theEntry = s.GetNextEntry()) != null)
-                {
-
-                    theEntry.Name = folderPath + theEntry.Name;
-
-                    string directoryName = Path.GetDirectoryName(theEntry.Name);
-                    string fileName = Path.GetFileName(theEntry.Name);
-
-                    if (directoryName.Length > 0)
-                    {
-                        Directory.CreateDirectory(directoryName);
-                    }
-
-                    if (fileName != string.Empty)
-                    {
-                        using (FileStream streamWriter = System.IO.File.Create(theEntry.Name))
-                        {
-
-                            int size = 2048;
-                            byte[] data = new byte[2048];
-                            while (true)
-                            {
-                                size = s.Read(data, 0, data.Length);
-                                if (size > 0)
-                                {
-                                    streamWriter.Write(data, 0, size);
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
 
 

@@ -112,15 +112,15 @@ namespace Web.Libraries.WeiXin.H5
 
             string strYW = "jsapi_ticket=" + jsapi_ticket + "&noncestr=" + sdkSign.noncestr + "&timestamp=" + sdkSign.timestamp + "&url=" + url;
 
-            SHA1 sha1 = new SHA1CryptoServiceProvider();
-            byte[] bytes_sha1_in = System.Text.UTF8Encoding.Default.GetBytes(strYW);
+            using (var sha1 = SHA1.Create())
+            {
+                byte[] bytes_sha1_in = System.Text.UTF8Encoding.Default.GetBytes(strYW);
             byte[] bytes_sha1_out = sha1.ComputeHash(bytes_sha1_in);
             string str_sha1_out = BitConverter.ToString(bytes_sha1_out);
             str_sha1_out = str_sha1_out.Replace("-", "").ToLower();
-
-
             sdkSign.signature = str_sha1_out;
 
+            } 
             return sdkSign;
         }
 

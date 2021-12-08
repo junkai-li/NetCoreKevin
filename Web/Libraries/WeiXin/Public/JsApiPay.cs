@@ -131,7 +131,7 @@ namespace Web.Libraries.WeiXin.Public
             inputObj.SetValue("sign", inputObj.MakeSign(mchkey));//签名
             string xml = inputObj.ToXml();
 
-            string response = HttpService.Post(xml, url, false, timeOut);
+            string response = Common.HttpHelper.Post(url, xml, "xml");
 
             WxPayData result = new WxPayData();
             result.FromXml(response, mchkey);
@@ -215,7 +215,7 @@ namespace Web.Libraries.WeiXin.Public
             inputObj.SetValue("sign", inputObj.MakeSign(mchkey));//签名
             string xml = inputObj.ToXml();
             var startTime = DateTime.Now; //开始时间
-            string response = HttpService.Post(xml, sendUrl, false, timeOut);//调用HTTP通信接口提交数据
+            string response = Common.HttpHelper.Post(sendUrl, xml, "xml");//调用HTTP通信接口提交数据
             var endTime = DateTime.Now; //结束时间
             int timeCost = (int)((endTime - startTime).TotalMilliseconds); //计算所用时间
             //将xml格式的数据转化为对象以返回

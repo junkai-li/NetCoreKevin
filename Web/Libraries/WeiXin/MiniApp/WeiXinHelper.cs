@@ -3,8 +3,11 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Xml;
 using Web.Cache;
 using Web.Libraries.WeiXin.MiniApp.Models;
@@ -211,29 +214,19 @@ namespace Web.Libraries.WeiXin.MiniApp
 
             var sslPath = IO.Path.ContentRootPath() + "/ssl/apiclient_cert.p12";
 
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
+            using HttpClientHandler handler = new();
 
             X509Certificate2 cert = new X509Certificate2(sslPath, mchid, X509KeyStorageFlags.MachineKeySet);
 
-            req.ClientCertificates.Add(cert);
+            handler.ClientCertificates.Add(cert);
 
-
-            byte[] requestBytes = System.Text.Encoding.UTF8.GetBytes(data);
-            req.Method = "POST";
-            req.ContentType = "application/x-www-form-urlencoded";
-
-            req.ContentLength = requestBytes.Length;
-            Stream requestStream = req.GetRequestStream();
-            requestStream.Write(requestBytes, 0, requestBytes.Length);
-            requestStream.Close();
-
-            HttpWebResponse res = (HttpWebResponse)req.GetResponse();
-            StreamReader sr = new StreamReader(res.GetResponseStream(), System.Text.Encoding.UTF8);
-            string PostJie = sr.ReadToEnd();
-            sr.Close();
-            res.Close();
-
-            return PostJie;
+            using HttpClient client = new(handler);
+            client.DefaultRequestVersion = new Version("2.0");
+            using Stream dataStream = new MemoryStream(Encoding.UTF8.GetBytes(data));
+            using HttpContent content = new StreamContent(dataStream);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+            using var httpResponse = client.PostAsync(url, content);
+            return httpResponse.Result.Content.ReadAsStringAsync().Result;
         }
 
 
