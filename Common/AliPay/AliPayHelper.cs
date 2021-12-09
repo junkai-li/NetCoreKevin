@@ -93,10 +93,10 @@ namespace Common.AliPay
             // 支付宝网关
             string gatewayUrl = "https://openapi.alipay.com/gateway.do";
 
-            DefaultAopClient client = new DefaultAopClient(gatewayUrl, appid, appprivatekey, "json", "1.0", "RSA2", alipaypublickey, "UTF-8", false);
+            DefaultAopClient client = new(gatewayUrl, appid, appprivatekey, "json", "1.0", "RSA2", alipaypublickey, "UTF-8", false);
 
             // 组装业务参数model
-            AlipayTradeWapPayModel model = new AlipayTradeWapPayModel();
+            AlipayTradeWapPayModel model = new();
 
             model.OutTradeNo = orderno;
             model.Subject = title;
@@ -105,7 +105,7 @@ namespace Common.AliPay
             model.ProductCode = "QUICK_WAP_WAY";
             model.QuitUrl = quitUrl;
 
-            AlipayTradeWapPayRequest request = new AlipayTradeWapPayRequest();
+            AlipayTradeWapPayRequest request = new();
 
             // 设置支付完成同步回调地址
             request.SetReturnUrl(returnUrl);
@@ -138,10 +138,10 @@ namespace Common.AliPay
         {
             IAopClient client = new DefaultAopClient("https://openapi.alipay.com/gateway.do", appid, appprivatekey, "json", "1.0", "RSA2", alipaypublickey, "utf-8", false);
 
-            AlipayTradeCreateRequest request = new AlipayTradeCreateRequest();
+            AlipayTradeCreateRequest request = new();
 
 
-            AlipayTradeCreateModel model = new AlipayTradeCreateModel
+            AlipayTradeCreateModel model = new()
             {
                 TotalAmount = price,
                 Subject = title,
@@ -187,17 +187,17 @@ namespace Common.AliPay
         /// <returns></returns>
         public string CreatePayPC(string body, string subject, string totalAmout, string tradeno)
         {
-            DefaultAopClient client = new DefaultAopClient("https://openapi.alipay.com/gateway.do", appid, appprivatekey, "json", "2.0", "RSA2", alipaypublickey, "UTF-8", false);
+            DefaultAopClient client = new("https://openapi.alipay.com/gateway.do", appid, appprivatekey, "json", "2.0", "RSA2", alipaypublickey, "UTF-8", false);
 
             // 组装业务参数model
-            AlipayTradePagePayModel model = new AlipayTradePagePayModel();
+            AlipayTradePagePayModel model = new();
             model.Body = body;
             model.Subject = subject;
             model.TotalAmount = totalAmout;
             model.OutTradeNo = tradeno;
             model.ProductCode = "FAST_INSTANT_TRADE_PAY";
 
-            AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
+            AlipayTradePagePayRequest request = new();
             // 设置同步回调地址
             request.SetReturnUrl(returnUrl);
             // 设置异步通知接收地址

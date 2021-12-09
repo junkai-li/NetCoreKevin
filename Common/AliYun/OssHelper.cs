@@ -9,11 +9,11 @@ namespace Common.AliYun
 {
     public class OssHelper
     {
-        string endpoint = IO.Config.Get()["OSSEndpoint"];
-        string accessKeyId = "LTAI5tHQLqZKydSGcdDs6wEv";
-        string accessKeySecret = "cxya5ufzpPCzZ3FjMYiFk5ulqo2njC";
-        string bucketName = "qingxianshopsys";
-        public static string url = "https://qingxianshopsys.oss-cn-shanghai.aliyuncs.com";
+       readonly string endpoint = IO.Config.Get()["OSSEndpoint"];
+        readonly string accessKeyId = "LTAI5tHQLqZKydSGcdDs6wEv";
+        readonly string accessKeySecret = "cxya5ufzpPCzZ3FjMYiFk5ulqo2njC";
+        readonly string bucketName = "qingxianshopsys";
+        readonly public static string url = "https://qingxianshopsys.oss-cn-shanghai.aliyuncs.com";
         public OssHelper()
         {
 
@@ -195,7 +195,7 @@ namespace Common.AliYun
 
                 if (exist == false)
                 {
-                    var request = new CreateBucketRequest(bucketName);
+                    CreateBucketRequest request = new(bucketName);
 
                     //设置存储空间访问权限ACL。
                     request.ACL = CannedAccessControlList.PublicRead;

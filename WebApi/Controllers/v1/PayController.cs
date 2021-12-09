@@ -76,7 +76,7 @@ namespace WebApi.Controllers.v1
 
             var weixinkey = db.TWeiXinKey.Where(t => t.Id == weixinkeyid).FirstOrDefault();
 
-            Web.Libraries.WeiXin.H5.WeiXinHelper weiXinHelper = new Web.Libraries.WeiXin.H5.WeiXinHelper(weixinkey.WxAppId, weixinkey.WxAppSecret, weixinkey.MchId, weixinkey.MchKey, "https://lianaiapi.hudonge.cn/api/Pay/WeiXinPayNotify");
+            Web.Libraries.WeiXin.H5.WeiXinHelper weiXinHelper = new(weixinkey.WxAppId, weixinkey.WxAppSecret, weixinkey.MchId, weixinkey.MchKey, "https://lianaiapi.hudonge.cn/api/Pay/WeiXinPayNotify");
 
             int price = Convert.ToInt32(order.Price * 100);
             string productname = "";
@@ -166,7 +166,7 @@ namespace WebApi.Controllers.v1
             WxPayData notifyData = JsApiPay.GetNotifyData(); //获取微信传过来的参数
 
             //构造对微信的应答信息
-            WxPayData res = new WxPayData();
+            WxPayData res = new();
 
             if (!notifyData.IsSet("transaction_id"))
             {
@@ -187,7 +187,7 @@ namespace WebApi.Controllers.v1
             var payTime = DateTime.ParseExact(paytimeStr, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
 
             //从微信验证信息真实性
-            WxPayData req = new WxPayData();
+            WxPayData req = new();
             req.SetValue("transaction_id", transaction_id);
 
 
@@ -195,7 +195,7 @@ namespace WebApi.Controllers.v1
 
             var weixinkey = db.TWeiXinKey.Where(t => t.WxAppId == appid).FirstOrDefault();
 
-            JsApiPay jsApiPay = new JsApiPay(weixinkey.WxAppId, weixinkey.WxAppSecret, weixinkey.MchId, weixinkey.MchKey);
+            JsApiPay jsApiPay = new(weixinkey.WxAppId, weixinkey.WxAppSecret, weixinkey.MchId, weixinkey.MchKey);
 
             WxPayData send = jsApiPay.OrderQuery(req);
             if (!(send.GetValue("return_code").ToString() == "SUCCESS" && send.GetValue("result_code").ToString() == "SUCCESS"))
@@ -282,7 +282,7 @@ namespace WebApi.Controllers.v1
 
             var url = Web.Libraries.Http.HttpContext.GetBaseUrl() + "/api/Pay/AliPayNotify";
 
-            AliPayHelper aliPayHelper = new AliPayHelper(alipaykey.AppId, alipaykey.AppPrivateKey, alipaykey.AlipayPublicKey, url);
+            AliPayHelper aliPayHelper = new(alipaykey.AppId, alipaykey.AppPrivateKey, alipaykey.AlipayPublicKey, url);
 
             string price = Convert.ToString(order.Price);
 
@@ -332,7 +332,7 @@ namespace WebApi.Controllers.v1
                 var returnUrl = Web.Libraries.Http.HttpContext.GetBaseUrl();
                 var notifyUrl = Web.Libraries.Http.HttpContext.GetBaseUrl() + "/api/Pay/AliPayNotify";
 
-                AliPayHelper helper = new AliPayHelper(info.AppId, info.AppPrivateKey, info.AlipayPublicKey, notifyUrl, returnUrl);
+                AliPayHelper helper = new(info.AppId, info.AppPrivateKey, info.AlipayPublicKey, notifyUrl, returnUrl);
 
                 string price = order.Price.ToString();
 
@@ -367,7 +367,7 @@ namespace WebApi.Controllers.v1
                 var returnUrl = Web.Libraries.Http.HttpContext.GetBaseUrl();
                 var notifyUrl = Web.Libraries.Http.HttpContext.GetBaseUrl() + "/api/Pay/AliPayNotify";
 
-                AliPayHelper helper = new AliPayHelper(info.AppId, info.AppPrivateKey, info.AlipayPublicKey, notifyUrl, returnUrl, "");
+                AliPayHelper helper = new(info.AppId, info.AppPrivateKey, info.AlipayPublicKey, notifyUrl, returnUrl, "");
 
                 string price = order.Price.ToString();
 

@@ -11,7 +11,7 @@ namespace Repository.Interceptors
         {
 
             //执行的Sql
-            string sql = command.CommandText;
+            _ = command.CommandText;
 
             return result;
         }

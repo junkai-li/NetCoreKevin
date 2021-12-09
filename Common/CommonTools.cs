@@ -7,8 +7,8 @@ namespace Common
 {
     public static class CommonTools
     {
-        static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        static int sleepMillisecondsTimeout = 1000;
+        readonly static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        readonly static int sleepMillisecondsTimeout = 1000;
 
 
         /// <summary>

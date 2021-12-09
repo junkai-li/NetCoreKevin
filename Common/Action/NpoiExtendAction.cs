@@ -31,7 +31,7 @@ namespace Common.Action
         private static Dictionary<int, string> getText(XSSFWorkbook wb)
         {
 
-            Dictionary<int, string> map = new Dictionary<int, string>();
+            Dictionary<int, string> map = new();
             //得到Excel工作表对象
             XSSFSheet HSSsheet = (XSSFSheet)wb.GetSheetAt(0);
             //得到Excel工作表的行 
@@ -66,13 +66,13 @@ namespace Common.Action
         {
 
 
-            Dictionary<int, List<XSSFPictureData>> picMap = new Dictionary<int, List<XSSFPictureData>>();
+            Dictionary<int, List<XSSFPictureData>> picMap = new();
             var pictures = wb.GetAllPictures();
             XSSFSheet sheet = (XSSFSheet)wb.GetSheetAt(0);
             foreach (XSSFShape shape in sheet.GetDrawingPatriarch().GetShapes())
             {
                 XSSFClientAnchor anchor = (XSSFClientAnchor)shape.GetAnchor();
-                List<XSSFPictureData> list = new List<XSSFPictureData>();
+                List<XSSFPictureData> list = new();
 
 
                 if (shape is XSSFPicture) {

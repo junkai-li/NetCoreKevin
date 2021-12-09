@@ -60,7 +60,7 @@ namespace Common.AliPay.MiniApp
             try
             {
                 IAopClient client = new DefaultAopClient("https://openapi.alipay.com/gateway.do", appid, appprivatekey, "json", "1.0", "RSA2", alipaypublickey, "utf-8", false);
-                AlipaySystemOauthTokenRequest request = new AlipaySystemOauthTokenRequest();
+                AlipaySystemOauthTokenRequest request = new();
                 request.GrantType = "authorization_code";
                 request.Code = code;
                 AlipaySystemOauthTokenResponse response = client.Execute(request);

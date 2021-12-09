@@ -57,12 +57,12 @@ namespace Repository.Interceptors
                         {
                             if (sql.IndexOf(startItem[i]) != 0)
                             {
-                                var startSql = sql.Substring(sql.IndexOf(startItem[i]));
+                                var startSql = sql[sql.IndexOf(startItem[i])..];
                                 var asSql = startSql.Split(") AS ")[1];
 
                                 int endSqlIndexOf = startSql.IndexOf(asSql) + asSql.Length;
 
-                                tempSql = startSql.Substring(0, endSqlIndexOf);
+                                tempSql = startSql[0..endSqlIndexOf];
                             }
                             else
                             {
@@ -71,14 +71,14 @@ namespace Repository.Interceptors
                         }
                         else
                         {
-                            tempSql = startItem[i].Substring(0, asIndexOf);
+                            tempSql = startItem[i][0..asIndexOf];
                         }
 
                         if (tempSql.Contains("FROM [" + table + "]"))
                         {
                             string newTempSql = "";
 
-                            string asTable = tempSql.Substring(0, tempSql.IndexOf("]") + 1).Replace("SELECT ", "");
+                            string asTable = tempSql[0..(tempSql.IndexOf("]") + 1)].Replace("SELECT ", "");
 
                             if (tempSql.Contains(asTable + ".[id] = N'"))
                             {
@@ -87,9 +87,9 @@ namespace Repository.Interceptors
                                 foreach (var idInfo in idInfoList)
                                 {
 
-                                    var idSql = idInfo.Substring(idInfo.IndexOf("N'") + 2);
+                                    var idSql = idInfo[(idInfo.IndexOf("N'") + 2)..];
 
-                                    var idStr = idSql.Substring(0, idSql.IndexOf("'"));
+                                    var idStr = idSql[0..idSql.IndexOf("'")];
 
                                     long id = Convert.ToInt64(idStr);
 
@@ -154,24 +154,24 @@ namespace Repository.Interceptors
 
                 if (sql.Contains("INSERT INTO [" + table + "]"))
                 {
-                    var childSql = sql.Substring(sql.IndexOf("INSERT INTO [" + table + "]"));
+                    var childSql = sql[sql.IndexOf("INSERT INTO [" + table + "]")..];
 
-                    var nextInsert = childSql.Substring(11).IndexOf("INSERT INTO");
+                    var nextInsert = childSql[11..].IndexOf("INSERT INTO");
 
                     if (nextInsert > 0)
                     {
-                        childSql = childSql.Substring(0, nextInsert);
+                        childSql = childSql[0..nextInsert];
                     }
 
                     var nextIf = childSql.IndexOf("IF ( (SELECT COUNT (1) FROM sys.objects WHERE name");
 
                     if (nextIf > 0)
                     {
-                        childSql = childSql.Substring(0, nextIf);
+                        childSql = childSql[0..nextIf];
                     }
 
 
-                    var headSql = childSql.Substring(0, childSql.IndexOf("VALUES") + 6);
+                    var headSql = childSql[0..(childSql.IndexOf("VALUES") + 6)];
 
                     var dataSql = childSql.Replace(headSql, "").Split("\r\n").Where(t => t != "" && t != "\n").ToList();
 
@@ -181,9 +181,9 @@ namespace Repository.Interceptors
                     {
                         string newData = headSql + data.Replace("),", ");");
 
-                        string tempSql = newData.Substring(newData.IndexOf("INSERT INTO [" + table + "]"));
+                        string tempSql = newData[newData.IndexOf("INSERT INTO [" + table + "]")..];
 
-                        var pList = tempSql.Substring(tempSql.IndexOf("(") + 1, tempSql.IndexOf(")") - tempSql.IndexOf("(") - 1).Split(",").Select(t => t.Trim()).ToList();
+                        var pList = tempSql[(tempSql.IndexOf("(") + 1)..(tempSql.IndexOf(")") - tempSql.IndexOf("(") - 1)].Split(",").Select(t => t.Trim()).ToList();
 
                         var idIndex = pList.IndexOf("[id]");
 
@@ -220,7 +220,7 @@ namespace Repository.Interceptors
                         {
                             string tempSql = item.Replace("\n", "").Replace("\r", "").Replace(";", "");
 
-                            var pName = tempSql.Substring(tempSql.LastIndexOf("@p"));
+                            var pName = tempSql[tempSql.LastIndexOf("@p")..];
 
                             var id = Convert.ToInt64(command.Parameters[pName].Value);
 
@@ -260,7 +260,7 @@ namespace Repository.Interceptors
                 } while (idStr2.Length != 63);
             }
 
-            var timeStr2 = idStr2.Substring(0, 41);
+            var timeStr2 = idStr2[0..41];
 
             var timeJsStamp = Convert.ToInt64(timeStr2, 2);
 

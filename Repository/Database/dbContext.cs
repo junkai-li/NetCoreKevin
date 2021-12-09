@@ -188,7 +188,7 @@ namespace Repository.Database
                 modelBuilder.Entity(entity.Name, builder =>
                 {
                     //设置生成数据库时的表名为小写格式并添加前缀 t_
-                    var tableName = builder.Metadata.ClrType.CustomAttributes.Where(t => t.AttributeType.Name == "TableAttribute").Select(t => t.ConstructorArguments.Select(c => c.Value.ToString()).FirstOrDefault()).FirstOrDefault() ?? ("t_" + entity.ClrType.Name.Substring(1));
+                    var tableName = builder.Metadata.ClrType.CustomAttributes.Where(t => t.AttributeType.Name == "TableAttribute").Select(t => t.ConstructorArguments.Select(c => c.Value.ToString()).FirstOrDefault()).FirstOrDefault() ?? ("t_" + entity.ClrType.Name[1..]);
                     builder.ToTable(tableName.ToLower());
 
                     //开启 PostgreSQL 全库行并发乐观锁
@@ -362,8 +362,8 @@ namespace Repository.Database
                     {
                         var foreignTable = fields.FirstOrDefault(t => t.Name == pi.Name.Replace("Id", ""));
 
-                        using (var db = new dbContext())
-                        {
+                            using var db = new dbContext();
+                      
                             var foreignName = foreignTable.PropertyType.GetProperties().Where(t => t.CustomAttributes.Where(c => c.AttributeType.Name == "ForeignNameAttribute").Count() > 0).FirstOrDefault();
 
                             if (foreignName != null)
@@ -384,8 +384,7 @@ namespace Repository.Database
                             }
 
                             retValue += (oldValue ?? "") + " -> ";
-                            retValue += (newValue ?? "") + "； \n";
-                        }
+                            retValue += (newValue ?? "") + "； \n"; 
 
                     }
                     else if (typename == "System.Boolean")

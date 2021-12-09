@@ -10,8 +10,8 @@ namespace Common.AliYun
 {
     public class DnsHelper
     {
-        string accessKeyId = "";
-        string accessKeySecret = "";
+        readonly string accessKeyId = "";
+        readonly string accessKeySecret = "";
 
 
         public DnsHelper()
@@ -42,9 +42,9 @@ namespace Common.AliYun
             try
             {
                 IClientProfile profile = DefaultProfile.GetProfile("cn-hangzhou", accessKeyId, accessKeySecret);
-                DefaultAcsClient client = new DefaultAcsClient(profile);
+                DefaultAcsClient client = new(profile);
 
-                var request = new AddDomainRecordRequest();
+                AddDomainRecordRequest request = new();
                 request._Value = value;
                 request.Type = type;
                 request.RR = host;

@@ -25,7 +25,7 @@ namespace Common.BaiduAi
             {
                 DBHelper.RunCountSet(type);
 
-                var result = new Newtonsoft.Json.Linq.JObject();
+                Newtonsoft.Json.Linq.JObject result = new();
 
                 var options = new Dictionary<string, object>{
                     {"brief", brief},

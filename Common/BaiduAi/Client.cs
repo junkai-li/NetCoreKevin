@@ -8,7 +8,7 @@
 
             var SECRET_KEY = " ";
 
-            var client = new Baidu.Aip.ImageSearch.ImageSearch(API_KEY, SECRET_KEY);
+            Baidu.Aip.ImageSearch.ImageSearch client = new(API_KEY, SECRET_KEY);
             client.Timeout = 60000;  // 修改超时时间
 
             return client;
@@ -24,7 +24,7 @@
 
             var SECRET_KEY = " ";
 
-            var client = new Baidu.Aip.ImageClassify.ImageClassify(API_KEY, SECRET_KEY);
+            Baidu.Aip.ImageClassify.ImageClassify client = new(API_KEY, SECRET_KEY);
             client.Timeout = 60000;  // 修改超时时间
 
             return client;

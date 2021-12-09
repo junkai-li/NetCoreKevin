@@ -264,8 +264,7 @@ namespace WebApi.Controllers.v1
         [ActionDescription("获取小程序用户列表信息")]
         public dtoPageData<dtoUser> GetUserList(dtoPageData<dtoUser> dtoPage)
         {
-            using (var db = new dbContext())
-            {
+            
                 int skip = (dtoPage.pageNum - 1) * dtoPage.pageSize;
                 var data = db.TUser.Where(t => t.IsDelete == false && t.RoleId == Guid.Parse("B414EBC7-D646-4B57-B07C-4A39F08361E1"));
                 if (!string.IsNullOrEmpty(dtoPage.searchKey))
@@ -288,8 +287,7 @@ namespace WebApi.Controllers.v1
                     CreateTime = t.CreateTime
                 }).ToList();
 
-                return dtoPage;
-            }
+                return dtoPage; 
         }
 
         /// <summary>
@@ -300,9 +298,7 @@ namespace WebApi.Controllers.v1
         [HttpPost("GetSysUserList")]
         [ActionDescription("获取系统用户列表信息")]
         public dtoPageData<dtoUser> GetSysUserList(dtoPageData<dtoUser> dtoPage)
-        {
-            using (var db = new dbContext())
-            {
+        { 
                 int skip = (dtoPage.pageNum - 1) * dtoPage.pageSize;
                 var data = db.TUser.Where(t => t.IsDelete == false && t.RoleId != Guid.Parse("B414EBC7-D646-4B57-B07C-4A39F08361E1"));
                 if (!string.IsNullOrEmpty(dtoPage.searchKey))
@@ -325,8 +321,7 @@ namespace WebApi.Controllers.v1
                     CreateTime = t.CreateTime
                 }).ToList();
 
-                return dtoPage;
-            }
+                return dtoPage; 
         }
 
         /// <summary>
@@ -337,9 +332,7 @@ namespace WebApi.Controllers.v1
         [HttpGet("GetSysUserWhereId")]
         [SkipAuthority]
         public dtoUser GetSysUserWhereId([Required] Guid Id)
-        {
-            using (var db = new dbContext())
-            {
+        { 
                 var user = db.TUser.Where(t => t.Id == Id && t.IsDelete == false).Select(t => new dtoUser
                 {
                     Id = t.Id,
@@ -351,8 +344,7 @@ namespace WebApi.Controllers.v1
                     CreateTime = t.CreateTime
                 }).FirstOrDefault();
 
-                return user;
-            }
+                return user; 
         }
 
 
@@ -495,9 +487,7 @@ namespace WebApi.Controllers.v1
         [HttpPost("GetUserRoleList")]
         [ActionDescription("获取用户角色列表信息")]
         public dtoPageData<dtoRole> GetUserRoleList(dtoPageData<dtoRole> dtoPage)
-        {
-            using (var db = new dbContext())
-            {
+        { 
                 int skip = (dtoPage.pageNum - 1) * dtoPage.pageSize;
                 var data = db.TRole.Where(t => t.IsDelete == false);
                 if (!string.IsNullOrEmpty(dtoPage.searchKey))
@@ -514,8 +504,7 @@ namespace WebApi.Controllers.v1
                     CreateTime = t.CreateTime
                 }).ToList();
 
-                return dtoPage;
-            }
+                return dtoPage; 
         }
 
 
@@ -530,8 +519,7 @@ namespace WebApi.Controllers.v1
         [SkipAuthority]
         public dtoRole GetRoleWhereId([Required] Guid Id)
         {
-            using (var db = new dbContext())
-            {
+            
 
                 var user = db.TRole.Where(t => t.Id == Id && t.IsDelete == false).Select(t => new dtoRole
                 {
@@ -541,8 +529,7 @@ namespace WebApi.Controllers.v1
                     CreateTime = t.CreateTime
                 }).FirstOrDefault();
 
-                return user;
-            }
+                return user; 
         }
 
 

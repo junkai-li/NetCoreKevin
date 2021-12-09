@@ -7,8 +7,8 @@ namespace Common.AliYun
 {
     public class SmsHelper
     {
-        string accessKeyId = "";
-        string accessKeySecret = "";
+        readonly string accessKeyId = "";
+        readonly string accessKeySecret = "";
 
 
         public SmsHelper()
@@ -35,8 +35,8 @@ namespace Common.AliYun
         public bool SendSms(string phoneNumbers, string templateCode, string signName, string templateParam)
         {
             IClientProfile profile = DefaultProfile.GetProfile("cn-hangzhou", accessKeyId, accessKeySecret);
-            DefaultAcsClient client = new DefaultAcsClient(profile);
-            CommonRequest request = new CommonRequest();
+            DefaultAcsClient client = new(profile);
+            CommonRequest request = new();
             request.Method = MethodType.POST;
             request.Domain = "dysmsapi.aliyuncs.com";
             request.AddQueryParameters("PhoneNumbers", phoneNumbers);

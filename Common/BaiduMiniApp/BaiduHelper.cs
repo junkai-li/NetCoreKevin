@@ -3,9 +3,9 @@
     public class BaiduHelper
     {
 
-        string AppKey = "";
+       readonly string AppKey = "";
 
-        string AppSecret = "";
+        readonly string AppSecret = "";
 
 
         public BaiduHelper(string in_AppKey,string in_AppSecret)
