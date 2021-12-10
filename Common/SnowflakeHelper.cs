@@ -30,14 +30,14 @@ namespace Common
 
         private static long machineIdBits = 5L; //机器码字节数
         private static long datacenterIdBits = 5L;//数据字节数
-        public static long maxMachineId = -1L ^ -1L << (int)machineIdBits; //最大机器ID
+        private static long maxMachineId = -1L ^ -1L << (int)machineIdBits; //最大机器ID
         private static long maxDatacenterId = -1L ^ (-1L << (int)datacenterIdBits);//最大数据ID
 
         private static long sequenceBits = 11L; //计数器字节数，11个字节用来保存计数码，每毫秒可以生成2047个ID
         private static long machineIdShift = sequenceBits; //机器码数据左移位数，就是后面计数器占用的位数
         private static long datacenterIdShift = sequenceBits + machineIdBits;
         private static long timestampLeftShift = sequenceBits + machineIdBits + datacenterIdBits; //时间戳左移动位数就是机器码+计数器总字节数+数据字节数
-        public static long sequenceMask = -1L ^ -1L << (int)sequenceBits; //一微秒内可以产生计数，如果达到该值则等到下一微妙在进行生成
+        private static long sequenceMask = -1L ^ -1L << (int)sequenceBits; //一微秒内可以产生计数，如果达到该值则等到下一微妙在进行生成
         private static long lastTimestamp = -1L;//最后时间戳
 
         private static object syncRoot = new();//加锁对象
