@@ -40,7 +40,7 @@ namespace Common
         public static long sequenceMask = -1L ^ -1L << (int)sequenceBits; //一微秒内可以产生计数，如果达到该值则等到下一微妙在进行生成
         private static long lastTimestamp = -1L;//最后时间戳
 
-        private static object syncRoot = new object();//加锁对象
+        private static object syncRoot = new();//加锁对象
         static SnowflakeHelper snowflake;
 
 

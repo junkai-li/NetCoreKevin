@@ -22,7 +22,7 @@ namespace Web.Libraries.WeiXin.Public
         }
 
         //采用排序的Dictionary的好处是方便对数据包进行签名，不用再签名之前再做一次排序
-        private SortedDictionary<string, object> m_values = new SortedDictionary<string, object>();
+        private SortedDictionary<string, object> m_values = new<string, object>();
 
         /**
         * 设置某个字段的值
@@ -111,7 +111,7 @@ namespace Web.Libraries.WeiXin.Public
             System.IO.Stream s = HttpContext.Current().Request.Body;
             int count = 0;
             byte[] buffer = new byte[1024];
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             while ((count = s.Read(buffer, 0, 1024)) > 0)
             {
                 builder.Append(Encoding.UTF8.GetString(buffer, 0, count));
@@ -124,7 +124,7 @@ namespace Web.Libraries.WeiXin.Public
                 throw new WxPayException("将空的xml串转换为WxPayData不合法!");
             }
 
-            XmlDocument xmlDoc = new XmlDocument();
+            XmlDocument xmlDoc = new();
             xmlDoc.LoadXml(builder.ToString());
             XmlNode xmlNode = xmlDoc.FirstChild;//获取到根节点<xml>
             XmlNodeList nodes = xmlNode.ChildNodes;
@@ -150,7 +150,7 @@ namespace Web.Libraries.WeiXin.Public
                 throw new WxPayException("将空的xml串转换为WxPayData不合法!");
             }
 
-            XmlDocument xmlDoc = new XmlDocument();
+            XmlDocument xmlDoc = new();
             xmlDoc.LoadXml(xml);
             XmlNode xmlNode = xmlDoc.FirstChild;//获取到根节点<xml>
             XmlNodeList nodes = xmlNode.ChildNodes;
@@ -189,7 +189,7 @@ namespace Web.Libraries.WeiXin.Public
                 throw new WxPayException("将空的xml串转换为WxPayData不合法!");
             }
 
-            XmlDocument xmlDoc = new XmlDocument();
+            XmlDocument xmlDoc = new();
             xmlDoc.LoadXml(xml);
             XmlNode xmlNode = xmlDoc.FirstChild;//获取到根节点<xml>
             XmlNodeList nodes = xmlNode.ChildNodes;

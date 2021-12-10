@@ -33,14 +33,14 @@ namespace System
             else
             {
                 //得到本月第一天  
-                DateTime dtStart = new DateTime(date.Year, date.Month, 1);
+                DateTime dtStart = new(date.Year, date.Month, 1);
                 //得到本月第一天是周几  
                 int dayofweek = (int)dtStart.DayOfWeek;
 
                 //如果不是以周日开始，需要重新计算一下dayofweek，详细风DayOfWeek枚举的定义  
                 if (!sundayStart)
                 {
-                    dayofweek = dayofweek - 1;
+                    dayofweek--;
 
                     if (dayofweek < 0)
                         dayofweek = 7;
@@ -68,7 +68,7 @@ namespace System
         /// <reutrn>返回第几周</reutrn>
         public static int GetWeekOfYear(this DateTime day)
         {
-            GregorianCalendar gc = new GregorianCalendar();
+            GregorianCalendar gc = new();
             int weekOfYear = gc.GetWeekOfYear(day, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
             return weekOfYear;
         }

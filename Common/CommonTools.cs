@@ -22,7 +22,7 @@ namespace Common
         {
             if (retryTimes <= 0)
             {
-                return default(T);
+                return default;
             }
 
 
@@ -61,7 +61,7 @@ namespace Common
                     System.Threading.Thread.Sleep(sleepMillisecondsTimeout);
                 }
             }
-            return default(T);
+            return default;
         }
 
 

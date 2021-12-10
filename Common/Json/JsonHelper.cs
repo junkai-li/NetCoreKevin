@@ -41,7 +41,7 @@ namespace Common.Json
         /// <returns>JSON格式对象</returns>
         public static object DataRowToJSON(DataRow row)
         {
-            Dictionary<string, object> dataList = new Dictionary<string, object>();
+            Dictionary<string, object> dataList = new();
             foreach (DataColumn column in row.Table.Columns)
             {
                 dataList.Add(column.ColumnName, row[column]);
@@ -104,7 +104,7 @@ namespace Common.Json
         {
             try
             {
-                JsonSerializerSettings jset = new JsonSerializerSettings();
+                JsonSerializerSettings jset = new();
                 jset.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 jset.Converters.Add(new IsoDateTimeConverter { DateTimeFormat = "yyyy'/'MM'/'dd' 'HH':'mm':'ss" });
 

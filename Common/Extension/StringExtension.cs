@@ -62,7 +62,7 @@ namespace System
             }
             // convert string to stream            
             byte[] byteArray = encoding.GetBytes(s);
-            MemoryStream stream = new MemoryStream(byteArray);
+            MemoryStream stream = new(byteArray);
             return stream;
         }
 
@@ -80,7 +80,7 @@ namespace System
         {
             try
             {
-                Guid guid = new Guid(str);
+                Guid guid = new(str);
                 return true;
             }
             catch

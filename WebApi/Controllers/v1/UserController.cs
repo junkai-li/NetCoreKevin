@@ -390,7 +390,7 @@ namespace WebApi.Controllers.v1
 
                             return false;
                         }
-                        TUser olddata = new TUser();
+                        TUser olddata = new();
                         Common.PropertyHelper.Assignment<TUser>(olddata, data);
                         //编辑
                         data.Name = user.Name;
@@ -551,7 +551,7 @@ namespace WebApi.Controllers.v1
                     var tokenuser = db.TUser.Where(x => x.IsDelete == false && x.Id == CurrentUser.UserId).FirstOrDefault();
                     if (data != null)
                     {
-                        TRole olddata = new TRole(); 
+                        TRole olddata = new(); 
                         //编辑
                         data.Name = role.Name;
                         data.Remarks = role.Remarks; 

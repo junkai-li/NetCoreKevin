@@ -64,7 +64,7 @@ namespace Common.TencentCloud
                     string bucket = bucketName; //存储桶
 
 
-                    PutObjectRequest request = new PutObjectRequest(bucket, remotepath, localpath);
+                    PutObjectRequest request = new(bucket, remotepath, localpath);
 
                     //设置签名有效时长
                     request.SetSign(TimeUtils.GetCurrentTime(TimeUnit.Seconds), durationSecond);

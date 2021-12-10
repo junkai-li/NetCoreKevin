@@ -28,7 +28,7 @@ namespace System
                 return true;
             }
 
-            value = default(T);
+            value = default;
             return false;
         }
 
@@ -43,7 +43,7 @@ namespace System
         public static TValue GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
         {
             TValue obj;
-            return dictionary.TryGetValue(key, out obj) ? obj : default(TValue);
+            return dictionary.TryGetValue(key, out obj) ? obj : default;
         }
 
     

@@ -25,7 +25,7 @@ namespace Common
         {
             string orderno = "";
 
-            Random ran = new Random();
+            Random ran = new();
             int RandKey = ran.Next(10000, 99999);
 
 
@@ -42,7 +42,7 @@ namespace Common
         public static string GetRandomString(int length)
         {
             string randStr = "";
-            Random rd = new Random();
+            Random rd = new();
             byte[] str = new byte[length];
             int i;
             for (i = 0; i < length - 1; i++)
@@ -54,8 +54,8 @@ namespace Common
                 }
                 str[i] = (byte)a;
             }
-            string username = new string(UnicodeEncoding.ASCII.GetChars(str));
-            Random r = new Random(unchecked((int)DateTime.Now.Ticks));
+            string username = new(UnicodeEncoding.ASCII.GetChars(str));
+            Random r = new(unchecked((int)DateTime.Now.Ticks));
             string s1 = ((char)r.Next(97, 122)).ToString();
             username = username.Replace("/0", "");
             randStr = s1 + username;
@@ -83,7 +83,7 @@ namespace Common
         /// <returns></returns>
         public static bool IsContainsCN(string text)
         {
-            Regex reg = new Regex(@"[\u4e00-\u9fa5]");//正则表达式
+            Regex reg = new(@"[\u4e00-\u9fa5]");//正则表达式
 
             if (reg.IsMatch(text))
             {
@@ -365,7 +365,7 @@ namespace Common
                 return input;
             else
             {
-                StringBuilder checkedStringBuilder = new StringBuilder();
+                StringBuilder checkedStringBuilder = new();
                 Char[] chars = input.ToCharArray();
                 for (int i = 0; i < chars.Length; i++)
                 {
@@ -412,7 +412,7 @@ namespace Common
             bool outValue = false;
             if (!string.IsNullOrEmpty(strString))
             {
-                ArrayList bidStrlist = new ArrayList();
+                ArrayList bidStrlist = new();
                 bidStrlist.Add("xp_cmdshell");
                 bidStrlist.Add("truncate");
                 bidStrlist.Add("net user");
@@ -460,13 +460,13 @@ namespace Common
 
             if (isRandomCount)
             {
-                Random random = new Random();
+                Random random = new();
                 strlength = random.Next(1, strlength + 1);
             }
 
             //定义一个字符串数组储存汉字编码的组成元素
             string[] rBase = new String[16] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f" };
-            Random rnd = new Random();
+            Random rnd = new();
             //定义一个object数组用来
             object[] bytes = new object[strlength];
             /*每循环一次产生一个含两个元素的十六进制字节数组，并将其放入bject数组中

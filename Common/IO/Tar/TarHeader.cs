@@ -236,7 +236,7 @@ namespace Common.IO.Tar
 		public const string GNU_TMAGIC = "ustar  ";
 
 		private const long timeConversionFactor = 10000000L;           // 1 tick == 100 nanoseconds
-		private static readonly DateTime dateTime1970 = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+		private static readonly DateTime dateTime1970 = new(1970, 1, 1, 0, 0, 0, 0);
 
 		#endregion Constants
 
@@ -272,12 +272,8 @@ namespace Common.IO.Tar
 		{
 			get { return name; }
 			set
-			{
-				if (value == null)
-				{
-					throw new ArgumentNullException(nameof(value));
-				}
-				name = value;
+			{ 
+				 name = value??throw new ArgumentNullException(nameof(value));  
 			}
 		}
 
@@ -396,12 +392,8 @@ namespace Common.IO.Tar
 		{
 			get { return linkName; }
 			set
-			{
-				if (value == null)
-				{
-					throw new ArgumentNullException(nameof(value));
-				}
-				linkName = value;
+			{ 
+					linkName = value ?? throw new ArgumentNullException(nameof(value)); 
 			}
 		}
 
@@ -413,12 +405,8 @@ namespace Common.IO.Tar
 		{
 			get { return magic; }
 			set
-			{
-				if (value == null)
-				{
-					throw new ArgumentNullException(nameof(value));
-				}
-				magic = value;
+			{ 
+				magic = value??throw new ArgumentNullException(nameof(value)); 
 			}
 		}
 
@@ -434,12 +422,8 @@ namespace Common.IO.Tar
 			}
 
 			set
-			{
-				if (value == null)
-				{
-					throw new ArgumentNullException(nameof(value));
-				}
-				version = value;
+			{ 
+				version = value??throw new ArgumentNullException(nameof(value)); 
 			}
 		}
 

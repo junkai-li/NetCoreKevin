@@ -103,7 +103,7 @@ namespace Common
                     //画图片的背景噪音线
                     for (int i = 0; i < (width * height * 0.015); i++)
                     {
-                        using (SKPaint drawStyle = new SKPaint())
+                        using (SKPaint drawStyle = new())
                         {
                             drawStyle.Color = new SKColor(Convert.ToUInt32(random.Next(Int32.MaxValue)));
 
@@ -112,7 +112,7 @@ namespace Common
                     }
 
                     //将文字写到画布上
-                    using (SKPaint drawStyle = new SKPaint())
+                    using (SKPaint drawStyle = new())
                     {
                         drawStyle.Color = SKColors.Red;
                         drawStyle.TextSize = height;

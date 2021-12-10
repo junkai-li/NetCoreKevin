@@ -102,7 +102,7 @@ namespace Web.Libraries.WeiXin.H5
         /// <returns></returns>
         public WeiXinJsSdkSign GetJsSDKSign()
         {
-            WeiXinJsSdkSign sdkSign = new WeiXinJsSdkSign();
+            WeiXinJsSdkSign sdkSign = new();
 
             sdkSign.appid = appid;
             string url = HttpContext.GetUrl();
@@ -137,7 +137,7 @@ namespace Web.Libraries.WeiXin.H5
         public dtoCreatePayPCH CreatePayUrl(string openid, string orderno, string title, string body, int price, string ip)
         {
             string nonceStr = Guid.NewGuid().ToString().Replace("-", "");
-            WxPayData data = new WxPayData();
+            WxPayData data = new();
             data.SetValue("body", body); //商品描述 
             data.SetValue("out_trade_no", orderno); //商户订单号
             data.SetValue("total_fee", price); //订单总金额,以分为单位
@@ -158,7 +158,7 @@ namespace Web.Libraries.WeiXin.H5
             //XmlDocument doc = new XmlDocument();
             //doc.LoadXml(getdata);
 
-            WxPayData result = new WxPayData();
+            WxPayData result = new();
             result.FromXml(getdata, mchkey);
             //xml格式转json
             //string json = Newtonsoft.Json.JsonConvert.SerializeXmlNode(doc);
@@ -166,7 +166,7 @@ namespace Web.Libraries.WeiXin.H5
             if (result.GetValue("result_code").ToString().ToUpper() == "SUCCESS")
             {
                 var mweb_url = result.GetValue("mweb_url").ToString();//mweb_url为拉起微信支付收银台的中间页面，可通过访问该url来拉起微信客户端，完成支付,mweb_url的有效期为5分钟。
-                dtoCreatePayPCH dtoCreatePayPCH = new dtoCreatePayPCH();
+                dtoCreatePayPCH dtoCreatePayPCH = new();
                 dtoCreatePayPCH.mweburl = result.GetValue("mweb_url").ToString();
                 dtoCreatePayPCH.nonceStr = nonceStr;
                 dtoCreatePayPCH.paySign = data.MakeSign(mchkey);

@@ -37,7 +37,7 @@ namespace System
         /// <param name="directoryAndFiles">文件夹和文件的路径</param>
         public static void DirPath_Recurse(this string rootDictory, Action<string, string[]> directoryAndFiles)
         {
-            List<string> visitedPath = new List<string>();
+            List<string> visitedPath = new();
             RecursingFolder(visitedPath, rootDictory, directoryAndFiles);
         }
         /// <summary>
@@ -54,7 +54,7 @@ namespace System
                 int length = fullPath.Length;
                 var isWithSeparatorChar =  length != 0 && (int)fullPath[length - 1] == (int)Path.DirectorySeparatorChar;
                 if (isWithSeparatorChar)
-                    path = fullPath.Substring(0, fullPath.Length - 1);
+                    path = fullPath[0..(fullPath.Length - 1)];
                 str = Path.GetFileName(path);
             }
             else

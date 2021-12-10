@@ -185,7 +185,7 @@ namespace WebApi.Controllers
 
                             db.SaveChanges();
 
-                            TUserBindWeixin userBind = new TUserBindWeixin();
+                            TUserBindWeixin userBind = new();
                             userBind.Id = Guid.NewGuid();
                             userBind.IsDelete = false;
                             userBind.CreateTime = DateTime.Now;
@@ -303,7 +303,7 @@ namespace WebApi.Controllers
             if (Common.RedisHelper.IsContainStr(key) == false)
             {
 
-                Random ran = new Random();
+                Random ran = new();
                 string code = ran.Next(100000, 999999).ToString();
 
                 var jsonCode = new
@@ -311,7 +311,7 @@ namespace WebApi.Controllers
                     code = code
                 };
 
-                Common.AliYun.SmsHelper sms = new Common.AliYun.SmsHelper();
+                Common.AliYun.SmsHelper sms = new();
                 var smsStatus = sms.SendSms(phone, "短信模板编号", "短信签名", Common.Json.JsonHelper.ObjectToJSON(jsonCode));
 
                 if (smsStatus)

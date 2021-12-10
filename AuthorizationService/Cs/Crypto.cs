@@ -116,11 +116,11 @@ namespace System
                 _sIv[i - 8] = hb[i];
             des.Key = _sKey;
             des.IV = _sIv;
-            MemoryStream ms = new MemoryStream();
-            CryptoStream cs = new CryptoStream(ms, des.CreateEncryptor(), CryptoStreamMode.Write);
+            MemoryStream ms = new();
+            CryptoStream cs = new(ms, des.CreateEncryptor(), CryptoStreamMode.Write);
             cs.Write(inputByteArray, 0, inputByteArray.Length);
             cs.FlushFinalBlock();
-            StringBuilder ret = new StringBuilder();
+            StringBuilder ret = new();
             foreach (byte b in ms.ToArray())
             {
                 ret.AppendFormat("{0:X2}", b);
@@ -161,11 +161,11 @@ namespace System
                 _sIv[i - 8] = hb[i];
             des.Key = _sKey;
             des.IV = _sIv;
-            MemoryStream ms = new MemoryStream();
-            CryptoStream cs = new CryptoStream(ms, des.CreateDecryptor(), CryptoStreamMode.Write);
+            MemoryStream ms = new();
+            CryptoStream cs = new(ms, des.CreateDecryptor(), CryptoStreamMode.Write);
             cs.Write(inputByteArray, 0, inputByteArray.Length);
             cs.FlushFinalBlock();
-            StringBuilder ret = new StringBuilder();
+            StringBuilder ret = new();
             return System.Text.Encoding.UTF8.GetString(ms.ToArray());
         }
         #endregion
@@ -200,8 +200,8 @@ namespace System
                 _sIv[i - 8] = hb[i];
             des.Key = _sKey;
             des.IV = _sIv;
-            MemoryStream ms = new MemoryStream();
-            CryptoStream cs = new CryptoStream(ms, des.CreateEncryptor(), CryptoStreamMode.Write);
+            MemoryStream ms = new();
+            CryptoStream cs = new(ms, des.CreateEncryptor(), CryptoStreamMode.Write);
             cs.Write(inputByteArray, 0, inputByteArray.Length);
             cs.FlushFinalBlock();
             fs = File.OpenWrite(savePath);
@@ -244,8 +244,8 @@ namespace System
                 _sIv[i - 8] = hb[i];
             des.Key = _sKey;
             des.IV = _sIv;
-            MemoryStream ms = new MemoryStream();
-            CryptoStream cs = new CryptoStream(ms, des.CreateDecryptor(), CryptoStreamMode.Write);
+            MemoryStream ms = new();
+            CryptoStream cs = new(ms, des.CreateDecryptor(), CryptoStreamMode.Write);
             cs.Write(inputByteArray, 0, inputByteArray.Length);
             cs.FlushFinalBlock();
             fs = File.OpenWrite(savePath);
@@ -293,7 +293,7 @@ namespace System
             //返回MD5值的字符串表示
             using var md5 =  MD5.Create();
             byte[] cryptBuffer = md5.ComputeHash(bytes);
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             foreach (byte item in cryptBuffer)
             {
                 sb.Append(item.ToString("X2"));
@@ -343,7 +343,7 @@ namespace System
         {
             using (MD5 md5Hash = System.Security.Cryptography.MD5.Create())
             {
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new();
                 byte[] data = md5Hash.ComputeHash(System.Text.Encoding.ASCII.GetBytes(content));
                 for (int i = 0; i < data.Length; i++)
                 {
@@ -363,7 +363,7 @@ namespace System
             using (MD5 md5 = System.Security.Cryptography.MD5.Create())
             {
                 byte[] hash = md5.ComputeHash(buffer);
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new();
 
                 foreach (var b in hash)
                     sb.Append(b.ToString("x2"));
@@ -394,7 +394,7 @@ namespace System
                                             'o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7',
                                             '8','9','+','/','='};
                 byte empty = (byte)0;
-                ArrayList byteMessage = new ArrayList(Encoding.UTF8.GetBytes(text));
+                ArrayList byteMessage = new(Encoding.UTF8.GetBytes(text));
                 StringBuilder outmessage;
                 int messageLen = byteMessage.Count;
                 int page = messageLen / 3;
@@ -462,7 +462,7 @@ namespace System
                 }
                 string Base64Code = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
                 int page = text.Length / 4;
-                ArrayList outMessage = new ArrayList(page * 3);
+                ArrayList outMessage = new(page * 3);
                 char[] message = text.ToCharArray();
                 for (int i = 0; i < page; i++)
                 {

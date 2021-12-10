@@ -17,7 +17,7 @@ namespace Common.IOT
             int outPin = 17;
 
 
-            using HumanInfraredSensor sensor = new HumanInfraredSensor(outPin, PinNumberingScheme.Logical);
+            using HumanInfraredSensor sensor = new(outPin, PinNumberingScheme.Logical);
 
 
             if (sensor.IsMotionDetected)

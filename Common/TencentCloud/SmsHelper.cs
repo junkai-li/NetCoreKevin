@@ -51,15 +51,15 @@ namespace Common.TencentCloud
             try
             {
 
-                Credential cred = new Credential
+                Credential cred = new()
                 {
                     SecretId = secretId,
                     SecretKey = secretKey
                 };
 
-                SmsClient client = new SmsClient(cred, "ap-guangzhou");
+                SmsClient client = new(cred, "ap-guangzhou");
 
-                SendSmsRequest req = new SendSmsRequest();
+                SendSmsRequest req = new();
 
                 req.SmsSdkAppid = appId;
 

@@ -13,7 +13,7 @@ namespace Common.IO.Tar
 		private const byte VALUE = 2;
 		private const byte END = 3;
 
-		private readonly Dictionary<string, string> headers = new Dictionary<string, string>();
+		private readonly Dictionary<string, string> headers = new();
 
 		private string[] headerParts = new string[3];
 
@@ -21,7 +21,7 @@ namespace Common.IO.Tar
 		private byte[] byteBuffer;
 		private char[] charBuffer;
 
-		private readonly StringBuilder sb = new StringBuilder();
+		private readonly StringBuilder sb = new();
 		private readonly Decoder decoder = Encoding.UTF8.GetDecoder();
 
 		private int state = LENGTH;

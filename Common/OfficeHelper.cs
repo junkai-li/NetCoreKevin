@@ -14,7 +14,7 @@ namespace Common
         /// <returns></returns>
         public static bool IsTruePdf(string pdfFilename)
         {
-            Vintasoft.Imaging.Pdf.Processing.PdfA.PdfA1bVerifier verifier = new Vintasoft.Imaging.Pdf.Processing.PdfA.PdfA1bVerifier();
+            Vintasoft.Imaging.Pdf.Processing.PdfA.PdfA1bVerifier verifier = new();
             System.Console.WriteLine("Verification...");
             if (verifier.Verify(pdfFilename))
                 return true;

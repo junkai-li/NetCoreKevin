@@ -126,7 +126,7 @@ namespace Web.Libraries.WeiXin.MiniApp
             var getdata = Common.HttpHelper.Post(url, zhi, "form");
 
             //获取xml数据
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.LoadXml(getdata);
 
 
@@ -187,11 +187,11 @@ namespace Web.Libraries.WeiXin.MiniApp
 
             string result;
 
-            using (MemoryStream msDecrypt = new MemoryStream(encryptedData))
+            using (MemoryStream msDecrypt = new(encryptedData))
             {
-                using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                using (CryptoStream csDecrypt = new(msDecrypt, decryptor, CryptoStreamMode.Read))
                 {
-                    using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                    using (StreamReader srDecrypt = new(csDecrypt))
                     {
 
                         result = srDecrypt.ReadToEnd();
@@ -216,7 +216,7 @@ namespace Web.Libraries.WeiXin.MiniApp
 
             using HttpClientHandler handler = new();
 
-            X509Certificate2 cert = new X509Certificate2(sslPath, mchid, X509KeyStorageFlags.MachineKeySet);
+            X509Certificate2 cert = new(sslPath, mchid, X509KeyStorageFlags.MachineKeySet);
 
             handler.ClientCertificates.Add(cert);
 

@@ -95,7 +95,7 @@ namespace WebApi.Controllers
                 if (isSuccess)
                 {
 
-                    var f = new TFile();
+                    TFile f = new();
                     f.Id = Guid.NewGuid();
                     f.IsDelete = false;
                     f.Name = fileInfo.Value.ToString();
@@ -185,7 +185,7 @@ namespace WebApi.Controllers
             if (isSuccess)
             {
 
-                var f = new TFile();
+                TFile f = new();
                 f.Id = fileName;
                 f.IsDelete = false;
                 f.Name = file.FileName;
@@ -229,7 +229,7 @@ namespace WebApi.Controllers
             var ReqFiles = Request.Form.Files;
 
 
-            List<IFormFile> Attachments = new List<IFormFile>();
+            List<IFormFile> Attachments = new();
             for (int i = 0; i < ReqFiles.Count; i++)
             {
                 Attachments.Add(ReqFiles[i]);
@@ -403,7 +403,7 @@ namespace WebApi.Controllers
                 string basepath = "/Files/" + DateTime.Now.ToString("yyyy/MM/dd") + "/" + fileid;
 
 
-                var f = new TFile();
+                TFile f = new();
                 f.Id = Guid.NewGuid();
                 f.Name = fileName;
                 f.Path = basepath;
@@ -415,7 +415,7 @@ namespace WebApi.Controllers
                 db.TFile.Add(f);
                 db.SaveChanges();
 
-                var group = new TFileGroup();
+                TFileGroup group = new();
                 group.Id = Guid.NewGuid();
                 group.FileId = f.Id;
                 group.Unique = unique;
@@ -507,7 +507,7 @@ namespace WebApi.Controllers
 
                         var fullfilepath = Web.Libraries.IO.Path.ContentRootPath() + fileinfo.Path;
 
-                        using (FileStream outStream = new FileStream(fullfilepath, FileMode.Create))
+                        using (FileStream outStream = new(fullfilepath, FileMode.Create))
                         {
                             int readedLen = 0;
                             FileStream srcStream = null;

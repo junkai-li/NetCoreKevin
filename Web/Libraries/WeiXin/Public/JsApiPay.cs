@@ -41,7 +41,7 @@ namespace Web.Libraries.WeiXin.Public
             }
 
             //上报逻辑
-            WxPayData data = new WxPayData();
+            WxPayData data = new();
             data.SetValue("interface_url", interface_url);
             data.SetValue("execute_time_", timeCost);
             //返回状态码
@@ -133,7 +133,7 @@ namespace Web.Libraries.WeiXin.Public
 
             string response = Common.HttpHelper.Post(url, xml, "xml");
 
-            WxPayData result = new WxPayData();
+            WxPayData result = new();
             result.FromXml(response, mchkey);
             return result;
         }
@@ -167,7 +167,7 @@ namespace Web.Libraries.WeiXin.Public
             System.IO.Stream s = Http.HttpContext.Current().Request.Body;
             int count = 0;
             byte[] buffer = new byte[1024];
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             while ((count = s.Read(buffer, 0, 1024)) > 0)
             {
                 builder.Append(Encoding.UTF8.GetString(buffer, 0, count));
@@ -176,7 +176,7 @@ namespace Web.Libraries.WeiXin.Public
             s.Dispose();
 
             //转换数据格式并验证签名
-            WxPayData data = new WxPayData();
+            WxPayData data = new();
             try
             {
                 data.FromXml(builder.ToString());
@@ -184,7 +184,7 @@ namespace Web.Libraries.WeiXin.Public
             catch (WxPayException ex)
             {
                 //若有错误，则立即返回结果给微信支付后台
-                WxPayData res = new WxPayData();
+                WxPayData res = new();
                 res.SetValue("return_code", "FAIL");
                 res.SetValue("return_msg", ex.Message);
                 Http.HttpContext.Current().Response.WriteAsync(res.ToXml());
@@ -219,7 +219,7 @@ namespace Web.Libraries.WeiXin.Public
             var endTime = DateTime.Now; //结束时间
             int timeCost = (int)((endTime - startTime).TotalMilliseconds); //计算所用时间
             //将xml格式的数据转化为对象以返回
-            WxPayData result = new WxPayData();
+            WxPayData result = new();
             result.FromXml(response, mchkey);
             ReportCostTime(sendUrl, timeCost, result);//测速上报
             return result;

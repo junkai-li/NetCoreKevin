@@ -19,7 +19,7 @@ namespace Repository.Database
 
 
 
-        public dbContext(DbContextOptions<dbContext> options = default) : base(options = GetDbContextOptions())
+        public dbContext(DbContextOptions<dbContext> _ = default) : base(GetDbContextOptions())
         {
         }
 

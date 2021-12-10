@@ -82,7 +82,7 @@ namespace Web.Libraries.WeiXin.App
             var getdata = HttpHelper.Post(url, zhi, "form");
 
             //获取xml数据
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.LoadXml(getdata);
 
 

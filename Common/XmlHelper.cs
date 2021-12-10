@@ -28,7 +28,7 @@ namespace Common
                     XmlSerializerNamespaces ns = new();
                     ns.Add("", "");
 
-                    XmlSerializer xmlSerializer = new XmlSerializer(obj.GetType());
+                    XmlSerializer xmlSerializer = new(obj.GetType());
                     xmlSerializer.Serialize(xmlWriter, obj);
 
                     memoryStream.Position = 0;
@@ -52,9 +52,9 @@ namespace Common
         /// <returns></returns>
         public static T XmlToObject<T>(string xmlText)
         {
-            using (StringReader stringReader = new StringReader(xmlText))
+            using (StringReader stringReader = new(xmlText))
             {
-                XmlSerializer xmlSerializer = new XmlSerializer(typeof(T));
+                XmlSerializer xmlSerializer = new(typeof(T));
 
                 return (T)xmlSerializer.Deserialize(stringReader);
             }

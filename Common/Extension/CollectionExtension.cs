@@ -58,7 +58,7 @@ namespace System
         /// <returns></returns>
         private static DataTable CreateEmptyDatatable<T>(this T model) where T : new()
         {
-            DataTable newDataTable = new DataTable();
+            DataTable newDataTable = new();
             Type impliedType = typeof(T);
             PropertyInfo[] propInfo = impliedType.GetProperties();
             foreach (PropertyInfo pi in propInfo)
@@ -77,11 +77,11 @@ namespace System
             {
                 return null;
             }
-            List<T> modelList = new List<T>();
+            List<T> modelList = new();
             foreach (DataRow dr in dt.Rows)
             {
                 //T model = (T)Activator.CreateInstance(typeof(T));  
-                T model = new T();
+                T model = new();
                 for (int i = 0; i < dr.Table.Columns.Count; i++)
                 {
                     PropertyInfo propertyInfo = model.GetType().GetProperty(dr.Table.Columns[i].ColumnName);
@@ -101,10 +101,10 @@ namespace System
         /// <returns></returns>
         public static List<T> ConvertTo<T>(this DataTable datatable) where T : new()
         {
-            List<T> Temp = new List<T>();
+            List<T> Temp = new();
             try
             {
-                List<string> columnsNames = new List<string>();
+                List<string> columnsNames = new();
                 foreach (DataColumn DataColumn in datatable.Columns)
                     columnsNames.Add(DataColumn.ColumnName);
                 Temp = datatable.AsEnumerable().ToList().ConvertAll<T>(row => GetObject<T>(row, columnsNames));
@@ -126,10 +126,10 @@ namespace System
         /// <returns></returns>
         public static List<T> ConvertTo<T>(this DataTable datatable, Hashtable map) where T : new()
         {
-            List<T> temp = new List<T>();
+            List<T> temp = new();
             try
             {
-                List<string> columnsNames = new List<string>();
+                List<string> columnsNames = new();
                 foreach (DataColumn dataColumn in datatable.Columns)
                     columnsNames.Add(dataColumn.ColumnName);
                 temp = datatable.AsEnumerable().ToList().ConvertAll<T>(row => GetMapObject<T>(row, columnsNames, map));
@@ -149,9 +149,9 @@ namespace System
         {
             if (dr == null)
             {
-                return default(T);
+                return default;
             }
-            T model = new T();
+            T model = new();
 
             for (int i = 0; i < dr.Table.Columns.Count; i++)
             {
@@ -179,7 +179,7 @@ namespace System
         /// <returns></returns>
         private static T GetObject<T>(DataRow row, List<string> columnsName) where T : new()
         {
-            T obj = new T();
+            T obj = new();
             try
             {
                 string columnname = "";
@@ -220,7 +220,7 @@ namespace System
         /// <returns></returns>
         private static T GetMapObject<T>(DataRow row, List<string> columnsName, Hashtable map) where T : new()
         {
-            T obj = new T();
+            T obj = new();
             try
             {
                 string columnname = "";
@@ -266,7 +266,7 @@ namespace System
         /// <returns></returns>
         private static DataTable FillDataTable<T>(IEnumerable<T> collection)
         {
-            DataTable newDataTable = new DataTable();
+            DataTable newDataTable = new();
             Type impliedType = typeof(T);
             PropertyInfo[] propInfo = impliedType.GetProperties();
             foreach (PropertyInfo pi in propInfo)

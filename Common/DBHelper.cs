@@ -116,7 +116,7 @@ namespace Common
             command.Dispose();
             connection.Close();
         }
-         
+
 
 
 
@@ -165,39 +165,37 @@ namespace Common
         {
             try
             {
-                using (var db = new dbContext())
+                using var db = new dbContext();
+
+
+                string sql = "SELECT t.name AS [Key],c.name AS Value FROM sys.tables AS t INNER JOIN sys.columns c ON t.OBJECT_ID = c.OBJECT_ID WHERE c.system_type_id = 231 and c.name LIKE '%userid%'";
+
+                var list = SelectFromSql<dtoKeyValue>(sql);
+
+                var parameters = new Dictionary<string, object>();
+
+                foreach (var item in list)
                 {
 
-
-                    string sql = "SELECT t.name AS [Key],c.name AS Value FROM sys.tables AS t INNER JOIN sys.columns c ON t.OBJECT_ID = c.OBJECT_ID WHERE c.system_type_id = 231 and c.name LIKE '%userid%'";
-
-                    var list = SelectFromSql<dtoKeyValue>(sql);
-
-                    var parameters = new Dictionary<string, object>();
-
-                    foreach (var item in list)
-                    {
-
-                        string upSql = "UPDATE [dbo].[@tableName] SET [@columnName] = @newUserId WHERE [@columnName] = @oldUserId";
-
-                        parameters = new Dictionary<string, object>();
-                        parameters.Add("tableName", item.Key.ToString());
-                        parameters.Add("columnName", item.Value.ToString());
-                        parameters.Add("newUserId", newUserId);
-                        parameters.Add("oldUserId", oldUserId);
-
-                        db.Database.ExecuteSqlRaw(upSql, parameters);
-                    }
-
-                    string delSql = "DELETE FROM [dbo].[t_user] WHERE [id] = @oldUserId";
+                    string upSql = "UPDATE [dbo].[@tableName] SET [@columnName] = @newUserId WHERE [@columnName] = @oldUserId";
 
                     parameters = new Dictionary<string, object>();
+                    parameters.Add("tableName", item.Key.ToString());
+                    parameters.Add("columnName", item.Value.ToString());
+                    parameters.Add("newUserId", newUserId);
                     parameters.Add("oldUserId", oldUserId);
 
-                    db.Database.ExecuteSqlRaw(delSql, parameters);
-
-                    return true;
+                    db.Database.ExecuteSqlRaw(upSql, parameters);
                 }
+
+                string delSql = "DELETE FROM [dbo].[t_user] WHERE [id] = @oldUserId";
+
+                parameters = new Dictionary<string, object>();
+                parameters.Add("oldUserId", oldUserId);
+
+                db.Database.ExecuteSqlRaw(delSql, parameters);
+
+                return true;
 
             }
             catch
@@ -223,7 +221,7 @@ namespace Common
 
                 if (info.Id != default)
                 {
-                    info.Count = info.Count + 1;
+                    info.Count++;
                     info.UpdateTime = DateTime.Now;
 
                     db.SaveChanges();

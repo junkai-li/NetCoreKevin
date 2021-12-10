@@ -54,12 +54,12 @@ namespace System
             try
             {
                 if (string.IsNullOrEmpty(input))
-                    return default(T);
+                    return default;
                 return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(input);
             }
             catch (Exception)
             {
-                return default(T); 
+                return default; 
             }
         }
         /// <summary>
@@ -76,7 +76,7 @@ namespace System
             }
             catch (Exception)
             {
-                return default(T);
+                return default;
             }
         }
         /// <summary>
@@ -186,7 +186,7 @@ namespace System
         /// <returns></returns>
         public static T ConvertEnum<T>(this string value)
         {
-            if (string.IsNullOrEmpty(value)) return default(T);
+            if (string.IsNullOrEmpty(value)) return default;
             try
             {
                 return (T)Enum.Parse(typeof (T), value);
@@ -194,7 +194,7 @@ namespace System
             catch (Exception)
             {
 
-                return default(T);
+                return default;
             }
         }
 
