@@ -637,7 +637,7 @@ namespace Common.IO.Tar
 			{
 				// NOTE:
 				// for UNC names...  \\machine\share\zoom\beet.txt gives \zoom\beet.txt
-				name = name.Substring(Path.GetPathRoot(name).Length);
+				name = name[Path.GetPathRoot(name).Length..];
 			}
 
 			name = name.Replace('/', Path.DirectorySeparatorChar);
@@ -837,7 +837,7 @@ namespace Common.IO.Tar
 			{
 				if (entry.Name.StartsWith(rootPath, StringComparison.OrdinalIgnoreCase))
 				{
-					newName = entry.Name.Substring(rootPath.Length + 1);
+					newName = entry.Name[(rootPath.Length + 1)..];
 				}
 			}
 

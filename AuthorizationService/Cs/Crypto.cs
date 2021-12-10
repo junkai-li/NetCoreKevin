@@ -38,7 +38,7 @@ namespace System
             }
             if (key.Length > 32)
             {
-                key = key.Substring(0, 32);
+                key = key[0..32];
             }
             return Encoding.UTF8.GetBytes(key);
         }

@@ -73,7 +73,7 @@ namespace System
                 throw new ArgumentNullException("str");
             }
 
-            return str.Substring(0, 1).ToLower() + str.Substring(1);
+            return str[0..1].ToLower() + str[1..];
         }
 
         public static bool IsGuid(this string str)

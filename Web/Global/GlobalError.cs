@@ -29,7 +29,7 @@ namespace Web.Actions
 
             if (parameterStr.Length > 102400)
             {
-                parameterStr = parameterStr.Substring(0, 102400);
+                parameterStr = parameterStr[0..102400];
             }
 
             var authorization = Libraries.Http.HttpContext.Current().Request.Headers["Authorization"].ToString();

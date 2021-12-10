@@ -192,7 +192,7 @@ namespace Common
 
             var timeBits = 64 - machineIdBits - datacenterIdBits - sequenceBits - 1;
 
-            var timeStr2 = idStr2.Substring(0, Convert.ToInt32(timeBits));
+            var timeStr2 = idStr2[0..Convert.ToInt32(timeBits)];
 
             var timeJsStamp = Convert.ToInt64(timeStr2, 2);
 

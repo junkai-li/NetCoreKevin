@@ -214,7 +214,7 @@ namespace Common
 
             if (NeiRong.Length > length)
             {
-                NeiRong = NeiRong.Substring(0, length);
+                NeiRong = NeiRong[0..length];
 
                 NeiRong = NeiRong + "...";
 

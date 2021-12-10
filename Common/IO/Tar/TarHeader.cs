@@ -437,14 +437,14 @@ namespace Common.IO.Tar
 			{
 				if (value != null)
 				{
-					userName = value.Substring(0, Math.Min(UNAMELEN, value.Length));
+					userName = value[0..Math.Min(UNAMELEN, value.Length)];
 				}
 				else
 				{
 					string currentUser = "user";
 					if (currentUser.Length > UNAMELEN)
 					{
-						currentUser = currentUser.Substring(0, UNAMELEN);
+						currentUser = currentUser[0..UNAMELEN];
 					}
 					userName = currentUser;
 				}
