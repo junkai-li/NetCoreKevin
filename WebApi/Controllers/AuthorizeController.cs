@@ -7,13 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Models.Dtos;
 using Repository.Database;
+using Service.Services.v1._;
 using System;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Web.Actions;
+using Web.Actions; 
 using WebApi.Controllers.Bases;
 
 namespace WebApi.Controllers
@@ -30,22 +31,31 @@ namespace WebApi.Controllers
     public class AuthorizeController : PubilcControllerBase
     {
 
-        public IConfiguration Configuration { get; set; }
-
-        public AuthorizeController(IConfiguration configuration)
+        public IUserService _IUserService { get; set; }
+        public AuthorizeController(IUserService iUserService)
         {
-            this.Configuration = configuration;
+            this._IUserService = iUserService;
         }
 
         /// <summary>
         /// GetErr
         /// </summary> 
         /// <returns></returns>
-        [HttpPost("GetErr")]
-        public string GetErr()
+        [HttpPost("GetDb")]
+        public string GetDb()
         {
-            int i = int.Parse("ABD");
-            return i.ToString();
+            db.TUser.Count();
+            return db.TUser.Count().ToString();
+
+        }
+        /// <summary>
+        /// GetId
+        /// </summary> 
+        /// <returns></returns>
+        [HttpGet("GetId")]
+        public int GetId()
+        {
+            return _IUserService.GetId();
 
         }
         ///// <summary>

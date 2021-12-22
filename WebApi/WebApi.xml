@@ -9,9 +9,15 @@
             系统访问授权模块
             </summary>
         </member>
-        <member name="M:WebApi.Controllers.AuthorizeController.GetErr">
+        <member name="M:WebApi.Controllers.AuthorizeController.GetDb">
             <summary>
             GetErr
+            </summary> 
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.AuthorizeController.GetId">
+            <summary>
+            GetId
             </summary> 
             <returns></returns>
         </member>
@@ -451,10 +457,6 @@
             <summary>
             创建时间
             </summary>
-        </member>
-        <member name="M:WebApi.Program.ConfigureContainer(Autofac.ContainerBuilder)">
-             Per Dependency Single Instance  Per Lifetime Scope
-            <param name="containerBuilder"></param>
         </member>
         <member name="M:AdminApi.Controllers.PermissionController.Reload">
             <summary>

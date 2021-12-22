@@ -1,13 +1,9 @@
 ﻿using Service.Services.v1._;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Web.Base;
 
 namespace Service.Services.v1
-{ 
-    public class UserService : IUserService
+{
+    public class UserService : BaseService,IUserService
     {
         public int GetId()
         {

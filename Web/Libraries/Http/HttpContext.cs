@@ -20,8 +20,10 @@ namespace Web.Libraries.Http
         public static Microsoft.AspNetCore.Http.HttpContext Current()
         {
             var httpContextAccessor = GlobalServices.ServiceProvider.GetService<IHttpContextAccessor>();
-
-            httpContextAccessor.HttpContext.Request.Body.Position = 0;
+            if (httpContextAccessor.HttpContext.Request.Body.Length>0)
+            {
+                httpContextAccessor.HttpContext.Request.Body.Position = 0; 
+            }
 
             return httpContextAccessor.HttpContext;
         }

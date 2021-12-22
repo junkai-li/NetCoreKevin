@@ -1,28 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Repository.Database;  
-using Models.Extension;
-using Web.Extension.Autofac;
+using Repository.Database;
+using Models.Extension; 
 using Web.Global.User;
 using Service.Services.v1;
-using Medallion.Threading;
+using Medallion.Threading; 
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace WebApi.Controllers.Bases
 {
-    public class PubilcControllerBase: ControllerBase
+    public class PubilcControllerBase : ControllerBase
     {
-        [Autowired]
-        public dbContext db { get; set; }
+        public readonly dbContext db = Web.Libraries.Http.HttpContext.Current().RequestServices.GetService<dbContext>();
 
-        [Autowired]
-        public ICurrentUser CurrentUser{ get; set; }
+        public readonly ICurrentUser CurrentUser = Web.Libraries.Http.HttpContext.Current().RequestServices.GetService<ICurrentUser>();
 
-        [Autowired]
-        public   IDistributedLockProvider distLock { get; set; }
+        public readonly IConfiguration Configuration = Web.Libraries.Http.HttpContext.Current().RequestServices.GetService<IConfiguration>();
+        public readonly IDistributedLockProvider distLock = Web.Libraries.Http.HttpContext.Current().RequestServices.GetService<IDistributedLockProvider>();
 
-        [Autowired]
-        public   IDistributedSemaphoreProvider distSemaphoreLock { get; set; }
+        public readonly IDistributedSemaphoreProvider distSemaphoreLock = Web.Libraries.Http.HttpContext.Current().RequestServices.GetService<IDistributedSemaphoreProvider>();
 
-        [Autowired]
-        public   IDistributedUpgradeableReaderWriterLockProvider distUpgradeableLock { get; set; }
+        public readonly IDistributedUpgradeableReaderWriterLockProvider distUpgradeableLock = Web.Libraries.Http.HttpContext.Current().RequestServices.GetService<IDistributedUpgradeableReaderWriterLockProvider>();
     }
 }

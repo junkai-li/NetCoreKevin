@@ -22,6 +22,11 @@ using Web.Libraries.Swagger;
 using Web.Permission.Action;
 using Medallion.Threading;
 using Medallion.Threading.SqlServer;
+using System.Reflection;
+using Web.Base._;
+using Microsoft.AspNetCore.Http;
+using Repository.Database;
+using Web.Global.User;
 
 namespace Web.Extension
 {
@@ -53,12 +58,41 @@ namespace Web.Extension
             });
             #endregion
 
+            #region 权限校验
 
             //权限校验
             services.AddAuthorization(options =>
             {
                 options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().RequireAssertion(context => IdentityVerification.Authorization(context)).Build();
             });
+            #endregion
+
+            #region 注册常用 
+
+            //注册跨域信息
+            services.AddCors(option =>
+            {
+                option.AddPolicy("cors", policy =>
+                {
+                    policy.SetIsOriginAllowed(origin => true)
+                       .AllowAnyHeader()
+                       .AllowAnyMethod()
+                       .AllowCredentials();
+                });
+            });
+            //注册全局过滤器
+            services.AddMvc(config =>
+            {
+                config.Filters.Add(new GlobalFilter());
+            });
+            //注册配置文件信息
+            Web.Libraries.Start.StartConfiguration.Add(Configuration);
+
+            //注册HttpContext
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            //注册雪花ID算法示例
+            services.AddSingleton(new Common.SnowflakeHelper(0, 0));
+            #endregion
 
             services.AddControllers();
 
@@ -104,23 +138,6 @@ namespace Web.Extension
 
             #endregion 
 
-            //注册全局过滤器
-            services.AddMvc(config => {
-                config.Filters.Add(new GlobalFilter()); 
-            });
-
-            //注册跨域信息
-            services.AddCors(option =>
-            {
-                option.AddPolicy("cors", policy =>
-                {
-                    policy.SetIsOriginAllowed(origin => true)
-                       .AllowAnyHeader()
-                       .AllowAnyMethod()
-                       .AllowCredentials();
-                });
-            });
-
 
             services.AddControllers().AddJsonOptions(option =>
             {
@@ -131,9 +148,7 @@ namespace Web.Extension
 
             services.AddControllers().AddControllersAsServices(); //控制器当做实例创建
 
-            //注册配置文件信息
-            Web.Libraries.Start.StartConfiguration.Add(Configuration);
-
+           
             #region Api版本以及配置
             services.AddApiVersioning(options =>
             {
@@ -183,9 +198,7 @@ namespace Web.Extension
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerConfigureOptions>();
             #endregion
 
-            //注册雪花ID算法示例
-            services.AddSingleton(new Common.SnowflakeHelper(0, 0));
-
+         
             #region 缓存服务模式
             //注册缓存服务 内存模式
             services.AddDistributedMemoryCache();
@@ -213,6 +226,9 @@ namespace Web.Extension
             services.AddSingleton<IDistributedSemaphoreProvider>(new SqlDistributedSynchronizationProvider(Configuration.GetConnectionString("dbConnection")));
             services.AddSingleton<IDistributedUpgradeableReaderWriterLockProvider>(new SqlDistributedSynchronizationProvider(Configuration.GetConnectionString("dbConnection")));
             #endregion
+
+            //App服务注册
+            RegisterAppServices(services, Configuration);
             return services;
         }
 
@@ -226,7 +242,7 @@ namespace Web.Extension
         {
             /////json压缩
             app.UseResponseCompression();
-            app.UseHsts(); 
+            app.UseHsts();
             //注册跨域信息
             app.UseCors("cors");
             //强制重定向到Https
@@ -252,6 +268,80 @@ namespace Web.Extension
 
             GlobalServices.ServiceProvider = app.ApplicationServices;
             return app;
+        }
+
+        /// <summary>
+        /// App服务注册
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="assembly"></param>
+        /// <returns></returns>
+        public static void RegisterAppServices(this IServiceCollection services, IConfiguration Configuration)
+        {
+            //AddSingleton→AddTransient→AddScoped
+
+            //AddSingleton的生命周期：
+
+            //项目启动 - 项目关闭   相当于静态类 只会有一个
+
+            //AddScoped的生命周期：
+
+            //请求开始 - 请求结束  在这次请求中获取的对象都是同一个
+
+            //  AddTransient的生命周期：
+
+            //请求获取 -（GC回收 - 主动释放） 每一次获取的对象都不是同一个
+            #region 基本服务
+            //为各数据库注入连接字符串
+            Repository.Database.dbContext.ConnectionString =Configuration.GetConnectionString("dbConnection");
+            services.AddDbContextPool<Repository.Database.dbContext>(options => { }, 100);
+            services.AddScoped<dbContext, dbContext>();
+            services.AddScoped<ICurrentUser, CurrentUser>();
+            #endregion
+
+            #region App业务服务
+            Type typeOf_IService = typeof(IBaseService); 
+            Assembly ser = Assembly.Load("Service");
+            var sers = ser.GetTypes().Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && typeOf_IService.IsAssignableFrom(a));
+
+            foreach (var serviceType in sers)
+            {
+
+                var implementedInterfaces = serviceType.GetInterfaces().Where(a => a != typeof(IDisposable) && a != typeOf_IService);
+                foreach (Type implementedInterface in implementedInterfaces)
+                {
+                    services.AddScoped(implementedInterface, sp => sp.GetServiceOrCreateInstance(serviceType));
+                }
+                GlobalServices.AddIService(serviceType);
+                if (!serviceType.IsGenericType)
+                {
+                    services.AddScoped(serviceType, serviceType);
+                }
+            }
+            Assembly[] Assemblys = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (var item in Assemblys)
+            {
+                var serviceTypes = item.GetTypes().Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && typeOf_IService.IsAssignableFrom(a));
+                foreach (var serviceType in serviceTypes)
+                {
+
+                    var implementedInterfaces = serviceType.GetInterfaces().Where(a => a != typeof(IDisposable) && a != typeOf_IService);
+                    foreach (Type implementedInterface in implementedInterfaces)
+                    {
+                        services.AddScoped(implementedInterface, sp => sp.GetServiceOrCreateInstance(serviceType));
+                    }
+                    GlobalServices.AddIService(serviceType);
+                    if (!serviceType.IsGenericType)
+                    {
+                        services.AddScoped(serviceType, serviceType);
+                    }
+                }
+            }
+            #endregion
+
+
+
+            Console.WriteLine("App服务注册完成");
         }
     }
 }

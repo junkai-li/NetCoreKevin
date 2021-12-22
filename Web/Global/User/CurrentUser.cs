@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Web.Extension.Autofac;
+using System.Threading.Tasks; 
 
 namespace Web.Global.User
 { 
