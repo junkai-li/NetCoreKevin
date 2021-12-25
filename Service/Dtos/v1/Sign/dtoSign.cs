@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WebApi.Models.v1.Sign
+namespace Service.Dtos.v1.Sign
 {
 
     /// <summary>

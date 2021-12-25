@@ -15,11 +15,10 @@ using Microsoft.AspNetCore.Authorization;
 namespace AdminApi.Controllers
 {
     [Route("api/[controller]")]
-    [MyArea("系统管理", "System")]
-    [ApiController]
+    [MyArea("系统管理", "System")] 
     [ActionDescription("权限管理")]
     [Authorize]
-    public class PermissionController : PubilcControllerBase
+    public class PermissionController : ApiControllerBase
     {
         /// <summary>
         /// 初始化权限

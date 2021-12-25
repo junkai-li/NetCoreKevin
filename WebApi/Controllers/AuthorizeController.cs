@@ -25,10 +25,9 @@ namespace WebApi.Controllers
     /// 系统访问授权模块
     /// </summary>
     [ApiVersionNeutral]
-    [Route("api/[controller]")]
-    [ApiController]
+    [Route("api/[controller]")] 
     [AllowAnonymous]
-    public class AuthorizeController : PubilcControllerBase
+    public class AuthorizeController : ApiControllerBase
     {
 
         public IUserService _IUserService { get; set; }
@@ -47,17 +46,8 @@ namespace WebApi.Controllers
             db.TUser.Count();
             return db.TUser.Count().ToString();
 
-        }
-        /// <summary>
-        /// GetId
-        /// </summary> 
-        /// <returns></returns>
-        [HttpGet("GetId")]
-        public int GetId()
-        {
-            return _IUserService.GetId();
+        } 
 
-        }
         ///// <summary>
         ///// 获取Token认证信息
         ///// </summary>
@@ -101,6 +91,7 @@ namespace WebApi.Controllers
         //    }
 
         //}
+
         ///// <summary>
         ///// 获取Token认证信息
         ///// </summary>
@@ -135,9 +126,7 @@ namespace WebApi.Controllers
             RedisHelper.StrSet(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
             return tokenResponse.AccessToken;
         }
-
-
-
+         
         /// <summary>
         /// 通过微信小程序Code获取Token认证信息
         /// </summary>
@@ -243,9 +232,7 @@ namespace WebApi.Controllers
             RedisHelper.StrSet(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
             return tokenResponse.AccessToken; 
         }
-
-
-
+         
 
         /// <summary>
         /// 利用手机号和短信验证码获取Token认证信息
@@ -294,8 +281,7 @@ namespace WebApi.Controllers
 
         }
 
-
-
+         
 
         /// <summary>
         /// 发送短信验证手机号码所有权
@@ -343,8 +329,7 @@ namespace WebApi.Controllers
 
         }
 
-
-
+         
         /// <summary>
         /// 通过微信APP Code获取Token认证信息
         /// </summary>
@@ -403,8 +388,6 @@ namespace WebApi.Controllers
             return await GetToken(new dtoLogin { Name = user.Name, PassWord = user.PassWord });
 
         }
-
-
-
+         
     }
 }

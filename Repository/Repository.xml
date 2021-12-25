@@ -40,6 +40,11 @@
             </summary>
             <remarks>通用的RowVersion</remarks>
         </member>
+        <member name="P:Repository.Bases.CD.TenantId">
+            <summary>
+            租户ID;
+            </summary> 
+        </member>
         <member name="T:Repository.Bases.CUD">
             <summary>
             创建，编辑，删除

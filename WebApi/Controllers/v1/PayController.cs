@@ -21,10 +21,9 @@ namespace WebApi.Controllers.v1
     /// 第三方支付发起集合，依赖于订单号
     /// </summary>
     [ApiVersion("1")]
-    [Route("api/[controller]")]
-    [ApiController]
+    [Route("api/[controller]")] 
     [Authorize]
-    public class PayController : PubilcControllerBase
+    public class PayController : ApiControllerBase
     { 
 
 

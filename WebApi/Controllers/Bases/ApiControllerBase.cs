@@ -9,7 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace WebApi.Controllers.Bases
 {
-    public class PubilcControllerBase : ControllerBase
+    [ApiController]
+    public class ApiControllerBase : ControllerBase
     {
         public readonly dbContext db = Web.Libraries.Http.HttpContext.Current().RequestServices.GetService<dbContext>();
 

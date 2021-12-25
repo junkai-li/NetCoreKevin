@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace WebApi.Models.v1.User
+namespace Service.Dtos.v1.User
 {
     public class dtoUser
     {

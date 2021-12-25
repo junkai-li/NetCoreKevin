@@ -28,10 +28,9 @@ namespace WebApi.Controllers
     /// </summary>
     [ApiVersionNeutral]
     [Authorize]
-    [Route("api/[controller]")]
-    [ApiController]
+    [Route("api/[controller]")] 
     [SkipAuthority]
-    public class FileController : PubilcControllerBase
+    public class FileController : ApiControllerBase
     {  
 
         /// <summary>

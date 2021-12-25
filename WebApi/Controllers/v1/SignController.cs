@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repository.Database;
-using System;
+using Service.Dtos.v1.Sign;
+using Service.Services.v1._;
 using System.Linq;
 using WebApi.Controllers.Bases;
-using Web.Filters;
-using WebApi.Models.v1.Sign;
 
 namespace WebApi.Controllers.v1
 {
@@ -15,9 +14,16 @@ namespace WebApi.Controllers.v1
     /// </summary>
     [ApiVersion("1")]
     [Route("api/[controller]")]
-    [Authorize] 
-    public class SignController : PubilcControllerBase
-    {  
+    [Authorize]
+    [AllowAnonymous]
+    public class SignController : ApiControllerBase
+    {
+        private ISignService _signService { get; set; }
+
+        public SignController(ISignService signService)
+        {
+            this._signService = signService;
+        }
 
         /// <summary>
         /// 获取标记总数
@@ -29,10 +35,7 @@ namespace WebApi.Controllers.v1
         [HttpGet("GetSignCount")]
         public int GetSignCount(string table, Guid tableId, string sign)
         {
-
-            var count = db.TSign.Where(t => t.IsDelete == false && t.Table == table && t.TableId == tableId && t.Sign == sign).Count();
-
-            return count;
+            return _signService.GetSignCount(table, tableId, sign);
         }
 
 
@@ -44,23 +47,7 @@ namespace WebApi.Controllers.v1
         [HttpPost("AddSign")]
         public bool AddSign([FromBody] dtoSign addSign)
         {
-            var userId = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userId"));
-
-
-            var like = new TSign();
-            like.Id = Guid.NewGuid();
-            like.IsDelete = false;
-            like.CreateTime = DateTime.Now;
-            like.CreateUserId = userId;
-
-            like.Table = addSign.Table;
-            like.TableId = addSign.TableId;
-            like.Sign = addSign.Sign;
-
-            db.TSign.Add(like);
-            db.SaveChanges();
-
-            return true;
+            return _signService.AddSign(addSign);
         }
 
 
@@ -73,18 +60,7 @@ namespace WebApi.Controllers.v1
         [HttpDelete("DeleteSign")]
         public bool DeleteSign(dtoSign deleteSign)
         {
-            var userId = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userId"));
-
-
-            var like = db.TSign.Where(t => t.IsDelete == false && t.CreateUserId == userId && t.Table == deleteSign.Table && t.TableId == deleteSign.TableId && t.Sign == deleteSign.Sign).FirstOrDefault();
-
-            if (like != null)
-            {
-                like.IsDelete = true;
-                like.DeleteTime = DateTime.Now;
-                db.SaveChanges();
-            }
-            return true;
+            return _signService.DeleteSign(deleteSign); 
         }
 
     }

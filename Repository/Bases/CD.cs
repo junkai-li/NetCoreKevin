@@ -66,6 +66,10 @@ namespace Repository.Bases
         //public byte[] RowVersion { get; set; }
 
 
+        /// <summary>
+        /// 租户ID;
+        /// </summary> 
+        public   string TenantId { get; set; }
 
     }
 }

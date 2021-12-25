@@ -119,6 +119,52 @@
             密码
             </summary>
         </member>
+        <member name="T:Models.Dtos.dtoPageData`1">
+            <summary>
+            分页dto
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:Models.Dtos.dtoPageData`1.whereId">
+            <summary>
+            条件Id
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoPageData`1.searchKey">
+            <summary>
+            条件Key
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoPageData`1.state">
+            <summary>
+            状态
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoPageData`1.sign">
+            <summary>
+            标识
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoPageData`1.pageSize">
+            <summary>
+            分页大小
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoPageData`1.pageNum">
+            <summary>
+            分页页数
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoPageData`1.total">
+            <summary>
+            数据总量
+            </summary>
+        </member>
+        <member name="P:Models.Dtos.dtoPageData`1.data">
+            <summary>
+            具体数据内容
+            </summary>
+        </member>
         <member name="T:Models.Dtos.dtoPageList`1">
             <summary>
             分页数据信息基类

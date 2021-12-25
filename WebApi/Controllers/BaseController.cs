@@ -16,10 +16,9 @@ namespace WebApi.Controllers
     /// 系统基础方法控制器
     /// </summary>
     [ApiVersionNeutral]
-    [Route("api/[controller]")]
-    [ApiController]
+    [Route("api/[controller]")] 
     [AllowAnonymous]
-    public class BaseController : PubilcControllerBase
+    public class BaseController : ApiControllerBase
     {  
 
 

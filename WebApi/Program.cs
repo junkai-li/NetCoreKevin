@@ -1,4 +1,11 @@
 ﻿
+
+#region 全局引用
+
+global using System;
+
+#endregion
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,8 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using NLog.Web;
-using System;
+using NLog.Web; 
 using System.IO;
 using System.Net.Http;
 using System.Text.Encodings.Web;
