@@ -132,8 +132,10 @@ namespace AuthorizationService
         /// <returns></returns>
         private Task CacheUserListAsync(userDto user)
         {
-            RedisHelper.HashSet("CacheUserList", user.Name, JsonHelper.ObjectToJSON(user));
-            return Task.CompletedTask;
+            return Task.Run(() =>
+            { 
+                RedisHelper.HashSet("CacheUserList", user.Name, JsonHelper.ObjectToJSON(user));
+            }); 
         }
 
         private Claim[] GetUserClaims(uMClientUserDto user)
@@ -152,8 +154,10 @@ namespace AuthorizationService
         /// <returns></returns>
         private   Task CacheUserListAsync(uMClientUserDto user)
         {
-            RedisHelper.HashSet("CacheClientUserList", user.Id, JsonHelper.ObjectToJSON(user));
-            return Task.CompletedTask;
+            return Task.Run(() =>
+            {
+                RedisHelper.HashSet("CacheClientUserList", user.Id, JsonHelper.ObjectToJSON(user));
+            }); 
         }
     }
 }
