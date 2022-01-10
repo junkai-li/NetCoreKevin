@@ -527,5 +527,24 @@ namespace Common
             }
             return name;
         }
+
+        /// <summary>
+        /// 获取有效的字符串数组，例如"abc '123'"中获取'123',abc <%123%> 种获取 <%123%> GetEffectiveStringWithSign(condValue, "<%,%>");
+        /// </summary>
+        /// <param name="sourceStr"></param>
+        /// <param name="containSign">前后标识符不一样的用逗号分隔,一样就只用一个字符</param>
+        /// <returns></returns>
+        public static List<string> GetEffectiveStringWithSign(string sourceStr, string containSign)
+        {
+            List<string> returnStrs = new List<string>();
+            string startc = containSign.Split(',')[0];
+            string endc = containSign.Split(',').Length > 0 ? containSign.Split(',')[1] : startc;
+            Regex rxx = new Regex(startc + ".*?" + endc, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            MatchCollection match = rxx.Matches(sourceStr);
+
+            for (int i = 0; i < match.Count; i++)
+                returnStrs.Add(match[i].ToString());
+            return returnStrs;
+        }
     }
 }
