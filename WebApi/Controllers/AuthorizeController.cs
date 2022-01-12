@@ -111,9 +111,9 @@ namespace WebApi.Controllers
             var tokenResponse = await clinet.RequestPasswordTokenAsync(new PasswordTokenRequest
             {
                 Address = disco.TokenEndpoint,
-                ClientId = "UserClient",
-                ClientSecret = "UserClientSecrets",
-                Scope = "WebApi offline_access profile openid",
+                ClientId = Configuration["IdentityServerInfo:ClientId"],
+                ClientSecret = Configuration["IdentityServerInfo:ClientSecret"],
+                Scope = Configuration["IdentityServerInfo:Scope"],
                 UserName = login.Name,
                 Password = login.PassWord,
             });
@@ -217,9 +217,9 @@ namespace WebApi.Controllers
             var tokenResponse = await clinet.RequestPasswordTokenAsync(new PasswordTokenRequest
             {
                 Address = disco.TokenEndpoint,
-                ClientId = "UMUserClient",
-                ClientSecret = "UMUserClientSecrets",
-                Scope = "WebApi offline_access profile openid",
+                ClientId = Configuration["UMIdentityServerInfo:ClientId"],
+                ClientSecret = Configuration["UMIdentityServerInfo:ClientSecret"],
+                Scope = Configuration["UMIdentityServerInfo:Scope"],
                 UserName = user.Id.ToString(),
                 Password = user.Id.ToString(),
             });
