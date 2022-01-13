@@ -110,12 +110,7 @@ namespace WebApi.Controllers
                 }
 
             }
-
-            HttpContext.Response.StatusCode = 400;
-
-            HttpContext.Items.Add("errMsg", "文件上传失败！");
-
-            return default;
+            throw new UserFriendlyException("文件上传失败！"); 
         }
 
 
@@ -200,11 +195,7 @@ namespace WebApi.Controllers
             }
             else
             {
-                HttpContext.Response.StatusCode = 400;
-
-                HttpContext.Items.Add("errMsg", "文件上传失败！");
-
-                return default;
+                throw new UserFriendlyException("文件上传失败！");  
             }
         }
 
@@ -366,11 +357,7 @@ namespace WebApi.Controllers
             }
             else
             {
-                HttpContext.Response.StatusCode = 400;
-
-                HttpContext.Items.Add("errMsg", "通过指定的文件ID未找到任何文件！");
-
-                return null;
+                throw new UserFriendlyException("通过指定的文件ID未找到任何文件");   
             }
 
         }

@@ -24,11 +24,11 @@ namespace Web.Actions
             {
                 ret = new
                 {
-                    code = StatusCodes.Status200OK,
+                    code = StatusCodes.Status400BadRequest,
                     IsSuccess = false,
                     errMsg = error.InnerException == null ? error.Message : error.InnerException.Message
                 };
-                context.Response.StatusCode = StatusCodes.Status200OK;
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
             }
             else
             {
