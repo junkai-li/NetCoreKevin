@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Web.Actions;
+using Web.Global.Exceptions;
 
 namespace Service.Services.v1
 {
@@ -53,15 +54,13 @@ namespace Service.Services.v1
                     }
                     else
                     {
-                        ResponseErrAction.ExceptionMessage("User.EditUserPhoneBySms.'The target mobile number has been bound by another account");
-                        return false;
+                        throw new UserFriendlyException("User.EditUserPhoneBySms.'The target mobile number has been bound by another account"); 
                     }
                 }
             }
             else
             {
-                ResponseErrAction.ExceptionMessage("User.EditUserPhoneBySms.'Error in SMS verification code'");
-                return false;
+                throw new UserFriendlyException("User.EditUserPhoneBySms.'Error in SMS verification code'");  
             }
         }
 
@@ -146,14 +145,12 @@ namespace Service.Services.v1
                 }
                 else
                 {
-                    ResponseErrAction.ExceptionMessage("User.EditUserPassWordBySms.'New password is not allowed to be empty'");
-                    return false;
+                    throw new UserFriendlyException("User.EditUserPassWordBySms.'New password is not allowed to be empty'");  
                 }
             }
             else
             {
-                ResponseErrAction.ExceptionMessage("User.EditUserPassWordBySms.'Error in SMS verification code''");
-                return false;
+                throw new UserFriendlyException("User.EditUserPassWordBySms.'Error in SMS verification code''");  
             }
 
         }
@@ -270,15 +267,14 @@ namespace Service.Services.v1
                         //验证手机号唯一不允许添加
                         if (UserPh != null && data.Id != UserPh.Id)
                         {
-                            ResponseErrAction.ExceptionMessage("手机号码已存在");
+                            throw new UserFriendlyException("手机号码已存在"); 
                             return false;
                         }
                         var UserName = db.TUser.Where(t => t.Name == user.Name && t.IsDelete == false && t.Role.Name != "user").FirstOrDefault();
                         //验证姓名唯一不允许添加
                         if (UserName != null && data.Id != UserName.Id)
                         {
-                            ResponseErrAction.ExceptionMessage("人员姓名已存在");
-                            return false;
+                            throw new UserFriendlyException("人员姓名已存在");  
                         }
                         TUser olddata = new();
                         Common.PropertyHelper.Assignment<TUser>(olddata, data);
@@ -295,16 +291,14 @@ namespace Service.Services.v1
 
                         //验证手机号唯一不允许添加
                         if (UserPh != null)
-                        {
-                            ResponseErrAction.ExceptionMessage("手机号码已存在");
-                            return false;
+                        { 
+                            throw new UserFriendlyException("手机号码已存在"); 
                         }
                         var UserName = db.TUser.Where(t => t.Name == user.Name && t.IsDelete == false && t.Role.Name != "user").FirstOrDefault();
                         //验证姓名唯一不允许添加
                         if (UserName != null)
-                        {
-                            ResponseErrAction.ExceptionMessage("人员姓名已存在");
-                            return false;
+                        { 
+                            throw new UserFriendlyException("人员姓名已存在"); 
                         }
 
                         data = new TUser();
@@ -462,8 +456,7 @@ namespace Service.Services.v1
                 var tokenuser = db.TUser.Where(x => x.IsDelete == false && x.Id == CurrentUser.UserId).FirstOrDefault();
                 if (users.Count > 0)
                 {
-                    ResponseErrAction.ExceptionMessage("当前角色含有 未失效用户删除失败");
-                    return false;
+                    throw new UserFriendlyException("当前角色含有 未失效用户删除失败"); 
                 }
                 var data = db.TRole.Where(x => x.Id == Id && x.IsDelete == false).FirstOrDefault();
                 //删除

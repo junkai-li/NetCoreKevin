@@ -3,7 +3,7 @@
 #region 全局引用
 
 global using System;
-
+global using Web.Global.Exceptions;
 #endregion
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -26,6 +26,7 @@ using TencentService;
 using TencentService._;
 using Web.Extension;
 using Web.Filters;
+using Web.Global;
 using Web.Libraries.Swagger;
 using Web.Subscribes;
 namespace WebApi
@@ -203,6 +204,7 @@ namespace WebApi
                 //开启倒带模式运行多次读取HttpContext.Body中的内容 
                 app.Use(async (context, next) =>
                 {
+                    GlobalServices.Set(context.Request.HttpContext.RequestServices);
                     context.Request.EnableBuffering();
                     await next.Invoke();
                 });

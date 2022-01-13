@@ -71,8 +71,8 @@ namespace AdminApi.Controllers
         public TPermission GetDetails(string Id)
         { 
                 var entity = db.Set<TPermission>().Where(t => t.Id == Id).FirstOrDefault();
-                if (entity != null) return entity;
-                else ResponseErrAction.ExceptionMessage("权限不存在"); return default; 
+            if (entity != null) return entity;
+            else throw new UserFriendlyException("权限不存在");
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace AdminApi.Controllers
                 if (entity == null) return false;
                 if (entity.IsManual.HasValue != true)
                 {
-                    ResponseErrAction.ExceptionMessage("系统权限不能删除"); return default;
+                    throw new UserFriendlyException("系统权限不能删除");    
                 }
                 db.RemoveRange(entity);
                 int res = db.SaveChanges();
@@ -117,7 +117,7 @@ namespace AdminApi.Controllers
                     var data = db.Set<TPermission>().Where(t => t.Id == entity.Id).FirstOrDefault();
                     if (data.IsManual.HasValue != true)
                     {
-                        ResponseErrAction.ExceptionMessage("系统权限不能操作"); return default;
+                        throw new UserFriendlyException("系统权限不能操作"); 
                     }
                     data.UpdatedTime = DateTime.Now;
                     data.UpdateUserId = CurrentUser.UserId;

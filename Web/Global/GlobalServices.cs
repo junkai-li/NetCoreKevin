@@ -42,5 +42,15 @@ namespace Web.Global
         {
             return _allRepositroies.FirstOrDefault(r => find(r))?.GetType();
         }
+        /// <summary>
+        /// Set provider at the end of module registing
+        /// 设置Provider用于查找容器中的服务，在模块注册的结束事件时会赋值。
+        /// </summary>
+        /// <param name="provider"></param>
+        public static void Set(IServiceProvider provider)
+        {
+           
+            ServiceProvider = provider;
+        }
     }
 }

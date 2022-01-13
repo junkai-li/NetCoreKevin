@@ -4,9 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Models.Dtos;
-using Repository.Database;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using WebApi.Controllers.Bases;
 
@@ -16,10 +14,10 @@ namespace WebApi.Controllers
     /// 系统基础方法控制器
     /// </summary>
     [ApiVersionNeutral]
-    [Route("api/[controller]")] 
+    [Route("api/[controller]")]
     [AllowAnonymous]
     public class BaseController : ApiControllerBase
-    {  
+    {
 
 
         /// <summary>
@@ -136,7 +134,7 @@ namespace WebApi.Controllers
         [HttpGet("DistLock")]
         public bool DistLock()
         {
-            
+
             //互斥锁
             using (distLock.AcquireLock(""))
             {
@@ -167,6 +165,17 @@ namespace WebApi.Controllers
             }
 
             return true;
+        }
+
+        /// <summary>
+        ///测试提醒异常
+        /// </summary>
+        /// <param name="str"></param>
+        /// <exception cref="UserFriendlyException"></exception>
+        [HttpGet("TestErrMsg")]
+        public void TestErrMsg(string str)
+        {
+            throw new UserFriendlyException(str);
         }
     }
 }

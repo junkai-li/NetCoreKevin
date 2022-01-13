@@ -104,8 +104,7 @@ namespace WebApi.Controllers
             var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["IdentityServerUrl"]);
             if (disco.IsError)
             {
-                ResponseErrAction.ExceptionMessage("登录异常");
-                return default;
+                throw new UserFriendlyException("登录异常");  
             }
 
             var tokenResponse = await clinet.RequestPasswordTokenAsync(new PasswordTokenRequest
@@ -119,8 +118,7 @@ namespace WebApi.Controllers
             });
             if (tokenResponse.IsError)
             {
-                ResponseErrAction.ExceptionMessage(tokenResponse.ErrorDescription);
-                return default;
+                throw new UserFriendlyException(tokenResponse.ErrorDescription); 
             }
             //保存刷新令牌
             RedisHelper.StrSet(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
@@ -210,8 +208,7 @@ namespace WebApi.Controllers
             var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["IdentityServerUrl"]);
             if (disco.IsError)
             {
-                ResponseErrAction.ExceptionMessage("登录异常");
-                return default;
+                throw new UserFriendlyException("登录异常");  
             }
 
             var tokenResponse = await clinet.RequestPasswordTokenAsync(new PasswordTokenRequest
@@ -225,8 +222,7 @@ namespace WebApi.Controllers
             });
             if (tokenResponse.IsError)
             {
-                ResponseErrAction.ExceptionMessage(tokenResponse.ErrorDescription);
-                return default;
+                throw new UserFriendlyException(tokenResponse.ErrorDescription);  
             }
             //保存刷新令牌
             RedisHelper.StrSet(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
