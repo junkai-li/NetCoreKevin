@@ -83,7 +83,7 @@ namespace Web.Extension
             //注册全局过滤器
             services.AddMvc(config =>
             {
-                config.Filters.Add(new GlobalFilter());
+                config.Filters.Add(new ResultFilter());
             });
             //注册配置文件信息
             Web.Libraries.Start.StartConfiguration.Add(Configuration);

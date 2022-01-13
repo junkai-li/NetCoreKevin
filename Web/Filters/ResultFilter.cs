@@ -11,40 +11,8 @@ namespace Web.Filters
     /// <summary>
     /// 全局过滤器
     /// </summary>
-    public class GlobalFilter : Attribute, IActionFilter
-    {
-
-        void IActionFilter.OnActionExecuting(ActionExecutingContext context)
-        {
-
-        }
-
-
-        void IActionFilter.OnActionExecuted(ActionExecutedContext context)
-        {
-            var Result = context.Result as ObjectResult; 
-            //格式化返回值
-            resultFormatting(Result);  
-            switch (context.HttpContext.Response.StatusCode)
-            {
-                case StatusCodes.Status400BadRequest:
-                    string errMsg = context.HttpContext.Items["errMsg"].ToString();
-                    context.Result = new JsonResult(new { code = StatusCodes.Status400BadRequest, IsSuccess = false, msg = "errmsg", errMsg = errMsg });
-                    break;
-                case StatusCodes.Status401Unauthorized:
-                    context.Result = new JsonResult(new { code = StatusCodes.Status401Unauthorized, IsSuccess = false, msg = "errmsg", errMsg = "未授权" });
-                    break;
-                case StatusCodes.Status500InternalServerError:
-                    context.Result = new JsonResult(new { code = StatusCodes.Status500InternalServerError, IsSuccess = false, msg = "errmsg", errMsg = "系统内部异常" });
-                    break;
-                default:
-                    context.Result = new JsonResult(new { code = StatusCodes.Status200OK, msg = "success", IsSuccess = true, data = context.Result != null ? Result.Value : null });
-                    break;
-            } 
-        }
-
-
-
+    public class ResultFilter : Attribute, IResultFilter
+    { 
         /// <summary>
         /// 返回对象格式化方法
         /// </summary>
@@ -139,6 +107,38 @@ namespace Web.Filters
 
             }
 
+        }
+
+        public void OnResultExecuting(ResultExecutingContext context)
+        {
+            var Result = context.Result as ObjectResult;
+            //判断是否流文件
+            if (context.Result == null || context.Result.GetType() != typeof(FileStreamResult))
+            {
+                //格式化返回值
+                resultFormatting(Result);
+                switch (context.HttpContext.Response.StatusCode)
+                {
+                    case StatusCodes.Status400BadRequest:
+                        string errMsg = context.HttpContext.Items["errMsg"].ToString();
+                        context.Result = new JsonResult(new { code = StatusCodes.Status400BadRequest, IsSuccess = false, msg = "errmsg", errMsg = errMsg });
+                        break;
+                    case StatusCodes.Status401Unauthorized:
+                        context.Result = new JsonResult(new { code = StatusCodes.Status401Unauthorized, IsSuccess = false, msg = "errmsg", errMsg = "未授权" });
+                        break;
+                    case StatusCodes.Status500InternalServerError:
+                        context.Result = new JsonResult(new { code = StatusCodes.Status500InternalServerError, IsSuccess = false, msg = "errmsg", errMsg = "系统内部异常" });
+                        break;
+                    default:
+                        context.Result = new JsonResult(new { code = StatusCodes.Status200OK, msg = "success", IsSuccess = true, data = context.Result != null ? Result.Value : null });
+                        break;
+                }
+            }
+        }
+
+        public void OnResultExecuted(ResultExecutedContext context)
+        {
+            
         }
     }
 }
