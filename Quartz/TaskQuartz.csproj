@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="QuartzSettings\logs\" />
     <Folder Include="Views\TaskBackGround\" />
     <Folder Include="wwwroot\images\example\" />
   </ItemGroup>
