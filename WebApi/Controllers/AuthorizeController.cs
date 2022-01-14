@@ -46,51 +46,7 @@ namespace WebApi.Controllers
             db.TUser.Count();
             return db.TUser.Count().ToString();
 
-        } 
-
-        ///// <summary>
-        ///// 获取Token认证信息
-        ///// </summary>
-        ///// <param name="login">登录信息集合</param>
-        ///// <returns></returns>
-        //[HttpPost("GetToken")]
-        //public string GetToken([FromBody] dtoLogin login)
-        //{
-
-
-        //    var user = db.TUser.Where(t => (t.Name == login.Name || t.Phone == login.Name || t.Email == login.Name) && t.PassWord == login.PassWord).FirstOrDefault();
-
-        //    if (user != null)
-        //    {
-        //        TUserToken userToken = new TUserToken();
-        //        userToken.Id = Guid.NewGuid();
-        //        userToken.UserId = user.Id;
-        //        userToken.CreateTime = DateTime.Now;
-
-        //        db.TUserToken.Add(userToken);
-        //        db.SaveChanges();
-
-        //        var claim = new Claim[]{
-        //                new Claim("tokenId",userToken.Id.ToString()),
-        //                     new Claim("userId",user.Id.ToString())
-        //                };
-
-
-        //        var ret = Web.Libraries.Verify.JwtToken.GetToken(claim);
-
-        //        return ret;
-        //    }
-        //    else
-        //    {
-
-        //        HttpContext.Response.StatusCode = 400;
-
-        //        HttpContext.Items.Add("errMsg", "Authorize.GetToken.'Wrong user name or password'");
-
-        //        return "";
-        //    }
-
-        //}
+        }  
 
         ///// <summary>
         ///// 获取Token认证信息
@@ -101,7 +57,7 @@ namespace WebApi.Controllers
         public async Task<string> GetToken([FromBody] dtoLogin login)
         {
             var clinet = new HttpClient();
-            var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["IdentityServerUrl"]);
+            var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["JwtOptions:Authority"]);
             if (disco.IsError)
             {
                 throw new UserFriendlyException("登录异常");  
@@ -205,7 +161,7 @@ namespace WebApi.Controllers
 
             }
             var clinet = new HttpClient();
-            var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["IdentityServerUrl"]);
+            var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["JwtOptions:Authority"]);
             if (disco.IsError)
             {
                 throw new UserFriendlyException("登录异常");  
@@ -268,11 +224,7 @@ namespace WebApi.Controllers
             }
             else
             {
-                HttpContext.Response.StatusCode = 400;
-
-                HttpContext.Items.Add("errMsg", "Authorize.GetTokenBySms.'New password is not allowed to be empty'");
-
-                return "";
+                throw new UserFriendlyException("Authorize.GetTokenBySms.'New password is not allowed to be empty");  
             }
 
         }

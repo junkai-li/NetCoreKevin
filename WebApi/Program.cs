@@ -159,8 +159,8 @@ namespace WebApi
                     o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 }).AddJwtBearer("Bearer", o =>
                 {
-                    o.Audience = "WebApi";
-                    o.Authority = builder.Configuration["IdentityServerUrl"];
+                    o.Audience = builder.Configuration["JwtOptions:Audience"];
+                    o.Authority = builder.Configuration["JwtOptions:Authority"];
                     o.RequireHttpsMetadata = false;
                     o.TokenValidationParameters.RequireExpirationTime = true;
                     o.TokenValidationParameters.ValidateAudience = false;
