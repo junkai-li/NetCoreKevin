@@ -9,11 +9,11 @@ namespace Common.AliYun
 {
     public class OssHelper
     {
-       readonly string endpoint = IO.Config.Get()["OSSEndpoint"];
-        readonly string accessKeyId = "LTAI5tHQLqZKydSGcdDs6wEv";
-        readonly string accessKeySecret = "cxya5ufzpPCzZ3FjMYiFk5ulqo2njC";
-        readonly string bucketName = "qingxianshopsys";
-        readonly public static string url = "https://qingxianshopsys.oss-cn-shanghai.aliyuncs.com";
+        static string endpoint = IO.Config.Get()["OssInfo:OSSEndpoint"];
+        static string accessKeyId = IO.Config.Get()["OssInfo:AccessKeyId"];
+        static string accessKeySecret = IO.Config.Get()["OssInfo:AccessKeySecret"];
+        static string bucketName = IO.Config.Get()["OssInfo:BucketName"];
+        readonly public static string url = IO.Config.Get()["OssInfo:Url"];
         public OssHelper()
         {
 
@@ -337,7 +337,7 @@ namespace Common.AliYun
 
                 return false;
             }
-        } 
+        }
         /// <summary>
         /// 输出OSS的文件流
         /// </summary>
