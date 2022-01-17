@@ -1,0 +1,71 @@
+﻿using Repository.Database;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Web.Permission;
+using Web.Permisson;
+
+namespace Service.Services.v1._
+{
+    public interface IPermissionService
+    {
+        /// <summary>
+        /// 初始化权限
+        /// </summary> 
+        /// <returns></returns>
+         bool Reload();
+
+        /// <summary>
+        /// 获取单个 
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        TPermission GetDetails(string Id);
+
+
+        /// <summary>
+        /// 删除
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        bool Del(string id);
+
+        /// <summary>
+        /// 编辑
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        bool Edit(TPermission entity);
+
+        /// <summary>
+        /// 获取所有权限列表
+        /// </summary> 
+        /// <returns></returns>
+        List<TPermission> GetAllPermissions();
+
+        /// <summary>
+        /// 获取所有权限列表Ids
+        /// </summary> 
+        /// <returns></returns>
+        List<string> GetAllPermissionIds();
+
+        /// <summary>
+        /// 获取角色对应权限
+        /// </summary> 
+        /// <returns></returns>
+        List<AreaPermissionDto> GetAllAreaPermissions(Guid roleId);
+
+        /// <summary>
+        /// 编辑角色对应权限
+        /// </summary> 
+        /// <returns></returns>
+        bool EditAllAreaPermissions(PermissionEditDto dto);
+
+        /// <summary>
+        /// 获取登录用户权限
+        /// </summary>
+        List<string> GetUserPermissions();
+    }
+}
