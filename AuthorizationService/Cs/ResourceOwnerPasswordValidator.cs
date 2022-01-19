@@ -4,13 +4,14 @@ using Common.Json;
 using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
+using Kevin.Models.JwtBearer;
 using Repository;
 using Repository.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks; 
+using System.Threading.Tasks;
 
 namespace AuthorizationService
 {
@@ -19,7 +20,7 @@ namespace AuthorizationService
         public Task ValidateAsync(ResourceOwnerPasswordValidationContext context)
         {
 
-        
+
             string dataJson = "";
 
             switch (context.Request.Client.ClientName)
@@ -37,17 +38,19 @@ namespace AuthorizationService
                     }
                     else
                     {
-                        using (var db =new dbContext())
+                        using (var db = new dbContext())
                         {
-                            User = db.TUser.Where(x => x.IsDelete == false && (x.Name == context.UserName || x.Phone == context.UserName) && x.PassWord == Password).Select(x=> new userDto {
-                                Id=x.Id.ToString(),
-                                Phone=x.Phone,
-                                CreatedTime=x.CreateTime,
-                                Password=x.PassWord,
-                                Name=x.Name
+                            User = db.TUser.Where(x => x.IsDelete == false && (x.Name == context.UserName || x.Phone == context.UserName) && x.PassWord == Password).Select(x => new userDto
+                            {
+                                Id = x.Id.ToString(),
+                                Phone = x.Phone,
+                                CreatedTime = x.CreateTime,
+                                Password = x.PassWord,
+                                Name = x.Name,
+                                TenantId =x.TenantId
                             }).FirstOrDefault();
                         }
-                      
+
                     }
                     if (User != null && User != default && User.Password == Password)
                     {
@@ -85,9 +88,10 @@ namespace AuthorizationService
                                 Id = x.Id.ToString(),
                                 Phone = x.Phone,
                                 CreatedTime = x.CreateTime,
-                                Name = x.Name
+                                Name = x.Name,
+                                TenantId = x.TenantId
                             }).FirstOrDefault();
-                        } 
+                        }
                     }
                     if (uMUser != null && uMUser != default)
                     {
@@ -109,7 +113,7 @@ namespace AuthorizationService
                     break;
                 default:
                     break;
-            } 
+            }
             return Task.FromResult(0);
         }
 
@@ -118,10 +122,11 @@ namespace AuthorizationService
         {
             return new Claim[]
             {
-            new Claim("userid", user.Id),
-              new Claim("createdTime",user.CreatedTime!=null?user.CreatedTime.Value.ToString("yyyy-MM-dd"):""),
-               new Claim("phone", user.Phone),
-               new Claim("name", user.Name??""), 
+            new Claim(JwtKeinClaimTypes.UserId, user.Id),
+              new Claim(JwtKeinClaimTypes.CreatedTime,user.CreatedTime!=null?user.CreatedTime.Value.ToString("yyyy-MM-dd"):""),
+               new Claim(JwtKeinClaimTypes.Phone, user.Phone),
+               new Claim(JwtKeinClaimTypes.Name, user.Name??""),
+                new Claim(JwtKeinClaimTypes.TenantId, user.TenantId),
             };
         }
 
@@ -133,18 +138,19 @@ namespace AuthorizationService
         private Task CacheUserListAsync(userDto user)
         {
             return Task.Run(() =>
-            { 
+            {
                 RedisHelper.HashSet("CacheUserList", user.Name, JsonHelper.ObjectToJSON(user));
-            }); 
+            });
         }
 
         private Claim[] GetUserClaims(uMClientUserDto user)
         {
             return new Claim[]
             {
-            new Claim("userid", user.Id),
-                   new Claim("name", user.Name??""),
-                        new Claim("createdTime",user.CreatedTime!=null?user.CreatedTime.Value.ToString("yyyy-MM-dd"):"")
+            new Claim(JwtKeinClaimTypes.UserId, user.Id),
+                   new Claim(JwtKeinClaimTypes.Name, user.Name??""),
+                        new Claim(JwtKeinClaimTypes.CreatedTime,user.CreatedTime!=null?user.CreatedTime.Value.ToString("yyyy-MM-dd"):""),
+                         new Claim(JwtKeinClaimTypes.TenantId, user.TenantId),
             };
         }
         /// <summary>
@@ -152,12 +158,12 @@ namespace AuthorizationService
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        private   Task CacheUserListAsync(uMClientUserDto user)
+        private Task CacheUserListAsync(uMClientUserDto user)
         {
             return Task.Run(() =>
             {
                 RedisHelper.HashSet("CacheClientUserList", user.Id, JsonHelper.ObjectToJSON(user));
-            }); 
+            });
         }
     }
 }

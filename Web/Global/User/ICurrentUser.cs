@@ -7,8 +7,10 @@ namespace Web.Global.User
 {
     public interface ICurrentUser
     {
-            Guid UserId { get;}
+        Guid UserId { get; }
 
-            Guid TokenId { get;}
+        string UserName { get; }
+        string TenantId { get;   }
+
     }
 }

@@ -37,5 +37,7 @@ namespace AuthorizationService
         /// </summary> 
         public virtual DateTime? CreatedTime { get; set; }
 
+        public string TenantId { get; set; }
+
     }
 }
