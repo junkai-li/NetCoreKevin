@@ -1,14 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Configuration;
+using Repository.Bases;
 using Repository.Interceptors;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
-using System.Xml;
-
+using System.Xml; 
 namespace Repository.Database
 {
     public class dbContext : DbContext
@@ -137,7 +139,7 @@ namespace Repository.Database
             }
 
             //开启调试拦截器
-            //optionsBuilder.AddInterceptors(new DeBugInterceptor());
+           optionsBuilder.AddInterceptors(new DeBugInterceptor());
 
 
             //开启数据分表拦截器
@@ -149,7 +151,7 @@ namespace Repository.Database
 
 
             //SQL日志记录消息写入控制台
-            optionsBuilder.LogTo(Console.WriteLine);
+            //optionsBuilder.LogTo(Console.WriteLine);
 
             return optionsBuilder.Options;
         }
@@ -198,6 +200,10 @@ namespace Repository.Database
                     //设置表的备注
                     builder.HasComment(GetEntityComment(entity.Name));
 
+                    ////租户过滤器
+                    //Expression<Func<CD, bool>> multiTenantFilter = e =>   EF.Property<string>(e, "TenantId") == GetTenantId();
+
+                    //builder.HasQueryFilter(multiTenantFilter);
 
                     foreach (var property in entity.GetProperties())
                     {
@@ -511,5 +517,35 @@ namespace Repository.Database
             return db.SaveChanges();
         }
 
+        /// <summary>
+        /// GetTenantId
+        /// </summary>
+        /// <returns></returns>
+        public string GetTenantId()
+        {
+            try
+            {
+                //if (CurrentUser != null)
+                //{
+                //    return CurrentUser.TenantId;
+                //}
+                var ev = Environment.GetEnvironmentVariable("NETCORE_ENVIRONMENT");
+                if (string.IsNullOrEmpty(ev))
+                {
+                    ev = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                }
+                IConfigurationBuilder builder = new ConfigurationBuilder().AddJsonFile("appsettings.json");
+                if (!string.IsNullOrEmpty(ev))
+                {
+                    builder = new ConfigurationBuilder().AddJsonFile("appsettings." + ev + ".json");
+                }
+                IConfigurationRoot configuration = builder.Build(); 
+                return configuration["TenantId"];
+            }
+            catch (Exception)
+            {
+                return "1000";
+            }
+        }
     }
 }

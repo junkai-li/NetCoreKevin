@@ -90,6 +90,12 @@
             删除人ID
             </summary>
         </member>
+        <member name="M:Repository.Database.dbContext.GetTenantId">
+            <summary>
+            GetTenantId
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:Repository.Database.TAlipayKey">
             <summary>
             支付宝平台账户配置表
