@@ -52,5 +52,29 @@ namespace Web.Global
            
             ServiceProvider = provider;
         }
+
+        /// <summary>
+        /// 根据类型或接口获取所需的服务
+        /// Get service by T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T Get<T>()
+        {
+            return Get<T>(typeof(T));
+        }
+        /// <summary>
+        /// 显式提供获取的类型
+        /// Get service by implit providing type.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static T Get<T>(Type type = null)
+        {
+            var obj = (T)ServiceProvider.GetRequiredService(type);
+            ServiceProvider.Autowired(obj);
+            return obj;
+        }
     }
 }

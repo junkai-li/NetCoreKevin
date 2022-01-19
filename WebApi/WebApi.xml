@@ -394,6 +394,12 @@
             </summary> 
             <returns></returns>
         </member>
+        <member name="M:WebApi.Controllers.v1.UserController.GetTokenUserId">
+            <summary>
+            GetTokenUserId
+            </summary> 
+            <returns></returns>
+        </member>
         <member name="M:AdminApi.Controllers.PermissionController.Reload">
             <summary>
             初始化权限

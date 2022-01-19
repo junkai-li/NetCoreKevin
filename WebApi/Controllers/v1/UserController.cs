@@ -25,6 +25,7 @@ namespace WebApi.Controllers.v1
     {
         private IUserService _userService { get; set; }
 
+
         public UserController(IUserService userService)
         {
             this._userService = userService;
@@ -222,6 +223,16 @@ namespace WebApi.Controllers.v1
         public List<dtoKeyValue> GetUserSystemKey()
         {
             return _userService.GetUserSystemKey();
+        }
+
+        /// <summary>
+        /// GetTokenUserId
+        /// </summary> 
+        /// <returns></returns>
+        [HttpGet("GetTokenUserId")] 
+        public Guid GetTokenUserId()
+        {
+            return CurrentUser.UserId;
         }
 
     }

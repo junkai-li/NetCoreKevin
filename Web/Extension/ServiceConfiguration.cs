@@ -221,9 +221,8 @@ namespace Web.Extension
 
             //启用中间件服务生成Swagger作为JSON端点
             app.UseSwagger();
-
-
-            GlobalServices.ServiceProvider = app.ApplicationServices;
+             
+            GlobalServices.Set(app.ApplicationServices);
             return app;
         }
 
@@ -297,7 +296,7 @@ namespace Web.Extension
             #endregion
 
 
-
+        
             Console.WriteLine("App服务注册完成");
         }
     }
