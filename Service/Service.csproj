@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Web\Web.csproj" />
+    <ProjectReference Include="..\Web\Kevin.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>

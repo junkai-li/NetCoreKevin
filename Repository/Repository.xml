@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>Repository</name>
+        <name>Kevin.Repository</name>
     </assembly>
     <members>
         <member name="T:Repository.Attributes.SkipDataComparisonAttribute">
