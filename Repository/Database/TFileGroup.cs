@@ -1,8 +1,4 @@
-﻿using Repository.Bases;
-using System;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
 
 
@@ -24,6 +20,7 @@ namespace Repository.Database
         /// <summary>
         /// 文件唯一值
         /// </summary>
+        [StringLength(300)]
         public string Unique { get; set; }
 
 

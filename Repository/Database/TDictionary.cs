@@ -1,6 +1,4 @@
-﻿using Repository.Bases;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
 
     /// <summary>
@@ -13,6 +11,7 @@ namespace Repository.Database
         /// <summary>
         /// 键
         /// </summary>
+        [StringLength(100)]
         public string Key { get; set; }
 
 
@@ -20,6 +19,7 @@ namespace Repository.Database
         /// <summary>
         /// 值
         /// </summary>
+        [StringLength(100)]
         public string Value { get; set; }
 
 

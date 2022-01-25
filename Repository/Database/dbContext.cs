@@ -1,16 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿global using Repository.Bases;
+global using Repository.Database.Bases;
+global using System.Collections.Generic; 
+global using System.ComponentModel;
+global using System.ComponentModel.DataAnnotations;
+global using System.ComponentModel.DataAnnotations.Schema;
+global using System;
+
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
-using Repository.Bases;
 using Repository.Interceptors;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Xml; 
+using System.Xml;
 namespace Repository.Database
 {
     public class dbContext : DbContext
@@ -107,8 +110,7 @@ namespace Repository.Database
 
         public DbSet<TUserInfo> TUserInfo { get; set; }
 
-
-        public DbSet<TUserToken> TUserToken { get; set; }
+         
 
 
         public DbSet<TWebInfo> TWebInfo { get; set; }

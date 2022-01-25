@@ -1,6 +1,4 @@
-﻿using Repository.Bases;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
 
 
@@ -14,12 +12,14 @@ namespace Repository.Database
         /// <summary>
         /// WxAppId
         /// </summary>
+        [StringLength(100)]
         public string WxAppId { get; set; }
 
 
         /// <summary>
         /// WxAppSecret
         /// </summary>
+        [StringLength(100)]
         public string WxAppSecret { get; set; }
 
 
@@ -31,7 +31,8 @@ namespace Repository.Database
 
         /// <summary>
         /// MchKey
-        /// </summary>
+        /// </summary>]
+        [StringLength(100)]
         public string MchKey { get; set; }
 
 
@@ -44,12 +45,14 @@ namespace Repository.Database
         /// <summary>
         /// AppId 类型，['App','MiniApp','H5','Native']
         /// </summary>
+        [StringLength(100)]
         public string Type { get; set; }
 
 
         /// <summary>
         /// 备注
         /// </summary>
+        [StringLength(1000)]
         public string Remarks { get; set; }
     }
 }

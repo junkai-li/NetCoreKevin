@@ -1,7 +1,4 @@
-﻿using Repository.Bases;
-using System;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
 
     /// <summary>
@@ -21,6 +18,7 @@ namespace Repository.Database
         /// <summary>
         /// 图片库唯一标识符
         /// </summary>
+        [StringLength(50)]
         public string Unique { get; set; }
 
 

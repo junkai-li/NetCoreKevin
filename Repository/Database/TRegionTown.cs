@@ -1,7 +1,4 @@
-﻿using Repository.Bases;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
     public class TRegionTown : CD
     {
@@ -14,6 +11,7 @@ namespace Repository.Database
         /// <summary>
         /// 街道名称
         /// </summary>
+        [StringLength(500)]
         public string Town { get; set; }
 
 

@@ -1,8 +1,4 @@
-﻿using Repository.Bases;
-using System;
-using System.ComponentModel;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
 
     /// <summary>

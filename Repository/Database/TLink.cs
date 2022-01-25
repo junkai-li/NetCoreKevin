@@ -1,7 +1,4 @@
-﻿
-using Repository.Database.Bases;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
 
 
@@ -14,12 +11,14 @@ namespace Repository.Database
         /// <summary>
         /// 名称
         /// </summary>
+        [StringLength(50)]
         public string Name { get; set; }
 
 
         /// <summary>
         /// 地址
         /// </summary>
+        [StringLength(50)]
         public string Url { get; set; }
 
 

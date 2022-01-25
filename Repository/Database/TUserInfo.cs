@@ -1,8 +1,4 @@
-﻿using Repository.Bases;
-using System;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
     /// <summary>
     /// 用户详细信息表
@@ -28,12 +24,14 @@ namespace Repository.Database
         /// <summary>
         /// 地址详细信息
         /// </summary>
+        [StringLength(200)]
         public string Address { get; set; }
 
 
         /// <summary>
         /// 个性签名
         /// </summary>
+        [StringLength(200)]
         public string Signature { get; set; }
 
 
@@ -46,6 +44,7 @@ namespace Repository.Database
         /// <summary>
         /// 公司名称
         /// </summary>
+        [StringLength(200)]
         public string Company { get; set; }
 
 
@@ -53,6 +52,7 @@ namespace Repository.Database
         /// <summary>
         /// 职务
         /// </summary>
+        [StringLength(200)]
         public string Position { get; set; }
 
 
@@ -60,12 +60,14 @@ namespace Repository.Database
         /// <summary>
         /// 微信号
         /// </summary>
+        [StringLength(200)]
         public string WeChat { get; set; }
 
 
         /// <summary>
         /// QQ
         /// </summary>
+        [StringLength(100)]
         public string QQ { get; set; }
     }
 }

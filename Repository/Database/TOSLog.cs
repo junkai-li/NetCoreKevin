@@ -1,17 +1,11 @@
-﻿using Repository.Bases;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
     public class TOSLog : CD
     {
         /// <summary>
         /// 外链表名
         /// </summary>
+        [StringLength(50)]
         public string Table { get; set; }
 
 
@@ -26,13 +20,14 @@ namespace Repository.Database
         /// <summary>
         /// 标记
         /// </summary>
+        [StringLength(100)]
         public string Sign { get; set; }
 
 
 
         /// <summary>
         /// 变动内容
-        /// </summary>
+        /// </summary> 
         public string Content { get; set; }
 
 
@@ -47,7 +42,7 @@ namespace Repository.Database
 
         /// <summary>
         /// 备注
-        /// </summary>
+        /// </summary> 
         public string Remarks { get; set; }
 
 
@@ -55,6 +50,7 @@ namespace Repository.Database
         /// <summary>
         /// Ip地址
         /// </summary>
+        [StringLength(100)]
         public string IpAddress { get; set; }
 
 
@@ -62,6 +58,7 @@ namespace Repository.Database
         /// <summary>
         ///  设备标记
         /// </summary>
+        [StringLength(100)]
         public string DeviceMark { get; set; }
     }
 }

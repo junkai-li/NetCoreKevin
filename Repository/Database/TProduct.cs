@@ -1,5 +1,4 @@
-﻿using Repository.Database.Bases;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿
 
 namespace Repository.Database
 {
@@ -14,12 +13,14 @@ namespace Repository.Database
         /// <summary>
         /// SKU
         /// </summary>
+        [StringLength(200)]
         public string SKU { get; set; }
 
 
         /// <summary>
         /// 名称
         /// </summary>
+        [StringLength(200)]
         public string Name { get; set; }
 
 
@@ -33,6 +34,7 @@ namespace Repository.Database
         /// <summary>
         /// 描述
         /// </summary>
+        [StringLength(200)]
         public string Detail { get; set; }
 
     }

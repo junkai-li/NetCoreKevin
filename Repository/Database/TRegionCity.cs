@@ -1,8 +1,4 @@
-﻿using Repository.Bases;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
 
     /// <summary>
@@ -18,6 +14,7 @@ namespace Repository.Database
         /// <summary>
         /// 城市名称
         /// </summary>
+        [StringLength(200)]
         public string City { get; set; }
 
 

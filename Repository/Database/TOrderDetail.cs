@@ -1,7 +1,4 @@
-﻿using Repository.Bases;
-using System;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
     /// <summary>
     /// 订单详情表

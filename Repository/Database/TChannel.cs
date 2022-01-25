@@ -1,7 +1,4 @@
-﻿using Repository.Database.Bases;
-using System.Collections.Generic;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
 
 
@@ -14,6 +11,7 @@ namespace Repository.Database
         /// <summary>
         /// 频道名称
         /// </summary>
+        [StringLength(100)]
         public string Name { get; set; }
 
 

@@ -132,14 +132,7 @@ namespace Service.Services.v1
 
                     user.PassWord = password;
 
-                    db.SaveChanges();
-
-
-                    var tokenList = db.TUserToken.Where(t => t.UserId == userId).ToList();
-
-                    db.TUserToken.RemoveRange(tokenList);
-
-                    db.SaveChanges();
+                    db.SaveChanges();  
 
                     return true;
                 }

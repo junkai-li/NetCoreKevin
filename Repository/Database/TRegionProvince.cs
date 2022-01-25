@@ -1,8 +1,4 @@
-﻿using Repository.Bases;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
 
     /// <summary>
@@ -19,6 +15,7 @@ namespace Repository.Database
         /// <summary>
         /// 省份
         /// </summary>
+        [StringLength(200)]
         public string Province { get; set; }
 
 

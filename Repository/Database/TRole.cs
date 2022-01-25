@@ -1,7 +1,4 @@
 ﻿using Repository.Attributes;
-using Repository.Bases;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Repository.Database
 {
@@ -16,12 +13,14 @@ namespace Repository.Database
         /// 角色名称
         /// </summary>
         [ForeignName]
+        [StringLength(100)]
         public string Name { get; set; }
 
 
         /// <summary>
         /// 备注信息
         /// </summary>
+        [StringLength(500)]
         public string Remarks { get; set; }
 
 

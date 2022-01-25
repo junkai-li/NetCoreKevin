@@ -1,9 +1,4 @@
-﻿using Repository.Database.Bases;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
 
 
@@ -17,6 +12,7 @@ namespace Repository.Database
         /// <summary>
         /// 订单号
         /// </summary>
+        [StringLength(100)]
         public string OrderNo { get; set; }
 
 
@@ -24,6 +20,7 @@ namespace Repository.Database
         /// <summary>
         /// 订单类型
         /// </summary>
+        [StringLength(50)]
         public string Type { get; set; }
 
 
@@ -37,18 +34,21 @@ namespace Repository.Database
         /// <summary>
         /// 支付流水号
         /// </summary>
+        [StringLength(100)]
         public string SerialNo { get; set; }
 
 
         /// <summary>
         /// 订单状态
         /// </summary>
+        [StringLength(50)]
         public string State { get; set; }
 
 
         /// <summary>
         /// 支付方式
         /// </summary>
+        [StringLength(50)]
         public string PayType { get; set; }
 
 

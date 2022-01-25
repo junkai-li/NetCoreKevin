@@ -1,7 +1,4 @@
-﻿using Repository.Bases;
-using System;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
     /// <summary>
     /// 分片上传时的切片文件记录表
@@ -26,6 +23,7 @@ namespace Repository.Database
         /// <summary>
         /// 文件保存路径
         /// </summary>
+        [StringLength(300)]
         public string Path { get; set; }
 
     }

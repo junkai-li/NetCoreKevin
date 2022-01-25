@@ -1,7 +1,4 @@
-﻿using Repository.Database.Bases;
-using System;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
 
 
@@ -15,18 +12,21 @@ namespace Repository.Database
         /// <summary>
         /// 文件名称
         /// </summary>
+        [StringLength(100)]
         public string Name { get; set; }
 
 
         /// <summary>
         /// 保存路径
         /// </summary>
+        [StringLength(200)]
         public string Path { get; set; }
 
 
         /// <summary>
         /// 外链表名
         /// </summary>
+        [StringLength(50)]
         public string Table { get; set; }
 
 
@@ -39,6 +39,7 @@ namespace Repository.Database
         /// <summary>
         /// 标记
         /// </summary>
+        [StringLength(50)]
         public string Sign { get; set; }
 
 

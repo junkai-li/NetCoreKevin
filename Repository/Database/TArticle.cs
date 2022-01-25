@@ -1,8 +1,4 @@
-﻿using Repository.Database.Bases;
-using System;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
 
     /// <summary>

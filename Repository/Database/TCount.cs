@@ -13,6 +13,7 @@ namespace Repository.Database
         /// <summary>
         /// 标记
         /// </summary>
+        [StringLength(100)]
         public string Tag { get; set; }
 
 

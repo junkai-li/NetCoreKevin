@@ -1,7 +1,4 @@
-﻿using Repository.Bases;
-using System;
-
-namespace Repository.Database
+﻿namespace Repository.Database
 {
 
 
@@ -29,6 +26,7 @@ namespace Repository.Database
         /// <summary>
         /// 微信OpenId
         /// </summary>
+        [StringLength(100)]
         public string WeiXinOpenId { get; set; }
     }
 }

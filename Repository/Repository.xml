@@ -509,7 +509,7 @@
         <member name="P:Repository.Database.TOSLog.Content">
             <summary>
             变动内容
-            </summary>
+            </summary> 
         </member>
         <member name="P:Repository.Database.TOSLog.ActionUserId">
             <summary>
@@ -519,7 +519,7 @@
         <member name="P:Repository.Database.TOSLog.Remarks">
             <summary>
             备注
-            </summary>
+            </summary> 
         </member>
         <member name="P:Repository.Database.TOSLog.IpAddress">
             <summary>
@@ -911,26 +911,6 @@
             QQ
             </summary>
         </member>
-        <member name="T:Repository.Database.TUserToken">
-            <summary>
-            用户Token记录表
-            </summary>
-        </member>
-        <member name="P:Repository.Database.TUserToken.UserId">
-            <summary>
-            用户ID
-            </summary>
-        </member>
-        <member name="P:Repository.Database.TUserToken.Token">
-            <summary>
-            Token
-            </summary>
-        </member>
-        <member name="P:Repository.Database.TUserToken.LastId">
-            <summary>
-            上一次有效的 tokenid
-            </summary>
-        </member>
         <member name="T:Repository.Database.TWebInfo">
             <summary>
             网站信息配置表
@@ -1014,7 +994,7 @@
         <member name="P:Repository.Database.TWeiXinKey.MchKey">
             <summary>
             MchKey
-            </summary>
+            </summary>]
         </member>
         <member name="P:Repository.Database.TWeiXinKey.Sort">
             <summary>
@@ -1037,6 +1017,13 @@
             </summary>
             <param name="id"></param>
             <returns></returns>
+        </member>
+        <member name="T:Ax.DataAccess.Repository`2">
+            <summary>
+            仓储类与类型Id
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="TId"></typeparam>
         </member>
     </members>
 </doc>
