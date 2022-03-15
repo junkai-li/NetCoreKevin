@@ -126,12 +126,8 @@ namespace Common
             }
 
             using Stream dataStream = new MemoryStream(Encoding.UTF8.GetBytes(data));
-            using HttpContent content = new StreamContent(dataStream);
-            if (type == "form")
-            {
-                content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-            }
-            else if (type == "data")
+            using HttpContent content = new StreamContent(dataStream); 
+            if (type == "data")
             {
                 content.Headers.ContentType = new MediaTypeHeaderValue("multipart/form-data");
             }
@@ -171,6 +167,40 @@ namespace Common
         }
 
 
+        /// <summary>
+        /// Post数据到指定url
+        /// </summary>
+        /// <param name="url">Url</param>
+        /// <param name="DictParam">数据</param> 
+        /// <param name="headers">自定义Header集合</param>
+        /// <param name="isSkipSslVerification">是否跳过SSL验证</param>
+        /// <returns></returns>
+        public static string PostForm(string url, Dictionary<string, string> DictParam, Dictionary<string, string> headers = default, bool isSkipSslVerification = false)
+        {
+
+            string httpClientName = isSkipSslVerification ? "SkipSsl" : "";
+
+            var client = HttpClientFactory.CreateClient(httpClientName);
+
+            if (headers != default)
+            {
+                foreach (var header in headers)
+                {
+                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
+                }
+            }
+            var values = new List<KeyValuePair<string, string>>();
+            foreach (var item in DictParam)
+            {
+                values.Add(new KeyValuePair<string, string>(item.Key, item.Value));
+            }
+            using HttpContent content = new FormUrlEncodedContent(values);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+            content.Headers.ContentType.CharSet = "utf-8";
+            using var httpResponse = client.PostAsync(url, content);
+            return httpResponse.Result.Content.ReadAsStringAsync().Result;
+        }
+
 
 
         /// <summary>
@@ -181,7 +211,7 @@ namespace Common
         /// <param name="headers">自定义Header集合</param>
         /// <param name="isSkipSslVerification">是否跳过SSL验证</param>
         /// <returns></returns>
-        public static string PostForm(string url, List<PostFormItem> formItems, Dictionary<string, string> headers = default, bool isSkipSslVerification = false)
+        public static string PostFormData(string url, List<PostFormItem> formItems, Dictionary<string, string> headers = default, bool isSkipSslVerification = false)
         {
             string httpClientName = isSkipSslVerification ? "SkipSsl" : "";
 
