@@ -126,8 +126,12 @@ namespace Common
             }
 
             using Stream dataStream = new MemoryStream(Encoding.UTF8.GetBytes(data));
-            using HttpContent content = new StreamContent(dataStream); 
-            if (type == "data")
+            using HttpContent content = new StreamContent(dataStream);
+            if (type == "form")
+            {
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+            }
+            else if (type == "data")
             {
                 content.Headers.ContentType = new MediaTypeHeaderValue("multipart/form-data");
             }
@@ -171,11 +175,11 @@ namespace Common
         /// Post数据到指定url
         /// </summary>
         /// <param name="url">Url</param>
-        /// <param name="DictParam">数据</param> 
+        /// <param name="formItems">数据</param> 
         /// <param name="headers">自定义Header集合</param>
         /// <param name="isSkipSslVerification">是否跳过SSL验证</param>
         /// <returns></returns>
-        public static string PostForm(string url, Dictionary<string, string> DictParam, Dictionary<string, string> headers = default, bool isSkipSslVerification = false)
+        public static string PostForm(string url, Dictionary<string, string> formItems, Dictionary<string, string> headers = default, bool isSkipSslVerification = false)
         {
 
             string httpClientName = isSkipSslVerification ? "SkipSsl" : "";
@@ -188,16 +192,10 @@ namespace Common
                 {
                     client.DefaultRequestHeaders.Add(header.Key, header.Value);
                 }
-            }
-            var values = new List<KeyValuePair<string, string>>();
-            foreach (var item in DictParam)
-            {
-                values.Add(new KeyValuePair<string, string>(item.Key, item.Value));
-            }
-            using HttpContent content = new FormUrlEncodedContent(values);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-            content.Headers.ContentType.CharSet = "utf-8";
-            using var httpResponse = client.PostAsync(url, content);
+            }  
+            using FormUrlEncodedContent formContent = new(formItems);
+            formContent.Headers.ContentType!.CharSet = "utf-8"; 
+            using var httpResponse = client.PostAsync(url, formContent);
             return httpResponse.Result.Content.ReadAsStringAsync().Result;
         }
 
