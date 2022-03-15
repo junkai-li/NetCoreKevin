@@ -20,9 +20,9 @@ namespace Web.Libraries.Http
         public static Microsoft.AspNetCore.Http.HttpContext Current()
         {
             var httpContextAccessor = GlobalServices.ServiceProvider.GetService<IHttpContextAccessor>();
-            if (httpContextAccessor.HttpContext.Request.Body.Length>0)
+            if (httpContextAccessor.HttpContext.Request.Body.Length > 0)
             {
-                httpContextAccessor.HttpContext.Request.Body.Position = 0; 
+                httpContextAccessor.HttpContext.Request.Body.Position = 0;
             }
 
             return httpContextAccessor.HttpContext;
@@ -67,15 +67,19 @@ namespace Web.Libraries.Http
 
             using (Stream requestBody = new MemoryStream())
             {
-                Current().Request.Body.CopyTo(requestBody);
-                Current().Request.Body.Position = 0;
-
-                requestBody.Position = 0;
-
-                using (var requestReader = new StreamReader(requestBody))
+                if (Current().Request.Body.Length > 0)
                 {
-                    requestContent = requestReader.ReadToEnd();
+                    Current().Request.Body.CopyTo(requestBody);
+                    Current().Request.Body.Position = 0;
+
+                    requestBody.Position = 0;
+
+                    using (var requestReader = new StreamReader(requestBody))
+                    {
+                        requestContent = requestReader.ReadToEnd();
+                    }
                 }
+
             }
 
             return requestContent;
