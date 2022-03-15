@@ -102,11 +102,11 @@ namespace Common
 
 
         /// <summary>
-        /// Post数据到指定url
+        /// Post Json或XML 数据到指定url
         /// </summary>
         /// <param name="url">Url</param>
         /// <param name="data">数据</param>
-        /// <param name="type">form,data,json,xml</param>
+        /// <param name="type">json,xml</param>
         /// <param name="headers">自定义Header集合</param>
         /// <param name="isSkipSslVerification">是否跳过SSL验证</param>
         /// <returns></returns>
@@ -127,15 +127,8 @@ namespace Common
 
             using Stream dataStream = new MemoryStream(Encoding.UTF8.GetBytes(data));
             using HttpContent content = new StreamContent(dataStream);
-            if (type == "form")
-            {
-                content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-            }
-            else if (type == "data")
-            {
-                content.Headers.ContentType = new MediaTypeHeaderValue("multipart/form-data");
-            }
-            else if (type == "json")
+
+            if (type == "json")
             {
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             }
@@ -154,15 +147,15 @@ namespace Common
 
 
         /// <summary>
-        /// Post数据到指定url,异步执行
+        /// Post Json或XML 数据到指定url,异步执行
         /// </summary>
         /// <param name="url">Url</param>
         /// <param name="data">数据</param>
-        /// <param name="type">form,data,json,xml</param>
+        /// <param name="type">json,xml</param>
         /// <param name="headers">自定义Header集合</param>
         /// <param name="isSkipSslVerification">是否跳过SSL验证</param>
         /// <returns></returns>
-        public async static void PostAsync(string url, string data, string type, Dictionary<string, string> headers = default, bool isSkipSslVerification = false)
+        public async static void PostAsync(string url, string data, string type, Dictionary<string, string>  headers = default, bool isSkipSslVerification = false)
         {
             await Task.Run(() =>
             {
@@ -192,9 +185,9 @@ namespace Common
                 {
                     client.DefaultRequestHeaders.Add(header.Key, header.Value);
                 }
-            }  
+            }
             using FormUrlEncodedContent formContent = new(formItems);
-            formContent.Headers.ContentType!.CharSet = "utf-8"; 
+            formContent.Headers.ContentType!.CharSet = "utf-8";
             using var httpResponse = client.PostAsync(url, formContent);
             return httpResponse.Result.Content.ReadAsStringAsync().Result;
         }
