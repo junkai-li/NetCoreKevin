@@ -39,12 +39,12 @@ namespace Repository.Bases
 
 
 
-        /// <summary>
-        /// 行版本标记
-        /// </summary>
-        /// <remarks>通用的RowVersion</remarks>
-        [ConcurrencyCheck]
-        public Guid? RowVersion { get; set; }
+        ///// <summary>
+        ///// 行版本标记
+        ///// </summary>
+        ///// <remarks>通用的RowVersion</remarks>
+        //[ConcurrencyCheck]
+        //public Guid? RowVersion { get; set; }
 
 
 

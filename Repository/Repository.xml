@@ -34,12 +34,6 @@
             删除时间
             </summary>
         </member>
-        <member name="P:Repository.Bases.CD.RowVersion">
-            <summary>
-            行版本标记
-            </summary>
-            <remarks>通用的RowVersion</remarks>
-        </member>
         <member name="P:Repository.Bases.CD.TenantId">
             <summary>
             租户ID;

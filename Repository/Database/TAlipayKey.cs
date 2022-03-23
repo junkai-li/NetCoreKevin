@@ -14,14 +14,14 @@ namespace Repository.Database
         /// <summary>
         /// AppId
         /// </summary>
-        [StringLength(200)]
+        [MaxLength(200)]
         public string AppId { get; set; }
 
 
         /// <summary>
         /// App私钥
         /// </summary>
-        [StringLength(100)]
+        [MaxLength(100)]
         public string AppPrivateKey { get; set; }
 
 

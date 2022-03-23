@@ -15,7 +15,7 @@ using System.Linq;
 using System.Reflection;
 using System.Xml;
 namespace Repository.Database
-{
+{ 
     public class dbContext : DbContext
     {
 
@@ -127,15 +127,15 @@ namespace Repository.Database
             var optionsBuilder = new DbContextOptionsBuilder<dbContext>();
 
 
-            //SQLServer:"Data Source=127.0.0.1;Initial Catalog=webcore;User ID=sa;Password=123456;Max Pool Size=100"
+            //SQLServer:"Data Source=localhost;Initial Catalog=webcore;User ID=sa;Password=123456;Max Pool Size=100;Encrypt=False"
             //MySQL:"server=127.0.0.1;database=webcore;user id=root;password=123456;maxpoolsize=100"
             //SQLite:"Data Source=../Repository/database.db"
             //PostgreSQL:"Host=127.0.0.1;Database=webcore;Username=postgres;Password=123456;Maximum Pool Size=100"
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory"));
+                //optionsBuilder.UseSqlServer(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory"));
                 //optionsBuilder.UseMySQL(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory"));
-                //optionsBuilder.UseMySql(ConnectionString, new MySqlServerVersion(new Version(8, 0, 25)), o => o.MigrationsHistoryTable("__efmigrationshistory"));
+                optionsBuilder.UseMySql(ConnectionString, new MySqlServerVersion(new Version(8, 0, 22)), o => o.MigrationsHistoryTable("__efmigrationshistory"));
                 //optionsBuilder.UseSqlite(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory"));
                 //optionsBuilder.UseNpgsql(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory"));
             }
@@ -228,17 +228,17 @@ namespace Repository.Database
 
 
                         //bool to bit 使用 MySQL 时需要取消注释
-                        //if (property.ClrType.Name == typeof(bool).Name)
-                        //{
-                        //    property.SetColumnType("bit");
-                        //}
+                        if (property.ClrType.Name == typeof(bool).Name)
+                        {
+                            property.SetColumnType("bit");
+                        }
 
 
                         //guid to char(36) 使用 MySQL 并且采用 MySql.EntityFrameworkCore 时需要取消注释
-                        //if (property.ClrType.Name == typeof(Guid).Name)
-                        //{
-                        //    property.SetColumnType("char(36)");
-                        //}
+                        if (property.ClrType.Name == typeof(Guid).Name)
+                        {
+                            property.SetColumnType("char(36)");
+                        }
 
 
                         //为所有 tableid 列添加索引
