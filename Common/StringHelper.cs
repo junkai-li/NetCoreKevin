@@ -546,5 +546,29 @@ namespace Common
                 returnStrs.Add(match[i].ToString());
             return returnStrs;
         }
+
+        /// <summary>
+        /// 大写转_小写，  其他保留
+        /// </summary>
+        /// <param name="sourceStr"></param> 
+        /// <returns></returns>
+        public static string ToGidelineLower(string sourceStr)
+        {
+            string newStr = string.Empty;    //用于存放新字符串
+            //循环字符串
+            foreach (char item in sourceStr)
+            {
+                if (item >= 'A' && item <= 'Z')
+                {
+                    //大写字母转小写
+                    newStr += "_" + item.ToString().ToLower();
+                }
+                else
+                {
+                    newStr += item;
+                }
+            }
+            return newStr;
+        }
     }
 }
