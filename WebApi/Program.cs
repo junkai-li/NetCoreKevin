@@ -147,9 +147,7 @@ namespace WebApi
                 MiniLive.AppId = "wxf164719d9baf8d83";
                 MiniLive.AppSecret = "7c635fbff5974b3919826e0cdcf4c8c4";
                 TencentService.Helper.RedisHelper.ConnectionString = builder.Configuration.GetConnectionString("redisConnection");
-                builder.Services.AddSingleton<IMiniLive, MiniLive>();
-                builder.Services.AddControllers().AddControllersAsServices(); //控制器当做实例创建
-
+                builder.Services.AddSingleton<IMiniLive, MiniLive>(); 
                 #endregion
 
                 #region IDSERVER授权服务器

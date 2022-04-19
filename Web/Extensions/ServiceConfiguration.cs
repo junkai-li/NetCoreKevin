@@ -27,6 +27,9 @@ using Web.Base._;
 using Microsoft.AspNetCore.Http;
 using Repository.Database;
 using Web.Global.User;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Kevin.Web.Extensions;
 
 namespace Web.Extension
 {
@@ -184,6 +187,9 @@ namespace Web.Extension
             services.AddSingleton<IDistributedUpgradeableReaderWriterLockProvider>(new SqlDistributedSynchronizationProvider(Configuration.GetConnectionString("dbConnection")));
             #endregion
 
+            //把控制器作为服务注册，然后使用它内置的ioc来替换原来的控制器的创建器
+            services.AddControllersWithViews().AddControllersAsServices();
+            services.Replace(ServiceDescriptor.Transient<IControllerActivator, IocServiceBaseControllerActivator>());
             //App服务注册
             RegisterAppServices(services, Configuration);
             return services;
@@ -221,7 +227,6 @@ namespace Web.Extension
 
             //启用中间件服务生成Swagger作为JSON端点
             app.UseSwagger();
-             
             GlobalServices.Set(app.ApplicationServices);
             return app;
         }

@@ -3,10 +3,11 @@ using Models.Dtos.System;
 using Service.Dtos.v1.User;
 using System;
 using System.Collections.Generic;
+using Web.Base._;
 
 namespace Service.Services.v1._
 {
-    public interface IUserService
+    public interface IUserService: IBaseService
     {
         /// <summary>
         /// 通过 UserId 获取用户信息 
