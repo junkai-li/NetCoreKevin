@@ -1,11 +1,14 @@
-﻿using System;
+﻿using DnsClient;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
+using Kevin.Common.Extension;
 
 namespace System
 {
@@ -313,5 +316,131 @@ namespace System
         }
 
         #endregion IP地址
+
+        #region 校验手机号码的正确性
+
+        /// <summary>
+        /// 匹配手机号码
+        /// </summary>
+        /// <param name="s">源字符串</param>
+        /// <returns>是否匹配成功</returns>
+        public static bool MatchPhoneNumber(this string s)
+        {
+            return !string.IsNullOrEmpty(s) && s[0] == '1' && (s[1] > '2' || s[1] <= '9');
+        }
+
+        #endregion 校验手机号码的正确性
+
+        #region Email
+
+        /// <summary>
+        /// 匹配Email
+        /// </summary>
+        /// <param name="s">源字符串</param>
+        /// <param name="valid">是否验证有效性</param>
+        /// <returns>匹配对象；是否匹配成功，若返回true，则会得到一个Match对象，否则为null</returns>
+        public static (bool isMatch, Match match) MatchEmail(this string s, bool valid = false)
+        {
+            if (string.IsNullOrEmpty(s) || s.Length < 7)
+            {
+                return (false, null);
+            }
+
+            var match = Regex.Match(s, @"[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+");
+            var isMatch = match.Success;
+            if (isMatch && valid)
+            {
+                var nslookup = new LookupClient();
+                var task = nslookup.Query(s.Split('@')[1], QueryType.MX).Answers.MxRecords().SelectAsync(r => Dns.GetHostAddressesAsync(r.Exchange.Value).ContinueWith(t =>
+                {
+                    if (t.IsCanceled || t.IsFaulted)
+                    {
+                        return new[] { IPAddress.Loopback };
+                    }
+
+                    return t.Result;
+                }));
+                isMatch = task.Result.SelectMany(a => a).Any(ip => !ip.IsPrivateIP());
+            }
+
+            return (isMatch, match);
+        }
+
+        /// <summary>
+        /// 匹配Email
+        /// </summary>
+        /// <param name="s">源字符串</param>
+        /// <param name="valid">是否验证有效性</param>
+        /// <returns>匹配对象；是否匹配成功，若返回true，则会得到一个Match对象，否则为null</returns>
+        public static async Task<(bool isMatch, Match match)> MatchEmailAsync(this string s, bool valid = false)
+        {
+            if (string.IsNullOrEmpty(s) || s.Length < 7)
+            {
+                return (false, null);
+            }
+
+            var match = Regex.Match(s, @"^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$");
+            var isMatch = match.Success;
+            if (isMatch && valid)
+            {
+                var nslookup = new LookupClient();
+                using var cts = new CancellationTokenSource(100);
+                var query = await nslookup.QueryAsync(s.Split('@')[1], QueryType.MX, cancellationToken: cts.Token);
+                var result = await query.Answers.MxRecords().SelectAsync(r => Dns.GetHostAddressesAsync(r.Exchange.Value).ContinueWith(t =>
+                {
+                    if (t.IsCanceled || t.IsFaulted)
+                    {
+                        return new[] { IPAddress.Loopback };
+                    }
+
+                    return t.Result;
+                }));
+                isMatch = result.SelectMany(a => a).Any(ip => !ip.IsPrivateIP());
+            }
+
+            return (isMatch, match);
+        }
+
+        /// <summary>
+        /// 邮箱掩码
+        /// </summary>
+        /// <param name="s">邮箱</param>
+        /// <param name="mask">掩码</param>
+        /// <returns></returns>
+        public static string MaskEmail(this string s, char mask = '*')
+        {
+            var index = s.LastIndexOf("@");
+            var oldValue = s.Substring(0, index);
+            return !MatchEmail(s).isMatch ? s : s.Replace(oldValue, Mask(oldValue, mask));
+        }
+
+        #endregion Email
+
+
+        /// <summary>
+        /// 字符串掩码
+        /// </summary>
+        /// <param name="s">字符串</param>
+        /// <param name="mask">掩码符</param>
+        /// <returns></returns>
+        public static string Mask(this string s, char mask = '*')
+        {
+            if (string.IsNullOrWhiteSpace(s?.Trim()))
+            {
+                return s;
+            }
+            s = s.Trim();
+            string masks = mask.ToString().PadLeft(4, mask);
+            return s.Length switch
+            {
+                >= 11 => Regex.Replace(s, "(.{3}).*(.{4})", $"$1{masks}$2"),
+                10 => Regex.Replace(s, "(.{3}).*(.{3})", $"$1{masks}$2"),
+                9 => Regex.Replace(s, "(.{2}).*(.{3})", $"$1{masks}$2"),
+                8 => Regex.Replace(s, "(.{2}).*(.{2})", $"$1{masks}$2"),
+                7 => Regex.Replace(s, "(.{1}).*(.{2})", $"$1{masks}$2"),
+                6 => Regex.Replace(s, "(.{1}).*(.{1})", $"$1{masks}$2"),
+                _ => Regex.Replace(s, "(.{1}).*", $"$1{masks}")
+            };
+        }
     }
 }

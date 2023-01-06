@@ -1,5 +1,6 @@
 ﻿using Mapster;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -190,6 +191,42 @@ namespace System
         public static bool NotIn<T>(this T s, IEnumerable<T> arr)
         {
             return arr == null || !arr.Contains(s);
+        }
+
+        /// <summary>
+        /// 判断是否为null，null或0长度都返回true
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool IsNullOrEmpty<T>(this T value)
+            where T : class
+        {
+            #region 1.对象级别
+
+            //引用为null
+            bool isObjectNull = value is null;
+            if (isObjectNull)
+            {
+                return true;
+            }
+
+            //判断是否为集合
+            var tempEnumerator = (value as IEnumerable)?.GetEnumerator();
+            if (tempEnumerator == null) return false;//这里出去代表是对象 且 引用不为null.所以为false
+
+            #endregion 1.对象级别
+
+            #region 2.集合级别
+
+            //到这里就代表是集合且引用不为空，判断长度
+            //MoveNext方法返回tue代表集合中至少有一个数据,返回false就代表0长度
+            bool isZeroLenth = tempEnumerator.MoveNext() == false;
+            if (isZeroLenth) return true;
+
+            return isZeroLenth;
+
+            #endregion 2.集合级别
         }
     }
 }
