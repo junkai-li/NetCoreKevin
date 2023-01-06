@@ -14,10 +14,18 @@ namespace WebApi.Controllers
         [IocProperty]
         public IUserService _userService { get; set; }
 
-        [HttpGet]
-       public object TestUserService() {
+        [HttpGet("TestUserService")]
+        public object TestUserService()
+        {
             _userService.GetUser(new Guid());
             return default;
+        }
+
+        [HttpGet("TsetDynamicExpresso")]
+        public bool TsetDynamicExpresso(string str)
+        {
+            var interpreter = new DynamicExpresso.Interpreter();
+            return interpreter.Eval<bool>(str);
         }
     }
 }

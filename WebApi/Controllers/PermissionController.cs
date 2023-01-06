@@ -17,7 +17,7 @@ namespace AdminApi.Controllers
 {
     [Route("api/[controller]")]
     [MyArea("系统管理", "System")]
-    [ActionDescription("权限管理")]
+    [ActionDescription("权限管理")] 
     [Authorize]
     public class PermissionController : ApiControllerBase
     {

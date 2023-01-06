@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -286,5 +287,31 @@ namespace System
 
             return str;
         }
+        #region IP地址
+
+        /// <summary>
+        /// 校验IP地址的正确性，同时支持IPv4和IPv6
+        /// </summary>
+        /// <param name="s">源字符串</param>
+        /// <param name="isMatch">是否匹配成功，若返回true，则会得到一个Match对象，否则为null</param>
+        /// <returns>匹配对象</returns>
+        public static IPAddress MatchInetAddress(this string s, out bool isMatch)
+        {
+            isMatch = IPAddress.TryParse(s, out var ip);
+            return ip;
+        }
+
+        /// <summary>
+        /// 校验IP地址的正确性，同时支持IPv4和IPv6
+        /// </summary>
+        /// <param name="s">源字符串</param>
+        /// <returns>是否匹配成功</returns>
+        public static bool MatchInetAddress(this string s)
+        {
+            MatchInetAddress(s, out var success);
+            return success;
+        }
+
+        #endregion IP地址
     }
 }
