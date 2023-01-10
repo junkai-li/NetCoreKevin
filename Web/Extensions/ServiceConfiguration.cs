@@ -192,6 +192,8 @@ namespace Web.Extension
             services.Replace(ServiceDescriptor.Transient<IControllerActivator, IocServiceBaseControllerActivator>());
             //App服务注册
             RegisterAppServices(services, Configuration);
+            //添加Cors，并配置CorsPolicy 
+            services.AddCors(options => options.AddPolicy("AllowAllOrigins", p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
             return services;
         }
 
@@ -207,7 +209,7 @@ namespace Web.Extension
             app.UseResponseCompression();
             app.UseHsts();
             //注册跨域信息
-            app.UseCors("cors");
+            app.UseCors("AllowAllOrigins");
             //强制重定向到Https
             app.UseHttpsRedirection();
 
