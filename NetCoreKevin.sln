@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kevin.AuthorizationService"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskQuartz", "Quartz\TaskQuartz.csproj", "{973477B3-6505-492D-B6A4-4E7A8C37992F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrawlingService", "CrawlingService\CrawlingService.csproj", "{744B91F0-61DF-4B73-9774-A88AA71E3113}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{973477B3-6505-492D-B6A4-4E7A8C37992F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{973477B3-6505-492D-B6A4-4E7A8C37992F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{973477B3-6505-492D-B6A4-4E7A8C37992F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{744B91F0-61DF-4B73-9774-A88AA71E3113}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{744B91F0-61DF-4B73-9774-A88AA71E3113}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{744B91F0-61DF-4B73-9774-A88AA71E3113}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{744B91F0-61DF-4B73-9774-A88AA71E3113}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,6 +75,7 @@ Global
 		{2803C9AB-360C-4097-8D38-4C83E5CD6015} = {0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}
 		{73CD8EA1-FE0F-488B-A68A-8C54C8AF9557} = {0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}
 		{61E84CD7-4DE2-457B-BF03-9F072415A05D} = {0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}
+		{744B91F0-61DF-4B73-9774-A88AA71E3113} = {0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {87D265C7-413F-4CF5-A684-6D860C49A3AE}
