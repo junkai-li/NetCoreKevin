@@ -25,6 +25,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Kevin.Common.csproj" />
+    <ProjectReference Include="..\CrawlingService\kevin.CrawlingService.csproj" />
+    <ProjectReference Include="..\Kevin.Cors\Kevin.Cors.csproj" />
+    <ProjectReference Include="..\Kevin.SignalR\Kevin.SignalR.csproj" />
   </ItemGroup>
 
 </Project>

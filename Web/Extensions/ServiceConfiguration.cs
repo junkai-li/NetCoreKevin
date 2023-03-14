@@ -30,6 +30,12 @@ using Web.Global.User;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Kevin.Web.Extensions;
+using Kevin.Cors;
+using System.IdentityModel.Tokens.Jwt;
+using Kevin.Cors.Models;
+using Kevin.SignalR;
+using Web.Libraries.Start;
+using Kevin.SignalR.Models;
 
 namespace Web.Extension
 {
@@ -71,18 +77,7 @@ namespace Web.Extension
             #endregion
 
             #region 注册常用 
-
-            //注册跨域信息
-            services.AddCors(option =>
-            {
-                option.AddPolicy("cors", policy =>
-                {
-                    policy.SetIsOriginAllowed(origin => true)
-                       .AllowAnyHeader()
-                       .AllowAnyMethod()
-                       .AllowCredentials();
-                });
-            });
+             
             //注册全局过滤器
             services.AddMvc(config =>
             {
@@ -191,9 +186,8 @@ namespace Web.Extension
             services.AddControllersWithViews().AddControllersAsServices();
             services.Replace(ServiceDescriptor.Transient<IControllerActivator, IocServiceBaseControllerActivator>());
             //App服务注册
-            RegisterAppServices(services, Configuration);
-            //添加Cors，并配置CorsPolicy 
-            services.AddCors(options => options.AddPolicy("AllowAllOrigins", p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+            RegisterAppServices(services, Configuration); 
+            services.AddKevinCors(JsonExtensions.DeserializeFromJson<CorsSetting>(Configuration["CorsSetting"]));
             return services;
         }
 
@@ -209,7 +203,7 @@ namespace Web.Extension
             app.UseResponseCompression();
             app.UseHsts();
             //注册跨域信息
-            app.UseCors("AllowAllOrigins");
+            app.UseKevinCors();
             //强制重定向到Https
             app.UseHttpsRedirection();
 
@@ -226,7 +220,7 @@ namespace Web.Extension
             {
                 endpoints.MapControllers();
             });
-
+            app.UseKevinSignalR(JsonExtensions.DeserializeFromJson<SignalrSetting>(StartConfiguration.configuration["SignalrSetting"]));
             //启用中间件服务生成Swagger作为JSON端点
             app.UseSwagger();
             GlobalServices.Set(app.ApplicationServices);
