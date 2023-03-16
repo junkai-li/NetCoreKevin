@@ -17,6 +17,7 @@ namespace Web.Libraries.Http
     public class HttpContext
     {
 
+        public IHttpContextAccessor GetHttpContextAccessor { get; set; }
         public static Microsoft.AspNetCore.Http.HttpContext Current()
         {
             var httpContextAccessor = GlobalServices.ServiceProvider.GetService<IHttpContextAccessor>();

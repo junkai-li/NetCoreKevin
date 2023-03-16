@@ -1,6 +1,7 @@
 ﻿ 
 using Common;
 using IdentityModel.Client;
+using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -29,11 +30,10 @@ namespace WebApi.Controllers
     [AllowAnonymous]
     public class AuthorizeController : ApiControllerBase
     {
-
+        [IocProperty]
         public IUserService _IUserService { get; set; }
-        public AuthorizeController(IUserService iUserService)
+        public AuthorizeController()
         {
-            this._IUserService = iUserService;
         }
 
         /// <summary>

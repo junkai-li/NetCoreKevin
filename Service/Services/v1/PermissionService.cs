@@ -14,6 +14,10 @@ namespace Service.Services.v1
 {
     public class PermissionService : BaseService, IPermissionService
     {
+        public PermissionService(dbContext context, IServiceProvider serviceProvider) : base(context, serviceProvider)
+        {
+        }
+
         /// <summary>
         /// 初始化权限
         /// </summary> 

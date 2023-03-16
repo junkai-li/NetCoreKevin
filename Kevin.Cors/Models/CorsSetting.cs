@@ -19,7 +19,7 @@ namespace Kevin.Cors.Models
         public string PolicyName { get; set; }
 
         /// <summary>
-        /// 
+        /// 访问地址
         /// </summary>
         public string IPs { get; set; }
     }

@@ -36,6 +36,7 @@ using Kevin.Cors.Models;
 using Kevin.SignalR;
 using Web.Libraries.Start;
 using Kevin.SignalR.Models;
+using Models.Extension;
 
 namespace Web.Extension
 {
@@ -177,8 +178,11 @@ namespace Web.Extension
             #endregion
 
             #region 分布式锁服务注册
+            //分布式
             services.AddSingleton<IDistributedLockProvider>(new SqlDistributedSynchronizationProvider(Configuration.GetConnectionString("dbConnection")));
+            //信号锁
             services.AddSingleton<IDistributedSemaphoreProvider>(new SqlDistributedSynchronizationProvider(Configuration.GetConnectionString("dbConnection")));
+            //读写锁
             services.AddSingleton<IDistributedUpgradeableReaderWriterLockProvider>(new SqlDistributedSynchronizationProvider(Configuration.GetConnectionString("dbConnection")));
             #endregion
 
@@ -187,7 +191,7 @@ namespace Web.Extension
             services.Replace(ServiceDescriptor.Transient<IControllerActivator, IocServiceBaseControllerActivator>());
             //App服务注册
             RegisterAppServices(services, Configuration); 
-            services.AddKevinCors(JsonExtensions.DeserializeFromJson<CorsSetting>(Configuration["CorsSetting"]));
+            services.AddKevinCors(JsonExtensions.DeserializeFromJson<CorsSetting>(Configuration.GetSection("CorsSetting").SerializeToJson()));
             services.AddKevinSignalR(Configuration);
             return services;
         }
@@ -221,7 +225,7 @@ namespace Web.Extension
             {
                 endpoints.MapControllers();
             });
-            app.UseKevinSignalR(JsonExtensions.DeserializeFromJson<SignalrSetting>(StartConfiguration.configuration["SignalrSetting"]));
+            app.UseKevinSignalR(new SignalrSetting { url= StartConfiguration.configuration["SignalrSetting:url"] });
             //启用中间件服务生成Swagger作为JSON端点
             app.UseSwagger();
             GlobalServices.Set(app.ApplicationServices);

@@ -1,4 +1,6 @@
 ﻿
+using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Repository.Database;
 using System;
@@ -7,11 +9,15 @@ using Web.Global;
 using Web.Global.User;
 
 namespace Web.Base;
-public class BaseService : IBaseService {
-    private IServiceProvider Provider => GlobalServices.ServiceProvider;
+public class BaseService : IBaseService
+{  
+    private IServiceProvider Provider { get; set; } 
+    public dbContext db { get; set; } 
+    public ICurrentUser CurrentUser { get; set; }
 
-    public dbContext db { get => Web.Libraries.Http.HttpContext.Current().RequestServices.GetService<dbContext>();  }
-    public ICurrentUser CurrentUser { get => Web.Libraries.Http.HttpContext.Current().RequestServices.GetService<ICurrentUser>();}
-     
-     
+    public BaseService(dbContext context, IServiceProvider serviceProvider)
+    {
+        db = context;
+        serviceProvider = Provider;
+    }
 }

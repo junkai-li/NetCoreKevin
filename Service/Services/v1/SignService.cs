@@ -9,6 +9,10 @@ namespace Service.Services.v1
 {
     public class SignService : BaseService, ISignService
     {
+        public SignService(dbContext context, IServiceProvider serviceProvider) : base(context, serviceProvider)
+        {
+        }
+
         /// <summary>
         /// 获取标记总数
         /// </summary>
