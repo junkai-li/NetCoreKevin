@@ -188,6 +188,7 @@ namespace Web.Extension
             //App服务注册
             RegisterAppServices(services, Configuration); 
             services.AddKevinCors(JsonExtensions.DeserializeFromJson<CorsSetting>(Configuration["CorsSetting"]));
+            services.AddKevinSignalR(Configuration);
             return services;
         }
 
