@@ -88,10 +88,7 @@ namespace Web.Permission.Action
         /// </summary>
         /// <param name="httpContext"></param>
         private static void IssueNewToken(HttpContext httpContext)
-        {
-
-
-
+        {  
             var exp = Convert.ToInt64(Libraries.Verify.JwtToken.GetClaims("exp"));
             var exptime = Common.DateTimeHelper.UnixToTime(exp);
             if (exptime > DateTime.Now && exptime < DateTime.Now.AddMinutes(20))
