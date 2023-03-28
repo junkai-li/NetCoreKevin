@@ -10,14 +10,14 @@ using Web.Global.User;
 
 namespace Web.Base;
 public class BaseService : IBaseService
-{  
-    private IServiceProvider Provider { get; set; } 
+{
+    public IServiceProvider _serviceProvider { get; set; } 
     public dbContext db { get; set; } 
     public ICurrentUser CurrentUser { get; set; }
 
     public BaseService(dbContext context, IServiceProvider serviceProvider)
     {
         db = context;
-        serviceProvider = Provider;
+        _serviceProvider = serviceProvider; 
     }
 }

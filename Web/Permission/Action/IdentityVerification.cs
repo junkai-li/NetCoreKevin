@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Models.Dtos;
 using Repository.Database;
@@ -66,7 +67,7 @@ namespace Web.Permission.Action
                     }
                     if (isAllRights)
                     {
-                        bool canAccess = PermissionsAction.IsAccess(PermissionId);
+                        bool canAccess = PermissionsAction.IsAccess(PermissionId, httpContext.RequestServices.GetService<IHttpContextAccessor>());
 
                         return canAccess;
                     }
@@ -89,7 +90,7 @@ namespace Web.Permission.Action
         /// <param name="httpContext"></param>
         private static void IssueNewToken(HttpContext httpContext)
         {  
-            var exp = Convert.ToInt64(Libraries.Verify.JwtToken.GetClaims("exp"));
+            var exp = Convert.ToInt64(Libraries.Verify.JwtToken.GetClaims("exp", httpContext.RequestServices.GetService<IHttpContextAccessor>()));
             var exptime = Common.DateTimeHelper.UnixToTime(exp);
             if (exptime > DateTime.Now && exptime < DateTime.Now.AddMinutes(20))
             {

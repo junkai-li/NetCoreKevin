@@ -27,7 +27,7 @@ namespace Service.Services.v1
         {
             if (Web.Auth.AuthorizeAction.SmsVerifyPhone(keyValue))
             {
-                var userId = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userId"));
+                var userId = CurrentUser.UserId;
                 string phone = keyValue.Key.ToString();
                 var checkPhone = db.TUser.Where(t => t.Id != userId && t.Phone == phone).Count();
                 var user = db.TUser.Where(t => t.Id == userId).FirstOrDefault();
@@ -118,7 +118,7 @@ namespace Service.Services.v1
         public bool EditUserPassWordBySms(dtoKeyValue keyValue)
         {
 
-            var userId = Guid.Parse(Web.Libraries.Verify.JwtToken.GetClaims("userId"));
+            var userId = CurrentUser.UserId;
 
             string phone = db.TUser.Where(t => t.Id == userId).Select(t => t.Phone).FirstOrDefault();
 

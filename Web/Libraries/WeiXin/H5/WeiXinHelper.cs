@@ -7,6 +7,11 @@ using System.Security.Cryptography;
 using Web.Libraries.WeiXin.H5.Models;
 using Common.Json;
 using Web.Libraries.WeiXin.Public;
+using Microsoft.Extensions.Caching.Distributed;
+using Web.Global;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Kevin.Web.Libraries.Http;
 
 namespace Web.Libraries.WeiXin.H5
 {
@@ -105,7 +110,7 @@ namespace Web.Libraries.WeiXin.H5
             WeiXinJsSdkSign sdkSign = new();
 
             sdkSign.appid = appid;
-            string url = HttpContext.GetUrl();
+            string url = KevinHttpContext.GetUrl(GlobalServices.ServiceProvider.GetService<IHttpContextAccessor>());
             sdkSign.timestamp = Common.DateTimeHelper.TimeToUnix(DateTime.Now);
             sdkSign.noncestr = Guid.NewGuid().ToString().Replace("-", "");
             string jsapi_ticket = GetTicketID();

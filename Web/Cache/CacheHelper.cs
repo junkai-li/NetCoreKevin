@@ -18,8 +18,8 @@ namespace Web.Cache
             get
             {
                 if (!IsInit)
-                { 
-                    InitCache = Web.Libraries.Http.HttpContext.Current().RequestServices.GetService<IDistributedCache>();
+                {
+                    InitCache = GlobalServices.ServiceProvider.GetService<IDistributedCache>();
                     IsInit = true;
                 }
 

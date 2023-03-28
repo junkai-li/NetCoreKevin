@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Kevin.Web.Libraries.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Models.JwtBearer;
 using System;
@@ -11,19 +13,18 @@ using System.Text;
 namespace Web.Libraries.Verify
 {
     public class JwtToken
-    {
-
+    { 
         /// <summary>
         /// 通过Key获取Claims中的值
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static string GetClaims(string key)
+        public static string GetClaims(string key, IHttpContextAccessor httpContext)
         {
 
             try
             {
-                var Authorization = Http.HttpContext.Current().Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var Authorization = KevinHttpContext.Current(httpContext).Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
                 var securityToken = new JwtSecurityToken(Authorization);
 

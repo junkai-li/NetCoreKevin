@@ -17,9 +17,8 @@ namespace Service.Repositories.v1
     }
     public class UserRp : BaseRepository<TUser, Guid>, IUserRp
     {
-        public UserRp(dbContext context) : base(context)
+        public UserRp(dbContext context, IServiceProvider serviceProvider) : base(context, serviceProvider)
         {
-
         }
     }
 }

@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Kevin.Web.Libraries.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 
@@ -45,7 +48,7 @@ namespace Web.Filters
 
                         if (context.HttpContext.Request.Method == "POST")
                         {
-                            string body = Libraries.Http.HttpContext.GetRequestBody();
+                            string body = KevinHttpContext.GetRequestBody(context.HttpContext.RequestServices.GetService<IHttpContextAccessor>());
 
                             if (!string.IsNullOrEmpty(body))
                             {

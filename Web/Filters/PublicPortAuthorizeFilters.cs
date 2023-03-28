@@ -1,6 +1,9 @@
 ﻿
+using Kevin.Web.Libraries.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Web.Filters
 {
@@ -26,8 +29,8 @@ namespace Web.Filters
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            var appId = Libraries.Http.HttpContext.Current().Request.Headers["appId"].ToString();
-            var appSecret = Libraries.Http.HttpContext.Current().Request.Headers["appSecret"].ToString();
+            var appId = KevinHttpContext.Current(context.HttpContext.RequestServices.GetService<IHttpContextAccessor>()).Request.Headers["appId"].ToString();
+            var appSecret = KevinHttpContext.Current(context.HttpContext.RequestServices.GetService<IHttpContextAccessor>()).Request.Headers["appSecret"].ToString();
             if (appId != this.AppId || this.AppSecret != appSecret)
             {
                 context.HttpContext.Response.StatusCode = 401;

@@ -1,26 +1,17 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using Microsoft.AspNetCore.Http;
 using Models.Dtos;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Text;
-using Web.Global;
 
-namespace Web.Libraries.Http
-{
-    public class HttpContext
+namespace Kevin.Web.Libraries.Http
+{ 
+    public class KevinHttpContext
     {
 
-        public IHttpContextAccessor GetHttpContextAccessor { get; set; }
-        public static Microsoft.AspNetCore.Http.HttpContext Current()
+        public static Microsoft.AspNetCore.Http.HttpContext Current(IHttpContextAccessor httpContext)
         {
-            var httpContextAccessor = GlobalServices.ServiceProvider.GetService<IHttpContextAccessor>();
+            var httpContextAccessor = httpContext;
             if (httpContextAccessor.HttpContext.Request.Body.Length > 0)
             {
                 httpContextAccessor.HttpContext.Request.Body.Position = 0;
@@ -34,9 +25,9 @@ namespace Web.Libraries.Http
         /// 获取Url信息
         /// </summary>
         /// <returns></returns>
-        public static string GetUrl()
+        public static string GetUrl(IHttpContextAccessor httpContext)
         {
-            return GetBaseUrl() + $"{Current().Request.Path}{Current().Request.QueryString}";
+            return GetBaseUrl(httpContext) + $"{Current(httpContext).Request.Path}{Current(httpContext).Request.QueryString}";
         }
 
 
@@ -44,14 +35,14 @@ namespace Web.Libraries.Http
         /// 获取基础Url信息
         /// </summary>
         /// <returns></returns>
-        public static string GetBaseUrl()
+        public static string GetBaseUrl(IHttpContextAccessor httpContext)
         {
 
-            var url = $"{Current().Request.Scheme}://{Current().Request.Host.Host}";
+            var url = $"{Current(httpContext).Request.Scheme}://{Current(httpContext).Request.Host.Host}";
 
-            if (Current().Request.Host.Port != null)
+            if (Current(httpContext).Request.Host.Port != null)
             {
-                url = url + $":{Current().Request.Host.Port}";
+                url = url + $":{Current(httpContext).Request.Host.Port}";
             }
 
             return url;
@@ -62,16 +53,16 @@ namespace Web.Libraries.Http
         /// <summary>
         /// RequestBody中的内容
         /// </summary>
-        public static string GetRequestBody()
+        public static string GetRequestBody(IHttpContextAccessor httpContext)
         {
             var requestContent = "";
 
             using (Stream requestBody = new MemoryStream())
             {
-                if (Current().Request.Body.Length > 0)
+                if (Current(httpContext).Request.Body.Length > 0)
                 {
-                    Current().Request.Body.CopyTo(requestBody);
-                    Current().Request.Body.Position = 0;
+                    Current(httpContext).Request.Body.CopyTo(requestBody);
+                    Current(httpContext).Request.Body.Position = 0;
 
                     requestBody.Position = 0;
 
@@ -91,9 +82,9 @@ namespace Web.Libraries.Http
         /// <summary>
         /// 获取 http 请求中的全部参数
         /// </summary>
-        public static List<dtoKeyValue> GetParameter()
+        public static List<dtoKeyValue> GetParameter(IHttpContextAccessor httpContext)
         {
-            var context = Current();
+            var context = Current(httpContext);
 
             var parameters = new List<dtoKeyValue>();
 
@@ -104,7 +95,7 @@ namespace Web.Libraries.Http
                 parameters.Add(new dtoKeyValue { Key = query.Key, Value = query.Value });
             }
 
-            string body = GetRequestBody();
+            string body = GetRequestBody(httpContext);
 
             if (!string.IsNullOrEmpty(body))
             {
@@ -130,9 +121,9 @@ namespace Web.Libraries.Http
         /// 获取IP地址
         /// </summary>
         /// <returns></returns>
-        public static string GetIpAddress()
+        public static string GetIpAddress(IHttpContextAccessor httpContext)
         {
-            return Current().Connection.RemoteIpAddress.ToString();
+            return Current(httpContext).Connection.RemoteIpAddress.ToString();
         }
 
 
@@ -142,9 +133,9 @@ namespace Web.Libraries.Http
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static string GetHeader(string key)
+        public static string GetHeader(string key, IHttpContextAccessor httpContext)
         {
-            var query = Current().Request.Headers.Where(t => t.Key.ToLower() == key.ToLower()).Select(t => t.Value);
+            var query = Current(httpContext).Request.Headers.Where(t => t.Key.ToLower() == key.ToLower()).Select(t => t.Value);
 
             var ishave = query.Count();
 

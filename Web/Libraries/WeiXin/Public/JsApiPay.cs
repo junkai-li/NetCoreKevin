@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Kevin.Web.Libraries.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Text;
 
@@ -125,7 +127,7 @@ namespace Web.Libraries.WeiXin.Public
 
             inputObj.SetValue("appid", appid);//公众账号ID
             inputObj.SetValue("mch_id", mchid);//商户号
-            inputObj.SetValue("user_ip", Http.HttpContext.Current().Connection.RemoteIpAddress.ToString());//终端ip
+            inputObj.SetValue("user_ip", KevinHttpContext.Current(Global.GlobalServices.ServiceProvider.GetService<IHttpContextAccessor>()).Connection.RemoteIpAddress.ToString());//终端ip
             inputObj.SetValue("time", DateTime.Now.ToString("yyyyMMddHHmmss"));//商户上报时间	 
             inputObj.SetValue("nonce_str", GenerateNonceStr());//随机字符串
             inputObj.SetValue("sign", inputObj.MakeSign(mchkey));//签名
@@ -164,7 +166,7 @@ namespace Web.Libraries.WeiXin.Public
         public static WxPayData GetNotifyData()
         {
             //接收从微信后台POST过来的数据
-            System.IO.Stream s = Http.HttpContext.Current().Request.Body;
+            System.IO.Stream s = KevinHttpContext.Current(Global.GlobalServices.ServiceProvider.GetService<IHttpContextAccessor>()).Request.Body;
             int count = 0;
             byte[] buffer = new byte[1024];
             StringBuilder builder = new();
@@ -187,7 +189,7 @@ namespace Web.Libraries.WeiXin.Public
                 WxPayData res = new();
                 res.SetValue("return_code", "FAIL");
                 res.SetValue("return_msg", ex.Message);
-                Http.HttpContext.Current().Response.WriteAsync(res.ToXml());
+                KevinHttpContext.Current(Global.GlobalServices.ServiceProvider.GetService<IHttpContextAccessor>()).Response.WriteAsync(res.ToXml());
             }
 
             return data;

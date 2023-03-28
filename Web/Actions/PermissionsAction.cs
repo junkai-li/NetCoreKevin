@@ -1,4 +1,5 @@
-﻿using Repository.Database;
+﻿using Microsoft.AspNetCore.Http;
+using Repository.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,10 +64,10 @@ namespace Web.Actions
         /// 获取用户所拥有的权限列表
         /// </summary> 
         /// <returns></returns>
-        public static bool IsAccess(string permissionId)
+        public static bool IsAccess(string permissionId, IHttpContextAccessor httpContext)
         {
             var pers = new Dictionary<string, bool>();
-            var userId = Web.Libraries.Verify.JwtToken.GetClaims("userid");
+            var userId = Web.Libraries.Verify.JwtToken.GetClaims("userid", httpContext);
             pers = GetUserPermissions(userId);
             if (pers.Count == 0 || !pers.ContainsKey(permissionId))
             {

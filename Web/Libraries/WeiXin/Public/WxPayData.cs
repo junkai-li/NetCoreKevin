@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
+using Kevin.Web.Libraries.Http;
+using Microsoft.AspNetCore.Http;
 
 namespace Web.Libraries.WeiXin.Public
 {
@@ -105,10 +107,10 @@ namespace Web.Libraries.WeiXin.Public
         * @return 经转换得到的Dictionary
         * @throws WxPayException
         */
-        public SortedDictionary<string, object> GetRequest()
+        public SortedDictionary<string, object> GetRequest(IHttpContextAccessor httpContextAccessor)
         {
             //接收从微信后台POST过来的数据
-            System.IO.Stream s = HttpContext.Current().Request.Body;
+            System.IO.Stream s = KevinHttpContext.Current(httpContextAccessor).Request.Body;
             int count = 0;
             byte[] buffer = new byte[1024];
             StringBuilder builder = new();

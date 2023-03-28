@@ -1,6 +1,8 @@
 ﻿using Common.Json;
+using Kevin.Web.Libraries.Http;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using Web.Global.Exceptions;
@@ -33,9 +35,9 @@ namespace Web.Actions
             else
             {
 
-                string path = Libraries.Http.HttpContext.GetUrl();
+                string path =KevinHttpContext.GetUrl(context.RequestServices.GetService<IHttpContextAccessor>());
 
-                var parameter = Libraries.Http.HttpContext.GetParameter();
+                var parameter = KevinHttpContext.GetParameter(context.RequestServices.GetService<IHttpContextAccessor>());
 
                 var parameterStr = JsonHelper.ObjectToJSON(parameter);
 
@@ -44,7 +46,7 @@ namespace Web.Actions
                     parameterStr = parameterStr[0..102400];
                 }
 
-                var authorization = Libraries.Http.HttpContext.Current().Request.Headers["Authorization"].ToString();
+                var authorization = KevinHttpContext.Current(context.RequestServices.GetService<IHttpContextAccessor>()).Request.Headers["Authorization"].ToString();
 
                 var content = new
                 {

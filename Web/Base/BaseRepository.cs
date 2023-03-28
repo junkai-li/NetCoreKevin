@@ -10,10 +10,10 @@ using Web.Global.User;
 namespace Web.Base;
 public abstract class BaseRepository<T, IdType> : Repository<T, IdType> where T : class
 {
-    public BaseRepository(dbContext context) : base(context)
+    protected IServiceProvider ServiceProvider { get; }
+    public BaseRepository(dbContext context,IServiceProvider serviceProvider) : base(context)
     {
-    }
-    private IServiceProvider Provider => GlobalServices.ServiceProvider;
-
-    public ICurrentUser CurrentUser { get => Web.Libraries.Http.HttpContext.Current().RequestServices.GetService<ICurrentUser>(); }
+        ServiceProvider = serviceProvider;
+    } 
+    public ICurrentUser CurrentUser { get => ServiceProvider.GetService<ICurrentUser>(); }
 }
