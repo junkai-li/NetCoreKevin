@@ -37,6 +37,7 @@ using Kevin.SignalR;
 using Web.Libraries.Start;
 using Kevin.SignalR.Models;
 using Models.Extension;
+using Kevin.Common.TieredServiceRegistration;
 
 namespace Web.Extension
 {
@@ -193,6 +194,7 @@ namespace Web.Extension
             RegisterAppServices(services, Configuration); 
             services.AddKevinCors(JsonExtensions.DeserializeFromJson<CorsSetting>(Configuration.GetSection("CorsSetting").SerializeToJson()));
             services.AddKevinSignalR(Configuration);
+            services.RunModuleInitializers(ReflectionScheduler.GetAllReferencedAssemblies());//初始化
             return services;
         }
 
@@ -259,51 +261,8 @@ namespace Web.Extension
             services.AddDbContextPool<Repository.Database.dbContext>(options => { }, 100);
             services.AddScoped<dbContext, dbContext>();
             services.AddScoped<ICurrentUser, CurrentUser>();
-            #endregion
-
-            #region App业务服务
-            Type typeOf_IService = typeof(IBaseService); 
-            Assembly ser = Assembly.Load("Service");
-            var sers = ser.GetTypes().Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && typeOf_IService.IsAssignableFrom(a));
-
-            foreach (var serviceType in sers)
-            {
-
-                var implementedInterfaces = serviceType.GetInterfaces().Where(a => a != typeof(IDisposable) && a != typeOf_IService);
-                foreach (Type implementedInterface in implementedInterfaces)
-                {
-                    services.AddScoped(implementedInterface, sp => sp.GetServiceOrCreateInstance(serviceType));
-                }
-                GlobalServices.AddIService(serviceType);
-                if (!serviceType.IsGenericType)
-                {
-                    services.AddScoped(serviceType, serviceType);
-                }
-            }
-            Assembly[] Assemblys = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (var item in Assemblys)
-            {
-                var serviceTypes = item.GetTypes().Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && typeOf_IService.IsAssignableFrom(a));
-                foreach (var serviceType in serviceTypes)
-                {
-
-                    var implementedInterfaces = serviceType.GetInterfaces().Where(a => a != typeof(IDisposable) && a != typeOf_IService);
-                    foreach (Type implementedInterface in implementedInterfaces)
-                    {
-                        services.AddScoped(implementedInterface, sp => sp.GetServiceOrCreateInstance(serviceType));
-                    }
-                    GlobalServices.AddIService(serviceType);
-                    if (!serviceType.IsGenericType)
-                    {
-                        services.AddScoped(serviceType, serviceType);
-                    }
-                }
-            }
-            #endregion
-
-
-        
-            Console.WriteLine("App服务注册完成");
+            #endregion 
+  
         }
     }
 }
