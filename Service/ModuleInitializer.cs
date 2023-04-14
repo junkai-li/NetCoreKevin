@@ -34,25 +34,34 @@ namespace Service
                     services.AddScoped(serviceType, serviceType);
                 }
             }
-            //Assembly[] Assemblys = AppDomain.CurrentDomain.GetAssemblies();
-            //foreach (var item in Assemblys)
-            //{
-            //    var serviceTypes = item.GetTypes().Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && typeOf_IService.IsAssignableFrom(a));
-            //    foreach (var serviceType in serviceTypes)
-            //    {
+            Assembly[] Assemblys = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (var item in Assemblys)
+            {
+                try
+                {
+                    var serviceTypes = item?.GetTypes()?.Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && typeOf_IService.IsAssignableFrom(a));
+                    foreach (var serviceType in serviceTypes)
+                    {
 
-            //        var implementedInterfaces = serviceType.GetInterfaces().Where(a => a != typeof(IDisposable) && a != typeOf_IService);
-            //        foreach (Type implementedInterface in implementedInterfaces)
-            //        {
-            //            services.AddScoped(implementedInterface, sp => sp.GetServiceOrCreateInstance(serviceType));
-            //        }
-            //        GlobalServices.AddIService(serviceType);
-            //        if (!serviceType.IsGenericType)
-            //        {
-            //            services.AddScoped(serviceType, serviceType);
-            //        }
-            //    }
-            //}
+                        var implementedInterfaces = serviceType.GetInterfaces().Where(a => a != typeof(IDisposable) && a != typeOf_IService);
+                        foreach (Type implementedInterface in implementedInterfaces)
+                        {
+                            services.AddScoped(implementedInterface, sp => sp.GetServiceOrCreateInstance(serviceType));
+                        }
+                        GlobalServices.AddIService(serviceType);
+                        if (!serviceType.IsGenericType)
+                        {
+                            services.AddScoped(serviceType, serviceType);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    Console.WriteLine(ex.Message);
+                }
+
+            }
             #endregion 
 
             Console.WriteLine("App服务注册完成");
