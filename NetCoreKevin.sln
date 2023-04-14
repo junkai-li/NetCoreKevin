@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kevin.Web", "Web\Kevin.Web.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Kevin", "Kevin", "{0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Service\Services.csproj", "{3C85428F-1002-41ED-9712-BF8033D660B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppServices", "Service\AppServices.csproj", "{3C85428F-1002-41ED-9712-BF8033D660B0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kevin.AuthorizationService", "AuthorizationService\Kevin.AuthorizationService.csproj", "{61E84CD7-4DE2-457B-BF03-9F072415A05D}"
 EndProject
@@ -27,7 +27,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kevin.SignalR", "Kevin.Sign
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kevin.Cors", "Kevin.Cors\Kevin.Cors.csproj", "{3A77B50B-93D8-4C95-82F6-08C09C3BB678}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories", "Repositories\Repositories.csproj", "{48AF3DDE-054F-4315-AF07-5DA113F98E2C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppRepositorieRps", "Repositories\AppRepositorieRps.csproj", "{48AF3DDE-054F-4315-AF07-5DA113F98E2C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppDomainServices", "DomainServices\AppDomainServices.csproj", "{D3D33916-8552-481C-B21D-5FB39E1D038F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +85,10 @@ Global
 		{48AF3DDE-054F-4315-AF07-5DA113F98E2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48AF3DDE-054F-4315-AF07-5DA113F98E2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48AF3DDE-054F-4315-AF07-5DA113F98E2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3D33916-8552-481C-B21D-5FB39E1D038F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3D33916-8552-481C-B21D-5FB39E1D038F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3D33916-8552-481C-B21D-5FB39E1D038F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3D33916-8552-481C-B21D-5FB39E1D038F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
