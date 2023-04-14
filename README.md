@@ -3,7 +3,7 @@
 
  1.目录 
  
-    1.授权服务: 颁发授权服务中心 基于Identity框架搭建
+    1.Kevin.AuthorizationService: 颁发授权服务中心 基于Identity框架搭建
 
     2.Common: 工具库包含一些扩展类、帮助类、静态方法、微信、支付宝、阿里云、腾讯、Json相关、SSL证书
 
@@ -15,12 +15,16 @@
 
     6.Quartz: 基于Quartz搭建的自动任务调度系统
 
-    7.存储库: 数据库仓储层
+    7.Kevin.Repository: 数据库工作单元仓储
 
-    8.服务: 服务层
+    8.AppServices: 应用服务层
 
     9.Web: Web相关的工具层包含 鉴权验权、过滤器、中间件、全局类、权限控制、基础类、缓存、服务初始化、单点登录
 
     10.WebApi: API层
     
     11.CrawlingService ：基于Selenium.WebDriver.MSEdgeDriver用于爬虫数据||自动化测试
+    
+    12.AppRepositorieRps 数据仓储层
+    
+    13.AppDomainServices 领域服务层
