@@ -7,7 +7,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://netCoreKevin.local.gejinet.com:9901"
+      "applicationUrl": "http://localhost:9901"
     },
     "Docker": {
       "commandName": "Docker",

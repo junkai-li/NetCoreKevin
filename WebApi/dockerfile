@@ -1,40 +1,47 @@
-#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-FROM registry.cn-shanghai.aliyuncs.com/onekib/dotnet-aspnet:5.0-buster-slim AS base
-#FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS base
+#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+#使用asp.net core 6.0作为基础镜像，起一个别名为base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+#设置容器的工作目录为/app
 WORKDIR /app
-
-#修改镜像内部软件源采用阿里镜像
-RUN echo "deb https://mirrors.aliyun.com/debian buster main" > /etc/apt/sources.list
-RUN echo "deb https://mirrors.aliyun.com/debian-security buster/updates main" >> /etc/apt/sources.list
-RUN echo "deb https://mirrors.aliyun.com/debian buster-updates main" >> /etc/apt/sources.list
-
 #安装 libgdiplus 以解决 System.Drawing 在 linux 下无法运行的问题
-RUN apt-get update && apt-get -y install libgdiplus
-
+RUN apt-get update && apt-get -y install libgdiplus 
 #设置时区为中国上海
 ENV TZ=Asia/Shanghai
-
+#暴露80端口
 EXPOSE 80
-EXPOSE 443
-FROM registry.cn-shanghai.aliyuncs.com/onekib/dotnet-sdk:5.0-buster-slim AS build
-#FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build 
-
+#使用.net core sdk作为基础镜像，起一个别名为build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+#设置容器的工作目录为/src
 WORKDIR /src
+#拷贝WebApi.csproj项目文件到容器中的/src/WebApi/目录
 COPY ["WebApi/WebApi.csproj", "WebApi/"]
-COPY ["WebApiService/Web.csproj", "WebApiService/"]
-COPY ["Common/Common.csproj", "Common/"]
-COPY ["Models/Models.csproj", "Models/"]
-COPY ["Repository/Repository.csproj", "Repository/"]
+COPY ["Service/AppServices.csproj", "Service/"]
+COPY ["DomainServices/AppDomainServices.csproj", "DomainServices/"]
+COPY ["Repositories/AppRepositorieRps.csproj", "Repositories/"]
+COPY ["Web/Kevin.Web.csproj", "Web/"]
+COPY ["Common/Kevin.Common.csproj", "Common/"]
+COPY ["Models/Kevin.Models.csproj", "Models/"]
+COPY ["Repository/Kevin.Repository.csproj", "Repository/"]
+COPY ["CrawlingService/kevin.CrawlingService.csproj", "CrawlingService/"]
+COPY ["Kevin.Cors/Kevin.Cors.csproj", "Kevin.Cors/"]
+COPY ["Kevin.SignalR/Kevin.SignalR.csproj", "Kevin.SignalR/"]
+#执行dotnet restore命令，相当于平时用vs还原nuget包
 RUN dotnet restore "WebApi/WebApi.csproj"
+#拷贝当前目录的文件到到容器的/src目录
 COPY . .
+#拷贝当前目录的文件到到容器的/src目录
 WORKDIR "/src/WebApi"
+#执行dotnet build命令，相当于平时用vs生成项目。以Release模式生成到容器的/app/build目录
 RUN dotnet build "WebApi.csproj" -c Release -o /app/build
-
+#将上面的build作为基础镜像，又重命名为publish
 FROM build AS publish
-RUN dotnet publish "WebApi.csproj" -c Release -o /app/publish
-
+#执行dotnet publish命令，相当于平时用vs发布项目。以Release模式发布到容器的/app/publish目录
+RUN dotnet publish "WebApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
+#将上面的base作为基础镜像，又重命名为final
 FROM base AS final
+#设置容器的工作目录为/app
 WORKDIR /app
+#拷贝/app/publish目录到当前工作目录
 COPY --from=publish /app/publish .
+#指定容器入口命令，容器启动时会运行dotnet WebApi.dll
 ENTRYPOINT ["dotnet", "WebApi.dll"]

@@ -35,7 +35,7 @@ namespace WebApi
     {
         public static void Main(string[] args)
         {
-            var nlogPath = Path.Combine(Directory.GetCurrentDirectory(), "Configs\\_\\nlog.config");
+            var nlogPath = Path.Combine(Directory.GetCurrentDirectory(), "Configs/_/nlog.config");
             NLog.Logger logger = NLogBuilder.ConfigureNLog(nlogPath).GetCurrentClassLogger();
             try
             {
