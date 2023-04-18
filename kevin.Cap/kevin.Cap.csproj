@@ -6,4 +6,16 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="DotNetCore.CAP" Version="6.2.1" />
+    <PackageReference Include="DotNetCore.CAP.Dashboard" Version="6.2.1" />
+    <PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="6.2.1" />
+    <PackageReference Include="DotNetCore.CAP.MySql" Version="6.2.1" />
+    <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="6.2.1" />
+    <PackageReference Include="DotNetCore.CAP.RedisStreams" Version="6.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+  </ItemGroup>
+
 </Project>

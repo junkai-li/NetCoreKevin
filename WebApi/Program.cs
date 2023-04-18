@@ -14,24 +14,19 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.IO;
 using System.Net.Http;
-using System.Text.Encodings.Web;
-using System.Text.Unicode;
 using TencentService;
 using TencentService._;
 using Web.Extension;
-using Web.Filters;
 using Web.Global;
 using Web.Libraries.Swagger;
-using Web.Subscribes;
-using log4net;
-using DnsClient;
 using Microsoft.Extensions.Logging;
 using Kevin.Common.Helper;
+using Microsoft.Extensions.DependencyInjection;
+using kevin.Cap;
 
 namespace WebApi
 {
@@ -44,7 +39,7 @@ namespace WebApi
 
                 Common.EnvironmentHelper.InitTestServer();
                 var builder = WebApplication.CreateBuilder(args); 
-                builder.Logging.AddLog4Net("Configs/_/log4.config"); 
+                builder.Logging.AddLog4Net("Configs/_/log4.config");
                 #region Kestrel Https并绑定证书
                 //启用 Kestrel Https 并绑定证书
                 //builder.WebHost.UseKestrel(options =>
@@ -57,50 +52,7 @@ namespace WebApi
                 //builder.WebHost.UseUrls("https://*");
                 #endregion
 
-                #region Cap
-
-                //builder.Services.AddSingleton<DemoSubscribe>();
-                //builder.Services.AddCap(options =>
-                //{
-
-                //    //使用 Redis 传输消息
-                //    options.UseRedis(builder.Configuration.GetConnectionString("redisConnection"));
-
-                //    //var rabbitMQSetting = Configuration.GetSection("RabbitMQSetting").Get<RabbitMQSetting>();
-
-                //    ////使用 RabbitMQ 传输消息
-                //    //options.UseRabbitMQ(options =>
-                //    //{
-                //    //    options.HostName = rabbitMQSetting.HostName;
-                //    //    options.UserName = rabbitMQSetting.UserName;
-                //    //    options.Password = rabbitMQSetting.PassWord;
-                //    //    options.VirtualHost = rabbitMQSetting.VirtualHost;
-                //    //    options.Port = rabbitMQSetting.Port;
-                //    //    options.ConnectionFactoryOptions = options =>
-                //    //    {
-                //    //        options.Ssl = new RabbitMQ.Client.SslOption { Enabled = rabbitMQSetting.Ssl.Enabled, ServerName = rabbitMQSetting.Ssl.ServerName };
-                //    //    };
-                //    //});
-
-
-                //    //使用 ef 搭配 db 存储执行情况
-                //    options.UseEntityFramework<Repository.Database.dbContext>();
-                //    //使用Dashboard，这是一个Cap的可视化管理界面；默认地址:http://localhost:端口/cap
-                //    options.UseDashboard();
-                //    options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
-
-                //    options.DefaultGroupName = "default";   //默认组名称
-                //    options.GroupNamePrefix = null; //全局组名称前缀
-                //    options.TopicNamePrefix = null; //Topic 统一前缀
-                //    options.Version = "v1";
-                //    options.FailedRetryInterval = 60;   //失败时重试间隔
-                //    options.ConsumerThreadCount = 1;    //消费者线程并行处理消息的线程数，当这个值大于1时，将不能保证消息执行的顺序
-                //    options.FailedRetryCount = 10;  //失败时重试的最大次数
-                //    options.FailedThresholdCallback = null; //重试阈值的失败回调
-                //    options.SucceedMessageExpiredAfter = 24 * 3600; //成功消息的过期时间（秒）
-                //}).AddSubscribeFilter<CapSubscribeFilter>();
-                #endregion  
-
+                builder.Services.AddKevinRedisCap(builder.Configuration.GetConnectionString("redisConnection")); 
                 builder.Services.ConfigServies(builder.Configuration);
 
                 #region Swagger 文档

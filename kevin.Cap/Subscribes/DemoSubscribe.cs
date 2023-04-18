@@ -1,7 +1,7 @@
 ﻿using DotNetCore.CAP;
 using System;
 
-namespace Web.Subscribes
+namespace kevin.Cap
 {
 
 

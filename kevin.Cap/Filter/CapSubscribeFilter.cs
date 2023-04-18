@@ -1,6 +1,6 @@
 ﻿using DotNetCore.CAP.Filter;
 
-namespace Web.Filters
+namespace kevin.Cap.Filter
 {
 
     /// <summary>

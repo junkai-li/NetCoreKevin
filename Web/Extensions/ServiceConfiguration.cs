@@ -1,43 +1,35 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Kevin.Common.TieredServiceRegistration;
+using Kevin.Cors;
+using Kevin.Cors.Models;
+using Kevin.SignalR;
+using Kevin.SignalR.Models;
+using Kevin.Web.Extensions;
+using Medallion.Threading;
+using Medallion.Threading.SqlServer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using Models.JwtBearer;
+using Models.Extension;
+using Repository.Database;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
-using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Web.Filters;
 using Web.Global;
+using Web.Global.User;
+using Web.Libraries.Start;
 using Web.Libraries.Swagger;
 using Web.Permission.Action;
-using Medallion.Threading;
-using Medallion.Threading.SqlServer;
-using System.Reflection;
-using Web.Base._;
-using Microsoft.AspNetCore.Http;
-using Repository.Database;
-using Web.Global.User;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Kevin.Web.Extensions;
-using Kevin.Cors;
-using System.IdentityModel.Tokens.Jwt;
-using Kevin.Cors.Models;
-using Kevin.SignalR;
-using Web.Libraries.Start;
-using Kevin.SignalR.Models;
-using Models.Extension;
-using Kevin.Common.TieredServiceRegistration;
 
 namespace Web.Extension
 {
@@ -79,7 +71,7 @@ namespace Web.Extension
             #endregion
 
             #region 注册常用 
-             
+
             //注册全局过滤器
             services.AddMvc(config =>
             {
@@ -94,7 +86,7 @@ namespace Web.Extension
             services.AddSingleton(new Common.SnowflakeHelper(0, 0));
             #endregion
 
-            services.AddControllers();  
+            services.AddControllers();
 
             services.AddControllers().AddJsonOptions(option =>
             {
@@ -105,7 +97,7 @@ namespace Web.Extension
 
             services.AddControllers().AddControllersAsServices(); //控制器当做实例创建
 
-           
+
             #region Api版本以及配置
             services.AddApiVersioning(options =>
             {
@@ -155,7 +147,7 @@ namespace Web.Extension
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerConfigureOptions>();
             #endregion
 
-         
+
             #region 缓存服务模式
             //注册缓存服务 内存模式
             services.AddDistributedMemoryCache();
@@ -191,7 +183,7 @@ namespace Web.Extension
             services.AddControllersWithViews().AddControllersAsServices();
             services.Replace(ServiceDescriptor.Transient<IControllerActivator, IocServiceBaseControllerActivator>());
             //App服务注册
-            RegisterAppServices(services, Configuration); 
+            RegisterAppServices(services, Configuration);
             services.AddKevinCors(JsonExtensions.DeserializeFromJson<CorsSetting>(Configuration.GetSection("CorsSetting").SerializeToJson()));
             services.AddKevinSignalR(Configuration);
             services.RunModuleInitializers(ReflectionScheduler.GetAllReferencedAssemblies());//初始化
@@ -227,7 +219,7 @@ namespace Web.Extension
             {
                 endpoints.MapControllers();
             });
-            app.UseKevinSignalR(new SignalrSetting { url= StartConfiguration.configuration["SignalrSetting:url"] });
+            app.UseKevinSignalR(new SignalrSetting { url = StartConfiguration.configuration["SignalrSetting:url"] });
             //启用中间件服务生成Swagger作为JSON端点
             app.UseSwagger();
             GlobalServices.Set(app.ApplicationServices);
@@ -257,12 +249,12 @@ namespace Web.Extension
             //请求获取 -（GC回收 - 主动释放） 每一次获取的对象都不是同一个
             #region 基本服务
             //为各数据库注入连接字符串
-            Repository.Database.dbContext.ConnectionString =Configuration.GetConnectionString("dbConnection");
+            Repository.Database.dbContext.ConnectionString = Configuration.GetConnectionString("dbConnection");
             services.AddDbContextPool<Repository.Database.dbContext>(options => { }, 100);
             services.AddScoped<dbContext, dbContext>();
             services.AddScoped<ICurrentUser, CurrentUser>();
-            #endregion 
-  
+            #endregion
+
         }
     }
 }
