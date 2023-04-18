@@ -31,9 +31,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppRepositorieRps", "Reposi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppDomainServices", "DomainServices\AppDomainServices.csproj", "{D3D33916-8552-481C-B21D-5FB39E1D038F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kevin.Consul", "kevin.Consul\kevin.Consul.csproj", "{55A2DBDB-95BF-43E9-BA51-E0E64FFF0ADF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "kevin.Consul", "kevin.Consul\kevin.Consul.csproj", "{55A2DBDB-95BF-43E9-BA51-E0E64FFF0ADF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kevin.Ocelot", "kevin.Ocelot\kevin.Ocelot.csproj", "{B58BDEB2-CE70-4C40-B3A1-97F0934B19EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "kevin.Ocelot", "kevin.Ocelot\kevin.Ocelot.csproj", "{B58BDEB2-CE70-4C40-B3A1-97F0934B19EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kevin.Cap", "kevin.Cap\kevin.Cap.csproj", "{7ED5424C-F489-4B8A-946E-BB034E3503E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,6 +103,10 @@ Global
 		{B58BDEB2-CE70-4C40-B3A1-97F0934B19EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B58BDEB2-CE70-4C40-B3A1-97F0934B19EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B58BDEB2-CE70-4C40-B3A1-97F0934B19EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7ED5424C-F489-4B8A-946E-BB034E3503E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ED5424C-F489-4B8A-946E-BB034E3503E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ED5424C-F489-4B8A-946E-BB034E3503E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ED5424C-F489-4B8A-946E-BB034E3503E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -116,6 +122,7 @@ Global
 		{3A77B50B-93D8-4C95-82F6-08C09C3BB678} = {0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}
 		{55A2DBDB-95BF-43E9-BA51-E0E64FFF0ADF} = {0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}
 		{B58BDEB2-CE70-4C40-B3A1-97F0934B19EB} = {0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}
+		{7ED5424C-F489-4B8A-946E-BB034E3503E4} = {0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {87D265C7-413F-4CF5-A684-6D860C49A3AE}

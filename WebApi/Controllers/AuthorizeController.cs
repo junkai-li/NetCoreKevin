@@ -46,7 +46,18 @@ namespace WebApi.Controllers
             db.TUser.Count();
             return db.TUser.Count().ToString();
 
-        }  
+        }
+
+        /// <summary>
+        /// GetErr
+        /// </summary> 
+        /// <returns></returns>
+        [HttpPost("GetRdisDb")]
+        public string GetRdisDb()
+        { 
+            return RedisHelper.StrGet("1");
+
+        }
 
         ///// <summary>
         ///// 获取Token认证信息

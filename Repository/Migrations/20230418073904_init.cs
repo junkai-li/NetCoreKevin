@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Kevin.Repository.Migrations
 {
-    public partial class 初始化Mysql表 : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -196,7 +196,7 @@ namespace Kevin.Repository.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     mchid = table.Column<string>(type: "longtext", nullable: true, comment: "MchId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    mchkey = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "MchKey  ]")
+                    mchkey = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "MchKey            ]")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     sort = table.Column<int>(type: "int", nullable: false, comment: "排序"),
                     type = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "AppId 类型，['App','MiniApp','H5','Native']")

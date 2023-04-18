@@ -11,8 +11,8 @@ using Repository.Database;
 namespace Kevin.Repository.Migrations
 {
     [DbContext(typeof(dbContext))]
-    [Migration("20220323054230_初始化Mysql表")]
-    partial class 初始化Mysql表
+    [Migration("20230418073904_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
