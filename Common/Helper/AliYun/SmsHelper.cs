@@ -2,6 +2,7 @@
 using Aliyun.Acs.Core.Exceptions;
 using Aliyun.Acs.Core.Http;
 using Aliyun.Acs.Core.Profile;
+using Kevin.Common.Helper;
 
 namespace Common.AliYun
 {
@@ -65,9 +66,7 @@ namespace Common.AliYun
                 };
 
                 var logStr = Json.JsonHelper.ObjectToJSON(log);
-
-                DBHelper.LogSet("Sms", "error", logStr);
-
+                LogHelper.logger?.Error("Sms" + logStr);
                 return false;
             }
             catch (ClientException e)
@@ -84,7 +83,7 @@ namespace Common.AliYun
 
                 var logStr = Json.JsonHelper.ObjectToJSON(log);
 
-                DBHelper.LogSet("Sms", "error", logStr);
+                LogHelper.logger.Error("Sms" + logStr);
 
                 return false;
             }

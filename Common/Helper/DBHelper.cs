@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Models.Dtos;
-using Repository.Database;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -25,13 +22,13 @@ namespace Common
         public static IList<T> SelectFromSql<T>(string sql, Dictionary<string, object> parameters = default, DbConnection connection = default) where T : class
         {
 
-            if (connection == default)
-            {
-                using (var db = new dbContext())
-                {
-                    connection = db.Database.GetDbConnection();
-                }
-            }
+            //if (connection == default)
+            //{
+            //    using (var db = new dbContext())
+            //    {
+            //        connection = db.Database.GetDbConnection();
+            //    }
+            //}
 
             connection.Open();
 
@@ -83,14 +80,6 @@ namespace Common
         public static void ExecuteSql(string sql, Dictionary<string, object> parameters = default, DbConnection connection = default)
         {
 
-            if (connection == default)
-            {
-                using (var db = new dbContext())
-                {
-                    connection = db.Database.GetDbConnection();
-                }
-            }
-
             connection.Open();
 
             var command = connection.CreateCommand();
@@ -120,157 +109,13 @@ namespace Common
 
 
 
-        /// <summary>
-        /// 保存日志信息
-        /// </summary>
-        /// <param name="Sign">自定义标记</param>
-        /// <param name="Type">日志类型</param>
-        /// <param name="Content">日志内容</param>
-        /// <returns></returns>
-        public static bool LogSet(string Sign, string Type, string Content)
-        {
-            try
-            {
-                using (var db = new dbContext())
-                {
-                    var log = new TLog();
-
-                    log.Id = Guid.NewGuid();
-                    log.Sign = Sign;
-                    log.Type = Type;
-                    log.Content = Content;
-                    log.CreateTime = DateTime.Now;
-
-                    db.TLog.Add(log);
-
-                    db.SaveChanges();
-                }
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-
-
-        /// <summary>
-        /// 账户合并方法，仅限SqlServer
-        /// </summary>
-        /// <param name="oldUserId">原始账户ID</param>
-        /// <param name="newUserId">新账户ID</param>
-        /// <returns></returns>
-        public static bool MergeUser(Guid oldUserId, Guid newUserId)
-        {
-            try
-            {
-                using var db = new dbContext();
-
-
-                string sql = "SELECT t.name AS [Key],c.name AS Value FROM sys.tables AS t INNER JOIN sys.columns c ON t.OBJECT_ID = c.OBJECT_ID WHERE c.system_type_id = 231 and c.name LIKE '%userid%'";
-
-                var list = SelectFromSql<dtoKeyValue>(sql);
-
-                var parameters = new Dictionary<string, object>();
-
-                foreach (var item in list)
-                {
-
-                    string upSql = "UPDATE [dbo].[@tableName] SET [@columnName] = @newUserId WHERE [@columnName] = @oldUserId";
-
-                    parameters = new Dictionary<string, object>();
-                    parameters.Add("tableName", item.Key.ToString());
-                    parameters.Add("columnName", item.Value.ToString());
-                    parameters.Add("newUserId", newUserId);
-                    parameters.Add("oldUserId", oldUserId);
-
-                    db.Database.ExecuteSqlRaw(upSql, parameters);
-                }
-
-                string delSql = "DELETE FROM [dbo].[t_user] WHERE [id] = @oldUserId";
-
-                parameters = new Dictionary<string, object>();
-                parameters.Add("oldUserId", oldUserId);
-
-                db.Database.ExecuteSqlRaw(delSql, parameters);
-
-                return true;
-
-            }
-            catch
-            {
-                return false;
-            }
-        }
 
 
 
 
-        /// <summary>
-        /// 为指定类型的计数 +1
-        /// </summary>
-        /// <param name="tag">标签</param>
-        /// <returns></returns>
-        public static int RunCountSet(string tag)
-        {
-            using (var db = new dbContext())
-            {
-
-                var info = db.TCount.Where(t => t.Tag == tag).FirstOrDefault() ?? new TCount();
-
-                if (info.Id != default)
-                {
-                    info.Count++;
-                    info.UpdateTime = DateTime.Now;
-
-                    db.SaveChanges();
-
-                    return info.Count;
-                }
-                else
-                {
-                    info.Id = Guid.NewGuid();
-                    info.Tag = tag;
-                    info.Count = 1;
-                    info.CreateTime = DateTime.Now;
-
-                    db.TCount.Add(info);
-
-                    db.SaveChanges();
-
-                    return info.Count;
-
-                }
-
-            }
-        }
 
 
 
-        /// <summary>
-        /// 通过类型获取计数值
-        /// </summary>
-        /// <param name="tag">标记</param>
-        /// <param name="starttime">开始时间</param>
-        /// <param name="endtime">结束时间</param>
-        /// <returns></returns>
-        public static int RunCountGet(string tag, DateTime starttime = default(DateTime), DateTime endtime = default(DateTime))
-        {
-
-            using (var db = new dbContext())
-            {
-                var query = db.TCount.Where(t => t.Tag.Contains(tag));
-
-                if (starttime != default(DateTime) & endtime != default(DateTime))
-                {
-                    query = query.Where(t => t.CreateTime >= starttime & t.CreateTime <= endtime);
-                }
-
-                return query.ToList().Sum(t => t.Count);
-            }
-
-        }
 
 
         /// <summary>

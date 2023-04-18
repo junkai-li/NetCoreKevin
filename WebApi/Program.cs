@@ -17,7 +17,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using NLog.Web; 
 using System.IO;
 using System.Net.Http;
 using System.Text.Encodings.Web;
@@ -29,20 +28,23 @@ using Web.Filters;
 using Web.Global;
 using Web.Libraries.Swagger;
 using Web.Subscribes;
+using log4net;
+using DnsClient;
+using Microsoft.Extensions.Logging;
+using Kevin.Common.Helper;
+
 namespace WebApi
 {
     public class Program
     {
         public static void Main(string[] args)
-        {
-            var nlogPath = Path.Combine(Directory.GetCurrentDirectory(), "Configs/_/nlog.config");
-            NLog.Logger logger = NLogBuilder.ConfigureNLog(nlogPath).GetCurrentClassLogger();
+        { 
             try
             {
 
                 Common.EnvironmentHelper.InitTestServer();
-                var builder = WebApplication.CreateBuilder(args);
-              
+                var builder = WebApplication.CreateBuilder(args); 
+                builder.Logging.AddLog4Net("Configs/_/log4.config"); 
                 #region Kestrel Https并绑定证书
                 //启用 Kestrel Https 并绑定证书
                 //builder.WebHost.UseKestrel(options =>
@@ -54,7 +56,7 @@ namespace WebApi
                 //});
                 //builder.WebHost.UseUrls("https://*");
                 #endregion
-                 
+
                 #region Cap
 
                 builder.Services.AddSingleton<DemoSubscribe>();
@@ -233,19 +235,19 @@ namespace WebApi
 
                     options.RoutePrefix = "swagger";
                 });
-               
-                logger.Debug("init main");
+
+                LogHelper.logger.Debug("init main");
                 app.Run();
             }
             catch (Exception ex)
             {
-                logger?.Error(ex, "Stopped program because of exception");
+                LogHelper.logger?.Error("Stopped program because of exception",ex);
                 throw;
             }
             finally
             {
                 // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
-                NLog.LogManager.Shutdown();
+    
             }
         } 
     }

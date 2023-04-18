@@ -1,4 +1,6 @@
-﻿using System; 
+﻿using Kevin.Common.Helper;
+using System;
+using TencentCloud.Cls.V20201016.Models;
 /// <summary>
 /// 任务进行多次的重试  return Common.CommonTools.Retry(() => _spSystemSettingsDapperRep.GetSendMailList(mailSearchModel));
 /// </summary>
@@ -6,8 +8,7 @@
 namespace Common
 {
     public static class CommonTools
-    {
-        readonly static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    { 
         readonly static int sleepMillisecondsTimeout = 1000;
 
 
@@ -33,7 +34,7 @@ namespace Common
             catch (Exception e)
             {
                 retryTimes--;
-                logger.Error($"剩餘重試次數: {retryTimes}, retry error: {e.Message}, Exception detail: {Json.JsonHelper.ObjectToJSON(e)}");
+                LogHelper.logger.Error($"剩餘重試次數: {retryTimes}, retry error: {e.Message}, Exception detail: {Json.JsonHelper.ObjectToJSON(e)}");
                 System.Threading.Thread.Sleep(sleepMillisecondsTimeout);
                 return Retry(handler, retryTimes);
             }
@@ -57,7 +58,7 @@ namespace Common
                 }
                 catch (Exception e)
                 {
-                    logger.Error($"第 {i}次執行錯誤(start from 0): retry error: {e.Message}, Exception detail: {Json.JsonHelper.ObjectToJSON(e)}");
+                    LogHelper.logger.Error($"第 {i}次執行錯誤(start from 0): retry error: {e.Message}, Exception detail: {Json.JsonHelper.ObjectToJSON(e)}");
                     System.Threading.Thread.Sleep(sleepMillisecondsTimeout);
                 }
             }
@@ -85,7 +86,7 @@ namespace Common
             catch (Exception e)
             {
                 retryTimes--;
-                logger.Error($"剩餘重試次數: {retryTimes}, retry error: {e.Message}, Exception detail: {Json.JsonHelper.ObjectToJSON(e)}");
+                LogHelper.logger.Error($"剩餘重試次數: {retryTimes}, retry error: {e.Message}, Exception detail: {Json.JsonHelper.ObjectToJSON(e)}");
                 System.Threading.Thread.Sleep(sleepMillisecondsTimeout);
                 RetryVoid(handler, retryTimes);
             }

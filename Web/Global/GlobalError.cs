@@ -1,4 +1,5 @@
 ﻿using Common.Json;
+using Kevin.Common.Helper;
 using Kevin.Web.Libraries.Http;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -57,7 +58,7 @@ namespace Web.Actions
                 };
 
                 string strContent = JsonHelper.ObjectToJSON(content);
-                Common.DBHelper.LogSet(ProjectName, "errorlog", strContent);
+                LogHelper.logger.Error(ProjectName+strContent);
             }
             return context.Response.WriteAsJsonAsync(ret);
         }

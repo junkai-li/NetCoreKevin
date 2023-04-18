@@ -18,10 +18,12 @@
     <PackageReference Include="Certes" Version="3.0.3" />
     <PackageReference Include="DnsClient" Version="1.7.0" />
     <PackageReference Include="DynamicExpresso.Core" Version="2.11.0" />
+    <PackageReference Include="log4net" Version="2.0.15" />
     <PackageReference Include="Mapster" Version="7.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="6.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="4.14.0" />
     <PackageReference Include="NPOI" Version="2.5.5" />
     <PackageReference Include="SkiaSharp" Version="2.80.3" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.80.3" />
@@ -36,7 +38,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Models\Kevin.Models.csproj" />
-    <ProjectReference Include="..\Repository\Kevin.Repository.csproj" />
   </ItemGroup>
 
 </Project>

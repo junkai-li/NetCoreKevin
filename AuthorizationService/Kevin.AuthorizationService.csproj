@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Kevin.Common.csproj" />
+    <ProjectReference Include="..\Repository\Kevin.Repository.csproj" />
   </ItemGroup>
 
 </Project>

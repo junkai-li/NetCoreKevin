@@ -1,5 +1,4 @@
 ﻿using Common.AliYun;
-using Microsoft.EntityFrameworkCore;
 using NPOI.HSSF.UserModel;
 using NPOI.OpenXmlFormats.Spreadsheet;
 using NPOI.SS.UserModel;
@@ -9,12 +8,9 @@ using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Common
