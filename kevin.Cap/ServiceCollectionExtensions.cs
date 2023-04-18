@@ -1,9 +1,6 @@
 ﻿
 using kevin.Cap.Filter;
-using kevin.Cap.Models;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 

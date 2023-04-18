@@ -9,10 +9,6 @@
 
   <ItemGroup>
     <PackageReference Include="DistributedLock.SqlServer" Version="1.0.1" />
-    <PackageReference Include="DotNetCore.CAP" Version="5.2.0" />
-    <PackageReference Include="DotNetCore.CAP.Dashboard" Version="5.2.0" />
-    <PackageReference Include="DotNetCore.CAP.RedisStreams" Version="5.2.0" />
-    <PackageReference Include="DotNetCore.CAP.SqlServer" Version="5.2.0" />
     <PackageReference Include="IdentityModel" Version="5.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
