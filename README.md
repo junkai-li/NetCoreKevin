@@ -1,6 +1,8 @@
 # NetCoreKevin
 基于NET6搭建跨平台WebApi架构支持单点登录、多缓存、自动任务、分布式、多租户、日志、授权和鉴权
 
+![image](https://user-images.githubusercontent.com/57887866/232985134-f8b21418-a8f1-440c-82a7-2d585b84fea0.png)
+
  1.目录 
  
     1.Kevin.AuthorizationService: 颁发授权服务中心 基于Identity框架搭建
@@ -28,4 +30,4 @@
     12.AppRepositorieRps 数据仓储层
     
     13.AppDomainServices 领域服务层
-![image](https://user-images.githubusercontent.com/57887866/232985134-f8b21418-a8f1-440c-82a7-2d585b84fea0.png)
+
