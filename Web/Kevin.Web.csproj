@@ -25,6 +25,8 @@
     <ProjectReference Include="..\kevin.Cap\kevin.Cap.csproj" />
     <ProjectReference Include="..\kevin.Consul\kevin.Consul.csproj" />
     <ProjectReference Include="..\Kevin.Cors\Kevin.Cors.csproj" />
+    <ProjectReference Include="..\Kevin.HttpApiClients\Kevin.HttpApiClients.csproj" />
+    <ProjectReference Include="..\Kevin.log4Net\Kevin.log4Net.csproj" />
     <ProjectReference Include="..\kevin.Ocelot\kevin.Ocelot.csproj" />
     <ProjectReference Include="..\Kevin.SignalR\Kevin.SignalR.csproj" />
     <ProjectReference Include="..\Repository\Kevin.Repository.csproj" />
