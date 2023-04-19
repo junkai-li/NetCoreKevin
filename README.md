@@ -28,3 +28,4 @@
     12.AppRepositorieRps 数据仓储层
     
     13.AppDomainServices 领域服务层
+![image](https://user-images.githubusercontent.com/57887866/232985134-f8b21418-a8f1-440c-82a7-2d585b84fea0.png)
