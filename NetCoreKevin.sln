@@ -37,9 +37,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "kevin.Ocelot", "kevin.Ocelo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "kevin.Cap", "kevin.Cap\kevin.Cap.csproj", "{7ED5424C-F489-4B8A-946E-BB034E3503E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kevin.log4Net", "Kevin.log4Net\Kevin.log4Net.csproj", "{FC583EF5-BE30-4317-A8C9-E2815B7DFC4D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kevin.log4Net", "Kevin.log4Net\Kevin.log4Net.csproj", "{FC583EF5-BE30-4317-A8C9-E2815B7DFC4D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kevin.HttpApiClients", "Kevin.HttpApiClients\Kevin.HttpApiClients.csproj", "{6E13246B-8CAF-416A-9B83-2288CA419156}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kevin.HttpApiClients", "Kevin.HttpApiClients\Kevin.HttpApiClients.csproj", "{6E13246B-8CAF-416A-9B83-2288CA419156}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kevin.Cache", "kevin.Cache\kevin.Cache.csproj", "{8D43D8BB-00EB-4997-9462-EB6EB5C82432}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -119,6 +121,10 @@ Global
 		{6E13246B-8CAF-416A-9B83-2288CA419156}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E13246B-8CAF-416A-9B83-2288CA419156}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E13246B-8CAF-416A-9B83-2288CA419156}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D43D8BB-00EB-4997-9462-EB6EB5C82432}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D43D8BB-00EB-4997-9462-EB6EB5C82432}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D43D8BB-00EB-4997-9462-EB6EB5C82432}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D43D8BB-00EB-4997-9462-EB6EB5C82432}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -137,6 +143,7 @@ Global
 		{7ED5424C-F489-4B8A-946E-BB034E3503E4} = {0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}
 		{FC583EF5-BE30-4317-A8C9-E2815B7DFC4D} = {0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}
 		{6E13246B-8CAF-416A-9B83-2288CA419156} = {0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}
+		{8D43D8BB-00EB-4997-9462-EB6EB5C82432} = {0113DACB-8EA3-4A21-93C4-CAB1EB94D45F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {87D265C7-413F-4CF5-A684-6D860C49A3AE}
