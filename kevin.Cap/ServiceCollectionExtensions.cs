@@ -1,5 +1,7 @@
 ﻿
+using DotNetCore.CAP;
 using kevin.Cap.Filter;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
@@ -51,7 +53,7 @@ namespace kevin.Cap
                 options.SucceedMessageExpiredAfter = 24 * 3600; //成功消息的过期时间（秒）
             }).AddSubscribeFilter<CapSubscribeFilter>();
         }
-        public static void AddKevinRedisCap(this IServiceCollection services, string redisConnection)
+        public static void AddKevinRedisCap(this IServiceCollection services, string redisConnection,string dbConnection)
         {
             services.AddSingleton<DemoSubscribe>();
             services.AddCap(options =>
@@ -61,7 +63,9 @@ namespace kevin.Cap
                 //使用Dashboard，这是一个Cap的可视化管理界面；默认地址:http://localhost:端口/cap
                 options.UseDashboard();
                 options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
-
+                //使用 Mysql 存储执行情况
+                options.UseMySql(dbConnection);
+               // options.UseInMemoryStorage()
                 options.DefaultGroupName = "default";   //默认组名称
                 options.GroupNamePrefix = null; //全局组名称前缀
                 options.TopicNamePrefix = null; //Topic 统一前缀

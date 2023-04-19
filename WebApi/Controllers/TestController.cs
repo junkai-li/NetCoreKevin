@@ -27,5 +27,14 @@ namespace WebApi.Controllers
             var interpreter = new DynamicExpresso.Interpreter();
             return interpreter.Eval<bool>(str);
         }
+        /// <summary>
+        /// 健康检查接口
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("HealthCheckGet")]
+        public IActionResult HealthCheckGet()
+        {
+            return Ok();
+        }
     }
 }

@@ -40,7 +40,7 @@ namespace WebApi.Controllers
         /// GetErr
         /// </summary> 
         /// <returns></returns>
-        [HttpPost("GetDb")]
+        [HttpGet("GetDb")]
         public string GetDb()
         {
             db.TUser.Count();
@@ -52,7 +52,7 @@ namespace WebApi.Controllers
         /// GetErr
         /// </summary> 
         /// <returns></returns>
-        [HttpPost("GetRdisDb")]
+        [HttpGet("GetRdisDb")]
         public string GetRdisDb()
         { 
             return RedisHelper.StrGet("1");

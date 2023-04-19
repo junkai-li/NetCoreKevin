@@ -27,18 +27,20 @@ using Microsoft.Extensions.Logging;
 using Kevin.Common.Helper;
 using Microsoft.Extensions.DependencyInjection;
 using kevin.Cap;
+using kevin.Consul;
+using kevin.Consul.Models;
 
 namespace WebApi
 {
     public class Program
     {
         public static void Main(string[] args)
-        { 
+        {
             try
             {
 
                 Common.EnvironmentHelper.InitTestServer();
-                var builder = WebApplication.CreateBuilder(args); 
+                var builder = WebApplication.CreateBuilder(args);
                 builder.Logging.AddLog4Net("Configs/_/log4.config");
                 #region Kestrel Https并绑定证书
                 //启用 Kestrel Https 并绑定证书
@@ -52,7 +54,8 @@ namespace WebApi
                 //builder.WebHost.UseUrls("https://*");
                 #endregion
 
-                builder.Services.AddKevinRedisCap(builder.Configuration.GetConnectionString("redisConnection")); 
+                builder.Services.AddKevinRedisCap(builder.Configuration.GetConnectionString("redisConnection"), builder.Configuration.GetConnectionString("dbConnection"));
+
                 builder.Services.ConfigServies(builder.Configuration);
 
                 #region Swagger 文档
@@ -101,7 +104,7 @@ namespace WebApi
                 MiniLive.AppId = "wxf164719d9baf8d83";
                 MiniLive.AppSecret = "****************";//微信小程序密钥 
                 TencentService.Helper.RedisHelper.ConnectionString = builder.Configuration.GetConnectionString("redisConnection");
-                builder.Services.AddSingleton<IMiniLive, MiniLive>(); 
+                builder.Services.AddSingleton<IMiniLive, MiniLive>();
                 #endregion
 
                 #region IDSERVER授权服务器
@@ -150,7 +153,7 @@ namespace WebApi
                 builder.Services.AddControllers(options =>
                 {
                     options.OutputFormatters.RemoveType<StringOutputFormatter>();
-                }); 
+                });
 
                 var app = builder.Build();
                 //开启倒带模式运行多次读取HttpContext.Body中的内容 
@@ -160,20 +163,22 @@ namespace WebApi
                     context.Request.EnableBuffering();
                     await next.Invoke();
                 });
-               
+
                 if (app.Environment.IsDevelopment())
                 {
-                    app.UseDeveloperExceptionPage(); 
+                    app.UseDeveloperExceptionPage();
                 }
                 else
                 {
                     ////注册全局异常处理机制
                     app.UseExceptionHandler(builder => builder.Run(async context => await Web.Actions.GlobalError.ErrorEvent(context)));
                 }
-                
+
                 //kevin初始化
                 app.UseKevin();
-
+                var consulSetting = new ConsulSetting();
+                builder.Configuration.GetSection("ConsulSetting").Bind(consulSetting);
+                app.UseKevinConsul(consulSetting, app.Lifetime);//服务网关
                 //注册HostingEnvironment
                 Web.Libraries.Start.StartHostingEnvironment.Add(app.Environment);
                 //启用中间件服务对swagger-ui，指定Swagger JSON端点
@@ -193,14 +198,14 @@ namespace WebApi
             }
             catch (Exception ex)
             {
-                LogHelper.logger?.Error("Stopped program because of exception",ex);
+                LogHelper.logger?.Error("Stopped program because of exception", ex);
                 throw;
             }
             finally
             {
                 // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
-    
+
             }
-        } 
+        }
     }
 }

@@ -189,6 +189,12 @@
             <param name="id">文件ID</param>
             <returns></returns>
         </member>
+        <member name="M:WebApi.Controllers.TestController.HealthCheckGet">
+            <summary>
+            健康检查接口
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:WebApi.Controllers.v1.SignController">
             <summary>
             标记相关控制器
