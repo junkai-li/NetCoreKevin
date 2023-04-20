@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DistributedLock.SqlServer" Version="1.0.1" />
     <PackageReference Include="IdentityModel" Version="5.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
@@ -26,6 +25,7 @@
     <ProjectReference Include="..\kevin.Cap\kevin.Cap.csproj" />
     <ProjectReference Include="..\kevin.Consul\kevin.Consul.csproj" />
     <ProjectReference Include="..\Kevin.Cors\Kevin.Cors.csproj" />
+    <ProjectReference Include="..\kevin.DistributedLock\kevin.DistributedLock.csproj" />
     <ProjectReference Include="..\Kevin.HttpApiClients\Kevin.HttpApiClients.csproj" />
     <ProjectReference Include="..\Kevin.log4Net\Kevin.log4Net.csproj" />
     <ProjectReference Include="..\kevin.Ocelot\kevin.Ocelot.csproj" />

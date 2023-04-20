@@ -1,12 +1,11 @@
 ﻿using kevin.Cache;
+using kevin.DistributedLock;
 using Kevin.Common.TieredServiceRegistration;
 using Kevin.Cors;
 using Kevin.Cors.Models;
 using Kevin.SignalR;
 using Kevin.SignalR.Models;
 using Kevin.Web.Extensions;
-using Medallion.Threading;
-using Medallion.Threading.SqlServer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -151,16 +150,11 @@ namespace Web.Extension
             #region 缓存服务模式
             //注册缓存服务 内存模式
             services.AddKevinMemoryCache();
-        
+
             #endregion
 
-            #region 分布式锁服务注册
-            //分布式
-            services.AddSingleton<IDistributedLockProvider>(new SqlDistributedSynchronizationProvider(Configuration.GetConnectionString("dbConnection")));
-            //信号锁
-            services.AddSingleton<IDistributedSemaphoreProvider>(new SqlDistributedSynchronizationProvider(Configuration.GetConnectionString("dbConnection")));
-            //读写锁
-            services.AddSingleton<IDistributedUpgradeableReaderWriterLockProvider>(new SqlDistributedSynchronizationProvider(Configuration.GetConnectionString("dbConnection")));
+            #region 分布式锁服务注册 
+            services.AddKevinDistributedLockSqlServer(Configuration.GetConnectionString("dbConnection")); 
             #endregion
 
             //把控制器作为服务注册，然后使用它内置的ioc来替换原来的控制器的创建器
