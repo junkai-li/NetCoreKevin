@@ -122,7 +122,7 @@ namespace WebApi
                     o.TokenValidationParameters.ValidateAudience = false;
                 });
                 #endregion
-                builder.Services.AddKevinHttpApiClients();  
+                builder.Services.AddKevinHttpApiClients();
                 builder.Services.AddControllers(options =>
                 {
                     options.OutputFormatters.RemoveType<StringOutputFormatter>();
@@ -149,9 +149,7 @@ namespace WebApi
 
                 //kevin初始化
                 app.UseKevin();
-                var consulSetting = new ConsulSetting();
-                builder.Configuration.GetSection("ConsulSetting").Bind(consulSetting);
-                app.UseKevinConsul(consulSetting, app.Lifetime);//服务网关
+                app.UseKevinConsul(builder.Configuration.GetSection("ConsulSetting").Get<ConsulSetting>(), app.Lifetime);//服务网关
                 //注册HostingEnvironment
                 Web.Libraries.Start.StartHostingEnvironment.Add(app.Environment);
                 //启用中间件服务对swagger-ui，指定Swagger JSON端点
