@@ -4,7 +4,7 @@ namespace kevin.Cache
 {
     public static class ApplicationBuilderExtensions
     {
-        public static void UseKevinHttpApiClients(this IApplicationBuilder app)
+        public static void UseKevinCache(this IApplicationBuilder app)
         { 
         }
     }
