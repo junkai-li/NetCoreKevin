@@ -89,19 +89,6 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.BaseController.DistLock">
-            <summary>
-            分布式锁demo
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:WebApi.Controllers.BaseController.TestErrMsg(System.String)">
-             <summary>
-            测试提醒异常
-             </summary>
-             <param name="str"></param>
-             <exception cref="T:Web.Global.Exceptions.UserFriendlyException"></exception>
-        </member>
         <member name="T:WebApi.Controllers.FileController">
             <summary>
             文件上传控制器
@@ -194,6 +181,19 @@
             健康检查接口
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.TestController.DistLock">
+            <summary>
+            分布式锁demo
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebApi.Controllers.TestController.TestErrMsg(System.String)">
+             <summary>
+            测试提醒异常
+             </summary>
+             <param name="str"></param>
+             <exception cref="T:Web.Global.Exceptions.UserFriendlyException"></exception>
         </member>
         <member name="T:WebApi.Controllers.v1.SignController">
             <summary>

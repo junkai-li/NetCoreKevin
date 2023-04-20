@@ -1,16 +1,18 @@
 ﻿using kevin.Cache.Service;
 using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
+using Medallion.Threading;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services.v1._;
+using WebApi.Controllers.Bases;
 
 namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [AllowAnonymous]
-    public class TestController : ControllerBase
+    public class TestController : ApiControllerBase
     {
         [IocProperty]
         public IUserService _userService { get; set; }
@@ -45,6 +47,57 @@ namespace WebApi.Controllers
         public IActionResult HealthCheckGet()
         {
             return Ok();
+        }
+
+        /// <summary>
+        /// 分布式锁demo
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("DistLock")]
+        public bool DistLock()
+        {
+
+            //互斥锁
+            using (distLock.AcquireLock(""))
+            {
+            }
+
+            //互斥锁，可配置内部代码最多同时运行数
+            using (distSemaphoreLock.AcquireSemaphore("", 5))
+            {
+            }
+
+            //读锁，多人同读，与写锁互斥
+            using (distUpgradeableLock.AcquireReadLock(""))
+            {
+            }
+
+
+            //写锁，互斥
+            using (distUpgradeableLock.AcquireWriteLock(""))
+            {
+            }
+
+            //可升级读锁，初始状态为读锁，可手动升级为写锁
+            using (var handle = distUpgradeableLock.AcquireUpgradeableReadLock(""))
+            {
+
+                //升级写锁
+                handle.UpgradeToWriteLock();
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        ///测试提醒异常
+        /// </summary>
+        /// <param name="str"></param>
+        /// <exception cref="UserFriendlyException"></exception>
+        [HttpGet("TestErrMsg")]
+        public void TestErrMsg(string str)
+        {
+            throw new UserFriendlyException(str);
         }
     }
 }
