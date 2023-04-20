@@ -1,9 +1,11 @@
 ﻿using Common;
+using kevin.Cache.Service;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Xml;
-using Web.Cache;
+using Web.Global;
 using Web.Libraries.WeiXin.App.Models;
 
 namespace Web.Libraries.WeiXin.App
@@ -123,8 +125,8 @@ namespace Web.Libraries.WeiXin.App
         /// <returns></returns>
         public (string accessToken, string openId) GetAccessToken(string code)
         {
-            string token = CacheHelper.GetString("wxappaccesstoken" + code);
-            string openid = CacheHelper.GetString("wxappopenid" + code);
+            string token = GlobalServices.ServiceProvider.GetService<ICacheService>().GetString("wxappaccesstoken" + code);
+            string openid = GlobalServices.ServiceProvider.GetService<ICacheService>().GetString("wxappopenid" + code);
 
             if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(openid))
             {
@@ -138,8 +140,8 @@ namespace Web.Libraries.WeiXin.App
 
                 if (!string.IsNullOrEmpty(token))
                 {
-                    CacheHelper.SetString("wxappaccesstoken" + code, token, TimeSpan.FromSeconds(7100));
-                    CacheHelper.SetString("wxappopenid" + code, openid, TimeSpan.FromSeconds(7100));
+                    GlobalServices.ServiceProvider.GetService<ICacheService>().SetString("wxappaccesstoken" + code, token, TimeSpan.FromSeconds(7100));
+                    GlobalServices.ServiceProvider.GetService<ICacheService>().SetString("wxappopenid" + code, openid, TimeSpan.FromSeconds(7100));
                 }
             }
 

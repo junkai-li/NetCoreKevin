@@ -1,4 +1,5 @@
-﻿using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
+﻿using kevin.Cache.Service;
+using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +15,20 @@ namespace WebApi.Controllers
         [IocProperty]
         public IUserService _userService { get; set; }
 
+        [IocProperty]
+        public ICacheService _cacheService { get; set; }
+
         [HttpGet("TestUserService")]
         public object TestUserService()
         {
             _userService.GetUser(new Guid());
             return default;
+        }
+        [HttpGet("TestCacheServiceOk")]
+        public string TestCacheServiceOk()
+        {
+            _cacheService.SetString("1","ok");
+            return _cacheService.GetString("1");
         }
 
         [HttpGet("TsetDynamicExpresso")]

@@ -1,9 +1,11 @@
-﻿using Models.Dtos;
+﻿using kevin.Cache.Service;
+using Microsoft.Extensions.DependencyInjection;
+using Models.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Web.Cache;
+using Web.Global;
 
 namespace Web.Auth
 {
@@ -26,7 +28,7 @@ namespace Web.Auth
 
             string key = "VerifyPhone_" + phone;
 
-            var code = CacheHelper.GetString(key);
+            var code = GlobalServices.ServiceProvider.GetService<ICacheService>().GetString(key);
 
             if (string.IsNullOrEmpty(code) == false && code == keyValue.Value.ToString())
             {

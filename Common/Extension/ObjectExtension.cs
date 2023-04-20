@@ -1,4 +1,5 @@
 ﻿using Mapster;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -227,6 +228,31 @@ namespace System
             return isZeroLenth;
 
             #endregion 2.集合级别
+        }
+
+        /// <summary>
+        /// 序列化为Json串
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static string SerializeToJson(this object obj)
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+            else
+            {
+                try
+                {
+                    var str = JsonConvert.SerializeObject(obj);
+                    return str;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
         }
     }
 }

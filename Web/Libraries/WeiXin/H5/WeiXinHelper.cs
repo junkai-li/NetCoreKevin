@@ -12,6 +12,7 @@ using Web.Global;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Kevin.Web.Libraries.Http;
+using kevin.Cache.Service;
 
 namespace Web.Libraries.WeiXin.H5
 {
@@ -55,7 +56,7 @@ namespace Web.Libraries.WeiXin.H5
 
             string key = appid + secret + "accesstoken";
 
-            var token = Cache.CacheHelper.GetString(key);
+            var token = GlobalServices.ServiceProvider.GetService<ICacheService>().GetString(key);
 
             if (string.IsNullOrEmpty(token))
             {
@@ -65,7 +66,7 @@ namespace Web.Libraries.WeiXin.H5
 
                 token = JsonHelper.GetValueByKey(returnJson, "access_token");
 
-                Cache.CacheHelper.SetString(key, token, TimeSpan.FromSeconds(6000));
+                GlobalServices.ServiceProvider.GetService<ICacheService>().SetString(key, token, TimeSpan.FromSeconds(6000));
             }
 
             return token;
@@ -82,7 +83,7 @@ namespace Web.Libraries.WeiXin.H5
 
             string key = appid + secret + "ticketid";
 
-            var ticketid = Cache.CacheHelper.GetString(key);
+            var ticketid = GlobalServices.ServiceProvider.GetService<ICacheService>().GetString(key);
 
             if (string.IsNullOrEmpty(ticketid))
             {
@@ -93,7 +94,7 @@ namespace Web.Libraries.WeiXin.H5
 
                 ticketid = JsonHelper.GetValueByKey(returnJson, "ticket");
 
-                Cache.CacheHelper.SetString(key, ticketid, TimeSpan.FromSeconds(6000));
+                GlobalServices.ServiceProvider.GetService<ICacheService>().SetString(key, ticketid, TimeSpan.FromSeconds(6000));
             }
 
             return ticketid;

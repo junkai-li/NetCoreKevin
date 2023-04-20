@@ -1,4 +1,5 @@
-﻿using Kevin.Common.TieredServiceRegistration;
+﻿using kevin.Cache;
+using Kevin.Common.TieredServiceRegistration;
 using Kevin.Cors;
 using Kevin.Cors.Models;
 using Kevin.SignalR;
@@ -18,7 +19,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Models.Extension;
 using Repository.Database;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
@@ -150,24 +150,8 @@ namespace Web.Extension
 
             #region 缓存服务模式
             //注册缓存服务 内存模式
-            services.AddDistributedMemoryCache();
-
-
-            //注册缓存服务 SqlServer模式
-            //services.AddDistributedSqlServerCache(options =>
-            //{
-            //    options.ConnectionString = Configuration.GetConnectionString("dbConnection");
-            //    options.SchemaName = "dbo";
-            //    options.TableName = "t_cache";
-            //});
-
-
-            //注册缓存服务 Redis模式
-            //services.AddStackExchangeRedisCache(options =>
-            //{
-            //    options.Configuration = Configuration.GetConnectionString("redisConnection");
-            //    options.InstanceName = "cache";
-            //});
+            services.AddKevinMemoryCache();
+        
             #endregion
 
             #region 分布式锁服务注册

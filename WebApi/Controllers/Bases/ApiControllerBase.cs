@@ -1,14 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Repository.Database;
-using Models.Extension;
-using Web.Global.User;
-using Service.Services.v1;
+﻿using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
 using Medallion.Threading;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Web.Global;
-using Web.Libraries;
-using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
+using Repository.Database;
+using Web.Global.User;
 
 namespace WebApi.Controllers.Bases
 {

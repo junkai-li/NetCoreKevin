@@ -1,9 +1,11 @@
 ﻿using Common.Json;
+using kevin.Cache.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
-using Web.Cache;
+using Web.Global;
 
 namespace Web.Filters
 {
@@ -47,7 +49,7 @@ namespace Web.Filters
             try
             {
 
-                var cacheInfo = CacheHelper.GetString(key);
+                var cacheInfo = GlobalServices.ServiceProvider.GetService<ICacheService>().GetString(key);
 
                 if (!string.IsNullOrEmpty(cacheInfo))
                 {
@@ -86,7 +88,7 @@ namespace Web.Filters
 
 
 
-                CacheHelper.SetString(key, value,TimeSpan.FromSeconds(TTL));
+                GlobalServices.ServiceProvider.GetService<ICacheService>().SetString(key, value,TimeSpan.FromSeconds(TTL));
 
             }
             catch

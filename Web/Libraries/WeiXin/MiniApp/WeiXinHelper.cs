@@ -1,15 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using kevin.Cache.Service;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Xml;
-using Web.Cache;
+using Web.Global;
 using Web.Libraries.WeiXin.MiniApp.Models;
 using Web.Libraries.WeiXin.Public;
 
@@ -54,7 +55,7 @@ namespace Web.Libraries.WeiXin.MiniApp
                 string openid = Common.Json.JsonHelper.GetValueByKey(httpret, "openid");
                 string sessionkey = Common.Json.JsonHelper.GetValueByKey(httpret, "session_key");
 
-                CacheHelper.SetString(code, httpret, new TimeSpan(0, 0, 10));
+                GlobalServices.ServiceProvider.GetService<ICacheService>().SetString(code, httpret, new TimeSpan(0, 0, 10));
 
                 return (openid, sessionkey);
             }
@@ -64,7 +65,7 @@ namespace Web.Libraries.WeiXin.MiniApp
 
                 if (errcode == "40163")
                 {
-                    var cachHttpRet = CacheHelper.GetString(code);
+                    var cachHttpRet = GlobalServices.ServiceProvider.GetService<ICacheService>().GetString(code);
 
                     if (!string.IsNullOrEmpty(cachHttpRet))
                     {
