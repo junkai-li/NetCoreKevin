@@ -64,7 +64,7 @@ namespace Service
             }
             #endregion 
 
-            Console.WriteLine("App服务注册完成");
+            Console.WriteLine("AppBaseService服务注册完成");
         }
     }
 }
