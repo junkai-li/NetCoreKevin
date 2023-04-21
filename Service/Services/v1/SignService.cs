@@ -1,4 +1,5 @@
 ﻿global using Web.Base;
+using Microsoft.AspNetCore.Http;
 using Repository.Database;
 using Service.Dtos.v1.Sign;
 using Service.Services.v1._;
@@ -9,9 +10,10 @@ namespace Service.Services.v1
 {
     public class SignService : BaseService, ISignService
     {
-        public SignService(dbContext context, IServiceProvider serviceProvider) : base(context, serviceProvider)
+        public SignService(IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
         {
         }
+
 
         /// <summary>
         /// 获取标记总数

@@ -1,10 +1,12 @@
-﻿using kevin.Cache.Service;
+﻿using AppServices.Services.v1._;
+using kevin.Cache.Service;
 using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
 using Medallion.Threading;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services.v1._;
+using System.Threading.Tasks;
 using WebApi.Controllers.Bases;
 
 namespace WebApi.Controllers
@@ -19,6 +21,8 @@ namespace WebApi.Controllers
 
         [IocProperty]
         public ICacheService _cacheService { get; set; }
+        [IocProperty]
+        public ITestService _TestService { get; set; }
 
         [HttpGet("TestUserService")]
         public object TestUserService()
@@ -29,7 +33,7 @@ namespace WebApi.Controllers
         [HttpGet("TestCacheServiceOk")]
         public string TestCacheServiceOk()
         {
-            _cacheService.SetString("1","ok");
+            _cacheService.SetString("1", "ok");
             return _cacheService.GetString("1");
         }
 
@@ -98,6 +102,12 @@ namespace WebApi.Controllers
         public void TestErrMsg(string str)
         {
             throw new UserFriendlyException(str);
+        }
+
+        [HttpGet("SendSubsMsg")]
+        public Task<string> SendSubsMsg(string msg)
+        {
+            return _TestService.SendSubsMsg(msg);
         }
     }
 }

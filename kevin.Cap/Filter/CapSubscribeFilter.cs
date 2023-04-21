@@ -16,7 +16,7 @@ namespace kevin.Cap.Filter
         /// <param name="context"></param>
         public override void OnSubscribeExecuting(ExecutingContext context)
         {
-
+            Console.WriteLine("订阅方法执行前");
         }
 
 
@@ -27,7 +27,7 @@ namespace kevin.Cap.Filter
         /// <param name="context"></param>
         public override void OnSubscribeExecuted(ExecutedContext context)
         {
-
+            Console.WriteLine("订阅方法执行后");
         }
 
 
@@ -38,7 +38,7 @@ namespace kevin.Cap.Filter
         /// <param name="context"></param>
         public override void OnSubscribeException(ExceptionContext context)
         {
-
+            Console.WriteLine("订阅方法执行异常");
         }
 
 

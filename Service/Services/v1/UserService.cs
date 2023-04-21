@@ -1,4 +1,5 @@
 ﻿using Common.AliYun;
+using Microsoft.AspNetCore.Http;
 using Models.Dtos;
 using Models.Dtos.System;
 using Repository.Database;
@@ -14,9 +15,10 @@ namespace Service.Services.v1
 {
     public class UserService : BaseService, IUserService
     {
-        public UserService(dbContext context, IServiceProvider serviceProvider) : base(context, serviceProvider)
+        public UserService(IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
         {
         }
+
 
         /// <summary>
         /// 通过短信验证码修改账户手机号

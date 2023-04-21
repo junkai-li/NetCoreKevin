@@ -1,4 +1,5 @@
-﻿using Repository.Database;
+﻿using Microsoft.AspNetCore.Http;
+using Repository.Database;
 using Service.Services.v1._;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace Service.Services.v1
 {
     public class PermissionService : BaseService, IPermissionService
     {
-        public PermissionService(dbContext context, IServiceProvider serviceProvider) : base(context, serviceProvider)
+        public PermissionService(IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
         {
         }
 
