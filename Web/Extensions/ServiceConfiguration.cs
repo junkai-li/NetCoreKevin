@@ -1,6 +1,7 @@
 ﻿using kevin.Cache;
 using kevin.DistributedLock;
 using kevin.Permission;
+using kevin.Permission.Permission.Action;
 using Kevin.Common.Kevin;
 using Kevin.Common.TieredServiceRegistration;
 using Kevin.Cors;
@@ -60,9 +61,12 @@ namespace Web.Extension
             });
             #endregion
 
-            #region 权限校验
-
+            #region 权限校验 
             //权限校验
+            services.AddAuthorization(options =>
+            {
+                options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().RequireAssertion(context => IdentityVerification.Authorization(context)).Build();
+            });
             services.AddKevinPermission();
             #endregion
 

@@ -10,12 +10,7 @@ namespace kevin.Permission
     {
 
         public static void AddKevinPermission(this IServiceCollection services)
-        {
-            //权限校验
-            //services.AddAuthorization(options =>
-            //{
-            //    options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().RequireAssertion(context => IdentityVerification.Authorization(context)).Build();
-            //});
+        { 
             AddPermissionServices(services);
         }
         internal static void AddPermissionServices(IServiceCollection services)
