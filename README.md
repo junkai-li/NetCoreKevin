@@ -1,5 +1,6 @@
 # NetCoreKevin
-基于NET6搭建跨平台DDD思想WebApi架构、IDS4单点登录、多缓存、自动任务、分布式、多租户、日志、授权和鉴权、CAP、SignalR
+基于NET6搭建跨平台DDD思想WebApi架构、IDS4单点登录、多缓存、自动任务、分布式、多租户、日志、授权和鉴权、CAP、SignalR  
+如需简约项目可直接去除项目引用 解耦设计都可以单独引用 架构默认全部引用并启动 项目启动时注意相关 Redis、db链接、RedisSignalR、ConsulSetting、SignalR、配置
 
 项目结构  
 ![7d1d5dabd0e65567f24dbc92e433c8d](https://user-images.githubusercontent.com/57887866/233831817-b0fcfa75-17bf-4f5d-9743-ad9385c25692.png)  
