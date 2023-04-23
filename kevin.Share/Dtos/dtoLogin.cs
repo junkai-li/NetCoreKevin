@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Models.Dtos
+namespace kevin.Share.Dtos
 {
 
     /// <summary>

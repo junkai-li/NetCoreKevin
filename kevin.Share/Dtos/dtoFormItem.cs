@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Models.Dtos
+namespace kevin.Share.Dtos
 {
 
 

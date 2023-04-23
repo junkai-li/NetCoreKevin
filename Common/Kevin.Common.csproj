@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Models\Kevin.Models.csproj" />
+    <ProjectReference Include="..\kevin.Share\kevin.Share.csproj" />
   </ItemGroup>
 
 </Project>

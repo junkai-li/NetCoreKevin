@@ -28,5 +28,9 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Dtos\" />
+  </ItemGroup>
+
 
 </Project>

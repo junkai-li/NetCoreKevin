@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Models.Dtos.System
+namespace kevin.Share.Dtos.System
 {
    public class dtoRole
     {  /// <summary>

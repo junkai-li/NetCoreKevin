@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Models.Dtos
+namespace kevin.Share.Dtos
 {
     public class dtoKeyValueChild
     {

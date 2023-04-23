@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Models.Dtos
+namespace kevin.Share.Dtos
 {
     /// <summary>
     /// 分页dto

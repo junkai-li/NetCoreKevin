@@ -21,28 +21,28 @@
             </summary> 
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.AuthorizeController.GetTokenByWeiXinMiniAppCode(Models.Dtos.dtoKeyValue)">
+        <member name="M:WebApi.Controllers.AuthorizeController.GetTokenByWeiXinMiniAppCode(kevin.Share.Dtos.dtoKeyValue)">
             <summary>
             通过微信小程序Code获取Token认证信息
             </summary>
             <param name="keyValue">key 为weixinkeyid, value 为 code</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.AuthorizeController.GetTokenBySms(Models.Dtos.dtoKeyValue)">
+        <member name="M:WebApi.Controllers.AuthorizeController.GetTokenBySms(kevin.Share.Dtos.dtoKeyValue)">
             <summary>
             利用手机号和短信验证码获取Token认证信息
             </summary>
             <param name="keyValue">key 为手机号，value 为验证码</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.AuthorizeController.SendSmsVerifyPhone(Models.Dtos.dtoKeyValue)">
+        <member name="M:WebApi.Controllers.AuthorizeController.SendSmsVerifyPhone(kevin.Share.Dtos.dtoKeyValue)">
             <summary>
             发送短信验证手机号码所有权
             </summary>
             <param name="keyValue">key 为手机号，value 可为空</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.AuthorizeController.GetTokenByWeiXinAppCode(Models.Dtos.dtoKeyValue)">
+        <member name="M:WebApi.Controllers.AuthorizeController.GetTokenByWeiXinAppCode(kevin.Share.Dtos.dtoKeyValue)">
             <summary>
             通过微信APP Code获取Token认证信息
             </summary>
@@ -94,7 +94,7 @@
             文件上传控制器
             </summary>
         </member>
-        <member name="M:WebApi.Controllers.FileController.RemoteUploadFile(System.String,System.Guid,System.String,Models.Dtos.dtoKeyValue)">
+        <member name="M:WebApi.Controllers.FileController.RemoteUploadFile(System.String,System.Guid,System.String,kevin.Share.Dtos.dtoKeyValue)">
             <summary>
             远程单文件上传接口
             </summary>
@@ -253,27 +253,27 @@
             <param name="userId">用户ID</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.EditUserPhoneBySms(Models.Dtos.dtoKeyValue)">
+        <member name="M:WebApi.Controllers.v1.UserController.EditUserPhoneBySms(kevin.Share.Dtos.dtoKeyValue)">
             <summary>
             通过短信验证码修改账户手机号
             </summary>
             <param name="keyValue">key 为新手机号，value 为短信验证码</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.EditUserPassWordBySms(Models.Dtos.dtoKeyValue)">
+        <member name="M:WebApi.Controllers.v1.UserController.EditUserPassWordBySms(kevin.Share.Dtos.dtoKeyValue)">
             <summary>
             通过短信验证码修改账户密码</summary>
             <param name="keyValue">key为新密码，value为短信验证码</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.GetUserList(Models.Dtos.dtoPageData{Service.Dtos.v1.User.dtoUser})">
+        <member name="M:WebApi.Controllers.v1.UserController.GetUserList(kevin.Share.Dtos.dtoPageData{Service.Dtos.v1.User.dtoUser})">
             <summary>
             获取小程序用户列表信息
             </summary>
             <param name="dtoPage"></param> 
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.GetSysUserList(Models.Dtos.dtoPageData{Service.Dtos.v1.User.dtoUser})">
+        <member name="M:WebApi.Controllers.v1.UserController.GetSysUserList(kevin.Share.Dtos.dtoPageData{Service.Dtos.v1.User.dtoUser})">
             <summary>
             获取系统用户列表信息
             </summary>
@@ -301,7 +301,7 @@
             <param name="Id">Id</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.GetUserRoleList(Models.Dtos.dtoPageData{Models.Dtos.System.dtoRole})">
+        <member name="M:WebApi.Controllers.v1.UserController.GetUserRoleList(kevin.Share.Dtos.dtoPageData{kevin.Share.Dtos.System.dtoRole})">
             <summary>
             获取用户角色列表信息
             </summary>
@@ -315,7 +315,7 @@
             <param name="Id">ID</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.EditUserRole(Models.Dtos.System.dtoRole)">
+        <member name="M:WebApi.Controllers.v1.UserController.EditUserRole(kevin.Share.Dtos.System.dtoRole)">
             <summary>
             新增编辑用户角色信息 
             </summary>
@@ -353,7 +353,7 @@
             </summary> 
             <returns></returns>
         </member>
-        <member name="M:AdminApi.Controllers.PermissionController.GetPageData(Models.Dtos.dtoPageList{Repository.Database.TPermission})">
+        <member name="M:AdminApi.Controllers.PermissionController.GetPageData(kevin.Share.Dtos.dtoPageList{Repository.Database.TPermission})">
             <summary>
              获取
             </summary>

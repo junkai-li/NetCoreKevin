@@ -1,8 +1,8 @@
 ﻿using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Models.Dtos;
-using Models.Dtos.System;
+using kevin.Share.Dtos;
+using kevin.Share.Dtos.System;
 using Service.Dtos.v1.User;
 using Service.Services.v1._;
 using System.Collections.Generic;

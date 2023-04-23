@@ -1,4 +1,4 @@
-﻿namespace Models.Dtos
+﻿namespace kevin.Share.Dtos
 {
     public class dtoKeyValue
     {
