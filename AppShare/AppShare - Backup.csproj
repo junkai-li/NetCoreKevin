@@ -13,13 +13,6 @@
     <Folder Include="Consts\" />
     <Folder Include="Dtos\" />
     <Folder Include="Enums\" />
-  </ItemGroup>
-  
-
-  <ItemGroup>
-    <None Update="AppShare.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup> 
 
 </Project>

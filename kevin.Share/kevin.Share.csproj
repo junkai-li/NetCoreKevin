@@ -4,11 +4,19 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <DocumentationFile>kevin.Share.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
     <Folder Include="Enums\" />
     <Folder Include="Consts\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="kevin.Share.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
