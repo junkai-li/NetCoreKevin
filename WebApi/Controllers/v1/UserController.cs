@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using kevin.Permission.Permisson.Attributes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Dtos;
 using Models.Dtos.System;
@@ -7,7 +8,6 @@ using Service.Services.v1._;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Web.Filters;
-using Web.Permisson.Attributes;
 using WebApi.Controllers.Bases;
 
 namespace WebApi.Controllers.v1

@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using kevin.Permission.Permission;
+using kevin.Permission.Permisson;
+using kevin.Permission.Service;
+using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
+using Microsoft.AspNetCore.Http;
 using Repository.Database;
 using Service.Services.v1._;
 using System;
@@ -7,14 +11,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Web.Actions;
-using Web.Global.Exceptions;
-using Web.Permission;
-using Web.Permisson;
-
+using Web.Global.Exceptions; 
 namespace Service.Services.v1
 {
     public class PermissionService : BaseService, IPermissionService
     {
+        [IocProperty]
+        public IKevinPermissionService kevinPermissionService { get; set; }
         public PermissionService(IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
         {
         }
@@ -211,10 +214,10 @@ namespace Service.Services.v1
             {
                 if (user.IsSuperAdmin)
                 {
-                    return PermissionsAction.GetUserPermissions(CurrentUser.UserId.ToString()).Select(x => x.Key).ToList();
+                    return kevinPermissionService.GetUserPermissions(CurrentUser.UserId.ToString()).Select(x => x.Key).ToList();
                 }
             }
-            return PermissionsAction.GetUserPermissions(CurrentUser.UserId.ToString()).Where(x => x.Value == true).Select(x => x.Key).ToList();
+            return kevinPermissionService.GetUserPermissions(CurrentUser.UserId.ToString()).Where(x => x.Value == true).Select(x => x.Key).ToList();
 
         }
     }

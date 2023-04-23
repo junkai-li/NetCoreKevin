@@ -1,5 +1,7 @@
 ﻿using kevin.Cache;
 using kevin.DistributedLock;
+using kevin.Permission;
+using Kevin.Common.Kevin;
 using Kevin.Common.TieredServiceRegistration;
 using Kevin.Cors;
 using Kevin.Cors.Models;
@@ -25,10 +27,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using Web.Filters;
 using Web.Global;
-using Web.Global.User;
-using Web.Libraries.Start;
-using Web.Libraries.Swagger;
-using Web.Permission.Action;
+using Web.Global.User; 
+using Web.Libraries.Swagger; 
 
 namespace Web.Extension
 {
@@ -63,10 +63,7 @@ namespace Web.Extension
             #region 权限校验
 
             //权限校验
-            services.AddAuthorization(options =>
-            {
-                options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().RequireAssertion(context => IdentityVerification.Authorization(context)).Build();
-            });
+            services.AddKevinPermission();
             #endregion
 
             #region 注册常用 
@@ -77,7 +74,7 @@ namespace Web.Extension
                 config.Filters.Add(new ResultFilter());
             });
             //注册配置文件信息
-            Web.Libraries.Start.StartConfiguration.Add(Configuration);
+            StartConfiguration.Add(Configuration);
 
             //注册HttpContext
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

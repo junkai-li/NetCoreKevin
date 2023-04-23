@@ -399,7 +399,7 @@
             </summary> 
             <returns></returns>
         </member>
-        <member name="M:AdminApi.Controllers.PermissionController.EditAllAreaPermissions(Web.Permisson.PermissionEditDto)">
+        <member name="M:AdminApi.Controllers.PermissionController.EditAllAreaPermissions(kevin.Permission.Permisson.PermissionEditDto)">
             <summary>
             编辑角色对应权限
             </summary> 

@@ -1,4 +1,5 @@
-﻿using Kevin.Models.JwtBearer;
+﻿using Kevin.Common.Kevin;
+using Kevin.Models.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -13,10 +14,10 @@ namespace Web.Global.User
         public CurrentUser(IHttpContextAccessor httpContextAccessor) {
             _httpContextAccessor= httpContextAccessor;
         }
-        public virtual Guid UserId { get => Libraries.Verify.JwtToken.GetClaims(JwtKeinClaimTypes.UserId, _httpContextAccessor).IsEmpty()?default:Guid.Parse(Libraries.Verify.JwtToken.GetClaims(JwtKeinClaimTypes.UserId, _httpContextAccessor)); }
+        public virtual Guid UserId { get => JwtToken.GetClaims(JwtKeinClaimTypes.UserId, _httpContextAccessor).IsEmpty()?default:Guid.Parse(JwtToken.GetClaims(JwtKeinClaimTypes.UserId, _httpContextAccessor)); }
 
-        public virtual string UserName => Libraries.Verify.JwtToken.GetClaims(JwtKeinClaimTypes.Name, _httpContextAccessor);
+        public virtual string UserName => JwtToken.GetClaims(JwtKeinClaimTypes.Name, _httpContextAccessor);
 
-        public virtual string TenantId => Libraries.Verify.JwtToken.GetClaims(JwtKeinClaimTypes.TenantId, _httpContextAccessor);
+        public virtual string TenantId => JwtToken.GetClaims(JwtKeinClaimTypes.TenantId, _httpContextAccessor);
     }
 }

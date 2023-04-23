@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
-using System.Xml;
-using Kevin.Web.Libraries.Http;
+using System.Xml; 
 using Microsoft.AspNetCore.Http;
+using Kevin.Common.Kevin;
 
 namespace Web.Libraries.WeiXin.Public
 {

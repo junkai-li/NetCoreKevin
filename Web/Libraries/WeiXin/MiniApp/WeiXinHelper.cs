@@ -213,7 +213,7 @@ namespace Web.Libraries.WeiXin.MiniApp
         private string UseCretPost(string url, string data)
         {
 
-            var sslPath = IO.Path.ContentRootPath() + "/ssl/apiclient_cert.p12";
+            var sslPath = Kevin.Common.Kevin.IO.Path.ContentRootPath() + "/ssl/apiclient_cert.p12";
 
             using HttpClientHandler handler = new();
 

@@ -30,6 +30,7 @@ using kevin.Cap;
 using kevin.Consul;
 using kevin.Consul.Models;
 using kevin.HttpApiClients;
+using Kevin.Common.Kevin;
 
 namespace WebApi
 {
@@ -149,9 +150,7 @@ namespace WebApi
 
                 //kevin初始化
                 app.UseKevin();
-                app.UseKevinConsul(builder.Configuration.GetSection("ConsulSetting").Get<ConsulSetting>(), app.Lifetime);//服务网关
-                //注册HostingEnvironment
-                Web.Libraries.Start.StartHostingEnvironment.Add(app.Environment);
+                app.UseKevinConsul(builder.Configuration.GetSection("ConsulSetting").Get<ConsulSetting>(), app.Lifetime);//服务网关 
                 //启用中间件服务对swagger-ui，指定Swagger JSON端点
                 app.UseSwaggerUI(options =>
                 {

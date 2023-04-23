@@ -1,24 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using kevin.Permission.Permisson.Attributes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Models.Dtos;
 using Repository.Database;
-using System;
+using SkiaSharp;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using WebApi.Controllers.Bases;
-using Web.Filters;
-using Web.Permisson.Attributes;
-using Common; 
-using Web.Global.User;
-using Service.Services.v1;
-using SkiaSharp;
 
 namespace WebApi.Controllers
 {
@@ -54,7 +47,7 @@ namespace WebApi.Controllers
             string basepath = "Files/" + DateTime.Now.ToString("yyyy/MM/dd");
 
 
-            var filePath = Web.Libraries.IO.Path.ContentRootPath() + "/" + basepath + "/";
+            var filePath = Kevin.Common.Kevin.IO.Path.ContentRootPath() + "/" + basepath + "/";
 
             //下载文件
             var dlPath = Common.IO.IOHelper.DownloadFile(remoteFileUrl, filePath, fileName);
@@ -65,7 +58,7 @@ namespace WebApi.Controllers
                 dlPath = Common.IO.IOHelper.DownloadFile(remoteFileUrl, filePath, fileName);
             }
 
-            filePath = dlPath.Replace(Web.Libraries.IO.Path.ContentRootPath(), "");
+            filePath = dlPath.Replace(Kevin.Common.Kevin.IO.Path.ContentRootPath(), "");
 
 
             if (dlPath != null)
@@ -129,7 +122,7 @@ namespace WebApi.Controllers
         { 
 
             string basepath = "/Files/" + DateTime.Now.ToString("yyyy/MM/dd");
-            string filepath = Web.Libraries.IO.Path.ContentRootPath() + basepath;
+            string filepath = Kevin.Common.Kevin.IO.Path.ContentRootPath() + basepath;
 
             Directory.CreateDirectory(filepath);
 
@@ -247,7 +240,7 @@ namespace WebApi.Controllers
         {
 
             var file = db.TFile.Where(t => t.Id == fileid).FirstOrDefault();
-            string path = Web.Libraries.IO.Path.ContentRootPath() + file.Path;
+            string path = Kevin.Common.Kevin.IO.Path.ContentRootPath() + file.Path;
 
 
             //读取文件入流
@@ -285,7 +278,7 @@ namespace WebApi.Controllers
         {
 
             var file = db.TFile.Where(t => t.Id == fileId).FirstOrDefault();
-            var path = Web.Libraries.IO.Path.ContentRootPath() + file.Path;
+            var path = Kevin.Common.Kevin.IO.Path.ContentRootPath() + file.Path;
 
             var stream = System.IO.File.OpenRead(path);
 
@@ -439,7 +432,7 @@ namespace WebApi.Controllers
                 var fullFileName = string.Empty;
 
                 string basepath = "/Files/Group/" + DateTime.Now.ToString("yyyy/MM/dd") + "/" + fileId;
-                string filepath = Web.Libraries.IO.Path.ContentRootPath() + basepath;
+                string filepath = Kevin.Common.Kevin.IO.Path.ContentRootPath() + basepath;
 
                 Directory.CreateDirectory(filepath);
 
@@ -490,7 +483,7 @@ namespace WebApi.Controllers
 
                         var fileinfo = db.TFile.Where(t => t.Id == fileId).FirstOrDefault();
 
-                        var fullfilepath = Web.Libraries.IO.Path.ContentRootPath() + fileinfo.Path;
+                        var fullfilepath = Kevin.Common.Kevin.IO.Path.ContentRootPath() + fileinfo.Path;
 
                         using (FileStream outStream = new(fullfilepath, FileMode.Create))
                         {
@@ -501,7 +494,7 @@ namespace WebApi.Controllers
 
                             foreach (var item in filelist)
                             {
-                                string p = Web.Libraries.IO.Path.ContentRootPath() + item.Path;
+                                string p = Kevin.Common.Kevin.IO.Path.ContentRootPath() + item.Path;
                                 srcStream = new FileStream(p, FileMode.Open);
                                 while ((readedLen = srcStream.Read(buffer, 0, buffer.Length)) > 0)
                                 {
