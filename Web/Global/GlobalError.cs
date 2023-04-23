@@ -1,6 +1,7 @@
 ﻿using Common.Json;
 using Kevin.Common.Helper;
-using Kevin.Common.Kevin; 
+using Kevin.Common.Kevin;
+using Kevin.log4Net;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;

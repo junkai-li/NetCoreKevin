@@ -17,20 +17,18 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.IO;
-using System.Net.Http;
 using TencentService;
 using TencentService._;
 using Web.Extension;
 using Web.Global;
 using Web.Libraries.Swagger;
-using Microsoft.Extensions.Logging;
-using Kevin.Common.Helper;
 using Microsoft.Extensions.DependencyInjection;
 using kevin.Cap;
 using kevin.Consul;
 using kevin.Consul.Models;
 using kevin.HttpApiClients;
-using Kevin.Common.Kevin;
+using Kevin.log4Net;
+using Kevin.Common.Kevin.Start;
 
 namespace WebApi
 {
@@ -43,7 +41,8 @@ namespace WebApi
 
                 Common.EnvironmentHelper.InitTestServer();
                 var builder = WebApplication.CreateBuilder(args);
-                builder.Logging.AddLog4Net("Configs/_/log4.config");
+                StartWebHostEnvironment.webHostEnvironment = builder.Environment;
+                builder.Logging.UseKevinLog4Net();
                 #region Kestrel Https并绑定证书
                 //启用 Kestrel Https 并绑定证书
                 //builder.WebHost.UseKestrel(options =>
@@ -163,7 +162,7 @@ namespace WebApi
                     options.RoutePrefix = "swagger";
                 });
 
-                LogHelper.logger.Debug("init main");
+                LogHelper.logger.Info("initMain");
                 app.Run();
             }
             catch (Exception ex)
@@ -174,7 +173,7 @@ namespace WebApi
             finally
             {
                 // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
-
+                LogHelper.logger.Info("initMainfinally");
             }
         }
     }

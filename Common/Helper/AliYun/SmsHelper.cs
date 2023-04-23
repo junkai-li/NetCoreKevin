@@ -66,7 +66,7 @@ namespace Common.AliYun
                 };
 
                 var logStr = Json.JsonHelper.ObjectToJSON(log);
-                LogHelper.logger?.Error("Sms" + logStr);
+                //LogHelper.logger?.Error("Sms" + logStr);
                 return false;
             }
             catch (ClientException e)
@@ -83,7 +83,7 @@ namespace Common.AliYun
 
                 var logStr = Json.JsonHelper.ObjectToJSON(log);
 
-                LogHelper.logger.Error("Sms" + logStr);
+               // LogHelper.logger.Error("Sms" + logStr);
 
                 return false;
             }

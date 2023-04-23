@@ -11,7 +11,7 @@ using System.Text;
 namespace Kevin.Common.Kevin
 {
     public class JwtToken
-    { 
+    {
         /// <summary>
         /// 通过Key获取Claims中的值
         /// </summary>
@@ -42,26 +42,26 @@ namespace Kevin.Common.Kevin
         /// 生成一个Token
         /// </summary>
         /// <returns></returns>
-        public static string GetToken(Claim[] claims)
-        {
-            var conf = StartConfiguration.configuration;
+        //[Obsolete("已使用IDS代替", false)]
+        //public static string GetToken(Claim[] claims)
+        //{
+        //    var conf = StartConfiguration.configuration;
 
-            var jwtSettings = new JwtSettings();
-            conf.Bind("JwtSettings", jwtSettings);
+        //    var jwtSettings = StartConfiguration.configuration.GetSection("JwtSettings").Get<SignalrSetting>();
 
-            //对称秘钥
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey));
+        //    //对称秘钥
+        //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey));
 
-            //签名证书(秘钥，加密算法)
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        //    //签名证书(秘钥，加密算法)
+        //    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            //生成token
-            var token = new JwtSecurityToken(jwtSettings.Issuer, jwtSettings.Audience, claims, DateTime.Now, DateTime.Now.AddMinutes(30), creds);
+        //    //生成token
+        //    var token = new JwtSecurityToken(jwtSettings.Issuer, jwtSettings.Audience, claims, DateTime.Now, DateTime.Now.AddMinutes(30), creds);
 
-            var ret = new JwtSecurityTokenHandler().WriteToken(token);
+        //    var ret = new JwtSecurityTokenHandler().WriteToken(token);
 
-            return ret;
-        }
+        //    return ret;
+        //}
 
     }
 }

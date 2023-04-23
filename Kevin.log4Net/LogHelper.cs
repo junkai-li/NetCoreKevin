@@ -1,15 +1,9 @@
-﻿using COSXML.Log; 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using log4net;
+﻿using log4net;
 using log4net.Appender;
 using log4net.Layout;
 using ILog = log4net.ILog;
 
-namespace Kevin.Common.Helper
+namespace Kevin.log4Net
 {
     public class LogHelper
     {
