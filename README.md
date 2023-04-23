@@ -1,5 +1,5 @@
 # NetCoreKevin
-基于NET6搭建跨平台WebApi架构支持单点登录、多缓存、自动任务、分布式、多租户、日志、授权和鉴权
+基于NET6搭建跨平台DDD思想WebApi架构、IDS4单点登录、多缓存、自动任务、分布式、多租户、日志、授权和鉴权、CAP、SignalR
 
 ![1681886164784](https://user-images.githubusercontent.com/57887866/232987165-2521adaa-6e69-4feb-906f-17e1ffb36939.png)
 ![image](https://user-images.githubusercontent.com/57887866/233823710-e8ad6fe8-5eb8-4fda-b3e1-09c36e508ed0.png)
