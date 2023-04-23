@@ -3,17 +3,12 @@ using Common.IO;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Models.Dtos;
-using Repository.Database;
 using System;
 using System.Linq;
 using System.Net.Http;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Web.Actions;
 using Web.Permisson.Attributes;
@@ -34,9 +29,8 @@ namespace Web.Permission.Action
             { 
                 if (authorizationHandlerContext.Resource is HttpContext httpContext)
                 {
-                    IssueNewToken(httpContext);
-                    var endpoint = httpContext.GetEndpoint(); 
-                    var ad = endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
+                    IssueNewToken(httpContext); 
+                    var ad = httpContext.GetControllerActionDescriptor();
                     var isSkip = ad.MethodInfo.IsDefined(typeof(SkipAuthorityAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(SkipAuthorityAttribute), false);
                     if (isSkip == true)
                     { 
