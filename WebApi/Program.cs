@@ -42,7 +42,7 @@ namespace WebApi
                 Common.EnvironmentHelper.InitTestServer();
                 var builder = WebApplication.CreateBuilder(args);
                 StartWebHostEnvironment.webHostEnvironment = builder.Environment;
-                builder.Logging.UseKevinLog4Net();
+                //builder.Logging.UseKevinLog4Net();日志
                 #region Kestrel Https并绑定证书
                 //启用 Kestrel Https 并绑定证书
                 //builder.WebHost.UseKestrel(options =>
@@ -55,7 +55,7 @@ namespace WebApi
                 //builder.WebHost.UseUrls("https://*");
                 #endregion
 
-                builder.Services.AddKevinRedisCap(builder.Configuration.GetConnectionString("redisConnection"), builder.Configuration.GetConnectionString("dbConnection"));
+                //builder.Services.AddKevinRedisCap(builder.Configuration.GetConnectionString("redisConnection"), builder.Configuration.GetConnectionString("dbConnection")); cap
 
                 builder.Services.ConfigServies(builder.Configuration);
 
@@ -101,11 +101,11 @@ namespace WebApi
                 #endregion
 
                 #region 腾讯MiniLive
-                //腾讯MiniLive服务注册
-                MiniLive.AppId = "wxf164719d9baf8d83";
-                MiniLive.AppSecret = "****************";//微信小程序密钥 
-                TencentService.Helper.RedisHelper.ConnectionString = builder.Configuration.GetConnectionString("redisConnection");
-                builder.Services.AddSingleton<IMiniLive, MiniLive>();
+                ////腾讯MiniLive服务注册
+                //MiniLive.AppId = "wxf164719d9baf8d83";
+                //MiniLive.AppSecret = "****************";//微信小程序密钥 
+                //TencentService.Helper.RedisHelper.ConnectionString = builder.Configuration.GetConnectionString("redisConnection");
+                //builder.Services.AddSingleton<IMiniLive, MiniLive>();
                 #endregion
 
                 #region IDSERVER授权服务器
@@ -122,6 +122,7 @@ namespace WebApi
                     o.TokenValidationParameters.ValidateAudience = false;
                 });
                 #endregion
+
                 builder.Services.AddKevinHttpApiClients();
                 builder.Services.AddControllers(options =>
                 {
@@ -149,7 +150,7 @@ namespace WebApi
 
                 //kevin初始化
                 app.UseKevin();
-                app.UseKevinConsul(builder.Configuration.GetSection("ConsulSetting").Get<ConsulSetting>(), app.Lifetime);//服务网关 
+                //app.UseKevinConsul(builder.Configuration.GetSection("ConsulSetting").Get<ConsulSetting>(), app.Lifetime);//服务网关 
                 //启用中间件服务对swagger-ui，指定Swagger JSON端点
                 app.UseSwaggerUI(options =>
                 {
@@ -160,21 +161,13 @@ namespace WebApi
                     }
 
                     options.RoutePrefix = "swagger";
-                });
-
-                LogHelper.logger.Info("initMain");
+                }); 
                 app.Run();
             }
             catch (Exception ex)
-            {
-                LogHelper.logger?.Error("Stopped program because of exception", ex);
+            {  
                 throw;
-            }
-            finally
-            {
-                // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
-                LogHelper.logger.Info("initMainfinally");
-            }
+            } 
         }
     }
 }

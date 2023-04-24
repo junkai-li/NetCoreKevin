@@ -63,11 +63,11 @@ namespace Web.Extension
 
             #region 权限校验 
             //权限校验
-            services.AddAuthorization(options =>
-            {
-                options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().RequireAssertion(context => IdentityVerification.Authorization(context)).Build();
-            });
-            services.AddKevinPermission();
+            //services.AddAuthorization(options =>
+            //{
+            //    options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().RequireAssertion(context => IdentityVerification.Authorization(context)).Build();
+            //});
+            //services.AddKevinPermission();
             #endregion
 
             #region 注册常用 
@@ -155,7 +155,7 @@ namespace Web.Extension
             #endregion
 
             #region 分布式锁服务注册 
-            services.AddKevinDistributedLockSqlServer(Configuration.GetConnectionString("dbConnection"));
+            //services.AddKevinDistributedLockSqlServer(Configuration.GetConnectionString("dbConnection"));
             #endregion
 
             //把控制器作为服务注册，然后使用它内置的ioc来替换原来的控制器的创建器
@@ -163,8 +163,8 @@ namespace Web.Extension
             services.Replace(ServiceDescriptor.Transient<IControllerActivator, IocServiceBaseControllerActivator>());
             //App服务注册
             RegisterAppServices(services, Configuration);
-            services.AddKevinCors(Configuration.GetSection("CorsSetting").Get<CorsSetting>());
-            services.AddKevinSignalR(Configuration);
+            //services.AddKevinCors(Configuration.GetSection("CorsSetting").Get<CorsSetting>());
+            //services.AddKevinSignalR(Configuration);
             services.RunModuleInitializers(ReflectionScheduler.GetAllReferencedAssemblies());//初始化
             return services;
         }
@@ -198,7 +198,7 @@ namespace Web.Extension
             {
                 endpoints.MapControllers();
             });
-            app.UseKevinSignalR(StartConfiguration.configuration.GetSection("SignalrSetting").Get<SignalrSetting>());
+            //app.UseKevinSignalR(StartConfiguration.configuration.GetSection("SignalrSetting").Get<SignalrSetting>());
             //启用中间件服务生成Swagger作为JSON端点
             app.UseSwagger();
             GlobalServices.Set(app.ApplicationServices);
