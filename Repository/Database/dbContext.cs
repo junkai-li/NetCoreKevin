@@ -1,21 +1,14 @@
-﻿global using Repository.Bases;
-global using Repository.Database.Bases;
-global using System.Collections.Generic; 
-global using System.ComponentModel;
-global using System.ComponentModel.DataAnnotations;
-global using System.ComponentModel.DataAnnotations.Schema;
-global using System;
-
+﻿
+using kevin.Domain.Kevin;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 using Repository.Interceptors;
-using System;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
 namespace Repository.Database
-{ 
+{
     public class dbContext : DbContext
     {
 

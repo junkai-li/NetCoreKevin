@@ -353,7 +353,7 @@
             </summary> 
             <returns></returns>
         </member>
-        <member name="M:AdminApi.Controllers.PermissionController.GetPageData(kevin.Share.Dtos.dtoPageList{Repository.Database.TPermission})">
+        <member name="M:AdminApi.Controllers.PermissionController.GetPageData(kevin.Share.Dtos.dtoPageList{kevin.Domain.Kevin.TPermission})">
             <summary>
              获取
             </summary>
@@ -374,7 +374,7 @@
             <param name="id"></param>
             <returns></returns>
         </member>
-        <member name="M:AdminApi.Controllers.PermissionController.Edit(Repository.Database.TPermission)">
+        <member name="M:AdminApi.Controllers.PermissionController.Edit(kevin.Domain.Kevin.TPermission)">
             <summary>
             编辑
             </summary>

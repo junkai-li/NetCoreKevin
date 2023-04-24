@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Kevin.Common.csproj" />
-    <ProjectReference Include="..\Repository\Kevin.Repository.csproj" />
+    <ProjectReference Include="..\Repository\Kevin.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
 </Project>

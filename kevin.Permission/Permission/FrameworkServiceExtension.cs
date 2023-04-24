@@ -1,10 +1,10 @@
-﻿using kevin.Permission.Permisson.Attributes;
+﻿using kevin.Domain.Kevin;
+using kevin.Permission.Permisson.Attributes;
 using kevin.Permission.Permisson.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.DependencyModel.Resolution;
-using Repository.Database;
 using System.Reflection;
 using System.Runtime.Loader;
 

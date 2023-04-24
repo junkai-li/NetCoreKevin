@@ -29,7 +29,7 @@
     <ProjectReference Include="..\Kevin.log4Net\Kevin.log4Net.csproj" />
     <ProjectReference Include="..\kevin.Permission\kevin.Permission.csproj" />
     <ProjectReference Include="..\Kevin.SignalR\Kevin.SignalR.csproj" />
-    <ProjectReference Include="..\Repository\Kevin.Repository.csproj" />
+    <ProjectReference Include="..\Repository\Kevin.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
 </Project>

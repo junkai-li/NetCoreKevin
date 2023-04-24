@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using WebApi.Controllers.Bases;
+using kevin.Domain.Kevin;
 
 namespace WebApi.Controllers
 {

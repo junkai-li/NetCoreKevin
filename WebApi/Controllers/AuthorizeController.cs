@@ -1,6 +1,7 @@
 ﻿ 
 using Common;
 using IdentityModel.Client;
+using kevin.Domain.Kevin;
 using kevin.Share.Dtos;
 using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
 using Microsoft.AspNetCore.Authorization;
