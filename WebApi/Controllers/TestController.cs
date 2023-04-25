@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services.v1._;
+using System;
 using System.Threading.Tasks;
 using WebApi.Controllers.Bases;
 
@@ -92,6 +93,32 @@ namespace WebApi.Controllers
 
             return true;
         }
+
+        /// <summary>
+        /// 分布式锁demo
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("AcquireLock")]
+        public bool AcquireLock()
+        {
+
+            //互斥锁
+            try
+            {
+                var datalock = distLock.AcquireLock("1", TimeSpan.FromSeconds(60)); 
+                // 锁创建成功
+                Console.WriteLine("OK to acquire lock.");
+                return true;
+            }
+            catch (Exception)
+            { 
+                // 锁创建失败
+                Console.WriteLine("Failed to acquire lock.");
+                return false;
+            }
+        }
+
+
 
         /// <summary>
         ///测试提醒异常

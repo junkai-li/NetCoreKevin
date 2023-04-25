@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Web.Libraries.Http;
-using System.Linq;
+﻿using Common.Json;
+using kevin.Cache.Service;
+using Kevin.Common.App;
+using Kevin.Common.App.Global;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Security.Cryptography;
 using Web.Libraries.WeiXin.H5.Models;
-using Common.Json;
 using Web.Libraries.WeiXin.Public;
-using Microsoft.Extensions.Caching.Distributed;
-using Web.Global;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection; 
-using kevin.Cache.Service;
-using Kevin.Common.Kevin;
 
 namespace Web.Libraries.WeiXin.H5
 {

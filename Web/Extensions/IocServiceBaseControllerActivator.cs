@@ -2,11 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Kevin.Web.Extensions
-{ 
+{
     /// <summary>
     /// 自定义的控制器创建对象，以便使用ioc创建控制器，其实IOC就是一个字典Dictionary
     /// </summary>
@@ -20,8 +21,20 @@ namespace Kevin.Web.Extensions
             //Controller控制器属性注入，IocPropertyAttribute标记需要的属性，不是所有的属性
             foreach (var prop in controllerType.GetProperties().Where(prop => prop.IsDefined(typeof(IocPropertyAttribute), true)))
             {
-                var propValue = context.HttpContext.RequestServices.GetRequiredService(prop.PropertyType);
-                prop.SetValue(controllerInstance, propValue);
+                try
+                {
+                    var propValue = context.HttpContext.RequestServices.GetRequiredService(prop.PropertyType);
+                    if (propValue != null)
+                    {
+                        prop.SetValue(controllerInstance, propValue);
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine(prop.PropertyType.ToString()+ "IocProperty注入失败");
+                }
+
+
             }
 
             //Controller控制器方法注入，IocMethodAttribute标记需要的方法，不是所有的方法
@@ -45,5 +58,5 @@ namespace Kevin.Web.Extensions
         {
             //throw new NotImplementedException(); 
         }
-    } 
+    }
 }

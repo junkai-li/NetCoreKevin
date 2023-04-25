@@ -1,11 +1,11 @@
 ﻿using Common;
 using kevin.Cache.Service;
+using Kevin.Common.App.Global;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Xml;
-using Web.Global;
 using Web.Libraries.WeiXin.App.Models;
 
 namespace Web.Libraries.WeiXin.App

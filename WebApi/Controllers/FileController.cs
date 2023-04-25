@@ -48,7 +48,7 @@ namespace WebApi.Controllers
             string basepath = "Files/" + DateTime.Now.ToString("yyyy/MM/dd");
 
 
-            var filePath = Kevin.Common.Kevin.IO.Path.ContentRootPath() + "/" + basepath + "/";
+            var filePath = Kevin.Common.App.IO.Path.ContentRootPath() + "/" + basepath + "/";
 
             //下载文件
             var dlPath = Common.IO.IOHelper.DownloadFile(remoteFileUrl, filePath, fileName);
@@ -59,7 +59,7 @@ namespace WebApi.Controllers
                 dlPath = Common.IO.IOHelper.DownloadFile(remoteFileUrl, filePath, fileName);
             }
 
-            filePath = dlPath.Replace(Kevin.Common.Kevin.IO.Path.ContentRootPath(), "");
+            filePath = dlPath.Replace(Kevin.Common.App.IO.Path.ContentRootPath(), "");
 
 
             if (dlPath != null)
@@ -123,7 +123,7 @@ namespace WebApi.Controllers
         { 
 
             string basepath = "/Files/" + DateTime.Now.ToString("yyyy/MM/dd");
-            string filepath = Kevin.Common.Kevin.IO.Path.ContentRootPath() + basepath;
+            string filepath = Kevin.Common.App.IO.Path.ContentRootPath() + basepath;
 
             Directory.CreateDirectory(filepath);
 
@@ -241,7 +241,7 @@ namespace WebApi.Controllers
         {
 
             var file = db.TFile.Where(t => t.Id == fileid).FirstOrDefault();
-            string path = Kevin.Common.Kevin.IO.Path.ContentRootPath() + file.Path;
+            string path = Kevin.Common.App.IO.Path.ContentRootPath() + file.Path;
 
 
             //读取文件入流
@@ -279,7 +279,7 @@ namespace WebApi.Controllers
         {
 
             var file = db.TFile.Where(t => t.Id == fileId).FirstOrDefault();
-            var path = Kevin.Common.Kevin.IO.Path.ContentRootPath() + file.Path;
+            var path = Kevin.Common.App.IO.Path.ContentRootPath() + file.Path;
 
             var stream = System.IO.File.OpenRead(path);
 
@@ -433,7 +433,7 @@ namespace WebApi.Controllers
                 var fullFileName = string.Empty;
 
                 string basepath = "/Files/Group/" + DateTime.Now.ToString("yyyy/MM/dd") + "/" + fileId;
-                string filepath = Kevin.Common.Kevin.IO.Path.ContentRootPath() + basepath;
+                string filepath = Kevin.Common.App.IO.Path.ContentRootPath() + basepath;
 
                 Directory.CreateDirectory(filepath);
 
@@ -484,7 +484,7 @@ namespace WebApi.Controllers
 
                         var fileinfo = db.TFile.Where(t => t.Id == fileId).FirstOrDefault();
 
-                        var fullfilepath = Kevin.Common.Kevin.IO.Path.ContentRootPath() + fileinfo.Path;
+                        var fullfilepath = Kevin.Common.App.IO.Path.ContentRootPath() + fileinfo.Path;
 
                         using (FileStream outStream = new(fullfilepath, FileMode.Create))
                         {
@@ -495,7 +495,7 @@ namespace WebApi.Controllers
 
                             foreach (var item in filelist)
                             {
-                                string p = Kevin.Common.Kevin.IO.Path.ContentRootPath() + item.Path;
+                                string p = Kevin.Common.App.IO.Path.ContentRootPath() + item.Path;
                                 srcStream = new FileStream(p, FileMode.Open);
                                 while ((readedLen = srcStream.Read(buffer, 0, buffer.Length)) > 0)
                                 {

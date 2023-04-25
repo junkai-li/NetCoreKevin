@@ -188,6 +188,12 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:WebApi.Controllers.TestController.AcquireLock">
+            <summary>
+            分布式锁demo
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:WebApi.Controllers.TestController.TestErrMsg(System.String)">
              <summary>
             测试提醒异常

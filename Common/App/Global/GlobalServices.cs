@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Web.Global
+namespace Kevin.Common.App.Global
 {
     /// <summary>
     /// Ioc Helper, for quick initialize service at any where.
@@ -49,7 +49,7 @@ namespace Web.Global
         /// <param name="provider"></param>
         public static void Set(IServiceProvider provider)
         {
-           
+
             ServiceProvider = provider;
         }
 

@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Kevin.Common.csproj" />
+    <ProjectReference Include="..\kevin.Cache\kevin.Cache.csproj" />
     <ProjectReference Include="..\Repository\Kevin.EntityFrameworkCore.csproj" />
   </ItemGroup>
 

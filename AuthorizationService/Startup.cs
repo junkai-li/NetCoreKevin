@@ -1,3 +1,6 @@
+using Aop.Api.Domain;
+using kevin.Cache;
+using Kevin.Common.App.Global;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -51,6 +54,7 @@ namespace AuthorizationService
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "AuthorizationService", Version = "v1" });
             });
+            services.AddKevinMemoryCache(); 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -71,6 +75,7 @@ namespace AuthorizationService
             {
                 endpoints.MapControllers();
             });
+            GlobalServices.Set(app.ApplicationServices);
         }
     }
 }

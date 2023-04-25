@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Kevin.Common.Kevin.Start
+namespace Kevin.Common.App.Start
 {
     public class StartWebHostEnvironment
     {
-        public static IWebHostEnvironment webHostEnvironment { get; set; } 
+        public static IWebHostEnvironment webHostEnvironment { get; set; }
 
         public StartWebHostEnvironment(IWebHostEnvironment env)
         {

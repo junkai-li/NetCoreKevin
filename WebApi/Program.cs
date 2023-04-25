@@ -16,11 +16,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.IO;
 using Web.Extension;
-using Web.Global;
 using Web.Libraries.Swagger;
 using Microsoft.Extensions.DependencyInjection;
 using kevin.HttpApiClients;
-using Kevin.Common.Kevin.Start;
+using Kevin.Common.App.Global;
+using Kevin.Common.App.Start;
 
 namespace WebApi
 {
@@ -137,7 +137,7 @@ namespace WebApi
                 else
                 {
                     ////注册全局异常处理机制
-                    app.UseExceptionHandler(builder => builder.Run(async context => await Web.Actions.GlobalError.ErrorEvent(context)));
+                    app.UseExceptionHandler(builder => builder.Run(async context => await GlobalError.ErrorEvent(context)));
                 }
 
                 //kevin初始化

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Kevin.Common.Kevin
+namespace Kevin.Common.App.Start
 {
     public class StartConfiguration
     {

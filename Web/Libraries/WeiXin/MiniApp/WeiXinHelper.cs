@@ -1,4 +1,5 @@
 ﻿using kevin.Cache.Service;
+using Kevin.Common.App.Global;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -10,7 +11,6 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Xml;
-using Web.Global;
 using Web.Libraries.WeiXin.MiniApp.Models;
 using Web.Libraries.WeiXin.Public;
 
@@ -213,7 +213,7 @@ namespace Web.Libraries.WeiXin.MiniApp
         private string UseCretPost(string url, string data)
         {
 
-            var sslPath = Kevin.Common.Kevin.IO.Path.ContentRootPath() + "/ssl/apiclient_cert.p12";
+            var sslPath = Kevin.Common.App.IO.Path.ContentRootPath() + "/ssl/apiclient_cert.p12";
 
             using HttpClientHandler handler = new();
 

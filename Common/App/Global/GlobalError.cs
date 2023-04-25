@@ -1,15 +1,11 @@
 ﻿using Common.Json;
-using Kevin.Common.Helper;
-using Kevin.Common.Kevin;
-using Kevin.log4Net;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using System.Threading.Tasks;
 using Web.Global.Exceptions;
 
-namespace Web.Actions
+namespace Kevin.Common.App.Global
 {
     public class GlobalError
     {
@@ -37,9 +33,9 @@ namespace Web.Actions
             else
             {
 
-                string path =KevinHttpContext.GetUrl(context.RequestServices.GetService<IHttpContextAccessor>());
+                string path = context.RequestServices.GetService<IHttpContextAccessor>().GetUrl();
 
-                var parameter = KevinHttpContext.GetParameter(context.RequestServices.GetService<IHttpContextAccessor>());
+                var parameter = context.RequestServices.GetService<IHttpContextAccessor>().GetParameter();
 
                 var parameterStr = JsonHelper.ObjectToJSON(parameter);
 
@@ -48,18 +44,17 @@ namespace Web.Actions
                     parameterStr = parameterStr[0..102400];
                 }
 
-                var authorization = KevinHttpContext.Current(context.RequestServices.GetService<IHttpContextAccessor>()).Request.Headers["Authorization"].ToString();
+                var authorization = context.RequestServices.GetService<IHttpContextAccessor>().Current().Request.Headers["Authorization"].ToString();
 
                 var content = new
                 {
-                    path = path,
-                    parameter = parameter,
-                    authorization = authorization,
-                    error = error
+                    path,
+                    parameter,
+                    authorization,
+                    error
                 };
 
-                string strContent = JsonHelper.ObjectToJSON(content);
-                LogHelper.logger.Error(ProjectName+strContent);
+                string strContent = JsonHelper.ObjectToJSON(content); 
             }
             return context.Response.WriteAsJsonAsync(ret);
         }

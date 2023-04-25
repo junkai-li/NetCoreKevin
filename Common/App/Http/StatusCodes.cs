@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Web.Libraries.Http
+namespace Kevin.Common.App.Http
 {
     public class StatusCodes
     {
         public const int Status100Continue = 100;
         public const int Status101SwitchingProtocols = 101;
         public const int Status102Processing = 102;
-        public const int Status200OK = 200;  
+        public const int Status200OK = 200;
 
         public const int Status400BadRequest = 400;
         public const int Status401Unauthorized = 401;
@@ -31,7 +31,7 @@ namespace Web.Libraries.Http
         public const int Status421MisdirectedRequest = 421;
         public const int Status422UnprocessableEntity = 422;
         public const int Status423Locked = 423;
-        public const int Status424FailedDependency = 424; 
+        public const int Status424FailedDependency = 424;
 
         public const int Status500InternalServerError = 500;
         public const int Status501NotImplemented = 501;

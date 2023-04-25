@@ -2,7 +2,8 @@
 using kevin.DistributedLock;
 using kevin.Permission;
 using kevin.Permission.Permission.Action;
-using Kevin.Common.Kevin;
+using Kevin.Common.App.Global;
+using Kevin.Common.App.Start;
 using Kevin.Common.TieredServiceRegistration;
 using Kevin.Cors;
 using Kevin.Cors.Models;
@@ -27,9 +28,8 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using Web.Filters;
-using Web.Global;
-using Web.Global.User; 
-using Web.Libraries.Swagger; 
+using Web.Global.User;
+using Web.Libraries.Swagger;
 
 namespace Web.Extension
 {
@@ -155,7 +155,7 @@ namespace Web.Extension
             #endregion
 
             #region 分布式锁服务注册 
-            //services.AddKevinDistributedLockSqlServer(Configuration.GetConnectionString("dbConnection"));
+            services.AddKevinDistributedLockMySql(Configuration.GetConnectionString("dbConnection"));
             #endregion
 
             //把控制器作为服务注册，然后使用它内置的ioc来替换原来的控制器的创建器

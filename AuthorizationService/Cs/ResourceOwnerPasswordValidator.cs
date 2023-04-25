@@ -3,7 +3,10 @@ using Common;
 using Common.Json;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
+using kevin.Cache.Service;
+using Kevin.Common.App.Global;
 using Kevin.Models.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
 using Repository.Database;
 using System;
 using System.Linq;
@@ -27,7 +30,7 @@ namespace AuthorizationService
                     //var Password = Crypto.GetEncryptMD5(context.Password);
                     var Password = context.Password;
                     //查询数据库 
-                    dataJson = RedisHelper.HashGet("CacheUserList", context.UserName);
+                    dataJson = GlobalServices.ServiceProvider.GetService<ICacheService>().GetString("CacheUserList"+context.UserName);
 
                     if (!string.IsNullOrEmpty(dataJson))
                     {
@@ -70,7 +73,7 @@ namespace AuthorizationService
                 case "UMUserClient":
                     uMClientUserDto uMUser = null;
                     //查询数据库
-                    dataJson = RedisHelper.HashGet("CacheClientUserList", context.UserName);
+                    dataJson = GlobalServices.ServiceProvider.GetService<ICacheService>().GetString("CacheClientUserList"+context.UserName);
 
                     if (!string.IsNullOrEmpty(dataJson))
                     {
@@ -136,7 +139,7 @@ namespace AuthorizationService
         {
             return Task.Run(() =>
             {
-                RedisHelper.HashSet("CacheUserList", user.Name, JsonHelper.ObjectToJSON(user));
+                GlobalServices.ServiceProvider.GetService<ICacheService>().SetString("CacheUserList"+user.Name, JsonHelper.ObjectToJSON(user));
             });
         }
 
@@ -159,7 +162,7 @@ namespace AuthorizationService
         {
             return Task.Run(() =>
             {
-                RedisHelper.HashSet("CacheClientUserList", user.Id, JsonHelper.ObjectToJSON(user));
+                GlobalServices.ServiceProvider.GetService<ICacheService>().SetString("CacheClientUserList"+user.Id, JsonHelper.ObjectToJSON(user));
             });
         }
     }

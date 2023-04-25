@@ -8,7 +8,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 
-namespace Kevin.Common.Kevin
+namespace Kevin.Common.App
 {
     public class JwtToken
     {

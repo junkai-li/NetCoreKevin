@@ -1,9 +1,10 @@
 ﻿using Common;
 using Common.IO;
 using IdentityModel.Client;
+using kevin.Cache.Service;
 using kevin.Permission.Permisson.Attributes;
 using kevin.Permission.Service;
-using Kevin.Common.Kevin;
+using Kevin.Common.App;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -13,7 +14,7 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Web.Actions; 
+using Web.Actions;
 
 namespace kevin.Permission.Permission.Action
 {
@@ -93,8 +94,8 @@ namespace kevin.Permission.Permission.Action
                 try
                 {
                     //获取刷新令牌
-                    var RefreshToken = RedisHelper.StrGet(httpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
-                    var Result =   RenewTokenAsync(RefreshToken);
+                    var RefreshToken = httpContext.RequestServices.GetService<ICacheService>().GetString(httpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+                    var Result =   RenewTokenAsync(RefreshToken, httpContext);
                     if (!string.IsNullOrEmpty(Result.Result))
                     {
                         httpContext.Response.Headers.Add("NewToken", Result.Result);
@@ -112,7 +113,7 @@ namespace kevin.Permission.Permission.Action
         /// 刷新token
         /// </summary>
         /// <returns></returns>
-        private static async Task<string> RenewTokenAsync(string token)
+        private static async Task<string> RenewTokenAsync(string token, HttpContext httpContext)
         {
             var clinet = new HttpClient();
             var disco = await clinet.GetDiscoveryDocumentAsync(Config.Get()["IdentityServerUrl"]);
@@ -130,7 +131,7 @@ namespace kevin.Permission.Permission.Action
                 if (!refreshToken.IsError)
                 {
                     //保存刷新令牌
-                    RedisHelper.StrSet(refreshToken.AccessToken, refreshToken.RefreshToken, TimeSpan.FromDays(2));
+                    httpContext.RequestServices.GetService<ICacheService>().SetString(refreshToken.AccessToken, refreshToken.RefreshToken, TimeSpan.FromDays(2));
                     return refreshToken.AccessToken;
                 }
             }

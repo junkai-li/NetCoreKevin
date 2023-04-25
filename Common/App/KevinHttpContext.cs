@@ -1,5 +1,5 @@
 ﻿using kevin.Share.Dtos;
-using Microsoft.AspNetCore.Http; 
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,13 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Kevin.Common.Kevin
+namespace Kevin.Common.App
 {
 
     public static class KevinHttpContext
     {
 
-        public static Microsoft.AspNetCore.Http.HttpContext Current(this IHttpContextAccessor httpContext)
+        public static HttpContext Current(this IHttpContextAccessor httpContext)
         {
             var httpContextAccessor = httpContext;
             if (httpContextAccessor.HttpContext.Request.Body.Length > 0)
@@ -31,7 +31,7 @@ namespace Kevin.Common.Kevin
         /// <returns></returns>
         public static string GetUrl(this IHttpContextAccessor httpContext)
         {
-            return GetBaseUrl(httpContext) + $"{Current(httpContext).Request.Path}{Current(httpContext).Request.QueryString}";
+            return httpContext.GetBaseUrl() + $"{httpContext.Current().Request.Path}{httpContext.Current().Request.QueryString}";
         }
 
 
@@ -42,11 +42,11 @@ namespace Kevin.Common.Kevin
         public static string GetBaseUrl(this IHttpContextAccessor httpContext)
         {
 
-            var url = $"{Current(httpContext).Request.Scheme}://{Current(httpContext).Request.Host.Host}";
+            var url = $"{httpContext.Current().Request.Scheme}://{httpContext.Current().Request.Host.Host}";
 
-            if (Current(httpContext).Request.Host.Port != null)
+            if (httpContext.Current().Request.Host.Port != null)
             {
-                url = url + $":{Current(httpContext).Request.Host.Port}";
+                url = url + $":{httpContext.Current().Request.Host.Port}";
             }
 
             return url;
@@ -63,10 +63,10 @@ namespace Kevin.Common.Kevin
 
             using (Stream requestBody = new MemoryStream())
             {
-                if (Current(httpContext).Request.Body.Length > 0)
+                if (httpContext.Current().Request.Body.Length > 0)
                 {
-                    Current(httpContext).Request.Body.CopyTo(requestBody);
-                    Current(httpContext).Request.Body.Position = 0;
+                    httpContext.Current().Request.Body.CopyTo(requestBody);
+                    httpContext.Current().Request.Body.Position = 0;
 
                     requestBody.Position = 0;
 
@@ -88,7 +88,7 @@ namespace Kevin.Common.Kevin
         /// </summary>
         public static List<dtoKeyValue> GetParameter(this IHttpContextAccessor httpContext)
         {
-            var context = Current(httpContext);
+            var context = httpContext.Current();
 
             var parameters = new List<dtoKeyValue>();
 
@@ -99,7 +99,7 @@ namespace Kevin.Common.Kevin
                 parameters.Add(new dtoKeyValue { Key = query.Key, Value = query.Value });
             }
 
-            string body = GetRequestBody(httpContext);
+            string body = httpContext.GetRequestBody();
 
             if (!string.IsNullOrEmpty(body))
             {
@@ -127,7 +127,7 @@ namespace Kevin.Common.Kevin
         /// <returns></returns>
         public static string GetIpAddress(this IHttpContextAccessor httpContext)
         {
-            return Current(httpContext).Connection.RemoteIpAddress.ToString();
+            return httpContext.Current().Connection.RemoteIpAddress.ToString();
         }
 
 
@@ -139,7 +139,7 @@ namespace Kevin.Common.Kevin
         /// <returns></returns>
         public static string GetHeader(this IHttpContextAccessor httpContext, string key)
         {
-            var query = Current(httpContext).Request.Headers.Where(t => t.Key.ToLower() == key.ToLower()).Select(t => t.Value);
+            var query = httpContext.Current().Request.Headers.Where(t => t.Key.ToLower() == key.ToLower()).Select(t => t.Value);
 
             var ishave = query.Count();
 

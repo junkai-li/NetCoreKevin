@@ -1,4 +1,5 @@
-﻿using Kevin.Common.TieredServiceRegistration;
+﻿using Kevin.Common.App.Global;
+using Kevin.Common.TieredServiceRegistration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Web.Base._;
-using Web.Global;
 
 namespace Service
 {

@@ -1,12 +1,11 @@
-﻿
-using Kevin.Common.Kevin.Start;
+﻿using Kevin.Common.App.Start;
 using System.IO;
 using TencentCloud.Tsf.V20180326.Models;
 
-namespace Kevin.Common.Kevin.IO
+namespace Kevin.Common.App.IO
 {
     public class Path
-    {  
+    {
 
         /// <summary>
         /// 获取 项目运行 路径

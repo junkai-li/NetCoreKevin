@@ -1,13 +1,15 @@
-﻿ 
+﻿
 using Common;
 using IdentityModel.Client;
+using kevin.Cache.Service;
 using kevin.Domain.Kevin;
 using kevin.Share.Dtos;
 using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
+using Medallion.Threading;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration; 
+using Microsoft.Extensions.Configuration;
 using Repository.Database;
 using Service.Services.v1._;
 using System;
@@ -16,7 +18,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Web.Actions; 
+using Web.Actions;
 using WebApi.Controllers.Bases;
 
 namespace WebApi.Controllers
@@ -27,12 +29,15 @@ namespace WebApi.Controllers
     /// 系统访问授权模块
     /// </summary>
     [ApiVersionNeutral]
-    [Route("api/[controller]")] 
+    [Route("api/[controller]")]
     [AllowAnonymous]
     public class AuthorizeController : ApiControllerBase
     {
         [IocProperty]
         public IUserService _IUserService { get; set; }
+
+        [IocProperty]
+        public ICacheService _CacheService { get; set; }
         public AuthorizeController()
         {
         }
@@ -55,8 +60,8 @@ namespace WebApi.Controllers
         /// <returns></returns>
         [HttpGet("GetRdisDb")]
         public string GetRdisDb()
-        { 
-            return RedisHelper.StrGet("1");
+        {
+            return _CacheService.GetString("1");
 
         }
 
@@ -72,7 +77,7 @@ namespace WebApi.Controllers
             var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["JwtOptions:Authority"]);
             if (disco.IsError)
             {
-                throw new UserFriendlyException("登录异常");  
+                throw new UserFriendlyException("登录异常");
             }
 
             var tokenResponse = await clinet.RequestPasswordTokenAsync(new PasswordTokenRequest
@@ -86,13 +91,13 @@ namespace WebApi.Controllers
             });
             if (tokenResponse.IsError)
             {
-                throw new UserFriendlyException(tokenResponse.ErrorDescription); 
+                throw new UserFriendlyException(tokenResponse.ErrorDescription);
             }
             //保存刷新令牌
-            RedisHelper.StrSet(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
+            _CacheService.SetString(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
             return tokenResponse.AccessToken;
         }
-         
+
         /// <summary>
         /// 通过微信小程序Code获取Token认证信息
         /// </summary>
@@ -101,7 +106,7 @@ namespace WebApi.Controllers
         [HttpPost("GetTokenByWeiXinMiniAppCode")]
         public async Task<string> GetTokenByWeiXinMiniAppCode([FromBody] dtoKeyValue keyValue)
         {
-              
+
             var weixinkeyid = Guid.Parse(keyValue.Key.ToString());
             string code = keyValue.Value.ToString();
 
@@ -117,66 +122,64 @@ namespace WebApi.Controllers
 
             var user = db.TUserBindWeixin.Where(t => t.WeiXinOpenId == openid).Select(t => t.User).FirstOrDefault();
 
-
             if (user == null)
             {
 
                 bool isAction = false;
-
                 while (isAction == false)
                 {
-                    if (Common.RedisHelper.Lock("GetTokenByWeiXinMiniAppCode" + openid, "123456", TimeSpan.FromSeconds(5)))
+                    var lock1 = distLock.AcquireLock("GetTokenByWeiXinMiniAppCode" + openid, TimeSpan.FromSeconds(5));
+                    if (lock1 != null)
                     {
-                        isAction = true;
-
-                        user = db.TUserBindWeixin.Where(t => t.WeiXinOpenId == openid).Select(t => t.User).FirstOrDefault();
-
-                        if (user == null)
+                        using (lock1)
                         {
-                            //注册一个只有基本信息的账户出来
-                            user = new TUser();
+                            isAction = true;
+                            user = db.TUserBindWeixin.Where(t => t.WeiXinOpenId == openid).Select(t => t.User).FirstOrDefault();
+                            if (user == null)
+                            {
+                                //注册一个只有基本信息的账户出来
+                                user = new TUser();
 
-                            user.Id = Guid.NewGuid();
-                            user.IsDelete = false;
-                            user.CreateTime = DateTime.Now;
-                            user.Name = DateTime.Now.ToString() + "微信小程序新用户";
-                            user.NickName = user.Name;
-                            user.PassWord = Guid.NewGuid().ToString();
+                                user.Id = Guid.NewGuid();
+                                user.IsDelete = false;
+                                user.CreateTime = DateTime.Now;
+                                user.Name = DateTime.Now.ToString() + "微信小程序新用户";
+                                user.NickName = user.Name;
+                                user.PassWord = Guid.NewGuid().ToString();
 
-                            //开发时记得调整这个值
-                            user.RoleId = default;
+                                //开发时记得调整这个值
+                                user.RoleId = default;
 
-                            db.TUser.Add(user);
+                                db.TUser.Add(user);
 
-                            db.SaveChanges();
+                                db.SaveChanges();
 
-                            TUserBindWeixin userBind = new();
-                            userBind.Id = Guid.NewGuid();
-                            userBind.IsDelete = false;
-                            userBind.CreateTime = DateTime.Now;
-                            userBind.UserId = user.Id;
-                            userBind.WeiXinKeyId = weixinkeyid;
-                            userBind.WeiXinOpenId = openid;
+                                TUserBindWeixin userBind = new();
+                                userBind.Id = Guid.NewGuid();
+                                userBind.IsDelete = false;
+                                userBind.CreateTime = DateTime.Now;
+                                userBind.UserId = user.Id;
+                                userBind.WeiXinKeyId = weixinkeyid;
+                                userBind.WeiXinOpenId = openid;
 
-                            db.TUserBindWeixin.Add(userBind);
+                                db.TUserBindWeixin.Add(userBind);
 
-                            db.SaveChanges();
+                                db.SaveChanges();
+                            }
                         }
 
-                        Common.RedisHelper.UnLock("GetTokenByWeiXinMiniAppCode" + openid, "123456");
                     }
                     else
                     {
                         Thread.Sleep(500);
                     }
                 }
-
             }
             var clinet = new HttpClient();
             var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["JwtOptions:Authority"]);
             if (disco.IsError)
             {
-                throw new UserFriendlyException("登录异常");  
+                throw new UserFriendlyException("登录异常");
             }
 
             var tokenResponse = await clinet.RequestPasswordTokenAsync(new PasswordTokenRequest
@@ -190,13 +193,13 @@ namespace WebApi.Controllers
             });
             if (tokenResponse.IsError)
             {
-                throw new UserFriendlyException(tokenResponse.ErrorDescription);  
+                throw new UserFriendlyException(tokenResponse.ErrorDescription);
             }
             //保存刷新令牌
-            RedisHelper.StrSet(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
-            return tokenResponse.AccessToken; 
+            _CacheService.SetString(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
+            return tokenResponse.AccessToken;
         }
-         
+
 
         /// <summary>
         /// 利用手机号和短信验证码获取Token认证信息
@@ -236,12 +239,12 @@ namespace WebApi.Controllers
             }
             else
             {
-                throw new UserFriendlyException("Authorize.GetTokenBySms.'New password is not allowed to be empty");  
+                throw new UserFriendlyException("Authorize.GetTokenBySms.'New password is not allowed to be empty");
             }
 
         }
 
-         
+
 
         /// <summary>
         /// 发送短信验证手机号码所有权
@@ -256,7 +259,7 @@ namespace WebApi.Controllers
 
             string key = "VerifyPhone_" + phone;
 
-            if (Common.RedisHelper.IsContainStr(key) == false)
+            if (String.IsNullOrEmpty(_CacheService.GetString(key)))
             {
 
                 Random ran = new();
@@ -272,7 +275,7 @@ namespace WebApi.Controllers
 
                 if (smsStatus)
                 {
-                    Common.RedisHelper.StrSet(key, code, new TimeSpan(0, 0, 5, 0));
+                    _CacheService.SetString(key, code, new TimeSpan(0, 0, 5, 0));
 
                     return true;
                 }
@@ -289,7 +292,7 @@ namespace WebApi.Controllers
 
         }
 
-         
+
         /// <summary>
         /// 通过微信APP Code获取Token认证信息
         /// </summary>
@@ -348,6 +351,6 @@ namespace WebApi.Controllers
             return await GetToken(new dtoLogin { Name = user.Name, PassWord = user.PassWord });
 
         }
-         
+
     }
 }

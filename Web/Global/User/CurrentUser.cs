@@ -1,10 +1,7 @@
-﻿using Kevin.Common.Kevin;
+﻿using Kevin.Common.App;
 using Kevin.Models.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks; 
 
 namespace Web.Global.User
 {
