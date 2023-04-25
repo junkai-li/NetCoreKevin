@@ -10,30 +10,30 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace AppServices.Services.v1
-{
+{ 
     public class TestService : BaseService, ITestService
     {
-        public ICapPublisher capPublisher { get; set; }
-        public TestService(IHttpContextAccessor _httpContextAccessor, ICapPublisher _capPublisher) : base(_httpContextAccessor)
+        //public ICapPublisher capPublisher { get; set; } 
+        public TestService(IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
         {
-            capPublisher = _capPublisher;
+             
         }
 
         public async Task<string> SendSubsMsg(string msg)
         {
-            var _transaction = db.Database.BeginTransaction(capPublisher);
-            try
-            {
-                msg = msg + msg;
-               await capPublisher.PublishAsync("ShowMessage", msg);
-                await capPublisher.PublishAsync("AppSubscribeShowMessage", msg);
-                await _transaction.CommitAsync();
-            }
-            catch (Exception ex)
-            { 
-                _transaction.Rollback();
-                return ex.Message;
-            }  
+            //var _transaction = db.Database.BeginTransaction(capPublisher);
+            //try
+            //{
+            //    msg = msg + msg;
+            //   await capPublisher.PublishAsync("ShowMessage", msg);
+            //    await capPublisher.PublishAsync("AppSubscribeShowMessage", msg);
+            //    await _transaction.CommitAsync();
+            //}
+            //catch (Exception ex)
+            //{ 
+            //    _transaction.Rollback();
+            //    return ex.Message;
+            //}  
             return "Ok";
         }
     }

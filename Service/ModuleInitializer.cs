@@ -15,6 +15,13 @@ namespace Service
     {
         public void Initialize(IServiceCollection services)
         {
+
+            batchAddService(services);
+            Console.WriteLine("AppBaseService服务注册完成");
+        }
+
+        private void batchAddService(IServiceCollection services)
+        {
             #region App业务服务
             Type typeOf_IService = typeof(IBaseService);
             Assembly ser = Assembly.GetExecutingAssembly();
@@ -63,8 +70,6 @@ namespace Service
 
             }
             #endregion 
-
-            Console.WriteLine("AppBaseService服务注册完成");
         }
     }
 }

@@ -12,22 +12,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.IO;
-using TencentService;
-using TencentService._;
 using Web.Extension;
 using Web.Global;
 using Web.Libraries.Swagger;
 using Microsoft.Extensions.DependencyInjection;
-using kevin.Cap;
-using kevin.Consul;
-using kevin.Consul.Models;
 using kevin.HttpApiClients;
-using Kevin.log4Net;
 using Kevin.Common.Kevin.Start;
 
 namespace WebApi
@@ -163,6 +155,7 @@ namespace WebApi
                     options.RoutePrefix = "swagger";
                 }); 
                 app.Run();
+              
             }
             catch (Exception ex)
             {  
