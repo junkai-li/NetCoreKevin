@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using Org.BouncyCastle.Utilities.Collections;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,7 +12,17 @@ namespace Common.Json
 {
     public class JsonHelper
     {
+        private static readonly JsonSerializerSettings _ObToJsonSettings = new JsonSerializerSettings();
 
+        JsonHelper()
+        {
+            _ObToJsonSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            _ObToJsonSettings.Converters.Add(new IsoDateTimeConverter { DateTimeFormat = "yyyy'/'MM'/'dd' 'HH':'mm':'ss" });
+
+            //设置属性名为首字母小写得驼峰形式
+            _ObToJsonSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+
+        }
 
         /// <summary>
         /// 通过 Key 获取 Value
@@ -103,15 +114,8 @@ namespace Common.Json
         public static string ObjectToJSON(object obj)
         {
             try
-            {
-                JsonSerializerSettings jset = new();
-                jset.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                jset.Converters.Add(new IsoDateTimeConverter { DateTimeFormat = "yyyy'/'MM'/'dd' 'HH':'mm':'ss" });
-
-                //设置属性名为首字母小写得驼峰形式
-                jset.ContractResolver = new CamelCasePropertyNamesContractResolver();
-
-                return JsonConvert.SerializeObject(obj, jset).ToString();
+            { 
+                return JsonConvert.SerializeObject(obj, _ObToJsonSettings).ToString();
             }
             catch (Exception ex)
             {
