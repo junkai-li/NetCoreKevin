@@ -47,7 +47,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppShare", "AppShare\AppSha
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "kevin.Share", "kevin.Share\kevin.Share.csproj", "{E5F8FECC-A428-4E98-ADC5-91FFE84F688D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kevin.Domain", "kevin.Domain\kevin.Domain.csproj", "{CFD97194-D0DE-4C89-925E-8143BE260C33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "kevin.Domain", "kevin.Domain\kevin.Domain.csproj", "{CFD97194-D0DE-4C89-925E-8143BE260C33}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{016608F4-70E8-402C-966C-2D651B6A0319}"
 EndProject

@@ -130,7 +130,7 @@ namespace Web.Filters
                         context.Result = new JsonResult(new { code = StatusCodes.Status500InternalServerError, IsSuccess = false, msg = "errmsg", errMsg = "系统内部异常" });
                         break;
                     default:
-                        context.Result = new JsonResult(new { code = StatusCodes.Status200OK, msg = "success", IsSuccess = true, data = context.Result != null ? Result.Value : null });
+                        context.Result = new JsonResult(new { code = StatusCodes.Status200OK, msg = "success", IsSuccess = true, data = context.Result != null ? Result?.Value : null });
                         break;
                 }
             }

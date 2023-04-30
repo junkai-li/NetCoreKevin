@@ -1,10 +1,12 @@
 ﻿
+using kevin.Domain.Bases;
 using kevin.Domain.Kevin;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 using Repository.Interceptors;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Xml;
 namespace Repository.Database
@@ -193,12 +195,11 @@ namespace Repository.Database
                     //builder.UseXminAsConcurrencyToken();
 
                     //设置表的备注
-                    builder.HasComment(GetEntityComment(entity.Name));
-
+                    builder.HasComment(GetEntityComment(entity.Name)); 
                     ////租户过滤器
-                    //Expression<Func<CD, bool>> multiTenantFilter = e =>   EF.Property<string>(e, "TenantId") == GetTenantId();
+                    Expression<Func<CD, bool>> multiTenantFilter = e =>   EF.Property<string>(e, "TenantId") == GetTenantId();
 
-                    //builder.HasQueryFilter(multiTenantFilter);
+                    builder.HasQueryFilter(multiTenantFilter);
 
                     foreach (var property in entity.GetProperties())
                     {

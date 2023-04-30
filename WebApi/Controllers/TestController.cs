@@ -1,4 +1,5 @@
 ﻿using AppServices.Services.v1._;
+using Common.Json;
 using kevin.Cache.Service;
 using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
 using Medallion.Threading;
@@ -7,6 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services.v1._;
 using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using WebApi.Controllers.Bases;
 
@@ -135,6 +138,37 @@ namespace WebApi.Controllers
         public Task<string> SendSubsMsg(string msg)
         {
             return _TestService.SendSubsMsg(msg);
+        }
+
+        public class Student
+        {
+            public int Id { get; set; }
+            public string StuName { get; set; }
+            public DateTime Birthday { get; set; }
+            public string Address { get; set; }
+        }
+
+
+
+        [HttpGet("Test")]
+        public void Test()
+        {
+            Student student = new Student()
+            {
+                Id = 1,
+                StuName = "Bruce",
+                Birthday = DateTime.Parse("1996-08-24"),
+                Address = "上海市浦东新区"
+            };
+
+            Stopwatch stopwatch1 = new Stopwatch();
+            stopwatch1.Start();
+            foreach (var index in Enumerable.Range(0, 100000))
+            {
+                JsonHelper.ObjectToJSON(student);
+            }
+            stopwatch1.Stop();
+            Console.WriteLine($"序列化时间:{stopwatch1.ElapsedMilliseconds}");
         }
     }
 }
