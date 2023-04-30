@@ -1,11 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 
-namespace Ax.DataAccess
+namespace kevin.Domain.Repository
 {
     public interface IRepository<T, TId>
     {
@@ -15,8 +10,6 @@ namespace Ax.DataAccess
         void Add(T entity);
 
         void AddRange(IEnumerable<T> entity);
-
-        IDbContextTransaction BeginTransaction();
 
         void SaveChanges();
         T FirstOrDefault(Expression<Func<T, bool>> predicate);
