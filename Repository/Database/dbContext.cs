@@ -1,6 +1,8 @@
 ﻿
 using kevin.Domain.Bases;
+using kevin.Domain.EventBus;
 using kevin.Domain.Kevin;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
@@ -8,19 +10,22 @@ using Repository.Interceptors;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 namespace Repository.Database
 {
     public class dbContext : DbContext
     {
 
-
+        private IMediator? mediator;
         public static string ConnectionString { get; set; }
 
 
 
-        public dbContext(DbContextOptions<dbContext> _ = default) : base(GetDbContextOptions())
+        public dbContext(DbContextOptions<dbContext> _ = default, IMediator? mediator = default) : base(GetDbContextOptions())
         {
+            this.mediator = mediator;
         }
 
 
@@ -54,7 +59,7 @@ namespace Repository.Database
 
         public DbSet<TFileGroupFile> TFileGroupFile { get; set; }
 
-         
+
 
 
         public DbSet<TImgBaiduAI> TImgBaiduAI { get; set; }
@@ -105,7 +110,7 @@ namespace Repository.Database
 
         public DbSet<TUserInfo> TUserInfo { get; set; }
 
-         
+
 
 
         public DbSet<TWebInfo> TWebInfo { get; set; }
@@ -136,7 +141,7 @@ namespace Repository.Database
             }
 
             //开启调试拦截器
-           optionsBuilder.AddInterceptors(new DeBugInterceptor());
+            optionsBuilder.AddInterceptors(new DeBugInterceptor());
 
 
             //开启数据分表拦截器
@@ -165,24 +170,24 @@ namespace Repository.Database
                 foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
             }
 
-          //自定义外键
-          //  modelBuilder.Entity<TGroupBuyActivityGroupUser>()
-          //     .HasOne(p => p.GroupBuyActivityGroup)
-          //     .WithMany(b => b.GroupBuyActivityGroupUserList)
-          //     .HasForeignKey(p => p.GroupBuyActivityGroupId)
-          //     .HasConstraintName("FK_c_groupBuyActivityGroupId");
+            //自定义外键
+            //  modelBuilder.Entity<TGroupBuyActivityGroupUser>()
+            //     .HasOne(p => p.GroupBuyActivityGroup)
+            //     .WithMany(b => b.GroupBuyActivityGroupUserList)
+            //     .HasForeignKey(p => p.GroupBuyActivityGroupId)
+            //     .HasConstraintName("FK_c_groupBuyActivityGroupId");
 
-          //  modelBuilder.Entity<TGroupBuyActivityProduct>()
-          //.HasOne(p => p.GroupBuyActivity)
-          //.WithMany(b => b.GroupBuyActivityProductList)
-          //.HasForeignKey(p => p.GroupBuyActivityId)
-          //.HasConstraintName("FK_c_groupBuyActivityIds");
+            //  modelBuilder.Entity<TGroupBuyActivityProduct>()
+            //.HasOne(p => p.GroupBuyActivity)
+            //.WithMany(b => b.GroupBuyActivityProductList)
+            //.HasForeignKey(p => p.GroupBuyActivityId)
+            //.HasConstraintName("FK_c_groupBuyActivityIds");
 
-          //  modelBuilder.Entity<TGroupBuyActivityProduct>()
-          //  .HasOne(p => p.ProductPackage)
-          //  .WithMany()
-          //  .HasForeignKey(p => p.ProductPackageId)
-          //  .HasConstraintName("FK_c_productPackageIds");
+            //  modelBuilder.Entity<TGroupBuyActivityProduct>()
+            //  .HasOne(p => p.ProductPackage)
+            //  .WithMany()
+            //  .HasForeignKey(p => p.ProductPackageId)
+            //  .HasConstraintName("FK_c_productPackageIds");
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
                 modelBuilder.Entity(entity.Name, builder =>
@@ -195,16 +200,16 @@ namespace Repository.Database
                     //builder.UseXminAsConcurrencyToken();
 
                     //设置表的备注
-                    builder.HasComment(GetEntityComment(entity.Name)); 
-                    ////租户过滤器
-                    Expression<Func<CD, bool>> multiTenantFilter = e =>   EF.Property<string>(e, "TenantId") == GetTenantId();
+                    builder.HasComment(GetEntityComment(entity.Name));
+                    ////租户过滤器 
+                    //Expression<Func<CD, bool>> multiTenantFilter = e => EF.Property<string>(e, "TenantId") == GetTenantId();
 
-                    builder.HasQueryFilter(multiTenantFilter);
+                    //builder.HasQueryFilter(multiTenantFilter);
 
                     foreach (var property in entity.GetProperties())
                     {
                         string columnName = property.GetColumnName(StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table).Value);
-                      
+
                         //设置字段名为小写
                         property.SetColumnName(columnName.ToLower());
 
@@ -365,29 +370,29 @@ namespace Repository.Database
                     {
                         var foreignTable = fields.FirstOrDefault(t => t.Name == pi.Name.Replace("Id", ""));
 
-                            using var db = new dbContext();
-                      
-                            var foreignName = foreignTable.PropertyType.GetProperties().Where(t => t.CustomAttributes.Where(c => c.AttributeType.Name == "ForeignNameAttribute").Count() > 0).FirstOrDefault();
+                        using var db = new dbContext();
 
-                            if (foreignName != null)
+                        var foreignName = foreignTable.PropertyType.GetProperties().Where(t => t.CustomAttributes.Where(c => c.AttributeType.Name == "ForeignNameAttribute").Count() > 0).FirstOrDefault();
+
+                        if (foreignName != null)
+                        {
+
+                            if (oldValue != null)
                             {
-
-                                if (oldValue != null)
-                                {
-                                    var oldForeignInfo = db.Find(foreignTable.PropertyType, Guid.Parse(oldValue));
-                                    oldValue = foreignName.GetValue(oldForeignInfo).ToString();
-                                }
-
-                                if (newValue != null)
-                                {
-                                    var newForeignInfo = db.Find(foreignTable.PropertyType, Guid.Parse(newValue));
-                                    newValue = foreignName.GetValue(newForeignInfo).ToString();
-                                }
-
+                                var oldForeignInfo = db.Find(foreignTable.PropertyType, Guid.Parse(oldValue));
+                                oldValue = foreignName.GetValue(oldForeignInfo).ToString();
                             }
 
-                            retValue += (oldValue ?? "") + " -> ";
-                            retValue += (newValue ?? "") + "； \n"; 
+                            if (newValue != null)
+                            {
+                                var newForeignInfo = db.Find(foreignTable.PropertyType, Guid.Parse(newValue));
+                                newValue = foreignName.GetValue(newForeignInfo).ToString();
+                            }
+
+                        }
+
+                        retValue += (oldValue ?? "") + " -> ";
+                        retValue += (newValue ?? "") + "； \n";
 
                     }
                     else if (typename == "System.Boolean")
@@ -415,11 +420,30 @@ namespace Repository.Database
             return retValue;
         }
 
-         
+
         public override int SaveChanges()
         {
 
             dbContext db = this;
+            //发布领域事件
+            if (mediator != default)
+            {
+                var domainEntities = db.ChangeTracker
+           .Entries<IDomainEvents>()
+           .Where(x => x.Entity.GetDomainEvents().Any());
+
+                var domainEvents = domainEntities
+                    .SelectMany(x => x.Entity.GetDomainEvents())
+                    .ToList();//加ToList()是为立即加载，否则会延迟执行，到foreach的时候已经被ClearDomainEvents()了
+
+                domainEntities.ToList()
+                    .ForEach(entity => entity.Entity.ClearDomainEvents());
+
+                foreach (var domainEvent in domainEvents)
+                {
+                    mediator.Publish(domainEvent);
+                }
+            }
 
             var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
 
@@ -431,6 +455,39 @@ namespace Repository.Database
             return base.SaveChanges();
         }
 
+        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+
+            dbContext db = this;
+            //发布领域事件
+            if (mediator != default)
+            {
+                var domainEntities = db.ChangeTracker
+           .Entries<IDomainEvents>()
+           .Where(x => x.Entity.GetDomainEvents().Any());
+
+                var domainEvents = domainEntities
+                    .SelectMany(x => x.Entity.GetDomainEvents())
+                    .ToList();//加ToList()是为立即加载，否则会延迟执行，到foreach的时候已经被ClearDomainEvents()了
+
+                domainEntities.ToList()
+                    .ForEach(entity => entity.Entity.ClearDomainEvents());
+
+                foreach (var domainEvent in domainEvents)
+                {
+                    await mediator.Publish(domainEvent);
+                }
+            }
+
+            var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
+
+            foreach (var item in list)
+            {
+                item.Entity.GetType().GetProperty("RowVersion")?.SetValue(item.Entity, Guid.NewGuid());
+            }
+
+            return  await base.SaveChangesAsync();
+        }
         public int SaveChangesWithSaveLog(Guid? actionUserId = null, string ipAddress = null, string deviceMark = null)
         {
 
@@ -513,6 +570,7 @@ namespace Repository.Database
             return db.SaveChanges();
         }
 
+
         /// <summary>
         /// GetTenantId
         /// </summary>
@@ -535,7 +593,7 @@ namespace Repository.Database
                 {
                     builder = new ConfigurationBuilder().AddJsonFile("appsettings." + ev + ".json");
                 }
-                IConfigurationRoot configuration = builder.Build(); 
+                IConfigurationRoot configuration = builder.Build();
                 return configuration["TenantId"];
             }
             catch (Exception)

@@ -1,5 +1,6 @@
 ﻿using AppServices.Services.v1._;
 using DotNetCore.CAP;
+using kevin.Domain.Kevin;
 using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
 using Microsoft.AspNetCore.Http;
 using Repository.Database;
@@ -33,7 +34,15 @@ namespace AppServices.Services.v1
             //{ 
             //    _transaction.Rollback();
             //    return ex.Message;
-            //}  
+            //}   
+            return "Ok";
+        }
+        public async Task<string> SendTLogEvent(string msg)
+        { 
+            var log = new TLog("测试", "Type", msg);
+            log.CreateTime = DateTime.Now;
+            db.TLog.Add(log);
+            db.SaveChanges();
             return "Ok";
         }
     }

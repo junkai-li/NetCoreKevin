@@ -1,12 +1,21 @@
-﻿namespace kevin.Domain.Kevin
+﻿using kevin.Domain.Events;
+
+namespace kevin.Domain.Kevin
 {
 
     /// <summary>
     /// 日志表
     /// </summary>
-    public class TLog:CD
+    public class TLog : CD
     {
-
+        public TLog(string sign, string type, string content)
+        {
+            this.Sign = sign;
+            this.Type = type;
+            this.Content = content;
+            this.Id = Guid.NewGuid();
+            this.AddDomainEvent(new TLogCreatedEvent(this));
+        }
 
         /// <summary>
         /// 标记

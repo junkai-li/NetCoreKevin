@@ -139,7 +139,15 @@ namespace WebApi.Controllers
         {
             return _TestService.SendSubsMsg(msg);
         }
-
+        /// <summary>
+        ///测试日志领域事件
+        /// </summary>
+        /// <param name="msg"></param> 
+        [HttpGet("TestLogEvent")]
+        public async void TestLogEvent(string msg)
+        {
+          await  _TestService.SendTLogEvent(msg);
+        }
         public class Student
         {
             public int Id { get; set; }

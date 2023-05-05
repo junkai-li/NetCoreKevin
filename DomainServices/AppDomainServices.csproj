@@ -10,4 +10,9 @@
     <ProjectReference Include="..\Repositories\AppRepositorieRps.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Events\" />
+    <Folder Include="EventHandlers\" />
+  </ItemGroup>
+
 </Project>

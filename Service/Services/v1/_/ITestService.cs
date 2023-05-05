@@ -9,5 +9,7 @@ namespace AppServices.Services.v1._
     public interface ITestService
     {
         Task<string> SendSubsMsg(string msg);
+
+        Task<string> SendTLogEvent(string msg);
     }
 }

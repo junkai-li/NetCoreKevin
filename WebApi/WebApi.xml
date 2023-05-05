@@ -201,6 +201,12 @@
              <param name="str"></param>
              <exception cref="T:Web.Global.Exceptions.UserFriendlyException"></exception>
         </member>
+        <member name="M:WebApi.Controllers.TestController.TestLogEvent(System.String)">
+             <summary>
+            测试日志领域事件
+             </summary>
+             <param name="msg"></param> 
+        </member>
         <member name="T:WebApi.Controllers.v1.SignController">
             <summary>
             标记相关控制器
