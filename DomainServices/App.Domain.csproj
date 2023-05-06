@@ -7,12 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Repositories\AppRepositorieRps.csproj" />
+    <ProjectReference Include="..\Repositories\App.RepositorieRps.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Events\" />
     <Folder Include="EventHandlers\" />
+    <Folder Include="Entities\" />
   </ItemGroup>
 
 </Project>

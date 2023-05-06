@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>WebApi</name>
+        <name>App.WebApi</name>
     </assembly>
     <members>
         <member name="T:WebApi.Controllers.AuthorizeController">
