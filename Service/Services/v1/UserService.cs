@@ -24,8 +24,13 @@ namespace Service.Services.v1
         public IRoleRp roleRp { get; set; }
 
         public IUserBindWeixinRp userBindWeixinRp { get; set; }
-        public UserService(IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
+        public UserService(IHttpContextAccessor _httpContextAccessor, IUserRp _userRp, IWeiXinKeyRp _weiXinKeyRp, IFileRp _IFileRp, IRoleRp _IRoleRp, IUserBindWeixinRp _IUserBindWeixinRp) : base(_httpContextAccessor)
         {
+            userRp = _userRp;
+            weiXinKeyRp = _weiXinKeyRp;
+            fileRp = _IFileRp;
+            roleRp = _IRoleRp;
+            userBindWeixinRp = _IUserBindWeixinRp;
         }
 
 

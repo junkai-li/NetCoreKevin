@@ -21,8 +21,12 @@ namespace Service.Services.v1
         public IRolePermissionRp rolePermissionRp { get; set; }
         public IPermissionRp permissionRp { get; set; }
         public IUserRp userRp { get; set; }
-        public PermissionService(IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
+        public PermissionService(IHttpContextAccessor _httpContextAccessor, IUserRp _IUserRp, IPermissionRp _IPermissionRp, IRolePermissionRp _IRolePermissionRp, IKevinPermissionService _IKevinPermissionService) : base(_httpContextAccessor)
         {
+            this.userRp = _IUserRp;
+            this.permissionRp = _IPermissionRp;
+            this.rolePermissionRp = _IRolePermissionRp;
+            this.kevinPermissionService = _IKevinPermissionService;
         }
 
         /// <summary>

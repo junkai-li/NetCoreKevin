@@ -18,9 +18,9 @@ namespace AppServices.Services.v1
         //public ICapPublisher capPublisher { get; set; } 
 
         public ILogRp logRp { get; set; }
-        public TestService(IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
+        public TestService(IHttpContextAccessor _httpContextAccessor, ILogRp _ILogRp) : base(_httpContextAccessor)
         {
-             
+            logRp = _ILogRp;
         }
 
         public async Task<string> SendSubsMsg(string msg)
