@@ -168,7 +168,7 @@ namespace Web.Extension
             //services.AddKevinCors(Configuration.GetSection("CorsSetting").Get<CorsSetting>());
             //services.AddKevinSignalR(Configuration);
             services.RunModuleInitializers(ReflectionScheduler.GetAllReferencedAssemblies());//初始化
-            //services.AddKevinMediatRDomainEventBus(ReflectionScheduler.GetAllReferencedAssemblies());//初始化
+            services.AddKevinMediatRDomainEventBus(ReflectionScheduler.GetAllReferencedAssemblies());//初始化
             return services;
         }
 
