@@ -63,7 +63,7 @@ namespace WebApi
                     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{typeof(Program).Assembly.GetName().Name}.xml"), true);
 
                     //其他类库的注释文件
-                    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"kevin.Share.xml"), true);
+                    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"kevin.Domain.Share.xml"), true);
 
                     //开启 Swagger JWT 鉴权模块
                     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()

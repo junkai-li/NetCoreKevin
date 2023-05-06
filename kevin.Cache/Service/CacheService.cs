@@ -1,10 +1,7 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
+﻿using kevin.Domain.Share.Interfaces;
+using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Cache.Service
 {

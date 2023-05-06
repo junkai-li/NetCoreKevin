@@ -1,4 +1,5 @@
-﻿using AppServices.Services.v1._;
+﻿using App.RepositorieRps.Repositories.v1;
+using AppServices.Services.v1._;
 using DotNetCore.CAP;
 using kevin.Domain.Kevin;
 using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
@@ -15,6 +16,8 @@ namespace AppServices.Services.v1
     public class TestService : BaseService, ITestService
     {
         //public ICapPublisher capPublisher { get; set; } 
+
+        public ILogRp logRp { get; set; }
         public TestService(IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
         {
              
@@ -41,8 +44,8 @@ namespace AppServices.Services.v1
         { 
             var log = new TLog("测试", "Type", msg);
             log.CreateTime = DateTime.Now;
-            db.TLog.Add(log);
-            db.SaveChanges();
+            logRp.Add(log);
+            logRp.SaveChanges();
             return "Ok";
         }
     }

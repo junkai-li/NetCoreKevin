@@ -1,5 +1,5 @@
 ﻿using Common;
-using kevin.Cache.Service;
+using kevin.Domain.Share.Interfaces;
 using Kevin.Common.App.Global;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;

@@ -1,5 +1,7 @@
 ﻿global using Web.Base;
+using App.RepositorieRps.Repositories.v1;
 using kevin.Domain.Kevin;
+using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
 using Microsoft.AspNetCore.Http;
 using Service.Dtos.v1.Sign;
 using Service.Services.v1._;
@@ -9,9 +11,11 @@ using System.Linq;
 namespace Service.Services.v1
 {
     public class SignService : BaseService, ISignService
-    {
-        public SignService(IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
+    { 
+        public ISignRp signRp { get; set; }
+        public SignService(IHttpContextAccessor _httpContextAccessor, ISignRp _signRp) : base(_httpContextAccessor)
         {
+            signRp = _signRp;
         }
 
 
@@ -25,7 +29,7 @@ namespace Service.Services.v1
         public int GetSignCount(string table, Guid tableId, string sign)
         {
 
-            var count = db.TSign.Where(t => t.IsDelete == false && t.Table == table && t.TableId == tableId && t.Sign == sign).Count();
+            var count = signRp.Query().Where(t => t.IsDelete == false && t.Table == table && t.TableId == tableId && t.Sign == sign).Count();
 
             return count;
         }
@@ -37,7 +41,7 @@ namespace Service.Services.v1
         /// <param name="addSign"></param>
         /// <returns></returns> 
         public bool AddSign(dtoSign addSign)
-        {  
+        {
             var like = new TSign();
             like.Id = Guid.NewGuid();
             like.IsDelete = false;
@@ -48,8 +52,8 @@ namespace Service.Services.v1
             like.TableId = addSign.TableId;
             like.Sign = addSign.Sign;
 
-            db.TSign.Add(like);
-            db.SaveChanges();
+            signRp.Add(like);
+            signRp.SaveChanges();
 
             return true;
         }
@@ -62,14 +66,14 @@ namespace Service.Services.v1
         /// <param name="deleteSign"></param>
         /// <returns></returns> 
         public bool DeleteSign(dtoSign deleteSign)
-        { 
-            var like = db.TSign.Where(t => t.IsDelete == false && t.CreateUserId == CurrentUser.UserId&& t.Table == deleteSign.Table && t.TableId == deleteSign.TableId && t.Sign == deleteSign.Sign).FirstOrDefault();
+        {
+            var like = signRp.Query().Where(t => t.IsDelete == false && t.CreateUserId == CurrentUser.UserId && t.Table == deleteSign.Table && t.TableId == deleteSign.TableId && t.Sign == deleteSign.Sign).FirstOrDefault();
 
             if (like != null)
             {
                 like.IsDelete = true;
                 like.DeleteTime = DateTime.Now;
-                db.SaveChanges();
+                signRp.SaveChanges();
             }
             return true;
         }

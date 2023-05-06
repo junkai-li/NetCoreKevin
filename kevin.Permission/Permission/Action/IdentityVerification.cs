@@ -1,20 +1,12 @@
-﻿using Common;
-using Common.IO;
+﻿using Common.IO;
 using IdentityModel.Client;
-using kevin.Cache.Service;
-using kevin.Permission.Permisson.Attributes;
-using kevin.Permission.Service;
+using kevin.Domain.Share.Interfaces;
+using kevin.Permission.Permisson.Attributes; 
 using Kevin.Common.App;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using System;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Web.Actions;
 
 namespace kevin.Permission.Permission.Action
 {

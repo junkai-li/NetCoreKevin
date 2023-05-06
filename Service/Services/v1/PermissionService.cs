@@ -1,9 +1,11 @@
-﻿using kevin.Domain.Kevin;
+﻿using App.RepositorieRps.Repositories.v1;
+using kevin.Domain.Kevin;
+using kevin.Domain.Share.Interfaces;
 using kevin.Permission.Permission;
 using kevin.Permission.Permisson;
-using kevin.Permission.Service;
 using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
 using Microsoft.AspNetCore.Http;
+using Service.Repositories.v1;
 using Service.Services.v1._;
 using System;
 using System.Collections.Generic;
@@ -15,6 +17,10 @@ namespace Service.Services.v1
     {
         [IocProperty]
         public IKevinPermissionService kevinPermissionService { get; set; }
+
+        public IRolePermissionRp rolePermissionRp { get; set; }
+        public IPermissionRp permissionRp { get; set; }
+        public IUserRp userRp { get; set; }
         public PermissionService(IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
         {
         }
@@ -31,17 +37,17 @@ namespace Service.Services.v1
                 r.Id = $"{r.Area}.{r.Module}.{r.Action}";
             });
             var areas = all.Select(x => x.Area).ToList();
-            var allExist = db.Set<TPermission>().Where(r => r.IsManual == false && areas.Any(x => x == r.Area)).ToList();
+            var allExist = permissionRp.Query().Where(r => r.IsManual == false && areas.Any(x => x == r.Area)).ToList();
             var allExistIds = allExist.Select(r => r.Id).ToList();
 
             var preAdd = all.Where(r => !allExistIds.Contains(r.Id)).ToList();
             var preDelete = allExist.Where(r => !all.Any(p => p.Id == r.Id));
             var preDeleteIds = preDelete.Select(r => r.Id).ToList();
-            var preDeleteRoleP = db.Set<TRolePermission>().Where(r => preDeleteIds.Contains(r.PermissionId)).ToList();
-            db.AddRange(preAdd);
-            db.RemoveRange(preDelete);
-            db.RemoveRange(preDeleteRoleP);
-            return db.SaveChanges() > 0;
+            var preDeleteRoleP = rolePermissionRp.Query().Where(r => preDeleteIds.Contains(r.PermissionId)).ToList();
+            permissionRp.AddRange(preAdd);
+            permissionRp.RemoveRange(preDelete.ToArray());
+            rolePermissionRp.RemoveRange(preDeleteRoleP.ToArray());
+            return permissionRp.SaveChanges() > 0 && rolePermissionRp.SaveChanges() > 0;
 
         }
 
@@ -52,7 +58,7 @@ namespace Service.Services.v1
         /// <returns></returns>
         public TPermission GetDetails(string Id)
         {
-            var entity = db.Set<TPermission>().Where(t => t.Id == Id).FirstOrDefault();
+            var entity = permissionRp.Query().Where(t => t.Id == Id).FirstOrDefault();
             if (entity != null) return entity;
             else throw new UserFriendlyException("权限不存在");
         }
@@ -65,14 +71,14 @@ namespace Service.Services.v1
         /// <returns></returns>
         public bool Del(string id)
         {
-            var entity = db.Set<TPermission>().Where(t => t.Id == id).FirstOrDefault();
+            var entity = permissionRp.Query().Where(t => t.Id == id).FirstOrDefault();
             if (entity == null) return false;
             if (entity.IsManual.HasValue != true)
             {
                 throw new UserFriendlyException("系统权限不能删除");
             }
-            db.RemoveRange(entity);
-            int res = db.SaveChanges();
+            permissionRp.RemoveRange(entity);
+            int res = permissionRp.SaveChanges();
             return res > 0;
         }
 
@@ -89,11 +95,11 @@ namespace Service.Services.v1
                 entity.CreateTime = DateTime.Now;
                 entity.IsManual = true;
                 entity.CreateUserId = CurrentUser.UserId;
-                db.Set<TPermission>().Add(entity);
+                permissionRp.Add(entity);
             }
             else
             {
-                var data = db.Set<TPermission>().Where(t => t.Id == entity.Id).FirstOrDefault();
+                var data = permissionRp.Query().Where(t => t.Id == entity.Id).FirstOrDefault();
                 if (data.IsManual.HasValue != true)
                 {
                     throw new UserFriendlyException("系统权限不能操作");
@@ -102,7 +108,7 @@ namespace Service.Services.v1
                 data.UpdateUserId = CurrentUser.UserId;
                 entity.MapTo(data);
             }
-            int res = db.SaveChanges();
+            int res = permissionRp.SaveChanges();
             return res > 0;
         }
 
@@ -112,7 +118,7 @@ namespace Service.Services.v1
         /// <returns></returns>
         public List<TPermission> GetAllPermissions()
         {
-            return db.TPermission.Where(x => x.IsDelete == false).ToList();
+            return permissionRp.Query().Where(x => x.IsDelete == false).ToList();
         }
 
         /// <summary>
@@ -121,7 +127,7 @@ namespace Service.Services.v1
         /// <returns></returns>
         public List<string> GetAllPermissionIds()
         {
-            return db.TPermission.Where(x => x.IsDelete == false).Select(x => x.Id).ToList();
+            return permissionRp.Query().Where(x => x.IsDelete == false).Select(x => x.Id).ToList();
         }
 
         /// <summary>
@@ -130,12 +136,12 @@ namespace Service.Services.v1
         /// <returns></returns>
         public List<AreaPermissionDto> GetAllAreaPermissions(Guid roleId)
         {
-            var data = db.TPermission.Where(x => x.IsDelete == false).ToList();
+            var data = permissionRp.Query().Where(x => x.IsDelete == false).ToList();
 
 
             var list = new List<AreaPermissionDto>();
             var areas = data.Select(x => x.Area).Distinct().ToList();
-            var reolePer = db.TRolePermission.Where(x => x.IsDelete == false && x.RoleId == roleId).Select(x => x.PermissionId).ToList();
+            var reolePer = rolePermissionRp.Query().Where(x => x.IsDelete == false && x.RoleId == roleId).Select(x => x.PermissionId).ToList();
 
             foreach (var area in areas)
             {
@@ -192,12 +198,12 @@ namespace Service.Services.v1
                 }
             }
             var roleId = rolepers.FirstOrDefault().RoleId;
-            var allP = db.TRolePermission.Where(r => r.RoleId == roleId).ToList();
+            var allP = rolePermissionRp.Query().Where(r => r.RoleId == roleId).ToList();
             var preAdd = rolepers.Where(r => !allP.Any(p => p.PermissionId == r.PermissionId));
             var preDelete = allP.Where(r => !rolepers.Any(p => p.PermissionId == r.PermissionId));
-            db.AddRange(preAdd);
-            db.RemoveRange(preDelete);
-            db.SaveChanges();
+            rolePermissionRp.AddRange(preAdd);
+            rolePermissionRp.RemoveRange(preDelete.ToArray());
+            rolePermissionRp.SaveChanges();
             return true;
         }
 
@@ -206,7 +212,7 @@ namespace Service.Services.v1
         /// </summary>
         public List<string> GetUserPermissions()
         {
-            var user = db.TUser.Where(x => x.IsDelete == false && x.Id == CurrentUser.UserId).FirstOrDefault();
+            var user = userRp.Query().Where(x => x.IsDelete == false && x.Id == CurrentUser.UserId).FirstOrDefault();
             if (user != null)
             {
                 if (user.IsSuperAdmin)

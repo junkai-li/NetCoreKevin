@@ -1,6 +1,4 @@
-﻿using kevin.Permission.Permission.Action;
-using kevin.Permission.Service;
-using Microsoft.AspNetCore.Authorization;
+﻿using kevin.Domain.Share.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Web.Actions;
 

@@ -3,6 +3,7 @@ using Common;
 using IdentityModel.Client;
 using kevin.Cache.Service;
 using kevin.Domain.Kevin;
+using kevin.Domain.Share.Interfaces;
 using kevin.Share.Dtos;
 using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
 using Medallion.Threading;

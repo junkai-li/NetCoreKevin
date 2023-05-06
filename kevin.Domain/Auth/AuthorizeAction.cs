@@ -1,11 +1,7 @@
-﻿using kevin.Cache.Service;
+﻿using kevin.Domain.Share.Interfaces;
 using kevin.Share.Dtos;
 using Kevin.Common.App.Global;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Web.Auth
 {

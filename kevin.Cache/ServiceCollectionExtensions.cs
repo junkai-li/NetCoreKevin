@@ -1,5 +1,5 @@
 ﻿using kevin.Cache.Service;
-using Microsoft.Extensions.Caching.Distributed;
+using kevin.Domain.Share.Interfaces; 
 using Microsoft.Extensions.Caching.SqlServer;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.DependencyInjection;

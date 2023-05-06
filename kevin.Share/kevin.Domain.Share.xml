@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>kevin.Share</name>
+        <name>kevin.Domain.Share</name>
     </assembly>
     <members>
         <member name="T:kevin.Share.Dtos.DtoFileInfo">
@@ -200,6 +200,84 @@
             <summary>
             创建时间
             </summary>
+        </member>
+        <member name="M:kevin.Domain.Share.Interfaces.ICacheService.Remove(System.String)">
+            <summary>
+            删除指定key
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:kevin.Domain.Share.Interfaces.ICacheService.SetString(System.String,System.String)">
+            <summary>
+            设置string类型的key
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:kevin.Domain.Share.Interfaces.ICacheService.SetObject(System.String,System.Object)">
+            <summary>
+            设置object类型的key
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:kevin.Domain.Share.Interfaces.ICacheService.SetString(System.String,System.String,System.TimeSpan)">
+            <summary>
+            设置string类型key,包含有效时间
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <param name="timeOut"></param>
+            <returns></returns>
+        </member>
+        <member name="M:kevin.Domain.Share.Interfaces.ICacheService.SetObject(System.String,System.Object,System.TimeSpan)">
+            <summary>
+            设置object类型key,包含有效时间
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <param name="timeOut"></param>
+            <returns></returns>
+        </member>
+        <member name="M:kevin.Domain.Share.Interfaces.ICacheService.GetString(System.String)">
+            <summary>
+            读取string类型的key
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:kevin.Domain.Share.Interfaces.ICacheService.GetObject``1(System.String)">
+            <summary>
+            读取 Object 类型的key
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:kevin.Domain.Share.Interfaces.ICacheService.IsContainKey(System.String)">
+            <summary>
+            判断是否存在指定key
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:kevin.Domain.Share.Interfaces.IKevinPermissionService.IsAccess(System.String,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            验证权限
+            </summary>
+            <param name="permissionId"></param>
+            <param name="httpContext"></param>
+            <returns></returns>
+        </member>
+        <member name="M:kevin.Domain.Share.Interfaces.IKevinPermissionService.GetUserPermissions(System.String)">
+            <summary>
+            获取用户所拥有的权限列表
+            </summary>
+            <param name="userId"></param>
+            <returns></returns>
         </member>
         <member name="T:Models.JwtBearer.JwtSettings">
             <summary>

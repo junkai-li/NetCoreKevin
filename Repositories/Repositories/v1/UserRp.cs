@@ -1,13 +1,7 @@
 ﻿using Ax.DataAccess;
+using kevin.Domain.Interface;
 using kevin.Domain.Kevin;
-using kevin.Domain.Repository;
 using Repository.Database;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Web.Base;
 
 namespace Service.Repositories.v1
 {
@@ -18,7 +12,7 @@ namespace Service.Repositories.v1
     {
 
     }
-    public class UserRp : BaseRepository<TUser, Guid>, IUserRp
+    public class UserRp : Repository<TUser, Guid>, IUserRp
     {
         public UserRp(dbContext context, IServiceProvider serviceProvider) : base(context, serviceProvider)
         {

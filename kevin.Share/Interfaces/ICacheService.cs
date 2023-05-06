@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kevin.Cache.Service
+namespace kevin.Domain.Share.Interfaces
 {
     public interface ICacheService
     {

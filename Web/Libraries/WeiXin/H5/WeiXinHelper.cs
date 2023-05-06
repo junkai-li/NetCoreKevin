@@ -1,5 +1,5 @@
 ﻿using Common.Json;
-using kevin.Cache.Service;
+using kevin.Domain.Share.Interfaces;
 using Kevin.Common.App;
 using Kevin.Common.App.Global;
 using Microsoft.AspNetCore.Http;

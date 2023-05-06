@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
+using Web.Global.User;
 
-namespace kevin.Domain.Repository
+namespace kevin.Domain.Interface
 {
     public interface IRepository<T, TId>
     {
@@ -11,14 +12,14 @@ namespace kevin.Domain.Repository
 
         void AddRange(IEnumerable<T> entity);
 
-        void SaveChanges();
+        int SaveChanges();
         T FirstOrDefault(Expression<Func<T, bool>> predicate);
         Task SaveChangesAsync();
 
         void Remove(T entity);
-         
+
         void Update(T entity);
         void UpdateRange(params T[] entities);
-        void RemoveRange(params T[] entity);
+        void RemoveRange(params T[] entity); 
     }
 }

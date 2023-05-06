@@ -164,10 +164,11 @@ namespace Web.Extension
             services.Replace(ServiceDescriptor.Transient<IControllerActivator, IocServiceBaseControllerActivator>());
             //App服务注册
             RegisterAppServices(services, Configuration);
+            services.AddKevinPermission();
             //services.AddKevinCors(Configuration.GetSection("CorsSetting").Get<CorsSetting>());
             //services.AddKevinSignalR(Configuration);
             services.RunModuleInitializers(ReflectionScheduler.GetAllReferencedAssemblies());//初始化
-            services.AddKevinMediatRDomainEventBus(ReflectionScheduler.GetAllReferencedAssemblies());//初始化
+            //services.AddKevinMediatRDomainEventBus(ReflectionScheduler.GetAllReferencedAssemblies());//初始化
             return services;
         }
 

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kevin.Permission.Service
+namespace kevin.Domain.Share.Interfaces
 {
     public interface IKevinPermissionService
     {

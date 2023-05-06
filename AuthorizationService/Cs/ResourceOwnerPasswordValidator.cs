@@ -4,6 +4,7 @@ using Common.Json;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using kevin.Cache.Service;
+using kevin.Domain.Share.Interfaces;
 using Kevin.Common.App.Global;
 using Kevin.Models.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
