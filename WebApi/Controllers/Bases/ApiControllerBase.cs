@@ -1,5 +1,4 @@
-﻿using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
-using Medallion.Threading;
+﻿using Medallion.Threading;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Repository.Database;

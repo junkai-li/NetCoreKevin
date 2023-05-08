@@ -1,7 +1,6 @@
 ﻿using AppServices.Services.v1._;
 using Common.Json;
 using kevin.Domain.Share.Interfaces;
-using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
 using Medallion.Threading;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

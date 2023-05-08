@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kevin.Web.Attributes.IocAttrributes.IocAttrributes
+namespace kevin.Ioc.IocAttrributes
 {
     /// <summary>
     /// 属性的特性标记，主要用于标记属性

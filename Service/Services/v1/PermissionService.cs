@@ -1,9 +1,9 @@
 ﻿using App.RepositorieRps.Repositories.v1;
 using kevin.Domain.Kevin;
 using kevin.Domain.Share.Interfaces;
+using kevin.Ioc.IocAttrributes;
 using kevin.Permission.Permission;
 using kevin.Permission.Permisson;
-using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
 using Microsoft.AspNetCore.Http;
 using Service.Repositories.v1;
 using Service.Services.v1._;

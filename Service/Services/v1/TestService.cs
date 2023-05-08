@@ -1,18 +1,12 @@
 ﻿using App.RepositorieRps.Repositories.v1;
 using AppServices.Services.v1._;
-using DotNetCore.CAP;
 using kevin.Domain.Kevin;
-using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
 using Microsoft.AspNetCore.Http;
-using Repository.Database;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace AppServices.Services.v1
-{ 
+{
     public class TestService : BaseService, ITestService
     {
         //public ICapPublisher capPublisher { get; set; } 

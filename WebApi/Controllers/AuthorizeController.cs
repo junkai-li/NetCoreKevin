@@ -1,25 +1,16 @@
-﻿
-using Common;
-using IdentityModel.Client;
-using kevin.Cache.Service;
+﻿using IdentityModel.Client;
 using kevin.Domain.Kevin;
 using kevin.Domain.Share.Interfaces;
+using kevin.Ioc.IocAttrributes;
 using kevin.Share.Dtos;
-using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
 using Medallion.Threading;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Repository.Database;
 using Service.Services.v1._;
-using System;
 using System.Linq;
 using System.Net.Http;
-using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Web.Actions;
 using WebApi.Controllers.Bases;
 
 namespace WebApi.Controllers

@@ -1,12 +1,9 @@
-﻿using Kevin.Web.Attributes.IocAttrributes.IocAttrributes;
+﻿using kevin.Ioc.IocAttrributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace Kevin.Web.Extensions
+namespace kevin.Ioc
 {
     /// <summary>
     /// 自定义的控制器创建对象，以便使用ioc创建控制器，其实IOC就是一个字典Dictionary
