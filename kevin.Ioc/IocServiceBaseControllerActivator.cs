@@ -37,16 +37,23 @@ namespace kevin.Ioc
             //Controller控制器方法注入，IocMethodAttribute标记需要的方法，不是所有的方法
             foreach (var method in controllerType.GetMethods().Where(method => method.IsDefined(typeof(IocMethodAttribute), true)))
             {
-                var methodParameters = method.GetParameters();
-                List<object> listMethodParameters = new List<object>();
-                foreach (var para in methodParameters)
+                try
                 {
-                    var paraValue = context.HttpContext.RequestServices.GetRequiredService(para.ParameterType);
-                    listMethodParameters.Add(paraValue);
-                }
+                    var methodParameters = method.GetParameters();
+                    List<object> listMethodParameters = new List<object>();
+                    foreach (var para in methodParameters)
+                    {
+                        var paraValue = context.HttpContext.RequestServices.GetRequiredService(para.ParameterType);
+                        listMethodParameters.Add(paraValue);
+                    }
 
-                //调用Controller控制器方法
-                method.Invoke(controllerInstance, listMethodParameters.ToArray());
+                    //调用Controller控制器方法
+                    method.Invoke(controllerInstance, listMethodParameters.ToArray());
+                }
+                catch
+                {
+                    Console.WriteLine("IocMethod注入失败");
+                } 
             }
             return controllerInstance;
         }
