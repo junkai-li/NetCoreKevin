@@ -7,7 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Web\Kevin.Web.csproj" />
+    <ProjectReference Include="..\DomainServices\App.Domain.csproj" />
+    <ProjectReference Include="..\Repository\Kevin.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
 </Project>

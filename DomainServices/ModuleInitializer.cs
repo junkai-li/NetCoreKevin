@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DomainServices
+namespace App.Domain
 {
     public class ModuleInitializer : IModuleInitializer
     {

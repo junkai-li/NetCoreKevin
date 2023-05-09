@@ -1,20 +1,13 @@
-﻿using Ax.DataAccess;
-using kevin.Domain.Interface;
+﻿using App.Domain.Interfaces.Repositorie.v1;
 using kevin.Domain.Kevin;
-using Repository.Database;
+using Kevin.EntityFrameworkCore._.Data;
 
 namespace Service.Repositories.v1
 {
-    /// <summary>
-    /// 仓储接口
-    /// </summary>
-    public interface IUserRp : IRepository<TUser, Guid>
-    {
 
-    }
     public class UserRp : Repository<TUser, Guid>, IUserRp
     {
-        public UserRp(dbContext context, IServiceProvider serviceProvider) : base(context, serviceProvider)
+        public UserRp(IServiceProvider serviceProvider) : base(serviceProvider)
         {
         }
     }
