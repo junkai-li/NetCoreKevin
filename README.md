@@ -1,9 +1,11 @@
 # NetCoreKevin
 基于NET6搭建跨平台DDD思想WebApi架构、IDS4单点登录、多缓存、自动任务、分布式、多租户、日志、授权和鉴权、CAP、SignalR  、领域事件
-如需简约项目可直接去除项目引用 解耦设计都可以单独引用 架构默认全部引用并启动 项目启动时注意相关 Redis、db链接、RedisSignalR、ConsulSetting、配置   
-不想配置的话取消引用注释报错注入就OK    
+如需简约项目可直接去除项目引用 解耦设计都可以单独引用 架构默认全部引用并启动 项目启动时注意相关 Redis、db链接、RedisSignalR、ConsulSetting  
 生成数据库可见下面说明文件 命令生成即可 
-项目结构  
+项目结构    
+
+![image](https://github.com/junkai-li/NetCoreKevin/assets/57887866/51f7fc5e-4f1b-488e-8ee5-823f2a798a2e)
+
 ![7d1d5dabd0e65567f24dbc92e433c8d](https://user-images.githubusercontent.com/57887866/233831817-b0fcfa75-17bf-4f5d-9743-ad9385c25692.png)  
 docker配置  
 ![image](https://user-images.githubusercontent.com/57887866/233823710-e8ad6fe8-5eb8-4fda-b3e1-09c36e508ed0.png)  
@@ -14,29 +16,54 @@ json配置
 
  1.目录 
  
-    1.Kevin.AuthorizationService: 颁发授权服务中心 基于Identity框架搭建
+    1. App.AuthorizationService: 颁发授权服务中心 基于Identity框架搭建
 
-    2.Common: 工具库包含一些扩展类、帮助类、静态方法、微信、支付宝、阿里云、腾讯、Json相关、SSL证书
+    2. Kevin.Common: 工具类库包含了、常用帮助类、扩展方法、文件流操作、 图片操作、等常见代码封装
 
-    3.文档: 基础使用文档
+    3. 文档: 基础使用文档
 
-    4.InitData: 数据初始化Sql脚本
+    4. InitData: 数据初始化Sql脚本
 
-    5.型号: 用于存放Dto、相关结构类型
+    5. Share: 用于存放Dto、相关结构类型
 
-    6.Quartz: 基于Quartz搭建的自动任务调度系统
+    6. App.TaskQuartz: 基于Quartz搭建的自动任务调度系统
 
-    7.Kevin.Repository: 数据库工作单元仓储
+    7. App.RepositorieRps: 数据库仓储
 
-    8.AppServices: 应用服务层
+    8. App.Application: 应用服务层
 
-    9.Web: Web相关的工具层包含 鉴权验权、过滤器、中间件、全局类、权限控制、基础类、缓存、服务初始化、单点登录
+    9. Kevin.Web: Web相关的工具层包含 鉴权验权、过滤器、中间件、全局类、权限控制、基础类、缓存、服务初始化、单点登录
 
-    10.WebApi: API层
+   10. App.WebApi: API层
     
-    11.CrawlingService ：基于Selenium.WebDriver.MSEdgeDriver用于爬虫数据||自动化测试
+   11. kevin.CrawlingService ：基于Selenium.WebDriver.MSEdgeDriver用于爬虫数据||自动化测试
     
-    12.AppRepositorieRps 数据仓储层
+   12. Kevin.EntityFrameworkCore：基于EFCore搭建的工作单元
     
-    13.AppDomainServices 领域服务层
-
+   13. kevin.Domain：领域服务层
+    
+   14. kevin.Cache：缓存基于微软IDistributedCache基础开发 支持多缓存模式
+    
+   15. kevin.Cap：基于Cap搭建分布式事件
+    
+   16. kevin.Consul：微服务中基于Consul实现的服务注册与发现
+    
+   17. Kevin.Cors：跨域-可自定义跨域配置
+   
+   18. kevin.DistributedLock：分布式锁
+   
+   19. kevin.Domain.EventBus：基于MediatR实现领域事件
+   
+   20. kevin.FileStorage：文件服务支持阿里云、腾讯云
+   
+   21. Kevin.HttpApiClients：IHttpClientFactory工厂实现（HTTP2.0）
+   
+   22. kevin.Ioc：IOC容器
+   
+   23. Kevin.log4Net：Log4日志
+   
+   24. kevin.Permission：权限服务可根据Api初始化配置相关权限
+   
+   25. Kevin.SignalR：SignalR实时通信
+   
+   26. Kevin.SMS：短信服务支持阿里云、腾讯云
