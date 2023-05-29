@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Web.Base._;
 
-namespace Service
+namespace App.Application
 {
     public class ModuleInitializer : IModuleInitializer
     {

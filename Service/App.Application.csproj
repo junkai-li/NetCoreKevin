@@ -14,7 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AppShare\App.Share.csproj" />
     <ProjectReference Include="..\DomainServices\App.Domain.csproj" />
+    <ProjectReference Include="..\Repositories\App.RepositorieRps.csproj" />
+    <ProjectReference Include="..\Web\Kevin.Web.csproj" />
   </ItemGroup>
 
 </Project>

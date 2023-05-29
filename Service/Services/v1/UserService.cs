@@ -1,12 +1,10 @@
-﻿using App.RepositorieRps.Repositories.v1;
+﻿using App.Domain.Interfaces.Repositorie.v1;
 using Common.AliYun;
 using kevin.Domain.Kevin;
 using kevin.Share.Dtos;
 using kevin.Share.Dtos.System;
 using Microsoft.AspNetCore.Http;
-using Repository.Database;
 using Service.Dtos.v1.User;
-using Service.Repositories.v1;
 using Service.Services.v1._;
 using System;
 using System.Collections.Generic;

@@ -17,7 +17,7 @@
             <param name="id"></param>
             <returns></returns>
         </member>
-        <member name="T:Ax.DataAccess.Repository`2">
+        <member name="T:Kevin.EntityFrameworkCore._.Data.Repository`2">
             <summary>
             仓储类与类型Id
             </summary>

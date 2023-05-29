@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Web.Global.User;
 
-namespace Ax.DataAccess
+namespace Kevin.EntityFrameworkCore._.Data
 {
     /// <summary>
     /// 仓储类与类型Id
@@ -17,12 +17,12 @@ namespace Ax.DataAccess
     /// <typeparam name="TId"></typeparam>
     public class Repository<T, TId> : IRepository<T, TId> where T : class
     {
-        public Repository(dbContext context, IServiceProvider serviceProvider)
+        public Repository(IServiceProvider serviceProvider)
         {
 
             try
             {
-                Context = context;
+                Context = serviceProvider.GetService<dbContext>();
                 DbSet = Context.Set<T>();
                 ServiceProvider = serviceProvider;
                 CurrentUser = serviceProvider.GetService<ICurrentUser>();
