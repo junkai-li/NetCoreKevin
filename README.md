@@ -8,7 +8,7 @@
  
  1.目录 
  
-    1. App.AuthorizationService: 颁发授权服务中心 基于Identity框架搭建
+    1. App.AuthorizationService: 颁发授权服务中心 基于Identity框架搭建支持单点登录
 
     2. Kevin.Common: 工具类库包含了、常用帮助类、扩展方法、文件流操作、 图片操作、等常见代码封装
 
@@ -24,7 +24,7 @@
 
     8. App.Application: 应用服务层
 
-    9. Kevin.Web: Web相关的工具层包含 鉴权验权、过滤器、中间件、全局类、权限控制、基础类、缓存、服务初始化、单点登录
+    9. Kevin.Web: Web相关的工具层包含 过滤器、中间件、全局类、基础类、服务初始化
 
     10. App.WebApi: API层
 
