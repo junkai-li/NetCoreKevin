@@ -41,10 +41,11 @@ namespace Web.Extension
             {
                 options.MultipartBodyLengthLimit = long.MaxValue;
             });
-
+            //请求配置
             services.Configure<KestrelServerOptions>(options =>
             {
                 options.AllowSynchronousIO = true;
+                options.Limits.MaxRequestBodySize = int.MaxValue;//请求流大小
             });
 
             services.Configure<IISServerOptions>(options =>
