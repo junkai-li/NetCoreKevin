@@ -263,7 +263,7 @@ namespace Repository.Database
 
         public string GetEntityComment(string typeName, string fieldName = null, List<string> baseTypeNames = null)
         {
-            var path = AppContext.BaseDirectory + "/Repository.xml";
+            var path = AppContext.BaseDirectory + "/kevin.Domain.Share.xml";
             var xml = new XmlDocument();
             xml.Load(path);
             var memebers = xml.SelectNodes("/doc/members/member");
