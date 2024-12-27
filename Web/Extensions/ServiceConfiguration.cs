@@ -1,12 +1,14 @@
 ﻿using kevin.Cache;
 using kevin.DistributedLock;
 using kevin.Domain.EventBus;
+using kevin.FileStorage;
 using kevin.Ioc;
 using kevin.Permission;
 using Kevin.Common.App.Global;
 using Kevin.Common.App.Start;
 using Kevin.Common.TieredServiceRegistration;
 using Kevin.Cors;
+using Kevin.SMS;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -39,10 +41,11 @@ namespace Web.Extension
             {
                 options.MultipartBodyLengthLimit = long.MaxValue;
             });
-
+            //请求配置
             services.Configure<KestrelServerOptions>(options =>
             {
                 options.AllowSynchronousIO = true;
+                options.Limits.MaxRequestBodySize = int.MaxValue;//请求流大小
             });
 
             services.Configure<IISServerOptions>(options =>
@@ -163,6 +166,52 @@ namespace Web.Extension
             //services.AddKevinSignalR(Configuration);
             services.RunModuleInitializers(ReflectionScheduler.GetAllReferencedAssemblies());//初始化
             services.AddKevinMediatRDomainEventBus(ReflectionScheduler.GetAllReferencedAssemblies());//初始化
+
+            #region 注册短信服务
+
+            //services.AddTencentCloudSMS(options =>
+            //{
+            //    var settings = Configuration.GetRequiredSection("TencentCloudSMS").Get<Kevin.SMS.TencentCloud.Models.SMSSetting>()!;
+            //    options.AppId = settings.AppId;
+            //    options.SecretId = settings.SecretId;
+            //    options.SecretKey = settings.SecretKey;
+            //});
+
+
+            //services.AddAliCloudSMS(options =>
+            //{
+            //    var settings = Configuration.GetRequiredSection("AliCloudSMS").Get<Kevin.SMS.AliCloud.Models.SMSSetting>()!;
+            //    options.AccessKeyId = settings.AccessKeyId;
+            //    options.AccessKeySecret = settings.AccessKeySecret;
+            //});
+
+            #endregion
+
+            #region 注册文件服务
+
+
+            //services.AddTencentCloudStorage(options =>
+            //{
+            //    var settings = Configuration.GetRequiredSection("TencentCloudFileStorage").Get<kevin.FileStorage.TencentCloud.Models.FileStorageSetting>()!;
+            //    options.AppId = settings.AppId;
+            //    options.Region = settings.Region;
+            //    options.SecretId = settings.SecretId;
+            //    options.SecretKey = settings.SecretKey;
+            //    options.BucketName = settings.BucketName;
+            //});
+
+
+            //services.AddAliCloudStorage(options =>
+            //{
+            //    var settings =Configuration.GetRequiredSection("AliCloudFileStorage").Get<kevin.FileStorage.AliCloud.Models.FileStorageSetting>()!;
+            //    options.Endpoint = settings.Endpoint;
+            //    options.AccessKeyId = settings.AccessKeyId;
+            //    options.AccessKeySecret = settings.AccessKeySecret;
+            //    options.BucketName = settings.BucketName;
+            //});
+
+            #endregion
+
             return services;
         }
 
