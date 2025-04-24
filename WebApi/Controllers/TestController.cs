@@ -1,6 +1,7 @@
 ﻿using AppServices.Services.v1._;
 using Common.Json;
 using kevin.Domain.Share.Interfaces;
+using Kevin.Web.Filters.TransactionScope;
 using Medallion.Threading;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,6 +32,8 @@ namespace WebApi.Controllers
             _userService.GetUser(new Guid());
             return default;
         }
+
+        [ServiceFilter(typeof(TransactionScopeFilter))]//加上这行就可以用了
         [HttpGet("TestCacheServiceOk")]
         public string TestCacheServiceOk()
         {

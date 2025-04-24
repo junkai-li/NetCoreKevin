@@ -9,6 +9,7 @@ using Kevin.Common.App.Start;
 using Kevin.Common.TieredServiceRegistration;
 using Kevin.Cors;
 using Kevin.SMS;
+using Kevin.Web.Filters.TransactionScope;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -278,6 +279,8 @@ namespace Web.Extension
             services.AddDbContextPool<Repository.Database.dbContext>(options => { }, 100);
             services.AddScoped<dbContext, dbContext>();
             services.AddScoped<ICurrentUser, CurrentUser>();
+            //注入事务对象
+            services.AddScoped<TransactionScopeFilter>();
             #endregion
 
         }
