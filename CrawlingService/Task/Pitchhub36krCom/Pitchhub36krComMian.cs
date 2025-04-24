@@ -12,6 +12,7 @@ namespace CrawlingService.Task.Pitchhub36krCom
 {
     public static class Pitchhub36krComMian
     {
+
         public static void Run()
         {
             List<string> list = new List<string>
