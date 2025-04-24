@@ -18,13 +18,20 @@ namespace Web.Actions
         }
         public List<Guid> GetUserRoleIds(string userId)
         {
-            using (var db = new dbContext())
+            using var db = new dbContext();
+            var user = db.TUser.Where(x => x.IsDelete == false && x.Id == Guid.Parse(userId)).FirstOrDefault();
+            if (user != null)
             {
-                var reild = db.TUser.Where(x => x.IsDelete == false && x.Id == Guid.Parse(userId)).FirstOrDefault().RoleId;
+                var reild = user.RoleId;
                 var data = new List<Guid>();
                 data.Add(reild);
                 return data;
-
+            }
+            else
+            {
+                // Handle the case where the user is not found or is deleted.
+                // You might want to return an empty list or some other appropriate response.
+                return new List<Guid>();
             }
         }
         public List<string> GetRolePermissions(List<Guid> roleIds)
