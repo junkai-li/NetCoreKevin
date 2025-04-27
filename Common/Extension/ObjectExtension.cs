@@ -1,4 +1,5 @@
-﻿using Mapster;
+﻿using AutoMapper;
+using Mapster;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -42,6 +43,79 @@ namespace System
             if (destination == null) destination = new TDestination();
             MapToSimpleObject(source, destination);
             return destination;
+        }
+        /// <summary>
+        /// 单条实体类型映射,默认字段名字一一对应
+        /// </summary>
+        /// <typeparam name="TSource">Dto类型</typeparam>
+        /// <typeparam name="TDestination">要被转化的数据</typeparam>
+        /// <param name="source">转化之后的实体</param>
+        /// <returns></returns>
+        public static TDestination MapTo<TDestination>(this object source, Action<IMapperConfigurationExpression> configure)
+            where TDestination : class, new()
+        {
+            if (source == null) return new TDestination();
+            var config = new MapperConfiguration(configure);
+            var mapper = config.CreateMapper();
+            return mapper.Map<TDestination>(source);
+        }
+        /// <summary>
+        /// 单条实体类型映射,默认字段名字一一对应
+        /// </summary>
+        /// <typeparam name="TSource">转化之后的实体</typeparam>
+        /// <typeparam name="TDestination">要被转化的数据</typeparam>
+        /// <param name="configure">自定义类型转类型</param>
+        /// <returns></returns>
+        public static TDestination MapTo<TSource, TDestination>(this TSource source, Action<IMapperConfigurationExpression> configure)
+        where TDestination : class, new()
+        where TSource : class
+        {
+            List<Action<IMapperConfigurationExpression>> actions = new List<Action<IMapperConfigurationExpression>>();
+            Action<IMapperConfigurationExpression> action = (cfg) =>
+            {
+                cfg.CreateMap<TSource, TDestination>();
+            };
+            actions.Add(action);
+            if (configure != null) actions.Add(configure);
+            if (source == null) return new TDestination();
+            var config = new MapperConfiguration(cfg =>
+            {
+                actions.ForEach(a => a.Invoke(cfg));
+            });
+            var mapper = config.CreateMapper();
+            return mapper.Map<TDestination>(source);
+        }
+        /// <summary>
+        /// 实体列表类型映射,默认字段名字一一对应
+        /// </summary>
+        /// <typeparam name="TDestination">Dto类型</typeparam>
+        /// <typeparam name="TSource">要被转化的数据</typeparam>
+        /// <param name="source">可以使用这个扩展方法的类型，任何引用类型</param>
+        /// <returns>转化之后的实体列表</returns>
+        public static List<TDestination> MapToList<TSource, TDestination>(this IEnumerable<TSource> source)
+            where TDestination : class
+            where TSource : class
+        {
+            if (source == null) return new List<TDestination>();
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<TSource, TDestination>());
+            var mapper = config.CreateMapper();
+            return mapper.Map<List<TDestination>>(source);
+        }
+
+        /// <summary>
+        /// 实体列表类型映射,默认字段名字一一对应
+        /// </summary>
+        /// <typeparam name="TDestination">Dto类型</typeparam>
+        /// <typeparam name="TSource">要被转化的数据</typeparam>
+        /// <param name="source">可以使用这个扩展方法的类型，任何引用类型</param>
+        /// <returns>转化之后的实体列表</returns>
+        public static List<TDestination> MapToList<TDestination>(this object source, Action<IMapperConfigurationExpression> configure)
+            where TDestination : class
+        {
+            if (source == null) return new List<TDestination>();
+            var config = new MapperConfiguration(configure);
+            var mapper = config.CreateMapper();
+            return mapper.Map<List<TDestination>>(source);
         }
 
         /// <summary>

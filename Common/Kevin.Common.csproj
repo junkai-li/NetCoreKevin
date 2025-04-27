@@ -14,6 +14,7 @@
     <PackageReference Include="aliyun-net-sdk-alidns" Version="2.6.32" />
     <PackageReference Include="aliyun-net-sdk-core" Version="1.5.10" />
     <PackageReference Include="Aliyun.OSS.SDK.NetCore" Version="2.13.0" />
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="Baidu.AI" Version="3.6.14" />
     <PackageReference Include="Certes" Version="3.0.3" />
     <PackageReference Include="DnsClient" Version="1.7.0" />
