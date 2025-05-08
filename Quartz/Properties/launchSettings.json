@@ -1,11 +1,5 @@
 {
   "profiles": {
-    "IIS Express": {
-      "commandName": "IIS",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
     "Quartz.NET.Web": {
       "commandName": "Project",
       "launchUrl": "http://localhost:5000/Home/Index",

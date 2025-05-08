@@ -211,20 +211,20 @@ namespace Common
         /// </summary>
         /// <param name="privateKey">私钥内容（不要前后缀）</param>
         /// <returns></returns>
-        public static string RSAPrivateKeyJava2DotNet(string privateKey)
-        {
-            RsaPrivateCrtKeyParameters privateKeyParam = (RsaPrivateCrtKeyParameters)PrivateKeyFactory.CreateKey(Convert.FromBase64String(privateKey));
+        //public static string RSAPrivateKeyJava2DotNet(string privateKey)
+        //{
+        //    RsaPrivateCrtKeyParameters privateKeyParam = (RsaPrivateCrtKeyParameters)PrivateKeyFactory.CreateKey(Convert.FromBase64String(privateKey));
 
-            return string.Format("<RSAKeyValue><Modulus>{0}</Modulus><Exponent>{1}</Exponent><P>{2}</P><Q>{3}</Q><DP>{4}</DP><DQ>{5}</DQ><InverseQ>{6}</InverseQ><D>{7}</D></RSAKeyValue>",
-                Convert.ToBase64String(privateKeyParam.Modulus.ToByteArrayUnsigned()),
-                Convert.ToBase64String(privateKeyParam.PublicExponent.ToByteArrayUnsigned()),
-                Convert.ToBase64String(privateKeyParam.P.ToByteArrayUnsigned()),
-                Convert.ToBase64String(privateKeyParam.Q.ToByteArrayUnsigned()),
-                Convert.ToBase64String(privateKeyParam.DP.ToByteArrayUnsigned()),
-                Convert.ToBase64String(privateKeyParam.DQ.ToByteArrayUnsigned()),
-                Convert.ToBase64String(privateKeyParam.QInv.ToByteArrayUnsigned()),
-                Convert.ToBase64String(privateKeyParam.Exponent.ToByteArrayUnsigned()));
-        }
+        //    return string.Format("<RSAKeyValue><Modulus>{0}</Modulus><Exponent>{1}</Exponent><P>{2}</P><Q>{3}</Q><DP>{4}</DP><DQ>{5}</DQ><InverseQ>{6}</InverseQ><D>{7}</D></RSAKeyValue>",
+        //        Convert.ToBase64String(privateKeyParam.Modulus.ToByteArrayUnsigned()),
+        //        Convert.ToBase64String(privateKeyParam.PublicExponent.ToByteArrayUnsigned()),
+        //        Convert.ToBase64String(privateKeyParam.P.ToByteArrayUnsigned()),
+        //        Convert.ToBase64String(privateKeyParam.Q.ToByteArrayUnsigned()),
+        //        Convert.ToBase64String(privateKeyParam.DP.ToByteArrayUnsigned()),
+        //        Convert.ToBase64String(privateKeyParam.DQ.ToByteArrayUnsigned()),
+        //        Convert.ToBase64String(privateKeyParam.QInv.ToByteArrayUnsigned()),
+        //        Convert.ToBase64String(privateKeyParam.Exponent.ToByteArrayUnsigned()));
+        //}
 
 
 
@@ -235,21 +235,21 @@ namespace Common
         /// <param name="privateKey"></param>
         /// <remarks>Hex.encode(RSAWithSHA256(message)）</remarks>
         /// <returns></returns>
-        public static string HexRSASha256Sign(string contentForSign, string privateKey)
-        {
-            //转换成适用于.Net的秘钥
-            var netKey = RSAPrivateKeyJava2DotNet(privateKey);
-            var rsa = new RSACryptoServiceProvider();
-            rsa.FromXmlString(netKey);
-            //创建一个空对象
-            var rsaClear = new RSACryptoServiceProvider();
-            var paras = rsa.ExportParameters(true);
-            rsaClear.ImportParameters(paras);
-            //签名返回
-            using var sha256 = SHA256.Create();
-            var signData = rsa.SignData(Encoding.UTF8.GetBytes(contentForSign), sha256);
-            return BytesToHex(signData);
-        }
+        //public static string HexRSASha256Sign(string contentForSign, string privateKey)
+        //{
+        //    //转换成适用于.Net的秘钥
+        //    var netKey = RSAPrivateKeyJava2DotNet(privateKey);
+        //    var rsa = new RSACryptoServiceProvider();
+        //    rsa.FromXmlString(netKey);
+        //    //创建一个空对象
+        //    var rsaClear = new RSACryptoServiceProvider();
+        //    var paras = rsa.ExportParameters(true);
+        //    rsaClear.ImportParameters(paras);
+        //    //签名返回
+        //    using var sha256 = SHA256.Create();
+        //    var signData = rsa.SignData(Encoding.UTF8.GetBytes(contentForSign), sha256);
+        //    return BytesToHex(signData);
+        //}
 
 
 

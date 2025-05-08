@@ -67,7 +67,7 @@ namespace kevin.Cap
                 options.Version = "v1";
                 options.FailedRetryInterval = 60;   //失败时重试间隔
                 options.ConsumerThreadCount = 2;    //消费者线程并行处理消息的线程数，当这个值大于1时，将不能保证消息执行的顺序
-                options.UseDispatchingPerGroup = true;//CAP会将所有消费者组的消息都先放置到内存同一个Channel中，然后线性处理。 如果设置为 true，则每个消费者组都会根据 ConsumerThreadCount 设置的值创建单独的线程进行处理。
+             //   options.UseDispatchingPerGroup = true;//CAP会将所有消费者组的消息都先放置到内存同一个Channel中，然后线性处理。 如果设置为 true，则每个消费者组都会根据 ConsumerThreadCount 设置的值创建单独的线程进行处理。
                 options.FailedRetryCount = 10;  //失败时重试的最大次数
                 options.FailedThresholdCallback = null; //重试阈值的失败回调
                 options.SucceedMessageExpiredAfter = 24 * 3600; //成功消息的过期时间（秒）

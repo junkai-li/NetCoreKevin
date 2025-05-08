@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <MvcRazorCompileOnPublish>false</MvcRazorCompileOnPublish>
     <UserSecretsId>37e0f2d6-47a0-4dd0-9f7b-317a5c6f67f1</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
