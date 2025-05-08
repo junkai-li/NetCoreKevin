@@ -1,6 +1,6 @@
 #See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-#使用asp.net core 6.0作为基础镜像，起一个别名为base
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+#使用asp.net core 8.0作为基础镜像，起一个别名为base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 #设置容器的工作目录为/app
 WORKDIR /app
 #安装 libgdiplus 以解决 System.Drawing 在 linux 下无法运行的问题
@@ -10,7 +10,7 @@ ENV TZ=Asia/Shanghai
 #暴露80端口
 EXPOSE 80
 #使用.net core sdk作为基础镜像，起一个别名为build
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 #设置容器的工作目录为/src
 WORKDIR /src
 #拷贝WebApi.csproj项目文件到容器中的/src/WebApi/目录
@@ -33,6 +33,8 @@ COPY ["kevin.Permission/kevin.Permission.csproj", "kevin.Permission/"]
 COPY ["Repository/Kevin.EntityFrameworkCore.csproj", "Repository/"]
 COPY ["kevin.Domain/kevin.Domain.csproj", "kevin.Domain/"]
 COPY ["Kevin.SignalR/Kevin.SignalR.csproj", "Kevin.SignalR/"] 
+COPY ["Kevin.AI/Kevin.AI.csproj", "Kevin.AI/"] 
+COPY ["kevin_ESL/kevin_ESL.csproj", "kevin_ESL/"] 
 #执行dotnet restore命令，相当于平时用vs还原nuget包
 RUN dotnet restore "WebApi/WebApi.csproj"
 #拷贝当前目录的文件到到容器的/src目录
