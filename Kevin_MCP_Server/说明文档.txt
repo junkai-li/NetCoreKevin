@@ -1,0 +1,2 @@
+1.windows 安装nodejs
+2.npx命令启动 npx @modelcontextprotocol/inspector windows调试程序 

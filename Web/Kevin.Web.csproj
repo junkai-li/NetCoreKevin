@@ -31,6 +31,7 @@
     <ProjectReference Include="..\kevin.Permission\kevin.Permission.csproj" />
     <ProjectReference Include="..\Kevin.SignalR\Kevin.SignalR.csproj" />
     <ProjectReference Include="..\Kevin.SMS\Kevin.SMS.csproj" />
+    <ProjectReference Include="..\Kevin_MCP_Server\Kevin_MCP_Server.csproj" />
     <ProjectReference Include="..\Repository\Kevin.EntityFrameworkCore.csproj" />
   </ItemGroup>
 

@@ -119,9 +119,9 @@ namespace WebApi
                 builder.Services.AddControllers(options =>
                 {
                     options.OutputFormatters.RemoveType<StringOutputFormatter>();
-                });
-
+                }); 
                 var app = builder.Build();
+                app.MapMcp(); //MCP服务映射MCP端点
                 //开启倒带模式运行多次读取HttpContext.Body中的内容 
                 app.Use(async (context, next) =>
                 {
@@ -153,14 +153,14 @@ namespace WebApi
                     }
 
                     options.RoutePrefix = "swagger";
-                }); 
+                });
                 app.Run();
-              
+
             }
             catch (Exception ex)
-            {  
+            {
                 throw;
-            } 
+            }
         }
     }
 }

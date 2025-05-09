@@ -28,7 +28,7 @@ using System.Linq;
 using Web.Filters;
 using Web.Global.User;
 using Web.Libraries.Swagger;
-
+using Kevin_MCP_Server;
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -212,7 +212,7 @@ namespace Web.Extension
             //});
 
             #endregion
-
+            services.AddKevinMCPServer(); //mcp服务注册
             return services;
         }
 
@@ -247,7 +247,7 @@ namespace Web.Extension
             });
             //app.UseKevinSignalR(StartConfiguration.configuration.GetSection("SignalrSetting").Get<SignalrSetting>());
             //启用中间件服务生成Swagger作为JSON端点
-            app.UseSwagger();
+            app.UseSwagger(); 
             GlobalServices.Set(app.ApplicationServices);
             return app;
         }
