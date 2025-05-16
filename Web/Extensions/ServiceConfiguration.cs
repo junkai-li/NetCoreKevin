@@ -29,6 +29,7 @@ using Web.Filters;
 using Web.Global.User;
 using Web.Libraries.Swagger;
 using Kevin_MCP_Server;
+using Kevin_MCP_Server.Models;
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -212,7 +213,14 @@ namespace Web.Extension
             //});
 
             #endregion
-            services.AddKevinMCPServer(); //mcp服务注册
+            services.AddKevinMCPServer(options => {
+                var settings = Configuration.GetRequiredSection("MyMCPServer").Get<MCPSseClientSetting>()!;
+                options.Name = settings.Name;
+                options.Url = settings.Url;
+                options.UseStreamableHttp = settings.UseStreamableHttp;
+                options.AdditionalHeaders = settings.AdditionalHeaders;
+                options.ConnectionTimeout = settings.ConnectionTimeout;
+            }); //mcp服务注册
             return services;
         }
 

@@ -1,12 +1,15 @@
-﻿ 
+﻿
+using Kevin_MCP_Server.Client;
+using Kevin_MCP_Server.Models;
 using Kevin_MCP_Server.Tools;
 using Microsoft.Extensions.DependencyInjection;
- 
+using System;
+
 namespace Kevin_MCP_Server
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddKevinMCPServer(this IServiceCollection services)
+        public static void AddKevinMCPServer(this IServiceCollection services, Action<MCPSseClientSetting>? action = default)
         {
             //AddMcpServer()：添加MCP服务器服务。
             //WithHttpTransport()：指定使用HTTP传输。
@@ -14,9 +17,15 @@ namespace Kevin_MCP_Server
             services.AddMcpServer()
             .WithHttpTransport()// 使用HTTP输入输出作为传输方式
                      .WithStdioServerTransport()// 使用标准输入输出作为传输方式
-                     .WithTools<MyTool>();
+                     .WithToolsFromAssembly(); // 从程序集中扫描添加 tools
+                                               //.WithTools<MyTool>();
 
-
+            //注入客户端AddTransient()：将IMySSEToolClient接口的实现类MySSEToolClient注册为瞬时（Transient）生命周期服务。
+            if (action != default)
+            {
+                services.Configure(action);
+            } 
+            services.AddTransient<IMySseToolClient, MySseToolClient>();
             //AddOpenTelemetry()：添加OpenTelemetry服务。
             //WithTracing()：配置跟踪，包括所有源（AddSource("*")），ASP.NET Core和HTTP客户端的自动仪器化。
             //WithMetrics()：配置度量，包括所有计量器（AddMeter("*")），ASP.NET Core和HTTP客户端的自动仪器化。
