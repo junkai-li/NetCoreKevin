@@ -4,7 +4,8 @@
 生成数据库可见下面说明文件 命令生成即可 
 项目结构    
 
-![image](https://github.com/junkai-li/NetCoreKevin/assets/57887866/51f7fc5e-4f1b-488e-8ee5-823f2a798a2e)
+![image](https://github.com/user-attachments/assets/bf1fccc6-65b8-4959-b7ed-6c1b5a7e3ec9)
+
  
  1.目录 
  
