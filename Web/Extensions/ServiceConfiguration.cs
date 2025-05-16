@@ -214,12 +214,12 @@ namespace Web.Extension
 
             #endregion
             services.AddKevinMCPServer(options => {
-                var settings = Configuration.GetRequiredSection("MyMCPServer").Get<MCPSseClientSetting>()!;
+                var settings = Configuration.GetRequiredSection("MCPSseClient").Get<MCPSseClientSetting>()!;
                 options.Name = settings.Name;
                 options.Url = settings.Url;
-                options.UseStreamableHttp = settings.UseStreamableHttp;
-                options.AdditionalHeaders = settings.AdditionalHeaders;
-                options.ConnectionTimeout = settings.ConnectionTimeout;
+                options.UseStreamableHttp = false;
+                options.AdditionalHeaders = default;
+                options.ConnectionTimeout = default;
             }); //mcp服务注册
             return services;
         }
