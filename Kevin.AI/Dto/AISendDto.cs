@@ -16,6 +16,11 @@ namespace Kevin.AI.Dto
         /// 
         /// </summary>
         public List<MessagesItem> messages { get; set; }
+
+        /// <summary>
+        /// 是否开启联网搜索
+        /// </summary>
+        public bool enable_search { get; set; }
     }
     public class MessagesItem
     {
