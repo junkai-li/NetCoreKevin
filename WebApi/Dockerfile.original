@@ -1,0 +1,57 @@
+#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+#使用asp.net core 8.0作为基础镜像，起一个别名为base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+#设置容器的工作目录为/app
+WORKDIR /app
+#安装 libgdiplus 以解决 System.Drawing 在 linux 下无法运行的问题
+RUN apt-get update && apt-get -y install libgdiplus 
+#设置时区为中国上海
+ENV TZ=Asia/Shanghai
+#暴露80端口
+EXPOSE 80
+#使用.net core sdk作为基础镜像，起一个别名为build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+#设置容器的工作目录为/src
+WORKDIR /src
+#拷贝WebApi.csproj项目文件到容器中的/src/WebApi/目录
+COPY ["WebApi/WebApi.csproj", "WebApi/"]
+COPY ["Service/AppServices.csproj", "Service/"]
+COPY ["DomainServices/AppDomainServices.csproj", "DomainServices/"]
+COPY ["Repositories/AppRepositorieRps.csproj", "Repositories/"]
+COPY ["Web/Kevin.Web.csproj", "Web/"]
+COPY ["Common/Kevin.Common.csproj", "Common/"]
+COPY ["kevin.Share/kevin.Share.csproj", "kevin.Share/"]
+COPY ["CrawlingService/kevin.CrawlingService.csproj", "CrawlingService/"]
+COPY ["kevin.Cache/kevin.Cache.csproj", "kevin.Cache/"]
+COPY ["kevin.Cap/kevin.Cap.csproj", "kevin.Cap/"]
+COPY ["kevin.Consul/kevin.Consul.csproj", "kevin.Consul/"]
+COPY ["Kevin.Cors/Kevin.Cors.csproj", "Kevin.Cors/"]
+COPY ["kevin.DistributedLock/kevin.DistributedLock.csproj", "kevin.DistributedLock/"]
+COPY ["Kevin.HttpApiClients/Kevin.HttpApiClients.csproj", "Kevin.HttpApiClients/"]
+COPY ["Kevin.log4Net/Kevin.log4Net.csproj", "Kevin.log4Net/"]
+COPY ["kevin.Permission/kevin.Permission.csproj", "kevin.Permission/"]
+COPY ["Repository/Kevin.EntityFrameworkCore.csproj", "Repository/"]
+COPY ["kevin.Domain/kevin.Domain.csproj", "kevin.Domain/"]
+COPY ["Kevin.SignalR/Kevin.SignalR.csproj", "Kevin.SignalR/"] 
+COPY ["Kevin.AI/Kevin.AI.csproj", "Kevin.AI/"] 
+COPY ["kevin_ESL/kevin_ESL.csproj", "kevin_ESL/"] 
+#执行dotnet restore命令，相当于平时用vs还原nuget包
+RUN dotnet restore "WebApi/WebApi.csproj"
+#拷贝当前目录的文件到到容器的/src目录
+COPY . .
+#拷贝当前目录的文件到到容器的/src目录
+WORKDIR "/src/WebApi"
+#执行dotnet build命令，相当于平时用vs生成项目。以Release模式生成到容器的/app/build目录
+RUN dotnet build "WebApi.csproj" -c Release -o /app/build
+#将上面的build作为基础镜像，又重命名为publish
+FROM build AS publish
+#执行dotnet publish命令，相当于平时用vs发布项目。以Release模式发布到容器的/app/publish目录
+RUN dotnet publish "WebApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
+#将上面的base作为基础镜像，又重命名为final
+FROM base AS final
+#设置容器的工作目录为/app
+WORKDIR /app
+#拷贝/app/publish目录到当前工作目录
+COPY --from=publish /app/publish .
+#指定容器入口命令，容器启动时会运行dotnet WebApi.dll
+ENTRYPOINT ["dotnet", "WebApi.dll"]

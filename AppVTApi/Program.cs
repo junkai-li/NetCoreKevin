@@ -1,6 +1,6 @@
-ï»¿
 
-#region å…¨å±€å¼•ç”¨
+
+#region È«¾ÖÒıÓÃ
 
 global using System;
 global using Web.Global.Exceptions;
@@ -22,7 +22,7 @@ using kevin.HttpApiClients;
 using Kevin.Common.App.Global;
 using Kevin.Common.App.Start;
 
-namespace WebApi
+namespace AppVTApi
 {
     public class Program
     {
@@ -34,9 +34,9 @@ namespace WebApi
                 Common.EnvironmentHelper.InitTestServer();
                 var builder = WebApplication.CreateBuilder(args);
                 StartWebHostEnvironment.webHostEnvironment = builder.Environment;
-                //builder.Logging.UseKevinLog4Net();æ—¥å¿—
-                #region Kestrel Httpså¹¶ç»‘å®šè¯ä¹¦
-                //å¯ç”¨ Kestrel Https å¹¶ç»‘å®šè¯ä¹¦
+                //builder.Logging.UseKevinLog4Net();ÈÕÖ¾
+                #region Kestrel Https²¢°ó¶¨Ö¤Êé
+                //ÆôÓÃ Kestrel Https ²¢°ó¶¨Ö¤Êé
                 //builder.WebHost.UseKestrel(options =>
                 //{
                 //    options.ConfigureHttpsDefaults(options =>
@@ -51,9 +51,9 @@ namespace WebApi
 
                 builder.Services.ConfigServies(builder.Configuration);
 
-                #region Swagger æ–‡æ¡£
+                #region Swagger ÎÄµµ
 
-                //æ³¨å†ŒSwaggerç”Ÿæˆå™¨ï¼Œå®šä¹‰ä¸€ä¸ªå’Œå¤šä¸ªSwagger æ–‡æ¡£
+                //×¢²áSwaggerÉú³ÉÆ÷£¬¶¨ÒåÒ»¸öºÍ¶à¸öSwagger ÎÄµµ
                 builder.Services.AddSwaggerGen(options =>
                 {
                     options.OperationFilter<SwaggerOperationFilter>();
@@ -62,13 +62,13 @@ namespace WebApi
 
                     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{typeof(Program).Assembly.GetName().Name}.xml"), true);
 
-                    //å…¶ä»–ç±»åº“çš„æ³¨é‡Šæ–‡ä»¶
+                    //ÆäËûÀà¿âµÄ×¢ÊÍÎÄ¼ş
                     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"kevin.Domain.Share.xml"), true);
 
-                    //å¼€å¯ Swagger JWT é‰´æƒæ¨¡å—
+                    //¿ªÆô Swagger JWT ¼øÈ¨Ä£¿é
                     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                     {
-                        Description = "åœ¨ä¸‹æ¡†ä¸­è¾“å…¥è¯·æ±‚å¤´ä¸­éœ€è¦æ·»åŠ JwtæˆæƒTokenï¼šBearer Token",
+                        Description = "ÔÚÏÂ¿òÖĞÊäÈëÇëÇóÍ·ÖĞĞèÒªÌí¼ÓJwtÊÚÈ¨Token£ºBearer Token",
                         Name = "Authorization",
                         In = ParameterLocation.Header,
                         Type = SecuritySchemeType.ApiKey,
@@ -92,16 +92,16 @@ namespace WebApi
                 });
                 #endregion
 
-                #region è…¾è®¯MiniLive
-                ////è…¾è®¯MiniLiveæœåŠ¡æ³¨å†Œ
+                #region ÌÚÑ¶MiniLive
+                ////ÌÚÑ¶MiniLive·şÎñ×¢²á
                 //MiniLive.AppId = "wxf164719d9baf8d83";
-                //MiniLive.AppSecret = "****************";//å¾®ä¿¡å°ç¨‹åºå¯†é’¥ 
+                //MiniLive.AppSecret = "****************";//Î¢ĞÅĞ¡³ÌĞòÃÜÔ¿ 
                 //TencentService.Helper.RedisHelper.ConnectionString = builder.Configuration.GetConnectionString("redisConnection");
                 //builder.Services.AddSingleton<IMiniLive, MiniLive>();
                 #endregion
 
-                #region IDSERVERæˆæƒæœåŠ¡å™¨
-                //IDSERVER ä½¿ç”¨æˆæƒæœåŠ¡å™¨ ç”¨äºå•ç‚¹ç™»å½•
+                #region IDSERVERÊÚÈ¨·şÎñÆ÷
+                //IDSERVER Ê¹ÓÃÊÚÈ¨·şÎñÆ÷ ÓÃÓÚµ¥µãµÇÂ¼
                 builder.Services.AddAuthentication(o =>
                 {
                     o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -119,10 +119,10 @@ namespace WebApi
                 builder.Services.AddControllers(options =>
                 {
                     options.OutputFormatters.RemoveType<StringOutputFormatter>();
-                }); 
+                });
                 var app = builder.Build();
-                app.MapMcp(); //MCPæœåŠ¡æ˜ å°„MCPç«¯ç‚¹
-                //å¼€å¯å€’å¸¦æ¨¡å¼è¿è¡Œå¤šæ¬¡è¯»å–HttpContext.Bodyä¸­çš„å†…å®¹ 
+                app.MapMcp(); //MCP·şÎñÓ³ÉäMCP¶Ëµã
+                //¿ªÆôµ¹´øÄ£Ê½ÔËĞĞ¶à´Î¶ÁÈ¡HttpContext.BodyÖĞµÄÄÚÈİ 
                 app.Use(async (context, next) =>
                 {
                     GlobalServices.Set(context.Request.HttpContext.RequestServices);
@@ -136,14 +136,24 @@ namespace WebApi
                 }
                 else
                 {
-                    ////æ³¨å†Œå…¨å±€å¼‚å¸¸å¤„ç†æœºåˆ¶
+                    ////×¢²áÈ«¾ÖÒì³£´¦Àí»úÖÆ
                     app.UseExceptionHandler(builder => builder.Run(async context => await GlobalError.ErrorEvent(context)));
                 }
 
-                //kevinåˆå§‹åŒ–
-                 app.UseKevin();
-                //app.UseKevinConsul(builder.Configuration.GetSection("ConsulSetting").Get<ConsulSetting>(), app.Lifetime);//æœåŠ¡ç½‘å…³ 
-               
+                //kevin³õÊ¼»¯
+                app.UseKevin();
+                //app.UseKevinConsul(builder.Configuration.GetSection("ConsulSetting").Get<ConsulSetting>(), app.Lifetime);//·şÎñÍø¹Ø 
+                //ÆôÓÃÖĞ¼ä¼ş·şÎñ¶Ôswagger-ui£¬Ö¸¶¨Swagger JSON¶Ëµã
+                app.UseSwaggerUI(options =>
+                {
+                    var apiVersionDescriptionProvider = app.Services.GetService<IApiVersionDescriptionProvider>();
+                    foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
+                    {
+                        options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                    }
+
+                    options.RoutePrefix = "swagger";
+                });
                 app.Run();
 
             }

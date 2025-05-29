@@ -1,57 +1,57 @@
-#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-#Ê¹ÓÃasp.net core 8.0×÷Îª»ù´¡¾µÏñ£¬ÆğÒ»¸ö±ğÃûÎªbase
+# è¯·å‚é˜… https://aka.ms/customizecontainer ä»¥äº†è§£å¦‚ä½•è‡ªå®šä¹‰è°ƒè¯•å®¹å™¨ï¼Œä»¥åŠ Visual Studio å¦‚ä½•ä½¿ç”¨æ­¤ Dockerfile ç”Ÿæˆæ˜ åƒä»¥æ›´å¿«åœ°è¿›è¡Œè°ƒè¯•ã€‚
+
+# æ­¤é˜¶æ®µç”¨äºåœ¨å¿«é€Ÿæ¨¡å¼(é»˜è®¤ä¸ºè°ƒè¯•é…ç½®)ä¸‹ä» VS è¿è¡Œæ—¶
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-#ÉèÖÃÈİÆ÷µÄ¹¤×÷Ä¿Â¼Îª/app
+USER $APP_UID
 WORKDIR /app
-#°²×° libgdiplus ÒÔ½â¾ö System.Drawing ÔÚ linux ÏÂÎŞ·¨ÔËĞĞµÄÎÊÌâ
-RUN apt-get update && apt-get -y install libgdiplus 
-#ÉèÖÃÊ±ÇøÎªÖĞ¹úÉÏº£
+#å®‰è£… libgdiplus ä»¥è§£å†³ System.Drawing åœ¨ linux ä¸‹æ— æ³•è¿è¡Œçš„é—®é¢˜
+#RUN apt-get update && apt-get -y install libgdiplus 
+#è®¾ç½®æ—¶åŒºä¸ºä¸­å›½ä¸Šæµ·
 ENV TZ=Asia/Shanghai
-#±©Â¶80¶Ë¿Ú
 EXPOSE 80
-#Ê¹ÓÃ.net core sdk×÷Îª»ù´¡¾µÏñ£¬ÆğÒ»¸ö±ğÃûÎªbuild
+
+
+# æ­¤é˜¶æ®µç”¨äºç”ŸæˆæœåŠ¡é¡¹ç›®
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-#ÉèÖÃÈİÆ÷µÄ¹¤×÷Ä¿Â¼Îª/src
+ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-#¿½±´WebApi.csprojÏîÄ¿ÎÄ¼şµ½ÈİÆ÷ÖĞµÄ/src/WebApi/Ä¿Â¼
-COPY ["WebApi/WebApi.csproj", "WebApi/"]
-COPY ["Service/AppServices.csproj", "Service/"]
-COPY ["DomainServices/AppDomainServices.csproj", "DomainServices/"]
-COPY ["Repositories/AppRepositorieRps.csproj", "Repositories/"]
-COPY ["Web/Kevin.Web.csproj", "Web/"]
+COPY ["WebApi/App.WebApi.csproj", "WebApi/"]
+COPY ["Service/App.Application.csproj", "Service/"]
+COPY ["AppShare/App.Share.csproj", "AppShare/"]
+COPY ["DomainServices/App.Domain.csproj", "DomainServices/"]
+COPY ["kevin.Domain/kevin.Domain.csproj", "kevin.Domain/"]
 COPY ["Common/Kevin.Common.csproj", "Common/"]
-COPY ["kevin.Share/kevin.Share.csproj", "kevin.Share/"]
+COPY ["kevin.Share/kevin.Domain.Share.csproj", "kevin.Share/"]
+COPY ["kevin.Domain.EventBus/kevin.Domain.EventBus.csproj", "kevin.Domain.EventBus/"]
+COPY ["Repositories/App.RepositorieRps.csproj", "Repositories/"]
+COPY ["Repository/Kevin.EntityFrameworkCore.csproj", "Repository/"]
+COPY ["Web/Kevin.Web.csproj", "Web/"]
 COPY ["CrawlingService/kevin.CrawlingService.csproj", "CrawlingService/"]
 COPY ["kevin.Cache/kevin.Cache.csproj", "kevin.Cache/"]
 COPY ["kevin.Cap/kevin.Cap.csproj", "kevin.Cap/"]
 COPY ["kevin.Consul/kevin.Consul.csproj", "kevin.Consul/"]
 COPY ["Kevin.Cors/Kevin.Cors.csproj", "Kevin.Cors/"]
 COPY ["kevin.DistributedLock/kevin.DistributedLock.csproj", "kevin.DistributedLock/"]
+COPY ["kevin.FileStorage/kevin.FileStorage.csproj", "kevin.FileStorage/"]
 COPY ["Kevin.HttpApiClients/Kevin.HttpApiClients.csproj", "Kevin.HttpApiClients/"]
+COPY ["kevin.Ioc/kevin.Ioc.csproj", "kevin.Ioc/"]
 COPY ["Kevin.log4Net/Kevin.log4Net.csproj", "Kevin.log4Net/"]
 COPY ["kevin.Permission/kevin.Permission.csproj", "kevin.Permission/"]
-COPY ["Repository/Kevin.EntityFrameworkCore.csproj", "Repository/"]
-COPY ["kevin.Domain/kevin.Domain.csproj", "kevin.Domain/"]
-COPY ["Kevin.SignalR/Kevin.SignalR.csproj", "Kevin.SignalR/"] 
-COPY ["Kevin.AI/Kevin.AI.csproj", "Kevin.AI/"] 
-COPY ["kevin_ESL/kevin_ESL.csproj", "kevin_ESL/"] 
-#Ö´ĞĞdotnet restoreÃüÁî£¬Ïàµ±ÓÚÆ½Ê±ÓÃvs»¹Ô­nuget°ü
-RUN dotnet restore "WebApi/WebApi.csproj"
-#¿½±´µ±Ç°Ä¿Â¼µÄÎÄ¼şµ½µ½ÈİÆ÷µÄ/srcÄ¿Â¼
+COPY ["Kevin.SignalR/Kevin.SignalR.csproj", "Kevin.SignalR/"]
+COPY ["Kevin.SMS/Kevin.SMS.csproj", "Kevin.SMS/"]
+COPY ["Kevin_MCP_Server/Kevin_MCP_Server.csproj", "Kevin_MCP_Server/"]
+RUN dotnet restore "./WebApi/App.WebApi.csproj"
 COPY . .
-#¿½±´µ±Ç°Ä¿Â¼µÄÎÄ¼şµ½µ½ÈİÆ÷µÄ/srcÄ¿Â¼
 WORKDIR "/src/WebApi"
-#Ö´ĞĞdotnet buildÃüÁî£¬Ïàµ±ÓÚÆ½Ê±ÓÃvsÉú³ÉÏîÄ¿¡£ÒÔReleaseÄ£Ê½Éú³Éµ½ÈİÆ÷µÄ/app/buildÄ¿Â¼
-RUN dotnet build "WebApi.csproj" -c Release -o /app/build
-#½«ÉÏÃæµÄbuild×÷Îª»ù´¡¾µÏñ£¬ÓÖÖØÃüÃûÎªpublish
+RUN dotnet build "./App.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+# æ­¤é˜¶æ®µç”¨äºå‘å¸ƒè¦å¤åˆ¶åˆ°æœ€ç»ˆé˜¶æ®µçš„æœåŠ¡é¡¹ç›®
 FROM build AS publish
-#Ö´ĞĞdotnet publishÃüÁî£¬Ïàµ±ÓÚÆ½Ê±ÓÃvs·¢²¼ÏîÄ¿¡£ÒÔReleaseÄ£Ê½·¢²¼µ½ÈİÆ÷µÄ/app/publishÄ¿Â¼
-RUN dotnet publish "WebApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
-#½«ÉÏÃæµÄbase×÷Îª»ù´¡¾µÏñ£¬ÓÖÖØÃüÃûÎªfinal
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./App.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+# æ­¤é˜¶æ®µåœ¨ç”Ÿäº§ä¸­ä½¿ç”¨ï¼Œæˆ–åœ¨å¸¸è§„æ¨¡å¼ä¸‹ä» VS è¿è¡Œæ—¶ä½¿ç”¨(åœ¨ä¸ä½¿ç”¨è°ƒè¯•é…ç½®æ—¶ä¸ºé»˜è®¤å€¼)
 FROM base AS final
-#ÉèÖÃÈİÆ÷µÄ¹¤×÷Ä¿Â¼Îª/app
 WORKDIR /app
-#¿½±´/app/publishÄ¿Â¼µ½µ±Ç°¹¤×÷Ä¿Â¼
 COPY --from=publish /app/publish .
-#Ö¸¶¨ÈİÆ÷Èë¿ÚÃüÁî£¬ÈİÆ÷Æô¶¯Ê±»áÔËĞĞdotnet WebApi.dll
-ENTRYPOINT ["dotnet", "WebApi.dll"]
+ENTRYPOINT ["dotnet", "App.WebApi.dll"]

@@ -30,6 +30,7 @@ using Web.Global.User;
 using Web.Libraries.Swagger;
 using Kevin_MCP_Server;
 using Kevin_MCP_Server.Models;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -242,6 +243,19 @@ namespace Web.Extension
 
             //静态文件中间件 (UseStaticFiles) 返回静态文件，并简化进一步请求处理。
             //app.UseStaticFiles();
+            //启用中间件服务生成Swagger作为JSON端点
+            app.UseSwagger();
+            //启用中间件服务对swagger-ui，指定Swagger JSON端点
+            app.UseSwaggerUI(options =>
+            {
+                var apiVersionDescriptionProvider = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
+                foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
+                {
+                    options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                }
+
+                options.RoutePrefix = "swagger";
+            });
 
             app.UseRouting();
 
@@ -254,8 +268,7 @@ namespace Web.Extension
                 endpoints.MapControllers();
             });
             //app.UseKevinSignalR(StartConfiguration.configuration.GetSection("SignalrSetting").Get<SignalrSetting>());
-            //启用中间件服务生成Swagger作为JSON端点
-            app.UseSwagger(); 
+          
             GlobalServices.Set(app.ApplicationServices);
             return app;
         }
