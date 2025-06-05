@@ -36,6 +36,7 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.9.0" />
     <PackageReference Include="Tencent.QCloud.Cos.Sdk" Version="5.4.45" />
     <PackageReference Include="TencentCloudSDK" Version="3.0.1234" />
+    <PackageReference Include="Tesseract" Version="5.2.0" />
     <PackageReference Include="Vintasoft.Imaging.Pdf" Version="11.0.11.1" />
   </ItemGroup>
 
