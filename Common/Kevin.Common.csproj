@@ -45,10 +45,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Helper\Captcha\tessdata\chi_sim.traineddata">
+    <None Update="Helper\OCR\tessdata\chi_sim.traineddata">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Helper\Captcha\tessdata\eng.traineddata">
+    <None Update="Helper\OCR\tessdata\eng.traineddata">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
