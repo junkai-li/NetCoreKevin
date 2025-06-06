@@ -1,12 +1,11 @@
-﻿using System;
-using System.Linq;
+﻿using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
+using System;
+using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 using Tesseract;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using Aop.Api.Domain;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Kevin.Common.Helper.Captcha
 {
@@ -31,11 +30,56 @@ namespace Kevin.Common.Helper.Captcha
     //        // 4. 对比结果
     //        Console.WriteLine($"识别{(realCode == recognizedCode ? "成功" : "失败")}");
     #endregion
+
     /// <summary>
     /// 验证码帮助类
     /// </summary>
     public class CaptchaHelper
     {
+
+        // 图像预处理，灰度化和二值化
+        public static Image<Gray, byte> PreprocessImage(string imagePath)
+        {
+            return ImgPreprocess(new Image<Bgr, byte>(imagePath));
+        }
+        public static Image<Gray, byte> PreprocessImage(Bitmap bitmap)
+        {
+            return ImgPreprocess(bitmap.ToImage<Bgr, byte>());
+        }
+
+        public static Image<Gray, byte> PreprocessImage(byte[] bitmap)
+        {
+            using (MemoryStream ms = new MemoryStream(bitmap))
+            {
+                // 从流中加载图像
+                Image image = Image.FromStream(ms);
+
+                // 将 Image 转换为 Bitmap
+                return ImgPreprocess(new Bitmap(image).ToImage<Bgr, byte>());
+
+            }
+        }
+
+        /// <summary>
+        /// 图像预处理，灰度化和二值化
+        /// </summary>
+        /// <param name="img"></param>
+        /// <returns></returns>
+        public static Image<Gray, byte> ImgPreprocess(Image<Bgr, byte> img, bool issave = true)
+        {
+            // 转为灰度图
+            Image<Gray, byte> grayImage = img.Convert<Gray, byte>();
+
+            //自适应阈值
+            //// 二值化图像（高阈值设置）
+            Image<Gray, byte> binarizedImage = grayImage.ThresholdAdaptive(new Gray(255), AdaptiveThresholdType.GaussianC, ThresholdType.Binary, 11, new Gray(2));
+
+            if (issave)
+            {
+                grayImage.Save("gray_" + Guid.NewGuid().ToString() + ".png");
+            }
+            return binarizedImage;
+        }
 
         /// <summary>
         /// 创建跨平台OCR引擎
@@ -55,7 +99,8 @@ namespace Kevin.Common.Helper.Captcha
             {
                 Directory.CreateDirectory(tessdataPath);
                 throw new DirectoryNotFoundException($"tessdata目录不存在，已自动创建: {tessdataPath}");
-            }  
+            }
+
             // 替换路径分隔符（Windows兼容）
             tessdataPath = tessdataPath.Replace('\\', '/');
 
@@ -77,25 +122,7 @@ namespace Kevin.Common.Helper.Captcha
         {
             try
             {
-                using (var engine = CreateOcrEngine())
-                using (var img = Pix.LoadFromFile(imagePath))
-                using (var page = engine.Process(img))
-                {
-                    return CleanResult(page.GetText());
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"识别失败: {ex.Message}");
-                return string.Empty;
-            }
-        }
-
-        // 识别验证码（使用Tesseract）
-        public static string RecognizeCaptcha(Bitmap captchaImage)
-        {
-            try
-            {
+                var captchaImage = PreprocessImage(imagePath).ToBitmap();
                 using (var engine = CreateOcrEngine())
                 {
                     using (var ms = new MemoryStream())
@@ -105,7 +132,36 @@ namespace Kevin.Common.Helper.Captcha
                         {
                             return CleanResult(page.GetText());
                         }
-                    }  
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"识别失败: {ex.Message}");
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Bitmap识别
+        /// </summary>
+        /// <param name="captchaImage"></param>
+        /// <returns></returns>
+        public static string RecognizeCaptcha(Bitmap captchaImage)
+        {
+            try
+            {
+                captchaImage = PreprocessImage(captchaImage).ToBitmap();
+                using (var engine = CreateOcrEngine())
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        captchaImage.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+                        using (var page = engine.Process(Pix.LoadFromMemory(ms.ToArray())))
+                        {
+                            return CleanResult(page.GetText());
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -122,11 +178,17 @@ namespace Kevin.Common.Helper.Captcha
         {
             try
             {
+                var captchaImage = PreprocessImage(imageData).ToBitmap();
                 using (var engine = CreateOcrEngine())
-                using (var img = Pix.LoadFromMemory(imageData))
-                using (var page = engine.Process(img))
                 {
-                    return CleanResult(page.GetText());
+                    using (var ms = new MemoryStream())
+                    {
+                        captchaImage.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+                        using (var page = engine.Process(Pix.LoadFromMemory(ms.ToArray())))
+                        {
+                            return CleanResult(page.GetText());
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -134,7 +196,7 @@ namespace Kevin.Common.Helper.Captcha
                 Console.WriteLine($"识别失败: {ex.Message}");
                 return string.Empty;
             }
-        } 
+        }
         /// <summary>
         /// 清理识别结果
         /// </summary>
@@ -178,7 +240,7 @@ namespace Kevin.Common.Helper.Captcha
                 {
                     g.DrawString(
                         captchaCode[i].ToString(),
-                        new Font("Arial", 18, FontStyle.Bold),
+                        new System.Drawing.Font("Arial", 18, FontStyle.Bold),
                         new SolidBrush(Color.FromArgb(random.Next(256), random.Next(256), random.Next(256))),
                         new PointF(i * 25 + 10, random.Next(5, 15))
                     );
@@ -192,7 +254,7 @@ namespace Kevin.Common.Helper.Captcha
         public static void ShowCaptcha(Bitmap captchaImage)
         {
             // 临时保存图片
-            string tempPath = Path.Combine(Path.GetTempPath(), "captcha_temp.png");
+            string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + "captcha_temp.png");
             captchaImage.Save(tempPath, System.Drawing.Imaging.ImageFormat.Png);
 
             // 调用系统默认图片查看器打开
@@ -201,6 +263,45 @@ namespace Kevin.Common.Helper.Captcha
                 FileName = tempPath,
                 UseShellExecute = true
             });
+        }
+
+        public static void SavePng(string code, Bitmap captchaImage)
+        {
+            // 临时保存图片
+            string tempPath = Path.Combine(Environment.CurrentDirectory, "CodeImg\\" + code);
+            // 检查目录是否存在
+            if (!Directory.Exists(tempPath))
+            {
+                Directory.CreateDirectory(tempPath);
+            }
+            captchaImage.Save(tempPath + "\\" + code + ".png", System.Drawing.Imaging.ImageFormat.Png);
+        }
+
+        /// <summary>
+        /// 图片区域裁剪
+        /// </summary>
+        /// <param name="sourcePath">源图路径</param>
+        /// <param name="x">裁剪起始坐标x</param>
+        /// <param name="y">裁剪起始坐标y</param>
+        /// <param name="width">裁剪区域长度</param>
+        /// <param name="height">裁剪区域高度</param>
+        /// <returns></returns>
+        public static Bitmap RegionCropping(string sourcePath, int x, int y, int width, int height)
+        {
+            Bitmap result = null;
+            //从文件加载原图
+            using (Image originImage = Image.FromFile(sourcePath))
+            {
+                //创建矩形对象表示原图上裁剪的矩形区域，这里相当于划定原图上坐标为(10, 10)处，50x50大小的矩形区域为裁剪区域
+                Rectangle cropRegion = new Rectangle(x, y, width, height);
+                //创建空白画布，大小为裁剪区域大小
+                result = new Bitmap(cropRegion.Width, cropRegion.Height);
+                //创建Graphics对象，并指定要在result（目标图片画布）上绘制图像
+                Graphics graphics = Graphics.FromImage(result);
+                //使用Graphics对象把原图指定区域图像裁剪下来并填充进刚刚创建的空白画布
+                graphics.DrawImage(originImage, new Rectangle(0, 0, cropRegion.Width, cropRegion.Height), cropRegion, GraphicsUnit.Pixel);
+            }
+            return result;
         }
 
     }
