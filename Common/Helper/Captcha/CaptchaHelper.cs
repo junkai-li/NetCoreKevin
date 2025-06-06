@@ -55,11 +55,7 @@ namespace Kevin.Common.Helper.Captcha
             {
                 Directory.CreateDirectory(tessdataPath);
                 throw new DirectoryNotFoundException($"tessdata目录不存在，已自动创建: {tessdataPath}");
-            }
-
-            // 设置环境变量（关键步骤）
-            Environment.SetEnvironmentVariable("TESSDATA_PREFIX", tessdataPath);
-
+            }  
             // 替换路径分隔符（Windows兼容）
             tessdataPath = tessdataPath.Replace('\\', '/');
 
