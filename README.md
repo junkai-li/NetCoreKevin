@@ -3,6 +3,7 @@
 解耦设计都可以单独引用 项目启动时注意相关Redis、db链接配置  
 生成数据库可见下面说明文件 命令生成即可 
 项目结构    
+![image](https://github.com/user-attachments/assets/e0fe3e9f-18b0-4345-b9ac-3b728d3e780c)
 
 ![image](https://github.com/user-attachments/assets/bf1fccc6-65b8-4959-b7ed-6c1b5a7e3ec9)
 
