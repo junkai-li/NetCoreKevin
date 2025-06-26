@@ -28,8 +28,8 @@ using System.Linq;
 using Web.Filters;
 using Web.Global.User;
 using Web.Libraries.Swagger;
-using Kevin_MCP_Server;
-using Kevin_MCP_Server.Models;
+using Kevin.AI.MCP.Server;
+using Kevin.AI.MCP.Server.Models;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 namespace Web.Extension
 {

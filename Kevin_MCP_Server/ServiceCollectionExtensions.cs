@@ -1,11 +1,11 @@
 ﻿
-using Kevin_MCP_Server.Client;
-using Kevin_MCP_Server.Models;
-using Kevin_MCP_Server.Tools;
+using Kevin.AI.MCP.Server.Client;
+using Kevin.AI.MCP.Server.Models;
+using Kevin.AI.MCP.Server.Tools;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace Kevin_MCP_Server
+namespace Kevin.AI.MCP.Server
 {
     public static class ServiceCollectionExtensions
     {

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Kevin_MCP_Server.Tools
+namespace Kevin.AI.MCP.Server.Tools
 {
     [McpServerToolType]
     public sealed class MyTool

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Kevin_MCP_Server.Models
+namespace Kevin.AI.MCP.Server.Models
 {
     public class MCPSseClientSetting
     {

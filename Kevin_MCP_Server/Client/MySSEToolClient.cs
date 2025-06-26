@@ -1,4 +1,4 @@
-﻿using Kevin_MCP_Server.Models;
+﻿using Kevin.AI.MCP.Server.Models;
 using Microsoft.Extensions.Options;
 using ModelContextProtocol;
 using ModelContextProtocol.Client;
@@ -6,7 +6,7 @@ using ModelContextProtocol.Protocol.Transport;
 using ModelContextProtocol.Protocol.Types;
 using System.Text.Json;
 
-namespace Kevin_MCP_Server.Client
+namespace Kevin.AI.MCP.Server.Client
 {
     public class MySseToolClient : IMySseToolClient
     {

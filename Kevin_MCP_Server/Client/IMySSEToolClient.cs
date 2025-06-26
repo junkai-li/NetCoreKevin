@@ -4,7 +4,7 @@ using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol.Types;
 using System.Text.Json;
 
-namespace Kevin_MCP_Server.Client
+namespace Kevin.AI.MCP.Server.Client
 {
     public interface IMySseToolClient
     {
