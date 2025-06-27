@@ -1,5 +1,5 @@
 # NetCoreKevin
-基于NET搭建跨平台DDD思想WebApi架构、IDS4单点登录、多缓存、自动任务、分布式、多租户、日志、授权和鉴权、CAP、SignalR 、领域事件 、SMS服务、文件服务  
+基于NET8搭建DDD-微服务-WebApi架构支持：IDS4单点登录、多缓存、自动任务、分布式、多租户、日志、授权和鉴权、CAP集成事件、SignalR、领域事件、ESL、MCP协议服务、单元测试、Cors、Quartz自动任务、多短信集成、AI、AISemanticKernel集成、OCR验证码识别
 解耦设计都可以单独引用 项目启动时注意相关Redis、db链接配置  
 生成数据库可见下面说明文件 命令生成即可 
 项目结构    
