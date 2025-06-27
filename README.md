@@ -1,11 +1,12 @@
 # NetCoreKevin
-基于NET搭建跨平台DDD思想WebApi架构、IDS4单点登录、多缓存、自动任务、分布式、多租户、日志、授权和鉴权、CAP、SignalR 、领域事件 、SMS服务、文件服务  
+基于NET8搭建DDD-微服务-WebApi架构支持：IDS4单点登录、多缓存、自动任务、分布式、多租户、日志、授权和鉴权、CAP集成事件、SignalR、领域事件、ESL、MCP协议服务、单元测试、Cors、Quartz自动任务、多短信集成、AI、AISemanticKernel集成、OCR验证码识别
 解耦设计都可以单独引用 项目启动时注意相关Redis、db链接配置  
 生成数据库可见下面说明文件 命令生成即可 
 项目结构    
 ![image](https://github.com/user-attachments/assets/e0fe3e9f-18b0-4345-b9ac-3b728d3e780c)
 
-![image](https://github.com/user-attachments/assets/bf1fccc6-65b8-4959-b7ed-6c1b5a7e3ec9)
+![image](https://github.com/user-attachments/assets/9b000b54-c2a5-4be6-8ce8-1d350357dd42)
+
 
  
  1.目录 
@@ -61,6 +62,11 @@
     25. Kevin.SignalR：SignalR实时通信
 
     26. Kevin.SMS：短信服务支持阿里云、腾讯云
+
+    27.Kevin.AI Kevin.AI.MCP.Server  Kevin.AI.SemanticKernel AI集成基于SemanticKernel简单示例 MCP服务简单示例 AI使用简单示例
+
+ AI效果图
+ ![203d2bb1bb39cfc0d42010fba0dae0a](https://github.com/user-attachments/assets/dc7c1e76-1714-47d0-b252-3c130546cf4b)
 
  2.docker配置  
  
