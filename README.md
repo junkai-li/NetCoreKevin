@@ -62,6 +62,9 @@
 
     26. Kevin.SMS：短信服务支持阿里云、腾讯云
 
+    27.AI集成基于SemanticKernel简单示例
+![203d2bb1bb39cfc0d42010fba0dae0a](https://github.com/user-attachments/assets/da629284-3d2b-47c3-8b1f-af9a85e5bd41)
+
  2.docker配置  
  
 ![image](https://user-images.githubusercontent.com/57887866/233823710-e8ad6fe8-5eb8-4fda-b3e1-09c36e508ed0.png)  
