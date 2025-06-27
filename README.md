@@ -63,7 +63,7 @@
 
     26. Kevin.SMS：短信服务支持阿里云、腾讯云
 
-    27.AI集成基于SemanticKernel简单示例
+    27.Kevin.AI Kevin.AI.MCP.Server  Kevin.AI.SemanticKernel AI集成基于SemanticKernel简单示例 MCP服务简单示例 AI使用简单示例
 
  AI效果图
  ![203d2bb1bb39cfc0d42010fba0dae0a](https://github.com/user-attachments/assets/dc7c1e76-1714-47d0-b252-3c130546cf4b)
