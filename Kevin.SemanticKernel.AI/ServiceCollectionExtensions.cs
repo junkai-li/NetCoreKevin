@@ -33,7 +33,7 @@ namespace Kevin.AI.SemanticKernel
                 }
 
                 //导入插件
-                if (!_kernel.Plugins.Any(p => p.Name == "text2sql"))
+                if (!_kernel.Plugins.Any(p => p.Name == "kevinai"))
                 {
                     var pluginPatth = Path.Combine(SamplePluginsPath(), "kevinai");
                     Console.WriteLine($"pluginPatth:{pluginPatth}");
