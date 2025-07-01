@@ -1,4 +1,5 @@
-﻿using IdentityModel.Client;
+﻿using Asp.Versioning;
+using IdentityModel.Client;
 using kevin.Domain.Kevin;
 using kevin.Domain.Share.Interfaces;
 using kevin.Ioc.IocAttrributes;

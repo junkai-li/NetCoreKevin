@@ -1,36 +1,26 @@
 ﻿using kevin.Cache;
 using kevin.DistributedLock;
 using kevin.Domain.EventBus;
-using kevin.FileStorage;
 using kevin.Ioc;
 using kevin.Permission;
+using Kevin.AI.MCP.Server;
+using Kevin.AI.MCP.Server.Models;
+using Kevin.Api.Versioning;
 using Kevin.Common.App.Global;
 using Kevin.Common.App.Start;
 using Kevin.Common.TieredServiceRegistration;
 using Kevin.Cors;
-using Kevin.SMS;
 using Kevin.Web.Filters.TransactionScope;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 using Repository.Database;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
-using System.Linq;
 using Web.Filters;
 using Web.Global.User;
-using Web.Libraries.Swagger;
-using Kevin.AI.MCP.Server;
-using Kevin.AI.MCP.Server.Models;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -96,58 +86,10 @@ namespace Web.Extension
                 option.JsonSerializerOptions.Converters.Add(new Common.Json.LongConverter());
             });
 
-            services.AddControllers().AddControllersAsServices(); //控制器当做实例创建
-
-
-            #region Api版本以及配置
-            services.AddApiVersioning(options =>
-            {
-                //通过Header向客户端通报支持的版本
-                options.ReportApiVersions = true;
-
-                //允许不加版本标记直接调用接口
-                options.AssumeDefaultVersionWhenUnspecified = true;
-
-                //接口默认版本
-                //options.DefaultApiVersion = new ApiVersion(1, 0);
-
-                //如果未加版本标记默认以当前最高版本进行处理
-                options.ApiVersionSelector = new CurrentImplementationApiVersionSelector(options);
-
-                options.ApiVersionReader = new HeaderApiVersionReader("api-version");
-                //options.ApiVersionReader = new QueryStringApiVersionReader("api-version");
-            });
-
-
-            services.AddVersionedApiExplorer(options =>
-            {
-                options.GroupNameFormat = "'v'VVV";
-                options.SubstituteApiVersionInUrl = true;
-            });
-
-            //注册统一模型验证
-            services.Configure<ApiBehaviorOptions>(options =>
-            {
-                options.InvalidModelStateResponseFactory = actionContext =>
-                {
-
-                    //获取验证失败的模型字段 
-                    var errors = actionContext.ModelState.Where(e => e.Value.Errors.Count > 0).Select(e => e.Value.Errors.First().ErrorMessage).ToList();
-
-                    var dataStr = string.Join(" | ", errors);
-
-                    //设置返回内容
-                    var result = new
-                    {
-                        errMsg = dataStr
-                    };
-
-                    return new BadRequestObjectResult(result);
-                };
-            });
-            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerConfigureOptions>();
-            #endregion
-
+            services.AddControllers().AddControllersAsServices(); //控制器当做实例创建 
+            services.AddKevinApiVersioning(new System.Collections.Generic.List<string> {
+           "kevin.Domain.Share.xml","App.WebApi.xml"
+            }); //api版本
 
             #region 缓存服务模式
             //注册缓存服务 内存模式
@@ -214,7 +156,8 @@ namespace Web.Extension
             //});
 
             #endregion
-            services.AddKevinMCPServer(options => {
+            services.AddKevinMCPServer(options =>
+            {
                 var settings = Configuration.GetRequiredSection("MCPSseClient").Get<MCPSseClientSetting>()!;
                 options.Name = settings.Name;
                 options.Url = settings.Url;
@@ -243,19 +186,8 @@ namespace Web.Extension
 
             //静态文件中间件 (UseStaticFiles) 返回静态文件，并简化进一步请求处理。
             //app.UseStaticFiles();
-            //启用中间件服务生成Swagger作为JSON端点
-            app.UseSwagger();
-            //启用中间件服务对swagger-ui，指定Swagger JSON端点
-            app.UseSwaggerUI(options =>
-            {
-                var apiVersionDescriptionProvider = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
-                foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
-                {
-                    options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
-                }
 
-                options.RoutePrefix = "swagger";
-            });
+            app.UseKevinUseSwagger();
 
             app.UseRouting();
 
@@ -268,7 +200,7 @@ namespace Web.Extension
                 endpoints.MapControllers();
             });
             //app.UseKevinSignalR(StartConfiguration.configuration.GetSection("SignalrSetting").Get<SignalrSetting>());
-          
+
             GlobalServices.Set(app.ApplicationServices);
             return app;
         }

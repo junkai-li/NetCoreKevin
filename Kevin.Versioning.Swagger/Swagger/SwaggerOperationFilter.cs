@@ -2,17 +2,20 @@
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Web.Libraries.Swagger
+namespace Kevin.Api.Versioning.Swagger
 {
 
     /// <summary>
     /// swagger 集成多版本api自定义设置
     /// </summary>
     public class SwaggerOperationFilter : IOperationFilter
-    {
-
+    { 
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             var apiDescription = context.ApiDescription;
@@ -24,7 +27,6 @@ namespace Web.Libraries.Swagger
             {
                 return;
             }
-
 
             //为 api-version 参数添加必填验证
             foreach (var parameter in operation.Parameters)
@@ -45,5 +47,4 @@ namespace Web.Libraries.Swagger
             }
         }
     }
-
 }

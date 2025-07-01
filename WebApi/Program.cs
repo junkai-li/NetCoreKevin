@@ -10,17 +10,21 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.IO;
 using Web.Extension;
-using Web.Libraries.Swagger;
 using Microsoft.Extensions.DependencyInjection;
 using kevin.HttpApiClients;
 using Kevin.Common.App.Global;
 using Kevin.Common.App.Start;
+using Kevin.Api.Versioning.Swagger;
+using Asp.Versioning.ApiExplorer;
+using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Asp.Versioning;
+using Consul;
 
 namespace WebApi
 {
@@ -50,48 +54,8 @@ namespace WebApi
                 //builder.Services.AddKevinRedisCap(builder.Configuration.GetConnectionString("redisConnection"), builder.Configuration.GetConnectionString("dbConnection")); cap
 
                 builder.Services.ConfigServies(builder.Configuration);
-
-                #region Swagger 文档
-
-                //注册Swagger生成器，定义一个和多个Swagger 文档
-                builder.Services.AddSwaggerGen(options =>
-                {
-                    options.OperationFilter<SwaggerOperationFilter>();
-
-                    options.MapType<long>(() => new OpenApiSchema { Type = "string", Format = "long" });
-
-                    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{typeof(Program).Assembly.GetName().Name}.xml"), true);
-
-                    //其他类库的注释文件
-                    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"kevin.Domain.Share.xml"), true);
-
-                    //开启 Swagger JWT 鉴权模块
-                    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-                    {
-                        Description = "在下框中输入请求头中需要添加Jwt授权Token：Bearer Token",
-                        Name = "Authorization",
-                        In = ParameterLocation.Header,
-                        Type = SecuritySchemeType.ApiKey,
-                        BearerFormat = "JWT",
-                        Scheme = "Bearer"
-                    });
-                    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                            {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.SecurityScheme,
-                                    Id = "Bearer"
-                                }
-                            },
-                        new string[] { }
-                    }
-                });
-                });
-                #endregion
-
+                 
+               
                 #region 腾讯MiniLive
                 ////腾讯MiniLive服务注册
                 //MiniLive.AppId = "wxf164719d9baf8d83";
@@ -119,8 +83,11 @@ namespace WebApi
                 builder.Services.AddControllers(options =>
                 {
                     options.OutputFormatters.RemoveType<StringOutputFormatter>();
-                }); 
+                });
                 var app = builder.Build();
+
+
+              
                 app.MapMcp(); //MCP服务映射MCP端点
                 //开启倒带模式运行多次读取HttpContext.Body中的内容 
                 app.Use(async (context, next) =>
@@ -141,9 +108,9 @@ namespace WebApi
                 }
 
                 //kevin初始化
-                 app.UseKevin();
+                app.UseKevin();
                 //app.UseKevinConsul(builder.Configuration.GetSection("ConsulSetting").Get<ConsulSetting>(), app.Lifetime);//服务网关 
-               
+       
                 app.Run();
 
             }

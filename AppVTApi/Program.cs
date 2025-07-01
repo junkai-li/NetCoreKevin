@@ -7,20 +7,14 @@ global using Web.Global.Exceptions;
 #endregion
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using System.IO;
 using Web.Extension;
-using Web.Libraries.Swagger;
-using Microsoft.Extensions.DependencyInjection;
 using kevin.HttpApiClients;
 using Kevin.Common.App.Global;
 using Kevin.Common.App.Start;
+using Kevin.Api.Versioning.Swagger;
+using Asp.Versioning.ApiExplorer;
 
 namespace AppVTApi
 {
@@ -143,17 +137,7 @@ namespace AppVTApi
                 //kevin初始化
                 app.UseKevin();
                 //app.UseKevinConsul(builder.Configuration.GetSection("ConsulSetting").Get<ConsulSetting>(), app.Lifetime);//服务网关 
-                //启用中间件服务对swagger-ui，指定Swagger JSON端点
-                app.UseSwaggerUI(options =>
-                {
-                    var apiVersionDescriptionProvider = app.Services.GetService<IApiVersionDescriptionProvider>();
-                    foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
-                    {
-                        options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
-                    }
-
-                    options.RoutePrefix = "swagger";
-                });
+              
                 app.Run();
 
             }

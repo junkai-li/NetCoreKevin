@@ -9,10 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.16" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.9.0" />
   </ItemGroup>
 
@@ -31,6 +28,7 @@
     <ProjectReference Include="..\kevin.Permission\kevin.Permission.csproj" />
     <ProjectReference Include="..\Kevin.SignalR\Kevin.SignalR.csproj" />
     <ProjectReference Include="..\Kevin.SMS\Kevin.SMS.csproj" />
+    <ProjectReference Include="..\Kevin.Versioning.Swagger\Kevin.Api.Versioning.csproj" />
     <ProjectReference Include="..\Kevin_MCP_Server\Kevin.AI.MCP.Server.csproj" />
     <ProjectReference Include="..\Repository\Kevin.EntityFrameworkCore.csproj" />
   </ItemGroup>
