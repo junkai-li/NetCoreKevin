@@ -12,8 +12,7 @@ namespace Kevin.Api.Versioning
     public static class ApplicationBuilderExtensions
     {
         public static void UseKevinUseSwagger(this IApplicationBuilder app)
-        {
-           // app.UseApiVersioning();
+        { 
             //启用中间件服务生成Swagger作为JSON端点
             app.UseSwagger();
             //启用中间件服务对swagger-ui，指定Swagger JSON端点
