@@ -84,10 +84,10 @@ namespace Kevin.AI.SemanticKernel
             string path = FindPluginsDirectory(baseDirectory, folderName)
                         ?? FindPluginsDirectory(baseDirectory + Path.DirectorySeparatorChar + folderName, folderName);
 
-            //if (string.IsNullOrEmpty(path))
-            //{
-            //    throw new AppException("Plugins directory not found. The app needs the plugins from the repo to work.");
-            //}
+            if (string.IsNullOrEmpty(path))
+            { 
+                throw new Exception("Plugins directory not found. The app needs the plugins from the repo to work.");
+            }
             return path;
         }
     }
