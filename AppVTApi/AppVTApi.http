@@ -1,6 +1,0 @@
-@AppVTApi_HostAddress = http://localhost:5081
-
-GET {{AppVTApi_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
