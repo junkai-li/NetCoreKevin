@@ -22,6 +22,7 @@ namespace kevin.DistributedLock
         {
             //分布式
             services.AddSingleton<IDistributedLockProvider>(new MySqlDistributedSynchronizationProvider(dbConnection)); 
+             
             ////信号锁
             //services.AddSingleton<IDistributedSemaphoreProvider>(new MySqlDistributedSemaphoreProvider(dbConnection));
             ////读写锁

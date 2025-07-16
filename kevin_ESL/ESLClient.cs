@@ -13,21 +13,21 @@ namespace kevin_ESL
     public class ESLClient : IDisposable, IESLClient
     {
         private Socket _socket;
-        private string HOST;
-        private int PORT;
-        private string PassWord;
+        private string _host;
+        private int _port;
+        private string _passWord;
         public ESLClient(string host, int port, string password)
         {
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             // 设置接收超时时间 100秒
             _socket.ReceiveTimeout = 100000;
-            HOST = host;
-            PORT = port;
-            this.PassWord = password;
+            _host = host;
+            _port = port;
+            this._passWord = password;
         }
         public void Connect()
         {
-            _socket.Connect(HOST, PORT);
+            _socket.Connect(_host, _port);
         }
 
         public string Authenticate(string password)
@@ -304,8 +304,8 @@ namespace kevin_ESL
                 _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 // 设置接收超时时间 100秒
                 _socket.ReceiveTimeout = 100000;
-                _socket.Connect(new IPEndPoint(IPAddress.Parse(HOST), PORT));
-                Authenticate(PassWord);
+                _socket.Connect(new IPEndPoint(IPAddress.Parse(_host), _port));
+                Authenticate(_passWord);
             }
         }
 

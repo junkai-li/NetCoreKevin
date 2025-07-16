@@ -13,50 +13,68 @@ using System.Threading.Tasks;
 
 namespace kevin_ESL
 {
+    /// <summary>
+    /// 用于链接ESL服务
+    /// </summary>
     public static class ESLStaticClient
     {
-        public static Socket _socket = default;
-        public static string HOST;
+        public static Socket _Socket = default;
+        public static string HOST="";
         public static int PORT;
-        public static string PassWord;
-        public static ConcurrentDictionary<string, Action<string>> callbacks = new ConcurrentDictionary<string, Action<string>>();
+        public static string PassWord="";
+        public static ConcurrentDictionary<string, Action<string>> Callbacks = new ConcurrentDictionary<string, Action<string>>();
         public static ConcurrentQueue<string> Data = new ConcurrentQueue<string>();
-        static Thread thread;
+        static Thread? Thread;
         static object lockObject = new object();
+
+       /// <summary>
+       /// 注册启动事件
+       /// </summary>
+       /// <param name="id"></param>
+       /// <param name="callback"></param>
         public static void RegisterCallback(string id, Action<string> callback)
         {
-            if (!callbacks.ContainsKey(id))
+            if (!Callbacks.ContainsKey(id))
             {
-                callbacks.TryAdd(id, callback);
+                Callbacks.TryAdd(id, callback);
             }
         }
+        /// <summary>
+        /// 删除回调事件
+        /// </summary>
+        /// <param name="id"></param>
         public static void DeleteCallBack(string id)
         {
             //延迟删除？
             Task.Run(() =>
             {
                 Thread.Sleep(2000);
-                if (callbacks.ContainsKey(id))
+                if (Callbacks.ContainsKey(id))
                 {
-                    callbacks.TryRemove(id, out _);
+                    Callbacks.TryRemove(id, out _);
                 }
             });
         }
-
+        /// <summary>
+        /// 配置ESL
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="port"></param>
+        /// <param name="password"></param>
         public static void ESLStaticClientConfig(string host, int port, string password)
         {
-            if (_socket == default)
+            if (_Socket == default)
             {
-                _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 // 设置接收超时时间 1000秒
-                _socket.ReceiveTimeout = 1000000;
+                _Socket.ReceiveTimeout = 1000000;
                 HOST = host;
                 PORT = port;
                 PassWord = password;
-                _socket.Connect(new IPEndPoint(IPAddress.Parse(HOST), PORT));
+                _Socket.Connect(new IPEndPoint(IPAddress.Parse(HOST), PORT));
                 Authenticate(PassWord);
                 GetAllMsg();
-                thread = new Thread(() =>
+                Thread = new Thread(() =>
                 {
                     ESLEvent();
                 });
@@ -65,16 +83,16 @@ namespace kevin_ESL
                 {
                     while (true)
                     {
-                        if (thread.ThreadState == ThreadState.Stopped)
+                        if (Thread.ThreadState == ThreadState.Stopped)
                         {
                             Console.WriteLine("ESLEvent线程已完成。");
-                            thread = new Thread(() =>
+                            Thread = new Thread(() =>
                             {
                                 // 模拟线程执行一些任务，这里睡眠3秒 
                                 Thread.Sleep(1000);
                                 ESLEvent();
                             });
-                            thread.Start();
+                            Thread.Start();
                         }
                         else
                         {
@@ -82,10 +100,12 @@ namespace kevin_ESL
                         }
                     }
                 });
-                thread.Start();
+                Thread.Start();
             }
         }
-
+        /// <summary>
+        /// 事件分发
+        /// </summary>
         public static void ESLEvent()
         {
             Console.WriteLine("开启ESLEvent线程");
@@ -99,13 +119,13 @@ namespace kevin_ESL
                         {
                             if (Data.TryDequeue(out string value))
                             {
-                                if (callbacks.Count > 0)
+                                if (Callbacks.Count > 0)
                                 {
                                     if (IsValidJson(value))
                                     {
-                                        Parallel.ForEach(callbacks, new ParallelOptions
+                                        Parallel.ForEach(Callbacks, new ParallelOptions
                                         {
-                                            MaxDegreeOfParallelism = callbacks.Count,
+                                            MaxDegreeOfParallelism = Callbacks.Count,
                                         }, item =>
                                         {
                                             Task.Run(() =>
@@ -123,9 +143,9 @@ namespace kevin_ESL
                                         {
                                             foreach (Match match in matches)
                                             {
-                                                Parallel.ForEach(callbacks, new ParallelOptions
+                                                Parallel.ForEach(Callbacks, new ParallelOptions
                                                 {
-                                                    MaxDegreeOfParallelism = callbacks.Count,
+                                                    MaxDegreeOfParallelism = Callbacks.Count,
                                                 }, item =>
                                                 {
                                                     Task.Run(() =>
@@ -153,13 +173,16 @@ namespace kevin_ESL
             }
         }
 
+        /// <summary>
+        /// 获取数据
+        /// </summary>
         public static void EslData()
         {
             Task.Run(() =>
             {
                 try
                 {
-                    while (true && _socket != default)
+                    while (true && _Socket != default)
                     {
                         socketConti();
                         var item = RecolectResponse();
@@ -199,25 +222,33 @@ namespace kevin_ESL
             });
         }
 
+        /// <summary>
+        /// 关闭链接
+        /// </summary>
         public static void Dispose()
         {
             lock (lockObject)
             {
                 try
                 {
-                    if (_socket != default)
+                    if (_Socket != default)
                     {
-                        _socket?.Shutdown(SocketShutdown.Both); // 优雅关闭
-                        _socket?.Close();                       // 关闭并释放资源（内部调用 Dispose）
+                        _Socket?.Shutdown(SocketShutdown.Both); // 优雅关闭
+                        _Socket?.Close();                       // 关闭并释放资源（内部调用 Dispose）
                     }
 
                 }
                 finally
                 {
-                    _socket?.Dispose(); // 显式释放（非必需，但可确保释放）
+                    _Socket?.Dispose(); // 显式释放（非必需，但可确保释放）
                 }
             }
         }
+        /// <summary>
+        /// 验证json
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public static bool IsValidJson(string input)
         {
             try
@@ -230,6 +261,11 @@ namespace kevin_ESL
                 return false;
             }
         }
+        /// <summary>
+        /// 登录
+        /// </summary>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public static string Authenticate(string password)
         {
             SendData($"auth {password}");
@@ -237,6 +273,12 @@ namespace kevin_ESL
             string authResponse = RecolectResponse();
             return authResponse;
         }
+        /// <summary>
+        /// 发送命令
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="pand"></param>
+        /// <returns></returns>
         public static string Command(string args, string pand = "OK")
         {
             try
@@ -262,18 +304,21 @@ namespace kevin_ESL
             lock (lockObject)
             {
                 // 确保Socket资源被释放
-                if ((_socket != default && !_socket.Connected) || _socket == default)
+                if ((_Socket != default && !_Socket.Connected) || _Socket == default)
                 {
-                    _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    _Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                     // 设置接收超时时间 1000秒
-                    _socket.ReceiveTimeout = 100000;
-                    _socket.Connect(new IPEndPoint(IPAddress.Parse(HOST), PORT));
+                    _Socket.ReceiveTimeout = 100000;
+                    _Socket.Connect(new IPEndPoint(IPAddress.Parse(HOST), PORT));
                     Authenticate(PassWord);
                     GetAllMsg();
                 }
             }
         }
-
+        /// <summary>
+        /// 获取通道所有消息
+        /// </summary>
+        /// <returns></returns>
         public static string GetAllMsg()
         {
             SendData($"event json  {EventNameConst.CHANNEL_ANSWER}  {EventNameConst.CHANNEL_DESTROY} {EventNameConst.CHANNEL_EXECUTE_COMPLETE} \r\n\r\n");
@@ -289,14 +334,18 @@ namespace kevin_ESL
         //    string Response = RecolectResponse();
         //    return Response;
         //}
-
+        /// <summary>
+        /// 发送数据
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="dateTime"></param>
         private static void SendData(string data, DateTime dateTime = default)
         {
             try
             {
                 byte[] msg = Encoding.UTF8.GetBytes($"{data}\n\n");
                 socketConti();
-                _socket.Send(msg);
+                _Socket.Send(msg);
             }
             catch (Exception)
             {
@@ -305,12 +354,16 @@ namespace kevin_ESL
             }
 
         }
-
+        /// <summary>
+        /// 返回数据
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         private static string RecolectResponse()
         {
             string responseValue = "";
             string dataBuffer = "";
-            while (!(dataBuffer.EndsWith("\n\n") || dataBuffer.EndsWith("\r\n") || (IsValidJson(dataBuffer))) && _socket.Connected)
+            while (!(dataBuffer.EndsWith("\n\n") || dataBuffer.EndsWith("\r\n") || (IsValidJson(dataBuffer))) && _Socket.Connected)
             {
                 dataBuffer += ReceiveData();
             }
@@ -343,7 +396,7 @@ namespace kevin_ESL
                     int contentLenght = int.Parse(contentLength);
                     responseValue = "";
                     responseValue += ReceiveData(contentLenght);
-                    while (!(responseValue.EndsWith("}")) && _socket.Connected)
+                    while (!(responseValue.EndsWith("}")) && _Socket.Connected)
                     {
                         responseValue += ReceiveData(contentLenght - responseValue.Length);
                     }
@@ -351,7 +404,13 @@ namespace kevin_ESL
             }
             return responseValue;
         }
-
+        /// <summary>
+        /// 返回字节数据
+        /// </summary>
+        /// <param name="contentLength"></param>
+        /// <param name="isstringutf"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         private static string ReceiveData(int contentLength = 1, bool isstringutf = true)
         {
 
@@ -365,7 +424,7 @@ namespace kevin_ESL
                 int totalBytesReceived = 0;
                 while (totalBytesReceived < contentLength)
                 {
-                    int bytesReceived = _socket.Receive(
+                    int bytesReceived = _Socket.Receive(
                         buffer,
                         totalBytesReceived,
                         contentLength - totalBytesReceived,

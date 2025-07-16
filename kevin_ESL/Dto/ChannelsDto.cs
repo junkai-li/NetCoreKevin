@@ -8,13 +8,13 @@ namespace kevin_ESL.Dto
 {
     public class ChannelsDto
     {
-        public string Uuid { get; set; }
-        public string Direction { get; set; }
-        public string Created { get; set; }
-        public string State { get; set; }
-        public string CallerNumber { get; set; }
-        public string CalleeNumber { get; set; }
-        public string Callstate { get; set; }
+        public string? Uuid { get; set; }
+        public string? Direction { get; set; }
+        public string? Created { get; set; }
+        public string? State { get; set; }
+        public string? CallerNumber { get; set; }
+        public string? CalleeNumber { get; set; }
+        public string? Callstate { get; set; }
 
     }
 
@@ -38,13 +38,13 @@ namespace kevin_ESL.Dto
 
                 var record = new ChannelsDto
                 {
-                    Uuid = GetFieldValue("uuid", headers, fields),
-                    Direction = GetFieldValue("direction", headers, fields),
-                    Created = GetFieldValue("created", headers, fields),
-                    State = GetFieldValue("state", headers, fields),
-                    CallerNumber = GetFieldValue("cid_num", headers, fields),
-                    CalleeNumber = GetFieldValue("callee_num", headers, fields),
-                    Callstate = GetFieldValue("callstate", headers, fields)
+                    Uuid = GetFieldValue("uuid", headers, fields)??"",
+                    Direction = GetFieldValue("direction", headers, fields) ?? "",
+                    Created = GetFieldValue("created", headers, fields) ?? "",
+                    State = GetFieldValue("state", headers, fields) ?? "",
+                    CallerNumber = GetFieldValue("cid_num", headers, fields) ?? "",
+                    CalleeNumber = GetFieldValue("callee_num", headers, fields) ?? "",
+                    Callstate = GetFieldValue("callstate", headers, fields) ?? ""
                 };
 
                 records.Add(record);
@@ -52,7 +52,7 @@ namespace kevin_ESL.Dto
             return records;
         }
 
-        private static string GetFieldValue(string fieldName, string[] headers, string[] fields)
+        private static string? GetFieldValue(string fieldName, string[] headers, string[] fields)
         {
             int index = Array.IndexOf(headers, fieldName);
             return index >= 0 && index < fields.Length ? fields[index] : null;
