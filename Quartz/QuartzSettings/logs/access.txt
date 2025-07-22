@@ -99,3 +99,13 @@
 2023-04-17 15:50:02_::1_http://localhost:9950/TaskBackGround/GetRunLog?taskName=%E7%99%BE%E5%BA%A6%E8%AF%B7%E6%B1%82&groupName=%E7%99%BE%E5%BA%A6&page=1
 2023-04-17 15:50:16_::1_http://localhost:9950/TaskBackGround/pause?taskName=%E7%99%BE%E5%BA%A6%E8%AF%B7%E6%B1%82&groupName=%E7%99%BE%E5%BA%A6&interval=0+0%2F1+*+*+*+%3F+&apiUrl=https:%2F%2Fwww.baidu.com%2F&describe=test%E7%99%BE%E5%BA%A6%E8%AF%B7%E6%B1%82&requestType=get&lastRunTime=2023-04-17+15:49:00&status=0&cellClassName=%7B%22operat%22:%22view-log%22%7D
 2023-04-17 15:50:16_::1_http://localhost:9950/TaskBackGround/GetJobs
+2025-07-22 14:43:29_::ffff:127.0.0.1_http://127.0.0.1:9950/Home/Index?ReturnUrl=%2F
+2025-07-22 14:43:29_::ffff:127.0.0.1_http://127.0.0.1:9950/Home/Index
+2025-07-22 14:43:33_::ffff:127.0.0.1_http://127.0.0.1:9950/home/validateAuthor
+2025-07-22 14:43:33_::ffff:127.0.0.1_http://127.0.0.1:9950/Home/Index?ReturnUrl=%2FTaskBackGround%2Findex
+2025-07-22 14:43:33_::ffff:127.0.0.1_http://127.0.0.1:9950/Home/Index
+2025-07-22 14:43:44_::ffff:127.0.0.1_http://127.0.0.1:9950/home/validateAuthor
+2025-07-22 14:43:44_::ffff:127.0.0.1_http://127.0.0.1:9950/TaskBackGround/index
+2025-07-22 14:43:45_::ffff:127.0.0.1_http://127.0.0.1:9950/TaskBackGround/GetJobs
+2025-07-22 14:44:01_::ffff:127.0.0.1_http://127.0.0.1:9950/TaskBackGround/GetJobs
+2025-07-22 14:44:04_::ffff:127.0.0.1_http://127.0.0.1:9950/TaskBackGround/GetRunLog?taskName=%E7%99%BE%E5%BA%A6%E8%AF%B7%E6%B1%82&groupName=%E7%99%BE%E5%BA%A6&page=1
