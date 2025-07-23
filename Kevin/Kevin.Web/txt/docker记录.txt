@@ -81,3 +81,5 @@ cd ceshi
 在路径 C:\Users\用户名\vsdbg\vs2017u5\linux-musl-x64 里面 新建 success_rid.txt 编辑内容 linux-musl-x64,再新建 success_version.txt 编辑内容 16.2.10709.2(版本号需要即时)
 完成
 
+
+历史提交日志请看分支Master-1.0
