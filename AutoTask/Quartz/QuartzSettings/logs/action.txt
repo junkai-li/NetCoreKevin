@@ -1,0 +1,28 @@
+新增 --  2022-03-11 16:29:12  --分组：百度,作业：百度请求,消息:OK
+立即执行 --  2022-03-11 16:29:24  --分组：百度,作业：百度请求,消息:
+新增 --  2022-03-11 16:30:05  --分组：百度,作业：百度请求,消息:OK
+修改 --  2022-03-11 16:30:05  --分组：百度,作业：百度请求,消息:操作对象：{"TaskName":"百度请求","GroupName":"百度","Interval":"0 1-2 0/1 * * ? ","ApiUrl":"https:www.baidu.com","AuthKey":null,"AuthValue":null,"Describe":"test百度请求","RequestType":"get","LastRunTime":"2022-03-11T16:29:24","Status":0}
+修改 --  2022-03-11 16:30:05  --分组：百度,作业：百度请求,消息:
+立即执行 --  2022-03-11 16:30:09  --分组：百度,作业：百度请求,消息:
+新增 --  2022-03-11 16:32:07  --分组：百度,作业：百度请求,消息:OK
+修改 --  2022-03-11 16:32:07  --分组：百度,作业：百度请求,消息:操作对象：{"TaskName":"百度请求","GroupName":"百度","Interval":"0 1-2 0/1 * * ? ","ApiUrl":"www.baidu.com","AuthKey":null,"AuthValue":null,"Describe":"test百度请求","RequestType":"get","LastRunTime":"2022-03-11T16:30:09","Status":0}
+修改 --  2022-03-11 16:32:07  --分组：百度,作业：百度请求,消息:
+开启 --  2022-03-11 16:32:44  --分组：百度,作业：百度请求,消息:操作对象：{"TaskName":"百度请求","GroupName":"百度","Interval":"0 1-2 0/1 * * ? ","ApiUrl":"www.baidu.com","AuthKey":null,"AuthValue":null,"Describe":"test百度请求","RequestType":"get","LastRunTime":"2022-03-11T16:30:09","Status":0}
+开启 --  2022-03-11 16:32:44  --分组：百度,作业：百度请求,消息:
+立即执行 --  2022-03-11 16:33:12  --分组：百度,作业：百度请求,消息:
+新增 --  2022-03-11 16:35:23  --分组：百度,作业：百度请求,消息:OK
+修改 --  2022-03-11 16:35:23  --分组：百度,作业：百度请求,消息:操作对象：{"TaskName":"百度请求","GroupName":"百度","Interval":"0 1-2 0/1 * * ? ","ApiUrl":"https://www.baidu.com/","AuthKey":null,"AuthValue":null,"Describe":"test百度请求","RequestType":"get","LastRunTime":"2022-03-11T16:33:12","Status":0}
+修改 --  2022-03-11 16:35:23  --分组：百度,作业：百度请求,消息:
+立即执行 --  2022-03-11 16:35:30  --分组：百度,作业：百度请求,消息:
+立即执行 --  2022-03-11 16:36:01  --分组：百度,作业：百度请求,消息:
+新增 --  2022-03-11 16:38:15  --分组：百度,作业：百度请求,消息:OK
+修改 --  2022-03-11 16:38:15  --分组：百度,作业：百度请求,消息:操作对象：{"TaskName":"百度请求","GroupName":"百度","Interval":"0 0/1 * * * ? ","ApiUrl":"https://www.baidu.com/","AuthKey":null,"AuthValue":null,"Describe":"test百度请求","RequestType":"get","LastRunTime":"2022-03-11T16:36:01","Status":0}
+修改 --  2022-03-11 16:38:15  --分组：百度,作业：百度请求,消息:
+暂停 --  2022-03-11 16:38:44  --分组：百度,作业：百度请求,消息:操作对象：{"TaskName":"百度请求","GroupName":"百度","Interval":"0 0/1 * * * ? ","ApiUrl":"https://www.baidu.com/","AuthKey":null,"AuthValue":null,"Describe":"test百度请求","RequestType":"get","LastRunTime":"0001-01-01T00:00:00","Status":0}
+暂停 --  2022-03-11 16:38:44  --分组：百度,作业：百度请求,消息:
+开启 --  2022-03-11 16:38:49  --分组：百度,作业：百度请求,消息:操作对象：{"TaskName":"百度请求","GroupName":"百度","Interval":"0 0/1 * * * ? ","ApiUrl":"https://www.baidu.com/","AuthKey":null,"AuthValue":null,"Describe":"test百度请求","RequestType":"get","LastRunTime":"0001-01-01T00:00:00","Status":1}
+开启 --  2022-03-11 16:38:49  --分组：百度,作业：百度请求,消息:
+暂停 --  2023-04-17 15:50:16  --分组：百度,作业：百度请求,消息:操作对象：{"TaskName":"百度请求","GroupName":"百度","Interval":"0 0/1 * * * ? ","ApiUrl":"https://www.baidu.com/","AuthKey":null,"AuthValue":null,"Describe":"test百度请求","RequestType":"get","LastRunTime":"2023-04-17T15:49:00","Status":0}
+暂停 --  2023-04-17 15:50:16  --分组：百度,作业：百度请求,消息:
+暂停 --  2025-07-22 14:43:05  --分组：百度,作业：百度请求,消息:操作对象：{"TaskName":"百度请求","GroupName":"百度","Interval":"0 0/1 * * * ? ","ApiUrl":"https://www.baidu.com/","AuthKey":null,"AuthValue":null,"Describe":"test百度请求","RequestType":"get","LastRunTime":"2023-04-17T15:49:00+08:00","Status":1}
+暂停 --  2025-07-22 14:43:05  --分组：百度,作业：百度请求,消息:

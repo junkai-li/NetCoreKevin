@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotNetCore.CAP" Version="8.3.4" />
+    <PackageReference Include="DotNetCore.CAP.Dashboard" Version="8.3.4" />
+    <PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="8.3.4" />
+    <PackageReference Include="DotNetCore.CAP.MySql" Version="8.3.3" />
+    <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="8.3.4" />
+    <PackageReference Include="DotNetCore.CAP.RedisStreams" Version="8.3.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+  </ItemGroup>
+
+</Project>

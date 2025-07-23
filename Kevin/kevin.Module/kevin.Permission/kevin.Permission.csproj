@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="IdentityModel" Version="5.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Kevin.EntityFrameworkCore\Kevin.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\kevin.Cache\kevin.Cache.csproj" />
+    <ProjectReference Include="..\Kevin.Common\Kevin.Common.csproj" />
+  </ItemGroup>
+
+</Project>

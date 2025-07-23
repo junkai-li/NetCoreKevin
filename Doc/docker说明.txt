@@ -1,0 +1,44 @@
+
+docker run -d -p 52213:80 --name kevintask1 task1 配置衍射并运行
+
+
+mynetwork 
+
+Docker 容器之间可以通过多种方式进行通信。一种常用的方法是使用 Docker 网络。您可以创建一个自定义的 Docker 网络，然后将两个容器连接到该网络中。这样，这两个容器就可以通过网络进行通信了。
+例如，您可以使用以下命令创建一个名为 mynetwork 的自定义网络：
+docker network create mynetwork
+
+然后，您可以使用 --net 参数将容器连接到该网络中。例如，如果您想要启动两个名为 container1 和 container2 的容器，并将它们连接到 mynetwork 网络中，您可以使用以下命令：
+docker run --net=mynetwork --name container1 [image]
+docker run --net=mynetwork --name container2 [image]
+
+其中 [image] 是您要运行的容器镜像的名称。
+在这两个容器都连接到 mynetwork 网络之后，它们就可以通过网络进行通信了。例如，您可以在 container1 中使用 container2 的容器名称作为主机名来访问 container2 中运行的服务。
+
+
+
+您可以使用 docker exec 命令在正在运行的 Docker 容器中执行命令。例如，如果您想要在名为 mycontainer 的容器中启动一个交互式 shell，您可以使用以下命令：
+docker exec -it mycontainer /bin/bash
+
+这将在 mycontainer 容器中启动一个交互式的 bash shell，您可以在其中执行命令。请注意，您需要使用 -i 和 -t 参数来分配一个伪终端并保持标准输入打开。
+
+
+docker images：列出所有本地镜像。
+docker rmi 镜像...|镜像ID...：删除本地镜像，可以同时指定多个。
+docker build -t myimage:1.1 .：基于Dockerfile构建一个名为myimage，tag为1.1的镜像，结尾的 . 代表当前目录。
+docker pull mcr.microsoft.com/mssql/server:2019-CU5-ubuntu-18.04：从微软镜像仓库中拉取tag为2019-CU5-ubuntu-18.04的sqlserver 2019镜像。
+......
+容器相关：
+docker ps：列出运行中的容器。
+docker ps -a：列出所有的容器，包含未运行的。
+docker run -it --rm -p 8080:80 --name mynginx nginx：使用镜像nginx创建并启动一个名为mynginx的容器；-it代表以交互模式启动，并为容器重新分配一个伪输入终端；-p指定端口映射，将容器的80端口映射到主机的8080端口；--rm代表容器停止时自动删除容器。
+docker run -d -p 8080:80 -v /nginx/data:/data --name mynginx nginx:latest：使用镜像nginx（tag为latest）创建并启动一个名为mynginx的容器；-d代表以后台模式启动；-p指定端口映射，将容器的80端口映射到主机的8080端口；-v代表挂载卷，将主机的/nginx/data目录挂载到容器的 /data目录。
+docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=<YourStrong@Passw0rd>" -d -p 1433:1433 --name sqlserver2019 mcr.microsoft.com/mssql/server:2019-CU5-ubuntu-18.04：使用sqlserver镜像（tag为2019-CU5-ubuntu-18.04）创建并启动一个名为sqlserver2019的容器；-d代表以后台模式启动；-p指定端口映射，将容器的1433端口映射到主机的1433端口；-e是指定环境变量。
+docker start/stop/restart 容器名...|容器ID...：分别是启动，停止，重启容器，可以同时指定多个。
+docker rm 容器名...|容器ID... ：删除容器，可以同时指定多个。
+docker logs 容器名|容器ID：查看容器日志。、
+
+查看容器ip
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mycontainer
+
+这将返回容器在其网络中的IP地址。

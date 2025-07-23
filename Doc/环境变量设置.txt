@@ -1,0 +1,15 @@
+Windows
+
+当前cmd窗口下有效
+set ASPNETCORE_ENVIRONMENT=Development
+
+当前powershell下有效
+$Env:ASPNETCORE_ENVIRONMENT = "Development"
+
+
+
+Linux or Mac
+当前终端有效
+export ASPNETCORE_ENVIRONMENT=Development
+
+

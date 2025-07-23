@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Claims\**" />
+    <Compile Remove="Enums\**" />
+    <EmbeddedResource Remove="Claims\**" />
+    <EmbeddedResource Remove="Enums\**" />
+    <None Remove="Claims\**" />
+    <None Remove="Enums\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Kevin\Kevin.Web\Kevin.Web.csproj" />
+    <ProjectReference Include="..\AppShare\App.Share.csproj" />
+    <ProjectReference Include="..\DomainServices\App.Domain.csproj" />
+    <ProjectReference Include="..\Repositories\App.RepositorieRps.csproj" />
+  </ItemGroup>
+
+</Project>

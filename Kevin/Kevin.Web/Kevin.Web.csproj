@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ApplicationIcon />
+    <OutputType>Library</OutputType>
+    <StartupObject />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.16" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kevin.EntityFrameworkCore\Kevin.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\kevin.Module\Kevin.AI\Kevin.AI.csproj" />
+    <ProjectReference Include="..\kevin.Module\kevin.Cache\kevin.Cache.csproj" />
+    <ProjectReference Include="..\kevin.Module\kevin.Cap\kevin.Cap.csproj" />
+    <ProjectReference Include="..\kevin.Module\Kevin.Common\Kevin.Common.csproj" />
+    <ProjectReference Include="..\kevin.Module\kevin.Consul\kevin.Consul.csproj" />
+    <ProjectReference Include="..\kevin.Module\Kevin.Cors\Kevin.Cors.csproj" />
+    <ProjectReference Include="..\kevin.Module\Kevin.CrawlingService\kevin.CrawlingService.csproj" />
+    <ProjectReference Include="..\kevin.Module\kevin.DistributedLock\kevin.DistributedLock.csproj" />
+    <ProjectReference Include="..\kevin.Module\kevin.Domain.EventBus\kevin.Domain.EventBus.csproj" />
+    <ProjectReference Include="..\kevin.Module\kevin.ESL\kevin.ESL.csproj" />
+    <ProjectReference Include="..\kevin.Module\kevin.FileStorage\kevin.FileStorage.csproj" />
+    <ProjectReference Include="..\kevin.Module\Kevin.HttpApiClients\Kevin.HttpApiClients.csproj" />
+    <ProjectReference Include="..\kevin.Module\kevin.Ioc\kevin.Ioc.csproj" />
+    <ProjectReference Include="..\kevin.Module\Kevin.log4Net\Kevin.log4Net.csproj" />
+    <ProjectReference Include="..\kevin.Module\Kevin.MCP.Server\Kevin.AI.MCP.Server.csproj" />
+    <ProjectReference Include="..\kevin.Module\kevin.Permission\kevin.Permission.csproj" />
+    <ProjectReference Include="..\kevin.Module\Kevin.SemanticKernel.AI\Kevin.AI.SemanticKernel.csproj" />
+    <ProjectReference Include="..\kevin.Module\Kevin.SignalR\Kevin.SignalR.csproj" />
+    <ProjectReference Include="..\kevin.Module\Kevin.SMS\Kevin.SMS.csproj" />
+    <ProjectReference Include="..\kevin.Module\Kevin.Versioning.Swagger\Kevin.Api.Versioning.csproj" />
+  </ItemGroup>
+
+</Project>

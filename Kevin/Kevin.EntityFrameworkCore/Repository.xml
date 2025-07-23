@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Kevin.EntityFrameworkCore</name>
+    </assembly>
+    <members>
+        <member name="M:Repository.Database.dbContext.GetTenantId">
+            <summary>
+            GetTenantId
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Repository.Interceptors.SubTableInterceptor.GetTimeById(System.Int64)">
+            <summary>
+            通过ID获取其中的时间戳
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Kevin.EntityFrameworkCore._.Data.Repository`2">
+            <summary>
+            仓储类与类型Id
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="TId"></typeparam>
+        </member>
+    </members>
+</doc>

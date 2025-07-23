@@ -1,0 +1,28 @@
+CAP
+	DotNetCore.CAP.MySql
+	DotNetCore.CAP.PostgreSql
+	DotNetCore.CAP.SqlServer
+
+	DotNetCore.CAP.RabbitMQ
+	DotNetCore.CAP.RedisStreams
+
+Hangfire
+	Hangfire.MySqlStorage
+	Hangfire.SqlServer
+	Hangfire.PostgreSql
+	Hangfire.Redis.StackExchange
+
+EntityFrameworkCore
+	Microsoft.EntityFrameworkCore.SqlServer 和 Microsoft.Data.SqlClient
+	Microsoft.EntityFrameworkCore.Sqlite
+	Npgsql.EntityFrameworkCore.PostgreSQL
+	MySql.EntityFrameworkCore  或   Pomelo.EntityFrameworkCore.MySql
+
+Cache
+	Microsoft.Extensions.Caching.SqlServer
+		dotnet tool install --global dotnet-sql-cache
+		dotnet sql-cache create "Server=localhost;User=sa;Password=123456;Database=webcore" dbo t_cache
+
+	Microsoft.Extensions.Caching.StackExchangeRedis
+
+

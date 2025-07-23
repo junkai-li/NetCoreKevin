@@ -1,0 +1,233 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>App.AuthorizationService</name>
+    </assembly>
+    <members>
+        <member name="T:AuthorizationService.Config">
+            <summary>
+            配置类
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.Config.IdentityResources">
+            <summary>
+            返回信息
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.Config.ApiScopes">
+            <summary>
+            api配置
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.Config.Clients">
+            <summary>
+            客户端配置
+            </summary>
+        </member>
+        <member name="M:AuthorizationService.ResourceOwnerPasswordValidator.CacheUserListAsync(AuthorizationService.userDto)">
+            <summary>
+            异步保存缓存
+            </summary>
+            <param name="user"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AuthorizationService.ResourceOwnerPasswordValidator.CacheUserListAsync(AuthorizationService.uMClientUserDto)">
+            <summary>
+            异步保存缓存
+            </summary>
+            <param name="user"></param>
+            <returns></returns>
+        </member>
+        <member name="T:AuthorizationService.uMClientUserDto">
+            <summary>
+            客户端Dto
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.uMClientUserDto.Id">
+            <summary>
+            id
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.uMClientUserDto.Name">
+            <summary>
+            用户名
+            </summary> 
+        </member>
+        <member name="P:AuthorizationService.uMClientUserDto.Phone">
+            <summary>
+            手机号
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.uMClientUserDto.Sex">
+            <summary>
+            性别
+            </summary> 
+        </member>
+        <member name="P:AuthorizationService.uMClientUserDto.CreatedTime">
+            <summary>
+            创建时间;
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.uMClientUserDto.UpdatedTime">
+            <summary>
+            更新时间;
+            </summary>
+        </member>
+        <member name="T:AuthorizationService.userDto">
+            <summary>
+            系统用户dto
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.userDto.Id">
+            <summary>
+            Id
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.userDto.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.userDto.Password">
+            <summary>
+            Password
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.userDto.Phone">
+            <summary>
+            Phone
+            </summary>
+        </member>
+        <member name="P:AuthorizationService.userDto.CreatedBy">
+            <summary>
+            创建人;
+            </summary> 
+        </member>
+        <member name="P:AuthorizationService.userDto.CreatedTime">
+            <summary>
+            创建时间
+            </summary> 
+        </member>
+        <member name="T:AuthorizationService.Program">
+            <summary>
+            启动类
+            </summary>
+        </member>
+        <member name="M:AuthorizationService.Program.Main(System.String[])">
+            <summary>
+            Mian
+            </summary>
+            <param name="args"></param>
+        </member>
+        <member name="T:System.Crypto">
+            <summary>
+            Crypto(安全类) 的摘要说明。
+            </summary>
+        </member>
+        <member name="F:System.Crypto._default_key">
+            <summary>
+            默认密钥
+            </summary>
+        </member>
+        <member name="M:System.Crypto.GetAESKey(System.String)">
+            <summary>
+            获取Aes32位密钥
+            </summary>
+            <param name="key">Aes密钥字符串</param>
+            <returns>Aes32位密钥</returns>
+        </member>
+        <member name="M:System.Crypto.EncryptAES(System.String,System.String)">
+            <summary>
+            Aes加密
+            </summary>
+            <param name="str">源字符串</param>
+            <param name="secretKey">aes密钥，长度必须32位</param>
+            <returns>加密后的字符串</returns>
+        </member>
+        <member name="M:System.Crypto.DecryptAES(System.String,System.String)">
+            <summary>
+            Aes解密
+            </summary>
+            <param name="str">源字符串</param>
+            <param name="secretKey">aes密钥，长度必须32位</param>
+            <returns>解密后的字符串</returns>
+        </member>
+        <member name="M:System.Crypto.EncryptDES(System.String,System.String)">
+            <summary>
+            加密字符串
+            </summary>
+            <param name="str">输入字符串</param>
+            <param name="secretKey">密码，可以为“”</param>
+            <returns>输出加密后字符串</returns>
+        </member>
+        <member name="M:System.Crypto.DecryptDES(System.String,System.String)">
+            <summary>
+            解密字符串
+            </summary>
+            <param name="str">要解密的字符串</param>
+            <param name="secretKey">密钥</param>
+            <returns>解密后的结果</returns>
+        </member>
+        <member name="M:System.Crypto.EncryptFileByDES(System.String,System.String,System.String)">
+            <summary>
+            加密文件
+            </summary>
+            <param name="filePath">输入文件路径</param>
+            <param name="savePath">加密后输出文件路径</param>
+            <param name="keyStr">密码，可以为""</param>
+            <returns></returns>  
+        </member>
+        <member name="M:System.Crypto.DecryptFileByDES(System.String,System.String,System.String)">
+            <summary>
+            解密文件
+            </summary>
+            <param name="filePath">输入文件路径</param>
+            <param name="savePath">解密后输出文件路径</param>
+            <param name="keyStr">密码，可以为“”</param>
+            <returns></returns>    
+        </member>
+        <member name="M:System.Crypto.GetEncryptMD5(System.String)">
+            <summary>
+            128位MD5算法加密字符串
+            </summary>
+            <param name="text">要加密的字符串</param>    
+        </member>
+        <member name="M:System.Crypto.GetMD5(System.String)">
+            <summary>
+            128位MD5算法加密字符串
+            </summary>
+            <param name="text">要加密的字符串</param>    
+        </member>
+        <member name="M:System.Crypto.GetMD5(System.Byte[])">
+            <summary>
+            128位MD5算法加密Byte数组
+            </summary>
+            <param name="data">要加密的Byte数组</param>    
+        </member>
+        <member name="M:System.Crypto.GetHashCode(System.String)">
+            <summary>
+            获取Hash值
+            </summary>
+            <param name="content"></param>
+            <returns></returns>
+        </member>
+        <member name="M:System.Crypto.GetHashCode(System.Byte[])">
+            <summary>
+            计算哈希值字符串
+            </summary>
+        </member>
+        <member name="M:System.Crypto.EncodeBase64(System.String)">
+            <summary>
+            Base64加密
+            </summary>
+            <param name="text">要加密的字符串</param>
+            <returns></returns>
+        </member>
+        <member name="M:System.Crypto.DecodeBase64(System.String)">
+            <summary>
+            Base64解密
+            </summary>
+            <param name="text">要解密的字符串</param>
+        </member>
+    </members>
+</doc>
