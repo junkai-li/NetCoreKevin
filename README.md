@@ -1,3 +1,4 @@
+# 1.0分支为历史分支不在使用 只是用来存储之前的提交的日志记录
 # NetCoreKevin
 基于NET8搭建DDD-微服务-WebApi架构支持：IDS4单点登录、多缓存、自动任务、分布式、多租户、日志、授权和鉴权、CAP集成事件、SignalR、领域事件、ESL、MCP协议服务、单元测试、Cors、Quartz自动任务、多短信集成、AI、AISemanticKernel集成、OCR验证码识别、API多版本
 解耦设计都可以单独引用 项目启动时注意相关Redis、db链接配置  
