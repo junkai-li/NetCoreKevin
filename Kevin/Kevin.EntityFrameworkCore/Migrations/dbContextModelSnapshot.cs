@@ -2,12 +2,13 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.Database;
 
 #nullable disable
 
-namespace Kevin.Repository.Migrations
+namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(dbContext))]
     partial class dbContextModelSnapshot : ModelSnapshot
@@ -16,8 +17,10 @@ namespace Kevin.Repository.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("ProductVersion", "8.0.16")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
             modelBuilder.Entity("kevin.Domain.Kevin.TAlipayKey", b =>
                 {
@@ -89,9 +92,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_alipaykey", (string)null);
-
-                    b.HasComment("TAlipayKey");
+                    b.ToTable("t_alipaykey", null, t =>
+                        {
+                            t.HasComment("TAlipayKey");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TArticle", b =>
@@ -184,9 +188,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("DeleteUserId");
 
-                    b.ToTable("t_article", (string)null);
-
-                    b.HasComment("TArticle");
+                    b.ToTable("t_article", null, t =>
+                        {
+                            t.HasComment("TArticle");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TCategory", b =>
@@ -266,9 +271,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("t_category", (string)null);
-
-                    b.HasComment("TCategory");
+                    b.ToTable("t_category", null, t =>
+                        {
+                            t.HasComment("TCategory");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TChannel", b =>
@@ -334,9 +340,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("DeleteUserId");
 
-                    b.ToTable("t_channel", (string)null);
-
-                    b.HasComment("TChannel");
+                    b.ToTable("t_channel", null, t =>
+                        {
+                            t.HasComment("TChannel");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TCount", b =>
@@ -387,9 +394,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_count", (string)null);
-
-                    b.HasComment("TCount");
+                    b.ToTable("t_count", null, t =>
+                        {
+                            t.HasComment("TCount");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TDictionary", b =>
@@ -442,9 +450,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_dictionary", (string)null);
-
-                    b.HasComment("TDictionary");
+                    b.ToTable("t_dictionary", null, t =>
+                        {
+                            t.HasComment("TDictionary");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TFile", b =>
@@ -532,9 +541,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("TableId");
 
-                    b.ToTable("t_file", (string)null);
-
-                    b.HasComment("TFile");
+                    b.ToTable("t_file", null, t =>
+                        {
+                            t.HasComment("TFile");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TFileGroup", b =>
@@ -602,9 +612,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("FileId");
 
-                    b.ToTable("t_filegroup", (string)null);
-
-                    b.HasComment("TFileGroup");
+                    b.ToTable("t_filegroup", null, t =>
+                        {
+                            t.HasComment("TFileGroup");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TFileGroupFile", b =>
@@ -657,9 +668,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("FileId");
 
-                    b.ToTable("t_filegroupfile", (string)null);
-
-                    b.HasComment("TFileGroupFile");
+                    b.ToTable("t_filegroupfile", null, t =>
+                        {
+                            t.HasComment("TFileGroupFile");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TImgBaiduAI", b =>
@@ -718,9 +730,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("FileId");
 
-                    b.ToTable("t_imgbaiduai", (string)null);
-
-                    b.HasComment("TImgBaiduAI");
+                    b.ToTable("t_imgbaiduai", null, t =>
+                        {
+                            t.HasComment("TImgBaiduAI");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TLink", b =>
@@ -793,9 +806,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("DeleteUserId");
 
-                    b.ToTable("t_link", (string)null);
-
-                    b.HasComment("TLink");
+                    b.ToTable("t_link", null, t =>
+                        {
+                            t.HasComment("TLink");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TLog", b =>
@@ -849,9 +863,101 @@ namespace Kevin.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_log", (string)null);
+                    b.ToTable("t_log", null, t =>
+                        {
+                            t.HasComment("TLog");
+                        });
+                });
 
-                    b.HasComment("TLog");
+            modelBuilder.Entity("kevin.Domain.Kevin.TOSLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("id")
+                        .HasComment("Id");
+
+                    b.Property<Guid?>("ActionUserId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("actionuserid")
+                        .HasComment("ActionUserId");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("content")
+                        .HasComment("Content");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("createtime")
+                        .HasComment("CreateTime");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("deletetime")
+                        .HasComment("DeleteTime");
+
+                    b.Property<string>("DeviceMark")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("devicemark")
+                        .HasComment("DeviceMark");
+
+                    b.Property<string>("IpAddress")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("ipaddress")
+                        .HasComment("IpAddress");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("isdelete")
+                        .HasComment("IsDelete");
+
+                    b.Property<string>("Remarks")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("remarks")
+                        .HasComment("Remarks");
+
+                    b.Property<string>("Sign")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("sign")
+                        .HasComment("Sign");
+
+                    b.Property<string>("Table")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("table")
+                        .HasComment("Table");
+
+                    b.Property<Guid>("TableId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("tableid")
+                        .HasComment("TableId");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("tenantid")
+                        .HasComment("TenantId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActionUserId");
+
+                    b.HasIndex("TableId");
+
+                    b.ToTable("t_oslog", null, t =>
+                        {
+                            t.HasComment("TOSLog");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TOrder", b =>
@@ -966,9 +1072,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("UpdateUserId");
 
-                    b.ToTable("t_order", (string)null);
-
-                    b.HasComment("TOrder");
+                    b.ToTable("t_order", null, t =>
+                        {
+                            t.HasComment("TOrder");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TOrderDetail", b =>
@@ -1021,99 +1128,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("t_orderdetail", (string)null);
-
-                    b.HasComment("TOrderDetail");
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TOSLog", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("id")
-                        .HasComment("Id");
-
-                    b.Property<Guid?>("ActionUserId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("actionuserid")
-                        .HasComment("ActionUserId");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("content")
-                        .HasComment("Content");
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
-                        .HasComment("CreateTime");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
-                        .HasComment("DeleteTime");
-
-                    b.Property<string>("DeviceMark")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("devicemark")
-                        .HasComment("DeviceMark");
-
-                    b.Property<string>("IpAddress")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("ipaddress")
-                        .HasComment("IpAddress");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("isdelete")
-                        .HasComment("IsDelete");
-
-                    b.Property<string>("Remarks")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("remarks")
-                        .HasComment("Remarks");
-
-                    b.Property<string>("Sign")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("sign")
-                        .HasComment("Sign");
-
-                    b.Property<string>("Table")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("table")
-                        .HasComment("Table");
-
-                    b.Property<Guid>("TableId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("tableid")
-                        .HasComment("TableId");
-
-                    b.Property<string>("TenantId")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
-                        .HasComment("TenantId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ActionUserId");
-
-                    b.HasIndex("TableId");
-
-                    b.ToTable("t_oslog", (string)null);
-
-                    b.HasComment("TOSLog");
+                    b.ToTable("t_orderdetail", null, t =>
+                        {
+                            t.HasComment("TOrderDetail");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TPermission", b =>
@@ -1239,9 +1257,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("UpdateUserId");
 
-                    b.ToTable("t_permission", (string)null);
-
-                    b.HasComment("TPermission");
+                    b.ToTable("t_permission", null, t =>
+                        {
+                            t.HasComment("TPermission");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TProduct", b =>
@@ -1327,9 +1346,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("UpdateUserId");
 
-                    b.ToTable("t_product", (string)null);
-
-                    b.HasComment("TProduct");
+                    b.ToTable("t_product", null, t =>
+                        {
+                            t.HasComment("TProduct");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TRegionArea", b =>
@@ -1376,9 +1396,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("CityId");
 
-                    b.ToTable("t_regionarea", (string)null);
-
-                    b.HasComment("TRegionArea");
+                    b.ToTable("t_regionarea", null, t =>
+                        {
+                            t.HasComment("TRegionArea");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TRegionCity", b =>
@@ -1425,9 +1446,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("ProvinceId");
 
-                    b.ToTable("t_regioncity", (string)null);
-
-                    b.HasComment("TRegionCity");
+                    b.ToTable("t_regioncity", null, t =>
+                        {
+                            t.HasComment("TRegionCity");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TRegionProvince", b =>
@@ -1467,9 +1489,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_regionprovince", (string)null);
-
-                    b.HasComment("TRegionProvince");
+                    b.ToTable("t_regionprovince", null, t =>
+                        {
+                            t.HasComment("TRegionProvince");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TRegionTown", b =>
@@ -1516,9 +1539,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("AreaId");
 
-                    b.ToTable("t_regiontown", (string)null);
-
-                    b.HasComment("TRegionTown");
+                    b.ToTable("t_regiontown", null, t =>
+                        {
+                            t.HasComment("TRegionTown");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TRole", b =>
@@ -1566,9 +1590,21 @@ namespace Kevin.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_role", (string)null);
+                    b.ToTable("t_role", null, t =>
+                        {
+                            t.HasComment("TRole");
+                        });
 
-                    b.HasComment("TRole");
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("726bdd09-29bf-4e1a-be09-1ff33e781d2f"),
+                            CreateTime = new DateTime(2025, 7, 25, 14, 51, 34, 429, DateTimeKind.Local).AddTicks(3141),
+                            IsDelete = 0ul,
+                            Name = "admin",
+                            Remarks = "admin",
+                            TenantId = "1000"
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TRolePermission", b =>
@@ -1631,9 +1667,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("t_rolepermission", (string)null);
-
-                    b.HasComment("TRolePermission");
+                    b.ToTable("t_rolepermission", null, t =>
+                        {
+                            t.HasComment("TRolePermission");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TSign", b =>
@@ -1702,9 +1739,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("TableId");
 
-                    b.ToTable("t_sign", (string)null);
-
-                    b.HasComment("TSign");
+                    b.ToTable("t_sign", null, t =>
+                        {
+                            t.HasComment("TSign");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TUser", b =>
@@ -1785,9 +1823,27 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("t_user", (string)null);
+                    b.ToTable("t_user", null, t =>
+                        {
+                            t.HasComment("TUser");
+                        });
 
-                    b.HasComment("TUser");
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("bebb0be8-6b09-4c83-a992-448f8e5473ea"),
+                            CreateTime = new DateTime(2025, 7, 25, 14, 51, 34, 431, DateTimeKind.Local).AddTicks(2917),
+                            Email = "admin",
+                            IsDelete = 0ul,
+                            IsSuperAdmin = 1ul,
+                            Name = "admin",
+                            NickName = "admin",
+                            PassWord = "admin",
+                            Phone = "admin",
+                            RoleId = new Guid("726bdd09-29bf-4e1a-be09-1ff33e781d2f"),
+                            TenantId = "1000",
+                            UpdateTime = new DateTime(2025, 7, 25, 14, 51, 34, 431, DateTimeKind.Local).AddTicks(2937)
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TUserBindAlipay", b =>
@@ -1842,9 +1898,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("t_userbindalipay", (string)null);
-
-                    b.HasComment("TUserBindAlipay");
+                    b.ToTable("t_userbindalipay", null, t =>
+                        {
+                            t.HasComment("TUserBindAlipay");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TUserBindWeixin", b =>
@@ -1899,9 +1956,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("WeiXinKeyId");
 
-                    b.ToTable("t_userbindweixin", (string)null);
-
-                    b.HasComment("TUserBindWeixin");
+                    b.ToTable("t_userbindweixin", null, t =>
+                        {
+                            t.HasComment("TUserBindWeixin");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TUserInfo", b =>
@@ -1996,9 +2054,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("t_userinfo", (string)null);
-
-                    b.HasComment("TUserInfo");
+                    b.ToTable("t_userinfo", null, t =>
+                        {
+                            t.HasComment("TUserInfo");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TWebInfo", b =>
@@ -2079,9 +2138,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_webinfo", (string)null);
-
-                    b.HasComment("TWebInfo");
+                    b.ToTable("t_webinfo", null, t =>
+                        {
+                            t.HasComment("TWebInfo");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TWeiXinKey", b =>
@@ -2161,9 +2221,10 @@ namespace Kevin.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_weixinkey", (string)null);
-
-                    b.HasComment("TWeiXinKey");
+                    b.ToTable("t_weixinkey", null, t =>
+                        {
+                            t.HasComment("TWeiXinKey");
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TArticle", b =>
@@ -2312,6 +2373,16 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("DeleteUser");
                 });
 
+            modelBuilder.Entity("kevin.Domain.Kevin.TOSLog", b =>
+                {
+                    b.HasOne("kevin.Domain.Kevin.TUser", "ActionUser")
+                        .WithMany()
+                        .HasForeignKey("ActionUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ActionUser");
+                });
+
             modelBuilder.Entity("kevin.Domain.Kevin.TOrder", b =>
                 {
                     b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
@@ -2354,16 +2425,6 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TOSLog", b =>
-                {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "ActionUser")
-                        .WithMany()
-                        .HasForeignKey("ActionUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ActionUser");
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TPermission", b =>

@@ -2,6 +2,7 @@
 using kevin.Domain.Bases;
 using kevin.Domain.EventBus;
 using kevin.Domain.Kevin;
+using Kevin.EntityFrameworkCore.Configuration;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -163,6 +164,7 @@ namespace Repository.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+          
 
             //循环关闭所有表的级联删除功能
             foreach (var foreignKey in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
@@ -256,6 +258,11 @@ namespace Repository.Database
                     }
                 });
             }
+            #region 种子数据
+            modelBuilder.ApplyConfiguration(new TRoleConfiguration());
+            modelBuilder.ApplyConfiguration(new TUserConfiguration());
+            #endregion
+
         }
 
 
@@ -570,36 +577,6 @@ namespace Repository.Database
             return db.SaveChanges();
         }
 
-
-        /// <summary>
-        /// GetTenantId
-        /// </summary>
-        /// <returns></returns>
-        public string GetTenantId()
-        {
-            try
-            {
-                //if (CurrentUser != null)
-                //{
-                //    return CurrentUser.TenantId;
-                //}
-                var ev = Environment.GetEnvironmentVariable("NETCORE_ENVIRONMENT");
-                if (string.IsNullOrEmpty(ev))
-                {
-                    ev = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                }
-                IConfigurationBuilder builder = new ConfigurationBuilder().AddJsonFile("appsettings.json");
-                if (!string.IsNullOrEmpty(ev))
-                {
-                    builder = new ConfigurationBuilder().AddJsonFile("appsettings." + ev + ".json");
-                }
-                IConfigurationRoot configuration = builder.Build();
-                return configuration["TenantId"];
-            }
-            catch (Exception)
-            {
-                return "1000";
-            }
-        }
+ 
     }
 }

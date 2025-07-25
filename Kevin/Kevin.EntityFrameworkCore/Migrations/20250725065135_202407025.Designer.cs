@@ -2,171 +2,186 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.Database;
 
 #nullable disable
 
-namespace Kevin.Repository.Migrations
+namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(dbContext))]
-    [Migration("20230418073904_init")]
-    partial class init
+    [Migration("20250725065135_202407025")]
+    partial class _202407025
     {
+        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("ProductVersion", "8.0.16")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("Repository.Database.TAlipayKey", b =>
+            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+
+            modelBuilder.Entity("kevin.Domain.Kevin.TAlipayKey", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<string>("AesKey")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("aeskey")
-                        .HasComment("支付宝加密解密密钥");
+                        .HasComment("AesKey");
 
                     b.Property<string>("AlipayPublicKey")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("alipaypublickey")
-                        .HasComment("支付宝公钥");
+                        .HasComment("AlipayPublicKey");
 
                     b.Property<string>("AppId")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("appid")
                         .HasComment("AppId");
 
                     b.Property<string>("AppPrivateKey")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("appprivatekey")
-                        .HasComment("App私钥");
+                        .HasComment("AppPrivateKey");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("Remarks")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("remarks")
-                        .HasComment("备注");
+                        .HasComment("Remarks");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int")
                         .HasColumnName("sort")
-                        .HasComment("排序");
+                        .HasComment("Sort");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_alipaykey", (string)null);
-
-                    b.HasComment("支付宝平台账户配置表");
+                    b.ToTable("t_alipaykey", null, t =>
+                        {
+                            t.HasComment("TAlipayKey");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TArticle", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TArticle", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<string>("Abstract")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("abstract")
-                        .HasComment("摘要");
+                        .HasComment("Abstract");
 
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("char(36)")
                         .HasColumnName("categoryid")
-                        .HasComment("类别ID");
+                        .HasComment("CategoryId");
 
                     b.Property<int>("ClickCount")
                         .HasColumnType("int")
                         .HasColumnName("clickcount")
-                        .HasComment("点击数");
+                        .HasComment("ClickCount");
 
                     b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("content")
-                        .HasComment("内容");
+                        .HasComment("Content");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("createuserid")
-                        .HasComment("创建人ID");
+                        .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("deleteuserid")
-                        .HasComment("删除人ID");
+                        .HasComment("DeleteUserId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<ulong>("IsDisplay")
                         .HasColumnType("bit")
                         .HasColumnName("isdisplay")
-                        .HasComment("是否显示");
+                        .HasComment("IsDisplay");
 
                     b.Property<ulong>("IsRecommend")
                         .HasColumnType("bit")
                         .HasColumnName("isrecommend")
-                        .HasComment("是否推荐");
+                        .HasComment("IsRecommend");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int")
                         .HasColumnName("sort")
-                        .HasComment("排序");
+                        .HasComment("Sort");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("title")
-                        .HasComment("标题");
+                        .HasComment("Title");
 
                     b.HasKey("Id");
 
@@ -176,74 +191,78 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("DeleteUserId");
 
-                    b.ToTable("t_article", (string)null);
-
-                    b.HasComment("文章表");
+                    b.ToTable("t_article", null, t =>
+                        {
+                            t.HasComment("TArticle");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TCategory", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TCategory", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<Guid>("ChannelId")
                         .HasColumnType("char(36)")
                         .HasColumnName("channelid")
-                        .HasComment("频道ID");
+                        .HasComment("ChannelId");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("createuserid")
-                        .HasComment("创建人ID");
+                        .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("deleteuserid")
-                        .HasComment("删除人ID");
+                        .HasComment("DeleteUserId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("name")
-                        .HasComment("栏目名目");
+                        .HasComment("Name");
 
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("char(36)")
                         .HasColumnName("parentid")
-                        .HasComment("父级栏目ID");
+                        .HasComment("ParentId");
 
                     b.Property<string>("Remarks")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("remarks")
-                        .HasComment("备注");
+                        .HasComment("Remarks");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int")
                         .HasColumnName("sort")
-                        .HasComment("排序");
+                        .HasComment("Sort");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.HasKey("Id");
 
@@ -255,64 +274,68 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("t_category", (string)null);
-
-                    b.HasComment("栏目信息表");
+                    b.ToTable("t_category", null, t =>
+                        {
+                            t.HasComment("TCategory");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TChannel", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TChannel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("createuserid")
-                        .HasComment("创建人ID");
+                        .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("deleteuserid")
-                        .HasComment("删除人ID");
+                        .HasComment("DeleteUserId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("name")
-                        .HasComment("频道名称");
+                        .HasComment("Name");
 
                     b.Property<string>("Remarks")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("remarks")
-                        .HasComment("备注");
+                        .HasComment("Remarks");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int")
                         .HasColumnName("sort")
-                        .HasComment("排序");
+                        .HasComment("Sort");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.HasKey("Id");
 
@@ -320,185 +343,198 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("DeleteUserId");
 
-                    b.ToTable("t_channel", (string)null);
-
-                    b.HasComment("频道信息表");
+                    b.ToTable("t_channel", null, t =>
+                        {
+                            t.HasComment("TChannel");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TCount", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TCount", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<int>("Count")
                         .HasColumnType("int")
                         .HasColumnName("count")
-                        .HasComment("计数");
+                        .HasComment("Count");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("Tag")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("tag")
-                        .HasComment("标记");
+                        .HasComment("Tag");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("updatetime")
-                        .HasComment("更新时间");
+                        .HasComment("UpdateTime");
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_count", (string)null);
-
-                    b.HasComment("计数表");
+                    b.ToTable("t_count", null, t =>
+                        {
+                            t.HasComment("TCount");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TDictionary", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TDictionary", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("key")
-                        .HasComment("键");
+                        .HasComment("Key");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int")
                         .HasColumnName("sort")
-                        .HasComment("排序");
+                        .HasComment("Sort");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.Property<string>("Value")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("value")
-                        .HasComment("值");
+                        .HasComment("Value");
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_dictionary", (string)null);
-
-                    b.HasComment("字典信息表");
+                    b.ToTable("t_dictionary", null, t =>
+                        {
+                            t.HasComment("TDictionary");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TFile", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TFile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("createuserid")
-                        .HasComment("创建人ID");
+                        .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("deleteuserid")
-                        .HasComment("删除人ID");
+                        .HasComment("DeleteUserId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("name")
-                        .HasComment("文件名称");
+                        .HasComment("Name");
 
                     b.Property<string>("Path")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("path")
-                        .HasComment("保存路径");
+                        .HasComment("Path");
 
                     b.Property<string>("Sign")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("sign")
-                        .HasComment("标记");
+                        .HasComment("Sign");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int")
                         .HasColumnName("sort")
-                        .HasComment("排序");
+                        .HasComment("Sort");
 
                     b.Property<string>("Table")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("table")
-                        .HasComment("外链表名");
+                        .HasComment("Table");
 
                     b.Property<Guid>("TableId")
                         .HasColumnType("char(36)")
                         .HasColumnName("tableid")
-                        .HasComment("外链表ID");
+                        .HasComment("TableId");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.HasKey("Id");
 
@@ -508,249 +544,264 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("TableId");
 
-                    b.ToTable("t_file", (string)null);
-
-                    b.HasComment("文件表");
+                    b.ToTable("t_file", null, t =>
+                        {
+                            t.HasComment("TFile");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TFileGroup", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TFileGroup", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<Guid>("FileId")
                         .HasColumnType("char(36)")
                         .HasColumnName("fileid")
-                        .HasComment("文件ID");
+                        .HasComment("FileId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<ulong>("Isfull")
                         .HasColumnType("bit")
                         .HasColumnName("isfull")
-                        .HasComment("是否已完整传输");
+                        .HasComment("Isfull");
 
                     b.Property<ulong>("Issynthesis")
                         .HasColumnType("bit")
                         .HasColumnName("issynthesis")
-                        .HasComment("合成状态");
+                        .HasComment("Issynthesis");
 
                     b.Property<int>("Slicing")
                         .HasColumnType("int")
                         .HasColumnName("slicing")
-                        .HasComment("分片数");
+                        .HasComment("Slicing");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.Property<string>("Unique")
+                        .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("varchar(300)")
                         .HasColumnName("unique")
-                        .HasComment("文件唯一值");
+                        .HasComment("Unique");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("updatetime")
-                        .HasComment("更新时间");
+                        .HasComment("UpdateTime");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FileId");
 
-                    b.ToTable("t_filegroup", (string)null);
-
-                    b.HasComment("文件分片上传状态记录表");
+                    b.ToTable("t_filegroup", null, t =>
+                        {
+                            t.HasComment("TFileGroup");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TFileGroupFile", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TFileGroupFile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<Guid>("FileId")
                         .HasColumnType("char(36)")
                         .HasColumnName("fileid")
-                        .HasComment("文件ID");
+                        .HasComment("FileId");
 
                     b.Property<int>("Index")
                         .HasColumnType("int")
                         .HasColumnName("index")
-                        .HasComment("文件索引值");
+                        .HasComment("Index");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("Path")
+                        .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("varchar(300)")
                         .HasColumnName("path")
-                        .HasComment("文件保存路径");
+                        .HasComment("Path");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FileId");
 
-                    b.ToTable("t_filegroupfile", (string)null);
-
-                    b.HasComment("分片上传时的切片文件记录表");
+                    b.ToTable("t_filegroupfile", null, t =>
+                        {
+                            t.HasComment("TFileGroupFile");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TImgBaiduAI", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TImgBaiduAI", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<Guid>("FileId")
                         .HasColumnType("char(36)")
                         .HasColumnName("fileid")
-                        .HasComment("图片文件ID");
+                        .HasComment("FileId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("Result")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("result")
-                        .HasComment("接口返回值");
+                        .HasComment("Result");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.Property<string>("Unique")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("unique")
-                        .HasComment("图片库唯一标识符");
+                        .HasComment("Unique");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("updatetime")
-                        .HasComment("更新时间");
+                        .HasComment("UpdateTime");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FileId");
 
-                    b.ToTable("t_imgbaiduai", (string)null);
-
-                    b.HasComment("产品图片对应百度AI信息表");
+                    b.ToTable("t_imgbaiduai", null, t =>
+                        {
+                            t.HasComment("TImgBaiduAI");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TLink", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TLink", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("createuserid")
-                        .HasComment("创建人ID");
+                        .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("deleteuserid")
-                        .HasComment("删除人ID");
+                        .HasComment("DeleteUserId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("name")
-                        .HasComment("名称");
+                        .HasComment("Name");
 
                     b.Property<string>("Remarks")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("remarks")
-                        .HasComment("备注");
+                        .HasComment("Remarks");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int")
                         .HasColumnName("sort")
-                        .HasComment("排序");
+                        .HasComment("Sort");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.Property<string>("Url")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("url")
-                        .HasComment("地址");
+                        .HasComment("Url");
 
                     b.HasKey("Id");
 
@@ -758,299 +809,147 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("DeleteUserId");
 
-                    b.ToTable("t_link", (string)null);
-
-                    b.HasComment("友情链接表");
+                    b.ToTable("t_link", null, t =>
+                        {
+                            t.HasComment("TLink");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TLog", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TLog", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("content")
-                        .HasComment("内容");
+                        .HasComment("Content");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("Sign")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("sign")
-                        .HasComment("标记");
+                        .HasComment("Sign");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.Property<string>("Type")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("type")
-                        .HasComment("类型");
+                        .HasComment("Type");
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_log", (string)null);
-
-                    b.HasComment("日志表");
+                    b.ToTable("t_log", null, t =>
+                        {
+                            t.HasComment("TLog");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TOrder", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TOSLog", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
-                        .HasComment("创建时间");
-
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("createuserid")
-                        .HasComment("创建人ID");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
-                        .HasComment("删除时间");
-
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("deleteuserid")
-                        .HasComment("删除人ID");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("isdelete")
-                        .HasComment("是否删除");
-
-                    b.Property<string>("OrderNo")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("orderno")
-                        .HasComment("订单号");
-
-                    b.Property<decimal>("PayPrice")
-                        .HasColumnType("decimal(38,2)")
-                        .HasColumnName("payprice")
-                        .HasComment("实际支付金额");
-
-                    b.Property<ulong>("PayState")
-                        .HasColumnType("bit")
-                        .HasColumnName("paystate")
-                        .HasComment("支付状态");
-
-                    b.Property<DateTime?>("PayTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("paytime")
-                        .HasComment("支付时间");
-
-                    b.Property<string>("PayType")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("paytype")
-                        .HasComment("支付方式");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(38,2)")
-                        .HasColumnName("price")
-                        .HasComment("价格");
-
-                    b.Property<string>("SerialNo")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("serialno")
-                        .HasComment("支付流水号");
-
-                    b.Property<string>("State")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("state")
-                        .HasComment("订单状态");
-
-                    b.Property<string>("TenantId")
-                        .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
-
-                    b.Property<string>("Type")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("type")
-                        .HasComment("订单类型");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updatetime")
-                        .HasComment("更新时间");
-
-                    b.Property<Guid?>("UpdateUserId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("updateuserid")
-                        .HasComment("编辑人ID");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("UpdateUserId");
-
-                    b.ToTable("t_order", (string)null);
-
-                    b.HasComment("订单表");
-                });
-
-            modelBuilder.Entity("Repository.Database.TOrderDetail", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
-                        .HasComment("创建时间");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
-                        .HasComment("删除时间");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("isdelete")
-                        .HasComment("是否删除");
-
-                    b.Property<int>("Number")
-                        .HasColumnType("int")
-                        .HasColumnName("number")
-                        .HasComment("产品数量");
-
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("orderid")
-                        .HasComment("订单ID");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("productid")
-                        .HasComment("产品ID");
-
-                    b.Property<string>("TenantId")
-                        .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("t_orderdetail", (string)null);
-
-                    b.HasComment("订单详情表");
-                });
-
-            modelBuilder.Entity("Repository.Database.TOSLog", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<Guid?>("ActionUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("actionuserid")
-                        .HasComment("操作人信息");
+                        .HasComment("ActionUserId");
 
                     b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("content")
-                        .HasComment("变动内容");
+                        .HasComment("Content");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<string>("DeviceMark")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("devicemark")
-                        .HasComment("设备标记");
+                        .HasComment("DeviceMark");
 
                     b.Property<string>("IpAddress")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("ipaddress")
-                        .HasComment("Ip地址");
+                        .HasComment("IpAddress");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("Remarks")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("remarks")
-                        .HasComment("备注");
+                        .HasComment("Remarks");
 
                     b.Property<string>("Sign")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("sign")
-                        .HasComment("标记");
+                        .HasComment("Sign");
 
                     b.Property<string>("Table")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("table")
-                        .HasComment("外链表名");
+                        .HasComment("Table");
 
                     b.Property<Guid>("TableId")
                         .HasColumnType("char(36)")
                         .HasColumnName("tableid")
-                        .HasComment("外链表ID");
+                        .HasComment("TableId");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.HasKey("Id");
 
@@ -1058,116 +957,115 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("TableId");
 
-                    b.ToTable("t_oslog", (string)null);
-
-                    b.HasComment("TOSLog");
+                    b.ToTable("t_oslog", null, t =>
+                        {
+                            t.HasComment("TOSLog");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TPermission", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TOrder", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255)")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    b.Property<string>("Action")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("action")
-                        .HasComment("Action;");
-
-                    b.Property<string>("ActionName")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("actionname")
-                        .HasComment("动作名;");
-
-                    b.Property<string>("Area")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("area")
-                        .HasComment("区域名称;");
-
-                    b.Property<string>("AreaName")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("areaname")
-                        .HasComment("区域;");
+                        .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
-                    b.Property<Guid?>("CreateUserId")
+                    b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("createuserid")
-                        .HasComment("创建人ID");
+                        .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("deleteuserid")
-                        .HasComment("删除人ID");
-
-                    b.Property<string>("FullName")
-                        .HasMaxLength(512)
-                        .HasColumnType("varchar(512)")
-                        .HasColumnName("fullname")
-                        .HasComment("模块全名;");
-
-                    b.Property<string>("HttpMethod")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("httpmethod")
-                        .HasComment("Method;");
-
-                    b.Property<string>("Icon")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("icon")
-                        .HasComment("图标;");
+                        .HasComment("DeleteUserId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
-                    b.Property<bool?>("IsManual")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("ismanual")
-                        .HasComment("手动添加;");
+                    b.Property<string>("OrderNo")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("orderno")
+                        .HasComment("OrderNo");
 
-                    b.Property<string>("Module")
+                    b.Property<decimal>("PayPrice")
+                        .HasColumnType("decimal(38,2)")
+                        .HasColumnName("payprice")
+                        .HasComment("PayPrice");
+
+                    b.Property<ulong>("PayState")
+                        .HasColumnType("bit")
+                        .HasColumnName("paystate")
+                        .HasComment("PayState");
+
+                    b.Property<DateTime?>("PayTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("paytime")
+                        .HasComment("PayTime");
+
+                    b.Property<string>("PayType")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("module")
-                        .HasComment("Module;");
+                        .HasColumnName("paytype")
+                        .HasComment("PayType");
 
-                    b.Property<string>("ModuleName")
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(38,2)")
+                        .HasColumnName("price")
+                        .HasComment("Price");
+
+                    b.Property<string>("SerialNo")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("serialno")
+                        .HasComment("SerialNo");
+
+                    b.Property<string>("State")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("modulename")
-                        .HasComment("模块名;");
+                        .HasColumnName("state")
+                        .HasComment("State");
 
-                    b.Property<int?>("Seq")
-                        .HasColumnType("int")
-                        .HasColumnName("seq")
-                        .HasComment("序号;");
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("tenantid")
+                        .HasComment("TenantId");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("type")
+                        .HasComment("Type");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updatetime")
+                        .HasComment("UpdateTime");
 
                     b.Property<Guid?>("UpdateUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("updateuserid")
-                        .HasComment("编辑人ID");
-
-                    b.Property<DateTime?>("UpdatedTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updatedtime")
-                        .HasComment("更新时间");
+                        .HasComment("UpdateUserId");
 
                     b.HasKey("Id");
 
@@ -1177,81 +1075,271 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("UpdateUserId");
 
-                    b.ToTable("t_permission", (string)null);
-
-                    b.HasComment("系统权限表");
+                    b.ToTable("t_order", null, t =>
+                        {
+                            t.HasComment("TOrder");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TProduct", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TOrderDetail", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
-
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("createuserid")
-                        .HasComment("创建人ID");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
-
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("deleteuserid")
-                        .HasComment("删除人ID");
-
-                    b.Property<string>("Detail")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("detail")
-                        .HasComment("描述");
+                        .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("int")
+                        .HasColumnName("number")
+                        .HasComment("Number");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("orderid")
+                        .HasComment("OrderId");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("productid")
+                        .HasComment("ProductId");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("tenantid")
+                        .HasComment("TenantId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("t_orderdetail", null, t =>
+                        {
+                            t.HasComment("TOrderDetail");
+                        });
+                });
+
+            modelBuilder.Entity("kevin.Domain.Kevin.TPermission", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("id")
+                        .HasComment("Id");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("action")
+                        .HasComment("Action");
+
+                    b.Property<string>("ActionName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("actionname")
+                        .HasComment("ActionName");
+
+                    b.Property<string>("Area")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("area")
+                        .HasComment("Area");
+
+                    b.Property<string>("AreaName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("areaname")
+                        .HasComment("AreaName");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("createtime")
+                        .HasComment("CreateTime");
+
+                    b.Property<Guid?>("CreateUserId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("createuserid")
+                        .HasComment("CreateUserId");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("deletetime")
+                        .HasComment("DeleteTime");
+
+                    b.Property<Guid?>("DeleteUserId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("deleteuserid")
+                        .HasComment("DeleteUserId");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("varchar(512)")
+                        .HasColumnName("fullname")
+                        .HasComment("FullName");
+
+                    b.Property<string>("HttpMethod")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("httpmethod")
+                        .HasComment("HttpMethod");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("icon")
+                        .HasComment("Icon");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("isdelete")
+                        .HasComment("IsDelete");
+
+                    b.Property<bool?>("IsManual")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("ismanual")
+                        .HasComment("IsManual");
+
+                    b.Property<string>("Module")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("module")
+                        .HasComment("Module");
+
+                    b.Property<string>("ModuleName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("modulename")
+                        .HasComment("ModuleName");
+
+                    b.Property<int?>("Seq")
+                        .HasColumnType("int")
+                        .HasColumnName("seq")
+                        .HasComment("Seq");
+
+                    b.Property<Guid?>("UpdateUserId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("updateuserid")
+                        .HasComment("UpdateUserId");
+
+                    b.Property<DateTime?>("UpdatedTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updatedtime")
+                        .HasComment("UpdatedTime");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateUserId");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("UpdateUserId");
+
+                    b.ToTable("t_permission", null, t =>
+                        {
+                            t.HasComment("TPermission");
+                        });
+                });
+
+            modelBuilder.Entity("kevin.Domain.Kevin.TProduct", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("id")
+                        .HasComment("Id");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("createtime")
+                        .HasComment("CreateTime");
+
+                    b.Property<Guid>("CreateUserId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("createuserid")
+                        .HasComment("CreateUserId");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("deletetime")
+                        .HasComment("DeleteTime");
+
+                    b.Property<Guid?>("DeleteUserId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("deleteuserid")
+                        .HasComment("DeleteUserId");
+
+                    b.Property<string>("Detail")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("detail")
+                        .HasComment("Detail");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("isdelete")
+                        .HasComment("IsDelete");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("name")
-                        .HasComment("名称");
+                        .HasComment("Name");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(38,2)")
                         .HasColumnName("price")
-                        .HasComment("价格");
+                        .HasComment("Price");
 
                     b.Property<string>("SKU")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("sku")
                         .HasComment("SKU");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("updatetime")
-                        .HasComment("更新时间");
+                        .HasComment("UpdateTime");
 
                     b.Property<Guid?>("UpdateUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("updateuserid")
-                        .HasComment("编辑人ID");
+                        .HasComment("UpdateUserId");
 
                     b.HasKey("Id");
 
@@ -1261,286 +1349,316 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("UpdateUserId");
 
-                    b.ToTable("t_product", (string)null);
-
-                    b.HasComment("产品表");
+                    b.ToTable("t_product", null, t =>
+                        {
+                            t.HasComment("TProduct");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TRegionArea", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TRegionArea", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<string>("Area")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("area")
-                        .HasComment("区域名称");
+                        .HasComment("Area");
 
                     b.Property<int>("CityId")
                         .HasColumnType("int")
                         .HasColumnName("cityid")
-                        .HasComment("所属城市ID");
+                        .HasComment("CityId");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CityId");
 
-                    b.ToTable("t_regionarea", (string)null);
-
-                    b.HasComment("区域信息表");
+                    b.ToTable("t_regionarea", null, t =>
+                        {
+                            t.HasComment("TRegionArea");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TRegionCity", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TRegionCity", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<string>("City")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("city")
-                        .HasComment("城市名称");
+                        .HasComment("City");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<int>("ProvinceId")
                         .HasColumnType("int")
                         .HasColumnName("provinceid")
-                        .HasComment("所属省份ID");
+                        .HasComment("ProvinceId");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProvinceId");
 
-                    b.ToTable("t_regioncity", (string)null);
-
-                    b.HasComment("城市信息表");
+                    b.ToTable("t_regioncity", null, t =>
+                        {
+                            t.HasComment("TRegionCity");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TRegionProvince", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TRegionProvince", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("Province")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("province")
-                        .HasComment("省份");
+                        .HasComment("Province");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_regionprovince", (string)null);
-
-                    b.HasComment("省份信息表");
+                    b.ToTable("t_regionprovince", null, t =>
+                        {
+                            t.HasComment("TRegionProvince");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TRegionTown", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TRegionTown", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<int>("AreaId")
                         .HasColumnType("int")
                         .HasColumnName("areaid")
-                        .HasComment("所属区域ID");
+                        .HasComment("AreaId");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.Property<string>("Town")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)")
                         .HasColumnName("town")
-                        .HasComment("街道名称");
+                        .HasComment("Town");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AreaId");
 
-                    b.ToTable("t_regiontown", (string)null);
-
-                    b.HasComment("TRegionTown");
+                    b.ToTable("t_regiontown", null, t =>
+                        {
+                            t.HasComment("TRegionTown");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TRole", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TRole", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("name")
-                        .HasComment("角色名称");
+                        .HasComment("Name");
 
                     b.Property<string>("Remarks")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)")
                         .HasColumnName("remarks")
-                        .HasComment("备注信息");
+                        .HasComment("Remarks");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_role", (string)null);
+                    b.ToTable("t_role", null, t =>
+                        {
+                            t.HasComment("TRole");
+                        });
 
-                    b.HasComment("角色信息表");
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("726bdd09-29bf-4e1a-be09-1ff33e781d2f"),
+                            CreateTime = new DateTime(2025, 7, 25, 14, 51, 34, 429, DateTimeKind.Local).AddTicks(3141),
+                            IsDelete = 0ul,
+                            Name = "admin",
+                            Remarks = "admin",
+                            TenantId = "1000"
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TRolePermission", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TRolePermission", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("createuserid")
-                        .HasComment("创建人ID");
+                        .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("deleteuserid")
-                        .HasComment("删除人ID");
+                        .HasComment("DeleteUserId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("PermissionId")
+                        .IsRequired()
                         .HasColumnType("varchar(255)")
                         .HasColumnName("permissionid")
-                        .HasComment("权限编号;");
+                        .HasComment("PermissionId");
 
                     b.Property<Guid>("RoleId")
                         .HasColumnType("char(36)")
                         .HasColumnName("roleid")
-                        .HasComment("角色编号;");
+                        .HasComment("RoleId");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.HasKey("Id");
 
@@ -1552,65 +1670,69 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("t_rolepermission", (string)null);
-
-                    b.HasComment("TRolePermission");
+                    b.ToTable("t_rolepermission", null, t =>
+                        {
+                            t.HasComment("TRolePermission");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TSign", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TSign", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("createuserid")
-                        .HasComment("创建人ID");
+                        .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("deleteuserid")
-                        .HasComment("删除人ID");
+                        .HasComment("DeleteUserId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("Sign")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("sign")
-                        .HasComment("自定义标记");
+                        .HasComment("Sign");
 
                     b.Property<string>("Table")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("table")
-                        .HasComment("外链表名称");
+                        .HasComment("Table");
 
                     b.Property<Guid>("TableId")
                         .HasColumnType("char(36)")
                         .HasColumnName("tableid")
-                        .HasComment("外链记录ID");
+                        .HasComment("TableId");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.HasKey("Id");
 
@@ -1620,131 +1742,158 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("TableId");
 
-                    b.ToTable("t_sign", (string)null);
-
-                    b.HasComment("点赞或标记喜欢记录表");
+                    b.ToTable("t_sign", null, t =>
+                        {
+                            t.HasComment("TSign");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TUser", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TUser", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("email")
-                        .HasComment("邮箱");
+                        .HasComment("Email");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<ulong>("IsSuperAdmin")
                         .HasColumnType("bit")
                         .HasColumnName("issuperadmin")
-                        .HasComment("是否超级管理员");
+                        .HasComment("IsSuperAdmin");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("name")
-                        .HasComment("用户名");
+                        .HasComment("Name");
 
                     b.Property<string>("NickName")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("nickname")
-                        .HasComment("昵称");
+                        .HasComment("NickName");
 
                     b.Property<string>("PassWord")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("password")
-                        .HasComment("密码");
+                        .HasComment("PassWord");
 
                     b.Property<string>("Phone")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("phone")
-                        .HasComment("手机号");
+                        .HasComment("Phone");
 
                     b.Property<Guid>("RoleId")
                         .HasColumnType("char(36)")
                         .HasColumnName("roleid")
-                        .HasComment("角色信息");
+                        .HasComment("RoleId");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("updatetime")
-                        .HasComment("更新时间");
+                        .HasComment("UpdateTime");
 
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("t_user", (string)null);
+                    b.ToTable("t_user", null, t =>
+                        {
+                            t.HasComment("TUser");
+                        });
 
-                    b.HasComment("用户表");
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("bebb0be8-6b09-4c83-a992-448f8e5473ea"),
+                            CreateTime = new DateTime(2025, 7, 25, 14, 51, 34, 431, DateTimeKind.Local).AddTicks(2917),
+                            Email = "admin",
+                            IsDelete = 0ul,
+                            IsSuperAdmin = 1ul,
+                            Name = "admin",
+                            NickName = "admin",
+                            PassWord = "admin",
+                            Phone = "admin",
+                            RoleId = new Guid("726bdd09-29bf-4e1a-be09-1ff33e781d2f"),
+                            TenantId = "1000",
+                            UpdateTime = new DateTime(2025, 7, 25, 14, 51, 34, 431, DateTimeKind.Local).AddTicks(2937)
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TUserBindAlipay", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TUserBindAlipay", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<Guid>("AlipayKeyId")
                         .HasColumnType("char(36)")
                         .HasColumnName("alipaykeyid")
-                        .HasComment("关联支付宝账户");
+                        .HasComment("AlipayKeyId");
 
                     b.Property<string>("AlipayUserId")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("alipayuserid")
-                        .HasComment("支付宝UserId");
+                        .HasComment("AlipayUserId");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("userid")
-                        .HasComment("用户ID");
+                        .HasComment("UserId");
 
                     b.HasKey("Id");
 
@@ -1752,54 +1901,57 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("t_userbindalipay", (string)null);
-
-                    b.HasComment("用户和支付宝绑定关系表");
+                    b.ToTable("t_userbindalipay", null, t =>
+                        {
+                            t.HasComment("TUserBindAlipay");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TUserBindWeixin", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TUserBindWeixin", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("userid")
-                        .HasComment("用户ID");
+                        .HasComment("UserId");
 
                     b.Property<Guid>("WeiXinKeyId")
                         .HasColumnType("char(36)")
                         .HasColumnName("weixinkeyid")
-                        .HasComment("关联微信账户");
+                        .HasComment("WeiXinKeyId");
 
                     b.Property<string>("WeiXinOpenId")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("weixinopenid")
-                        .HasComment("微信OpenId");
+                        .HasComment("WeiXinOpenId");
 
                     b.HasKey("Id");
 
@@ -1807,53 +1959,58 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("WeiXinKeyId");
 
-                    b.ToTable("t_userbindweixin", (string)null);
-
-                    b.HasComment("用户和微信绑定关系表");
+                    b.ToTable("t_userbindweixin", null, t =>
+                        {
+                            t.HasComment("TUserBindWeixin");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TUserInfo", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TUserInfo", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("address")
-                        .HasComment("地址详细信息");
+                        .HasComment("Address");
 
                     b.Property<string>("Company")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("company")
-                        .HasComment("公司名称");
+                        .HasComment("Company");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("Position")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("position")
-                        .HasComment("职务");
+                        .HasComment("Position");
 
                     b.Property<string>("QQ")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("qq")
@@ -1862,34 +2019,37 @@ namespace Kevin.Repository.Migrations
                     b.Property<int>("RegionAreaId")
                         .HasColumnType("int")
                         .HasColumnName("regionareaid")
-                        .HasComment("地址区域ID");
+                        .HasComment("RegionAreaId");
 
                     b.Property<bool?>("Sex")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("sex")
-                        .HasComment("性别");
+                        .HasComment("Sex");
 
                     b.Property<string>("Signature")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("signature")
-                        .HasComment("个性签名");
+                        .HasComment("Signature");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("char(36)")
                         .HasColumnName("userid")
-                        .HasComment("用户ID");
+                        .HasComment("UserId");
 
                     b.Property<string>("WeChat")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("wechat")
-                        .HasComment("微信号");
+                        .HasComment("WeChat");
 
                     b.HasKey("Id");
 
@@ -1897,147 +2057,166 @@ namespace Kevin.Repository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("t_userinfo", (string)null);
-
-                    b.HasComment("用户详细信息表");
+                    b.ToTable("t_userinfo", null, t =>
+                        {
+                            t.HasComment("TUserInfo");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TWebInfo", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TWebInfo", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("标识ID");
+                        .HasComment("Id");
 
                     b.Property<string>("FootCode")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("footcode")
-                        .HasComment("网站底部代码");
+                        .HasComment("FootCode");
 
                     b.Property<string>("ManagerAddress")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("manageraddress")
-                        .HasComment("管理者地址");
+                        .HasComment("ManagerAddress");
 
                     b.Property<string>("ManagerEmail")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("manageremail")
-                        .HasComment("管理者邮箱");
+                        .HasComment("ManagerEmail");
 
                     b.Property<string>("ManagerName")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("managername")
-                        .HasComment("管理者名称");
+                        .HasComment("ManagerName");
 
                     b.Property<string>("ManagerPhone")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("managerphone")
-                        .HasComment("管理者电话");
+                        .HasComment("ManagerPhone");
 
                     b.Property<string>("RecordNumber")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("recordnumber")
-                        .HasComment("网站备案号");
+                        .HasComment("RecordNumber");
 
                     b.Property<string>("SeoDescription")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)")
                         .HasColumnName("seodescription")
-                        .HasComment("SEO描述");
+                        .HasComment("SeoDescription");
 
                     b.Property<string>("SeoKeyWords")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("seokeywords")
-                        .HasComment("SEO关键字");
+                        .HasComment("SeoKeyWords");
 
                     b.Property<string>("SeoTitle")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("seotitle")
-                        .HasComment("SEO标题");
+                        .HasComment("SeoTitle");
 
                     b.Property<string>("WebUrl")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("weburl")
-                        .HasComment("网站域名");
+                        .HasComment("WebUrl");
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_webinfo", (string)null);
-
-                    b.HasComment("网站信息配置表");
+                    b.ToTable("t_webinfo", null, t =>
+                        {
+                            t.HasComment("TWebInfo");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TWeiXinKey", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TWeiXinKey", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
                         .HasColumnName("id")
-                        .HasComment("主键标识ID");
+                        .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createtime")
-                        .HasComment("创建时间");
+                        .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deletetime")
-                        .HasComment("删除时间");
+                        .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("isdelete")
-                        .HasComment("是否删除");
+                        .HasComment("IsDelete");
 
                     b.Property<string>("MchId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("mchid")
                         .HasComment("MchId");
 
                     b.Property<string>("MchKey")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("mchkey")
-                        .HasComment("MchKey\r\n            ]");
+                        .HasComment("MchKey");
 
                     b.Property<string>("Remarks")
+                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("varchar(1000)")
                         .HasColumnName("remarks")
-                        .HasComment("备注");
+                        .HasComment("Remarks");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int")
                         .HasColumnName("sort")
-                        .HasComment("排序");
+                        .HasComment("Sort");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("tenantid")
-                        .HasComment("租户ID;");
+                        .HasComment("TenantId");
 
                     b.Property<string>("Type")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("type")
-                        .HasComment("AppId 类型，['App','MiniApp','H5','Native']");
+                        .HasComment("Type");
 
                     b.Property<string>("WxAppId")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("wxappid")
                         .HasComment("WxAppId");
 
                     b.Property<string>("WxAppSecret")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("wxappsecret")
@@ -2045,26 +2224,27 @@ namespace Kevin.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_weixinkey", (string)null);
-
-                    b.HasComment("微信商户平台账户配置表");
+                    b.ToTable("t_weixinkey", null, t =>
+                        {
+                            t.HasComment("TWeiXinKey");
+                        });
                 });
 
-            modelBuilder.Entity("Repository.Database.TArticle", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TArticle", b =>
                 {
-                    b.HasOne("Repository.Database.TCategory", "Category")
+                    b.HasOne("kevin.Domain.Kevin.TCategory", "Category")
                         .WithMany("TArticle")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Repository.Database.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Repository.Database.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -2076,26 +2256,26 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("DeleteUser");
                 });
 
-            modelBuilder.Entity("Repository.Database.TCategory", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TCategory", b =>
                 {
-                    b.HasOne("Repository.Database.TChannel", "Channel")
+                    b.HasOne("kevin.Domain.Kevin.TChannel", "Channel")
                         .WithMany("TCategory")
                         .HasForeignKey("ChannelId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Repository.Database.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Repository.Database.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Repository.Database.TCategory", "Parent")
+                    b.HasOne("kevin.Domain.Kevin.TCategory", "Parent")
                         .WithMany()
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -2109,15 +2289,15 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("Repository.Database.TChannel", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TChannel", b =>
                 {
-                    b.HasOne("Repository.Database.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Repository.Database.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -2127,15 +2307,15 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("DeleteUser");
                 });
 
-            modelBuilder.Entity("Repository.Database.TFile", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TFile", b =>
                 {
-                    b.HasOne("Repository.Database.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Repository.Database.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -2145,9 +2325,9 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("DeleteUser");
                 });
 
-            modelBuilder.Entity("Repository.Database.TFileGroup", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TFileGroup", b =>
                 {
-                    b.HasOne("Repository.Database.TFile", "File")
+                    b.HasOne("kevin.Domain.Kevin.TFile", "File")
                         .WithMany()
                         .HasForeignKey("FileId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -2156,9 +2336,9 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("File");
                 });
 
-            modelBuilder.Entity("Repository.Database.TFileGroupFile", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TFileGroupFile", b =>
                 {
-                    b.HasOne("Repository.Database.TFile", "File")
+                    b.HasOne("kevin.Domain.Kevin.TFile", "File")
                         .WithMany()
                         .HasForeignKey("FileId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -2167,9 +2347,9 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("File");
                 });
 
-            modelBuilder.Entity("Repository.Database.TImgBaiduAI", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TImgBaiduAI", b =>
                 {
-                    b.HasOne("Repository.Database.TFile", "File")
+                    b.HasOne("kevin.Domain.Kevin.TFile", "File")
                         .WithMany()
                         .HasForeignKey("FileId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -2178,15 +2358,15 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("File");
                 });
 
-            modelBuilder.Entity("Repository.Database.TLink", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TLink", b =>
                 {
-                    b.HasOne("Repository.Database.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Repository.Database.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -2196,20 +2376,30 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("DeleteUser");
                 });
 
-            modelBuilder.Entity("Repository.Database.TOrder", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TOSLog", b =>
                 {
-                    b.HasOne("Repository.Database.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "ActionUser")
+                        .WithMany()
+                        .HasForeignKey("ActionUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ActionUser");
+                });
+
+            modelBuilder.Entity("kevin.Domain.Kevin.TOrder", b =>
+                {
+                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Repository.Database.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Repository.Database.TUser", "UpdateUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -2221,15 +2411,15 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("UpdateUser");
                 });
 
-            modelBuilder.Entity("Repository.Database.TOrderDetail", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TOrderDetail", b =>
                 {
-                    b.HasOne("Repository.Database.TOrder", "Order")
+                    b.HasOne("kevin.Domain.Kevin.TOrder", "Order")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Repository.Database.TProduct", "Product")
+                    b.HasOne("kevin.Domain.Kevin.TProduct", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -2240,29 +2430,19 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Repository.Database.TOSLog", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TPermission", b =>
                 {
-                    b.HasOne("Repository.Database.TUser", "ActionUser")
-                        .WithMany()
-                        .HasForeignKey("ActionUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ActionUser");
-                });
-
-            modelBuilder.Entity("Repository.Database.TPermission", b =>
-                {
-                    b.HasOne("Repository.Database.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Repository.Database.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Repository.Database.TUser", "UpdateUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -2274,20 +2454,20 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("UpdateUser");
                 });
 
-            modelBuilder.Entity("Repository.Database.TProduct", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TProduct", b =>
                 {
-                    b.HasOne("Repository.Database.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Repository.Database.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Repository.Database.TUser", "UpdateUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -2299,9 +2479,9 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("UpdateUser");
                 });
 
-            modelBuilder.Entity("Repository.Database.TRegionArea", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TRegionArea", b =>
                 {
-                    b.HasOne("Repository.Database.TRegionCity", "City")
+                    b.HasOne("kevin.Domain.Kevin.TRegionCity", "City")
                         .WithMany("TRegionArea")
                         .HasForeignKey("CityId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -2310,9 +2490,9 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("City");
                 });
 
-            modelBuilder.Entity("Repository.Database.TRegionCity", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TRegionCity", b =>
                 {
-                    b.HasOne("Repository.Database.TRegionProvince", "Province")
+                    b.HasOne("kevin.Domain.Kevin.TRegionProvince", "Province")
                         .WithMany("TRegionCity")
                         .HasForeignKey("ProvinceId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -2321,9 +2501,9 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("Province");
                 });
 
-            modelBuilder.Entity("Repository.Database.TRegionTown", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TRegionTown", b =>
                 {
-                    b.HasOne("Repository.Database.TRegionArea", "Area")
+                    b.HasOne("kevin.Domain.Kevin.TRegionArea", "Area")
                         .WithMany("TRegionTown")
                         .HasForeignKey("AreaId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -2332,25 +2512,26 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("Area");
                 });
 
-            modelBuilder.Entity("Repository.Database.TRolePermission", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TRolePermission", b =>
                 {
-                    b.HasOne("Repository.Database.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Repository.Database.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Repository.Database.TPermission", "Permission")
+                    b.HasOne("kevin.Domain.Kevin.TPermission", "Permission")
                         .WithMany()
                         .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.HasOne("Repository.Database.TRole", "Role")
+                    b.HasOne("kevin.Domain.Kevin.TRole", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -2365,15 +2546,15 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Repository.Database.TSign", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TSign", b =>
                 {
-                    b.HasOne("Repository.Database.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Repository.Database.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -2383,9 +2564,9 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("DeleteUser");
                 });
 
-            modelBuilder.Entity("Repository.Database.TUser", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TUser", b =>
                 {
-                    b.HasOne("Repository.Database.TRole", "Role")
+                    b.HasOne("kevin.Domain.Kevin.TRole", "Role")
                         .WithMany("RoleUserList")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -2394,15 +2575,15 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Repository.Database.TUserBindAlipay", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TUserBindAlipay", b =>
                 {
-                    b.HasOne("Repository.Database.TAlipayKey", "AlipayKey")
+                    b.HasOne("kevin.Domain.Kevin.TAlipayKey", "AlipayKey")
                         .WithMany()
                         .HasForeignKey("AlipayKeyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Repository.Database.TUser", "User")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -2413,15 +2594,15 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Repository.Database.TUserBindWeixin", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TUserBindWeixin", b =>
                 {
-                    b.HasOne("Repository.Database.TUser", "User")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Repository.Database.TWeiXinKey", "WeiXinKey")
+                    b.HasOne("kevin.Domain.Kevin.TWeiXinKey", "WeiXinKey")
                         .WithMany()
                         .HasForeignKey("WeiXinKeyId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -2432,15 +2613,15 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("WeiXinKey");
                 });
 
-            modelBuilder.Entity("Repository.Database.TUserInfo", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TUserInfo", b =>
                 {
-                    b.HasOne("Repository.Database.TRegionArea", "RegionArea")
+                    b.HasOne("kevin.Domain.Kevin.TRegionArea", "RegionArea")
                         .WithMany()
                         .HasForeignKey("RegionAreaId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Repository.Database.TUser", "User")
+                    b.HasOne("kevin.Domain.Kevin.TUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -2451,37 +2632,37 @@ namespace Kevin.Repository.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Repository.Database.TCategory", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TCategory", b =>
                 {
                     b.Navigation("TArticle");
                 });
 
-            modelBuilder.Entity("Repository.Database.TChannel", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TChannel", b =>
                 {
                     b.Navigation("TCategory");
                 });
 
-            modelBuilder.Entity("Repository.Database.TOrder", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TOrder", b =>
                 {
                     b.Navigation("OrderDetails");
                 });
 
-            modelBuilder.Entity("Repository.Database.TRegionArea", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TRegionArea", b =>
                 {
                     b.Navigation("TRegionTown");
                 });
 
-            modelBuilder.Entity("Repository.Database.TRegionCity", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TRegionCity", b =>
                 {
                     b.Navigation("TRegionArea");
                 });
 
-            modelBuilder.Entity("Repository.Database.TRegionProvince", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TRegionProvince", b =>
                 {
                     b.Navigation("TRegionCity");
                 });
 
-            modelBuilder.Entity("Repository.Database.TRole", b =>
+            modelBuilder.Entity("kevin.Domain.Kevin.TRole", b =>
                 {
                     b.Navigation("RoleUserList");
                 });

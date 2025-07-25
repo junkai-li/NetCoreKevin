@@ -4,18 +4,17 @@
         <name>Kevin.EntityFrameworkCore</name>
     </assembly>
     <members>
-        <member name="M:Repository.Database.dbContext.GetTenantId">
-            <summary>
-            GetTenantId
-            </summary>
-            <returns></returns>
+        <member name="T:Kevin.EntityFrameworkCore.Migrations._202407025">
+            <inheritdoc />
         </member>
-        <member name="M:Repository.Interceptors.SubTableInterceptor.GetTimeById(System.Int64)">
-            <summary>
-            通过ID获取其中的时间戳
-            </summary>
-            <param name="id"></param>
-            <returns></returns>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations._202407025.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations._202407025.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations._202407025.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
         </member>
         <member name="T:Kevin.EntityFrameworkCore._.Data.Repository`2">
             <summary>
@@ -23,6 +22,13 @@
             </summary>
             <typeparam name="T"></typeparam>
             <typeparam name="TId"></typeparam>
+        </member>
+        <member name="M:Repository.Interceptors.SubTableInterceptor.GetTimeById(System.Int64)">
+            <summary>
+            通过ID获取其中的时间戳
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
         </member>
     </members>
 </doc>

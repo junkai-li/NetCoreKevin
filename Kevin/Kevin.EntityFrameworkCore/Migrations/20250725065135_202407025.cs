@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Kevin.Repository.Migrations
+namespace Kevin.EntityFrameworkCore.Migrations
 {
-    public partial class init : Migration
+    /// <inheritdoc />
+    public partial class _202407025 : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
@@ -16,218 +18,218 @@ namespace Kevin.Repository.Migrations
                 name: "t_alipaykey",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    appid = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "AppId")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    appid = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "AppId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    appprivatekey = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "App私钥")
+                    appprivatekey = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "AppPrivateKey")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    alipaypublickey = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "支付宝公钥")
+                    alipaypublickey = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "AlipayPublicKey")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    aeskey = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "支付宝加密解密密钥")
+                    aeskey = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "AesKey")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    sort = table.Column<int>(type: "int", nullable: false, comment: "排序"),
-                    remarks = table.Column<string>(type: "longtext", nullable: true, comment: "备注")
+                    sort = table.Column<int>(type: "int", nullable: false, comment: "Sort"),
+                    remarks = table.Column<string>(type: "longtext", nullable: false, comment: "Remarks")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_t_alipaykey", x => x.id);
                 },
-                comment: "支付宝平台账户配置表")
+                comment: "TAlipayKey")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_count",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    tag = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "标记")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    tag = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "Tag")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    count = table.Column<int>(type: "int", nullable: false, comment: "计数"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    count = table.Column<int>(type: "int", nullable: false, comment: "Count"),
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    updatetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "更新时间")
+                    updatetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "UpdateTime")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_t_count", x => x.id);
                 },
-                comment: "计数表")
+                comment: "TCount")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_dictionary",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    key = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "键")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    key = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "Key")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    value = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "值")
+                    value = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "Value")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    sort = table.Column<int>(type: "int", nullable: false, comment: "排序"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    sort = table.Column<int>(type: "int", nullable: false, comment: "Sort"),
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_t_dictionary", x => x.id);
                 },
-                comment: "字典信息表")
+                comment: "TDictionary")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_log",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    sign = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "标记")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    sign = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "Sign")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    type = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "类型")
+                    type = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "Type")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    content = table.Column<string>(type: "longtext", nullable: true, comment: "内容")
+                    content = table.Column<string>(type: "longtext", nullable: false, comment: "Content")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_t_log", x => x.id);
                 },
-                comment: "日志表")
+                comment: "TLog")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_regionprovince",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "int", nullable: false, comment: "主键标识ID"),
-                    province = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "省份")
+                    id = table.Column<int>(type: "int", nullable: false, comment: "Id"),
+                    province = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "Province")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_t_regionprovince", x => x.id);
                 },
-                comment: "省份信息表")
+                comment: "TRegionProvince")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_role",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "角色名称")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "Name")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    remarks = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true, comment: "备注信息")
+                    remarks = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false, comment: "Remarks")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_t_role", x => x.id);
                 },
-                comment: "角色信息表")
+                comment: "TRole")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_webinfo",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "标识ID", collation: "ascii_general_ci"),
-                    weburl = table.Column<string>(type: "longtext", nullable: true, comment: "网站域名")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    weburl = table.Column<string>(type: "longtext", nullable: false, comment: "WebUrl")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    managername = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "管理者名称")
+                    managername = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "ManagerName")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    manageraddress = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "管理者地址")
+                    manageraddress = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "ManagerAddress")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    managerphone = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "管理者电话")
+                    managerphone = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "ManagerPhone")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    manageremail = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "管理者邮箱")
+                    manageremail = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "ManagerEmail")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    recordnumber = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "网站备案号")
+                    recordnumber = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "RecordNumber")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    seotitle = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "SEO标题")
+                    seotitle = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "SeoTitle")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    seokeywords = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "SEO关键字")
+                    seokeywords = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "SeoKeyWords")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    seodescription = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true, comment: "SEO描述")
+                    seodescription = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false, comment: "SeoDescription")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    footcode = table.Column<string>(type: "longtext", nullable: true, comment: "网站底部代码")
+                    footcode = table.Column<string>(type: "longtext", nullable: false, comment: "FootCode")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_t_webinfo", x => x.id);
                 },
-                comment: "网站信息配置表")
+                comment: "TWebInfo")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_weixinkey",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    wxappid = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "WxAppId")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    wxappid = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "WxAppId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    wxappsecret = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "WxAppSecret")
+                    wxappsecret = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "WxAppSecret")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    mchid = table.Column<string>(type: "longtext", nullable: true, comment: "MchId")
+                    mchid = table.Column<string>(type: "longtext", nullable: false, comment: "MchId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    mchkey = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "MchKey            ]")
+                    mchkey = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "MchKey")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    sort = table.Column<int>(type: "int", nullable: false, comment: "排序"),
-                    type = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "AppId 类型，['App','MiniApp','H5','Native']")
+                    sort = table.Column<int>(type: "int", nullable: false, comment: "Sort"),
+                    type = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "Type")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    remarks = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: true, comment: "备注")
+                    remarks = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: false, comment: "Remarks")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_t_weixinkey", x => x.id);
                 },
-                comment: "微信商户平台账户配置表")
+                comment: "TWeiXinKey")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_regioncity",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "int", nullable: false, comment: "主键标识ID"),
-                    city = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "城市名称")
+                    id = table.Column<int>(type: "int", nullable: false, comment: "Id"),
+                    city = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "City")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    provinceid = table.Column<int>(type: "int", nullable: false, comment: "所属省份ID"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    provinceid = table.Column<int>(type: "int", nullable: false, comment: "ProvinceId"),
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -240,32 +242,32 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "城市信息表")
+                comment: "TRegionCity")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_user",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    name = table.Column<string>(type: "longtext", nullable: true, comment: "用户名")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    name = table.Column<string>(type: "longtext", nullable: false, comment: "Name")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    nickname = table.Column<string>(type: "longtext", nullable: true, comment: "昵称")
+                    nickname = table.Column<string>(type: "longtext", nullable: false, comment: "NickName")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    phone = table.Column<string>(type: "longtext", nullable: true, comment: "手机号")
+                    phone = table.Column<string>(type: "longtext", nullable: false, comment: "Phone")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    email = table.Column<string>(type: "longtext", nullable: true, comment: "邮箱")
+                    email = table.Column<string>(type: "longtext", nullable: false, comment: "Email")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    password = table.Column<string>(type: "longtext", nullable: true, comment: "密码")
+                    password = table.Column<string>(type: "longtext", nullable: false, comment: "PassWord")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    roleid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "角色信息", collation: "ascii_general_ci"),
-                    issuperadmin = table.Column<ulong>(type: "bit", nullable: false, comment: "是否超级管理员"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    roleid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "RoleId", collation: "ascii_general_ci"),
+                    issuperadmin = table.Column<ulong>(type: "bit", nullable: false, comment: "IsSuperAdmin"),
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    updatetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "更新时间")
+                    updatetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "UpdateTime")
                 },
                 constraints: table =>
                 {
@@ -277,21 +279,21 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "用户表")
+                comment: "TUser")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_regionarea",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "int", nullable: false, comment: "主键标识ID"),
-                    area = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "区域名称")
+                    id = table.Column<int>(type: "int", nullable: false, comment: "Id"),
+                    area = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "Area")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    cityid = table.Column<int>(type: "int", nullable: false, comment: "所属城市ID"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    cityid = table.Column<int>(type: "int", nullable: false, comment: "CityId"),
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -304,26 +306,26 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "区域信息表")
+                comment: "TRegionArea")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_channel",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "频道名称")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "Name")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    sort = table.Column<int>(type: "int", nullable: false, comment: "排序"),
-                    remarks = table.Column<string>(type: "longtext", nullable: true, comment: "备注")
+                    sort = table.Column<int>(type: "int", nullable: false, comment: "Sort"),
+                    remarks = table.Column<string>(type: "longtext", nullable: false, comment: "Remarks")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "创建人ID", collation: "ascii_general_ci"),
-                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "删除人ID", collation: "ascii_general_ci")
+                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
+                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
@@ -341,31 +343,31 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "频道信息表")
+                comment: "TChannel")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_file",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "文件名称")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "Name")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    path = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "保存路径")
+                    path = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "Path")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    table = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "外链表名")
+                    table = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "Table")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    tableid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "外链表ID", collation: "ascii_general_ci"),
-                    sign = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "标记")
+                    tableid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "TableId", collation: "ascii_general_ci"),
+                    sign = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "Sign")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    sort = table.Column<int>(type: "int", nullable: false, comment: "排序"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    sort = table.Column<int>(type: "int", nullable: false, comment: "Sort"),
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "创建人ID", collation: "ascii_general_ci"),
-                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "删除人ID", collation: "ascii_general_ci")
+                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
+                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
@@ -383,28 +385,28 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "文件表")
+                comment: "TFile")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_link",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "名称")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "Name")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    url = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "地址")
+                    url = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "Url")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    sort = table.Column<int>(type: "int", nullable: false, comment: "排序"),
-                    remarks = table.Column<string>(type: "longtext", nullable: true, comment: "备注")
+                    sort = table.Column<int>(type: "int", nullable: false, comment: "Sort"),
+                    remarks = table.Column<string>(type: "longtext", nullable: false, comment: "Remarks")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "创建人ID", collation: "ascii_general_ci"),
-                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "删除人ID", collation: "ascii_general_ci")
+                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
+                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
@@ -422,37 +424,37 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "友情链接表")
+                comment: "TLink")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_order",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    orderno = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "订单号")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    orderno = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "OrderNo")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    type = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "订单类型")
+                    type = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "Type")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    price = table.Column<decimal>(type: "decimal(38,2)", nullable: false, comment: "价格"),
-                    serialno = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "支付流水号")
+                    price = table.Column<decimal>(type: "decimal(38,2)", nullable: false, comment: "Price"),
+                    serialno = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "SerialNo")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    state = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "订单状态")
+                    state = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "State")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    paytype = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "支付方式")
+                    paytype = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "PayType")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    paystate = table.Column<ulong>(type: "bit", nullable: false, comment: "支付状态"),
-                    paytime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "支付时间"),
-                    payprice = table.Column<decimal>(type: "decimal(38,2)", nullable: false, comment: "实际支付金额"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    paystate = table.Column<ulong>(type: "bit", nullable: false, comment: "PayState"),
+                    paytime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "PayTime"),
+                    payprice = table.Column<decimal>(type: "decimal(38,2)", nullable: false, comment: "PayPrice"),
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    updatetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "更新时间"),
-                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "创建人ID", collation: "ascii_general_ci"),
-                    updateuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "编辑人ID", collation: "ascii_general_ci"),
-                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "删除人ID", collation: "ascii_general_ci")
+                    updatetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "UpdateTime"),
+                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
+                    updateuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "UpdateUserId", collation: "ascii_general_ci"),
+                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
@@ -476,32 +478,32 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "订单表")
+                comment: "TOrder")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_oslog",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    table = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "外链表名")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    table = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "Table")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    tableid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "外链表ID", collation: "ascii_general_ci"),
-                    sign = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "标记")
+                    tableid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "TableId", collation: "ascii_general_ci"),
+                    sign = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "Sign")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    content = table.Column<string>(type: "longtext", nullable: true, comment: "变动内容")
+                    content = table.Column<string>(type: "longtext", nullable: false, comment: "Content")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    actionuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "操作人信息", collation: "ascii_general_ci"),
-                    remarks = table.Column<string>(type: "longtext", nullable: true, comment: "备注")
+                    actionuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "ActionUserId", collation: "ascii_general_ci"),
+                    remarks = table.Column<string>(type: "longtext", nullable: false, comment: "Remarks")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    ipaddress = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "Ip地址")
+                    ipaddress = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "IpAddress")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    devicemark = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "设备标记")
+                    devicemark = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "DeviceMark")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -521,34 +523,34 @@ namespace Kevin.Repository.Migrations
                 name: "t_permission",
                 columns: table => new
                 {
-                    id = table.Column<string>(type: "varchar(255)", nullable: false, comment: "主键标识ID")
+                    id = table.Column<string>(type: "varchar(255)", nullable: false, comment: "Id")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    createuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "创建人ID", collation: "ascii_general_ci"),
-                    updateuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "编辑人ID", collation: "ascii_general_ci"),
-                    updatedtime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "更新时间"),
-                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "删除人ID", collation: "ascii_general_ci"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    areaname = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "区域;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    createuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "CreateUserId", collation: "ascii_general_ci"),
+                    updateuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "UpdateUserId", collation: "ascii_general_ci"),
+                    updatedtime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "UpdatedTime"),
+                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    areaname = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "AreaName")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    modulename = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "模块名;")
+                    modulename = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "ModuleName")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    actionname = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "动作名;")
+                    actionname = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "ActionName")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    fullname = table.Column<string>(type: "varchar(512)", maxLength: 512, nullable: true, comment: "模块全名;")
+                    fullname = table.Column<string>(type: "varchar(512)", maxLength: 512, nullable: false, comment: "FullName")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    module = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "Module;")
+                    module = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "Module")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    action = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "Action;")
+                    action = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "Action")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    area = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "区域名称;")
+                    area = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "Area")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    httpmethod = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "Method;")
+                    httpmethod = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "HttpMethod")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    ismanual = table.Column<bool>(type: "tinyint(1)", nullable: true, comment: "手动添加;"),
-                    seq = table.Column<int>(type: "int", nullable: true, comment: "序号;"),
-                    icon = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "图标;")
+                    ismanual = table.Column<bool>(type: "tinyint(1)", nullable: true, comment: "IsManual"),
+                    seq = table.Column<int>(type: "int", nullable: true, comment: "Seq"),
+                    icon = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "Icon")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -573,30 +575,30 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "系统权限表")
+                comment: "TPermission")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_product",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    sku = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "SKU")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    sku = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "SKU")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    name = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "名称")
+                    name = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "Name")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    price = table.Column<decimal>(type: "decimal(38,2)", nullable: false, comment: "价格"),
-                    detail = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "描述")
+                    price = table.Column<decimal>(type: "decimal(38,2)", nullable: false, comment: "Price"),
+                    detail = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "Detail")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    updatetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "更新时间"),
-                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "创建人ID", collation: "ascii_general_ci"),
-                    updateuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "编辑人ID", collation: "ascii_general_ci"),
-                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "删除人ID", collation: "ascii_general_ci")
+                    updatetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "UpdateTime"),
+                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
+                    updateuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "UpdateUserId", collation: "ascii_general_ci"),
+                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
@@ -620,26 +622,26 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "产品表")
+                comment: "TProduct")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_sign",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    table = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "外链表名称")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    table = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "Table")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    tableid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "外链记录ID", collation: "ascii_general_ci"),
-                    sign = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "自定义标记")
+                    tableid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "TableId", collation: "ascii_general_ci"),
+                    sign = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "Sign")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "创建人ID", collation: "ascii_general_ci"),
-                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "删除人ID", collation: "ascii_general_ci")
+                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
+                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
@@ -657,22 +659,22 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "点赞或标记喜欢记录表")
+                comment: "TSign")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_userbindalipay",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    userid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "用户ID", collation: "ascii_general_ci"),
-                    alipaykeyid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "关联支付宝账户", collation: "ascii_general_ci"),
-                    alipayuserid = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "支付宝UserId")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    userid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "UserId", collation: "ascii_general_ci"),
+                    alipaykeyid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "AlipayKeyId", collation: "ascii_general_ci"),
+                    alipayuserid = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "AlipayUserId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -691,22 +693,22 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "用户和支付宝绑定关系表")
+                comment: "TUserBindAlipay")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_userbindweixin",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    userid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "用户ID", collation: "ascii_general_ci"),
-                    weixinkeyid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "关联微信账户", collation: "ascii_general_ci"),
-                    weixinopenid = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "微信OpenId")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    userid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "UserId", collation: "ascii_general_ci"),
+                    weixinkeyid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "WeiXinKeyId", collation: "ascii_general_ci"),
+                    weixinopenid = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "WeiXinOpenId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -725,21 +727,21 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "用户和微信绑定关系表")
+                comment: "TUserBindWeixin")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_regiontown",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "int", nullable: false, comment: "主键标识ID"),
-                    town = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true, comment: "街道名称")
+                    id = table.Column<int>(type: "int", nullable: false, comment: "Id"),
+                    town = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false, comment: "Town")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    areaid = table.Column<int>(type: "int", nullable: false, comment: "所属区域ID"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    areaid = table.Column<int>(type: "int", nullable: false, comment: "AreaId"),
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -759,26 +761,26 @@ namespace Kevin.Repository.Migrations
                 name: "t_userinfo",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    userid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "用户ID", collation: "ascii_general_ci"),
-                    regionareaid = table.Column<int>(type: "int", nullable: false, comment: "地址区域ID"),
-                    address = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "地址详细信息")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    userid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "UserId", collation: "ascii_general_ci"),
+                    regionareaid = table.Column<int>(type: "int", nullable: false, comment: "RegionAreaId"),
+                    address = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "Address")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    signature = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "个性签名")
+                    signature = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "Signature")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    sex = table.Column<bool>(type: "tinyint(1)", nullable: true, comment: "性别"),
-                    company = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "公司名称")
+                    sex = table.Column<bool>(type: "tinyint(1)", nullable: true, comment: "Sex"),
+                    company = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "Company")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    position = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "职务")
+                    position = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "Position")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    wechat = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "微信号")
+                    wechat = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "WeChat")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    qq = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "QQ")
+                    qq = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "QQ")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -797,28 +799,28 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "用户详细信息表")
+                comment: "TUserInfo")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_category",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    channelid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "频道ID", collation: "ascii_general_ci"),
-                    name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "栏目名目")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    channelid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "ChannelId", collation: "ascii_general_ci"),
+                    name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "Name")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    sort = table.Column<int>(type: "int", nullable: false, comment: "排序"),
-                    parentid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "父级栏目ID", collation: "ascii_general_ci"),
-                    remarks = table.Column<string>(type: "longtext", nullable: true, comment: "备注")
+                    sort = table.Column<int>(type: "int", nullable: false, comment: "Sort"),
+                    parentid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "ParentId", collation: "ascii_general_ci"),
+                    remarks = table.Column<string>(type: "longtext", nullable: false, comment: "Remarks")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "创建人ID", collation: "ascii_general_ci"),
-                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "删除人ID", collation: "ascii_general_ci")
+                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
+                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
@@ -848,26 +850,26 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "栏目信息表")
+                comment: "TCategory")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_filegroup",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    fileid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "文件ID", collation: "ascii_general_ci"),
-                    unique = table.Column<string>(type: "varchar(300)", maxLength: 300, nullable: true, comment: "文件唯一值")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    fileid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "FileId", collation: "ascii_general_ci"),
+                    unique = table.Column<string>(type: "varchar(300)", maxLength: 300, nullable: false, comment: "Unique")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    slicing = table.Column<int>(type: "int", nullable: false, comment: "分片数"),
-                    issynthesis = table.Column<ulong>(type: "bit", nullable: false, comment: "合成状态"),
-                    isfull = table.Column<ulong>(type: "bit", nullable: false, comment: "是否已完整传输"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    slicing = table.Column<int>(type: "int", nullable: false, comment: "Slicing"),
+                    issynthesis = table.Column<ulong>(type: "bit", nullable: false, comment: "Issynthesis"),
+                    isfull = table.Column<ulong>(type: "bit", nullable: false, comment: "Isfull"),
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    updatetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "更新时间")
+                    updatetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "UpdateTime")
                 },
                 constraints: table =>
                 {
@@ -879,22 +881,22 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "文件分片上传状态记录表")
+                comment: "TFileGroup")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_filegroupfile",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    fileid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "文件ID", collation: "ascii_general_ci"),
-                    index = table.Column<int>(type: "int", nullable: false, comment: "文件索引值"),
-                    path = table.Column<string>(type: "varchar(300)", maxLength: 300, nullable: true, comment: "文件保存路径")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    fileid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "FileId", collation: "ascii_general_ci"),
+                    index = table.Column<int>(type: "int", nullable: false, comment: "Index"),
+                    path = table.Column<string>(type: "varchar(300)", maxLength: 300, nullable: false, comment: "Path")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -907,25 +909,25 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "分片上传时的切片文件记录表")
+                comment: "TFileGroupFile")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_imgbaiduai",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    fileid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "图片文件ID", collation: "ascii_general_ci"),
-                    unique = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "图片库唯一标识符")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    fileid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "FileId", collation: "ascii_general_ci"),
+                    unique = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "Unique")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    result = table.Column<string>(type: "longtext", nullable: true, comment: "接口返回值")
+                    result = table.Column<string>(type: "longtext", nullable: false, comment: "Result")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    updatetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "更新时间")
+                    updatetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "UpdateTime")
                 },
                 constraints: table =>
                 {
@@ -937,24 +939,24 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "产品图片对应百度AI信息表")
+                comment: "TImgBaiduAI")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_rolepermission",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    roleid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "角色编号;", collation: "ascii_general_ci"),
-                    permissionid = table.Column<string>(type: "varchar(255)", nullable: true, comment: "权限编号;")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    roleid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "RoleId", collation: "ascii_general_ci"),
+                    permissionid = table.Column<string>(type: "varchar(255)", nullable: false, comment: "PermissionId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "创建人ID", collation: "ascii_general_ci"),
-                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "删除人ID", collation: "ascii_general_ci")
+                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
+                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
@@ -991,14 +993,14 @@ namespace Kevin.Repository.Migrations
                 name: "t_orderdetail",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    orderid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "订单ID", collation: "ascii_general_ci"),
-                    productid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "产品ID", collation: "ascii_general_ci"),
-                    number = table.Column<int>(type: "int", nullable: false, comment: "产品数量"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    orderid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "OrderId", collation: "ascii_general_ci"),
+                    productid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "ProductId", collation: "ascii_general_ci"),
+                    number = table.Column<int>(type: "int", nullable: false, comment: "Number"),
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -1017,32 +1019,32 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "订单详情表")
+                comment: "TOrderDetail")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "t_article",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
-                    categoryid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "类别ID", collation: "ascii_general_ci"),
-                    title = table.Column<string>(type: "longtext", nullable: true, comment: "标题")
+                    id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "Id", collation: "ascii_general_ci"),
+                    categoryid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CategoryId", collation: "ascii_general_ci"),
+                    title = table.Column<string>(type: "longtext", nullable: false, comment: "Title")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    content = table.Column<string>(type: "longtext", nullable: true, comment: "内容")
+                    content = table.Column<string>(type: "longtext", nullable: false, comment: "Content")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    isrecommend = table.Column<ulong>(type: "bit", nullable: false, comment: "是否推荐"),
-                    isdisplay = table.Column<ulong>(type: "bit", nullable: false, comment: "是否显示"),
-                    sort = table.Column<int>(type: "int", nullable: false, comment: "排序"),
-                    clickcount = table.Column<int>(type: "int", nullable: false, comment: "点击数"),
-                    @abstract = table.Column<string>(name: "abstract", type: "longtext", nullable: true, comment: "摘要")
+                    isrecommend = table.Column<ulong>(type: "bit", nullable: false, comment: "IsRecommend"),
+                    isdisplay = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDisplay"),
+                    sort = table.Column<int>(type: "int", nullable: false, comment: "Sort"),
+                    clickcount = table.Column<int>(type: "int", nullable: false, comment: "ClickCount"),
+                    @abstract = table.Column<string>(name: "abstract", type: "longtext", nullable: false, comment: "Abstract")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    tenantid = table.Column<string>(type: "longtext", nullable: true, comment: "租户ID;")
+                    createtime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
+                    isdelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
+                    deletetime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    tenantid = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "创建人ID", collation: "ascii_general_ci"),
-                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "删除人ID", collation: "ascii_general_ci")
+                    createuserid = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
+                    deleteuserid = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
@@ -1066,8 +1068,18 @@ namespace Kevin.Repository.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 },
-                comment: "文章表")
+                comment: "TArticle")
                 .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.InsertData(
+                table: "t_role",
+                columns: new[] { "id", "createtime", "deletetime", "isdelete", "name", "remarks", "tenantid" },
+                values: new object[] { new Guid("726bdd09-29bf-4e1a-be09-1ff33e781d2f"), new DateTime(2025, 7, 25, 14, 51, 34, 429, DateTimeKind.Local).AddTicks(3141), null, 0ul, "admin", "admin", "1000" });
+
+            migrationBuilder.InsertData(
+                table: "t_user",
+                columns: new[] { "id", "createtime", "deletetime", "email", "isdelete", "issuperadmin", "name", "nickname", "password", "phone", "roleid", "tenantid", "updatetime" },
+                values: new object[] { new Guid("bebb0be8-6b09-4c83-a992-448f8e5473ea"), new DateTime(2025, 7, 25, 14, 51, 34, 431, DateTimeKind.Local).AddTicks(2917), null, "admin", 0ul, 1ul, "admin", "admin", "admin", "admin", new Guid("726bdd09-29bf-4e1a-be09-1ff33e781d2f"), "1000", new DateTime(2025, 7, 25, 14, 51, 34, 431, DateTimeKind.Local).AddTicks(2937) });
 
             migrationBuilder.CreateIndex(
                 name: "IX_t_article_categoryid",
@@ -1305,6 +1317,7 @@ namespace Kevin.Repository.Migrations
                 column: "userid");
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
