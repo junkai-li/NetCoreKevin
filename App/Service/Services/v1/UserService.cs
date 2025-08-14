@@ -121,7 +121,8 @@ namespace Service.Services.v1
                 Phone = t.Phone,
                 Email = t.Email,
                 Role = t.Role.Name,
-                CreateTime = t.CreateTime
+                CreateTime = t.CreateTime,
+                Id=t.Id
             }).FirstOrDefault();
             if (user == default)
             {
