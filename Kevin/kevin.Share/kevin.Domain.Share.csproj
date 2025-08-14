@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Enums\" />
     <Folder Include="Consts\" />
   </ItemGroup>
 

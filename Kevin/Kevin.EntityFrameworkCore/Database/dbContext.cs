@@ -1,5 +1,7 @@
 ﻿
+using kevin.Domain.BaseDatas;
 using kevin.Domain.Bases;
+using kevin.Domain.Entities;
 using kevin.Domain.EventBus;
 using kevin.Domain.Kevin;
 using Kevin.EntityFrameworkCore.Configuration;
@@ -14,19 +16,22 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Web.Global.User;
 namespace Repository.Database
 {
     public class dbContext : DbContext
     {
 
-        private IMediator? mediator;
+        private IMediator? Mediator;
         public static string ConnectionString { get; set; }
 
+        public string TenantId { get; set; }
 
 
-        public dbContext(DbContextOptions<dbContext> _ = default, IMediator? mediator = default) : base(GetDbContextOptions())
+        public dbContext(DbContextOptions<dbContext> _ = default, IMediator? mediator = default, ICurrentUser service = default) : base(GetDbContextOptions())
         {
-            this.mediator = mediator;
+            this.Mediator = mediator;
+            this.TenantId = service.TenantId;
         }
 
 
@@ -119,7 +124,7 @@ namespace Repository.Database
 
         public DbSet<TWeiXinKey> TWeiXinKey { get; set; }
 
-
+        public DbSet<TTenant> TTenant { get; set; }
 
 
         private static DbContextOptions<dbContext> GetDbContextOptions()
@@ -164,7 +169,7 @@ namespace Repository.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-          
+
 
             //循环关闭所有表的级联删除功能
             foreach (var foreignKey in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
@@ -196,15 +201,15 @@ namespace Repository.Database
                 {
                     //设置生成数据库时的表名为小写格式并添加前缀 t_
                     var tableName = builder.Metadata.ClrType.CustomAttributes.Where(t => t.AttributeType.Name == "TableAttribute").Select(t => t.ConstructorArguments.Select(c => c.Value.ToString()).FirstOrDefault()).FirstOrDefault() ?? ("t_" + entity.ClrType.Name[1..]);
-                    builder.ToTable(tableName.ToLower());
+                    builder.ToTable(tableName);
 
                     //开启 PostgreSQL 全库行并发乐观锁
                     //builder.UseXminAsConcurrencyToken();
 
                     //设置表的备注
                     builder.HasComment(GetEntityComment(entity.Name));
-                    ////租户过滤器 
-                    //Expression<Func<CD, bool>> multiTenantFilter = e => EF.Property<string>(e, "TenantId") == GetTenantId();
+                    //租户过滤器 
+                    //Expression<Func<CD, bool>> multiTenantFilter = e => EF.Property<string>(e, "TenantId") == TenantId;
 
                     //builder.HasQueryFilter(multiTenantFilter);
 
@@ -213,7 +218,7 @@ namespace Repository.Database
                         string columnName = property.GetColumnName(StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table).Value);
 
                         //设置字段名为小写
-                        property.SetColumnName(columnName.ToLower());
+                        property.SetColumnName(columnName);
 
                         var baseTypeNames = new List<string>();
                         var baseType = entity.ClrType.BaseType;
@@ -261,6 +266,8 @@ namespace Repository.Database
             #region 种子数据
             modelBuilder.ApplyConfiguration(new TRoleConfiguration());
             modelBuilder.ApplyConfiguration(new TUserConfiguration());
+            modelBuilder.ApplyConfiguration(new TTenantConfiguration());
+            Console.WriteLine("种子数据已加载");
             #endregion
 
         }
@@ -433,7 +440,7 @@ namespace Repository.Database
 
             dbContext db = this;
             //发布领域事件
-            if (mediator != default)
+            if (Mediator != default)
             {
                 var domainEntities = db.ChangeTracker
            .Entries<IDomainEvents>()
@@ -448,16 +455,29 @@ namespace Repository.Database
 
                 foreach (var domainEvent in domainEvents)
                 {
-                    mediator.Publish(domainEvent);
+                    Mediator.Publish(domainEvent);
                 }
             }
 
+            #region 更改值时处理乐观并发
             var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
 
             foreach (var item in list)
             {
                 item.Entity.GetType().GetProperty("RowVersion")?.SetValue(item.Entity, Guid.NewGuid());
             }
+            #endregion
+
+            #region 新增处理多租户
+
+            var Addedlist = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Added).ToList();
+
+            foreach (var item in Addedlist)
+            {
+                item.Entity.GetType().GetProperty("TenantId")?.SetValue(item.Entity, TenantId);
+            }
+
+            #endregion
 
             return base.SaveChanges();
         }
@@ -467,7 +487,7 @@ namespace Repository.Database
 
             dbContext db = this;
             //发布领域事件
-            if (mediator != default)
+            if (Mediator != default)
             {
                 var domainEntities = db.ChangeTracker
            .Entries<IDomainEvents>()
@@ -482,18 +502,28 @@ namespace Repository.Database
 
                 foreach (var domainEvent in domainEvents)
                 {
-                    await mediator.Publish(domainEvent);
+                    await Mediator.Publish(domainEvent);
                 }
             }
-
+            #region 更改值时处理乐观并发
             var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
-
             foreach (var item in list)
             {
                 item.Entity.GetType().GetProperty("RowVersion")?.SetValue(item.Entity, Guid.NewGuid());
             }
+            #endregion
 
-            return  await base.SaveChangesAsync();
+            #region 新增处理多租户
+
+            var Addedlist = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Added).ToList();
+
+            foreach (var item in Addedlist)
+            {
+                item.Entity.GetType().GetProperty("TenantId")?.SetValue(item.Entity, TenantId);
+            }
+
+            #endregion
+            return await base.SaveChangesAsync();
         }
         public int SaveChangesWithSaveLog(Guid? actionUserId = null, string ipAddress = null, string deviceMark = null)
         {
@@ -501,9 +531,11 @@ namespace Repository.Database
             dbContext db = this;
 
             var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
-
             foreach (var item in list)
-            {
+            {   
+                #region 更改值时处理乐观并发
+                   item.Entity.GetType().GetProperty("RowVersion")?.SetValue(item.Entity, Guid.NewGuid());
+                #endregion
 
                 var type = item.Entity.GetType();
 
@@ -569,14 +601,23 @@ namespace Repository.Database
                 osLog.IpAddress = ipAddress == "" ? null : ipAddress;
                 osLog.DeviceMark = deviceMark == "" ? null : deviceMark;
                 osLog.ActionUserId = actionUserId;
-
+                osLog.TenantId = TenantId;
                 db.TOSLog.Add(osLog);
 
             }
 
-            return db.SaveChanges();
+            #region 新增处理多租户
+
+            var Addedlist = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Added).ToList(); 
+            foreach (var item in Addedlist)
+            {
+                item.Entity.GetType().GetProperty("TenantId")?.SetValue(item.Entity, TenantId);
+            }
+
+            #endregion
+            return base.SaveChanges();
         }
 
- 
+
     }
 }

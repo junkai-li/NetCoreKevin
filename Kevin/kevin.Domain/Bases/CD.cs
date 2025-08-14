@@ -40,22 +40,22 @@ namespace kevin.Domain.Bases
 
 
 
-        ///// <summary>
-        ///// 行版本标记
-        ///// </summary>
-        ///// <remarks>通用的RowVersion</remarks>
-        //[ConcurrencyCheck]
-        //public Guid? RowVersion { get; set; }
+        /// <summary>
+        /// 行版本标记
+        /// </summary>
+        /// <remarks>通用的RowVersion</remarks>
+        [ConcurrencyCheck]
+        public Guid? RowVersion { get; set; }
 
 
 
 
-        ///// <summary>
-        ///// 行版本标记
-        ///// </summary>
-        ///// <remarks>PostgreSql的RowVersion</remarks>
+        /// <summary>
+        /// 行版本标记
+        /// </summary>
+        /// <remarks>PostgreSql的RowVersion</remarks>
 
-        //public uint xmin { get; set; }
+        public uint xmin { get; set; }
 
 
 

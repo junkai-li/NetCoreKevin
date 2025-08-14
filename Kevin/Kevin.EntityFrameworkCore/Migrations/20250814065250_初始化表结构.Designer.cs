@@ -12,8 +12,8 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(dbContext))]
-    [Migration("20250725065135_202407025")]
-    partial class _202407025
+    [Migration("20250814065250_初始化表结构")]
+    partial class 初始化表结构
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,77 +25,146 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("kevin.Domain.Entities.TTenant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("Id")
+                        .HasComment("Id");
+
+                    b.Property<int>("Code")
+                        .HasColumnType("int")
+                        .HasColumnName("Code")
+                        .HasComment("Code");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreateTime")
+                        .HasComment("CreateTime");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("DeleteTime")
+                        .HasComment("DeleteTime");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("IsDelete")
+                        .HasComment("IsDelete");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("Name")
+                        .HasComment("Name");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int")
+                        .HasColumnName("Status")
+                        .HasComment("Status");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("t_Tenant", null, t =>
+                        {
+                            t.HasComment("TTenant");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("61b82e82-c205-4478-8132-b04387f33db0"),
+                            Code = 1000,
+                            CreateTime = new DateTime(2025, 8, 14, 14, 52, 49, 547, DateTimeKind.Local).AddTicks(8299),
+                            IsDelete = 0ul,
+                            Name = "admin",
+                            Status = 1
+                        });
+                });
+
             modelBuilder.Entity("kevin.Domain.Kevin.TAlipayKey", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<string>("AesKey")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("aeskey")
+                        .HasColumnName("AesKey")
                         .HasComment("AesKey");
 
                     b.Property<string>("AlipayPublicKey")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("alipaypublickey")
+                        .HasColumnName("AlipayPublicKey")
                         .HasComment("AlipayPublicKey");
 
                     b.Property<string>("AppId")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("appid")
+                        .HasColumnName("AppId")
                         .HasComment("AppId");
 
                     b.Property<string>("AppPrivateKey")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("appprivatekey")
+                        .HasColumnName("AppPrivateKey")
                         .HasComment("AppPrivateKey");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<string>("Remarks")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("remarks")
+                        .HasColumnName("Remarks")
                         .HasComment("Remarks");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int")
-                        .HasColumnName("sort")
+                        .HasColumnName("Sort")
                         .HasComment("Sort");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_alipaykey", null, t =>
+                    b.ToTable("t_AlipayKey", null, t =>
                         {
                             t.HasComment("TAlipayKey");
                         });
@@ -106,82 +175,93 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<string>("Abstract")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("abstract")
+                        .HasColumnName("Abstract")
                         .HasComment("Abstract");
 
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("categoryid")
+                        .HasColumnName("CategoryId")
                         .HasComment("CategoryId");
 
                     b.Property<int>("ClickCount")
                         .HasColumnType("int")
-                        .HasColumnName("clickcount")
+                        .HasColumnName("ClickCount")
                         .HasComment("ClickCount");
 
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("content")
+                        .HasColumnName("Content")
                         .HasComment("Content");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("createuserid")
+                        .HasColumnName("CreateUserId")
                         .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("deleteuserid")
+                        .HasColumnName("DeleteUserId")
                         .HasComment("DeleteUserId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<ulong>("IsDisplay")
                         .HasColumnType("bit")
-                        .HasColumnName("isdisplay")
+                        .HasColumnName("IsDisplay")
                         .HasComment("IsDisplay");
 
                     b.Property<ulong>("IsRecommend")
                         .HasColumnType("bit")
-                        .HasColumnName("isrecommend")
+                        .HasColumnName("IsRecommend")
                         .HasComment("IsRecommend");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int")
-                        .HasColumnName("sort")
+                        .HasColumnName("Sort")
                         .HasComment("Sort");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("title")
+                        .HasColumnName("Title")
                         .HasComment("Title");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
@@ -191,7 +271,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("DeleteUserId");
 
-                    b.ToTable("t_article", null, t =>
+                    b.ToTable("t_Article", null, t =>
                         {
                             t.HasComment("TArticle");
                         });
@@ -202,67 +282,78 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<Guid>("ChannelId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("channelid")
+                        .HasColumnName("ChannelId")
                         .HasComment("ChannelId");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("createuserid")
+                        .HasColumnName("CreateUserId")
                         .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("deleteuserid")
+                        .HasColumnName("DeleteUserId")
                         .HasComment("DeleteUserId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("name")
+                        .HasColumnName("Name")
                         .HasComment("Name");
 
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("parentid")
+                        .HasColumnName("ParentId")
                         .HasComment("ParentId");
 
                     b.Property<string>("Remarks")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("remarks")
+                        .HasColumnName("Remarks")
                         .HasComment("Remarks");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int")
-                        .HasColumnName("sort")
+                        .HasColumnName("Sort")
                         .HasComment("Sort");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
@@ -274,7 +365,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("t_category", null, t =>
+                    b.ToTable("t_Category", null, t =>
                         {
                             t.HasComment("TCategory");
                         });
@@ -285,57 +376,68 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("createuserid")
+                        .HasColumnName("CreateUserId")
                         .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("deleteuserid")
+                        .HasColumnName("DeleteUserId")
                         .HasComment("DeleteUserId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("name")
+                        .HasColumnName("Name")
                         .HasComment("Name");
 
                     b.Property<string>("Remarks")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("remarks")
+                        .HasColumnName("Remarks")
                         .HasComment("Remarks");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int")
-                        .HasColumnName("sort")
+                        .HasColumnName("Sort")
                         .HasComment("Sort");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
@@ -343,7 +445,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("DeleteUserId");
 
-                    b.ToTable("t_channel", null, t =>
+                    b.ToTable("t_Channel", null, t =>
                         {
                             t.HasComment("TChannel");
                         });
@@ -354,50 +456,61 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<int>("Count")
                         .HasColumnType("int")
-                        .HasColumnName("count")
+                        .HasColumnName("Count")
                         .HasComment("Count");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("Tag")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("tag")
+                        .HasColumnName("Tag")
                         .HasComment("Tag");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("updatetime")
+                        .HasColumnName("UpdateTime")
                         .HasComment("UpdateTime");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_count", null, t =>
+                    b.ToTable("t_Count", null, t =>
                         {
                             t.HasComment("TCount");
                         });
@@ -408,52 +521,63 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<string>("Key")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("key")
+                        .HasColumnName("Key")
                         .HasComment("Key");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int")
-                        .HasColumnName("sort")
+                        .HasColumnName("Sort")
                         .HasComment("Sort");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
                     b.Property<string>("Value")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("value")
+                        .HasColumnName("Value")
                         .HasComment("Value");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_dictionary", null, t =>
+                    b.ToTable("t_Dictionary", null, t =>
                         {
                             t.HasComment("TDictionary");
                         });
@@ -464,77 +588,88 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("createuserid")
+                        .HasColumnName("CreateUserId")
                         .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("deleteuserid")
+                        .HasColumnName("DeleteUserId")
                         .HasComment("DeleteUserId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("name")
+                        .HasColumnName("Name")
                         .HasComment("Name");
 
                     b.Property<string>("Path")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("path")
+                        .HasColumnName("Path")
                         .HasComment("Path");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("Sign")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("sign")
+                        .HasColumnName("Sign")
                         .HasComment("Sign");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int")
-                        .HasColumnName("sort")
+                        .HasColumnName("Sort")
                         .HasComment("Sort");
 
                     b.Property<string>("Table")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("table")
+                        .HasColumnName("Table")
                         .HasComment("Table");
 
                     b.Property<Guid>("TableId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("tableid")
+                        .HasColumnName("TableId")
                         .HasComment("TableId");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
@@ -544,7 +679,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("TableId");
 
-                    b.ToTable("t_file", null, t =>
+                    b.ToTable("t_File", null, t =>
                         {
                             t.HasComment("TFile");
                         });
@@ -555,67 +690,78 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<Guid>("FileId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("fileid")
+                        .HasColumnName("FileId")
                         .HasComment("FileId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<ulong>("Isfull")
                         .HasColumnType("bit")
-                        .HasColumnName("isfull")
+                        .HasColumnName("Isfull")
                         .HasComment("Isfull");
 
                     b.Property<ulong>("Issynthesis")
                         .HasColumnType("bit")
-                        .HasColumnName("issynthesis")
+                        .HasColumnName("Issynthesis")
                         .HasComment("Issynthesis");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<int>("Slicing")
                         .HasColumnType("int")
-                        .HasColumnName("slicing")
+                        .HasColumnName("Slicing")
                         .HasComment("Slicing");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
                     b.Property<string>("Unique")
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("varchar(300)")
-                        .HasColumnName("unique")
+                        .HasColumnName("Unique")
                         .HasComment("Unique");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("updatetime")
+                        .HasColumnName("UpdateTime")
                         .HasComment("UpdateTime");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FileId");
 
-                    b.ToTable("t_filegroup", null, t =>
+                    b.ToTable("t_FileGroup", null, t =>
                         {
                             t.HasComment("TFileGroup");
                         });
@@ -626,52 +772,63 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<Guid>("FileId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("fileid")
+                        .HasColumnName("FileId")
                         .HasComment("FileId");
 
                     b.Property<int>("Index")
                         .HasColumnType("int")
-                        .HasColumnName("index")
+                        .HasColumnName("Index")
                         .HasComment("Index");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<string>("Path")
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("varchar(300)")
-                        .HasColumnName("path")
+                        .HasColumnName("Path")
                         .HasComment("Path");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FileId");
 
-                    b.ToTable("t_filegroupfile", null, t =>
+                    b.ToTable("t_FileGroupFile", null, t =>
                         {
                             t.HasComment("TFileGroupFile");
                         });
@@ -682,58 +839,69 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<Guid>("FileId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("fileid")
+                        .HasColumnName("FileId")
                         .HasComment("FileId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<string>("Result")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("result")
+                        .HasColumnName("Result")
                         .HasComment("Result");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
                     b.Property<string>("Unique")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("unique")
+                        .HasColumnName("Unique")
                         .HasComment("Unique");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("updatetime")
+                        .HasColumnName("UpdateTime")
                         .HasComment("UpdateTime");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FileId");
 
-                    b.ToTable("t_imgbaiduai", null, t =>
+                    b.ToTable("t_ImgBaiduAI", null, t =>
                         {
                             t.HasComment("TImgBaiduAI");
                         });
@@ -744,64 +912,75 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("createuserid")
+                        .HasColumnName("CreateUserId")
                         .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("deleteuserid")
+                        .HasColumnName("DeleteUserId")
                         .HasComment("DeleteUserId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("name")
+                        .HasColumnName("Name")
                         .HasComment("Name");
 
                     b.Property<string>("Remarks")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("remarks")
+                        .HasColumnName("Remarks")
                         .HasComment("Remarks");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int")
-                        .HasColumnName("sort")
+                        .HasColumnName("Sort")
                         .HasComment("Sort");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("url")
+                        .HasColumnName("Url")
                         .HasComment("Url");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
@@ -809,7 +988,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("DeleteUserId");
 
-                    b.ToTable("t_link", null, t =>
+                    b.ToTable("t_Link", null, t =>
                         {
                             t.HasComment("TLink");
                         });
@@ -820,53 +999,64 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("content")
+                        .HasColumnName("Content")
                         .HasComment("Content");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("Sign")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("sign")
+                        .HasColumnName("Sign")
                         .HasComment("Sign");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("type")
+                        .HasColumnName("Type")
                         .HasComment("Type");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_log", null, t =>
+                    b.ToTable("t_Log", null, t =>
                         {
                             t.HasComment("TLog");
                         });
@@ -877,79 +1067,90 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<Guid?>("ActionUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("actionuserid")
+                        .HasColumnName("ActionUserId")
                         .HasComment("ActionUserId");
 
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("content")
+                        .HasColumnName("Content")
                         .HasComment("Content");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<string>("DeviceMark")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("devicemark")
+                        .HasColumnName("DeviceMark")
                         .HasComment("DeviceMark");
 
                     b.Property<string>("IpAddress")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("ipaddress")
+                        .HasColumnName("IpAddress")
                         .HasComment("IpAddress");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<string>("Remarks")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("remarks")
+                        .HasColumnName("Remarks")
                         .HasComment("Remarks");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("Sign")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("sign")
+                        .HasColumnName("Sign")
                         .HasComment("Sign");
 
                     b.Property<string>("Table")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("table")
+                        .HasColumnName("Table")
                         .HasComment("Table");
 
                     b.Property<Guid>("TableId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("tableid")
+                        .HasColumnName("TableId")
                         .HasComment("TableId");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
@@ -957,7 +1158,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("TableId");
 
-                    b.ToTable("t_oslog", null, t =>
+                    b.ToTable("t_OSLog", null, t =>
                         {
                             t.HasComment("TOSLog");
                         });
@@ -968,104 +1169,115 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("createuserid")
+                        .HasColumnName("CreateUserId")
                         .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("deleteuserid")
+                        .HasColumnName("DeleteUserId")
                         .HasComment("DeleteUserId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<string>("OrderNo")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("orderno")
+                        .HasColumnName("OrderNo")
                         .HasComment("OrderNo");
 
                     b.Property<decimal>("PayPrice")
                         .HasColumnType("decimal(38,2)")
-                        .HasColumnName("payprice")
+                        .HasColumnName("PayPrice")
                         .HasComment("PayPrice");
 
                     b.Property<ulong>("PayState")
                         .HasColumnType("bit")
-                        .HasColumnName("paystate")
+                        .HasColumnName("PayState")
                         .HasComment("PayState");
 
                     b.Property<DateTime?>("PayTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("paytime")
+                        .HasColumnName("PayTime")
                         .HasComment("PayTime");
 
                     b.Property<string>("PayType")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("paytype")
+                        .HasColumnName("PayType")
                         .HasComment("PayType");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(38,2)")
-                        .HasColumnName("price")
+                        .HasColumnName("Price")
                         .HasComment("Price");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("SerialNo")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("serialno")
+                        .HasColumnName("SerialNo")
                         .HasComment("SerialNo");
 
                     b.Property<string>("State")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("state")
+                        .HasColumnName("State")
                         .HasComment("State");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("type")
+                        .HasColumnName("Type")
                         .HasComment("Type");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("updatetime")
+                        .HasColumnName("UpdateTime")
                         .HasComment("UpdateTime");
 
                     b.Property<Guid?>("UpdateUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("updateuserid")
+                        .HasColumnName("UpdateUserId")
                         .HasComment("UpdateUserId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
@@ -1075,7 +1287,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("UpdateUserId");
 
-                    b.ToTable("t_order", null, t =>
+                    b.ToTable("t_Order", null, t =>
                         {
                             t.HasComment("TOrder");
                         });
@@ -1086,44 +1298,55 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<int>("Number")
                         .HasColumnType("int")
-                        .HasColumnName("number")
+                        .HasColumnName("Number")
                         .HasComment("Number");
 
                     b.Property<Guid>("OrderId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("orderid")
+                        .HasColumnName("OrderId")
                         .HasComment("OrderId");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("productid")
+                        .HasColumnName("ProductId")
                         .HasComment("ProductId");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
@@ -1131,7 +1354,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("t_orderdetail", null, t =>
+                    b.ToTable("t_OrderDetail", null, t =>
                         {
                             t.HasComment("TOrderDetail");
                         });
@@ -1141,115 +1364,115 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 {
                     b.Property<string>("Id")
                         .HasColumnType("varchar(255)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<string>("Action")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("action")
+                        .HasColumnName("Action")
                         .HasComment("Action");
 
                     b.Property<string>("ActionName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("actionname")
+                        .HasColumnName("ActionName")
                         .HasComment("ActionName");
 
                     b.Property<string>("Area")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("area")
+                        .HasColumnName("Area")
                         .HasComment("Area");
 
                     b.Property<string>("AreaName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("areaname")
+                        .HasColumnName("AreaName")
                         .HasComment("AreaName");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<Guid?>("CreateUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("createuserid")
+                        .HasColumnName("CreateUserId")
                         .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("deleteuserid")
+                        .HasColumnName("DeleteUserId")
                         .HasComment("DeleteUserId");
 
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(512)
                         .HasColumnType("varchar(512)")
-                        .HasColumnName("fullname")
+                        .HasColumnName("FullName")
                         .HasComment("FullName");
 
                     b.Property<string>("HttpMethod")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("httpmethod")
+                        .HasColumnName("HttpMethod")
                         .HasComment("HttpMethod");
 
                     b.Property<string>("Icon")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("icon")
+                        .HasColumnName("Icon")
                         .HasComment("Icon");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<bool?>("IsManual")
                         .HasColumnType("tinyint(1)")
-                        .HasColumnName("ismanual")
+                        .HasColumnName("IsManual")
                         .HasComment("IsManual");
 
                     b.Property<string>("Module")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("module")
+                        .HasColumnName("Module")
                         .HasComment("Module");
 
                     b.Property<string>("ModuleName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("modulename")
+                        .HasColumnName("ModuleName")
                         .HasComment("ModuleName");
 
                     b.Property<int?>("Seq")
                         .HasColumnType("int")
-                        .HasColumnName("seq")
+                        .HasColumnName("Seq")
                         .HasComment("Seq");
 
                     b.Property<Guid?>("UpdateUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("updateuserid")
+                        .HasColumnName("UpdateUserId")
                         .HasComment("UpdateUserId");
 
                     b.Property<DateTime?>("UpdatedTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("updatedtime")
+                        .HasColumnName("UpdatedTime")
                         .HasComment("UpdatedTime");
 
                     b.HasKey("Id");
@@ -1260,7 +1483,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("UpdateUserId");
 
-                    b.ToTable("t_permission", null, t =>
+                    b.ToTable("t_Permission", null, t =>
                         {
                             t.HasComment("TPermission");
                         });
@@ -1271,75 +1494,86 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("createuserid")
+                        .HasColumnName("CreateUserId")
                         .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("deleteuserid")
+                        .HasColumnName("DeleteUserId")
                         .HasComment("DeleteUserId");
 
                     b.Property<string>("Detail")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("detail")
+                        .HasColumnName("Detail")
                         .HasComment("Detail");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("name")
+                        .HasColumnName("Name")
                         .HasComment("Name");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(38,2)")
-                        .HasColumnName("price")
+                        .HasColumnName("Price")
                         .HasComment("Price");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("SKU")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("sku")
+                        .HasColumnName("SKU")
                         .HasComment("SKU");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("updatetime")
+                        .HasColumnName("UpdateTime")
                         .HasComment("UpdateTime");
 
                     b.Property<Guid?>("UpdateUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("updateuserid")
+                        .HasColumnName("UpdateUserId")
                         .HasComment("UpdateUserId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
@@ -1349,7 +1583,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("UpdateUserId");
 
-                    b.ToTable("t_product", null, t =>
+                    b.ToTable("t_Product", null, t =>
                         {
                             t.HasComment("TProduct");
                         });
@@ -1359,47 +1593,58 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<string>("Area")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("area")
+                        .HasColumnName("Area")
                         .HasComment("Area");
 
                     b.Property<int>("CityId")
                         .HasColumnType("int")
-                        .HasColumnName("cityid")
+                        .HasColumnName("CityId")
                         .HasComment("CityId");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CityId");
 
-                    b.ToTable("t_regionarea", null, t =>
+                    b.ToTable("t_RegionArea", null, t =>
                         {
                             t.HasComment("TRegionArea");
                         });
@@ -1409,47 +1654,58 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<string>("City")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("city")
+                        .HasColumnName("City")
                         .HasComment("City");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<int>("ProvinceId")
                         .HasColumnType("int")
-                        .HasColumnName("provinceid")
+                        .HasColumnName("ProvinceId")
                         .HasComment("ProvinceId");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProvinceId");
 
-                    b.ToTable("t_regioncity", null, t =>
+                    b.ToTable("t_RegionCity", null, t =>
                         {
                             t.HasComment("TRegionCity");
                         });
@@ -1459,40 +1715,51 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<string>("Province")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("province")
+                        .HasColumnName("Province")
                         .HasComment("Province");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_regionprovince", null, t =>
+                    b.ToTable("t_RegionProvince", null, t =>
                         {
                             t.HasComment("TRegionProvince");
                         });
@@ -1502,47 +1769,58 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<int>("AreaId")
                         .HasColumnType("int")
-                        .HasColumnName("areaid")
+                        .HasColumnName("AreaId")
                         .HasComment("AreaId");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
                     b.Property<string>("Town")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)")
-                        .HasColumnName("town")
+                        .HasColumnName("Town")
                         .HasComment("Town");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AreaId");
 
-                    b.ToTable("t_regiontown", null, t =>
+                    b.ToTable("t_RegionTown", null, t =>
                         {
                             t.HasComment("TRegionTown");
                         });
@@ -1553,47 +1831,58 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("name")
+                        .HasColumnName("Name")
                         .HasComment("Name");
 
                     b.Property<string>("Remarks")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)")
-                        .HasColumnName("remarks")
+                        .HasColumnName("Remarks")
                         .HasComment("Remarks");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_role", null, t =>
+                    b.ToTable("t_Role", null, t =>
                         {
                             t.HasComment("TRole");
                         });
@@ -1601,12 +1890,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("726bdd09-29bf-4e1a-be09-1ff33e781d2f"),
-                            CreateTime = new DateTime(2025, 7, 25, 14, 51, 34, 429, DateTimeKind.Local).AddTicks(3141),
+                            Id = new Guid("868d3a80-fdbb-417b-883a-c9ca934aef3a"),
+                            CreateTime = new DateTime(2025, 8, 14, 14, 52, 49, 545, DateTimeKind.Local).AddTicks(2772),
                             IsDelete = 0ul,
                             Name = "admin",
                             Remarks = "admin",
-                            TenantId = "1000"
+                            TenantId = "1000",
+                            xmin = 0u
                         });
                 });
 
@@ -1615,50 +1905,61 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("createuserid")
+                        .HasColumnName("CreateUserId")
                         .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("deleteuserid")
+                        .HasColumnName("DeleteUserId")
                         .HasComment("DeleteUserId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<string>("PermissionId")
                         .IsRequired()
                         .HasColumnType("varchar(255)")
-                        .HasColumnName("permissionid")
+                        .HasColumnName("PermissionId")
                         .HasComment("PermissionId");
 
                     b.Property<Guid>("RoleId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("roleid")
+                        .HasColumnName("RoleId")
                         .HasComment("RoleId");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
@@ -1670,7 +1971,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("t_rolepermission", null, t =>
+                    b.ToTable("t_RolePermission", null, t =>
                         {
                             t.HasComment("TRolePermission");
                         });
@@ -1681,58 +1982,69 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<Guid>("CreateUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("createuserid")
+                        .HasColumnName("CreateUserId")
                         .HasComment("CreateUserId");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<Guid?>("DeleteUserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("deleteuserid")
+                        .HasColumnName("DeleteUserId")
                         .HasComment("DeleteUserId");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("Sign")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("sign")
+                        .HasColumnName("Sign")
                         .HasComment("Sign");
 
                     b.Property<string>("Table")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("table")
+                        .HasColumnName("Table")
                         .HasComment("Table");
 
                     b.Property<Guid>("TableId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("tableid")
+                        .HasColumnName("TableId")
                         .HasComment("TableId");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
@@ -1742,7 +2054,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("TableId");
 
-                    b.ToTable("t_sign", null, t =>
+                    b.ToTable("t_Sign", null, t =>
                         {
                             t.HasComment("TSign");
                         });
@@ -1753,80 +2065,91 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("email")
+                        .HasColumnName("Email")
                         .HasComment("Email");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<ulong>("IsSuperAdmin")
                         .HasColumnType("bit")
-                        .HasColumnName("issuperadmin")
+                        .HasColumnName("IsSuperAdmin")
                         .HasComment("IsSuperAdmin");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("name")
+                        .HasColumnName("Name")
                         .HasComment("Name");
 
                     b.Property<string>("NickName")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("nickname")
+                        .HasColumnName("NickName")
                         .HasComment("NickName");
 
                     b.Property<string>("PassWord")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("password")
+                        .HasColumnName("PassWord")
                         .HasComment("PassWord");
 
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("phone")
+                        .HasColumnName("Phone")
                         .HasComment("Phone");
 
                     b.Property<Guid>("RoleId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("roleid")
+                        .HasColumnName("RoleId")
                         .HasComment("RoleId");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("updatetime")
+                        .HasColumnName("UpdateTime")
                         .HasComment("UpdateTime");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("t_user", null, t =>
+                    b.ToTable("t_User", null, t =>
                         {
                             t.HasComment("TUser");
                         });
@@ -1834,8 +2157,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("bebb0be8-6b09-4c83-a992-448f8e5473ea"),
-                            CreateTime = new DateTime(2025, 7, 25, 14, 51, 34, 431, DateTimeKind.Local).AddTicks(2917),
+                            Id = new Guid("a8ed44a4-4915-4fa5-ab03-0e728551dd33"),
+                            CreateTime = new DateTime(2025, 8, 14, 14, 52, 49, 547, DateTimeKind.Local).AddTicks(3434),
                             Email = "admin",
                             IsDelete = 0ul,
                             IsSuperAdmin = 1ul,
@@ -1843,9 +2166,10 @@ namespace Kevin.EntityFrameworkCore.Migrations
                             NickName = "admin",
                             PassWord = "admin",
                             Phone = "admin",
-                            RoleId = new Guid("726bdd09-29bf-4e1a-be09-1ff33e781d2f"),
+                            RoleId = new Guid("868d3a80-fdbb-417b-883a-c9ca934aef3a"),
                             TenantId = "1000",
-                            UpdateTime = new DateTime(2025, 7, 25, 14, 51, 34, 431, DateTimeKind.Local).AddTicks(2937)
+                            UpdateTime = new DateTime(2025, 8, 14, 14, 52, 49, 547, DateTimeKind.Local).AddTicks(3451),
+                            xmin = 0u
                         });
                 });
 
@@ -1854,46 +2178,57 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<Guid>("AlipayKeyId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("alipaykeyid")
+                        .HasColumnName("AlipayKeyId")
                         .HasComment("AlipayKeyId");
 
                     b.Property<string>("AlipayUserId")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("alipayuserid")
+                        .HasColumnName("AlipayUserId")
                         .HasComment("AlipayUserId");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("userid")
+                        .HasColumnName("UserId")
                         .HasComment("UserId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
@@ -1901,7 +2236,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("t_userbindalipay", null, t =>
+                    b.ToTable("t_UserBindAlipay", null, t =>
                         {
                             t.HasComment("TUserBindAlipay");
                         });
@@ -1912,46 +2247,57 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("userid")
+                        .HasColumnName("UserId")
                         .HasComment("UserId");
 
                     b.Property<Guid>("WeiXinKeyId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("weixinkeyid")
+                        .HasColumnName("WeiXinKeyId")
                         .HasComment("WeiXinKeyId");
 
                     b.Property<string>("WeiXinOpenId")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("weixinopenid")
+                        .HasColumnName("WeiXinOpenId")
                         .HasComment("WeiXinOpenId");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
@@ -1959,7 +2305,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("WeiXinKeyId");
 
-                    b.ToTable("t_userbindweixin", null, t =>
+                    b.ToTable("t_UserBindWeixin", null, t =>
                         {
                             t.HasComment("TUserBindWeixin");
                         });
@@ -1970,86 +2316,97 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<string>("Address")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("address")
+                        .HasColumnName("Address")
                         .HasComment("Address");
 
                     b.Property<string>("Company")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("company")
+                        .HasColumnName("Company")
                         .HasComment("Company");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<string>("Position")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("position")
+                        .HasColumnName("Position")
                         .HasComment("Position");
 
                     b.Property<string>("QQ")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("qq")
+                        .HasColumnName("QQ")
                         .HasComment("QQ");
 
                     b.Property<int>("RegionAreaId")
                         .HasColumnType("int")
-                        .HasColumnName("regionareaid")
+                        .HasColumnName("RegionAreaId")
                         .HasComment("RegionAreaId");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<bool?>("Sex")
                         .HasColumnType("tinyint(1)")
-                        .HasColumnName("sex")
+                        .HasColumnName("Sex")
                         .HasComment("Sex");
 
                     b.Property<string>("Signature")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("signature")
+                        .HasColumnName("Signature")
                         .HasComment("Signature");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("char(36)")
-                        .HasColumnName("userid")
+                        .HasColumnName("UserId")
                         .HasComment("UserId");
 
                     b.Property<string>("WeChat")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("wechat")
+                        .HasColumnName("WeChat")
                         .HasComment("WeChat");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
@@ -2057,7 +2414,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("t_userinfo", null, t =>
+                    b.ToTable("t_UserInfo", null, t =>
                         {
                             t.HasComment("TUserInfo");
                         });
@@ -2068,80 +2425,80 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<string>("FootCode")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("footcode")
+                        .HasColumnName("FootCode")
                         .HasComment("FootCode");
 
                     b.Property<string>("ManagerAddress")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("manageraddress")
+                        .HasColumnName("ManagerAddress")
                         .HasComment("ManagerAddress");
 
                     b.Property<string>("ManagerEmail")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("manageremail")
+                        .HasColumnName("ManagerEmail")
                         .HasComment("ManagerEmail");
 
                     b.Property<string>("ManagerName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("managername")
+                        .HasColumnName("ManagerName")
                         .HasComment("ManagerName");
 
                     b.Property<string>("ManagerPhone")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("managerphone")
+                        .HasColumnName("ManagerPhone")
                         .HasComment("ManagerPhone");
 
                     b.Property<string>("RecordNumber")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("recordnumber")
+                        .HasColumnName("RecordNumber")
                         .HasComment("RecordNumber");
 
                     b.Property<string>("SeoDescription")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)")
-                        .HasColumnName("seodescription")
+                        .HasColumnName("SeoDescription")
                         .HasComment("SeoDescription");
 
                     b.Property<string>("SeoKeyWords")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("seokeywords")
+                        .HasColumnName("SeoKeyWords")
                         .HasComment("SeoKeyWords");
 
                     b.Property<string>("SeoTitle")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("seotitle")
+                        .HasColumnName("SeoTitle")
                         .HasComment("SeoTitle");
 
                     b.Property<string>("WebUrl")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("weburl")
+                        .HasColumnName("WebUrl")
                         .HasComment("WebUrl");
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_webinfo", null, t =>
+                    b.ToTable("t_WebInfo", null, t =>
                         {
                             t.HasComment("TWebInfo");
                         });
@@ -2152,79 +2509,90 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)")
-                        .HasColumnName("id")
+                        .HasColumnName("Id")
                         .HasComment("Id");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("createtime")
+                        .HasColumnName("CreateTime")
                         .HasComment("CreateTime");
 
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("deletetime")
+                        .HasColumnName("DeleteTime")
                         .HasComment("DeleteTime");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
-                        .HasColumnName("isdelete")
+                        .HasColumnName("IsDelete")
                         .HasComment("IsDelete");
 
                     b.Property<string>("MchId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("mchid")
+                        .HasColumnName("MchId")
                         .HasComment("MchId");
 
                     b.Property<string>("MchKey")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("mchkey")
+                        .HasColumnName("MchKey")
                         .HasComment("MchKey");
 
                     b.Property<string>("Remarks")
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("varchar(1000)")
-                        .HasColumnName("remarks")
+                        .HasColumnName("Remarks")
                         .HasComment("Remarks");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("RowVersion")
+                        .HasComment("RowVersion");
 
                     b.Property<int>("Sort")
                         .HasColumnType("int")
-                        .HasColumnName("sort")
+                        .HasColumnName("Sort")
                         .HasComment("Sort");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("longtext")
-                        .HasColumnName("tenantid")
+                        .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("type")
+                        .HasColumnName("Type")
                         .HasComment("Type");
 
                     b.Property<string>("WxAppId")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("wxappid")
+                        .HasColumnName("WxAppId")
                         .HasComment("WxAppId");
 
                     b.Property<string>("WxAppSecret")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("wxappsecret")
+                        .HasColumnName("WxAppSecret")
                         .HasComment("WxAppSecret");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
-                    b.ToTable("t_weixinkey", null, t =>
+                    b.ToTable("t_WeiXinKey", null, t =>
                         {
                             t.HasComment("TWeiXinKey");
                         });
