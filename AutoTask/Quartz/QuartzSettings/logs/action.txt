@@ -26,3 +26,5 @@
 暂停 --  2023-04-17 15:50:16  --分组：百度,作业：百度请求,消息:
 暂停 --  2025-07-22 14:43:05  --分组：百度,作业：百度请求,消息:操作对象：{"TaskName":"百度请求","GroupName":"百度","Interval":"0 0/1 * * * ? ","ApiUrl":"https://www.baidu.com/","AuthKey":null,"AuthValue":null,"Describe":"test百度请求","RequestType":"get","LastRunTime":"2023-04-17T15:49:00+08:00","Status":1}
 暂停 --  2025-07-22 14:43:05  --分组：百度,作业：百度请求,消息:
+暂停 --  2025-08-14 15:27:39  --分组：百度,作业：百度请求,消息:操作对象：{"TaskName":"百度请求","GroupName":"百度","Interval":"0 0/1 * * * ? ","ApiUrl":"https://www.baidu.com/","AuthKey":null,"AuthValue":null,"Describe":"test百度请求","RequestType":"get","LastRunTime":"2023-04-17T15:49:00+08:00","Status":1}
+暂停 --  2025-08-14 15:27:39  --分组：百度,作业：百度请求,消息:

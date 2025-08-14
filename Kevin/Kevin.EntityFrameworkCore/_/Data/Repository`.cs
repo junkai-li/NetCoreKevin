@@ -1,8 +1,11 @@
-﻿using kevin.Domain.Interface;
+﻿using kevin.Domain.Bases;
+using kevin.Domain.Interface;
+using Kevin.Common.App;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Repository.Database;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -88,7 +91,19 @@ namespace Kevin.EntityFrameworkCore._.Data
 
         public IQueryable<T> Query()
         {
-            return DbSet;
+            try
+            {
+                if (CurrentUser != default && !string.IsNullOrEmpty(CurrentUser.TenantId))
+                { 
+                    return DbSet.Where(e => EF.Property<string>(e, "TenantId") == CurrentUser.TenantId);
+                } 
+                return DbSet.Where(e => EF.Property<string>(e, "TenantId") == TenantHelper.GetSettingsTenantId());
+            }
+            catch (Exception)
+            {
+
+                return DbSet;
+            }  
         }
 
         public void Remove(T entity)

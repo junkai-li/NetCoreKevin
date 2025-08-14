@@ -1,10 +1,12 @@
 ﻿using IdentityModel.Client;
 using kevin.Cache.Service;
+using kevin.Domain.Entities;
 using kevin.Domain.Kevin;
 using Medallion.Threading;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services.v1._;
+using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -63,21 +65,39 @@ namespace WebApi.Controllers
         [HttpPost("GetToken")]
         public async Task<string> GetToken([FromBody] dtoLogin login)
         {
+            var TTenant = db.Set<TTenant>().FirstOrDefault(t => t.Code == login.TenantId);
+            if (TTenant == null)
+            {
+                throw new UserFriendlyException("租户不存在");
+            }
+            else
+            {
+                if (TTenant.IsDelete)
+                {
+                    throw new UserFriendlyException("租户已删除");
+                }
+                if (TTenant.Status == kevin.Domain.Share.Enums.TenantStatusEnums.Inactive)
+                {
+                    throw new UserFriendlyException("租户已失效");
+                }
+            }
+            var user = _IUserService.LoginUser(login.Name,login.PassWord, login.TenantId.ToString());
             var clinet = new HttpClient();
             var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["JwtOptions:Authority"]);
             if (disco.IsError)
             {
                 throw new UserFriendlyException("登录异常");
             }
-
+            //var par = new Parameters();
+            //par.Add("TenantId", login.TenantId.ToString());
             var tokenResponse = await clinet.RequestPasswordTokenAsync(new PasswordTokenRequest
             {
                 Address = disco.TokenEndpoint,
-                ClientId = Configuration["IdentityServerInfo:ClientId"],
-                ClientSecret = Configuration["IdentityServerInfo:ClientSecret"],
-                Scope = Configuration["IdentityServerInfo:Scope"],
-                UserName = login.Name,
-                Password = login.PassWord,
+                ClientId = Configuration["UMIdentityServerInfo:ClientId"],
+                ClientSecret = Configuration["UMIdentityServerInfo:ClientSecret"],
+                Scope = Configuration["UMIdentityServerInfo:Scope"],
+                UserName = user.Id.ToString(),
+                Password = user.Id.ToString(),
             });
             if (tokenResponse.IsError)
             {

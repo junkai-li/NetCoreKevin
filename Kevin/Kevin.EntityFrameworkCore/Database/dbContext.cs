@@ -4,6 +4,7 @@ using kevin.Domain.Bases;
 using kevin.Domain.Entities;
 using kevin.Domain.EventBus;
 using kevin.Domain.Kevin;
+using Kevin.Common.App;
 using Kevin.EntityFrameworkCore.Configuration;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -30,8 +31,16 @@ namespace Repository.Database
 
         public dbContext(DbContextOptions<dbContext> _ = default, IMediator? mediator = default, ICurrentUser service = default) : base(GetDbContextOptions())
         {
-            this.Mediator = mediator;
-            this.TenantId = service.TenantId;
+            if (mediator != default)
+            {
+                this.Mediator = mediator;
+            }
+
+            if (service != default)
+            {
+                this.TenantId = service.TenantId;
+            }
+
         }
 
 
@@ -209,7 +218,7 @@ namespace Repository.Database
                     //设置表的备注
                     builder.HasComment(GetEntityComment(entity.Name));
                     //租户过滤器 
-                    //Expression<Func<CD, bool>> multiTenantFilter = e => EF.Property<string>(e, "TenantId") == TenantId;
+                    //Expression<Func<CD, bool>> multiTenantFilter = e => EF.Property<string>(e, "TenantId") == (TenantId ?? TenantHelper.GetSettingsTenantId());
 
                     //builder.HasQueryFilter(multiTenantFilter);
 
@@ -532,9 +541,9 @@ namespace Repository.Database
 
             var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
             foreach (var item in list)
-            {   
+            {
                 #region 更改值时处理乐观并发
-                   item.Entity.GetType().GetProperty("RowVersion")?.SetValue(item.Entity, Guid.NewGuid());
+                item.Entity.GetType().GetProperty("RowVersion")?.SetValue(item.Entity, Guid.NewGuid());
                 #endregion
 
                 var type = item.Entity.GetType();
@@ -608,7 +617,7 @@ namespace Repository.Database
 
             #region 新增处理多租户
 
-            var Addedlist = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Added).ToList(); 
+            var Addedlist = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Added).ToList();
             foreach (var item in Addedlist)
             {
                 item.Entity.GetType().GetProperty("TenantId")?.SetValue(item.Entity, TenantId);

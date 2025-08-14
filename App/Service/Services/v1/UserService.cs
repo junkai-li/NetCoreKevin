@@ -16,7 +16,7 @@ namespace Service.Services.v1
     public class UserService : BaseService, IUserService
     {
         public IUserRp userRp { get; set; }
-        public IWeiXinKeyRp weiXinKeyRp { get; set; } 
+        public IWeiXinKeyRp weiXinKeyRp { get; set; }
         public IFileRp fileRp { get; set; }
 
         public IRoleRp roleRp { get; set; }
@@ -103,6 +103,31 @@ namespace Service.Services.v1
                 Role = t.Role.Name,
                 CreateTime = t.CreateTime
             }).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// 登录用户信息
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="pwd"></param>
+        /// <param name="tenantId">租户id</param>
+        /// <returns></returns>
+        public dtoUser LoginUser(string name, string pwd, string tenantId)
+        {
+            var user = userRp.Query().Where(t => (t.Name == name || t.Phone == name) && t.PassWord == pwd && t.IsDelete == false && t.TenantId == tenantId).Select(t => new dtoUser
+            {
+                Name = t.Name,
+                NickName = t.NickName,
+                Phone = t.Phone,
+                Email = t.Email,
+                Role = t.Role.Name,
+                CreateTime = t.CreateTime
+            }).FirstOrDefault();
+            if (user == default)
+            {
+                throw new UserFriendlyException("账户或密码错误");
+            }
+            return user;
         }
 
         /// <summary>
@@ -534,7 +559,7 @@ namespace Service.Services.v1
 
             var user = userBindWeixinRp.Query().Where(t => t.WeiXinOpenId == openid & t.WeiXinKeyId == weixinkeyid).Select(t => t.User).FirstOrDefault();
             user.Phone = Common.Json.JsonHelper.GetValueByKey(strJson, "phoneNumber");
-            userBindWeixinRp.SaveChanges(); 
+            userBindWeixinRp.SaveChanges();
             return user.Phone;
         }
     }

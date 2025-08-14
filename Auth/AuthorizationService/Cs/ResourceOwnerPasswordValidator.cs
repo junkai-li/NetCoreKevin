@@ -21,56 +21,56 @@ namespace AuthorizationService
         public Task ValidateAsync(ResourceOwnerPasswordValidationContext context)
         {
 
-
+            
             string dataJson = "";
 
             switch (context.Request.Client.ClientName)
             {
-                case "UserClient":
-                    userDto User = null;
-                    //var Password = Crypto.GetEncryptMD5(context.Password);
-                    var Password = context.Password;
-                    //查询数据库 
-                    dataJson = GlobalServices.ServiceProvider.GetService<ICacheService>().GetString("CacheUserList"+context.UserName);
+                //case "UserClient":
+                //    userDto User = null;
+                //    //var Password = Crypto.GetEncryptMD5(context.Password);
+                //    var Password = context.Password;
+                //    //查询数据库 
+                //    dataJson = GlobalServices.ServiceProvider.GetService<ICacheService>().GetString("CacheUserList"+context.UserName);
 
-                    if (!string.IsNullOrEmpty(dataJson))
-                    {
-                        User = JsonHelper.JSONToObject<userDto>(dataJson);
-                    }
-                    else
-                    {
-                        using (var db = new dbContext())
-                        {
-                            User = db.TUser.Where(x => x.IsDelete == false && (x.Name == context.UserName || x.Phone == context.UserName) && x.PassWord == Password).Select(x => new userDto
-                            {
-                                Id = x.Id.ToString(),
-                                Phone = x.Phone,
-                                CreatedTime = x.CreateTime,
-                                Password = x.PassWord,
-                                Name = x.Name,
-                                TenantId =x.TenantId
-                            }).FirstOrDefault();
-                        }
+                //    if (!string.IsNullOrEmpty(dataJson))
+                //    {
+                //        User = JsonHelper.JSONToObject<userDto>(dataJson);
+                //    }
+                //    else
+                //    {
+                //        using (var db = new dbContext())
+                //        {
+                //            User = db.TUser.Where(x => x.IsDelete == false && (x.Name == context.UserName || x.Phone == context.UserName) && x.PassWord == Password).Select(x => new userDto
+                //            {
+                //                Id = x.Id.ToString(),
+                //                Phone = x.Phone,
+                //                CreatedTime = x.CreateTime,
+                //                Password = x.PassWord,
+                //                Name = x.Name,
+                //                TenantId =x.TenantId
+                //            }).FirstOrDefault();
+                //        }
 
-                    }
-                    if (User != null && User != default && User.Password == Password)
-                    {
-                        context.Result = new GrantValidationResult(
-                         subject: context.UserName,
-                         claims: GetUserClaims(User),
-                         authenticationMethod: "custom"
-                         );
-                        CacheUserListAsync(User);
-                    }
-                    else
-                    {
-                        //验证失败
-                        context.Result = new GrantValidationResult(
-                            TokenRequestErrors.InvalidGrant,
-                            "账号密码错误"
-                            );
-                    }
-                    break;
+                //    }
+                //    if (User != null && User != default && User.Password == Password)
+                //    {
+                //        context.Result = new GrantValidationResult(
+                //         subject: context.UserName,
+                //         claims: GetUserClaims(User),
+                //         authenticationMethod: "custom"
+                //         );
+                //        CacheUserListAsync(User);
+                //    }
+                //    else
+                //    {
+                //        //验证失败
+                //        context.Result = new GrantValidationResult(
+                //            TokenRequestErrors.InvalidGrant,
+                //            "账号密码错误"
+                //            );
+                //    }
+                //    break;
                 case "UMUserClient":
                     uMClientUserDto uMUser = null;
                     //查询数据库

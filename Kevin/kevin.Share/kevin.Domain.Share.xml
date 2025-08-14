@@ -119,6 +119,11 @@
             密码
             </summary>
         </member>
+        <member name="P:kevin.Share.Dtos.dtoLogin.TenantId">
+            <summary>
+            租户id
+            </summary>
+        </member>
         <member name="T:kevin.Share.Dtos.dtoPageData`1">
             <summary>
             分页dto

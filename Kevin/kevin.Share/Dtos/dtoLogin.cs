@@ -25,6 +25,11 @@ namespace kevin.Share.Dtos
         [Required(ErrorMessage = "密码不可以为空")]
         public string PassWord { get; set; }
 
+        /// <summary>
+        /// 租户id
+        /// </summary>
+        [Required(ErrorMessage = "租户id不可以为空")]
+        public int TenantId { get; set; }
 
     }
 }

@@ -17,6 +17,15 @@ namespace Service.Services.v1._
         dtoUser GetUser(Guid userId);
 
         /// <summary>
+        /// 登录用户信息
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="pwd"></param>
+        /// <param name="tenantId">租户id</param>
+        /// <returns></returns>
+          dtoUser LoginUser(string name, string pwd, string tenantId);
+
+        /// <summary>
         /// 通过短信验证码修改账户手机号
         /// </summary>
         /// <param name="keyValue">key 为新手机号，value 为短信验证码</param>
