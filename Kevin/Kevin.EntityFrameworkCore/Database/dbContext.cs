@@ -524,6 +524,10 @@ namespace Repository.Database
             return base.SaveChanges();
         }
 
+        /// <summary>
+        /// 领域事件调用
+        /// </summary>
+        /// <param name="entityEntries"></param>
         public void MediatorEventBus(List<EntityEntry<IDomainEvents>> entityEntries)
         {
             if (Mediator != default)
@@ -533,7 +537,7 @@ namespace Repository.Database
                     switch (entityEntry.State)
                     {
                         case EntityState.Deleted:
-                            var Deleteddata = entityEntry.Entity.GetDomainEvents(EventBusEnums.Modified).ToList();
+                            var Deleteddata = entityEntry.Entity.GetDomainEvents(EventBusEnums.Deleted).ToList();
                             entityEntry.Entity.ClearDomainEvents(EventBusEnums.Deleted);
                             Deleteddata.ForEach(e => Mediator.Publish(e));
                             break;
