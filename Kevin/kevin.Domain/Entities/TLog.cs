@@ -14,7 +14,7 @@ namespace kevin.Domain.Kevin
             this.Type = type;
             this.Content = content;
             this.Id = Guid.NewGuid();
-            this.AddDomainEvent(new TLogCreatedEvent(this));
+            this.AddDomainEvent(new TLogCreatedEvent(this),EventBus.EventBusEnums.Add);
         }
 
         /// <summary>

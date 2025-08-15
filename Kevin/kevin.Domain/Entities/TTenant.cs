@@ -1,4 +1,5 @@
-﻿using kevin.Domain.Share.Enums;
+﻿using kevin.Domain.Events;
+using kevin.Domain.Share.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +8,21 @@ using System.Threading.Tasks;
 
 namespace kevin.Domain.Entities
 {
+    /// <summary>
+    /// 租户表
+    /// </summary>
     public class TTenant: CUD
     {
-         
+        public TTenant(Int32 code, string name)
+        { 
+            this.Id = Guid.NewGuid();
+            this.Code= code;
+            this.Name= name;
+            this.Status = TenantStatusEnums.Active;
+            this.CreateTime = DateTime.Now;
+            this.IsDelete = false; 
+        }
+
         /// <summary>
         /// 租户编码
         /// </summary>

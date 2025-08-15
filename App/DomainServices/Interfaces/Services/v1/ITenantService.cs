@@ -40,5 +40,12 @@ namespace App.Domain.Interfaces.Services.v1
        /// <param name="id"></param>
        /// <returns></returns>
         Task<bool> DeleteAsync(Guid id);
+
+        /// <summary>
+        /// 初始化租户数据
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<bool> InitializedData(dtoTenant tenant);
     }
 }

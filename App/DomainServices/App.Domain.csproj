@@ -7,8 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Events\" />
-    <Folder Include="EventHandlers\" />
     <Folder Include="Entities\" />
   </ItemGroup>
 

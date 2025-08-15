@@ -8,6 +8,7 @@ using Kevin.Common.App;
 using Kevin.EntityFrameworkCore.Configuration;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 using Repository.Interceptors;
@@ -17,6 +18,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using TencentCloud.Eb.V20210416.Models;
 using Web.Global.User;
 namespace Repository.Database
 {
@@ -448,42 +450,34 @@ namespace Repository.Database
         {
 
             dbContext db = this;
-            //发布领域事件
+
+            #region 发布领域事件
             if (Mediator != default)
             {
-                var domainEntities = db.ChangeTracker
-           .Entries<IDomainEvents>()
-           .Where(x => x.Entity.GetDomainEvents().Any());
-
-                var domainEvents = domainEntities
-                    .SelectMany(x => x.Entity.GetDomainEvents())
-                    .ToList();//加ToList()是为立即加载，否则会延迟执行，到foreach的时候已经被ClearDomainEvents()了
-
-                domainEntities.ToList()
-                    .ForEach(entity => entity.Entity.ClearDomainEvents());
-
-                foreach (var domainEvent in domainEvents)
-                {
-                    Mediator.Publish(domainEvent);
-                }
+                MediatorEventBus(db.ChangeTracker.Entries<IDomainEvents>().Where(x => x.Entity.GetAllDomainEvents().Any()).ToList());
             }
+            #endregion
+
 
             #region 更改值时处理乐观并发
-            var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
 
+            var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
             foreach (var item in list)
             {
                 item.Entity.GetType().GetProperty("RowVersion")?.SetValue(item.Entity, Guid.NewGuid());
             }
+
             #endregion
 
             #region 新增处理多租户
 
-            var Addedlist = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Added).ToList();
-
-            foreach (var item in Addedlist)
+            if (TenantId > 0)
             {
-                item.Entity.GetType().GetProperty("TenantId")?.SetValue(item.Entity, TenantId);
+                var Addedlist = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Added).ToList();
+                foreach (var item in Addedlist)
+                {
+                    item.Entity.GetType().GetProperty("TenantId")?.SetValue(item.Entity, TenantId);
+                }
             }
 
             #endregion
@@ -491,48 +485,79 @@ namespace Repository.Database
             return base.SaveChanges();
         }
 
-        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess=false, CancellationToken cancellationToken = default)
+        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess = false, CancellationToken cancellationToken = default)
         {
 
             dbContext db = this;
-            //发布领域事件
+
+            #region 发布领域事件
+
             if (Mediator != default)
             {
-                var domainEntities = db.ChangeTracker
-           .Entries<IDomainEvents>()
-           .Where(x => x.Entity.GetDomainEvents().Any());
-
-                var domainEvents = domainEntities
-                    .SelectMany(x => x.Entity.GetDomainEvents())
-                    .ToList();//加ToList()是为立即加载，否则会延迟执行，到foreach的时候已经被ClearDomainEvents()了
-
-                domainEntities.ToList()
-                    .ForEach(entity => entity.Entity.ClearDomainEvents());
-
-                foreach (var domainEvent in domainEvents)
-                {
-                    await Mediator.Publish(domainEvent);
-                }
+                MediatorEventBus(db.ChangeTracker.Entries<IDomainEvents>().Where(x => x.Entity.GetAllDomainEvents().Any()).ToList());
             }
+
+            #endregion
+
             #region 更改值时处理乐观并发
+
             var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
             foreach (var item in list)
             {
                 item.Entity.GetType().GetProperty("RowVersion")?.SetValue(item.Entity, Guid.NewGuid());
             }
+
             #endregion
 
             #region 新增处理多租户
 
-            var Addedlist = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Added).ToList();
-
-            foreach (var item in Addedlist)
+            if (TenantId > 0)
             {
-                item.Entity.GetType().GetProperty("TenantId")?.SetValue(item.Entity, TenantId);
+                var Addedlist = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Added).ToList(); 
+                foreach (var item in Addedlist)
+                {
+                    item.Entity.GetType().GetProperty("TenantId")?.SetValue(item.Entity, TenantId);
+                }
             }
 
             #endregion
             return base.SaveChanges();
+        }
+
+        public void MediatorEventBus(List<EntityEntry<IDomainEvents>> entityEntries)
+        {
+            if (Mediator != default)
+            {
+                foreach (var entityEntry in entityEntries)
+                {
+                    switch (entityEntry.State)
+                    {
+                        case EntityState.Deleted:
+                            var Deleteddata = entityEntry.Entity.GetDomainEvents(EventBusEnums.Modified).ToList();
+                            entityEntry.Entity.ClearDomainEvents(EventBusEnums.Deleted);
+                            Deleteddata.ForEach(e => Mediator.Publish(e));
+                            break;
+                        case EntityState.Modified:
+                            var Modifieddata = entityEntry.Entity.GetDomainEvents(EventBusEnums.Modified).ToList();
+                            entityEntry.Entity.ClearDomainEvents(EventBusEnums.Modified);
+                            Modifieddata.ForEach(e => Mediator.Publish(e));
+
+                            break;
+                        case EntityState.Added:
+                            var adddata = entityEntry.Entity.GetDomainEvents(EventBusEnums.Add).ToList();
+                            entityEntry.Entity.ClearDomainEvents(EventBusEnums.Add);
+                            adddata.ForEach(e => Mediator.Publish(e));
+
+                            break;
+                        default:
+                            var data = entityEntry.Entity.GetDomainEvents().ToList();
+                            entityEntry.Entity.ClearDomainEvents();
+                            data.ForEach(e => Mediator.Publish(e));
+                            break;
+                    }
+
+                }
+            }
         }
         public int SaveChangesWithSaveLog(Guid? actionUserId = null, string ipAddress = null, string deviceMark = null)
         {
