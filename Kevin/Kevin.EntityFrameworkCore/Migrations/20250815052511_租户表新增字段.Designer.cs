@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.Database;
 
@@ -11,9 +12,11 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(dbContext))]
-    partial class dbContextModelSnapshot : ModelSnapshot
+    [Migration("20250815052511_租户表新增字段")]
+    partial class 租户表新增字段
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,31 +59,15 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("Name")
                         .HasComment("Name");
 
-                    b.Property<Guid?>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("RowVersion")
-                        .HasComment("RowVersion");
-
                     b.Property<int>("Status")
                         .HasColumnType("int")
                         .HasColumnName("Status")
                         .HasComment("Status");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
-                        .HasColumnName("TenantId")
-                        .HasComment("TenantId");
-
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("UpdateTime")
                         .HasComment("UpdateTime");
-
-                    b.Property<uint>("xmin")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("xmin")
-                        .HasComment("xmin");
 
                     b.HasKey("Id");
 
@@ -92,14 +79,12 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("1b4f94ac-b697-4cbe-9626-6cd2de627538"),
+                            Id = new Guid("e7de07f7-04e3-40e5-8e59-6042cf971f49"),
                             Code = 1000,
-                            CreateTime = new DateTime(2025, 8, 15, 13, 51, 57, 81, DateTimeKind.Local).AddTicks(9827),
+                            CreateTime = new DateTime(2025, 8, 15, 13, 25, 11, 32, DateTimeKind.Local).AddTicks(52),
                             IsDelete = 0ul,
                             Name = "admin",
-                            Status = 1,
-                            TenantId = 0,
-                            xmin = 0u
+                            Status = 1
                         });
                 });
 
@@ -171,8 +156,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("Sort")
                         .HasComment("Sort");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -265,8 +251,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("Sort")
                         .HasComment("Sort");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -362,8 +349,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("Sort")
                         .HasComment("Sort");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -445,8 +433,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("Sort")
                         .HasComment("Sort");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -508,8 +497,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("Tag")
                         .HasComment("Tag");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -572,8 +562,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("Sort")
                         .HasComment("Sort");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -674,8 +665,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("TableId")
                         .HasComment("TableId");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -747,8 +739,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("Slicing")
                         .HasComment("Slicing");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -825,8 +818,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("RowVersion")
                         .HasComment("RowVersion");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -885,8 +879,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("RowVersion")
                         .HasComment("RowVersion");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -974,8 +969,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("Sort")
                         .HasComment("Sort");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -1045,8 +1041,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("Sign")
                         .HasComment("Sign");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -1149,8 +1146,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("TableId")
                         .HasComment("TableId");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -1258,8 +1256,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("State")
                         .HasComment("State");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -1343,8 +1342,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("RowVersion")
                         .HasComment("RowVersion");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -1559,8 +1559,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("SKU")
                         .HasComment("SKU");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -1633,8 +1634,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("RowVersion")
                         .HasComment("RowVersion");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -1693,8 +1695,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("RowVersion")
                         .HasComment("RowVersion");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -1748,8 +1751,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("RowVersion")
                         .HasComment("RowVersion");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -1799,8 +1803,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("RowVersion")
                         .HasComment("RowVersion");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -1869,8 +1874,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("RowVersion")
                         .HasComment("RowVersion");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -1889,12 +1895,12 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("c23301b7-f9e0-464c-b76d-1f0a5a557548"),
-                            CreateTime = new DateTime(2025, 8, 15, 13, 51, 57, 79, DateTimeKind.Local).AddTicks(5714),
+                            Id = new Guid("3342161e-6438-4c0f-afd7-1d588e6950fa"),
+                            CreateTime = new DateTime(2025, 8, 15, 13, 25, 11, 28, DateTimeKind.Local).AddTicks(7494),
                             IsDelete = 0ul,
                             Name = "admin",
                             Remarks = "admin",
-                            TenantId = 1000,
+                            TenantId = "1000",
                             xmin = 0u
                         });
                 });
@@ -1949,8 +1955,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("RowVersion")
                         .HasComment("RowVersion");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -2033,8 +2040,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("TableId")
                         .HasComment("TableId");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -2126,8 +2134,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("RowVersion")
                         .HasComment("RowVersion");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -2153,8 +2162,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("eef5525d-5d64-46ad-8d64-79fb3ad9724f"),
-                            CreateTime = new DateTime(2025, 8, 15, 13, 51, 57, 81, DateTimeKind.Local).AddTicks(5092),
+                            Id = new Guid("c0b29f48-015d-4c9a-8927-891437c0db9c"),
+                            CreateTime = new DateTime(2025, 8, 15, 13, 25, 11, 31, DateTimeKind.Local).AddTicks(2526),
                             Email = "admin",
                             IsDelete = 0ul,
                             IsSuperAdmin = 1ul,
@@ -2162,9 +2171,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                             NickName = "admin",
                             PassWord = "admin",
                             Phone = "admin",
-                            RoleId = new Guid("c23301b7-f9e0-464c-b76d-1f0a5a557548"),
-                            TenantId = 1000,
-                            UpdateTime = new DateTime(2025, 8, 15, 13, 51, 57, 81, DateTimeKind.Local).AddTicks(5104),
+                            RoleId = new Guid("3342161e-6438-4c0f-afd7-1d588e6950fa"),
+                            TenantId = "1000",
+                            UpdateTime = new DateTime(2025, 8, 15, 13, 25, 11, 31, DateTimeKind.Local).AddTicks(2554),
                             xmin = 0u
                         });
                 });
@@ -2210,8 +2219,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("RowVersion")
                         .HasComment("RowVersion");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -2266,8 +2276,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("RowVersion")
                         .HasComment("RowVersion");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -2379,8 +2390,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("Signature")
                         .HasComment("Signature");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 
@@ -2551,8 +2563,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("Sort")
                         .HasComment("Sort");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("longtext")
                         .HasColumnName("TenantId")
                         .HasComment("TenantId");
 

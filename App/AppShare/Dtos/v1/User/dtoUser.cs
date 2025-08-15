@@ -1,6 +1,4 @@
 ﻿using kevin.Share.Dtos;
-using System;
-using System.Collections.Generic;
 
 namespace Service.Dtos.v1.User
 {

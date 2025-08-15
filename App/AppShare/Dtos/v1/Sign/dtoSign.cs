@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Service.Dtos.v1.Sign
+﻿namespace Service.Dtos.v1.Sign
 {
 
     /// <summary>

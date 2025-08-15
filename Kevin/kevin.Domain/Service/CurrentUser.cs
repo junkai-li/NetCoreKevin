@@ -15,6 +15,6 @@ namespace Web.Global.User
 
         public virtual string UserName => JwtToken.GetClaims(JwtKeinClaimTypes.Name, _httpContextAccessor);
 
-        public virtual string TenantId => JwtToken.GetClaims(JwtKeinClaimTypes.TenantId, _httpContextAccessor);
+        public virtual Int32 TenantId => JwtToken.GetClaims(JwtKeinClaimTypes.TenantId, _httpContextAccessor).ToTryInt32();
     }
 }

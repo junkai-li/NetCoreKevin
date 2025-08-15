@@ -99,7 +99,7 @@ namespace WebApi
 
                 if (app.Environment.IsDevelopment())
                 {
-                    app.UseDeveloperExceptionPage();
+                    app.UseDeveloperExceptionPage(); 
                 }
                 else
                 {

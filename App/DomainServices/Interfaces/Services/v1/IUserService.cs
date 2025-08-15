@@ -23,7 +23,7 @@ namespace Service.Services.v1._
         /// <param name="pwd"></param>
         /// <param name="tenantId">租户id</param>
         /// <returns></returns>
-          dtoUser LoginUser(string name, string pwd, string tenantId);
+          dtoUser LoginUser(string name, string pwd, Int32 tenantId);
 
         /// <summary>
         /// 通过短信验证码修改账户手机号

@@ -26,7 +26,7 @@ namespace Repository.Database
         private IMediator? Mediator;
         public static string ConnectionString { get; set; }
 
-        public string TenantId { get; set; }
+        public Int32 TenantId { get; set; }
 
 
         public dbContext(DbContextOptions<dbContext> _ = default, IMediator? mediator = default, ICurrentUser service = default) : base(GetDbContextOptions())
@@ -491,7 +491,7 @@ namespace Repository.Database
             return base.SaveChanges();
         }
 
-        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess=false, CancellationToken cancellationToken = default)
         {
 
             dbContext db = this;
@@ -532,7 +532,7 @@ namespace Repository.Database
             }
 
             #endregion
-            return await base.SaveChangesAsync();
+            return base.SaveChanges();
         }
         public int SaveChangesWithSaveLog(Guid? actionUserId = null, string ipAddress = null, string deviceMark = null)
         {

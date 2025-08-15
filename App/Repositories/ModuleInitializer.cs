@@ -19,6 +19,7 @@ namespace App.RepositorieRps
             services.AddScoped<IUserBindWeixinRp, UserBindWeixinRp>();
             services.AddScoped<IUserRp, UserRp>();
             services.AddScoped<IWeiXinKeyRp, WeiXinKeyRp>();
+            services.AddScoped<ITenantRp, TenantRp>();
             Console.WriteLine("Repositories-ModuleInitializer");
         } 
     }

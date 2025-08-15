@@ -5,15 +5,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kevin.Domain.Entities
+namespace kevin.Domain.Share.Dtos.System
 {
-    public class TTenant: CUD
+    public class dtoTenant
     {
-         
+        // <summary>
+        /// 主键标识ID
+        /// </summary>
+        public string Id { get; set; }
         /// <summary>
         /// 租户编码
         /// </summary>
-        public Int32 Code { get; set; }
+        public int Code { get; set; }
         /// <summary>
         /// 租户名称
         /// </summary>
@@ -22,7 +25,10 @@ namespace kevin.Domain.Entities
         /// <summary>
         /// 租户状态
         /// </summary>
-        public TenantStatusEnums Status { get; set; } = TenantStatusEnums.Active;
-         
+        public int Status { get; set; }
+        /// <summary>
+        /// 创建时间
+        /// </summary>S
+        public DateTime CreateTime { get; set; }
     }
 }

@@ -81,7 +81,7 @@ namespace WebApi.Controllers
                     throw new UserFriendlyException("租户已失效");
                 }
             }
-            var user = _IUserService.LoginUser(login.Name,login.PassWord, login.TenantId.ToString());
+            var user = _IUserService.LoginUser(login.Name,login.PassWord, login.TenantId);
             var clinet = new HttpClient();
             var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["JwtOptions:Authority"]);
             if (disco.IsError)

@@ -37,9 +37,6 @@ namespace kevin.Domain.Bases
         /// </summary>
         public DateTime? DeleteTime { get; set; }
 
-
-
-
         /// <summary>
         /// 行版本标记
         /// </summary>
@@ -66,11 +63,10 @@ namespace kevin.Domain.Bases
         //[Timestamp]
         //public byte[] RowVersion { get; set; }
 
-
         /// <summary>
         /// 租户ID;
         /// </summary> 
-        public   string TenantId { get; set; }
+        public Int32 TenantId { get; set; }
 
     }
 }

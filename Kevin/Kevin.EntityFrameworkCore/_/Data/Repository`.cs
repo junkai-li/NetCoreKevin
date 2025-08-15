@@ -8,6 +8,7 @@ using Repository.Database;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using Web.Global.User;
 
@@ -86,24 +87,33 @@ namespace Kevin.EntityFrameworkCore._.Data
 
         public Task SaveChangesAsync()
         {
-            return Context.SaveChangesAsync();
+            return Context.SaveChangesAsync(false);
         }
 
         public IQueryable<T> Query()
         {
             try
             {
-                if (CurrentUser != default && !string.IsNullOrEmpty(CurrentUser.TenantId))
-                { 
-                    return DbSet.Where(e => EF.Property<string>(e, "TenantId") == CurrentUser.TenantId);
-                } 
-                return DbSet.Where(e => EF.Property<string>(e, "TenantId") == TenantHelper.GetSettingsTenantId());
+                if (CurrentUser != default && CurrentUser.TenantId > 0)
+                {
+                    return DbSet.Where(e => EF.Property<Int32>(e, "TenantId") == CurrentUser.TenantId);
+                }
+                Type t = typeof(T);
+                FieldInfo fieldInfo = t.GetType().GetField("TenantId");
+                if (fieldInfo != null)
+                {
+                    return DbSet.Where(e => EF.Property<string>(e, "TenantId") == TenantHelper.GetSettingsTenantId());
+                }
+                else
+                {
+                    return DbSet;
+                }
             }
             catch (Exception)
             {
 
                 return DbSet;
-            }  
+            }
         }
 
         public void Remove(T entity)

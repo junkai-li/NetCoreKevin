@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
+using Kevin.Common.Extension;
 using Mapster;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace System
@@ -14,7 +17,7 @@ namespace System
     /// <summary>
     /// Extension methods for all objects.
     /// </summary>
-    public static class ObjectExtensions
+    public static partial class ObjectExtensions
     {
         /// <summary>
         /// Used to simplify and beautify casting an object to a type. 
@@ -327,6 +330,496 @@ namespace System
                     return null;
                 }
             }
+        }
+    }
+
+    public static partial class Extention
+    {
+        private static BindingFlags _bindingFlags { get; }
+            = BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static;
+
+        /// <summary>
+        /// 判断是否为Null或者空
+        /// </summary>
+        /// <param name="obj">对象</param>
+        /// <returns></returns>
+        public static bool IsNullOrEmpty(this object obj)
+        {
+            if (obj == null)
+                return true;
+            else
+            {
+                string objStr = obj.ToString();
+                return string.IsNullOrEmpty(objStr);
+            }
+        }
+
+        /// <summary>
+        /// 实体类转json数据，速度快
+        /// </summary>
+        /// <param name="t">实体类</param>
+        /// <returns></returns>
+        public static string EntityToJson(this object t)
+        {
+            if (t == null)
+                return null;
+            string jsonStr = "";
+            jsonStr += "{";
+            PropertyInfo[] infos = t.GetType().GetProperties();
+            for (int i = 0; i < infos.Length; i++)
+            {
+                jsonStr = jsonStr + "\"" + infos[i].Name + "\":\"" + infos[i].GetValue(t).ToString() + "\"";
+                if (i != infos.Length - 1)
+                    jsonStr += ",";
+            }
+            jsonStr += "}";
+            return jsonStr;
+        }
+
+        /// <summary>
+        /// 深复制
+        /// </summary>
+        /// <typeparam name="T">类型</typeparam>
+        /// <param name="obj">对象</param>
+        /// <returns></returns>
+        public static T DeepClone<T>(this T obj) where T : class
+        {
+            if (obj == null)
+                return null;
+
+            return obj.ToJson().ToObject<T>();
+        }
+
+        /// <summary>
+        /// 将对象序列化为XML字符串
+        /// </summary>
+        /// <typeparam name="T">对象类型</typeparam>
+        /// <param name="obj">对象</param>
+        /// <returns></returns>
+        public static string ToXmlStr<T>(this T obj)
+        {
+            var jsonStr = obj.ToJson();
+            var xmlDoc = JsonConvert.DeserializeXmlNode(jsonStr);
+            string xmlDocStr = xmlDoc.InnerXml;
+
+            return xmlDocStr;
+        }
+
+        /// <summary>
+        /// 将对象序列化为XML字符串
+        /// </summary>
+        /// <typeparam name="T">对象类型</typeparam>
+        /// <param name="obj">对象</param>
+        /// <param name="rootNodeName">根节点名(建议设为xml)</param>
+        /// <returns></returns>
+        public static string ToXmlStr<T>(this T obj, string rootNodeName)
+        {
+            var jsonStr = obj.ToJson();
+            var xmlDoc = JsonConvert.DeserializeXmlNode(jsonStr, rootNodeName);
+            string xmlDocStr = xmlDoc.InnerXml;
+
+            return xmlDocStr;
+        }
+
+        /// <summary>
+        /// 是否拥有某属性
+        /// </summary>
+        /// <param name="obj">对象</param>
+        /// <param name="propertyName">属性名</param>
+        /// <returns></returns>
+        public static bool ContainsProperty(this object obj, string propertyName)
+        {
+            return obj.GetType().GetProperty(propertyName, _bindingFlags) != null;
+        }
+
+        /// <summary>
+        /// 获取某属性
+        /// </summary>
+        /// <param name="obj">对象</param>
+        /// <param name="propertyName">属性名</param>
+        /// <returns></returns>
+        public static object GetProperty(this object obj, string propertyName)
+        {
+            return obj.GetType().GetProperty(propertyName, _bindingFlags);
+        }
+
+        /// <summary>
+        /// 获取某属性值
+        /// </summary>
+        /// <param name="obj">对象</param>
+        /// <param name="propertyName">属性名</param>
+        /// <returns></returns>
+        public static object GetPropertyValue(this object obj, string propertyName)
+        {
+            return obj.GetType().GetProperty(propertyName, _bindingFlags).GetValue(obj);
+        }
+
+        /// <summary>
+        /// 获取某属性值 报错返回空
+        /// </summary>
+        /// <param name="obj">对象</param>
+        /// <param name="propertyName">属性名</param>
+        /// <returns></returns>
+        public static object GetPropertyValueTryEny(this object obj, string propertyName)
+        {
+            try
+            {
+                return obj.GetType().GetProperty(propertyName, _bindingFlags).GetValue(obj);
+            }
+            catch
+            {
+
+                return "";
+            }
+
+        }
+        /// <summary>
+        /// 设置某属性值
+        /// </summary>
+        /// <param name="obj">对象</param>
+        /// <param name="propertyName">属性名</param>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        public static object SetPropertyValue(this object obj, string propertyName, object value)
+        {
+            PropertyInfo propertyInfo = obj.GetType().GetProperty(propertyName, _bindingFlags);
+            if (propertyInfo.CanWrite) propertyInfo.SetValue(obj, value);
+            return obj;
+        }
+
+        /// <summary>
+        /// 是否拥有某字段
+        /// </summary>
+        /// <param name="obj">对象</param>
+        /// <param name="fieldName">字段名</param>
+        /// <returns></returns>
+        public static bool ContainsField(this object obj, string fieldName)
+        {
+            return obj.GetType().GetField(fieldName, _bindingFlags) != null;
+        }
+
+        /// <summary>
+        /// 获取某字段值
+        /// </summary>
+        /// <param name="obj">对象</param>
+        /// <param name="fieldName">字段名</param>
+        /// <returns></returns>
+        public static object GetGetFieldValue(this object obj, string fieldName)
+        {
+            return obj.GetType().GetField(fieldName, _bindingFlags).GetValue(obj);
+        }
+
+        /// <summary>
+        /// 设置某字段值
+        /// </summary>
+        /// <param name="obj">对象</param>
+        /// <param name="fieldName">字段名</param>
+        /// <param name="value">值</param>
+        /// <returns></returns>
+        public static void SetFieldValue(this object obj, string fieldName, object value)
+        {
+            obj.GetType().GetField(fieldName, _bindingFlags).SetValue(obj, value);
+        }
+
+        /// <summary>
+        /// 获取某字段值
+        /// </summary>
+        /// <param name="obj">对象</param>
+        /// <param name="methodName">方法名</param>
+        /// <returns></returns>
+        public static MethodInfo GetMethod(this object obj, string methodName)
+        {
+            return obj.GetType().GetMethod(methodName, _bindingFlags);
+        }
+
+        /// <summary>
+        /// 改变实体类型
+        /// </summary>
+        /// <param name="obj">对象</param>
+        /// <param name="targetType">目标类型</param>
+        /// <returns></returns>
+        public static object ChangeType(this object obj, Type targetType)
+        {
+            return obj.ToJson().ToObject(targetType);
+        }
+
+        /// <summary>
+        /// 改变实体类型
+        /// </summary>
+        /// <typeparam name="T">目标泛型</typeparam>
+        /// <param name="obj">对象</param>
+        /// <returns></returns>
+        public static T ChangeType<T>(this object obj)
+        {
+            return obj.ToJson().ToObject<T>();
+        }
+
+        /// <summary>
+        /// 改变类型
+        /// </summary>
+        /// <param name="obj">原对象</param>
+        /// <param name="targetType">目标类型</param>
+        /// <returns></returns>
+        public static object ChangeType_ByConvert(this object obj, Type targetType)
+        {
+            try
+            {
+
+                if (obj.GetType().ToString() == "MySql.Data.Types.MySqlDateTime") obj = obj.ToDateTime();//MySql时间类型转成C# DateTime类型
+                if ((obj.GetType() == typeof(Byte) || obj.GetType() == typeof(SByte)))
+                {
+                    obj = obj.ToTryInt16();
+                }
+                object resObj;
+                if (targetType.IsGenericType && targetType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
+                {
+                    NullableConverter newNullableConverter = new NullableConverter(targetType);
+                    resObj = newNullableConverter.ConvertFrom(obj);
+                }
+                else
+                {
+                    resObj = Convert.ChangeType(obj, targetType);
+                }
+
+                return resObj;
+            }
+            catch (Exception ex)
+            { 
+                throw ex;
+            }
+        }
+        public static bool ToBoolean(this object value)
+        {
+            try
+            {
+                bool obj = Convert.ToBoolean(value);
+                return obj;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        public static DateTime ToDateTime(this object value)
+        {
+            if (value == null) return default;
+            DateTime data = default;
+            DateTime.TryParse(value.ToString(), out data);
+            return data;
+        }
+        public static string ToTimeFormat1(this object value)
+        {
+            try
+            {
+                return Convert.ToDateTime(value).ToString("yyyy-MM-dd HH:mm:ss");
+            }
+            catch
+            {
+                return "";
+            }
+        }
+        public static byte[] ToByte(this object value)
+        {
+            try
+            {
+                return (value == DBNull.Value) ? new byte[0] : (byte[])value;
+            }
+            catch
+            {
+                return new byte[0];
+            }
+        }
+        public static sbyte ToSByte(this object value)
+        {
+            try
+            {
+                return sbyte.Parse(value.ToString());
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        public static byte[] FromBase64String(this string value)
+        {
+            try
+            {
+                return Convert.FromBase64String(value);
+            }
+            catch
+            {
+                return new byte[0];
+            }
+        }
+        public static short ToInt16(this object value)
+        {
+            try
+            {
+                if (value == null) return 0;
+                short obj = Convert.ToInt16(value);
+                return obj;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        public static int ToInt32(this object value)
+        {
+            try
+            {
+                if (value == null) return 0;
+                int obj = Convert.ToInt32(value);
+                return obj;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        public static long ToInt64(this object value)
+        {
+            try
+            {
+                if (value == null) return 0;
+                long obj = Convert.ToInt64(value);
+                return obj;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        public static double ToDouble(this object value)
+        {
+            try
+            {
+                double obj = Convert.ToDouble(value);
+                return obj;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        /// <summary>
+        /// 转换成float类型
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static float ToSingle(this object value)
+        {
+            try
+            {
+                return Convert.ToSingle(value);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        public static decimal ToDecimal(this object value)
+        {
+            try
+            {
+                decimal obj = Convert.ToDecimal(value);
+                return obj;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        public static string ToEString(this object value)
+        {
+            try
+            {
+                if (value == null) return "";
+                string obj = Convert.ToString(value);
+                return obj;
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        public static decimal ToDecimalEx(this object value, int point = 2)
+        {
+            try
+            {
+                return Math.Round(value.ToDouble(), point, MidpointRounding.AwayFromZero).ToDecimal();
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+         
+
+        public static short ToTryInt16(this object value)
+        {
+            if (value == null) return 0;
+            Int16 data = 0;
+            Int16.TryParse(value.ToString(), out data);
+            return data;
+        }
+        public static int ToTryInt32(this object value)
+        {
+            if (value == null) return 0;
+            Int32 data = 0;
+            Int32.TryParse(value.ToString(), out data);
+            return data;
+        }
+        public static long ToTryInt64(this object value)
+        {
+            if (value == null) return 0;
+            Int64 data = 0;
+            Int64.TryParse(value.ToString(), out data);
+            return data;
+        }
+        public static double ToTryDouble(this object value)
+        {
+            if (value == null) return 0;
+            double data = 0;
+            double.TryParse(value.ToString(), out data);
+            return data;
+        }
+        /// <summary>
+        /// 转换成float类型
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static float ToTrySingle(this object value)
+        {
+            if (value == null) return 0;
+            float data = 0;
+            float.TryParse(value.ToString(), out data);
+            return data;
+        }
+        public static decimal ToTryDecimal(this object value)
+        {
+            if (value == null) return 0;
+            decimal data = 0;
+            Decimal.TryParse(value.ToString(), out data);
+            return data;
+        }
+
+        public static DateTime ToTryDateTime(this object value)
+        {
+            if (value == null) return DateTime.MinValue;
+            DateTime data = DateTime.MinValue;
+            DateTime.TryParse(value.ToString(), out data);
+            return data;
+        }
+
+        public static sbyte ToTrySByte(this object value)
+        {
+            if (value == null) return 0;
+            sbyte data = 0;
+            SByte.TryParse(value.ToString(), out data);
+            return data;
+
         }
     }
 }

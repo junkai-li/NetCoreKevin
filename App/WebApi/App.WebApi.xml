@@ -422,6 +422,41 @@
             获取登录用户权限
             </summary>
         </member>
+        <member name="M:App.WebApi.Controllers.TenantController.Inactive(kevin.Domain.Share.Dtos.dtoId{System.String})">
+            <summary>
+            设置无效租户
+            </summary>
+            <param data="keyValue">id租户</param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.TenantController.Active(kevin.Domain.Share.Dtos.dtoId{System.String})">
+            <summary>
+            设置有效租户
+            </summary>
+            <param data="keyValue">id租户</param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.TenantController.CreateAsync(kevin.Domain.Share.Dtos.System.dtoTenant)">
+            <summary>
+            新增租户
+            </summary>
+            <param data="dtoTenant">租户信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.TenantController.EidtAsync(kevin.Domain.Share.Dtos.System.dtoTenant)">
+            <summary>
+            编辑租户
+            </summary>
+            <param data="dtoTenant">租户信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.TenantController.DeleteAsync(kevin.Domain.Share.Dtos.dtoId{System.String})">
+            <summary>
+            删除租户
+            </summary>
+            <param data="keyValue">id租户</param>
+            <returns></returns>
+        </member>
         <member name="T:App.WebApi.Controllers.v1.VersionController">
             <summary>
             版本控制器

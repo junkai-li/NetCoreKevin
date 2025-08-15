@@ -112,7 +112,7 @@ namespace Service.Services.v1
         /// <param name="pwd"></param>
         /// <param name="tenantId">租户id</param>
         /// <returns></returns>
-        public dtoUser LoginUser(string name, string pwd, string tenantId)
+        public dtoUser LoginUser(string name, string pwd, Int32 tenantId)
         {
             var user = userRp.Query().Where(t => (t.Name == name || t.Phone == name) && t.PassWord == pwd && t.IsDelete == false && t.TenantId == tenantId).Select(t => new dtoUser
             {

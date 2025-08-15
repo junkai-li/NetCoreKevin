@@ -151,7 +151,7 @@ namespace AuthorizationService
             new Claim(JwtKeinClaimTypes.UserId, user.Id),
                    new Claim(JwtKeinClaimTypes.Name, user.Name??""),
                         new Claim(JwtKeinClaimTypes.CreatedTime,user.CreatedTime!=null?user.CreatedTime.Value.ToString("yyyy-MM-dd"):""),
-                         new Claim(JwtKeinClaimTypes.TenantId, user.TenantId),
+                         new Claim(JwtKeinClaimTypes.TenantId, user.TenantId.ToString()),
             };
         }
         /// <summary>

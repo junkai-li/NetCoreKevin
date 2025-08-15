@@ -1,0 +1,73 @@
+﻿using App.Domain.Interfaces.Services.v1;
+using kevin.Domain.Share.Dtos;
+using kevin.Domain.Share.Dtos.System;
+using kevin.Permission.Permisson.Attributes;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Service.Services.v1;
+using Service.Services.v1._;
+using System.Threading.Tasks;
+
+namespace App.WebApi.Controllers
+{
+    [ApiVersionNeutral] 
+    [Route("api/[controller]")]
+    [AllowAnonymous]
+    public class TenantController : ControllerBase
+    {
+        [IocProperty]
+        public ITenantService _ITenantService { get; set; }
+
+        /// <summary>
+        /// 设置无效租户
+        /// </summary>
+        /// <param data="keyValue">id租户</param>
+        /// <returns></returns>
+        [HttpPost("Inactive")]
+        public async Task<bool> Inactive([FromBody] dtoId<string> data)
+        {
+            return await _ITenantService.Inactive(Guid.Parse(data.Id));
+        }
+        /// <summary>
+        /// 设置有效租户
+        /// </summary>
+        /// <param data="keyValue">id租户</param>
+        /// <returns></returns>
+        [HttpPost("Active")]
+        public async Task<bool> Active([FromBody] dtoId<string> data)
+        {
+            return await _ITenantService.Active(Guid.Parse(data.Id));
+        }
+        /// <summary>
+        /// 新增租户
+        /// </summary>
+        /// <param data="dtoTenant">租户信息</param>
+        /// <returns></returns>
+        [HttpPost("CreateAsync")]
+        public async Task<bool> CreateAsync([FromBody] dtoTenant data)
+        {
+            return await _ITenantService.CreateAsync(data);
+        }
+        /// <summary>
+        /// 编辑租户
+        /// </summary>
+        /// <param data="dtoTenant">租户信息</param>
+        /// <returns></returns>
+        [HttpPost("EidtAsync")]
+        public async Task<bool> EidtAsync([FromBody] dtoTenant data)
+        {
+            return await _ITenantService.EidtAsync(data);
+        }
+        /// <summary>
+        /// 删除租户
+        /// </summary>
+        /// <param data="keyValue">id租户</param>
+        /// <returns></returns>
+        [HttpDelete("DeleteAsync")]
+        public async Task<bool> DeleteAsync([FromBody] dtoId<string> data)
+        {
+            return await _ITenantService.DeleteAsync(Guid.Parse(data.Id));
+        }
+    }
+}

@@ -41,6 +41,6 @@ namespace AuthorizationService
         /// </summary>
         public virtual DateTime? UpdatedTime { get; set; }
 
-        public string TenantId { get; set; }
+        public Int32 TenantId { get; set; }
     }
 }

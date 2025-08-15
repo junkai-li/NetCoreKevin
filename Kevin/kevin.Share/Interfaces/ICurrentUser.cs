@@ -10,7 +10,7 @@ namespace Web.Global.User
         Guid UserId { get; }
 
         string UserName { get; }
-        string TenantId { get;   }
+        Int32 TenantId { get;   }
 
     }
 }

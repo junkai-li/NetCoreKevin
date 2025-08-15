@@ -4,5 +4,70 @@
         <name>App.Share</name>
     </assembly>
     <members>
+        <member name="T:Service.Dtos.v1.Sign.dtoSign">
+            <summary>
+            标记喜欢方法入参
+            </summary>
+        </member>
+        <member name="P:Service.Dtos.v1.Sign.dtoSign.Table">
+            <summary>
+            表名
+            </summary>
+        </member>
+        <member name="P:Service.Dtos.v1.Sign.dtoSign.TableId">
+            <summary>
+            记录ID
+            </summary>
+        </member>
+        <member name="P:Service.Dtos.v1.Sign.dtoSign.Sign">
+            <summary>
+            标记
+            </summary>
+        </member>
+        <member name="P:Service.Dtos.v1.User.dtoUser.Id">
+            <summary>
+            Id
+            </summary>
+        </member>
+        <member name="P:Service.Dtos.v1.User.dtoUser.Name">
+            <summary>
+            用户名
+            </summary>
+        </member>
+        <member name="P:Service.Dtos.v1.User.dtoUser.NickName">
+            <summary>
+            昵称
+            </summary>
+        </member>
+        <member name="P:Service.Dtos.v1.User.dtoUser.Phone">
+            <summary>
+            手机号
+            </summary>
+        </member>
+        <member name="P:Service.Dtos.v1.User.dtoUser.Email">
+            <summary>
+            邮箱
+            </summary>
+        </member>
+        <member name="P:Service.Dtos.v1.User.dtoUser.RoleId">
+            <summary>
+            角色
+            </summary>
+        </member>
+        <member name="P:Service.Dtos.v1.User.dtoUser.Role">
+            <summary>
+            角色
+            </summary>
+        </member>
+        <member name="P:Service.Dtos.v1.User.dtoUser.PassWord">
+            <summary>
+            密码
+            </summary>
+        </member>
+        <member name="P:Service.Dtos.v1.User.dtoUser.CreateTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
     </members>
 </doc>
