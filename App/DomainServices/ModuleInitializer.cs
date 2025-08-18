@@ -1,4 +1,4 @@
-﻿using Kevin.Common.TieredServiceRegistration;
+﻿using kevin.Ioc.TieredServiceRegistration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace App.Domain

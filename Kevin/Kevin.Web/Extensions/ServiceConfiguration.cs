@@ -2,13 +2,11 @@
 using kevin.DistributedLock;
 using kevin.Domain.EventBus;
 using kevin.Ioc;
+using kevin.Ioc.TieredServiceRegistration;
 using kevin.Permission;
-using Kevin.AI.MCP.Server;
-using Kevin.AI.MCP.Server.Models;
 using Kevin.Api.Versioning;
 using Kevin.Common.App.Global;
 using Kevin.Common.App.Start;
-using Kevin.Common.TieredServiceRegistration;
 using Kevin.Cors;
 using Kevin.Web.Filters.TransactionScope;
 using Microsoft.AspNetCore.Builder;
@@ -109,7 +107,7 @@ namespace Web.Extension
             services.AddKevinPermission();
             //services.AddKevinCors(Configuration.GetSection("CorsSetting").Get<CorsSetting>());
             //services.AddKevinSignalR(Configuration);
-            services.RunModuleInitializers(ReflectionScheduler.GetAllReferencedAssemblies());//初始化
+  
             services.AddKevinMediatRDomainEventBus(ReflectionScheduler.GetAllReferencedAssemblies());//初始化
 
             #region 注册短信服务
