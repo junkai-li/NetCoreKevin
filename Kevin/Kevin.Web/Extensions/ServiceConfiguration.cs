@@ -235,7 +235,7 @@ namespace Web.Extension
             services.AddScoped<dbContext, dbContext>();
             services.AddScoped<ICurrentUser, CurrentUser>();
             //注入事务对象
-            services.AddScoped<TransactionScopeFilter>();
+            //services.AddScoped<TransactionScopeFilter>();
             #endregion
 
         }
