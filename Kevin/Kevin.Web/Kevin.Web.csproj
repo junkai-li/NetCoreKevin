@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\kevin.Domain\kevin.Domain.csproj" />
     <ProjectReference Include="..\Kevin.EntityFrameworkCore\Kevin.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\kevin.Module\Kevin.AI\Kevin.AI.csproj" />
     <ProjectReference Include="..\kevin.Module\kevin.Cache\kevin.Cache.csproj" />
@@ -35,6 +36,7 @@
     <ProjectReference Include="..\kevin.Module\Kevin.SignalR\Kevin.SignalR.csproj" />
     <ProjectReference Include="..\kevin.Module\Kevin.SMS\Kevin.SMS.csproj" />
     <ProjectReference Include="..\kevin.Module\Kevin.Versioning.Swagger\Kevin.Api.Versioning.csproj" />
+    <ProjectReference Include="..\kevin.Share\kevin.Domain.Share.csproj" />
   </ItemGroup>
 
 </Project>

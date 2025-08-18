@@ -47,6 +47,12 @@
             <typeparam name="T"></typeparam>
             <typeparam name="TId"></typeparam>
         </member>
+        <member name="M:Repository.Database.dbContext.MediatorEventBus(System.Collections.Generic.List{Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry{kevin.Domain.EventBus.IDomainEvents}})">
+            <summary>
+            领域事件调用
+            </summary>
+            <param name="entityEntries"></param>
+        </member>
         <member name="M:Repository.Interceptors.SubTableInterceptor.GetTimeById(System.Int64)">
             <summary>
             通过ID获取其中的时间戳

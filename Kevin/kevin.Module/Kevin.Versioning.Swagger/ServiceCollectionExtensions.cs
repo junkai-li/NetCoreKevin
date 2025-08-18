@@ -15,6 +15,11 @@ namespace Kevin.Api.Versioning
 {
     public static class ServiceCollectionExtensions
     { 
+        /// <summary>
+        /// 添加版本控制
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="xmls">xml文件名称列表</param>
         public static void AddKevinApiVersioning(this IServiceCollection services,List<string> xmls)
         {
             services.AddEndpointsApiExplorer();

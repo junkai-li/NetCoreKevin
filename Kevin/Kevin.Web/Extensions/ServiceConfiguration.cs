@@ -156,6 +156,8 @@ namespace Web.Extension
             //});
 
             #endregion
+
+            #region MCP服务注册
             //services.AddKevinMCPServer(options =>
             //{
             //    var settings = Configuration.GetRequiredSection("MCPSseClient").Get<MCPSseClientSetting>()!;
@@ -164,7 +166,9 @@ namespace Web.Extension
             //    options.UseStreamableHttp = false;
             //    options.AdditionalHeaders = default;
             //    options.ConnectionTimeout = default;
-            //}); //mcp服务注册
+            //});  
+            #endregion
+
             return services;
         }
 
