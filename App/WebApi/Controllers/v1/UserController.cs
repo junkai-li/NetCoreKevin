@@ -1,14 +1,11 @@
 ﻿using kevin.Permission.Permisson.Attributes;
+using kevin.Share.Dtos.System;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using kevin.Share.Dtos;
-using kevin.Share.Dtos.System;
 using Service.Dtos.v1.User;
 using Service.Services.v1._;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Web.Filters;
-using WebApi.Controllers.Bases;
 
 namespace WebApi.Controllers.v1
 {

@@ -4,13 +4,13 @@ using Microsoft.Extensions.Configuration;
 using Repository.Database;
 using Web.Global.User;
 
-namespace WebApi.Controllers.Bases
+namespace Kevin.Web.Controllers
 {
     [ApiController]
     public class ApiControllerBase : ControllerBase
     {
         [IocProperty]
-        public dbContext db { get; set; } 
+        public dbContext db { get; set; }
         [IocProperty]
         public ICurrentUser CurrentUser { get; set; }
         [IocProperty]

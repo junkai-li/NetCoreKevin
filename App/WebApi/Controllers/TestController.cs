@@ -9,7 +9,6 @@ using Service.Services.v1._;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using WebApi.Controllers.Bases;
 
 namespace WebApi.Controllers
 {

@@ -6,12 +6,10 @@ using Medallion.Threading;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services.v1._;
-using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using WebApi.Controllers.Bases;
 
 namespace WebApi.Controllers
 {

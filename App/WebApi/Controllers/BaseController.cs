@@ -1,12 +1,8 @@
 ﻿using Common;
-using Medallion.Threading;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using kevin.Share.Dtos;
-using System.Collections.Generic;
 using System.Linq;
-using WebApi.Controllers.Bases;
 
 namespace WebApi.Controllers
 {

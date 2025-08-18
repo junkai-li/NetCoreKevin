@@ -14,7 +14,7 @@ namespace App.WebApi.Controllers
     [ApiVersionNeutral] 
     [Route("api/[controller]")]
     [AllowAnonymous]
-    public class TenantController : ControllerBase
+    public class TenantController : ApiControllerBase
     {
         [IocProperty]
         public ITenantService _ITenantService { get; set; }

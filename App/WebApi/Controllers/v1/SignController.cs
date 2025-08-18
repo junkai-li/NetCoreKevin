@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Repository.Database;
 using Service.Dtos.v1.Sign;
 using Service.Services.v1._;
-using System.Linq;
-using WebApi.Controllers.Bases;
 
 namespace WebApi.Controllers.v1
 {

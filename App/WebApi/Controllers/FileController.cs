@@ -1,18 +1,14 @@
-﻿using kevin.Permission.Permisson.Attributes;
+﻿using kevin.Domain.Kevin;
+using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using kevin.Share.Dtos;
-using Repository.Database;
 using SkiaSharp;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using WebApi.Controllers.Bases;
-using kevin.Domain.Kevin;
 
 namespace WebApi.Controllers
 {
