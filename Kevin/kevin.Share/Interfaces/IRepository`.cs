@@ -1,9 +1,10 @@
-﻿using System.Linq.Expressions;
+﻿using kevin.Domain.Share.Interfaces;
+using System.Linq.Expressions;
 using Web.Global.User;
 
 namespace kevin.Domain.Interface
 {
-    public interface IRepository<T, TId>
+    public interface IRepository<T, TId>: IBaseRepository
     {
         IQueryable<T> Query();
 
