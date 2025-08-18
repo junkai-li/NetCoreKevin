@@ -16,30 +16,6 @@
         <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化表结构.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.租户表新增字段">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.租户表新增字段.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.租户表新增字段.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.租户表新增字段.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.租户字段类型调整">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.租户字段类型调整.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.租户字段类型调整.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.租户字段类型调整.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
         <member name="T:Kevin.EntityFrameworkCore._.Data.Repository`2">
             <summary>
             仓储类与类型Id

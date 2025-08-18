@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 
 namespace WebApi.Controllers
 {
+    /// <summary>
+    /// 测试控制器
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [AllowAnonymous]

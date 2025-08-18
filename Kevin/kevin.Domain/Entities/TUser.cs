@@ -1,10 +1,10 @@
 ﻿namespace kevin.Domain.Kevin
 {
-
+    [Table("TUser")]
     /// <summary>
     /// 用户表
     /// </summary>
-    public class TUser : CUD
+    public partial class TUser : CUD
     {
 
         /// <summary>

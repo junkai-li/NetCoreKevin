@@ -4,6 +4,7 @@ using Common.Json;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using kevin.Cache.Service;
+using kevin.Domain.Kevin;
 using kevin.Domain.Share.Interfaces;
 using Kevin.Common.App.Global;
 using Kevin.Models.JwtBearer;
@@ -84,7 +85,7 @@ namespace AuthorizationService
                     {
                         using (var db = new dbContext())
                         {
-                            uMUser = db.TUser.Where(x => x.IsDelete == false && x.Id.ToString() == context.UserName).Select(x => new uMClientUserDto
+                            uMUser = db.Set<TUser>().Where(x => x.IsDelete == false && x.Id.ToString() == context.UserName).Select(x => new uMClientUserDto
                             {
                                 Id = x.Id.ToString(),
                                 Phone = x.Phone,

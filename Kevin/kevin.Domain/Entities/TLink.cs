@@ -5,7 +5,8 @@
     /// <summary>
     /// 友情链接表
     /// </summary>
-    public class TLink : CD_User
+    [Table("TLink")]
+    public partial class TLink : CD_User
     {
 
         /// <summary>

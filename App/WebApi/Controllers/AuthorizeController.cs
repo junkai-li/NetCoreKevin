@@ -39,8 +39,8 @@ namespace WebApi.Controllers
         [HttpGet("GetDb")]
         public string GetDb()
         {
-            db.TUser.Count();
-            return db.TUser.Count().ToString();
+            db.Set<TUser>().Count();
+            return db.Set<TUser>().Count().ToString();
 
         }
 
@@ -118,7 +118,7 @@ namespace WebApi.Controllers
             var weixinkeyid = Guid.Parse(keyValue.Key.ToString());
             string code = keyValue.Value.ToString();
 
-            var weixinkey = db.TWeiXinKey.Where(t => t.Id == weixinkeyid).FirstOrDefault();
+            var weixinkey = db.Set<TWeiXinKey>().Where(t => t.Id == weixinkeyid).FirstOrDefault();
 
             var weiXinHelper = new Web.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey.WxAppId, weixinkey.WxAppSecret);
 
@@ -128,7 +128,7 @@ namespace WebApi.Controllers
             string openid = wxinfo.openid;
             string sessionkey = wxinfo.sessionkey;
 
-            var user = db.TUserBindWeixin.Where(t => t.WeiXinOpenId == openid).Select(t => t.User).FirstOrDefault();
+            var user = db.Set<TUserBindWeixin>().Where(t => t.WeiXinOpenId == openid).Select(t => t.User).FirstOrDefault();
 
             if (user == null)
             {
@@ -142,7 +142,7 @@ namespace WebApi.Controllers
                         using (lock1)
                         {
                             isAction = true;
-                            user = db.TUserBindWeixin.Where(t => t.WeiXinOpenId == openid).Select(t => t.User).FirstOrDefault();
+                            user = db.Set<TUserBindWeixin>().Where(t => t.WeiXinOpenId == openid).Select(t => t.User).FirstOrDefault();
                             if (user == null)
                             {
                                 //注册一个只有基本信息的账户出来
@@ -158,7 +158,7 @@ namespace WebApi.Controllers
                                 //开发时记得调整这个值
                                 user.RoleId = default;
 
-                                db.TUser.Add(user);
+                                db.Set<TUser>().Add(user);
 
                                 db.SaveChanges();
 
@@ -170,7 +170,7 @@ namespace WebApi.Controllers
                                 userBind.WeiXinKeyId = weixinkeyid;
                                 userBind.WeiXinOpenId = openid;
 
-                                db.TUserBindWeixin.Add(userBind);
+                                db.Set<TUserBindWeixin>().Add(userBind);
 
                                 db.SaveChanges();
                             }
@@ -222,7 +222,7 @@ namespace WebApi.Controllers
                 string phone = keyValue.Key.ToString();
 
 
-                var user = db.TUser.Where(t => t.IsDelete == false && (t.Name == phone || t.Phone == phone) && t.RoleId == default).FirstOrDefault();
+                var user = db.Set<TUser>().Where(t => t.IsDelete == false && (t.Name == phone || t.Phone == phone) && t.RoleId == default).FirstOrDefault();
 
                 if (user == null)
                 {
@@ -238,7 +238,7 @@ namespace WebApi.Controllers
                     user.PassWord = Guid.NewGuid().ToString();
                     user.Phone = phone;
 
-                    db.TUser.Add(user);
+                    db.Set<TUser>().Add(user);
 
                     db.SaveChanges();
                 }
@@ -316,7 +316,7 @@ namespace WebApi.Controllers
             string code = keyValue.Value.ToString();
 
 
-            var wxInfo = db.TWeiXinKey.Where(t => t.Id == weixinkeyid).FirstOrDefault();
+            var wxInfo = db.Set<TWeiXinKey>().Where(t => t.Id == weixinkeyid).FirstOrDefault();
 
             var weiXinHelper = new Web.Libraries.WeiXin.App.WeiXinHelper(wxInfo.WxAppId, wxInfo.WxAppSecret);
 
@@ -326,7 +326,7 @@ namespace WebApi.Controllers
 
             var userInfo = weiXinHelper.GetUserInfo(accseetoken, openid);
 
-            var user = db.TUserBindWeixin.Where(t => t.IsDelete == false && t.WeiXinKeyId == weixinkeyid && t.WeiXinOpenId == userInfo.openid).Select(t => t.User).FirstOrDefault();
+            var user = db.Set<TUserBindWeixin>().Where(t => t.IsDelete == false && t.WeiXinKeyId == weixinkeyid && t.WeiXinOpenId == userInfo.openid).Select(t => t.User).FirstOrDefault();
 
             if (user == null)
             {
@@ -339,7 +339,7 @@ namespace WebApi.Controllers
                 user.NickName = user.Name;
                 user.PassWord = Guid.NewGuid().ToString();
 
-                db.TUser.Add(user);
+                db.Set<TUser>().Add(user);
                 db.SaveChanges();
 
                 var bind = new TUserBindWeixin();
@@ -351,7 +351,7 @@ namespace WebApi.Controllers
                 bind.UserId = user.Id;
                 bind.WeiXinOpenId = openid;
 
-                db.TUserBindWeixin.Add(bind);
+                db.Set<TUserBindWeixin>().Add(bind);
 
                 db.SaveChanges();
             }

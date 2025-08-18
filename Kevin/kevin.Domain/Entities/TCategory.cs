@@ -4,7 +4,8 @@
     /// <summary>
     /// 栏目信息表
     /// </summary>
-    public class TCategory : CD_User
+    [Table("TCategory")]
+    public partial class TCategory : CD_User
     {
 
 

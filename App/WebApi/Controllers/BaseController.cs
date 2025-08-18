@@ -1,4 +1,5 @@
 ﻿using Common;
+using kevin.Domain.Kevin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,17 +33,17 @@ namespace WebApi.Controllers
 
             if (provinceId == 0 && cityId == 0)
             {
-                list = db.TRegionProvince.Select(t => new dtoKeyValue { Key = t.Id, Value = t.Province }).ToList();
+                list = db.Set<TRegionProvince>().Select(t => new dtoKeyValue { Key = t.Id, Value = t.Province }).ToList();
             }
 
             if (provinceId != 0)
             {
-                list = db.TRegionCity.Where(t => t.ProvinceId == provinceId).Select(t => new dtoKeyValue { Key = t.Id, Value = t.City }).ToList();
+                list = db.Set<TRegionCity>().Where(t => t.ProvinceId == provinceId).Select(t => new dtoKeyValue { Key = t.Id, Value = t.City }).ToList();
             }
 
             if (cityId != 0)
             {
-                list = db.TRegionArea.Where(t => t.CityId == cityId).Select(t => new dtoKeyValue { Key = t.Id, Value = t.Area }).ToList();
+                list = db.Set<TRegionArea>().Where(t => t.CityId == cityId).Select(t => new dtoKeyValue { Key = t.Id, Value = t.Area }).ToList();
             }
 
             return list;
@@ -58,7 +59,7 @@ namespace WebApi.Controllers
         public List<dtoKeyValueChild> GetRegionAll()
         {
 
-            var list = db.TRegionProvince.Select(t => new dtoKeyValueChild
+            var list = db.Set<TRegionProvince>().Select(t => new dtoKeyValueChild
             {
                 Key = t.Id,
                 Value = t.Province,
@@ -102,7 +103,7 @@ namespace WebApi.Controllers
         public List<dtoKeyValue> GetSelectValue(string key)
         {
 
-            var list = db.TDictionary.Where(t => t.IsDelete == false).OrderBy(t => t.Sort).Select(t => new dtoKeyValue
+            var list = db.Set<TDictionary>().Where(t => t.IsDelete == false).OrderBy(t => t.Sort).Select(t => new dtoKeyValue
             {
                 Key = t.Value,
                 Value = t.Id

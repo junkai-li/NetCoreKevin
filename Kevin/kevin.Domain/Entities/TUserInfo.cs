@@ -3,7 +3,8 @@
     /// <summary>
     /// 用户详细信息表
     /// </summary>
-    public class TUserInfo : CD
+    [Table("TUserInfo")]
+    public partial class TUserInfo : CD
     {
 
         /// <summary>

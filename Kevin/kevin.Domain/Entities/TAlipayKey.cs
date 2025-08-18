@@ -7,7 +7,8 @@ namespace kevin.Domain.Kevin
     /// <summary>
     /// 支付宝平台账户配置表
     /// </summary>
-    public class TAlipayKey : CD
+    [Table("TAlipayKey")]
+    public partial class TAlipayKey : CD
     {
 
 

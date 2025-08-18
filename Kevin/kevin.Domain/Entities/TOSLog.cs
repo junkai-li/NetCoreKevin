@@ -1,6 +1,10 @@
 ﻿namespace kevin.Domain.Kevin
 {
-    public class TOSLog : CD
+    /// <summary>
+    /// 操作标记
+    /// </summary>
+    [Table("TOSLog")]
+    public partial class TOSLog : CD
     {
         /// <summary>
         /// 外链表名

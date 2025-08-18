@@ -176,6 +176,11 @@
             <param name="id">文件ID</param>
             <returns></returns>
         </member>
+        <member name="T:WebApi.Controllers.TestController">
+            <summary>
+            测试控制器
+            </summary>
+        </member>
         <member name="M:WebApi.Controllers.TestController.HealthCheckGet">
             <summary>
             健康检查接口
@@ -359,6 +364,11 @@
             </summary> 
             <returns></returns>
         </member>
+        <member name="T:AdminApi.Controllers.PermissionController">
+            <summary>
+            权限管理
+            </summary>
+        </member>
         <member name="M:AdminApi.Controllers.PermissionController.Reload">
             <summary>
             初始化权限
@@ -420,6 +430,11 @@
         <member name="M:AdminApi.Controllers.PermissionController.GetUserPermissions">
             <summary>
             获取登录用户权限
+            </summary>
+        </member>
+        <member name="T:App.WebApi.Controllers.TenantController">
+            <summary>
+            租户管理
             </summary>
         </member>
         <member name="M:App.WebApi.Controllers.TenantController.Inactive(kevin.Domain.Share.Dtos.dtoId{System.String})">

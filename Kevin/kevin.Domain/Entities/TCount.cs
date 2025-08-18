@@ -4,7 +4,8 @@
     /// <summary>
     /// 计数表
     /// </summary>
-    public class TCount:CUD
+    [Table("TCount")]
+    public partial class TCount:CUD
     {
 
 

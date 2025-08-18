@@ -9,6 +9,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AdminApi.Controllers
 {
+    /// <summary>
+    /// 权限管理
+    /// </summary>
     [Route("api/[controller]")]
     [MyArea("系统管理", "System")]
     [ActionDescription("权限管理")] 

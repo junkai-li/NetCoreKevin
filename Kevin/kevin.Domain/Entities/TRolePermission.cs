@@ -1,6 +1,7 @@
 ﻿namespace kevin.Domain.Kevin
 {
-    public class TRolePermission: CD_User
+    [Table("TRolePermission")]
+    public partial class TRolePermission: CD_User
     {
         /// <summary>
         /// 角色编号;

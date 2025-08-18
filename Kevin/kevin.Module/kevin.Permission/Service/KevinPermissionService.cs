@@ -1,4 +1,5 @@
-﻿using kevin.Domain.Share.Interfaces;
+﻿using kevin.Domain.Kevin;
+using kevin.Domain.Share.Interfaces;
 using Kevin.Common.App;
 using Microsoft.AspNetCore.Http;
 using Repository.Database;
@@ -12,14 +13,14 @@ namespace Web.Actions
         {
             using (var db = new dbContext())
             {
-                return db.TPermission.Where(x => x.IsDelete == false).Select(x => x.Id).ToList();
+                return db.Set<TPermission>().Where(x => x.IsDelete == false).Select(x => x.Id).ToList();
 
             }
         }
         public List<Guid> GetUserRoleIds(string userId)
         {
             using var db = new dbContext();
-            var user = db.TUser.Where(x => x.IsDelete == false && x.Id == Guid.Parse(userId)).FirstOrDefault();
+            var user = db.Set<TUser>().Where(x => x.IsDelete == false && x.Id == Guid.Parse(userId)).FirstOrDefault();
             if (user != null)
             {
                 var reild = user.RoleId;
@@ -39,7 +40,7 @@ namespace Web.Actions
             using (var db = new dbContext())
             {
 
-                return db.TRolePermission.Where(r => r.IsDelete == false && roleIds.Contains(r.RoleId)).Select(r => r.PermissionId).Distinct().ToList(); ;
+                return db.Set<TRolePermission>().Where(r => r.IsDelete == false && roleIds.Contains(r.RoleId)).Select(r => r.PermissionId).Distinct().ToList(); ;
 
             }
         }

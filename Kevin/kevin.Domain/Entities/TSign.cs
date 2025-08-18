@@ -1,10 +1,10 @@
 ﻿namespace kevin.Domain.Kevin
 {
-
+    [Table("TSign")]
     /// <summary>
     /// 点赞或标记喜欢记录表
     /// </summary>
-    public class TSign : CD_User
+    public partial class TSign : CD_User
     {
 
         /// <summary>

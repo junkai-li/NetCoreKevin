@@ -35,8 +35,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId")
                 },
                 constraints: table =>
                 {
@@ -58,8 +57,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId"),
                     UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "UpdateTime")
                 },
                 constraints: table =>
@@ -84,8 +82,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId")
                 },
                 constraints: table =>
                 {
@@ -110,8 +107,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId")
                 },
                 constraints: table =>
                 {
@@ -132,8 +128,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId")
                 },
                 constraints: table =>
                 {
@@ -156,8 +151,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId")
                 },
                 constraints: table =>
                 {
@@ -177,7 +171,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     Status = table.Column<int>(type: "int", nullable: false, comment: "Status"),
                     CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "CreateTime"),
                     IsDelete = table.Column<ulong>(type: "bit", nullable: false, comment: "IsDelete"),
-                    DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime")
+                    DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
+                    RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
+                    xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId"),
+                    UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "UpdateTime")
                 },
                 constraints: table =>
                 {
@@ -242,8 +240,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId")
                 },
                 constraints: table =>
                 {
@@ -265,8 +262,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId")
                 },
                 constraints: table =>
                 {
@@ -303,8 +299,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId"),
                     UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "UpdateTime")
                 },
                 constraints: table =>
@@ -333,8 +328,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId")
                 },
                 constraints: table =>
                 {
@@ -364,8 +358,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId"),
                     CreateUserId = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
                     DeleteUserId = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci")
                 },
@@ -408,8 +401,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId"),
                     CreateUserId = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
                     DeleteUserId = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci")
                 },
@@ -449,8 +441,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId"),
                     CreateUserId = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
                     DeleteUserId = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci")
                 },
@@ -497,8 +488,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId"),
                     UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "UpdateTime"),
                     CreateUserId = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
                     UpdateUserId = table.Column<Guid>(type: "char(36)", nullable: true, comment: "UpdateUserId", collation: "ascii_general_ci"),
@@ -553,8 +543,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId")
                 },
                 constraints: table =>
                 {
@@ -645,8 +634,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId"),
                     UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "UpdateTime"),
                     CreateUserId = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
                     UpdateUserId = table.Column<Guid>(type: "char(36)", nullable: true, comment: "UpdateUserId", collation: "ascii_general_ci"),
@@ -692,8 +680,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId"),
                     CreateUserId = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
                     DeleteUserId = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci")
                 },
@@ -730,8 +717,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId")
                 },
                 constraints: table =>
                 {
@@ -766,8 +752,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId")
                 },
                 constraints: table =>
                 {
@@ -801,8 +786,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId")
                 },
                 constraints: table =>
                 {
@@ -842,8 +826,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId")
                 },
                 constraints: table =>
                 {
@@ -881,8 +864,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId"),
                     CreateUserId = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
                     DeleteUserId = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci")
                 },
@@ -933,8 +915,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId"),
                     UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "UpdateTime")
                 },
                 constraints: table =>
@@ -964,8 +945,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId")
                 },
                 constraints: table =>
                 {
@@ -995,8 +975,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId"),
                     UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "UpdateTime")
                 },
                 constraints: table =>
@@ -1025,8 +1004,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId"),
                     CreateUserId = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
                     DeleteUserId = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci")
                 },
@@ -1074,8 +1052,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId")
                 },
                 constraints: table =>
                 {
@@ -1117,8 +1094,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     DeleteTime = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "DeleteTime"),
                     RowVersion = table.Column<Guid>(type: "char(36)", nullable: true, comment: "RowVersion", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "xmin"),
-                    TenantId = table.Column<string>(type: "longtext", nullable: false, comment: "TenantId")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TenantId = table.Column<int>(type: "int", nullable: false, comment: "TenantId"),
                     CreateUserId = table.Column<Guid>(type: "char(36)", nullable: false, comment: "CreateUserId", collation: "ascii_general_ci"),
                     DeleteUserId = table.Column<Guid>(type: "char(36)", nullable: true, comment: "DeleteUserId", collation: "ascii_general_ci")
                 },
@@ -1150,17 +1126,17 @@ namespace Kevin.EntityFrameworkCore.Migrations
             migrationBuilder.InsertData(
                 table: "t_Role",
                 columns: new[] { "Id", "CreateTime", "DeleteTime", "IsDelete", "Name", "Remarks", "RowVersion", "TenantId", "xmin" },
-                values: new object[] { new Guid("868d3a80-fdbb-417b-883a-c9ca934aef3a"), new DateTime(2025, 8, 14, 14, 52, 49, 545, DateTimeKind.Local).AddTicks(2772), null, 0ul, "admin", "admin", null, "1000", 0u });
+                values: new object[] { new Guid("c23301b7-f9e0-464c-b76d-1f0a5a557548"), new DateTime(2025, 8, 18, 17, 42, 41, 540, DateTimeKind.Local).AddTicks(2109), null, 0ul, "admin", "admin", null, 1000, 0u });
 
             migrationBuilder.InsertData(
                 table: "t_Tenant",
-                columns: new[] { "Id", "Code", "CreateTime", "DeleteTime", "IsDelete", "Name", "Status" },
-                values: new object[] { new Guid("61b82e82-c205-4478-8132-b04387f33db0"), 1000, new DateTime(2025, 8, 14, 14, 52, 49, 547, DateTimeKind.Local).AddTicks(8299), null, 0ul, "admin", 1 });
+                columns: new[] { "Id", "Code", "CreateTime", "DeleteTime", "IsDelete", "Name", "RowVersion", "Status", "TenantId", "UpdateTime", "xmin" },
+                values: new object[] { new Guid("1b4f94ac-b697-4cbe-9626-6cd2de627538"), 1000, new DateTime(2025, 8, 18, 17, 42, 41, 542, DateTimeKind.Local).AddTicks(7653), null, 0ul, "admin", null, 1, 0, null, 0u });
 
             migrationBuilder.InsertData(
                 table: "t_User",
                 columns: new[] { "Id", "CreateTime", "DeleteTime", "Email", "IsDelete", "IsSuperAdmin", "Name", "NickName", "PassWord", "Phone", "RoleId", "RowVersion", "TenantId", "UpdateTime", "xmin" },
-                values: new object[] { new Guid("a8ed44a4-4915-4fa5-ab03-0e728551dd33"), new DateTime(2025, 8, 14, 14, 52, 49, 547, DateTimeKind.Local).AddTicks(3434), null, "admin", 0ul, 1ul, "admin", "admin", "admin", "admin", new Guid("868d3a80-fdbb-417b-883a-c9ca934aef3a"), null, "1000", new DateTime(2025, 8, 14, 14, 52, 49, 547, DateTimeKind.Local).AddTicks(3451), 0u });
+                values: new object[] { new Guid("eef5525d-5d64-46ad-8d64-79fb3ad9724f"), new DateTime(2025, 8, 18, 17, 42, 41, 542, DateTimeKind.Local).AddTicks(2404), null, "admin", 0ul, 1ul, "admin", "admin", "admin", "admin", new Guid("c23301b7-f9e0-464c-b76d-1f0a5a557548"), null, 1000, new DateTime(2025, 8, 18, 17, 42, 41, 542, DateTimeKind.Local).AddTicks(2420), 0u });
 
             migrationBuilder.CreateIndex(
                 name: "IX_t_Article_CategoryId",

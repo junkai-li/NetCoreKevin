@@ -6,7 +6,8 @@ namespace kevin.Domain.Kevin
     /// <summary>
     /// 日志表
     /// </summary>
-    public class TLog : CD
+    [Table("TLog")]
+    public partial class TLog : CD
     {
         public TLog(string sign, string type, string content)
         {

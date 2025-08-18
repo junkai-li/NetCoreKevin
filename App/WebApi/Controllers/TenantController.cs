@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 
 namespace App.WebApi.Controllers
 {
+    /// <summary>
+    /// 租户管理
+    /// </summary>
     [ApiVersionNeutral] 
     [Route("api/[controller]")]
     [AllowAnonymous]

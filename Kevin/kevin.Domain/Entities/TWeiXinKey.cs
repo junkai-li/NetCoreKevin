@@ -5,7 +5,8 @@
     /// <summary>
     /// 微信商户平台账户配置表
     /// </summary>
-    public class TWeiXinKey : CD
+    [Table("TWeiXinKey")]
+    public partial class TWeiXinKey : CD
     {
 
 

@@ -1,9 +1,10 @@
 ﻿namespace kevin.Domain.Kevin
 {
+    [Table("TRegionArea")]
     /// <summary>
     /// 区域信息表
     /// </summary>
-    public class TRegionArea : CD
+    public partial class TRegionArea : CD
     {
 
 

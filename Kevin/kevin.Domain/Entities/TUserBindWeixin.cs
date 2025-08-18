@@ -1,11 +1,12 @@
 ﻿namespace kevin.Domain.Kevin
 {
 
-
     /// <summary>
     /// 用户和微信绑定关系表
     /// </summary>
-    public class TUserBindWeixin : CD
+
+    [Table("TUserBindWeixin")]
+    public partial class TUserBindWeixin : CD
     {
 
         /// <summary>

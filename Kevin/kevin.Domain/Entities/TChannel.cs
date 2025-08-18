@@ -5,7 +5,8 @@
     /// <summary>
     /// 频道信息表
     /// </summary>
-    public class TChannel : CD_User
+    [Table("TChannel")]
+    public partial class TChannel : CD_User
     {
 
         /// <summary>

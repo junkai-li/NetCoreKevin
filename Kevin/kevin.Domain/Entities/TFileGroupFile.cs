@@ -3,7 +3,8 @@
     /// <summary>
     /// 分片上传时的切片文件记录表
     /// </summary>
-    public class TFileGroupFile : CD
+    [Table("TFileGroupFile")]
+    public partial class TFileGroupFile : CD
     {
 
 

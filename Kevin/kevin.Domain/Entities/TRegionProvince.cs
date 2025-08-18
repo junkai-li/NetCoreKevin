@@ -1,10 +1,10 @@
 ﻿namespace kevin.Domain.Kevin
 {
-
+    [Table("TRegionProvince")]
     /// <summary>
     /// 省份信息表
     /// </summary>
-    public class TRegionProvince : CD
+    public partial class TRegionProvince : CD
     {
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]

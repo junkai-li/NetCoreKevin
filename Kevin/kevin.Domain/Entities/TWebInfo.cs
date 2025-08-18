@@ -4,7 +4,8 @@
     /// <summary>
     /// 网站信息配置表
     /// </summary>
-    public class TWebInfo
+    [Table("TWebInfo")]
+    public partial class TWebInfo
     {
 
         /// <summary>

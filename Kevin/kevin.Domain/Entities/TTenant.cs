@@ -11,7 +11,8 @@ namespace kevin.Domain.Entities
     /// <summary>
     /// 租户表
     /// </summary>
-    public class TTenant: CUD
+    [Table("TTenant")]
+    public partial class TTenant: CUD
     {
         public TTenant(Int32 code, string name)
         { 

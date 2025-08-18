@@ -5,7 +5,8 @@
     /// <summary>
     /// 文件分片上传状态记录表
     /// </summary>
-    public class TFileGroup :CUD
+    [Table("TFileGroup")]
+    public partial class TFileGroup :CUD
     {
 
 

@@ -5,7 +5,8 @@
     /// <summary>
     /// 文件表
     /// </summary>
-    public class TFile : CD_User
+    [Table("TFile")]
+    public partial class TFile : CD_User
     {
 
 

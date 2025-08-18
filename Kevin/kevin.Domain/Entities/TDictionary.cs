@@ -4,7 +4,8 @@
     /// <summary>
     /// 字典信息表
     /// </summary>
-    public class TDictionary : CD
+    [Table("TDictionary")]
+    public partial class TDictionary : CD
     {
 
 

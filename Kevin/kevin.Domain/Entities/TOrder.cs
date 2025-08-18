@@ -6,7 +6,8 @@ namespace kevin.Domain.Kevin
     /// <summary>
     /// 订单表
     /// </summary>
-    public class TOrder : CUD_User
+    [Table("TOrder")]
+    public partial class TOrder : CUD_User
     {
 
 

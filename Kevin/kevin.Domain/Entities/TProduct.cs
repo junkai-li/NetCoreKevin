@@ -2,12 +2,12 @@
 
 namespace kevin.Domain.Kevin
 {
-
+    [Table("TProduct")]
 
     /// <summary>
     /// 产品表
     /// </summary>
-    public class TProduct : CUD_User
+    public partial class TProduct : CUD_User
     {
 
         /// <summary>

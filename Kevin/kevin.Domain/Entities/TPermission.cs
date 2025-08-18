@@ -3,7 +3,8 @@
     /// <summary>
     /// 系统权限表
     /// </summary>
-    public class TPermission
+    [Table("TPermission")]
+    public partial class TPermission
     {
         /// <summary>
         /// 主键标识ID

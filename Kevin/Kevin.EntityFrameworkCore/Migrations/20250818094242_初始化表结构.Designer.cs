@@ -12,8 +12,8 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(dbContext))]
-    [Migration("20250815055157_租户字段类型调整")]
-    partial class 租户字段类型调整
+    [Migration("20250818094242_初始化表结构")]
+    partial class 初始化表结构
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -97,7 +97,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         {
                             Id = new Guid("1b4f94ac-b697-4cbe-9626-6cd2de627538"),
                             Code = 1000,
-                            CreateTime = new DateTime(2025, 8, 15, 13, 51, 57, 81, DateTimeKind.Local).AddTicks(9827),
+                            CreateTime = new DateTime(2025, 8, 18, 17, 42, 41, 542, DateTimeKind.Local).AddTicks(7653),
                             IsDelete = 0ul,
                             Name = "admin",
                             Status = 1,
@@ -1893,7 +1893,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         new
                         {
                             Id = new Guid("c23301b7-f9e0-464c-b76d-1f0a5a557548"),
-                            CreateTime = new DateTime(2025, 8, 15, 13, 51, 57, 79, DateTimeKind.Local).AddTicks(5714),
+                            CreateTime = new DateTime(2025, 8, 18, 17, 42, 41, 540, DateTimeKind.Local).AddTicks(2109),
                             IsDelete = 0ul,
                             Name = "admin",
                             Remarks = "admin",
@@ -2157,7 +2157,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         new
                         {
                             Id = new Guid("eef5525d-5d64-46ad-8d64-79fb3ad9724f"),
-                            CreateTime = new DateTime(2025, 8, 15, 13, 51, 57, 81, DateTimeKind.Local).AddTicks(5092),
+                            CreateTime = new DateTime(2025, 8, 18, 17, 42, 41, 542, DateTimeKind.Local).AddTicks(2404),
                             Email = "admin",
                             IsDelete = 0ul,
                             IsSuperAdmin = 1ul,
@@ -2167,7 +2167,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                             Phone = "admin",
                             RoleId = new Guid("c23301b7-f9e0-464c-b76d-1f0a5a557548"),
                             TenantId = 1000,
-                            UpdateTime = new DateTime(2025, 8, 15, 13, 51, 57, 81, DateTimeKind.Local).AddTicks(5104),
+                            UpdateTime = new DateTime(2025, 8, 18, 17, 42, 41, 542, DateTimeKind.Local).AddTicks(2420),
                             xmin = 0u
                         });
                 });

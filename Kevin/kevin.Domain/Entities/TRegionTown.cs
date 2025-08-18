@@ -1,6 +1,7 @@
 ﻿namespace kevin.Domain.Kevin
 {
-    public class TRegionTown : CD
+    [Table("TRegionTown")]
+    public partial class TRegionTown : CD
     {
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]

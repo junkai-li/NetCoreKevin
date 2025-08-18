@@ -4,7 +4,8 @@
     /// <summary>
     /// 产品图片对应百度AI信息表
     /// </summary>
-    public class TImgBaiduAI : CUD
+    [Table("TImgBaiduAI")]
+    public partial class TImgBaiduAI : CUD
     {
 
 

@@ -93,7 +93,7 @@ namespace WebApi.Controllers
                     f.Sign = sign;
                     f.CreateUserId = CurrentUser.UserId;
                     f.CreateTime = DateTime.Now;
-                    db.TFile.Add(f);
+                    db.Set<TFile>().Add(f);
                     db.SaveChanges();
 
                     return f.Id;
@@ -178,7 +178,7 @@ namespace WebApi.Controllers
                 f.Sign = sign;
                 f.CreateUserId = CurrentUser.UserId;
                 f.CreateTime = DateTime.Now;
-                db.TFile.Add(f);
+                db.Set<TFile>().Add(f);
                 db.SaveChanges();
 
                 return fileName;
@@ -236,7 +236,7 @@ namespace WebApi.Controllers
         public FileResult GetFile([Required] Guid fileid)
         {
 
-            var file = db.TFile.Where(t => t.Id == fileid).FirstOrDefault();
+            var file = db.Set<TFile>().Where(t => t.Id == fileid).FirstOrDefault();
             string path = Kevin.Common.App.IO.Path.ContentRootPath() + file.Path;
 
 
@@ -274,7 +274,7 @@ namespace WebApi.Controllers
         public FileResult GetImage([Required] Guid fileId, int width, int height)
         {
 
-            var file = db.TFile.Where(t => t.Id == fileId).FirstOrDefault();
+            var file = db.Set<TFile>().Where(t => t.Id == fileId).FirstOrDefault();
             var path = Kevin.Common.App.IO.Path.ContentRootPath() + file.Path;
 
             var stream = System.IO.File.OpenRead(path);
@@ -335,7 +335,7 @@ namespace WebApi.Controllers
         public string GetFilePath([Required] Guid fileid)
         {
 
-            var file = db.TFile.Where(t => t.Id == fileid).FirstOrDefault();
+            var file = db.Set<TFile>().Where(t => t.Id == fileid).FirstOrDefault();
 
             if (file != null)
             {
@@ -368,7 +368,7 @@ namespace WebApi.Controllers
         public Guid CreateGroupFileId([Required] string business, [Required] Guid key, [Required] string sign, [Required] string fileName, [Required] int slicing, [Required] string unique)
         {
 
-            var dbfileinfo = db.TFileGroup.Where(t => t.Unique.ToLower() == unique.ToLower()).FirstOrDefault();
+            var dbfileinfo = db.Set<TFileGroup>().Where(t => t.Unique.ToLower() == unique.ToLower()).FirstOrDefault();
 
             if (dbfileinfo == null)
             {
@@ -387,7 +387,7 @@ namespace WebApi.Controllers
                 f.Sign = sign;
                 f.CreateTime = DateTime.Now;
 
-                db.TFile.Add(f);
+                db.Set<TFile>().Add(f);
                 db.SaveChanges();
 
                 TFileGroup group = new();
@@ -397,7 +397,7 @@ namespace WebApi.Controllers
                 group.Slicing = slicing;
                 group.Issynthesis = false;
                 group.Isfull = false;
-                db.TFileGroup.Add(group);
+                db.Set<TFileGroup>().Add(group);
                 db.SaveChanges();
 
                 return f.Id;
@@ -453,7 +453,7 @@ namespace WebApi.Controllers
                 }
 
 
-                var group = db.TFileGroup.Where(t => t.FileId == fileId).FirstOrDefault();
+                var group = db.Set<TFileGroup>().Where(t => t.FileId == fileId).FirstOrDefault();
 
                 var groupfile = new TFileGroupFile();
                 groupfile.Id = Guid.NewGuid();
@@ -462,7 +462,7 @@ namespace WebApi.Controllers
                 groupfile.Index = index;
                 groupfile.CreateTime = DateTime.Now;
 
-                db.TFileGroupFile.Add(groupfile);
+                db.Set<TFileGroupFile>().Add(groupfile);
 
                 if (index == group.Slicing)
                 {
@@ -478,7 +478,7 @@ namespace WebApi.Controllers
                     {
                         byte[] buffer = new byte[1024 * 100];
 
-                        var fileinfo = db.TFile.Where(t => t.Id == fileId).FirstOrDefault();
+                        var fileinfo = db.Set<TFile>().Where(t => t.Id == fileId).FirstOrDefault();
 
                         var fullfilepath = Kevin.Common.App.IO.Path.ContentRootPath() + fileinfo.Path;
 
@@ -487,7 +487,7 @@ namespace WebApi.Controllers
                             int readedLen = 0;
                             FileStream srcStream = null;
 
-                            var filelist = db.TFileGroupFile.Where(t => t.FileId == fileinfo.Id).OrderBy(t => t.Index).ToList();
+                            var filelist = db.Set<TFileGroupFile>().Where(t => t.FileId == fileinfo.Id).OrderBy(t => t.Index).ToList();
 
                             foreach (var item in filelist)
                             {
@@ -533,7 +533,7 @@ namespace WebApi.Controllers
             try
             {
 
-                var file = db.TFile.Where(t => t.IsDelete == false && t.Id == id).FirstOrDefault();
+                var file = db.Set<TFile>().Where(t => t.IsDelete == false && t.Id == id).FirstOrDefault();
 
                 file.IsDelete = true;
                 file.DeleteTime = DateTime.Now;

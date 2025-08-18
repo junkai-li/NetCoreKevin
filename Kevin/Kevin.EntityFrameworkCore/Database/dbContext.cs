@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 using Repository.Interceptors;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -44,98 +46,6 @@ namespace Repository.Database
             }
 
         }
-
-
-        public DbSet<TPermission> TPermission { get; set; }
-
-        public DbSet<TRolePermission> TRolePermission { get; set; }
-
-        public DbSet<TAlipayKey> TAlipayKey { get; set; }
-
-
-        public DbSet<TArticle> TArticle { get; set; }
-
-
-        public DbSet<TCategory> TCategory { get; set; }
-
-
-        public DbSet<TChannel> TChannel { get; set; }
-
-
-        public DbSet<TCount> TCount { get; set; }
-
-
-        public DbSet<TDictionary> TDictionary { get; set; }
-
-
-        public DbSet<TFile> TFile { get; set; }
-
-
-        public DbSet<TFileGroup> TFileGroup { get; set; }
-
-
-        public DbSet<TFileGroupFile> TFileGroupFile { get; set; }
-
-
-
-
-        public DbSet<TImgBaiduAI> TImgBaiduAI { get; set; }
-
-
-        public DbSet<TLink> TLink { get; set; }
-
-
-        public DbSet<TLog> TLog { get; set; }
-
-        public DbSet<TOSLog> TOSLog { get; set; }
-
-        public DbSet<TOrder> TOrder { get; set; }
-
-
-        public DbSet<TOrderDetail> TOrderDetail { get; set; }
-
-
-        public DbSet<TProduct> TProduct { get; set; }
-
-
-        public DbSet<TRegionArea> TRegionArea { get; set; }
-
-
-        public DbSet<TRegionCity> TRegionCity { get; set; }
-
-
-        public DbSet<TRegionProvince> TRegionProvince { get; set; }
-
-        public DbSet<TRegionTown> TRegionTown { get; set; }
-
-
-
-        public DbSet<TRole> TRole { get; set; }
-
-
-        public DbSet<TSign> TSign { get; set; }
-
-
-        public DbSet<TUser> TUser { get; set; }
-
-
-        public DbSet<TUserBindAlipay> TUserBindAlipay { get; set; }
-
-
-        public DbSet<TUserBindWeixin> TUserBindWeixin { get; set; }
-
-
-        public DbSet<TUserInfo> TUserInfo { get; set; }
-
-
-
-
-        public DbSet<TWebInfo> TWebInfo { get; set; }
-
-
-        public DbSet<TWeiXinKey> TWeiXinKey { get; set; }
-
-        public DbSet<TTenant> TTenant { get; set; }
 
 
         private static DbContextOptions<dbContext> GetDbContextOptions()
@@ -176,11 +86,32 @@ namespace Repository.Database
         }
 
 
+        public static List<Type> GetTables()
+        {
+            Assembly ser = Assembly.GetExecutingAssembly();
+            var data = ser.GetTypes().Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && a.GetCustomAttributes<TableAttribute>().Any()).ToList();
+            Assembly[] Assemblys = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (var item in Assemblys)
+            {
+                data.AddRange(item.GetTypes().Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && a.GetCustomAttributes<TableAttribute>().Any()).ToList());
+            } 
+            return data;
+        }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            #region 自动注入table
 
+            foreach (Type t in GetTables())
+            {
+                var type = Type.GetType($"{t.FullName},{t.Assembly.FullName}");
+                var attribute = type.GetCustomAttribute<TableAttribute>();
+                string tableName = attribute == null ? type.Name : attribute.Name;
+                if (modelBuilder.Model.FindEntityType(type) == null) modelBuilder.Model.AddEntityType(type);
+            }
+
+            #endregion
 
             //循环关闭所有表的级联删除功能
             foreach (var foreignKey in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
@@ -211,7 +142,7 @@ namespace Repository.Database
                 modelBuilder.Entity(entity.Name, builder =>
                 {
                     //设置生成数据库时的表名为小写格式并添加前缀 t_
-                    var tableName = builder.Metadata.ClrType.CustomAttributes.Where(t => t.AttributeType.Name == "TableAttribute").Select(t => t.ConstructorArguments.Select(c => c.Value.ToString()).FirstOrDefault()).FirstOrDefault() ?? ("t_" + entity.ClrType.Name[1..]);
+                    var tableName =("t_" + entity.ClrType.Name[1..]);
                     builder.ToTable(tableName);
 
                     //开启 PostgreSQL 全库行并发乐观锁
@@ -513,7 +444,7 @@ namespace Repository.Database
 
             if (TenantId > 0)
             {
-                var Addedlist = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Added).ToList(); 
+                var Addedlist = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Added).ToList();
                 foreach (var item in Addedlist)
                 {
                     item.Entity.GetType().GetProperty("TenantId")?.SetValue(item.Entity, TenantId);
@@ -597,7 +528,7 @@ namespace Repository.Database
 
                 if (actionUserId != null)
                 {
-                    actionUserName = db.TUser.Where(t => t.Id == actionUserId.Value).Select(t => t.Name).FirstOrDefault();
+                    actionUserName = db.Set<TUser>().Where(t => t.Id == actionUserId.Value).Select(t => t.Name).FirstOrDefault();
                 }
 
                 object[] parameters = { oldEntity, newEntity };
@@ -640,7 +571,7 @@ namespace Repository.Database
                 osLog.DeviceMark = deviceMark == "" ? null : deviceMark;
                 osLog.ActionUserId = actionUserId;
                 osLog.TenantId = TenantId;
-                db.TOSLog.Add(osLog);
+                db.Set<TOSLog>().Add(osLog);
 
             }
 

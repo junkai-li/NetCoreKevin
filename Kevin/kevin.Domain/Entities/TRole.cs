@@ -2,11 +2,11 @@
 
 namespace kevin.Domain.Kevin
 {
-
+    [Table("TRole")]
     /// <summary>
     /// 角色信息表
     /// </summary>
-    public class TRole : CD
+    public partial class TRole : CD
     {
 
         /// <summary>

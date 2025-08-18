@@ -5,7 +5,8 @@
     /// <summary>
     /// 用户和支付宝绑定关系表
     /// </summary>
-    public class TUserBindAlipay :CD
+    [Table("TUserBindAlipay")]
+    public   partial  class TUserBindAlipay :CD
     {
 
         /// <summary>

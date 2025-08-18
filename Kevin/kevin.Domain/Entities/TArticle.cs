@@ -4,7 +4,8 @@
     /// <summary>
     /// 文章表
     /// </summary>
-    public class TArticle : CD_User
+    [Table("TArticle")]
+    public partial class TArticle : CD_User
     {
 
         /// <summary>
