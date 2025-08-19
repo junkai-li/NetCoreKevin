@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Kevin.Application\kevin.Application.csproj" />
+    <ProjectReference Include="..\Kevin.Application\kevin.Application.csproj" />
     <ProjectReference Include="..\kevin.Module\Kevin.AI\Kevin.AI.csproj" />
     <ProjectReference Include="..\kevin.Module\kevin.Cache\kevin.Cache.csproj" />
     <ProjectReference Include="..\kevin.Module\kevin.Cap\kevin.Cap.csproj" />

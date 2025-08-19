@@ -7,10 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\kevin.Module\kevin.Ioc\kevin.Ioc.csproj" />
+    <ProjectReference Include="..\kevin.Module\kevin.Permission\kevin.Permission.csproj" />
     <ProjectReference Include="..\kevin.RepositorieRps\kevin.RepositorieRps.csproj" />
-    <ProjectReference Include="..\Kevin\kevin.Module\Kevin.Common\Kevin.Common.csproj" />
-    <ProjectReference Include="..\Kevin\kevin.Module\kevin.Ioc\kevin.Ioc.csproj" />
-    <ProjectReference Include="..\Kevin\kevin.Module\kevin.Permission\kevin.Permission.csproj" />
   </ItemGroup>
 
 </Project>
