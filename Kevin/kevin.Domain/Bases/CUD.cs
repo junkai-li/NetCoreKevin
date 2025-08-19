@@ -14,6 +14,7 @@ namespace kevin.Domain.Bases
         /// <summary>
         /// 更新时间
         /// </summary> 
+        [Description("更新时间")]
         public DateTime? UpdateTime { get; set; }
 
     }

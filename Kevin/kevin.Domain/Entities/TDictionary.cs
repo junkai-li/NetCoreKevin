@@ -12,7 +12,8 @@
         /// <summary>
         /// 键
         /// </summary>
-        [StringLength(100)]
+        [StringLength(200)]
+        [Description("键")]
         public string Key { get; set; }
 
 
@@ -20,7 +21,8 @@
         /// <summary>
         /// 值
         /// </summary>
-        [StringLength(100)]
+        [StringLength(200)]
+        [Description("值")]
         public string Value { get; set; }
 
 
@@ -28,6 +30,7 @@
         /// <summary>
         /// 排序
         /// </summary>
+        [Description("排序")]
         public int Sort { get; set; }
     }
 }

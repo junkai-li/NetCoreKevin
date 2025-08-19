@@ -1,26 +1,18 @@
-﻿
-using kevin.Domain.BaseDatas;
-using kevin.Domain.Bases;
-using kevin.Domain.Entities;
+﻿using Common;
 using kevin.Domain.EventBus;
 using kevin.Domain.Kevin;
-using Kevin.Common.App;
 using Kevin.EntityFrameworkCore.Configuration;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.Configuration;
 using Repository.Interceptors;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using TencentCloud.Eb.V20210416.Models;
 using Web.Global.User;
 namespace Repository.Database
 {
@@ -94,7 +86,7 @@ namespace Repository.Database
             foreach (var item in Assemblys)
             {
                 data.AddRange(item.GetTypes().Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && a.GetCustomAttributes<TableAttribute>().Any()).ToList());
-            } 
+            }
             return data;
         }
 
@@ -119,6 +111,7 @@ namespace Repository.Database
                 foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
             }
 
+            #region 注释
             //自定义外键
             //  modelBuilder.Entity<TGroupBuyActivityGroupUser>()
             //     .HasOne(p => p.GroupBuyActivityGroup)
@@ -137,44 +130,30 @@ namespace Repository.Database
             //  .WithMany()
             //  .HasForeignKey(p => p.ProductPackageId)
             //  .HasConstraintName("FK_c_productPackageIds");
+            #endregion
+
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
                 modelBuilder.Entity(entity.Name, builder =>
                 {
                     //设置生成数据库时的表名为小写格式并添加前缀 t_
-                    var tableName =("t_" + entity.ClrType.Name[1..]);
+                    var tableName = ("t_" + StringHelper.ToGidelineLower(entity.ClrType.Name[1..]));
                     builder.ToTable(tableName);
-
+                    builder.HasComment(tableName);
                     //开启 PostgreSQL 全库行并发乐观锁
-                    //builder.UseXminAsConcurrencyToken();
-
-                    //设置表的备注
-                    builder.HasComment(GetEntityComment(entity.Name));
+                    //builder.UseXminAsConcurrencyToken();  
                     //租户过滤器 
                     //Expression<Func<CD, bool>> multiTenantFilter = e => EF.Property<string>(e, "TenantId") == (TenantId ?? TenantHelper.GetSettingsTenantId());
 
                     //builder.HasQueryFilter(multiTenantFilter);
 
-                    foreach (var property in entity.GetProperties())
+                    foreach (var property in entity.GetProperties().ToList())
                     {
-                        string columnName = property.GetColumnName(StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table).Value);
-
-                        //设置字段名为小写
+                        string columnName = StringHelper.ToGidelineLower(property.GetColumnName(StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table).Value));
+                        //设置字段名 
                         property.SetColumnName(columnName);
-
-                        var baseTypeNames = new List<string>();
-                        var baseType = entity.ClrType.BaseType;
-                        while (baseType != null)
-                        {
-                            baseTypeNames.Add(baseType.FullName);
-                            baseType = baseType.BaseType;
-                        }
-
-
                         //设置字段的备注
-                        property.SetComment(GetEntityComment(entity.Name, property.Name, baseTypeNames));
-
-
+                        property.SetComment(columnName);
                         //bool to bit 使用 MySQL 时需要取消注释
                         if (property.ClrType.Name == typeof(bool).Name)
                         {
@@ -194,7 +173,6 @@ namespace Repository.Database
                         {
                             builder.HasIndex(property.Name);
                         }
-
                         //设置字段的默认值 
                         var defaultValueAttribute = property.PropertyInfo?.GetCustomAttribute<DefaultValueAttribute>();
                         if (defaultValueAttribute != null)
@@ -203,8 +181,39 @@ namespace Repository.Database
                         }
 
                     }
+
+
                 });
+
             }
+
+            #region 处理DescriptionAttribute
+
+            var ddd = modelBuilder.Model.GetEntityTypes().ToList();
+            foreach (var item in ddd)
+            {
+                var tabtype = item.ClrType;
+                if (tabtype != default)
+                {
+                    var props = tabtype.GetProperties();
+                    var descriptionAttrtable = tabtype.GetCustomAttributes(typeof(DescriptionAttribute), true);
+                    if (descriptionAttrtable.Length > 0)
+                    {
+                        modelBuilder.Entity(item.Name).HasComment(((DescriptionAttribute)descriptionAttrtable[0]).Description);
+                    }
+                    foreach (var prop in props)
+                    {
+                        var descriptionAttr = prop.GetCustomAttributes(typeof(DescriptionAttribute), true);
+                        if (descriptionAttr.Length > 0)
+                        {
+                            modelBuilder.Entity(item.Name).Property(prop.Name).HasComment(((DescriptionAttribute)descriptionAttr[0]).Description);
+                        }
+                    }
+                }
+          
+            }
+            #endregion
+
             #region 种子数据
             modelBuilder.ApplyConfiguration(new TRoleConfiguration());
             modelBuilder.ApplyConfiguration(new TUserConfiguration());
@@ -214,167 +223,180 @@ namespace Repository.Database
 
         }
 
+          
+
+
+        ///// <summary>
+        ///// 获取实体备注
+        ///// </summary>
+        ///// <param name="typeName">类型名</param>
+        ///// <param name="fieldName">字段名称</param>
+        ///// <param name="baseTypeNames"></param>
+        ///// <returns></returns>
+        //public string GetEntityComment(string typeName, string fieldName = null, List<string> baseTypeNames = null)
+        //{
+        //    var path = AppContext.BaseDirectory + "/kevin.Domain.Share.xml";
+        //    var xml = new XmlDocument();
+        //    xml.Load(path);
+        //    var memebers = xml.SelectNodes("/doc/members/member");
+
+        //    var fieldList = new Dictionary<string, string>();
+
+
+        //    if (fieldName == null)
+        //    {
+        //        var matchKey = "T:" + typeName;
+
+        //        foreach (object m in memebers)
+        //        {
+        //            if (m is XmlNode node)
+        //            {
+        //                var name = node.Attributes["name"].Value;
+
+        //                var summary = node.InnerText.Trim();
+
+        //                if (name == matchKey)
+        //                {
+        //                    fieldList.Add(name, summary);
+        //                }
+        //            }
+        //        }
+
+        //        return fieldList.FirstOrDefault(t => t.Key.ToLower() == matchKey.ToLower()).Value ?? typeName.ToString().Split(".").ToList().LastOrDefault();
+        //    }
+        //    else
+        //    {
+
+        //        foreach (object m in memebers)
+        //        {
+        //            if (m is XmlNode node)
+        //            {
+        //                var name = node.Attributes["name"].Value;
+
+        //                var summary = node.InnerText.Trim();
+
+        //                var matchKey = "P:" + typeName + ".";
+        //                if (name.StartsWith(matchKey))
+        //                {
+        //                    name = name.Replace(matchKey, "");
+        //                    fieldList.Add(name, summary);
+        //                }
+
+        //                if (baseTypeNames != null)
+        //                {
+        //                    foreach (var baseTypeName in baseTypeNames)
+        //                    {
+        //                        if (baseTypeName != null)
+        //                        {
+        //                            matchKey = "P:" + baseTypeName + ".";
+        //                            if (name.StartsWith(matchKey))
+        //                            {
+        //                                name = name.Replace(matchKey, "");
+        //                                fieldList.Add(name, summary);
+        //                            }
+        //                        }
+        //                    }
+        //                }
+
+        //            }
+        //        }
+
+        //        return fieldList.FirstOrDefault(t => t.Key.ToLower() == fieldName.ToLower()).Value ?? fieldName;
+        //    }
+
+
+        //}
+
+
+        ///// <summary>
+        ///// 数据变化比较
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        ///// <param name="original"></param>
+        ///// <param name="after"></param>
+        ///// <returns></returns>
+        //public string ComparisonEntity<T>(T original, T after) where T : new()
+        //{
+        //    var retValue = "";
+
+        //    var fields = typeof(T).GetProperties();
+
+        //    var baseTypeNames = new List<string>();
+        //    var baseType = original.GetType().BaseType;
+        //    while (baseType != null)
+        //    {
+        //        baseTypeNames.Add(baseType.FullName);
+        //        baseType = baseType.BaseType;
+        //    }
+
+        //    for (int i = 0; i < fields.Length; i++)
+        //    {
+        //        var pi = fields[i];
+
+        //        string oldValue = pi.GetValue(original)?.ToString();
+        //        string newValue = pi.GetValue(after)?.ToString();
+
+        //        string typename = pi.PropertyType.FullName;
+
+        //        if ((typename != "System.Decimal" && oldValue != newValue) || (typename == "System.Decimal" && decimal.Parse(oldValue) != decimal.Parse(newValue)))
+        //        {
+
+        //            retValue += GetEntityComment(original.GetType().ToString(), pi.Name, baseTypeNames) + ":";
+
+
+        //            if (pi.Name != "Id" & pi.Name.EndsWith("Id"))
+        //            {
+        //                var foreignTable = fields.FirstOrDefault(t => t.Name == pi.Name.Replace("Id", ""));
+
+        //                using var db = new dbContext();
+
+        //                var foreignName = foreignTable.PropertyType.GetProperties().Where(t => t.CustomAttributes.Where(c => c.AttributeType.Name == "ForeignNameAttribute").Count() > 0).FirstOrDefault();
+
+        //                if (foreignName != null)
+        //                {
+
+        //                    if (oldValue != null)
+        //                    {
+        //                        var oldForeignInfo = db.Find(foreignTable.PropertyType, Guid.Parse(oldValue));
+        //                        oldValue = foreignName.GetValue(oldForeignInfo).ToString();
+        //                    }
+
+        //                    if (newValue != null)
+        //                    {
+        //                        var newForeignInfo = db.Find(foreignTable.PropertyType, Guid.Parse(newValue));
+        //                        newValue = foreignName.GetValue(newForeignInfo).ToString();
+        //                    }
+
+        //                }
+
+        //                retValue += (oldValue ?? "") + " -> ";
+        //                retValue += (newValue ?? "") + "； \n";
+
+        //            }
+        //            else if (typename == "System.Boolean")
+        //            {
+        //                retValue += (oldValue != null ? (bool.Parse(oldValue) ? "是" : "否") : "") + " -> ";
+        //                retValue += (newValue != null ? (bool.Parse(newValue) ? "是" : "否") : "") + "； \n";
+        //            }
+        //            else if (typename == "System.DateTime")
+        //            {
+        //                retValue += (oldValue != null ? DateTime.Parse(oldValue).ToString("yyyy-MM-dd") : "") + " ->";
+        //                retValue += (newValue != null ? DateTime.Parse(newValue).ToString("yyyy-MM-dd") : "") + "； \n";
+        //            }
+        //            else
+        //            {
+        //                retValue += (oldValue ?? "") + " -> ";
+        //                retValue += (newValue ?? "") + "； \n";
+        //            }
+
+        //        }
 
 
 
-        public string GetEntityComment(string typeName, string fieldName = null, List<string> baseTypeNames = null)
-        {
-            var path = AppContext.BaseDirectory + "/kevin.Domain.Share.xml";
-            var xml = new XmlDocument();
-            xml.Load(path);
-            var memebers = xml.SelectNodes("/doc/members/member");
+        //    }
 
-            var fieldList = new Dictionary<string, string>();
-
-
-            if (fieldName == null)
-            {
-                var matchKey = "T:" + typeName;
-
-                foreach (object m in memebers)
-                {
-                    if (m is XmlNode node)
-                    {
-                        var name = node.Attributes["name"].Value;
-
-                        var summary = node.InnerText.Trim();
-
-                        if (name == matchKey)
-                        {
-                            fieldList.Add(name, summary);
-                        }
-                    }
-                }
-
-                return fieldList.FirstOrDefault(t => t.Key.ToLower() == matchKey.ToLower()).Value ?? typeName.ToString().Split(".").ToList().LastOrDefault();
-            }
-            else
-            {
-
-                foreach (object m in memebers)
-                {
-                    if (m is XmlNode node)
-                    {
-                        var name = node.Attributes["name"].Value;
-
-                        var summary = node.InnerText.Trim();
-
-                        var matchKey = "P:" + typeName + ".";
-                        if (name.StartsWith(matchKey))
-                        {
-                            name = name.Replace(matchKey, "");
-                            fieldList.Add(name, summary);
-                        }
-
-                        if (baseTypeNames != null)
-                        {
-                            foreach (var baseTypeName in baseTypeNames)
-                            {
-                                if (baseTypeName != null)
-                                {
-                                    matchKey = "P:" + baseTypeName + ".";
-                                    if (name.StartsWith(matchKey))
-                                    {
-                                        name = name.Replace(matchKey, "");
-                                        fieldList.Add(name, summary);
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-                }
-
-                return fieldList.FirstOrDefault(t => t.Key.ToLower() == fieldName.ToLower()).Value ?? fieldName;
-            }
-
-
-        }
-
-
-
-        public string ComparisonEntity<T>(T original, T after) where T : new()
-        {
-            var retValue = "";
-
-            var fields = typeof(T).GetProperties();
-
-            var baseTypeNames = new List<string>();
-            var baseType = original.GetType().BaseType;
-            while (baseType != null)
-            {
-                baseTypeNames.Add(baseType.FullName);
-                baseType = baseType.BaseType;
-            }
-
-            for (int i = 0; i < fields.Length; i++)
-            {
-                var pi = fields[i];
-
-                string oldValue = pi.GetValue(original)?.ToString();
-                string newValue = pi.GetValue(after)?.ToString();
-
-                string typename = pi.PropertyType.FullName;
-
-                if ((typename != "System.Decimal" && oldValue != newValue) || (typename == "System.Decimal" && decimal.Parse(oldValue) != decimal.Parse(newValue)))
-                {
-
-                    retValue += GetEntityComment(original.GetType().ToString(), pi.Name, baseTypeNames) + ":";
-
-
-                    if (pi.Name != "Id" & pi.Name.EndsWith("Id"))
-                    {
-                        var foreignTable = fields.FirstOrDefault(t => t.Name == pi.Name.Replace("Id", ""));
-
-                        using var db = new dbContext();
-
-                        var foreignName = foreignTable.PropertyType.GetProperties().Where(t => t.CustomAttributes.Where(c => c.AttributeType.Name == "ForeignNameAttribute").Count() > 0).FirstOrDefault();
-
-                        if (foreignName != null)
-                        {
-
-                            if (oldValue != null)
-                            {
-                                var oldForeignInfo = db.Find(foreignTable.PropertyType, Guid.Parse(oldValue));
-                                oldValue = foreignName.GetValue(oldForeignInfo).ToString();
-                            }
-
-                            if (newValue != null)
-                            {
-                                var newForeignInfo = db.Find(foreignTable.PropertyType, Guid.Parse(newValue));
-                                newValue = foreignName.GetValue(newForeignInfo).ToString();
-                            }
-
-                        }
-
-                        retValue += (oldValue ?? "") + " -> ";
-                        retValue += (newValue ?? "") + "； \n";
-
-                    }
-                    else if (typename == "System.Boolean")
-                    {
-                        retValue += (oldValue != null ? (bool.Parse(oldValue) ? "是" : "否") : "") + " -> ";
-                        retValue += (newValue != null ? (bool.Parse(newValue) ? "是" : "否") : "") + "； \n";
-                    }
-                    else if (typename == "System.DateTime")
-                    {
-                        retValue += (oldValue != null ? DateTime.Parse(oldValue).ToString("yyyy-MM-dd") : "") + " ->";
-                        retValue += (newValue != null ? DateTime.Parse(newValue).ToString("yyyy-MM-dd") : "") + "； \n";
-                    }
-                    else
-                    {
-                        retValue += (oldValue ?? "") + " -> ";
-                        retValue += (newValue ?? "") + "； \n";
-                    }
-
-                }
-
-
-
-            }
-
-            return retValue;
-        }
+        //    return retValue;
+        //}
 
 
         public override int SaveChanges()

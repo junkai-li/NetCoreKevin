@@ -1,9 +1,11 @@
 ﻿namespace kevin.Domain.Kevin
 {
-    [Table("TRegionProvince")]
+
     /// <summary>
     /// 省份信息表
     /// </summary>
+    [Table("TRegionProvince")]
+    [Description("省份信息表")]
     public partial class TRegionProvince : CD
     {
 
@@ -16,6 +18,7 @@
         /// 省份
         /// </summary>
         [StringLength(200)]
+        [Description("省份")]
         public string Province { get; set; }
 
 

@@ -568,6 +568,10 @@ namespace Common
                     newStr += item;
                 }
             }
+            if (newStr.IndexOf("_") == 0)
+            {
+                return newStr[1..];
+            }
             return newStr;
         }
     }

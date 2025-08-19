@@ -13,6 +13,7 @@ namespace kevin.Domain.Bases
         /// <summary>
         /// 创建人ID
         /// </summary>
+        [Description("创建人ID")]
         public Guid CreateUserId { get; set; }
         public virtual TUser CreateUser { get; set; }
 
@@ -21,6 +22,7 @@ namespace kevin.Domain.Bases
         /// <summary>
         /// 删除人ID
         /// </summary>
+        [Description("删除人ID")]
         public Guid? DeleteUserId { get; set; }
         public virtual TUser DeleteUser { get; set; }
     }

@@ -1,14 +1,17 @@
 ﻿namespace kevin.Domain.Kevin
 {
-    [Table("TRegionArea")]
+
     /// <summary>
     /// 区域信息表
     /// </summary>
+    [Table("TRegionArea")]
+    [Description("区域信息表")]
     public partial class TRegionArea : CD
     {
 
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        [Description("Id")]
         public new int Id { get; set; }
 
 
@@ -17,6 +20,7 @@
         /// 区域名称
         /// </summary>
         [StringLength(200)]
+        [Description("区域名称")]
         public string Area { get; set; }
 
 
@@ -24,6 +28,7 @@
         /// <summary>
         /// 所属城市ID
         /// </summary>
+        [Description("所属城市ID")]
         public int CityId { get; set; }
         public virtual TRegionCity City { get; set; }
 

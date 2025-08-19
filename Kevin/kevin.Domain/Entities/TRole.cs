@@ -2,10 +2,12 @@
 
 namespace kevin.Domain.Kevin
 {
-    [Table("TRole")]
+
     /// <summary>
     /// 角色信息表
     /// </summary>
+    [Description("角色信息表")]
+    [Table("TRole")]
     public partial class TRole : CD
     {
 
@@ -14,6 +16,7 @@ namespace kevin.Domain.Kevin
         /// </summary>
         [ForeignName]
         [StringLength(100)]
+        [Description("角色名称")]
         public string Name { get; set; }
 
 
@@ -21,6 +24,7 @@ namespace kevin.Domain.Kevin
         /// 备注信息
         /// </summary>
         [StringLength(500)]
+        [Description("备注信息")]
         public string Remarks { get; set; }
 
 

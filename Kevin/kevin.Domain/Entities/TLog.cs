@@ -7,6 +7,7 @@ namespace kevin.Domain.Kevin
     /// 日志表
     /// </summary>
     [Table("TLog")]
+    [Description("日志表")]
     public partial class TLog : CD
     {
         public TLog(string sign, string type, string content)
@@ -22,6 +23,7 @@ namespace kevin.Domain.Kevin
         /// 标记
         /// </summary>
         [StringLength(50)]
+        [Description("标记")]
         public string Sign { get; set; }
 
 
@@ -29,6 +31,7 @@ namespace kevin.Domain.Kevin
         /// 类型
         /// </summary>
         [StringLength(50)]
+        [Description("类型")]
         public string Type { get; set; }
 
 
@@ -36,6 +39,7 @@ namespace kevin.Domain.Kevin
         /// <summary>
         /// 内容
         /// </summary>
+        [Description("内容")]
         public string Content { get; set; }
 
     }
