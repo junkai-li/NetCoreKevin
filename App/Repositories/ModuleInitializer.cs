@@ -14,7 +14,7 @@ namespace App.RepositorieRps
             {
                 GlobalServices.AddIRepositry(t); 
             }); 
-            Console.WriteLine("仓储服务注入完成");
+            Console.WriteLine("App.RepositorieRps仓储服务注入完成");
         } 
     }
 }

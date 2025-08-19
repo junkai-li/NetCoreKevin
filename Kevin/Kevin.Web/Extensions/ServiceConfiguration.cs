@@ -103,8 +103,7 @@ namespace Web.Extension
             services.AddControllersWithViews().AddControllersAsServices();
             services.ReplaceIocControllerActivator();
             //App服务注册
-            RegisterAppServices(services, Configuration);
-            services.AddKevinPermission();
+            RegisterAppServices(services, Configuration); 
             //services.AddKevinCors(Configuration.GetSection("CorsSetting").Get<CorsSetting>());
             //services.AddKevinSignalR(Configuration);
   
@@ -233,7 +232,7 @@ namespace Web.Extension
             Repository.Database.dbContext.ConnectionString = Configuration.GetConnectionString("dbConnection");
             services.AddDbContextPool<Repository.Database.dbContext>(options => { }, 100);
             services.AddScoped<dbContext, dbContext>();
-            services.AddScoped<ICurrentUser, CurrentUser>();
+            
             //注入事务对象
             //services.AddScoped<TransactionScopeFilter>();
             #endregion

@@ -1,11 +1,11 @@
 ﻿using IdentityModel.Client;
 using kevin.Cache.Service;
 using kevin.Domain.Entities;
+using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Kevin;
 using Medallion.Threading;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service.Services.v1._;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;

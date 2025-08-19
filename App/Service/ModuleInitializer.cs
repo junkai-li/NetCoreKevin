@@ -15,7 +15,7 @@ namespace App.Application
             {
                 GlobalServices.AddIService(t);
             }); 
-            Console.WriteLine("AppBaseService服务注册完成");
+            Console.WriteLine("App.Application服务注册完成");
         }
          
     }

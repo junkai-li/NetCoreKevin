@@ -1,9 +1,9 @@
-﻿using kevin.Permission.Permisson.Attributes;
+﻿using kevin.Domain.Interfaces.IServices;
+using kevin.Domain.Share.Dtos.User;
+using kevin.Permission.Permisson.Attributes;
 using kevin.Share.Dtos.System;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service.Dtos.v1.User;
-using Service.Services.v1._;
 using System.ComponentModel.DataAnnotations;
 using Web.Filters;
 

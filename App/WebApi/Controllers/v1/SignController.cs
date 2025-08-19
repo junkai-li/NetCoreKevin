@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using kevin.Domain.Interfaces.IServices;
+using kevin.Domain.Share.Dtos.Sign;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service.Dtos.v1.Sign;
-using Service.Services.v1._;
 
 namespace WebApi.Controllers.v1
 {

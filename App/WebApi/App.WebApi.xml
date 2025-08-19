@@ -226,14 +226,14 @@
             <param name="sign"></param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.SignController.AddSign(Service.Dtos.v1.Sign.dtoSign)">
+        <member name="M:WebApi.Controllers.v1.SignController.AddSign(kevin.Domain.Share.Dtos.Sign.dtoSign)">
             <summary>
             新增标记
             </summary>
             <param name="addSign"></param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.SignController.DeleteSign(Service.Dtos.v1.Sign.dtoSign)">
+        <member name="M:WebApi.Controllers.v1.SignController.DeleteSign(kevin.Domain.Share.Dtos.Sign.dtoSign)">
             <summary>
             删除标记
             </summary>
@@ -283,14 +283,14 @@
             <param name="keyValue">key为新密码，value为短信验证码</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.GetUserList(kevin.Share.Dtos.dtoPageData{Service.Dtos.v1.User.dtoUser})">
+        <member name="M:WebApi.Controllers.v1.UserController.GetUserList(kevin.Share.Dtos.dtoPageData{kevin.Domain.Share.Dtos.User.dtoUser})">
             <summary>
             获取小程序用户列表信息
             </summary>
             <param name="dtoPage"></param> 
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.GetSysUserList(kevin.Share.Dtos.dtoPageData{Service.Dtos.v1.User.dtoUser})">
+        <member name="M:WebApi.Controllers.v1.UserController.GetSysUserList(kevin.Share.Dtos.dtoPageData{kevin.Domain.Share.Dtos.User.dtoUser})">
             <summary>
             获取系统用户列表信息
             </summary>
@@ -304,7 +304,7 @@
             <param name="Id">用户ID</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.EditUser(Service.Dtos.v1.User.dtoUser)">
+        <member name="M:WebApi.Controllers.v1.UserController.EditUser(kevin.Domain.Share.Dtos.User.dtoUser)">
             <summary>
             新增编辑用户信息 
             </summary>
@@ -421,7 +421,7 @@
             </summary> 
             <returns></returns>
         </member>
-        <member name="M:AdminApi.Controllers.PermissionController.EditAllAreaPermissions(kevin.Permission.Permisson.PermissionEditDto)">
+        <member name="M:AdminApi.Controllers.PermissionController.EditAllAreaPermissions(kevin.Domain.Share.Dtos.System.PermissionEditDto)">
             <summary>
             编辑角色对应权限
             </summary> 

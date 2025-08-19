@@ -8,6 +8,9 @@
 
   <ItemGroup>
     <Folder Include="Entities\" />
+    <Folder Include="EventHandlers\" />
+    <Folder Include="Events\" />
+    <Folder Include="Interfaces\Repositorie\v1\" />
   </ItemGroup>
 
   <ItemGroup>

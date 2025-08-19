@@ -211,6 +211,26 @@
             id
             </summary>
         </member>
+        <member name="T:kevin.Domain.Share.Dtos.Sign.dtoSign">
+            <summary>
+            标记喜欢方法入参
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Sign.dtoSign.Table">
+            <summary>
+            表名
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Sign.dtoSign.TableId">
+            <summary>
+            记录ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Sign.dtoSign.Sign">
+            <summary>
+            标记
+            </summary>
+        </member>
         <!-- Badly formed XML comment ignored for member "P:kevin.Domain.Share.Dtos.System.dtoTenant.Id" -->
         <member name="P:kevin.Domain.Share.Dtos.System.dtoTenant.Code">
             <summary>
@@ -232,20 +252,95 @@
             创建时间
             </summary>S
         </member>
-        <member name="M:kevin.Domain.Share.Interfaces.IKevinPermissionService.IsAccess(System.String,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Id">
             <summary>
-            验证权限
+            Id
             </summary>
-            <param name="permissionId"></param>
-            <param name="httpContext"></param>
-            <returns></returns>
         </member>
-        <member name="M:kevin.Domain.Share.Interfaces.IKevinPermissionService.GetUserPermissions(System.String)">
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Name">
             <summary>
-            获取用户所拥有的权限列表
+            用户名
             </summary>
-            <param name="userId"></param>
-            <returns></returns>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.NickName">
+            <summary>
+            昵称
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Phone">
+            <summary>
+            手机号
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Email">
+            <summary>
+            邮箱
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.RoleId">
+            <summary>
+            角色
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Role">
+            <summary>
+            角色
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.PassWord">
+            <summary>
+            密码
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.CreateTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
+        <member name="P:kevin.Permission.Permission.ActionPermissionDto.HttpMethod">
+            <summary>
+            Method;
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permission.ActionPermissionDto.IsManual">
+            <summary>
+            手动添加;
+            </summary>
+        </member>
+        <member name="P:kevin.Permission.Permission.ActionPermissionDto.IsPermission">
+            <summary>
+            是否有权限？
+            </summary>
+        </member>
+        <member name="P:kevin.Permission.Permission.ActionPermissionDto.Seq">
+            <summary>
+            序号;
+            </summary>
+        </member>
+        <member name="P:kevin.Permission.Permission.ActionPermissionDto.Icon">
+            <summary>
+            图标;
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permission.ActionPermissionDto.CreatedBy">
+            <summary>
+            创建人;
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permission.ActionPermissionDto.CreatedTime">
+            <summary>
+            创建时间;
+            </summary>
+        </member>
+        <member name="P:kevin.Permission.Permission.ActionPermissionDto.UpdatedBy">
+            <summary>
+            编辑人;
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permission.ActionPermissionDto.UpdatedTime">
+            <summary>
+            更新时间;
+            </summary>
         </member>
         <member name="T:Models.JwtBearer.JwtSettings">
             <summary>

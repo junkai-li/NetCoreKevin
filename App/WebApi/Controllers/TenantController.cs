@@ -1,12 +1,8 @@
-﻿using App.Domain.Interfaces.Services.v1;
+﻿using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.System;
-using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Service.Services.v1;
-using Service.Services.v1._;
 using System.Threading.Tasks;
 
 namespace App.WebApi.Controllers

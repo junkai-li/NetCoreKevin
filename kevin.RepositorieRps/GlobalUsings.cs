@@ -1,0 +1,1 @@
+﻿global using kevin.Domain.Interfaces.IRepositories;

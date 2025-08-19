@@ -1,8 +1,8 @@
 ﻿using Common.IO;
 using IdentityModel.Client;
 using kevin.Cache.Service;
-using kevin.Domain.Share.Interfaces;
-using kevin.Permission.Permisson.Attributes; 
+using kevin.Permission.Interfaces;
+using kevin.Permission.Permisson.Attributes;
 using Kevin.Common.App;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

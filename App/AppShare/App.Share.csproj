@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <Folder Include="Consts\" />
+    <Folder Include="Dtos\v1\" />
     <Folder Include="Enums\" />
   </ItemGroup>
   

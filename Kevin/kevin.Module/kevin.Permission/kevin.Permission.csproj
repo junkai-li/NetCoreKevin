@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -13,8 +13,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Kevin.EntityFrameworkCore\Kevin.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\kevin.Share\kevin.Domain.Share.csproj" />
     <ProjectReference Include="..\kevin.Cache\kevin.Cache.csproj" />
-    <ProjectReference Include="..\Kevin.Common\Kevin.Common.csproj" />
   </ItemGroup>
 
 </Project>

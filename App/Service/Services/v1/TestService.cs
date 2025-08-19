@@ -1,5 +1,6 @@
-﻿using App.Domain.Interfaces.Repositorie.v1;
-using AppServices.Services.v1._;
+﻿using AppServices.Services.v1._;
+using kevin.Application;
+using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Kevin;
 using Microsoft.AspNetCore.Http;
 using System;
