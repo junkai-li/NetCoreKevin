@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Web.Base._;
-
-namespace kevin.Domain.Interfaces.IServices
+﻿namespace kevin.Domain.Interfaces.IServices
 {
     public interface IHttpLogService: IBaseService
     {

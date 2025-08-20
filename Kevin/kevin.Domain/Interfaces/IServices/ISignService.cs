@@ -1,5 +1,4 @@
 ﻿using kevin.Domain.Share.Dtos.Sign;
-using Web.Base._;
 
 namespace kevin.Domain.Interfaces.IServices
 {

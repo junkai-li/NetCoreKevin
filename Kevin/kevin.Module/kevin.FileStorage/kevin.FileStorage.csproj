@@ -13,4 +13,8 @@
     <PackageReference Include="Tencent.QCloud.Cos.Sdk" Version="5.4.45" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\kevin.Share\kevin.Domain.Share.csproj" />
+  </ItemGroup>
+
 </Project>
