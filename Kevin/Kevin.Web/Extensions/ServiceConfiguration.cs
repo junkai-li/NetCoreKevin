@@ -21,6 +21,7 @@ using Repository.Database;
 using System;
 using Web.Filters;
 using Web.Global.User;
+using kevin.FileStorage;
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -148,14 +149,14 @@ namespace Web.Extension
             //});
 
 
-            //services.AddAliCloudStorage(options =>
-            //{
-            //    var settings =Configuration.GetRequiredSection("AliCloudFileStorage").Get<kevin.FileStorage.AliCloud.Models.FileStorageSetting>()!;
-            //    options.Endpoint = settings.Endpoint;
-            //    options.AccessKeyId = settings.AccessKeyId;
-            //    options.AccessKeySecret = settings.AccessKeySecret;
-            //    options.BucketName = settings.BucketName;
-            //});
+            services.AddAliCloudStorage(options =>
+            {
+                var settings = Configuration.GetRequiredSection("AliCloudFileStorage").Get<kevin.FileStorage.AliCloud.Models.FileStorageSetting>()!;
+                options.Endpoint = settings.Endpoint;
+                options.AccessKeyId = settings.AccessKeyId;
+                options.AccessKeySecret = settings.AccessKeySecret;
+                options.BucketName = settings.BucketName;
+            });
 
             #endregion
 
@@ -235,9 +236,9 @@ namespace Web.Extension
             //请求获取 -（GC回收 - 主动释放） 每一次获取的对象都不是同一个
             #region 基本服务
             //为各数据库注入连接字符串
-            Repository.Database.dbContext.ConnectionString = Configuration.GetConnectionString("dbConnection");
-            services.AddDbContextPool<Repository.Database.dbContext>(options => { }, 100);
-            services.AddScoped<dbContext, dbContext>();
+            Repository.Database.KevinDbContext.ConnectionString = Configuration.GetConnectionString("dbConnection");
+            services.AddDbContextPool<Repository.Database.KevinDbContext>(options => { }, 100);
+            services.AddScoped<KevinDbContext, KevinDbContext>();
             
             //注入事务对象
             //services.AddScoped<TransactionScopeFilter>();

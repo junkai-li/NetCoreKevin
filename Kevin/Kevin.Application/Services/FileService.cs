@@ -201,7 +201,7 @@ namespace kevin.Application.Services
         }
         async Task<Guid> IFileService.CreateGroupFileId(string business, Guid key, string sign, string fileName, int slicing, string unique)
         {
-            using var db = new dbContext();
+            using var db = new KevinDbContext();
             var dbfileinfo = db.Set<TFileGroup>().Where(t => t.Unique.ToLower() == unique.ToLower()).FirstOrDefault(); 
             if (dbfileinfo == null)
             {
@@ -238,7 +238,7 @@ namespace kevin.Application.Services
         {
             try
             {
-                using var db = new dbContext();
+                using var db = new KevinDbContext();
                 var url = string.Empty;
                 var fileName = string.Empty;
                 var fileExtension = string.Empty;

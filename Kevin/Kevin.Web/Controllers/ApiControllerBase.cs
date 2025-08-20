@@ -10,7 +10,7 @@ namespace Kevin.Web.Controllers
     public class ApiControllerBase : ControllerBase
     {
         [IocProperty]
-        public dbContext db { get; set; }
+        public KevinDbContext db { get; set; }
         [IocProperty]
         public ICurrentUser CurrentUser { get; set; }
         [IocProperty]

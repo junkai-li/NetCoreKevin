@@ -11,7 +11,7 @@ using Repository.Database;
 
 namespace Kevin.EntityFrameworkCore.Migrations
 {
-    [DbContext(typeof(dbContext))]
+    [DbContext(typeof(KevinDbContext))]
     [Migration("20250820022612_请求日志表1")]
     partial class 请求日志表1
     {

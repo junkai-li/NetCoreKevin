@@ -17,7 +17,7 @@ using System.Xml;
 using Web.Global.User;
 namespace Repository.Database
 {
-    public class dbContext : DbContext
+    public class KevinDbContext : DbContext
     {
 
         private IMediator? Mediator;
@@ -26,7 +26,7 @@ namespace Repository.Database
         public Int32 TenantId { get; set; }
 
 
-        public dbContext(DbContextOptions<dbContext> _ = default, IMediator? mediator = default, ICurrentUser service = default) : base(GetDbContextOptions())
+        public KevinDbContext(DbContextOptions<KevinDbContext> _ = default, IMediator? mediator = default, ICurrentUser service = default) : base(GetDbContextOptions())
         {
             if (mediator != default)
             {
@@ -41,10 +41,10 @@ namespace Repository.Database
         }
 
 
-        private static DbContextOptions<dbContext> GetDbContextOptions()
+        private static DbContextOptions<KevinDbContext> GetDbContextOptions()
         {
 
-            var optionsBuilder = new DbContextOptionsBuilder<dbContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<KevinDbContext>();
 
 
             //SQLServer:"Data Source=localhost;Initial Catalog=webcore;User ID=sa;Password=123456;Max Pool Size=100;Encrypt=False"
@@ -271,7 +271,7 @@ namespace Repository.Database
                     {
                         var foreignTable = fields.FirstOrDefault(t => t.Name == pi.Name.Replace("Id", ""));
 
-                        using var db = new dbContext();
+                        using var db = new KevinDbContext();
 
                         var foreignName = foreignTable.PropertyType.GetProperties().Where(t => t.CustomAttributes.Where(c => c.AttributeType.Name == "ForeignNameAttribute").Count() > 0).FirstOrDefault();
 
@@ -325,7 +325,7 @@ namespace Repository.Database
         public override int SaveChanges()
         {
 
-            dbContext db = this;
+            KevinDbContext db = this;
 
             #region 发布领域事件
             if (Mediator != default)
@@ -364,7 +364,7 @@ namespace Repository.Database
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess = false, CancellationToken cancellationToken = default)
         {
 
-            dbContext db = this;
+            KevinDbContext db = this;
 
             #region 发布领域事件
 
@@ -442,7 +442,7 @@ namespace Repository.Database
         public int SaveChangesWithSaveLog(Guid? actionUserId = null, string ipAddress = null, string deviceMark = null)
         {
 
-            dbContext db = this;
+            KevinDbContext db = this;
 
             var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
             foreach (var item in list)
@@ -478,7 +478,7 @@ namespace Repository.Database
 
                 object[] parameters = { oldEntity, newEntity };
 
-                var result = new dbContext().GetType().GetMethod("ComparisonEntity").MakeGenericMethod(type).Invoke(new dbContext(), parameters);
+                var result = new KevinDbContext().GetType().GetMethod("ComparisonEntity").MakeGenericMethod(type).Invoke(new KevinDbContext(), parameters);
 
                 if (ipAddress == null | deviceMark == null)
                 {

@@ -12,7 +12,7 @@ namespace kevin.Application
 
         public List<string> GetAllPermissionIds()
         {
-            using (var db = new dbContext())
+            using (var db = new KevinDbContext())
             {
                 return db.Set<TPermission>().Where(x => x.IsDelete == false).Select(x => x.Id).ToList();
 
@@ -20,7 +20,7 @@ namespace kevin.Application
         }
         public List<Guid> GetUserRoleIds(string userId)
         {
-            using var db = new dbContext();
+            using var db = new KevinDbContext();
             var user = db.Set<TUser>().Where(x => x.IsDelete == false && x.Id == Guid.Parse(userId)).FirstOrDefault();
             if (user != null)
             {
@@ -38,7 +38,7 @@ namespace kevin.Application
         }
         public List<string> GetRolePermissions(List<Guid> roleIds)
         {
-            using (var db = new dbContext())
+            using (var db = new KevinDbContext())
             {
 
                 return db.Set<TRolePermission>().Where(r => r.IsDelete == false && roleIds.Contains(r.RoleId)).Select(r => r.PermissionId).Distinct().ToList(); ;
@@ -57,7 +57,7 @@ namespace kevin.Application
             {
                 return new();
             }
-            using (var db = new dbContext())
+            using (var db = new KevinDbContext())
             {
                 var permList = GetAllPermissionIds();
                 var allRoleIds = GetUserRoleIds(userId);

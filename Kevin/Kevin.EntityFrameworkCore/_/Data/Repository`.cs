@@ -26,7 +26,7 @@ namespace Kevin.EntityFrameworkCore._.Data
 
             try
             {
-                Context = serviceProvider.GetService<dbContext>();
+                Context = serviceProvider.GetService<KevinDbContext>();
                 DbSet = Context.Set<T>();
                 ServiceProvider = serviceProvider;
                 CurrentUser = serviceProvider.GetService<ICurrentUser>();
@@ -39,7 +39,7 @@ namespace Kevin.EntityFrameworkCore._.Data
             }
         }
 
-        protected dbContext Context { get; }
+        protected KevinDbContext Context { get; }
 
         protected DbSet<T> DbSet { get; }
 

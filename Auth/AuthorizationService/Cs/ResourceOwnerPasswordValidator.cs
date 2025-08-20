@@ -83,7 +83,7 @@ namespace AuthorizationService
                     }
                     else
                     {
-                        using (var db = new dbContext())
+                        using (var db = new KevinDbContext())
                         {
                             uMUser = db.Set<TUser>().Where(x => x.IsDelete == false && x.Id.ToString() == context.UserName).Select(x => new uMClientUserDto
                             {

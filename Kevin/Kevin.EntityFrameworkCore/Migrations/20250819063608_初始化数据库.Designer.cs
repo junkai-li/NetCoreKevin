@@ -11,7 +11,7 @@ using Repository.Database;
 
 namespace Kevin.EntityFrameworkCore.Migrations
 {
-    [DbContext(typeof(dbContext))]
+    [DbContext(typeof(KevinDbContext))]
     [Migration("20250819063608_初始化数据库")]
     partial class 初始化数据库
     {

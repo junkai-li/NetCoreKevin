@@ -59,7 +59,7 @@
             <typeparam name="T"></typeparam>
             <typeparam name="TId"></typeparam>
         </member>
-        <member name="M:Repository.Database.dbContext.MediatorEventBus(System.Collections.Generic.List{Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry{kevin.Domain.EventBus.IDomainEvents}})">
+        <member name="M:Repository.Database.KevinDbContext.MediatorEventBus(System.Collections.Generic.List{Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry{kevin.Domain.EventBus.IDomainEvents}})">
             <summary>
             领域事件调用
             </summary>

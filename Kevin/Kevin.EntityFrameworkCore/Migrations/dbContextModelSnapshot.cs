@@ -10,7 +10,7 @@ using Repository.Database;
 
 namespace Kevin.EntityFrameworkCore.Migrations
 {
-    [DbContext(typeof(dbContext))]
+    [DbContext(typeof(KevinDbContext))]
     partial class dbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
