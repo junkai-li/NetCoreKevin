@@ -113,7 +113,7 @@ namespace Web.Filters
         {
             var Result = context.Result as ObjectResult;
             //判断是否流文件
-            if (context.Result == null || context.Result.GetType() != typeof(FileStreamResult))
+            if (context.Result == null || context.Result.GetType().BaseType != typeof(FileResult))
             {
                 //格式化返回值
                 resultFormatting(Result);
