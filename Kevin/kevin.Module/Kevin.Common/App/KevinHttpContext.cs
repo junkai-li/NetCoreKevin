@@ -127,11 +127,57 @@ namespace Kevin.Common.App
         /// <returns></returns>
         public static string GetIpAddress(this IHttpContextAccessor httpContext)
         {
-            return httpContext.Current().Connection.RemoteIpAddress.ToString();
+            try
+            {
+                var ip = httpContext.Current().Request.Headers["X-Forwarded-For"].FirstOrDefault();
+                if (string.IsNullOrEmpty(ip))
+                {
+                    ip = httpContext.Current().Connection.RemoteIpAddress.ToString();
+                }
+                return ip;
+            }
+            catch
+            {
+
+                return "";
+            }
+        }
+        /// <summary>
+        /// 获取Url信息
+        /// </summary>
+        /// <returns></returns>
+        public static string GetUrlAction(this IHttpContextAccessor httpContext)
+        {
+            try
+            {
+                return GetBaseUrl(httpContext) + $"{httpContext.Current().Request.Path}";
+            }
+            catch
+            {
+
+                return "";
+            }
+
         }
 
+        /// <summary>
+        /// 获取设备信息
+        /// </summary>
+        /// <returns></returns>
+        public static string GetDevice(this IHttpContextAccessor httpContext)
+        {
 
+            try
+            {
+                string device = httpContext.Current().Request.Headers["User-Agent"];
+                return device;
+            }
+            catch
+            {
 
+                return "";
+            }
+        }
         /// <summary>
         /// 获取Header中的值
         /// </summary>

@@ -3,6 +3,7 @@ using kevin.Cache.Service;
 using kevin.Domain.Entities;
 using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Kevin;
+using kevin.Domain.Share.Attributes;
 using Medallion.Threading;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -61,6 +62,7 @@ namespace WebApi.Controllers
         ///// <param name="login">登录信息集合</param>
         ///// <returns></returns>
         [HttpPost("GetToken")]
+        [HttpLog("登录", "GetToken获取Token认证信息")]
         public async Task<string> GetToken([FromBody] dtoLogin login)
         {
             var TTenant = db.Set<TTenant>().FirstOrDefault(t => t.Code == login.TenantId);
@@ -112,6 +114,7 @@ namespace WebApi.Controllers
         /// <param name="keyValue">key 为weixinkeyid, value 为 code</param>
         /// <returns></returns>
         [HttpPost("GetTokenByWeiXinMiniAppCode")]
+        [HttpLog("登录", "GetTokenByWeiXinMiniAppCode通过微信小程序Code获取Token认证信息")]
         public async Task<string> GetTokenByWeiXinMiniAppCode([FromBody] dtoKeyValue keyValue)
         {
 
@@ -215,6 +218,7 @@ namespace WebApi.Controllers
         /// <param name="keyValue">key 为手机号，value 为验证码</param>
         /// <returns></returns>
         [HttpPost("GetTokenBySms")]
+        [HttpLog("登录", "GetTokenBySms利用手机号和短信验证码获取Token认证信息")]  
         public async Task<string> GetTokenBySms(dtoKeyValue keyValue)
         {
             if (Web.Auth.AuthorizeAction.SmsVerifyPhone(keyValue))

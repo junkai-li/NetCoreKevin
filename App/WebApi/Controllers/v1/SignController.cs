@@ -1,4 +1,5 @@
 ﻿using kevin.Domain.Interfaces.IServices;
+using kevin.Domain.Share.Attributes;
 using kevin.Domain.Share.Dtos.Sign;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,6 +31,7 @@ namespace WebApi.Controllers.v1
         /// <param name="sign"></param>
         /// <returns></returns>
         [HttpGet("GetSignCount")]
+        [HttpLog("标记", "获取标记总数")]
         public int GetSignCount(string table, Guid tableId, string sign)
         {
             return _signService.GetSignCount(table, tableId, sign);
@@ -42,6 +44,7 @@ namespace WebApi.Controllers.v1
         /// <param name="addSign"></param>
         /// <returns></returns>
         [HttpPost("AddSign")]
+        [HttpLog("标记", "新增标记")]
         public bool AddSign([FromBody] dtoSign addSign)
         {
             return _signService.AddSign(addSign);
@@ -55,6 +58,7 @@ namespace WebApi.Controllers.v1
         /// <param name="deleteSign"></param>
         /// <returns></returns>
         [HttpDelete("DeleteSign")]
+        [HttpLog("标记", "删除标记")]
         public bool DeleteSign(dtoSign deleteSign)
         {
             return _signService.DeleteSign(deleteSign); 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.Database;
 
@@ -11,9 +12,11 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(dbContext))]
-    partial class dbContextModelSnapshot : ModelSnapshot
+    [Migration("20250820022612_请求日志表1")]
+    partial class 请求日志表1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -133,6 +136,10 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreateUserId");
+
+                    b.HasIndex("DeleteUserId");
+
                     b.ToTable("t_http_log", null, t =>
                         {
                             t.HasComment("请求日志表");
@@ -211,7 +218,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         {
                             Id = new Guid("1b4f94ac-b697-4cbe-9626-6cd2de627538"),
                             Code = 1000,
-                            CreateTime = new DateTime(2025, 8, 20, 10, 32, 38, 691, DateTimeKind.Local).AddTicks(9614),
+                            CreateTime = new DateTime(2025, 8, 20, 10, 26, 11, 554, DateTimeKind.Local).AddTicks(9910),
                             IsDelete = 0ul,
                             Name = "admin",
                             Status = 1,
@@ -1937,7 +1944,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         new
                         {
                             Id = new Guid("c23301b7-f9e0-464c-b76d-1f0a5a557548"),
-                            CreateTime = new DateTime(2025, 8, 20, 10, 32, 38, 689, DateTimeKind.Local).AddTicks(5731),
+                            CreateTime = new DateTime(2025, 8, 20, 10, 26, 11, 552, DateTimeKind.Local).AddTicks(5187),
                             IsDelete = 0ul,
                             Name = "admin",
                             Remarks = "admin",
@@ -2201,7 +2208,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         new
                         {
                             Id = new Guid("eef5525d-5d64-46ad-8d64-79fb3ad9724f"),
-                            CreateTime = new DateTime(2025, 8, 20, 10, 32, 38, 691, DateTimeKind.Local).AddTicks(4580),
+                            CreateTime = new DateTime(2025, 8, 20, 10, 26, 11, 554, DateTimeKind.Local).AddTicks(4861),
                             Email = "admin",
                             IsDelete = 0ul,
                             IsSuperAdmin = 1ul,
@@ -2211,7 +2218,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                             Phone = "admin",
                             RoleId = new Guid("c23301b7-f9e0-464c-b76d-1f0a5a557548"),
                             TenantId = 1000,
-                            UpdateTime = new DateTime(2025, 8, 20, 10, 32, 38, 691, DateTimeKind.Local).AddTicks(4594),
+                            UpdateTime = new DateTime(2025, 8, 20, 10, 26, 11, 554, DateTimeKind.Local).AddTicks(4879),
                             xmin = 0u
                         });
                 });
@@ -2666,6 +2673,24 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         {
                             t.HasComment("微信商户平台账户配置表");
                         });
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.THttpLog", b =>
+                {
+                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("DeleteUser");
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TArticle", b =>

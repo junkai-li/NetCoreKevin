@@ -4,6 +4,97 @@
         <name>kevin.Domain.Share</name>
     </assembly>
     <members>
+        <member name="P:kevin.Domain.Share.Dtos.dtoId`1.Id">
+            <summary>
+            id
+            </summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.Sign.dtoSign">
+            <summary>
+            标记喜欢方法入参
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Sign.dtoSign.Table">
+            <summary>
+            表名
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Sign.dtoSign.TableId">
+            <summary>
+            记录ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Sign.dtoSign.Sign">
+            <summary>
+            标记
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "P:kevin.Domain.Share.Dtos.System.dtoTenant.Id" -->
+        <member name="P:kevin.Domain.Share.Dtos.System.dtoTenant.Code">
+            <summary>
+            租户编码
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.dtoTenant.Name">
+            <summary>
+            租户名称
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.dtoTenant.Status">
+            <summary>
+            租户状态
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.dtoTenant.CreateTime">
+            <summary>
+            创建时间
+            </summary>S
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Id">
+            <summary>
+            Id
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Name">
+            <summary>
+            用户名
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.NickName">
+            <summary>
+            昵称
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Phone">
+            <summary>
+            手机号
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Email">
+            <summary>
+            邮箱
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.RoleId">
+            <summary>
+            角色
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Role">
+            <summary>
+            角色
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.PassWord">
+            <summary>
+            密码
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.CreateTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
         <member name="T:kevin.Share.Dtos.DtoFileInfo">
             <summary>
             文件信息
@@ -206,97 +297,6 @@
             创建时间
             </summary>
         </member>
-        <member name="P:kevin.Domain.Share.Dtos.dtoId`1.Id">
-            <summary>
-            id
-            </summary>
-        </member>
-        <member name="T:kevin.Domain.Share.Dtos.Sign.dtoSign">
-            <summary>
-            标记喜欢方法入参
-            </summary>
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.Sign.dtoSign.Table">
-            <summary>
-            表名
-            </summary>
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.Sign.dtoSign.TableId">
-            <summary>
-            记录ID
-            </summary>
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.Sign.dtoSign.Sign">
-            <summary>
-            标记
-            </summary>
-        </member>
-        <!-- Badly formed XML comment ignored for member "P:kevin.Domain.Share.Dtos.System.dtoTenant.Id" -->
-        <member name="P:kevin.Domain.Share.Dtos.System.dtoTenant.Code">
-            <summary>
-            租户编码
-            </summary>
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.System.dtoTenant.Name">
-            <summary>
-            租户名称
-            </summary>
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.System.dtoTenant.Status">
-            <summary>
-            租户状态
-            </summary>
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.System.dtoTenant.CreateTime">
-            <summary>
-            创建时间
-            </summary>S
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Id">
-            <summary>
-            Id
-            </summary>
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Name">
-            <summary>
-            用户名
-            </summary>
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.NickName">
-            <summary>
-            昵称
-            </summary>
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Phone">
-            <summary>
-            手机号
-            </summary>
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Email">
-            <summary>
-            邮箱
-            </summary>
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.RoleId">
-            <summary>
-            角色
-            </summary>
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Role">
-            <summary>
-            角色
-            </summary>
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.PassWord">
-            <summary>
-            密码
-            </summary>
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.CreateTime">
-            <summary>
-            创建时间
-            </summary>
-        </member>
         <member name="P:kevin.Permission.Permission.ActionPermissionDto.HttpMethod">
             <summary>
             Method;
@@ -340,6 +340,21 @@
         <member name="P:kevin.Permission.Permission.ActionPermissionDto.UpdatedTime">
             <summary>
             更新时间;
+            </summary>
+        </member>
+        <member name="P:Web.Global.User.ICurrentUser.UserId">
+            <summary>
+            当前登录用户Id
+            </summary>
+        </member>
+        <member name="P:Web.Global.User.ICurrentUser.UserName">
+            <summary>
+            当前登录用户
+            </summary>
+        </member>
+        <member name="P:Web.Global.User.ICurrentUser.TenantId">
+            <summary>
+            当前登录用户租户code
             </summary>
         </member>
         <member name="T:Models.JwtBearer.JwtSettings">

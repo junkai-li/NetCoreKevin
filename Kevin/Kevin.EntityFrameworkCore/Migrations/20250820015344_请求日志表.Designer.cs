@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.Database;
 
@@ -11,9 +12,11 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(dbContext))]
-    partial class dbContextModelSnapshot : ModelSnapshot
+    [Migration("20250820015344_请求日志表")]
+    partial class 请求日志表
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,20 +38,10 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("create_user_id")
-                        .HasComment("创建人ID");
-
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
-
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("delete_user_id")
-                        .HasComment("删除人ID");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
@@ -211,7 +204,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         {
                             Id = new Guid("1b4f94ac-b697-4cbe-9626-6cd2de627538"),
                             Code = 1000,
-                            CreateTime = new DateTime(2025, 8, 20, 10, 32, 38, 691, DateTimeKind.Local).AddTicks(9614),
+                            CreateTime = new DateTime(2025, 8, 20, 9, 53, 43, 962, DateTimeKind.Local).AddTicks(2758),
                             IsDelete = 0ul,
                             Name = "admin",
                             Status = 1,
@@ -1937,7 +1930,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         new
                         {
                             Id = new Guid("c23301b7-f9e0-464c-b76d-1f0a5a557548"),
-                            CreateTime = new DateTime(2025, 8, 20, 10, 32, 38, 689, DateTimeKind.Local).AddTicks(5731),
+                            CreateTime = new DateTime(2025, 8, 20, 9, 53, 43, 958, DateTimeKind.Local).AddTicks(5607),
                             IsDelete = 0ul,
                             Name = "admin",
                             Remarks = "admin",
@@ -2201,7 +2194,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         new
                         {
                             Id = new Guid("eef5525d-5d64-46ad-8d64-79fb3ad9724f"),
-                            CreateTime = new DateTime(2025, 8, 20, 10, 32, 38, 691, DateTimeKind.Local).AddTicks(4580),
+                            CreateTime = new DateTime(2025, 8, 20, 9, 53, 43, 961, DateTimeKind.Local).AddTicks(7502),
                             Email = "admin",
                             IsDelete = 0ul,
                             IsSuperAdmin = 1ul,
@@ -2211,7 +2204,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                             Phone = "admin",
                             RoleId = new Guid("c23301b7-f9e0-464c-b76d-1f0a5a557548"),
                             TenantId = 1000,
-                            UpdateTime = new DateTime(2025, 8, 20, 10, 32, 38, 691, DateTimeKind.Local).AddTicks(4594),
+                            UpdateTime = new DateTime(2025, 8, 20, 9, 53, 43, 961, DateTimeKind.Local).AddTicks(7518),
                             xmin = 0u
                         });
                 });

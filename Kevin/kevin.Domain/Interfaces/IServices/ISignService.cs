@@ -1,8 +1,9 @@
 ﻿using kevin.Domain.Share.Dtos.Sign;
+using Web.Base._;
 
 namespace kevin.Domain.Interfaces.IServices
 {
-    public interface ISignService
+    public interface ISignService: IBaseService
     {
         /// <summary>
         /// 获取标记总数

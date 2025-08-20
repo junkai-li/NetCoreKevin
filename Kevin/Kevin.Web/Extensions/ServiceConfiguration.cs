@@ -8,6 +8,7 @@ using Kevin.Api.Versioning;
 using Kevin.Common.App.Global;
 using Kevin.Common.App.Start;
 using Kevin.Cors;
+using Kevin.Web.Filters;
 using Kevin.Web.Filters.TransactionScope;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Repository.Database;
 using System;
 using Web.Filters;
@@ -24,7 +26,8 @@ namespace Web.Extension
     public static class ServiceConfiguration
     {
         public static IServiceCollection ConfigServies(this IServiceCollection services, IConfiguration Configuration)
-        {
+        { 
+
             #region json配置
             //json动态响应压缩https://docs.microsoft.com/zh-cn/aspnet/core/performance/response-compression?view=aspnetcore-5.0
             services.AddResponseCompression();
@@ -65,6 +68,8 @@ namespace Web.Extension
             services.AddMvc(config =>
             {
                 config.Filters.Add(new ResultFilter());
+                //添加过滤器
+                config.Filters.Add(typeof(HttpLogFilter));
             });
             //注册配置文件信息
             StartConfiguration.Add(Configuration);
@@ -165,6 +170,7 @@ namespace Web.Extension
             //    options.ConnectionTimeout = default;
             //});  
             #endregion
+
 
             return services;
         }
