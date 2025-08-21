@@ -38,9 +38,9 @@ namespace WebApi.Controllers
         /// <param name="fileInfo">Key为文件URL,Value为文件名称</param>
         /// <returns>文件ID</returns>
         [HttpPost("RemoteUploadFile")]
-        public async Task<Guid> RemoteUploadFile([FromQuery][Required] string business, [FromQuery][Required] Guid key, [FromQuery][Required] string sign, [Required][FromBody] dtoKeyValue fileInfo)
+        public async Task<Guid> RemoteUploadFile([FromQuery][Required] string business, [FromQuery][Required] Guid key, [FromQuery][Required] string sign, [Required][FromBody] dtoKeyValue fileInfo, CancellationToken cancellationToken)
         {
-            return await _fileService.RemoteUploadFile(business, key, sign, fileInfo);
+            return await _fileService.RemoteUploadFile(business, key, sign, fileInfo, cancellationToken);
         }
 
         /// <summary>
@@ -53,10 +53,10 @@ namespace WebApi.Controllers
         /// <returns>文件ID</returns>
         [DisableRequestSizeLimit]
         [HttpPost("UploadFile")]
-        public async Task<Guid> UploadFile([FromQuery][Required] string business, [FromQuery][Required] Guid key, [FromQuery][Required] string sign, [Required] IFormFile file)
+        public async Task<Guid> UploadFile([FromQuery][Required] string business, [FromQuery][Required] Guid key, [FromQuery][Required] string sign, [Required] IFormFile file, CancellationToken cancellationToken)
         {
 
-            return await _fileService.UploadFile(business, key, sign, file);
+            return await _fileService.UploadFile(business, key, sign, file, cancellationToken);
         }
 
 
@@ -71,7 +71,7 @@ namespace WebApi.Controllers
         /// <remarks>swagger 暂不支持多文件接口测试，请使用 postman</remarks>
         [DisableRequestSizeLimit]
         [HttpPost("BatchUploadFile")]
-        public async Task<List<Guid>> BatchUploadFile([FromQuery][Required] string business, [FromQuery][Required] Guid key, [FromQuery][Required] string sign)
+        public async Task<List<Guid>> BatchUploadFile([FromQuery][Required] string business, [FromQuery][Required] Guid key, [FromQuery][Required] string sign, CancellationToken cancellationToken)
         {
             var fileIds = new List<Guid>();
             var ReqFiles = Request.Form.Files;
@@ -82,7 +82,7 @@ namespace WebApi.Controllers
             }
             foreach (var file in Attachments)
             {
-                var fileId = await UploadFile(business, key, sign, file);
+                var fileId = await UploadFile(business, key, sign, file, cancellationToken);
 
                 fileIds.Add(fileId);
             }
@@ -97,9 +97,9 @@ namespace WebApi.Controllers
         /// <returns></returns>
         [AllowAnonymous]
         [HttpGet("GetFile")]
-        public async Task<FileResult> GetFile([Required] Guid fileid)
+        public async Task<FileResult> GetFile([Required] Guid fileid, CancellationToken cancellationToken)
         {
-            var data = await _fileService.GetFile(fileid);
+            var data = await _fileService.GetFile(fileid, cancellationToken);
             return File(data.Item1, data.Item2, data.Item3); 
         }
 
@@ -116,7 +116,7 @@ namespace WebApi.Controllers
         /// <remarks>不指定宽高参数,返回原图</remarks>
         [AllowAnonymous]
         [HttpGet("GetImage")]
-        public FileResult GetImage([Required] Guid fileId, int width, int height)
+        public FileResult GetImage([Required] Guid fileId, int width, int height, CancellationToken cancellationToken)
         {
 
             var file = db.Set<TFile>().Where(t => t.Id == fileId).FirstOrDefault();
@@ -175,9 +175,9 @@ namespace WebApi.Controllers
         /// <param name="fileid">文件ID</param>
         /// <returns></returns>
         [HttpGet("GetFilePath")]
-        public async Task<string> GetFilePath([Required] Guid fileid)
+        public async Task<string> GetFilePath([Required] Guid fileid, CancellationToken cancellationToken)
         {
-            return  await _fileService.GetFilePath(fileid); 
+            return  await _fileService.GetFilePath(fileid, cancellationToken); 
         }  
         /// <summary>
         /// 多文件切片上传，获取初始化文件ID
@@ -190,9 +190,9 @@ namespace WebApi.Controllers
         /// <param name="unique">文件校验值</param>
         /// <returns></returns>
         [HttpGet("CreateGroupFileId")]
-        public async Task<Guid> CreateGroupFileId([Required] string business, [Required] Guid key, [Required] string sign, [Required] string fileName, [Required] int slicing, [Required] string unique)
+        public async Task<Guid> CreateGroupFileId([Required] string business, [Required] Guid key, [Required] string sign, [Required] string fileName, [Required] int slicing, [Required] string unique, CancellationToken cancellationToken)
         { 
-           return await _fileService.CreateGroupFileId(business, key, sign, fileName, slicing, unique);
+           return await _fileService.CreateGroupFileId(business, key, sign, fileName, slicing, unique, cancellationToken);
         }
 
 
@@ -205,9 +205,9 @@ namespace WebApi.Controllers
         /// <param name="file">file</param>
         /// <returns>文件ID</returns>
         [HttpPost("UploadGroupFile")]
-        public async Task<bool> UploadGroupFile([Required][FromForm] Guid fileId, [Required][FromForm] int index, [Required] IFormFile file)
+        public async Task<bool> UploadGroupFile([Required][FromForm] Guid fileId, [Required][FromForm] int index, [Required] IFormFile file, CancellationToken cancellationToken)
         { 
-               return await _fileService.UploadGroupFile(fileId, index, file);
+               return await _fileService.UploadGroupFile(fileId, index, file, cancellationToken);
         }
 
 
@@ -218,9 +218,9 @@ namespace WebApi.Controllers
         /// <param name="id">文件ID</param>
         /// <returns></returns>
         [HttpDelete("DeleteFile")]
-        public async Task<bool> DeleteFile(Guid id)
+        public async Task<bool> DeleteFile(Guid id, CancellationToken cancellationToken)
         {
-            return  await _fileService.DeleteFile(id);
+            return  await _fileService.DeleteFile(id, cancellationToken);
         }
 
 

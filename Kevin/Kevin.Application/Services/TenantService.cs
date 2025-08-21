@@ -20,7 +20,7 @@ namespace kevin.Application
             this.roleRp = _roleRp;
         }
 
-        public async Task<bool> Inactive(Guid id)
+        public async Task<bool> Inactive(Guid id, CancellationToken cancellationToken)
         {
             var tenant = tenantRp.Query().FirstOrDefault(t => t.Id == id);
             if (tenant != default)
@@ -35,7 +35,7 @@ namespace kevin.Application
                 throw new UserFriendlyException("租户不存在");
             }
         }
-        public async Task<bool> Active(Guid id)
+        public async Task<bool> Active(Guid id, CancellationToken cancellationToken)
         {
             var tenant = tenantRp.Query().FirstOrDefault(t => t.Id == id);
             if (tenant != default)
@@ -51,7 +51,7 @@ namespace kevin.Application
             }
         }
 
-        public async Task<bool> EidtAsync(dtoTenant tenant)
+        public async Task<bool> EidtAsync(dtoTenant tenant, CancellationToken cancellationToken)
         {
             var tenantcode = tenantRp.Query().FirstOrDefault(t => t.Id != Guid.Parse(tenant.Id) && t.Code == tenant.Code);
             if (tenantcode != default)
@@ -73,7 +73,7 @@ namespace kevin.Application
             }
         }
 
-        public async Task<bool> CreateAsync(dtoTenant tenant)
+        public async Task<bool> CreateAsync(dtoTenant tenant, CancellationToken cancellationToken)
         {
             var tenantcode = tenantRp.Query().FirstOrDefault(t => t.Code == tenant.Code);
             if (tenantcode != default)
@@ -87,7 +87,7 @@ namespace kevin.Application
             return true; 
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
         {
             var tenant = tenantRp.Query().FirstOrDefault(t => t.Id == id);
             if (tenant != default)
@@ -109,7 +109,7 @@ namespace kevin.Application
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<bool> InitializedData(dtoTenant tenant) 
+        public async Task<bool> InitializedData(dtoTenant tenant, CancellationToken cancellationToken) 
         { 
             var role = new TRole();
             role.Id = Guid.NewGuid();

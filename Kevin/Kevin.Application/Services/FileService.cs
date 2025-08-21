@@ -20,7 +20,7 @@ namespace kevin.Application.Services
             fileStorage = _fileStorage;
         }
 
-        async Task<bool> IFileService.DeleteFile(Guid id)
+        async Task<bool> IFileService.DeleteFile(Guid id, CancellationToken cancellationToken)
         {
             try
             {
@@ -39,7 +39,7 @@ namespace kevin.Application.Services
             }
         }
 
-        async Task<(FileStream, string, string)> IFileService.GetFile(Guid fileid)
+        async Task<(FileStream, string, string)> IFileService.GetFile(Guid fileid, CancellationToken cancellationToken)
         {
             var file = fileRp.Query().Where(t => t.Id == fileid).FirstOrDefault();
             string path = Kevin.Common.App.IO.Path.ContentRootPath() + file.Path;
@@ -59,7 +59,7 @@ namespace kevin.Application.Services
             return (stream, memi, file.Name);
         }
 
-        async Task<string> IFileService.GetFilePath(Guid fileid)
+        async Task<string> IFileService.GetFilePath(Guid fileid, CancellationToken cancellationToken)
         {
             var file = fileRp.Query().Where(t => t.Id == fileid).FirstOrDefault();
 
@@ -77,12 +77,12 @@ namespace kevin.Application.Services
             }
         }
 
-        Task<FileResult> IFileService.GetImage(Guid fileId, int width, int height)
+        Task<FileResult> IFileService.GetImage(Guid fileId, int width, int height, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        async Task<Guid> IFileService.RemoteUploadFile(string business, Guid key, string sign, dtoKeyValue fileInfo)
+        async Task<Guid> IFileService.RemoteUploadFile(string business, Guid key, string sign, dtoKeyValue fileInfo, CancellationToken cancellationToken)
         {
             string remoteFileUrl = fileInfo.Key.ToString();
 
@@ -141,7 +141,7 @@ namespace kevin.Application.Services
             throw new UserFriendlyException("文件上传失败！");
         }
 
-        async Task<Guid> IFileService.UploadFile(string business, Guid key, string sign, IFormFile file)
+        async Task<Guid> IFileService.UploadFile(string business, Guid key, string sign, IFormFile file, CancellationToken cancellationToken)
         {
             string basepath = "/Files/" + DateTime.Now.ToString("yyyy/MM/dd");
             string filepath = Kevin.Common.App.IO.Path.ContentRootPath() + basepath;
@@ -199,7 +199,7 @@ namespace kevin.Application.Services
                 throw new UserFriendlyException("文件上传失败！");
             }
         }
-        async Task<Guid> IFileService.CreateGroupFileId(string business, Guid key, string sign, string fileName, int slicing, string unique)
+        async Task<Guid> IFileService.CreateGroupFileId(string business, Guid key, string sign, string fileName, int slicing, string unique, CancellationToken cancellationToken)
         {
             using var db = new KevinDbContext();
             var dbfileinfo = db.Set<TFileGroup>().Where(t => t.Unique.ToLower() == unique.ToLower()).FirstOrDefault(); 
@@ -234,7 +234,7 @@ namespace kevin.Application.Services
                 return dbfileinfo.FileId;
             }
         }
-        async Task<bool> IFileService.UploadGroupFile(Guid fileId, int index, IFormFile file)
+        async Task<bool> IFileService.UploadGroupFile(Guid fileId, int index, IFormFile file, CancellationToken cancellationToken)
         {
             try
             {
