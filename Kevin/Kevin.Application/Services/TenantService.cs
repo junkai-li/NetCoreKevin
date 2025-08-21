@@ -122,7 +122,7 @@ namespace kevin.Application
             user.Name = "admin";
             user.NickName = "admin";
             user.Phone = "admin";
-            user.PassWord = "admin123";
+            user.ChangePassword("admin123");
             user.IsSuperAdmin = true;
             user.CreateTime = DateTime.Now;
             user.TenantId =tenant.Code;

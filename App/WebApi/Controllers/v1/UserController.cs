@@ -5,6 +5,8 @@ using kevin.Share.Dtos.System;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
+using System.Threading.Tasks;
 using Web.Filters;
 
 namespace WebApi.Controllers.v1
@@ -16,7 +18,7 @@ namespace WebApi.Controllers.v1
     /// </summary>
     [ApiVersion("1")]
     [Route("api/[controller]")]
-    [Authorize] 
+    [Authorize]
     [SkipAuthority]
     public class UserController : ApiControllerBase
     {
@@ -141,6 +143,18 @@ namespace WebApi.Controllers.v1
         }
 
         /// <summary>
+        /// 更改当前用户密码 
+        /// </summary>
+        /// <param name="user">user</param>
+        /// <returns></returns>
+        [HttpPost("ChangePasswordTokenUser")]
+        [ActionDescription("更改当前用户密码")]
+        public async Task<bool> ChangePasswordTokenUser([FromBody] ChangePasswordTokenUserDto user, CancellationToken cancellationToken)
+        {
+            return await _userService.ChangePasswordTokenUser(user.OldPwd, user.NewPwd, cancellationToken);
+        }
+
+        /// <summary>
         /// 删除用户信息 
         /// </summary>
         /// <param name="Id">Id</param>
@@ -226,7 +240,7 @@ namespace WebApi.Controllers.v1
         /// GetTokenUserId
         /// </summary> 
         /// <returns></returns>
-        [HttpGet("GetTokenUserId")] 
+        [HttpGet("GetTokenUserId")]
         public Guid GetTokenUserId()
         {
             return CurrentUser.UserId;

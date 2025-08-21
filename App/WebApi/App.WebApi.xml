@@ -311,6 +311,13 @@
             <param name="user">user</param>
             <returns></returns>
         </member>
+        <member name="M:WebApi.Controllers.v1.UserController.ChangePasswordTokenUser(kevin.Domain.Share.Dtos.User.ChangePasswordTokenUserDto,System.Threading.CancellationToken)">
+            <summary>
+            更改当前用户密码 
+            </summary>
+            <param name="user">user</param>
+            <returns></returns>
+        </member>
         <member name="M:WebApi.Controllers.v1.UserController.DeleteUser(System.Guid)">
             <summary>
             删除用户信息 

@@ -1,9 +1,9 @@
-﻿using kevin.Ioc;
+﻿using kevin.Domain.Share.Interfaces;
+using kevin.Ioc;
 using kevin.Ioc.TieredServiceRegistration;
 using Kevin.Common.App.Global;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using Web.Base._;
 
 namespace App.Application
 {
@@ -11,7 +11,7 @@ namespace App.Application
     {
         public void Initialize(IServiceCollection services)
         {
-            new IocHelper().BatchAddScopeds<IBaseService>(services, t =>
+            new IocHelper().BatchAddScopeds<IService>(services, t =>
             {
                 GlobalServices.AddIService(t);
             }); 

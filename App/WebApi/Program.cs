@@ -12,19 +12,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
-using System.IO;
 using Web.Extension;
 using Microsoft.Extensions.DependencyInjection;
 using kevin.HttpApiClients;
 using Kevin.Common.App.Global;
 using Kevin.Common.App.Start;
-using Kevin.Api.Versioning.Swagger;
-using Asp.Versioning.ApiExplorer;
-using Microsoft.Extensions.Options;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using Asp.Versioning;
-using Consul;
 
 namespace WebApi
 {

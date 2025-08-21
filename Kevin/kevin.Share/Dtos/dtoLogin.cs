@@ -17,7 +17,10 @@ namespace kevin.Share.Dtos
         public string Name { get; set; }
 
 
-
+        /// <summary>
+        /// PasswordHash
+        /// </summary> 
+        public string PasswordHash { get; set; }
 
         /// <summary>
         /// 密码

@@ -1,8 +1,9 @@
-﻿ using Web.Global.User;
+﻿using kevin.Domain.Share.Interfaces;
+using Web.Global.User;
 
-namespace Web.Base._
+namespace kevin.Domain.Share
 {
-    public interface IBaseService
+    public interface IBaseService: IService
     {  
         ICurrentUser CurrentUser { get;}
     }

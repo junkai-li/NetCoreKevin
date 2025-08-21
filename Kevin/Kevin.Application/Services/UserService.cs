@@ -2,7 +2,9 @@
 using kevin.Domain.Share.Dtos.User;
 using kevin.Share.Dtos;
 using kevin.Share.Dtos.System;
+using Kevin.Common.Helper;
 using Microsoft.AspNetCore.Http;
+using System;
 using Web.Global.Exceptions;
 
 namespace kevin.Application
@@ -91,6 +93,8 @@ namespace kevin.Application
             return userRp.Query().Where(t => t.Id == userId && t.IsDelete == false).Select(t => new dtoUser
             {
                 Name = t.Name,
+                Id = t.Id,
+                RoleId = t.RoleId,
                 NickName = t.NickName,
                 Phone = t.Phone,
                 Email = t.Email,
@@ -106,9 +110,9 @@ namespace kevin.Application
         /// <param name="pwd"></param>
         /// <param name="tenantId">租户id</param>
         /// <returns></returns>
-        public dtoUser LoginUser(string name, string pwd, Int32 tenantId)
+        public dtoUser LoginUser(string name, string pwd, Int32 tenantId, string passwordHash)
         {
-            var user = userRp.Query().Where(t => (t.Name == name || t.Phone == name) && t.PassWord == pwd && t.IsDelete == false && t.TenantId == tenantId).Select(t => new dtoUser
+            var user = userRp.Query().Where(t => (t.Name == name || t.Phone == name) && t.PasswordHash == new HashHelper().SHA256Hash(pwd) && t.IsDelete == false && t.TenantId == tenantId).Select(t => new dtoUser
             {
                 Name = t.Name,
                 NickName = t.NickName,
@@ -116,8 +120,21 @@ namespace kevin.Application
                 Email = t.Email,
                 Role = t.Role.Name,
                 CreateTime = t.CreateTime,
-                Id=t.Id
+                Id = t.Id
             }).FirstOrDefault();
+            if (!string.IsNullOrEmpty(passwordHash))
+            {
+                user = userRp.Query().Where(t => (t.Name == name || t.Phone == name) && t.PasswordHash == passwordHash && t.IsDelete == false && t.TenantId == tenantId).Select(t => new dtoUser
+                {
+                    Name = t.Name,
+                    NickName = t.NickName,
+                    Phone = t.Phone,
+                    Email = t.Email,
+                    Role = t.Role.Name,
+                    CreateTime = t.CreateTime,
+                    Id = t.Id
+                }).FirstOrDefault();
+            }
             if (user == default)
             {
                 throw new UserFriendlyException("账户或密码错误");
@@ -168,7 +185,7 @@ namespace kevin.Application
                 {
                     var user = userRp.Query().Where(t => t.Id == userId).FirstOrDefault();
 
-                    user.PassWord = password;
+                    user.ChangePassword(password);
 
                     userRp.SaveChanges();
 
@@ -266,18 +283,12 @@ namespace kevin.Application
                 Phone = t.Phone,
                 Role = t.Role.Name,
                 RoleId = t.RoleId,
-                PassWord = t.PassWord,
+                PassWord = t.PasswordHash,
                 CreateTime = t.CreateTime
             }).FirstOrDefault();
 
             return user;
         }
-
-
-
-
-
-
 
         /// <summary>
         /// 新增编辑用户信息 
@@ -312,7 +323,7 @@ namespace kevin.Application
                     data.Phone = user.Phone;
                     data.UpdateTime = DateTime.Now;
                     data.RoleId = user.RoleId;
-                    data.PassWord = user.PassWord;
+                    data.ChangePassword(user.PassWord);
 
                 }
                 else
@@ -337,7 +348,7 @@ namespace kevin.Application
                     data.RoleId = user.RoleId;
                     data.IsDelete = false;
                     data.CreateTime = DateTime.Now;
-                    data.PassWord = user.PassWord;
+                    data.ChangePassword(user.PassWord);
                     userRp.Add(data);
                 }
                 userRp.SaveChanges();
@@ -376,10 +387,6 @@ namespace kevin.Application
             }
         }
 
-
-
-
-
         /// <summary>
         /// 获取用户角色列表信息
         /// </summary>
@@ -407,8 +414,6 @@ namespace kevin.Application
         }
 
 
-
-
         /// <summary>
         /// 通过id获取角色信息 
         /// </summary>
@@ -426,8 +431,6 @@ namespace kevin.Application
 
             return user;
         }
-
-
 
         /// <summary>
         /// 新增编辑用户角色信息 
@@ -456,8 +459,6 @@ namespace kevin.Application
                     data.IsDelete = false;
                     data.CreateTime = DateTime.Now;
                     roleRp.Add(data);
-
-
                 }
                 roleRp.SaveChanges();
                 return true;
@@ -556,6 +557,22 @@ namespace kevin.Application
             user.Phone = Common.Json.JsonHelper.GetValueByKey(strJson, "phoneNumber");
             userBindWeixinRp.SaveChanges();
             return user.Phone;
+        }
+
+        public async Task<bool> ChangePasswordTokenUser(string oldPwd, string newPwd, CancellationToken cancellationToken)
+        {
+            var user = userRp.Query().Where(t => t.Id == CurrentUser.UserId && t.IsDelete == false).FirstOrDefault();
+            if (user == default)
+            {
+                throw new UserFriendlyException("用户不存在");
+            }
+            if (!user.ValidatePassword(oldPwd))
+            {
+                throw new UserFriendlyException("旧密码错误");
+            }
+            user.ChangePassword(newPwd);
+            userRp.SaveChanges();
+            return true;
         }
     }
 }

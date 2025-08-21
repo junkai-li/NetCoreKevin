@@ -1,8 +1,9 @@
 ﻿using kevin.Domain.Share.Dtos.System;
+using kevin.Domain.Share.Interfaces;
 
 namespace kevin.Domain.Interfaces.IServices
 {
-    public interface ITenantService
+    public interface ITenantService:IService
     {
         /// <summary>
         /// 设置无效租户

@@ -4,6 +4,7 @@ using kevin.Domain.Entities;
 using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Kevin;
 using kevin.Domain.Share.Attributes;
+using Kevin.Common.Helper;
 using Medallion.Threading;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -81,7 +82,7 @@ namespace WebApi.Controllers
                     throw new UserFriendlyException("租户已失效");
                 }
             }
-            var user = _IUserService.LoginUser(login.Name,login.PassWord, login.TenantId);
+            var user = _IUserService.LoginUser(login.Name,login.PassWord, login.TenantId, login.PasswordHash);
             var clinet = new HttpClient();
             var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["JwtOptions:Authority"]);
             if (disco.IsError)
@@ -156,7 +157,7 @@ namespace WebApi.Controllers
                                 user.CreateTime = DateTime.Now;
                                 user.Name = DateTime.Now.ToString() + "微信小程序新用户";
                                 user.NickName = user.Name;
-                                user.PassWord = Guid.NewGuid().ToString();
+                                user.ChangePassword(Guid.NewGuid().ToString());
 
                                 //开发时记得调整这个值
                                 user.RoleId = default;
@@ -238,16 +239,15 @@ namespace WebApi.Controllers
                     user.IsDelete = false;
                     user.CreateTime = DateTime.Now;
                     user.Name = DateTime.Now.ToString() + "手机短信新用户";
-                    user.NickName = user.Name;
-                    user.PassWord = Guid.NewGuid().ToString();
-                    user.Phone = phone;
+                    user.NickName = user.Name; 
+                    user.ChangePassword(phone);
 
                     db.Set<TUser>().Add(user);
 
                     db.SaveChanges();
                 }
 
-                return await GetToken(new dtoLogin { Name = user.Name, PassWord = user.PassWord });
+                return await GetToken(new dtoLogin { Name = user.Name, PassWord = user.PasswordHash });
             }
             else
             {
@@ -312,36 +312,25 @@ namespace WebApi.Controllers
         /// <returns></returns>
         [HttpPost("GetTokenByWeiXinAppCode")]
         public async Task<string> GetTokenByWeiXinAppCode(dtoKeyValue keyValue)
-        {
-
-
-
+        { 
             var weixinkeyid = Guid.Parse(keyValue.Key.ToString());
-            string code = keyValue.Value.ToString();
-
-
-            var wxInfo = db.Set<TWeiXinKey>().Where(t => t.Id == weixinkeyid).FirstOrDefault();
-
-            var weiXinHelper = new Web.Libraries.WeiXin.App.WeiXinHelper(wxInfo.WxAppId, wxInfo.WxAppSecret);
-
-            var accseetoken = weiXinHelper.GetAccessToken(code).accessToken;
-
-            var openid = weiXinHelper.GetAccessToken(code).openId;
-
-            var userInfo = weiXinHelper.GetUserInfo(accseetoken, openid);
-
+            string code = keyValue.Value.ToString(); 
+            var wxInfo = db.Set<TWeiXinKey>().Where(t => t.Id == weixinkeyid).FirstOrDefault(); 
+            var weiXinHelper = new Web.Libraries.WeiXin.App.WeiXinHelper(wxInfo.WxAppId, wxInfo.WxAppSecret); 
+            var accseetoken = weiXinHelper.GetAccessToken(code).accessToken; 
+            var openid = weiXinHelper.GetAccessToken(code).openId; 
+            var userInfo = weiXinHelper.GetUserInfo(accseetoken, openid); 
             var user = db.Set<TUserBindWeixin>().Where(t => t.IsDelete == false && t.WeiXinKeyId == weixinkeyid && t.WeiXinOpenId == userInfo.openid).Select(t => t.User).FirstOrDefault();
-
+          
             if (user == null)
             {
                 user = new TUser();
                 user.Id = Guid.NewGuid();
                 user.IsDelete = false;
-                user.CreateTime = DateTime.Now;
-
+                user.CreateTime = DateTime.Now; 
                 user.Name = userInfo.nickname;
                 user.NickName = user.Name;
-                user.PassWord = Guid.NewGuid().ToString();
+                user.PasswordHash = new HashHelper().SHA256Hash(Guid.NewGuid().ToString());
 
                 db.Set<TUser>().Add(user);
                 db.SaveChanges();
@@ -360,7 +349,7 @@ namespace WebApi.Controllers
                 db.SaveChanges();
             }
 
-            return await GetToken(new dtoLogin { Name = user.Name, PassWord = user.PassWord });
+            return await GetToken(new dtoLogin { Name = user.Name, PassWord = user.PasswordHash });
 
         }
 

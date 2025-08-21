@@ -1,10 +1,12 @@
 ﻿using kevin.Domain.Kevin;
 using kevin.Domain.Share.Dtos.System;
+using kevin.Domain.Share.Interfaces;
 using kevin.Permission.Permission;
+using StackExchange.Redis;
 
 namespace kevin.Domain.Interfaces.IServices
 {
-    public interface IPermissionService
+    public interface IPermissionService: IService
     {
         /// <summary>
         /// 初始化权限

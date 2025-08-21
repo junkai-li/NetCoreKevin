@@ -20,7 +20,16 @@ namespace kevin.Domain.Interfaces.IServices
         /// <param name="pwd"></param>
         /// <param name="tenantId">租户id</param>
         /// <returns></returns>
-          dtoUser LoginUser(string name, string pwd, Int32 tenantId);
+          dtoUser LoginUser(string name, string pwd, Int32 tenantId,string passwordHash);
+
+        /// <summary>
+        /// 修改当前用户密码
+        /// </summary>
+        /// <param name="oldPwd">旧密码</param>
+        /// <param name="newPwd">新密码</param>
+        /// <param name="tenantId">租户id</param>
+        /// <returns></returns>
+        Task<bool> ChangePasswordTokenUser(string oldPwd,string newPwd,CancellationToken cancellationToken);
 
         /// <summary>
         /// 通过短信验证码修改账户手机号

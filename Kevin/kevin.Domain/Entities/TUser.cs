@@ -1,4 +1,7 @@
-﻿namespace kevin.Domain.Kevin
+﻿using Kevin.Common.Helper;
+using Microsoft.AspNetCore.Identity;
+
+namespace kevin.Domain.Kevin
 {
 
     /// <summary>
@@ -11,8 +14,7 @@
 
         /// <summary>
         /// 用户名
-        /// </summary>
-        [DisplayName("用户名")]
+        /// </summary> 
         [Description("用户名")]
         public string Name { get; set; }
 
@@ -39,10 +41,10 @@
 
 
         /// <summary>
-        /// 密码
+        /// 密码Hash
         /// </summary>
-        [Description("密码")]
-        public string PassWord { get; set; }
+        [Description("密码Hash")]
+        public string PasswordHash { get; set; }
 
 
         /// <summary>
@@ -58,6 +60,16 @@
         /// </summary>
         [Description("是否超级管理员")]
         public virtual bool IsSuperAdmin { get; set; }
+
+        public void ChangePassword(string newPassword)
+        {
+            PasswordHash = new HashHelper().SHA256Hash(newPassword);
+        }
+
+        public bool ValidatePassword(string password)
+        {
+            return PasswordHash == new HashHelper().SHA256Hash(password);
+        }
 
     }
 }

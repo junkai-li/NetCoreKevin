@@ -4,4 +4,4 @@ global using System.ComponentModel;
 global using kevin.Domain.Bases;
 global using System.ComponentModel.DataAnnotations;
 global using System.ComponentModel.DataAnnotations.Schema;
-global using Web.Base._;
+global using kevin.Domain.Share;

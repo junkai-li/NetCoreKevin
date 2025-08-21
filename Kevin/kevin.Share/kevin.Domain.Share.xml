@@ -50,6 +50,21 @@
             创建时间
             </summary>S
         </member>
+        <member name="T:kevin.Domain.Share.Dtos.User.ChangePasswordTokenUserDto">
+            <summary>
+            变更当前登陆人密码
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.ChangePasswordTokenUserDto.OldPwd">
+            <summary>
+            旧密码
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.ChangePasswordTokenUserDto.NewPwd">
+            <summary>
+            新密码
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Id">
             <summary>
             Id
@@ -204,6 +219,11 @@
             <summary>
             用户名
             </summary>
+        </member>
+        <member name="P:kevin.Share.Dtos.dtoLogin.PasswordHash">
+            <summary>
+            PasswordHash
+            </summary> 
         </member>
         <member name="P:kevin.Share.Dtos.dtoLogin.PassWord">
             <summary>

@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using kevin.Domain.Share;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Web.Base._;
 using Web.Global.User;
 
 namespace kevin.Application;
