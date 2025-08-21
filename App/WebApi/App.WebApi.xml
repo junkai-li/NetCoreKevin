@@ -94,7 +94,7 @@
             文件上传控制器
             </summary>
         </member>
-        <member name="M:WebApi.Controllers.FileController.RemoteUploadFile(System.String,System.Guid,System.String,kevin.Share.Dtos.dtoKeyValue)">
+        <member name="M:WebApi.Controllers.FileController.RemoteUploadFile(System.String,System.Guid,System.String,kevin.Share.Dtos.dtoKeyValue,System.Threading.CancellationToken)">
             <summary>
             远程单文件上传接口
             </summary>
@@ -104,7 +104,7 @@
             <param name="fileInfo">Key为文件URL,Value为文件名称</param>
             <returns>文件ID</returns>
         </member>
-        <member name="M:WebApi.Controllers.FileController.UploadFile(System.String,System.Guid,System.String,Microsoft.AspNetCore.Http.IFormFile)">
+        <member name="M:WebApi.Controllers.FileController.UploadFile(System.String,System.Guid,System.String,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
             <summary>
             单文件上传接口
             </summary>
@@ -114,7 +114,7 @@
             <param name="file">file</param>
             <returns>文件ID</returns>
         </member>
-        <member name="M:WebApi.Controllers.FileController.BatchUploadFile(System.String,System.Guid,System.String)">
+        <member name="M:WebApi.Controllers.FileController.BatchUploadFile(System.String,System.Guid,System.String,System.Threading.CancellationToken)">
             <summary>
             多文件上传接口
             </summary>
@@ -124,14 +124,14 @@
             <returns></returns>
             <remarks>swagger 暂不支持多文件接口测试，请使用 postman</remarks>
         </member>
-        <member name="M:WebApi.Controllers.FileController.GetFile(System.Guid)">
+        <member name="M:WebApi.Controllers.FileController.GetFile(System.Guid,System.Threading.CancellationToken)">
             <summary>
             通过文件ID获取文件
             </summary>
             <param name="fileid">文件ID</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.FileController.GetImage(System.Guid,System.Int32,System.Int32)">
+        <member name="M:WebApi.Controllers.FileController.GetImage(System.Guid,System.Int32,System.Int32,System.Threading.CancellationToken)">
             <summary>
             通过图片文件ID获取图片
             </summary>
@@ -141,14 +141,14 @@
             <returns></returns>
             <remarks>不指定宽高参数,返回原图</remarks>
         </member>
-        <member name="M:WebApi.Controllers.FileController.GetFilePath(System.Guid)">
+        <member name="M:WebApi.Controllers.FileController.GetFilePath(System.Guid,System.Threading.CancellationToken)">
             <summary>
             通过文件ID获取文件静态访问路径
             </summary>
             <param name="fileid">文件ID</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.FileController.CreateGroupFileId(System.String,System.Guid,System.String,System.String,System.Int32,System.String)">
+        <member name="M:WebApi.Controllers.FileController.CreateGroupFileId(System.String,System.Guid,System.String,System.String,System.Int32,System.String,System.Threading.CancellationToken)">
             <summary>
             多文件切片上传，获取初始化文件ID
             </summary>
@@ -160,7 +160,7 @@
             <param name="unique">文件校验值</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.FileController.UploadGroupFile(System.Guid,System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
+        <member name="M:WebApi.Controllers.FileController.UploadGroupFile(System.Guid,System.Int32,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
             <summary>
             文件切片上传接口
             </summary>
@@ -169,7 +169,7 @@
             <param name="file">file</param>
             <returns>文件ID</returns>
         </member>
-        <member name="M:WebApi.Controllers.FileController.DeleteFile(System.Guid)">
+        <member name="M:WebApi.Controllers.FileController.DeleteFile(System.Guid,System.Threading.CancellationToken)">
             <summary>
             通过文件ID删除文件方法
             </summary>
@@ -437,35 +437,35 @@
             租户管理
             </summary>
         </member>
-        <member name="M:App.WebApi.Controllers.TenantController.Inactive(kevin.Domain.Share.Dtos.dtoId{System.String})">
+        <member name="M:App.WebApi.Controllers.TenantController.Inactive(kevin.Domain.Share.Dtos.dtoId{System.String},System.Threading.CancellationToken)">
             <summary>
             设置无效租户
             </summary>
             <param data="keyValue">id租户</param>
             <returns></returns>
         </member>
-        <member name="M:App.WebApi.Controllers.TenantController.Active(kevin.Domain.Share.Dtos.dtoId{System.String})">
+        <member name="M:App.WebApi.Controllers.TenantController.Active(kevin.Domain.Share.Dtos.dtoId{System.String},System.Threading.CancellationToken)">
             <summary>
             设置有效租户
             </summary>
             <param data="keyValue">id租户</param>
             <returns></returns>
         </member>
-        <member name="M:App.WebApi.Controllers.TenantController.CreateAsync(kevin.Domain.Share.Dtos.System.dtoTenant)">
+        <member name="M:App.WebApi.Controllers.TenantController.CreateAsync(kevin.Domain.Share.Dtos.System.dtoTenant,System.Threading.CancellationToken)">
             <summary>
             新增租户
             </summary>
             <param data="dtoTenant">租户信息</param>
             <returns></returns>
         </member>
-        <member name="M:App.WebApi.Controllers.TenantController.EidtAsync(kevin.Domain.Share.Dtos.System.dtoTenant)">
+        <member name="M:App.WebApi.Controllers.TenantController.EidtAsync(kevin.Domain.Share.Dtos.System.dtoTenant,System.Threading.CancellationToken)">
             <summary>
             编辑租户
             </summary>
             <param data="dtoTenant">租户信息</param>
             <returns></returns>
         </member>
-        <member name="M:App.WebApi.Controllers.TenantController.DeleteAsync(kevin.Domain.Share.Dtos.dtoId{System.String})">
+        <member name="M:App.WebApi.Controllers.TenantController.DeleteAsync(kevin.Domain.Share.Dtos.dtoId{System.String},System.Threading.CancellationToken)">
             <summary>
             删除租户
             </summary>
