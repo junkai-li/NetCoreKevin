@@ -20,7 +20,7 @@ namespace kevin.Domain.EventHandlers
                 Code = notification.Value.Code,
                 Name = notification.Value.Name,
                 CreateTime = notification.Value.CreateTime
-            });
+            }, cancellationToken);
             return Task.CompletedTask;
         }
     }
