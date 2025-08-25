@@ -187,42 +187,50 @@ namespace Common
         /// 获取NTC时间
         /// </summary>
         /// <returns></returns>
-        public static DateTime GetNetworkTime()
+        public static DateTime GetNetworkTime(string ntpServer = "ntp.onekib.com")
         {
+            try
+            {
+                var ntpData = new byte[48];
 
-            string ntpServer = "ntp.onekib.com";
+                ntpData[0] = 0x1B;
 
-            var ntpData = new byte[48];
+                var addresses = Dns.GetHostEntry(ntpServer).AddressList;
 
-            ntpData[0] = 0x1B;
+                var ipEndPoint = new IPEndPoint(addresses[0], 123);
+                var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
-            var addresses = Dns.GetHostEntry(ntpServer).AddressList;
+                socket.Connect(ipEndPoint);
 
-            var ipEndPoint = new IPEndPoint(addresses[0], 123);
-            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                socket.ReceiveTimeout = 3000;
 
-            socket.Connect(ipEndPoint);
+                socket.Send(ntpData);
+                socket.Receive(ntpData);
+                socket.Close();
 
-            socket.ReceiveTimeout = 3000;
+                const byte serverReplyTime = 40;
 
-            socket.Send(ntpData);
-            socket.Receive(ntpData);
-            socket.Close();
+                ulong intPart = BitConverter.ToUInt32(ntpData, serverReplyTime);
 
-            const byte serverReplyTime = 40;
+                ulong fractPart = BitConverter.ToUInt32(ntpData, serverReplyTime + 4);
 
-            ulong intPart = BitConverter.ToUInt32(ntpData, serverReplyTime);
+                intPart = (uint)(((intPart & 0x000000ff) << 24) + ((intPart & 0x0000ff00) << 8) + ((intPart & 0x00ff0000) >> 8) + ((intPart & 0xff000000) >> 24));
+                fractPart = (uint)(((fractPart & 0x000000ff) << 24) + ((fractPart & 0x0000ff00) << 8) + ((fractPart & 0x00ff0000) >> 8) + ((fractPart & 0xff000000) >> 24));
 
-            ulong fractPart = BitConverter.ToUInt32(ntpData, serverReplyTime + 4);
+                var milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
 
-            intPart = (uint)(((intPart & 0x000000ff) << 24) + ((intPart & 0x0000ff00) << 8) + ((intPart & 0x00ff0000) >> 8) + ((intPart & 0xff000000) >> 24));
-            fractPart = (uint)(((fractPart & 0x000000ff) << 24) + ((fractPart & 0x0000ff00) << 8) + ((fractPart & 0x00ff0000) >> 8) + ((fractPart & 0xff000000) >> 24));
+                var networkDateTime = (new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds((long)milliseconds);
 
-            var milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
+                return networkDateTime.ToLocalTime();
+            }
+            catch (Exception)
+            {
 
-            var networkDateTime = (new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds((long)milliseconds);
+                // 失败时返回本地时间
+                return DateTime.Now;
+            }
 
-            return networkDateTime.ToLocalTime();
+
         }
 
 

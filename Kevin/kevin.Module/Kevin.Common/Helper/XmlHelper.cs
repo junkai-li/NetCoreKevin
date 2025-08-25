@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -15,31 +16,37 @@ namespace Common
         /// <param name="obj">对象</param>
         /// <returns></returns>
         public static string ObjectToXml(object obj)
-        {
-            using (MemoryStream memoryStream = new())
-            {
-                XmlWriterSettings xmlWriterSettings = new();
-                xmlWriterSettings.Encoding = Encoding.UTF8;
-                xmlWriterSettings.OmitXmlDeclaration = true;
-
-                using (var xmlWriter = XmlWriter.Create(memoryStream, xmlWriterSettings))
+        { 
+                if (obj != default)
                 {
-                    //去除默认命名空间xmlns:xsd和xmlns:xsi
-                    XmlSerializerNamespaces ns = new();
-                    ns.Add("", "");
-
-                    XmlSerializer xmlSerializer = new(obj.GetType());
-                    xmlSerializer.Serialize(xmlWriter, obj);
-
-                    memoryStream.Position = 0;
-                    using (var sr = new StreamReader(memoryStream))
+                    using (MemoryStream memoryStream = new())
                     {
-                        var xmlString = sr.ReadToEnd();
+                        XmlWriterSettings xmlWriterSettings = new();
+                        xmlWriterSettings.Encoding = Encoding.UTF8;
+                        xmlWriterSettings.OmitXmlDeclaration = true;
 
-                        return xmlString;
+                        using (var xmlWriter = XmlWriter.Create(memoryStream, xmlWriterSettings))
+                        {
+                            //去除默认命名空间xmlns:xsd和xmlns:xsi
+                            XmlSerializerNamespaces ns = new();
+                            ns.Add("", "");
+
+                            XmlSerializer xmlSerializer = new(obj.GetType());
+                            xmlSerializer.Serialize(xmlWriter, obj);
+
+                            memoryStream.Position = 0;
+                            using (var sr = new StreamReader(memoryStream))
+                            {
+                                var xmlString = sr.ReadToEnd();
+
+                                return xmlString;
+                            }
+                        }
                     }
                 }
-            }
+                else {
+                   throw new ArgumentNullException("obj"); 
+                }   
         }
 
 

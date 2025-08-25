@@ -57,7 +57,7 @@ namespace Common
             string username = new(UnicodeEncoding.ASCII.GetChars(str));
             Random r = new(unchecked((int)DateTime.Now.Ticks));
             string s1 = ((char)r.Next(97, 122)).ToString();
-            username = username.Replace("/0", "");
+            username = username.Replace("\0", "");
             randStr = s1 + username;
             return randStr;
         }
