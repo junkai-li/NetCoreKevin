@@ -83,7 +83,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kevin.RepositorieRps", "Kev
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kevin.Testing.Shared", "Test\Testing.Shared\Kevin.Testing.Shared.csproj", "{018AD859-52A7-4C89-A44E-3D044E9B014F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kevin.Web.Test", "Test\Kevin.Web.Test\Kevin.Web.Test.csproj", "{FCD2D47A-C0AE-6100-9ABA-26E7914052A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kevin.Unit.Tests", "Test\Kevin.Web.Test\Kevin.Unit.Tests.csproj", "{FCD2D47A-C0AE-6100-9ABA-26E7914052A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

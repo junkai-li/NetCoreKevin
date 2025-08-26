@@ -1,12 +1,7 @@
 ﻿using Common;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Kevin.Web.Test.Kevin.Common
+namespace Kevin.Unit.Test.Kevin.Common
 {
     public class DataHelperTests
     {

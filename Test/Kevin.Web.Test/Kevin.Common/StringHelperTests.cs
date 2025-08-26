@@ -1,6 +1,6 @@
 ﻿using Common;
 
-namespace Kevin.Web.Test.Kevin.Common
+namespace Kevin.Unit.Test.Kevin.Common
 {
 
     public class StringHelperTests
