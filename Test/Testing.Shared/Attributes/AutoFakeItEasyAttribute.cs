@@ -1,7 +1,8 @@
 ﻿using AutoFixture;
 using AutoFixture.Xunit2;
+using Testing.Shared;
 
-namespace Testing.Shared
+namespace Kevin.Testing.Shared.Attributes
 {
     public class AutoFakeItEasyAttribute: AutoDataAttribute
     {

@@ -20,7 +20,7 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// PasswordHash
         /// </summary> 
-        public string PasswordHash { get; set; }
+        public string? PasswordHash { get; set; }
 
         /// <summary>
         /// 密码
