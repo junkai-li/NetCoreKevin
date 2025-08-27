@@ -1,6 +1,7 @@
 ﻿using AutoFixture.Xunit2;
 using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IServices;
+using Kevin.Testing.Shared.Attributes;
 using Microsoft.AspNetCore.Http;
 using Testing.Shared;
 

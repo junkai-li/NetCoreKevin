@@ -1,6 +1,7 @@
 ﻿using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Share.Attributes;
 using kevin.Domain.Share.Dtos.Sign;
+using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +14,7 @@ namespace WebApi.Controllers.v1
     [ApiVersion("1")]
     [Route("api/[controller]")]
     [Authorize]
-    [AllowAnonymous]
+    [SkipAuthority]
     public class SignController : ApiControllerBase
     {
         private ISignService _signService { get; set; }
@@ -59,7 +60,7 @@ namespace WebApi.Controllers.v1
         /// <returns></returns>
         [HttpDelete("DeleteSign")]
         [HttpLog("标记", "删除标记")]
-        public bool DeleteSign(dtoSign deleteSign)
+        public bool DeleteSign([FromQuery]dtoSign deleteSign)
         {
             return _signService.DeleteSign(deleteSign); 
         }
