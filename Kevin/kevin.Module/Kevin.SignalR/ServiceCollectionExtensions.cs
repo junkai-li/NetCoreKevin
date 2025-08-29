@@ -6,11 +6,10 @@ namespace Kevin.SignalR
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddKevinSignalRRedis(this IServiceCollection services, Action<SignalrSetting> action)
+        public static void AddKevinSignalRRedis(this IServiceCollection services, Action<SignalrRdisSetting> action)
         {
-
             services.Configure(action);
-            var signalrSetting = new SignalrSetting();
+            var signalrSetting = new SignalrRdisSetting();
             action.Invoke(signalrSetting);
             services.AddSignalR(options =>
             {
@@ -21,7 +20,7 @@ namespace Kevin.SignalR
             }).AddStackExchangeRedis(op =>
             {
                 op.Configuration.ConfigurationChannel = signalrSetting.configurationChannel;
-                op.Configuration.DefaultDatabase = 12;
+                op.Configuration.DefaultDatabase = signalrSetting.defaultDatabase;
                 op.Configuration.AbortOnConnectFail = false;
                 op.Configuration.Password = signalrSetting.password;
                 op.Configuration.EndPoints.Add(signalrSetting.hostname, int.Parse(signalrSetting.port));

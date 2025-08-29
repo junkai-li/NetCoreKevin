@@ -10,9 +10,9 @@ namespace Kevin.SignalR
 {
     public static class ApplicationBuilderExtensions
     {
-        public static void UseKevinSignalR(this IApplicationBuilder app, Action<SignalrSetting> action)
+        public static void UseKevinRedisSignalR(this IApplicationBuilder app, Action<SignalrRdisSetting> action)
         {
-            var signalrSetting = new SignalrSetting();
+            var signalrSetting = new SignalrRdisSetting();
             action.Invoke(signalrSetting);
             app.UseEndpoints(endpoints =>
             {

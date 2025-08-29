@@ -22,12 +22,15 @@ using System;
 using Web.Filters;
 using Web.Global.User;
 using kevin.FileStorage;
+using Kevin.SignalR;
+using Kevin.AI.MCP.Server.Models;
+using Kevin.SignalR.Models;
 namespace Web.Extension
 {
     public static class ServiceConfiguration
     {
         public static IServiceCollection ConfigServies(this IServiceCollection services, IConfiguration Configuration)
-        { 
+        {
 
             #region json配置
             //json动态响应压缩https://docs.microsoft.com/zh-cn/aspnet/core/performance/response-compression?view=aspnetcore-5.0
@@ -109,10 +112,23 @@ namespace Web.Extension
             services.AddControllersWithViews().AddControllersAsServices();
             services.ReplaceIocControllerActivator();
             //App服务注册
-            RegisterAppServices(services, Configuration); 
-            //services.AddKevinCors(Configuration.GetSection("CorsSetting").Get<CorsSetting>());
-            //services.AddKevinSignalR(Configuration);
-  
+            RegisterAppServices(services, Configuration);
+            //services.AddKevinCors(Configuration.GetSection("CorsSetting").Get<CorsSetting>()); 
+
+            #region 注入SignalRRedis
+            services.AddKevinSignalRRedis(options =>
+            {
+                var newoptions = Configuration.GetRequiredSection("SignalrRdisSetting").Get<SignalrRdisSetting>();
+                options.url = newoptions.url;
+                options.password = newoptions.password;
+                 options.port = newoptions.port;
+                options.defaultDatabase= newoptions.defaultDatabase; 
+                options.configurationChannel= newoptions.configurationChannel;
+                options.hostname = newoptions.hostname;
+                options.cacheMySignalRKeyName = newoptions.cacheMySignalRKeyName;
+            });
+            #endregion
+
             services.AddKevinMediatRDomainEventBus(ReflectionScheduler.GetAllReferencedAssemblies());//初始化
 
             #region 注册短信服务
@@ -207,7 +223,17 @@ namespace Web.Extension
             {
                 endpoints.MapControllers();
             });
-            //app.UseKevinSignalR(StartConfiguration.configuration.GetSection("SignalrSetting").Get<SignalrSetting>());
+            app.UseKevinRedisSignalR(options =>
+            { 
+                var newoptions = StartConfiguration.configuration.GetRequiredSection("SignalrRdisSetting").Get<SignalrRdisSetting>();
+                options.url = newoptions.url;
+                options.password = newoptions.password;
+                options.port = newoptions.port;
+                options.defaultDatabase = newoptions.defaultDatabase;
+                options.configurationChannel = newoptions.configurationChannel;
+                options.hostname = newoptions.hostname;
+                options.cacheMySignalRKeyName = newoptions.cacheMySignalRKeyName;
+            });
 
             GlobalServices.Set(app.ApplicationServices);
             return app;
@@ -239,7 +265,7 @@ namespace Web.Extension
             Repository.Database.KevinDbContext.ConnectionString = Configuration.GetConnectionString("dbConnection");
             services.AddDbContextPool<Repository.Database.KevinDbContext>(options => { }, 100);
             services.AddScoped<KevinDbContext, KevinDbContext>();
-            
+
             //注入事务对象
             //services.AddScoped<TransactionScopeFilter>();
             #endregion
