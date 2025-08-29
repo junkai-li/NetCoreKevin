@@ -6,7 +6,7 @@ namespace Kevin.SignalR
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddKevinSignalR(this IServiceCollection services, Action<SignalrSetting> action)
+        public static void AddKevinSignalRRedis(this IServiceCollection services, Action<SignalrSetting> action)
         {
 
             services.Configure(action);
