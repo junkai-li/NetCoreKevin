@@ -4,6 +4,10 @@
 生成数据库可见下面说明文件 命令生成即可 
 项目结构    
 ![image](https://github.com/user-attachments/assets/e0fe3e9f-18b0-4345-b9ac-3b728d3e780c)
+思维导图
+![输入图片说明](Doc/junkai-li-NetCoreKevin-mindmap.png)
+教学文档地址
+[https://opendeep.wiki/junkai-li/NetCoreKevin/mindmap](http://)
 
 <img width="563" height="832" alt="image" src="https://github.com/user-attachments/assets/79d71802-8e07-459d-b5e1-a98cb953b6f4" />
 
