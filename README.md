@@ -2,11 +2,12 @@
 基于NET8搭建DDD-微服务-WebApi架构支持：IDS4单点登录、多缓存、自动任务、分布式、一库多租户、日志、授权和鉴权、CAP集成事件、SignalR、领域事件、ESL、MCP协议服务、IOC模块化注入、Cors、Quartz自动任务、多短信集成、AI智能体、AISemanticKernel集成、OCR验证码识别、API多版本兼容、单元测试
 解耦设计都可以单独引用 项目启动时注意相关Redis、db链接配置  
 生成数据库可见下面说明文件 命令生成即可 
+[教学文档地址](https://opendeep.wiki/junkai-li/NetCoreKevin/mindmap)
 项目结构    
 ![image](https://github.com/user-attachments/assets/e0fe3e9f-18b0-4345-b9ac-3b728d3e780c)
 思维导图
 ![输入图片说明](Doc/junkai-li-NetCoreKevin-mindmap.png)
-[教学文档地址](https://opendeep.wiki/junkai-li/NetCoreKevin/mindmap)
+
 
 
 <img width="563" height="832" alt="image" src="https://github.com/user-attachments/assets/79d71802-8e07-459d-b5e1-a98cb953b6f4" />
