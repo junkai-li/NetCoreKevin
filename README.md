@@ -8,7 +8,7 @@
 ![输入图片说明](Doc/junkai-li-NetCoreKevin-mindmap.png)
 [教学文档地址](https://opendeep.wiki/junkai-li/NetCoreKevin/mindmap)
 
-🌐 项目概述
+# 🌐 项目概述
 NetCoreKevin 是一个基于 DDD（Domain-Driven Design） 和 微服务架构 的 .NET 8 Web API 项目，其核心目标是提供一个可复用、模块化、可扩展的架构平台。它集成了以下关键功能：
 
     身份认证与授权（基于 IdentityServer4）
