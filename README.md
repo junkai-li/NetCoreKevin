@@ -145,11 +145,12 @@ MCP 服务：用于 AI 服务通信或协议扩展。
 NetCoreKevin 是一个非常完整的微服务架构项目，结合了 DDD、CAP、Quartz、EFCore 等多种技术，并集成了 AI、OCR、短信、文件存储等实用功能。其模块化设计使得每个功能都可以独立引用，非常适合大型企业级应用的开发。
 
 # AI效果图
- ![203d2bb1bb39cfc0d42010fba0dae0a](https://github.com/user-attachments/assets/dc7c1e76-1714-47d0-b252-3c130546cf4b)
+![输入图片说明](Doc/459860561-dc7c1e76-1714-47d0-b252-3c130546cf4b.png)
+
 # 项目结构
-<img width="563" height="832" alt="image" src="https://github.com/user-attachments/assets/79d71802-8e07-459d-b5e1-a98cb953b6f4" />
+![输入图片说明](Doc/479386810-79d71802-8e07-459d-b5e1-a98cb953b6f4.png)
 
 # 基础API
- <img width="1920" height="911" alt="image" src="https://github.com/user-attachments/assets/9ac73e9a-1e3d-4d0c-add9-7e4b938e231e" />
+![输入图片说明](Doc/478957534-9ac73e9a-1e3d-4d0c-add9-7e4b938e231e.png)
 
 
