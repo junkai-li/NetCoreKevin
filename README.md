@@ -4,9 +4,9 @@
 生成数据库可见下面说明文件 命令生成即可 
 项目结构    
 ![image](https://github.com/user-attachments/assets/e0fe3e9f-18b0-4345-b9ac-3b728d3e780c)
-思维导图
-![输入图片说明](Doc/junkai-li-NetCoreKevin-mindmap.png)
-[教学文档地址](https://opendeep.wiki/junkai-li/NetCoreKevin/mindmap)
+# 思维导图
+![思维导图](Doc/junkai-li-NetCoreKevin-mindmap.png)
+# 教学文档地址 [教学文档地址](https://opendeep.wiki/junkai-li/NetCoreKevin/mindmap)
 
 # 🌐 项目概述
 NetCoreKevin 是一个基于 DDD（Domain-Driven Design） 和 微服务架构 的 .NET 8 Web API 项目，其核心目标是提供一个可复用、模块化、可扩展的架构平台。它集成了以下关键功能：
@@ -27,27 +27,9 @@ NetCoreKevin 是一个基于 DDD（Domain-Driven Design） 和 微服务架构 �
     单元测试支持
     Docker 支持
 
-<img width="563" height="832" alt="image" src="https://github.com/user-attachments/assets/79d71802-8e07-459d-b5e1-a98cb953b6f4" />
-![输入图片说明](Doc/image.png)
 
+ ![输入图片说明](Doc/image.png)
 
- AI效果图
- ![203d2bb1bb39cfc0d42010fba0dae0a](https://github.com/user-attachments/assets/dc7c1e76-1714-47d0-b252-3c130546cf4b)
-
- 2.docker配置  
- 
-![image](https://user-images.githubusercontent.com/57887866/233823710-e8ad6fe8-5eb8-4fda-b3e1-09c36e508ed0.png)  
-
- 3.json配置  
- 
-![image](https://user-images.githubusercontent.com/57887866/233823842-2263ff1b-91ec-4f77-8ff3-dca129e01bd7.png)    
-
- 4.部分说明  
- 
-![image](https://user-images.githubusercontent.com/57887866/233824730-55549181-057c-4298-8601-e9734bf99d0a.png)  
-  
- 5.基础API
- <img width="1920" height="911" alt="image" src="https://github.com/user-attachments/assets/9ac73e9a-1e3d-4d0c-add9-7e4b938e231e" />
 
 # 🧩 项目结构详解
 以下是项目的核心模块及其功能说明：
@@ -161,4 +143,13 @@ OCR 验证码识别：通过 AI 技术识别验证码图像。
 MCP 服务：用于 AI 服务通信或协议扩展。
 # 📝 总结
 NetCoreKevin 是一个非常完整的微服务架构项目，结合了 DDD、CAP、Quartz、EFCore 等多种技术，并集成了 AI、OCR、短信、文件存储等实用功能。其模块化设计使得每个功能都可以独立引用，非常适合大型企业级应用的开发。
+
+# AI效果图
+ ![203d2bb1bb39cfc0d42010fba0dae0a](https://github.com/user-attachments/assets/dc7c1e76-1714-47d0-b252-3c130546cf4b)
+# 项目结构
+<img width="563" height="832" alt="image" src="https://github.com/user-attachments/assets/79d71802-8e07-459d-b5e1-a98cb953b6f4" />
+
+# 基础API
+ <img width="1920" height="911" alt="image" src="https://github.com/user-attachments/assets/9ac73e9a-1e3d-4d0c-add9-7e4b938e231e" />
+
 
