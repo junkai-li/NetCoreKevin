@@ -10,7 +10,7 @@
 # 思维导图
 ![思维导图](Doc/junkai-li-NetCoreKevin-mindmap.png)
 
-# 教学文档地址 [教学文档地址](https://opendeep.wiki/junkai-li/NetCoreKevin/mindmap)
+# 教学文档地址 [[教学文档地址](https://blog.csdn.net/weixin_42629287/category_13037923.html)]
 
 # 🌐 项目概述
 NetCoreKevin 是一个基于 DDD（Domain-Driven Design） 和 微服务架构 的 .NET 8 Web API 项目，其核心目标是提供一个可复用、模块化、可扩展的架构平台。它集成了以下关键功能：
