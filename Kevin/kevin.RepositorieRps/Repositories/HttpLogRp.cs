@@ -26,7 +26,7 @@ namespace kevin.RepositorieRps.Repositories
         /// <param name="operateType"></param>
         /// <param name="operateRemark"></param>
         /// <returns></returns>
-        public async Task<bool> Add(string operateType, string operateRemark)
+        public Task<bool> Add(string operateType, string operateRemark)
         {
             var log = new THttpLog();
             log.Id = Guid.NewGuid();
@@ -50,7 +50,7 @@ namespace kevin.RepositorieRps.Repositories
             log.http_method = ServiceProvider.GetService<IHttpContextAccessor>().Current().Request.Method;
             DbSet.Add(log);
             SaveChangesAsync();
-            return true;
+            return Task.FromResult(true);
         }
     }
 }

@@ -8,7 +8,7 @@ using System.Reflection;
 namespace kevin.Permission.Permisson
 {
     public class Utils
-    { 
+    {
         /// <summary>
         /// 获取反射集
         /// </summary>
@@ -16,8 +16,8 @@ namespace kevin.Permission.Permisson
         public static List<Assembly> GetAllAssembly()
         {
             var rv = new List<Assembly>();
-            var path = Assembly.GetEntryAssembly().Location;
-            var dir = new DirectoryInfo(Path.GetDirectoryName(path));
+            var path = Assembly.GetEntryAssembly()?.Location;
+            var dir = new DirectoryInfo(Path.GetDirectoryName(path) ?? "");
 
             string[] systemdll = new string[]
             {
@@ -36,7 +36,7 @@ namespace kevin.Permission.Permisson
             {
                 try
                 {
-                    if (systemdll.Any(x => dll.FullName.StartsWith(x)) == false && !rv.Any(r => r.FullName == dll.FullName))
+                    if (systemdll.Any(x => dll.FullName != default && dll.FullName.StartsWith(x)) == false && !rv.Any(r => r.FullName == dll.FullName))
                     {
                         rv.Add(dll);
                     }

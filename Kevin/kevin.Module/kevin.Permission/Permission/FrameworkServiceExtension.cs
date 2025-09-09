@@ -29,8 +29,8 @@ namespace kevin.Permission.Permisson
                                 ModuleName = ctrl.ModuleName,
                                 ActionName = a.ActionName,
                                 HttpMethod = a.HttpMethod,
-                                AreaName = ctrl.Area?.AreaName,
-                                Area = ctrl.Area?.Prefix,
+                                AreaName = ctrl.Area?.AreaName ?? "",
+                                Area = ctrl.Area?.Prefix ?? "",
                                 Module = ctrl.Module,
                                 Action = a.Action,
                                 FullName = ctrl.FullName,
@@ -105,8 +105,8 @@ namespace kevin.Permission.Permisson
                 if (attrs.Length > 0)
                 {
                     var ada = attrs[0] as ActionDescriptionAttribute;
-                    var nameKey = ada.GetDescription(ctrl);
-                    model.ModuleName = nameKey;
+                    var nameKey = ada?.GetDescription(ctrl);
+                    model.ModuleName = nameKey ?? "";
                     model.Module = model.ClassName;
                 }
                 else
@@ -152,7 +152,7 @@ namespace kevin.Permission.Permisson
                         if (attrs2.Length > 0)
                         {
                             var ada = attrs2[0] as ActionDescriptionAttribute;
-                            action.ActionName = ada.Description;
+                            action.ActionName = ada?.Description ?? "";
                             action.Action = action.MethodName;
                         }
                         else
@@ -166,7 +166,7 @@ namespace kevin.Permission.Permisson
                             action.ParasToRunTest = new List<string>();
                             foreach (var par in pars)
                             {
-                                action.ParasToRunTest.Add(par.Name);
+                                action.ParasToRunTest.Add(par?.Name ?? "");
                             }
                         }
                         model.Actions.Add(action);
@@ -206,7 +206,7 @@ namespace kevin.Permission.Permisson
                         if (attrs2.Length > 0)
                         {
                             var ada = attrs2[0] as ActionDescriptionAttribute;
-                            action.ActionName = ada.Description;
+                            action.ActionName = ada?.Description ?? "";
                             action.Action = action.MethodName;
                         }
                         else
@@ -221,14 +221,14 @@ namespace kevin.Permission.Permisson
                 {
                     if (areaattr.Length > 0)
                     {
-                        string areaName = (areaattr[0] as MyAreaAttribute).AreaName;
+                        string areaName = (areaattr[0] as MyAreaAttribute)?.AreaName ?? "";
                         var existArea = modules.Where(x => x.Area?.AreaName == areaName && x.ClassName == model.ClassName).Select(x => x.Area).FirstOrDefault();
                         if (existArea == null)
                         {
                             model.Area = new SysArea
                             {
-                                AreaName = (areaattr[0] as MyAreaAttribute).AreaName,
-                                Prefix = (areaattr[0] as MyAreaAttribute).Area,
+                                AreaName = (areaattr[0] as MyAreaAttribute)?.AreaName ?? "",
+                                Prefix = (areaattr[0] as MyAreaAttribute)?.Area ?? "",
                             };
                         }
                         else
@@ -265,7 +265,7 @@ namespace kevin.Permission.Permisson
                 var areaAttr = ctrl.GetCustomAttribute(typeof(MyAreaAttribute), false);
                 if (areaAttr != null)
                 {
-                    area = (areaAttr as MyAreaAttribute).Area;
+                    area = (areaAttr as MyAreaAttribute)?.Area;
                 }
                 if (attrs22.Length > 0)
                 {
@@ -335,17 +335,17 @@ namespace kevin.Permission.Permisson
             return rv;
         }
 
-        public static Assembly GetRuntimeAssembly(string name)
+        public static Assembly? GetRuntimeAssembly(string name)
         {
-            var path = Assembly.GetEntryAssembly().Location;
-            var library = DependencyContext.Default.RuntimeLibraries.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
+            var path = Assembly.GetEntryAssembly()?.Location;
+            var library = DependencyContext.Default?.RuntimeLibraries.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
             if (library == null)
             {
                 return null;
             }
             var r = new CompositeCompilationAssemblyResolver(new ICompilationAssemblyResolver[]
         {
-            new AppBaseCompilationAssemblyResolver(Path.GetDirectoryName(path)),
+            new AppBaseCompilationAssemblyResolver(Path.GetDirectoryName(path)??""),
             new ReferenceAssemblyPathResolver(),
             new PackageCompilationAssemblyResolver()
         });

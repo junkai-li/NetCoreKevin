@@ -47,7 +47,7 @@ namespace Kevin.Unit.Test.Kevin.Common
         public class TestClass
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public required string Name { get; set; }
         }
   
 }

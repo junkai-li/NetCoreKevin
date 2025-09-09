@@ -4,7 +4,6 @@ using kevin.Share.Dtos;
 using kevin.Share.Dtos.System;
 using Kevin.Common.Helper;
 using Microsoft.AspNetCore.Http;
-using System;
 using Web.Global.Exceptions;
 
 namespace kevin.Application
@@ -152,14 +151,17 @@ namespace kevin.Application
         public string GetWeiXinMiniAppOpenId(Guid weixinkeyid, string code)
         {
             var weixinkey = weiXinKeyRp.Query().Where(t => t.Id == weixinkeyid).FirstOrDefault();
+            if (weixinkey != default)
+            {
+                var weiXinHelper = new Web.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey.WxAppId, weixinkey.WxAppSecret);
 
-            var weiXinHelper = new Web.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey.WxAppId, weixinkey.WxAppSecret);
+                var wxinfo = weiXinHelper.GetOpenIdAndSessionKey(code); 
+                string openid = wxinfo.openid;
+                return openid;
+            }
 
-            var wxinfo = weiXinHelper.GetOpenIdAndSessionKey(code);
 
-            string openid = wxinfo.openid;
-
-            return openid;
+            return "";
         }
 
         /// <summary>
@@ -170,36 +172,39 @@ namespace kevin.Application
         {
 
             var userId = CurrentUser.UserId;
-
-            string phone = userRp.Query().Where(t => t.Id == userId).Select(t => t.Phone).FirstOrDefault();
-
-            string smsCode = keyValue.Value.ToString();
-
-            var checkSms = Web.Auth.AuthorizeAction.SmsVerifyPhone(new dtoKeyValue { Key = phone, Value = smsCode });
-
-            if (checkSms)
+            var user = userRp.Query().Where(t => t.Id == userId).FirstOrDefault();
+            if (user != default && keyValue.Value != default && keyValue.Key != default)
             {
-                string password = keyValue.Key.ToString();
+                string phone = user.Phone;
 
-                if (!string.IsNullOrEmpty(password))
+                string smsCode = keyValue.Value.ToString() ?? "";
+
+                var checkSms = Web.Auth.AuthorizeAction.SmsVerifyPhone(new dtoKeyValue { Key = phone, Value = smsCode });
+
+                if (checkSms)
                 {
-                    var user = userRp.Query().Where(t => t.Id == userId).FirstOrDefault();
+                    string password = keyValue.Key.ToString() ?? "";
 
-                    user.ChangePassword(password);
-
-                    userRp.SaveChanges();
-
-                    return true;
+                    if (!string.IsNullOrEmpty(password))
+                    {
+                        if (user != default)
+                        {
+                            user.ChangePassword(password);
+                            userRp.SaveChanges();
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        throw new UserFriendlyException("User.EditUserPassWordBySms.'New password is not allowed to be empty'");
+                    }
                 }
                 else
                 {
-                    throw new UserFriendlyException("User.EditUserPassWordBySms.'New password is not allowed to be empty'");
+                    throw new UserFriendlyException("User.EditUserPassWordBySms.'Error in SMS verification code''");
                 }
             }
-            else
-            {
-                throw new UserFriendlyException("User.EditUserPassWordBySms.'Error in SMS verification code''");
-            }
+            throw new UserFriendlyException("用户不存在");
 
         }
 
@@ -287,7 +292,7 @@ namespace kevin.Application
                 CreateTime = t.CreateTime
             }).FirstOrDefault();
 
-            return user;
+            return user ?? new dtoUser();
         }
 
         /// <summary>
@@ -308,7 +313,6 @@ namespace kevin.Application
                     if (UserPh != null && data.Id != UserPh.Id)
                     {
                         throw new UserFriendlyException("手机号码已存在");
-                        return false;
                     }
                     var UserName = userRp.Query().Where(t => t.Name == user.Name && t.IsDelete == false && t.Role.Name != "user").FirstOrDefault();
                     //验证姓名唯一不允许添加
@@ -374,10 +378,13 @@ namespace kevin.Application
             {
                 var data = userRp.Query().Where(x => x.Id == Id && x.IsDelete == false).FirstOrDefault();
                 var tokenuser = userRp.Query().Where(x => x.IsDelete == false && x.Id == CurrentUser.UserId).FirstOrDefault();
-                //编辑
-                data.IsDelete = true;
-                data.DeleteTime = DateTime.Now;
-                userRp.SaveChanges();
+                if (data != default)
+                {
+                    //编辑
+                    data.IsDelete = true;
+                    data.DeleteTime = DateTime.Now;
+                    userRp.SaveChanges();
+                }
                 return true;
             }
             catch (Exception)
@@ -428,8 +435,7 @@ namespace kevin.Application
                 Remarks = t.Remarks,
                 CreateTime = t.CreateTime
             }).FirstOrDefault();
-
-            return user;
+            return user ?? new dtoRole();
         }
 
         /// <summary>
@@ -488,11 +494,13 @@ namespace kevin.Application
                     throw new UserFriendlyException("当前角色含有 未失效用户删除失败");
                 }
                 var data = roleRp.Query().Where(x => x.Id == Id && x.IsDelete == false).FirstOrDefault();
-                //删除
-                data.IsDelete = true;
-                data.DeleteTime = DateTime.Now;
-
-                roleRp.SaveChanges();
+                if (data != default)
+                {
+                    //删除
+                    data.IsDelete = true;
+                    data.DeleteTime = DateTime.Now;
+                    roleRp.SaveChanges();
+                }
                 return true;
             }
             catch (Exception)
@@ -542,24 +550,30 @@ namespace kevin.Application
         /// <param name="weixinkeyid">微信配置密钥ID</param> 
         public string GetWeiXinMiniAppPhone(string iv, string encryptedData, string code, Guid weixinkeyid)
         {
-
-
             var weixinkey = weiXinKeyRp.Query().Where(t => t.Id == weixinkeyid).FirstOrDefault();
-            var weiXinHelper = new Web.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey.WxAppId, weixinkey.WxAppSecret);
-            var wxinfo = weiXinHelper.GetOpenIdAndSessionKey(code);
+            if (weixinkey != default)
+            {
+                var weiXinHelper = new Web.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey.WxAppId, weixinkey.WxAppSecret);
+                var wxinfo = weiXinHelper.GetOpenIdAndSessionKey(code);
 
-            string openid = wxinfo.openid;
-            string sessionkey = wxinfo.sessionkey;
+                string openid = wxinfo.openid;
+                string sessionkey = wxinfo.sessionkey;
 
-            var strJson = Web.Libraries.WeiXin.MiniApp.WeiXinHelper.DecryptionData(encryptedData, sessionkey, iv);
+                var strJson = Web.Libraries.WeiXin.MiniApp.WeiXinHelper.DecryptionData(encryptedData, sessionkey, iv);
 
-            var user = userBindWeixinRp.Query().Where(t => t.WeiXinOpenId == openid & t.WeiXinKeyId == weixinkeyid).Select(t => t.User).FirstOrDefault();
-            user.Phone = Common.Json.JsonHelper.GetValueByKey(strJson, "phoneNumber");
-            userBindWeixinRp.SaveChanges();
-            return user.Phone;
+                var user = userBindWeixinRp.Query().Where(t => t.WeiXinOpenId == openid & t.WeiXinKeyId == weixinkeyid).Select(t => t.User).FirstOrDefault();
+                if (user != default)
+                {
+                    user.Phone = Common.Json.JsonHelper.GetValueByKey(strJson, "phoneNumber");
+                    userBindWeixinRp.SaveChanges();
+                    return user.Phone;
+                }
+            }
+
+            return "";
         }
 
-        public async Task<bool> ChangePasswordTokenUser(string oldPwd, string newPwd, CancellationToken cancellationToken)
+        public Task<bool> ChangePasswordTokenUser(string oldPwd, string newPwd, CancellationToken cancellationToken)
         {
             var user = userRp.Query().Where(t => t.Id == CurrentUser.UserId && t.IsDelete == false).FirstOrDefault();
             if (user == default)
@@ -572,7 +586,7 @@ namespace kevin.Application
             }
             user.ChangePassword(newPwd);
             userRp.SaveChanges();
-            return true;
+            return Task.FromResult(true);
         }
     }
 }

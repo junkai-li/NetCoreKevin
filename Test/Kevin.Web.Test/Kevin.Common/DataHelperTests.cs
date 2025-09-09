@@ -79,7 +79,7 @@ namespace Kevin.Unit.Test.Kevin.Common
         private class TestModel
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public required string Name { get; set; }
         }
     }
 }

@@ -6,16 +6,26 @@ using Web.Global.User;
 namespace kevin.Application;
 public class BaseService : IBaseService
 {
-    public IServiceProvider _serviceProvider { get; set; } 
-    public ICurrentUser CurrentUser { get; set; } 
-    public IHttpContextAccessor HttpContextAccessor { get; set; }
+    public IServiceProvider? _serviceProvider { get; set; }
+    public required ICurrentUser CurrentUser { get; set; }
+    public required IHttpContextAccessor HttpContextAccessor { get; set; }
+    /// <summary>
+    /// 
+    /// </summary>
     public BaseService()
-    { 
+    {
     }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="_httpContextAccessor"></param>
     public BaseService(IHttpContextAccessor _httpContextAccessor)
     {
-        HttpContextAccessor = _httpContextAccessor; 
-        _serviceProvider = _httpContextAccessor.HttpContext.RequestServices;
-        CurrentUser = _httpContextAccessor.HttpContext.RequestServices.GetService<ICurrentUser>();
+        HttpContextAccessor = _httpContextAccessor;
+        if (_httpContextAccessor.HttpContext != default)
+        {
+            _serviceProvider = _httpContextAccessor.HttpContext.RequestServices;
+            CurrentUser = _serviceProvider.GetService<ICurrentUser>() ?? new CurrentUser(_httpContextAccessor);
+        }
     }
 }

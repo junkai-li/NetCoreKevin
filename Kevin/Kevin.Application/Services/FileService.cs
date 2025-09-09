@@ -3,7 +3,6 @@ using kevin.Share.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.EntityFrameworkCore;
 using Repository.Database;
 using Web.Global.Exceptions;
 
@@ -20,7 +19,7 @@ namespace kevin.Application.Services
             fileStorage = _fileStorage;
         }
 
-        async Task<bool> IFileService.DeleteFile(Guid id, CancellationToken cancellationToken)
+        Task<bool> IFileService.DeleteFile(Guid id, CancellationToken cancellationToken)
         {
             try
             {
@@ -29,13 +28,13 @@ namespace kevin.Application.Services
                 {
                     file.IsDelete = true;
                     file.DeleteTime = DateTime.Now;
-                    fileRp.SaveChanges(); 
-                } 
-                return true;
+                    fileRp.SaveChanges();
+                }
+                return Task.FromResult(true);
             }
             catch
             {
-                return false;
+                return Task.FromResult(false);
             }
         }
 
@@ -180,18 +179,21 @@ namespace kevin.Application.Services
 
             if (isSuccess)
             {
-                TFile f = new();
-                f.Id = fileName;
-                f.IsDelete = false;
-                f.Name = file.FileName;
-                f.Path = path;
-                f.Table = business;
-                f.TableId = key;
-                f.Sign = sign;
-                f.CreateUserId = CurrentUser.UserId;
-                f.CreateTime = DateTime.Now;
-                fileRp.Add(f);
-                await fileRp.SaveChangesAsync();
+                if (file != default)
+                {
+                    TFile f = new();
+                    f.Id = fileName;
+                    f.IsDelete = false;
+                    f.Name = file.FileName ?? Guid.NewGuid().ToString();
+                    f.Path = path;
+                    f.Table = business;
+                    f.TableId = key;
+                    f.Sign = sign;
+                    f.CreateUserId = CurrentUser.UserId;
+                    f.CreateTime = DateTime.Now;
+                    fileRp.Add(f);
+                    await fileRp.SaveChangesAsync();
+                } 
                 return fileName;
             }
             else
@@ -199,10 +201,10 @@ namespace kevin.Application.Services
                 throw new UserFriendlyException("文件上传失败！");
             }
         }
-        async Task<Guid> IFileService.CreateGroupFileId(string business, Guid key, string sign, string fileName, int slicing, string unique, CancellationToken cancellationToken)
+        Task<Guid> IFileService.CreateGroupFileId(string business, Guid key, string sign, string fileName, int slicing, string unique, CancellationToken cancellationToken)
         {
             using var db = new KevinDbContext();
-            var dbfileinfo = db.Set<TFileGroup>().Where(t => t.Unique.ToLower() == unique.ToLower()).FirstOrDefault(); 
+            var dbfileinfo = db.Set<TFileGroup>().Where(t => t.Unique.ToLower() == unique.ToLower()).FirstOrDefault();
             if (dbfileinfo == null)
             {
                 var fileid = Guid.NewGuid().ToString() + Path.GetExtension(fileName).ToLowerInvariant(); ;
@@ -227,14 +229,14 @@ namespace kevin.Application.Services
                 group.Isfull = false;
                 db.Set<TFileGroup>().Add(group);
                 db.SaveChanges();
-                return f.Id;
+                return Task.FromResult(f.Id);
             }
             else
             {
-                return dbfileinfo.FileId;
+                return Task.FromResult(dbfileinfo.FileId);
             }
         }
-        async Task<bool> IFileService.UploadGroupFile(Guid fileId, int index, IFormFile file, CancellationToken cancellationToken)
+        Task<bool> IFileService.UploadGroupFile(Guid fileId, int index, IFormFile file, CancellationToken cancellationToken)
         {
             try
             {
@@ -328,11 +330,11 @@ namespace kevin.Application.Services
 
                 }
 
-                return true;
+                return Task.FromResult(true);
             }
             catch
             {
-                return false;
+                return Task.FromResult(false);
             }
         }
     }

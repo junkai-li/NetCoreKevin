@@ -146,6 +146,7 @@ namespace WebApi.Controllers.v1
         /// 更改当前用户密码 
         /// </summary>
         /// <param name="user">user</param>
+        /// <param name="cancellationToken">cancellationToken</param>
         /// <returns></returns>
         [HttpPost("ChangePasswordTokenUser")]
         [ActionDescription("更改当前用户密码")]

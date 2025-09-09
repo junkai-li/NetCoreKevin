@@ -73,7 +73,7 @@ namespace kevin.Application
             }
         }
 
-        public async Task<bool> CreateAsync(dtoTenant tenant, CancellationToken cancellationToken)
+        public Task<bool> CreateAsync(dtoTenant tenant, CancellationToken cancellationToken)
         {
             var tenantcode = tenantRp.Query().FirstOrDefault(t => t.Code == tenant.Code);
             if (tenantcode != default)
@@ -84,7 +84,7 @@ namespace kevin.Application
             addtenant.AddDomainEvent(new TTenantCreatedEvent(addtenant),EventBusEnums.Add);
             tenantRp.Add(addtenant);
             tenantRp.SaveChanges();
-            return true; 
+            return Task.FromResult(true); 
         }
 
         public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
@@ -109,7 +109,7 @@ namespace kevin.Application
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<bool> InitializedData(dtoTenant tenant, CancellationToken cancellationToken) 
+        public Task<bool> InitializedData(dtoTenant tenant, CancellationToken cancellationToken) 
         { 
             var role = new TRole();
             role.Id = Guid.NewGuid();
@@ -130,7 +130,7 @@ namespace kevin.Application
             user.Email = "admin";
             roleRp.Add(role);
             userRp.Add(user); 
-            return true;
+            return Task.FromResult(true);
         }
     }
 }

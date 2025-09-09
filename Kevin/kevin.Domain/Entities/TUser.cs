@@ -16,35 +16,35 @@ namespace kevin.Domain.Kevin
         /// 用户名
         /// </summary> 
         [Description("用户名")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
 
         /// <summary>
         /// 昵称
         /// </summary>
         [Description("昵称")]
-        public string NickName { get; set; }
+        public string? NickName { get; set; }
 
 
         /// <summary>
         /// 手机号
         /// </summary>
         [Description("手机号")]
-        public string Phone { get; set; }
+        public string? Phone { get; set; }
 
 
         /// <summary>
         /// 邮箱
         /// </summary>
         [Description("邮箱")]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
 
         /// <summary>
         /// 密码Hash
         /// </summary>
         [Description("密码Hash")]
-        public string PasswordHash { get; set; }
+        public   string? PasswordHash { get; set; }
 
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace kevin.Domain.Kevin
         /// </summary>
         [Description("角色信息")]
         public Guid RoleId { get; set; }
-        public virtual TRole Role { get; set; }
+        public virtual TRole? Role { get; set; }
 
 
         /// <summary>

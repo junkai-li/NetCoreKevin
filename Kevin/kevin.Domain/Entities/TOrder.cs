@@ -17,7 +17,7 @@ namespace kevin.Domain.Kevin
         /// </summary>
         [StringLength(100)]
         [Description("订单号")]
-        public string OrderNo { get; set; }
+        public required string OrderNo { get; set; }
 
 
 
@@ -26,7 +26,7 @@ namespace kevin.Domain.Kevin
         /// </summary>
         [StringLength(50)]
         [Description("订单类型")]
-        public string Type { get; set; }
+        public required string Type { get; set; }
 
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace kevin.Domain.Kevin
         /// </summary>
         [StringLength(100)]
         [Description("支付流水号")]
-        public string SerialNo { get; set; }
+        public   string? SerialNo { get; set; }
 
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace kevin.Domain.Kevin
         /// </summary>
         [StringLength(50)]
         [Description("订单状态")]
-        public string State { get; set; }
+        public required string State { get; set; }
 
 
         /// <summary>
@@ -58,8 +58,8 @@ namespace kevin.Domain.Kevin
         /// </summary>
         [StringLength(50)]
         [Description("支付方式")]
-        public string PayType { get; set; }
-
+        public   string? PayType { get; set; }
+            
 
         /// <summary>
         /// 支付状态
@@ -88,6 +88,6 @@ namespace kevin.Domain.Kevin
         /// <summary>
         /// 订单详情
         /// </summary>
-        public virtual List<TOrderDetail> OrderDetails { get; set; }
+        public virtual List<TOrderDetail>? OrderDetails { get; set; }
     }
 }

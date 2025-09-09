@@ -12,9 +12,9 @@ namespace kevin.Permission.Permisson
     public class SysCtrl
     {
 
-        public string _name;
+        public   string? _name;
 
-        public string Module { get; set; }
+        public   string? Module { get; set; }
         public string ModuleName
         {
             get
@@ -54,15 +54,15 @@ namespace kevin.Permission.Permisson
         [Required(ErrorMessage = "{0}required")]
         [StringLength(50, ErrorMessage = "{0}stringmax{1}")]
         [Display(Name = "ClassName")]
-        public string ClassName { get; set; }
+        public   string? ClassName { get; set; }
 
         [Display(Name = "Action")]
-        public List<SysAction> Actions { get; set; }
+        public   List<SysAction>? Actions { get; set; }
 
         [Display(Name = "Area")]
-        public SysArea Area { get; set; }
+        public   SysArea? Area { get; set; }
 
-        public string FullName { get; set; }
+        public   string? FullName { get; set; }
 
         [NotMapped]
         public bool IgnorePrivillege { get; set; }

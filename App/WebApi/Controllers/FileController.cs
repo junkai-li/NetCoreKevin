@@ -50,6 +50,7 @@ namespace WebApi.Controllers
         /// <param name="key">记录值</param>
         /// <param name="sign">自定义标记</param>
         /// <param name="file">file</param>
+        /// <param name="cancellationToken">cancellationToken</param>
         /// <returns>文件ID</returns>
         [DisableRequestSizeLimit]
         [HttpPost("UploadFile")]
@@ -67,6 +68,7 @@ namespace WebApi.Controllers
         /// <param name="business">业务领域</param>
         /// <param name="key">记录值</param>
         /// <param name="sign">标记</param>
+        /// <param name="cancellationToken">cancellationToken</param>
         /// <returns></returns>
         /// <remarks>swagger 暂不支持多文件接口测试，请使用 postman</remarks>
         [DisableRequestSizeLimit]
@@ -94,6 +96,7 @@ namespace WebApi.Controllers
         /// 通过文件ID获取文件
         /// </summary>
         /// <param name="fileid">文件ID</param>
+        /// <param name="cancellationToken">cancellationToken</param>
         /// <returns></returns>
         [AllowAnonymous]
         [HttpGet("GetFile")]
@@ -112,6 +115,7 @@ namespace WebApi.Controllers
         /// <param name="fileId">图片ID</param>
         /// <param name="width">宽度</param>
         /// <param name="height">高度</param>
+        /// <param name="cancellationToken">cancellationToken</param>
         /// <returns></returns>
         /// <remarks>不指定宽高参数,返回原图</remarks>
         [AllowAnonymous]
@@ -173,12 +177,13 @@ namespace WebApi.Controllers
         /// 通过文件ID获取文件静态访问路径
         /// </summary>
         /// <param name="fileid">文件ID</param>
+        /// <param name="cancellationToken">cancellationToken</param>
         /// <returns></returns>
         [HttpGet("GetFilePath")]
         public async Task<string> GetFilePath([Required] Guid fileid, CancellationToken cancellationToken)
         {
             return  await _fileService.GetFilePath(fileid, cancellationToken); 
-        }  
+        }
         /// <summary>
         /// 多文件切片上传，获取初始化文件ID
         /// </summary>
@@ -188,6 +193,7 @@ namespace WebApi.Controllers
         /// <param name="fileName">文件名称</param>
         /// <param name="slicing">总切片数</param>
         /// <param name="unique">文件校验值</param>
+        /// <param name="cancellationToken">cancellationToken</param>
         /// <returns></returns>
         [HttpGet("CreateGroupFileId")]
         public async Task<Guid> CreateGroupFileId([Required] string business, [Required] Guid key, [Required] string sign, [Required] string fileName, [Required] int slicing, [Required] string unique, CancellationToken cancellationToken)
@@ -203,6 +209,7 @@ namespace WebApi.Controllers
         /// <param name="fileId">文件组ID</param>
         /// <param name="index">切片索引</param>
         /// <param name="file">file</param>
+        /// <param name="cancellationToken">cancellationToken</param>
         /// <returns>文件ID</returns>
         [HttpPost("UploadGroupFile")]
         public async Task<bool> UploadGroupFile([Required][FromForm] Guid fileId, [Required][FromForm] int index, [Required] IFormFile file, CancellationToken cancellationToken)
@@ -216,6 +223,7 @@ namespace WebApi.Controllers
         /// 通过文件ID删除文件方法
         /// </summary>
         /// <param name="id">文件ID</param>
+        /// <param name="cancellationToken">cancellationToken</param>
         /// <returns></returns>
         [HttpDelete("DeleteFile")]
         public async Task<bool> DeleteFile(Guid id, CancellationToken cancellationToken)

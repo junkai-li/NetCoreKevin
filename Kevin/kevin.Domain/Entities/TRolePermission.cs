@@ -12,17 +12,17 @@
         /// <summary>
         /// 角色编号;
         /// </summary> 
-        public virtual TRole Role { get; set; }
+        public virtual TRole? Role { get; set; }
 
         /// <summary>
         /// 权限编号;
         /// </summary>
         [Description("权限编号")]
-        public virtual string PermissionId { get; set; }
+        public virtual string? PermissionId { get; set; }
 
         /// <summary>
         /// 权限编号;
         /// </summary>
-        public virtual TPermission Permission { get; set; }
+        public virtual TPermission? Permission { get; set; }
     }
 }

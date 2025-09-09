@@ -112,6 +112,7 @@
             <param name="key">记录值</param>
             <param name="sign">自定义标记</param>
             <param name="file">file</param>
+            <param name="cancellationToken">cancellationToken</param>
             <returns>文件ID</returns>
         </member>
         <member name="M:WebApi.Controllers.FileController.BatchUploadFile(System.String,System.Guid,System.String,System.Threading.CancellationToken)">
@@ -121,6 +122,7 @@
             <param name="business">业务领域</param>
             <param name="key">记录值</param>
             <param name="sign">标记</param>
+            <param name="cancellationToken">cancellationToken</param>
             <returns></returns>
             <remarks>swagger 暂不支持多文件接口测试，请使用 postman</remarks>
         </member>
@@ -129,6 +131,7 @@
             通过文件ID获取文件
             </summary>
             <param name="fileid">文件ID</param>
+            <param name="cancellationToken">cancellationToken</param>
             <returns></returns>
         </member>
         <member name="M:WebApi.Controllers.FileController.GetImage(System.Guid,System.Int32,System.Int32,System.Threading.CancellationToken)">
@@ -138,6 +141,7 @@
             <param name="fileId">图片ID</param>
             <param name="width">宽度</param>
             <param name="height">高度</param>
+            <param name="cancellationToken">cancellationToken</param>
             <returns></returns>
             <remarks>不指定宽高参数,返回原图</remarks>
         </member>
@@ -146,6 +150,7 @@
             通过文件ID获取文件静态访问路径
             </summary>
             <param name="fileid">文件ID</param>
+            <param name="cancellationToken">cancellationToken</param>
             <returns></returns>
         </member>
         <member name="M:WebApi.Controllers.FileController.CreateGroupFileId(System.String,System.Guid,System.String,System.String,System.Int32,System.String,System.Threading.CancellationToken)">
@@ -158,6 +163,7 @@
             <param name="fileName">文件名称</param>
             <param name="slicing">总切片数</param>
             <param name="unique">文件校验值</param>
+            <param name="cancellationToken">cancellationToken</param>
             <returns></returns>
         </member>
         <member name="M:WebApi.Controllers.FileController.UploadGroupFile(System.Guid,System.Int32,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
@@ -167,6 +173,7 @@
             <param name="fileId">文件组ID</param>
             <param name="index">切片索引</param>
             <param name="file">file</param>
+            <param name="cancellationToken">cancellationToken</param>
             <returns>文件ID</returns>
         </member>
         <member name="M:WebApi.Controllers.FileController.DeleteFile(System.Guid,System.Threading.CancellationToken)">
@@ -174,43 +181,8 @@
             通过文件ID删除文件方法
             </summary>
             <param name="id">文件ID</param>
+            <param name="cancellationToken">cancellationToken</param>
             <returns></returns>
-        </member>
-        <member name="T:WebApi.Controllers.TestController">
-            <summary>
-            测试控制器
-            </summary>
-        </member>
-        <member name="M:WebApi.Controllers.TestController.HealthCheckGet">
-            <summary>
-            健康检查接口
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:WebApi.Controllers.TestController.DistLock">
-            <summary>
-            分布式锁demo
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:WebApi.Controllers.TestController.AcquireLock">
-            <summary>
-            分布式锁demo
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:WebApi.Controllers.TestController.TestErrMsg(System.String)">
-             <summary>
-            测试提醒异常
-             </summary>
-             <param name="str"></param>
-             <exception cref="T:Web.Global.Exceptions.UserFriendlyException"></exception>
-        </member>
-        <member name="M:WebApi.Controllers.TestController.TestLogEvent(System.String)">
-             <summary>
-            测试日志领域事件
-             </summary>
-             <param name="msg"></param> 
         </member>
         <member name="T:WebApi.Controllers.v1.SignController">
             <summary>
@@ -316,6 +288,7 @@
             更改当前用户密码 
             </summary>
             <param name="user">user</param>
+            <param name="cancellationToken">cancellationToken</param>
             <returns></returns>
         </member>
         <member name="M:WebApi.Controllers.v1.UserController.DeleteUser(System.Guid)">

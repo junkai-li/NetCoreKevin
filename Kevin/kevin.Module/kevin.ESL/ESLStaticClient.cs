@@ -18,14 +18,14 @@ namespace kevin_ESL
     /// </summary>
     public static class ESLStaticClient
     {
-        public static Socket _Socket = default;
+        public static Socket? _Socket;
         public static string HOST="";
         public static int PORT;
         public static string PassWord="";
         public static ConcurrentDictionary<string, Action<string>> Callbacks = new ConcurrentDictionary<string, Action<string>>();
         public static ConcurrentQueue<string> Data = new ConcurrentQueue<string>();
         static Thread? Thread;
-        static object lockObject = new object();
+        static object lockObject = new();
 
        /// <summary>
        /// 注册启动事件

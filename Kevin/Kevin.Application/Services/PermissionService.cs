@@ -1,9 +1,4 @@
-﻿using kevin.Domain.Interfaces.IRepositories;
-using kevin.Domain.Interfaces.IServices;
-using kevin.Domain.Kevin;
-using kevin.Domain.Share.Dtos.System;
-using kevin.Ioc.IocAttrributes;
-using kevin.Permission.Interfaces;
+﻿using kevin.Permission.Interfaces;
 using kevin.Permission.Permission;
 using kevin.Permission.Permisson;
 using Microsoft.AspNetCore.Http;
@@ -101,13 +96,16 @@ namespace kevin.Application
             else
             {
                 var data = permissionRp.Query().Where(t => t.Id == entity.Id).FirstOrDefault();
-                if (data.IsManual.HasValue != true)
+                if (data != default)
                 {
-                    throw new UserFriendlyException("系统权限不能操作");
-                }
-                data.UpdatedTime = DateTime.Now;
-                data.UpdateUserId = CurrentUser.UserId;
-                entity.MapTo(data);
+                    if (data.IsManual.HasValue != true)
+                    {
+                        throw new UserFriendlyException("系统权限不能操作");
+                    }
+                    data.UpdatedTime = DateTime.Now;
+                    data.UpdateUserId = CurrentUser.UserId;
+                    entity.MapTo(data);
+                }  
             }
             int res = permissionRp.SaveChanges();
             return res > 0;
@@ -147,14 +145,22 @@ namespace kevin.Application
             foreach (var area in areas)
             {
                 var areadto = new AreaPermissionDto();
-                areadto.areaName = data.Where(x => x.Area == area).FirstOrDefault().AreaName;
+                var areaitem = data.Where(x => x.Area == area).FirstOrDefault();
+                if (areaitem != default)
+                {
+                    areadto.areaName = areaitem.AreaName;
+                }
                 areadto.area = area;
                 var modules = data.Where(x => x.Area == area).Select(x => x.Module).Distinct().ToList();
                 var modulesDtos = new List<ModulePermissionDto>();
                 foreach (var module in modules)
                 {
                     var moduledto = new ModulePermissionDto();
-                    moduledto.ModuleName = data.Where(x => x.Area == area && x.Module == module).FirstOrDefault().ModuleName;
+                    var permission = data.Where(x => x.Area == area && x.Module == module).FirstOrDefault();
+                    if (permission != default)
+                    {
+                        moduledto.ModuleName = permission.ModuleName;
+                    }
                     moduledto.Module = module;
                     var actionDtos = data.Where(x => x.Area == area && x.Module == module).OrderByDescending(x => x.Seq).Select(x => new ActionPermissionDto
                     {
@@ -198,13 +204,17 @@ namespace kevin.Application
                     }
                 }
             }
-            var roleId = rolepers.FirstOrDefault().RoleId;
-            var allP = rolePermissionRp.Query().Where(r => r.RoleId == roleId).ToList();
-            var preAdd = rolepers.Where(r => !allP.Any(p => p.PermissionId == r.PermissionId));
-            var preDelete = allP.Where(r => !rolepers.Any(p => p.PermissionId == r.PermissionId));
-            rolePermissionRp.AddRange(preAdd);
-            rolePermissionRp.RemoveRange(preDelete.ToArray());
-            rolePermissionRp.SaveChanges();
+            var roleper2 = rolepers.FirstOrDefault();
+            if (roleper2 != default)
+            {
+                var roleId = roleper2.RoleId;
+                var allP = rolePermissionRp.Query().Where(r => r.RoleId == roleId).ToList();
+                var preAdd = rolepers.Where(r => !allP.Any(p => p.PermissionId == r.PermissionId));
+                var preDelete = allP.Where(r => !rolepers.Any(p => p.PermissionId == r.PermissionId));
+                rolePermissionRp.AddRange(preAdd);
+                rolePermissionRp.RemoveRange(preDelete.ToArray());
+                rolePermissionRp.SaveChanges();
+            }
             return true;
         }
 

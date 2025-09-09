@@ -15,7 +15,7 @@
         /// </summary>
         [StringLength(500)]
         [Description("街道名称")]
-        public string Town { get; set; }
+        public string? Town { get; set; }
 
 
 
@@ -24,7 +24,7 @@
         /// </summary> 
         [Description("所属区域ID")]
         public int AreaId { get; set; }
-        public virtual TRegionArea Area { get; set; }
+        public virtual TRegionArea? Area { get; set; }
 
 
     }

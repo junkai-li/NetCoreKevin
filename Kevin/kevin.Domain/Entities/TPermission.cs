@@ -34,7 +34,7 @@
         /// </summary>
         [Description("创建人ID")]
         public Guid? CreateUserId { get; set; }
-        public TUser CreateUser { get; set; }
+        public TUser? CreateUser { get; set; }
 
 
         /// <summary>
@@ -42,7 +42,7 @@
         /// </summary>
         [Description("编辑人ID")]
         public Guid? UpdateUserId { get; set; }
-        public TUser UpdateUser { get; set; }
+        public TUser? UpdateUser { get; set; }
 
         /// <summary>
         /// 更新时间
@@ -55,7 +55,7 @@
         /// </summary>
         [Description("删除人ID")]
         public Guid? DeleteUserId { get; set; }
-        public TUser DeleteUser { get; set; }
+        public TUser? DeleteUser { get; set; }
 
         /// <summary>
         /// 删除时间
@@ -67,49 +67,49 @@
         /// </summary>
         [StringLength(50)]
         [Description("区域")]
-        public virtual string AreaName { get; set; }
+        public virtual string? AreaName { get; set; }
         /// <summary>
         /// 模块名;
         /// </summary>
 	    [StringLength(50)]
         [Description("系统权限表")]
-        public virtual string ModuleName { get; set; }
+        public virtual string? ModuleName { get; set; }
         /// <summary>
         /// 动作名;
         /// </summary>
 	    [StringLength(50)]
         [Description("动作名")]
-        public virtual string ActionName { get; set; }
+        public virtual string? ActionName { get; set; }
         /// <summary>
         /// 模块全名;
         /// </summary>
 	    [StringLength(512)]
         [Description("模块全名")]
-        public virtual string FullName { get; set; }
+        public virtual string? FullName { get; set; }
         /// <summary>
         /// Module;
         /// </summary>
 	    [StringLength(50)]
         [Description("Module")]
-        public virtual string Module { get; set; }
+        public virtual string? Module { get; set; }
         /// <summary>
         /// Action;
         /// </summary>
 	    [StringLength(50)]
         [Description("Action")]
-        public virtual string Action { get; set; }
+        public virtual string? Action { get; set; }
         /// <summary>
         /// 区域名称;
         /// </summary>
 	    [StringLength(50)]
         [Description("区域名称")]
-        public virtual string Area { get; set; }
+        public virtual string? Area { get; set; }
         /// <summary>
         /// Method;
         /// </summary>
 	    [StringLength(50)]
         [Description("Method")]
-        public virtual string HttpMethod { get; set; }
+        public virtual string? HttpMethod { get; set; }
         /// <summary>
         /// 手动添加;
         /// </summary>
@@ -125,6 +125,6 @@
         /// </summary>
 	    [StringLength(50)]
         [Description("图标")]
-        public virtual string Icon { get; set; }
+        public virtual string? Icon { get; set; }
     }
 }

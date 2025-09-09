@@ -8,11 +8,11 @@ namespace kevin.Permission.Permisson
 {
     public class PermissionDto
     {
-        public string Id { get; set; }
-        public string AreaName { get; set; }
+        public   string? Id { get; set; }
+        public   string? AreaName { get; set; }
         public int? Seq { get; set; }
-        public string ModuleName { get; set; }
-        public string ActionName { get; set; }
+        public   string? ModuleName { get; set; }
+        public   string? ActionName { get; set; }
         public bool IsAccess { get; set; }
 
     }

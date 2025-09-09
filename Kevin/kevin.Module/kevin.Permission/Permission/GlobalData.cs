@@ -12,7 +12,7 @@ namespace kevin.Permission.Permisson
         /// <summary>
         /// Controllers
         /// </summary>
-        private List<Type> _allControllers;
+        private List<Type>? _allControllers;
         public List<Type> AllControllers
         {
             get
@@ -27,7 +27,7 @@ namespace kevin.Permission.Permisson
         /// <summary>
         /// 程序集
         /// </summary>
-        private List<Assembly> _allAssembly;
+        private List<Assembly>? _allAssembly;
         public List<Assembly> AllAssembly
         {
             get
@@ -45,7 +45,7 @@ namespace kevin.Permission.Permisson
         /// 可访问的url地址
         /// </summary>
 
-        private List<string> _allAccessUrls;
+        private List<string>? _allAccessUrls;
         public List<string> AllAccessUrls
         {
             get
@@ -61,7 +61,7 @@ namespace kevin.Permission.Permisson
         /// <summary>
         /// 模块
         /// </summary>
-        private List<SysCtrl> _allModules;
+        private List<SysCtrl>? _allModules;
         public List<SysCtrl> AllModule
         {
             get
@@ -76,7 +76,7 @@ namespace kevin.Permission.Permisson
         /// <summary>
         /// 菜单
         /// </summary>
-        private List<TPermission> _allModule;
+        private List<TPermission>? _allModule;
         public List<TPermission> AllModules
         {
             get

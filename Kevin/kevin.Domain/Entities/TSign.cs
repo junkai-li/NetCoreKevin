@@ -14,7 +14,7 @@
         /// </summary>
         [StringLength(100)]
         [Description("外链表名称")]
-        public string Table { get; set; }
+        public   string? Table { get; set; }
 
 
 
@@ -31,7 +31,7 @@
         /// </summary>
         [StringLength(200)]
         [Description("自定义标记")]
-        public string Sign { get; set; }
+        public   string? Sign { get; set; }
 
     }
 }

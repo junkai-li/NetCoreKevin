@@ -11,31 +11,31 @@ namespace kevin.FileStorage.TencentCloud.Models
         /// <summary>
         /// 腾讯云账户 appid
         /// </summary>
-        public string AppId { get; set; }
+        public required string AppId { get; set; }
 
 
         /// <summary>
         /// COS存储区域
         /// </summary>
-        public string Region { get; set; }
+        public required string Region { get; set; }
 
 
         /// <summary>
         /// 私钥id
         /// </summary>
-        public string SecretId { get; set; }
+        public required string SecretId { get; set; }
 
 
         /// <summary>
         /// 私钥值
         /// </summary>
-        public string SecretKey { get; set; }
+        public required string SecretKey { get; set; }
 
 
 
         /// <summary>
         /// 存储桶名称
         /// </summary>
-        public string BucketName { get; set; }
+        public required string BucketName { get; set; }
     }
 }

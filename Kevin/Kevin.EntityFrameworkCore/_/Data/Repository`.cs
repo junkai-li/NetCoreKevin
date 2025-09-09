@@ -35,7 +35,8 @@ namespace Kevin.EntityFrameworkCore._.Data
             catch (Exception ex)
             {
                 Type t = typeof(T);
-                var name = t.Name;
+                var name = t.Name; 
+                throw new Exception($"仓储类{t.Name}初始化失败！");
             }
         }
 
