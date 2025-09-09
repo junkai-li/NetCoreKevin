@@ -20,13 +20,13 @@ namespace Repository.Database
     public class KevinDbContext : DbContext
     {
 
-        private IMediator? Mediator;
+        private IMediator Mediator;
         public static string ConnectionString { get; set; }
 
         public Int32 TenantId { get; set; }
 
 
-        public KevinDbContext(DbContextOptions<KevinDbContext> _ = default, IMediator? mediator = default, ICurrentUser service = default) : base(GetDbContextOptions())
+        public KevinDbContext(DbContextOptions<KevinDbContext> _ = default, IMediator mediator = default, ICurrentUser service = default) : base(GetDbContextOptions())
         {
             if (mediator != default)
             {

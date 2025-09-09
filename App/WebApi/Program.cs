@@ -108,6 +108,8 @@ namespace WebApi
             }
             catch (Exception ex)
             {
+                Kevin.log4Net.LogHelper<Program>.logger.Error(ex.Message, ex); 
+                Console.WriteLine(ex.Message);
                 throw;
             }
         }
