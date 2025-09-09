@@ -14,7 +14,7 @@
         /// </summary>
         [Description("文件ID")]
         public Guid FileId { get; set; }
-        public virtual TFile File { get; set; }
+        public virtual TFile? File { get; set; }
 
 
         /// <summary>
@@ -29,7 +29,7 @@
         /// </summary>
         [StringLength(300)]
         [Description("文件保存路径")]
-        public string Path { get; set; }
+        public string? Path { get; set; }
 
     }
 }

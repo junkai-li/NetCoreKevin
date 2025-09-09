@@ -18,7 +18,7 @@ namespace kevin.Domain.Kevin
         /// </summary>
         [MaxLength(200)]
         [Description("AppId")]
-        public string AppId { get; set; }
+        public string? AppId { get; set; }
 
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace kevin.Domain.Kevin
         /// </summary>
         [MaxLength(100)]
         [Description("App私钥")]
-        public string AppPrivateKey { get; set; }
+        public string? AppPrivateKey { get; set; }
 
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace kevin.Domain.Kevin
         /// </summary>
         [StringLength(200)]
         [Description("支付宝公钥")]
-        public string AlipayPublicKey { get; set; }
+        public string? AlipayPublicKey { get; set; }
 
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace kevin.Domain.Kevin
         /// </summary>
         [StringLength(200)]
         [Description("支付宝加密解密密钥")]
-        public string AesKey { get; set; }
+        public string? AesKey { get; set; }
 
 
         /// <summary>
@@ -57,6 +57,6 @@ namespace kevin.Domain.Kevin
         /// </summary>
         [Description("备注")]
         [StringLength(1000)]
-        public string Remarks { get; set; }
+        public string? Remarks { get; set; }
     }
 }

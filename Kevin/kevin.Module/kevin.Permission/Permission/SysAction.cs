@@ -17,7 +17,7 @@ namespace kevin.Permission.Permisson
         [Display(Name = "ActionName")]
         [StringLength(50, ErrorMessage = "{0}stringmax{1}")]
         [Required(ErrorMessage = "{0}required")]
-        public  string Action { get; set; }
+        public  string? Action { get; set; }
 
         [Required(ErrorMessage = "{0}required")]
         [StringLength(50, ErrorMessage = "{0}stringmax{1}")]

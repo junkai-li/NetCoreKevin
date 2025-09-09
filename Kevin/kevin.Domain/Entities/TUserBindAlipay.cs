@@ -15,7 +15,7 @@
         /// </summary>
         [Description("用户ID")]
         public Guid UserId { get; set; }
-        public virtual TUser User { get; set; }
+        public virtual TUser? User { get; set; }
 
 
         /// <summary>
@@ -23,7 +23,7 @@
         /// </summary>
         [Description("关联支付宝账户")]
         public Guid AlipayKeyId { get; set; }
-        public virtual TAlipayKey AlipayKey { get; set; }
+        public virtual TAlipayKey? AlipayKey { get; set; }
 
 
 
@@ -32,6 +32,6 @@
         /// </summary>
         [StringLength(100)]
         [Description("支付宝UserId")]
-        public string AlipayUserId { get; set; }
+        public string? AlipayUserId { get; set; }
     }
 }

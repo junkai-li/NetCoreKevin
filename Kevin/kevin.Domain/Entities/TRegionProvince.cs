@@ -19,14 +19,14 @@
         /// </summary>
         [StringLength(200)]
         [Description("省份")]
-        public string Province { get; set; }
+        public string? Province { get; set; }
 
 
 
         /// <summary>
         /// 省份下包含的所有城市信息
         /// </summary>
-        public virtual List<TRegionCity> TRegionCity { get; set; }
+        public virtual List<TRegionCity>? TRegionCity { get; set; }
 
     }
 }

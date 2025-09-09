@@ -37,39 +37,43 @@ namespace kevin.Application
             if (Web.Auth.AuthorizeAction.SmsVerifyPhone(keyValue))
             {
                 var userId = CurrentUser.UserId;
-                string phone = keyValue.Key.ToString();
+                string phone = keyValue.Key?.ToString() ?? "";
                 var checkPhone = userRp.Query().Where(t => t.Id != userId && t.Phone == phone).Count();
                 var user = userRp.Query().Where(t => t.Id == userId).FirstOrDefault();
                 var isMergeUser = false;
-
-                if (isMergeUser)
+                if (user != default)
                 {
-                    //获取目标手机号绑定的账户ID
-                    var phoneUserId = userRp.Query().Where(t => t.Phone == phone).Select(t => t.Id).FirstOrDefault();
-                    user.Phone = phone;
-                    userRp.SaveChanges();
-
-                    //如果目标手机号绑定用户，则进行数据合并动作
-                    if (phoneUserId != default)
+                    if (isMergeUser)
                     {
-                        //将手机号对应的用户移除，合并数据到新的账号
-                        //Common.DBHelper.MergeUser(phoneUserId, user.Id);
-                    }
-                    return true;
-                }
-                else
-                {
-                    if (checkPhone == 0)
-                    {
+                        //获取目标手机号绑定的账户ID
+                        var phoneUserId = userRp.Query().Where(t => t.Phone == phone).Select(t => t.Id).FirstOrDefault();
                         user.Phone = phone;
                         userRp.SaveChanges();
+
+                        //如果目标手机号绑定用户，则进行数据合并动作
+                        if (phoneUserId != default)
+                        {
+                            //将手机号对应的用户移除，合并数据到新的账号
+                            //Common.DBHelper.MergeUser(phoneUserId, user.Id);
+                        }
                         return true;
                     }
                     else
                     {
-                        throw new UserFriendlyException("User.EditUserPhoneBySms.'The target mobile number has been bound by another account");
+                        if (checkPhone == 0)
+                        {
+                            user.Phone = phone;
+                            userRp.SaveChanges();
+                            return true;
+                        }
+                        else
+                        {
+                            throw new UserFriendlyException("User.EditUserPhoneBySms.'The target mobile number has been bound by another account");
+                        }
                     }
                 }
+                throw new UserFriendlyException("登录用户不存在");
+
             }
             else
             {
@@ -99,7 +103,7 @@ namespace kevin.Application
                 Email = t.Email,
                 Role = t.Role.Name,
                 CreateTime = t.CreateTime
-            }).FirstOrDefault();
+            }).FirstOrDefault() ?? new();
         }
 
         /// <summary>
@@ -155,7 +159,7 @@ namespace kevin.Application
             {
                 var weiXinHelper = new Web.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey.WxAppId, weixinkey.WxAppSecret);
 
-                var wxinfo = weiXinHelper.GetOpenIdAndSessionKey(code); 
+                var wxinfo = weiXinHelper.GetOpenIdAndSessionKey(code);
                 string openid = wxinfo.openid;
                 return openid;
             }
@@ -175,7 +179,7 @@ namespace kevin.Application
             var user = userRp.Query().Where(t => t.Id == userId).FirstOrDefault();
             if (user != default && keyValue.Value != default && keyValue.Key != default)
             {
-                string phone = user.Phone;
+                string phone = user.Phone ?? "";
 
                 string smsCode = keyValue.Value.ToString() ?? "";
 

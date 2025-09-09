@@ -13,7 +13,7 @@
         /// 网站域名
         /// </summary>
         [Description("网站域名")]
-        public string WebUrl { get; set; }
+        public string? WebUrl { get; set; }
 
 
         /// <summary>
@@ -21,7 +21,7 @@
         /// </summary>
         [StringLength(100)]
         [Description("管理者名称")]
-        public string ManagerName { get; set; }
+        public string? ManagerName { get; set; }
 
 
         /// <summary>
@@ -29,7 +29,7 @@
         /// </summary>
         [Description("管理者地址")]
         [StringLength(200)]
-        public string ManagerAddress { get; set; }
+        public string? ManagerAddress { get; set; }
 
 
         /// <summary>
@@ -37,7 +37,7 @@
         /// </summary>
         [Description("管理者电话")]
         [StringLength(200)]
-        public string ManagerPhone { get; set; }
+        public string? ManagerPhone { get; set; }
 
 
         /// <summary>
@@ -45,7 +45,7 @@
         /// </summary>
         [Description("管理者邮箱")]
         [StringLength(100)]
-        public string ManagerEmail { get; set; }
+        public string? ManagerEmail { get; set; }
 
 
         /// <summary>
@@ -53,7 +53,7 @@
         /// </summary>
         [StringLength(200)]
         [Description("网站备案号")]
-        public string RecordNumber { get; set; }
+        public string? RecordNumber { get; set; }
 
 
         /// <summary>
@@ -61,7 +61,7 @@
         /// </summary>
         [StringLength(100)]
         [Description("SEO标题")]
-        public string SeoTitle { get; set; }
+        public string? SeoTitle { get; set; }
 
 
         /// <summary>
@@ -69,7 +69,7 @@
         /// </summary>
         [StringLength(200)]
         [Description("SEO关键字")]
-        public string SeoKeyWords { get; set; }
+        public string? SeoKeyWords { get; set; }
 
 
         /// <summary>
@@ -77,13 +77,13 @@
         /// </summary>
         [StringLength(500)]
         [Description("SEO描述")]
-        public string SeoDescription { get; set; }
+        public string? SeoDescription { get; set; }
 
 
         /// <summary>
         /// 网站底部代码
         /// </summary>
         [Description("网站底部代码")]
-        public string FootCode { get; set; }
+        public string? FootCode { get; set; }
     }
 }

@@ -17,7 +17,7 @@ namespace kevin.Domain.Bases
         /// </summary>
         [Description("创建人ID")]
         public Guid CreateUserId { get; set; }
-        public virtual TUser CreateUser { get; set; }
+        public virtual TUser? CreateUser { get; set; }
 
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace kevin.Domain.Bases
         /// </summary>
         [Description("编辑人ID")]
         public Guid? UpdateUserId { get; set; }
-        public virtual TUser UpdateUser { get; set; }
+        public virtual TUser? UpdateUser { get; set; }
 
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace kevin.Domain.Bases
         /// </summary>
         [Description("删除人ID")]
         public Guid? DeleteUserId { get; set; }
-        public virtual TUser DeleteUser { get; set; }
+        public virtual TUser? DeleteUser { get; set; }
 
 
     }

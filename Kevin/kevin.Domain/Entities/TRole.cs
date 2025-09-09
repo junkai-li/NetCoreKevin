@@ -17,7 +17,7 @@ namespace kevin.Domain.Kevin
         [ForeignName]
         [StringLength(100)]
         [Description("角色名称")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace kevin.Domain.Kevin
         /// </summary>
         [StringLength(500)]
         [Description("备注信息")]
-        public string Remarks { get; set; }
+        public string? Remarks { get; set; }
 
 
 
@@ -33,7 +33,7 @@ namespace kevin.Domain.Kevin
         /// 该角色所有用户
         /// </summary>
         [InverseProperty("Role")]
-        public virtual List<TUser> RoleUserList { get; set; }
+        public virtual List<TUser>? RoleUserList { get; set; }
 
 
     }

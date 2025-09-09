@@ -36,7 +36,7 @@ namespace Kevin.EntityFrameworkCore._.Data
             {
                 Type t = typeof(T);
                 var name = t.Name; 
-                throw new Exception($"仓储类{t.Name}初始化失败！");
+                throw new Exception($"仓储类{t.Name}初始化失败！", ex);
             }
         }
 

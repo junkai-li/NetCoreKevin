@@ -15,7 +15,7 @@
         /// </summary>
         [StringLength(100)]
         [Description("标记")]
-        public string Tag { get; set; }
+        public string? Tag { get; set; }
 
 
 

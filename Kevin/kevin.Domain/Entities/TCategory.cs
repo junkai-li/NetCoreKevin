@@ -15,7 +15,7 @@
         /// </summary>
         [Description("频道ID")]
         public Guid ChannelId { get; set; }
-        public virtual TChannel Channel { get; set; }
+        public virtual TChannel? Channel { get; set; }
 
 
         /// <summary>
@@ -23,7 +23,7 @@
         /// </summary>
         [StringLength(100)]
         [Description("栏目名目")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
 
         /// <summary>
@@ -38,17 +38,17 @@
         /// </summary>
         [Description("父级栏目ID")]
         public Guid? ParentId { get; set; }
-        public virtual TCategory Parent { get; set; }
+        public virtual TCategory? Parent { get; set; }
 
         [Description("备注")]
         /// <summary>
         /// 备注
         /// </summary>
-        public string Remarks { get; set; }
+        public string? Remarks { get; set; }
 
 
 
 
-        public virtual List<TArticle> TArticle { get; set; }
+        public virtual List<TArticle>? TArticle { get; set; }
     }
 }

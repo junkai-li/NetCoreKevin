@@ -7,29 +7,29 @@ namespace kevin.Permission.Permission
 {
     public class AreaPermissionDto
     {
-        public string area { get; set; }
-        public string areaName { get; set; }
+        public string? area { get; set; }
+        public string? areaName { get; set; }
 
         public List<ModulePermissionDto> modules { get; set; }
     }
 
     public class ModulePermissionDto
     {
-        public string ModuleName { get; set; }
-        public string Module { get; set; }
+        public string? ModuleName { get; set; }
+        public string? Module { get; set; }
 
-        public List<ActionPermissionDto> actions { get; set; }
+        public List<ActionPermissionDto>? actions { get; set; }
     }
     public class ActionPermissionDto
     {
-        public string Id { get; set; }
-        public string ActionName { get; set; }
-        public string Action { get; set; }
-        public string FullName { get; set; }
+        public string? Id { get; set; }
+        public string? ActionName { get; set; }
+        public string? Action { get; set; }
+        public string? FullName { get; set; }
         /// <summary>
         /// Method;
         /// </summary> 
-        public string HttpMethod { get; set; }
+        public string? HttpMethod { get; set; }
 
         /// <summary>
         /// 手动添加;
@@ -47,11 +47,11 @@ namespace kevin.Permission.Permission
         /// <summary>
         /// 图标;
         /// </summary> 
-        public string Icon { get; set; }
+        public string? Icon { get; set; }
         /// <summary>
         /// 创建人;
         /// </summary> 
-        public string CreatedBy { get; set; }
+        public string? CreatedBy { get; set; }
         /// <summary>
         /// 创建时间;
         /// </summary>
@@ -59,7 +59,7 @@ namespace kevin.Permission.Permission
         /// <summary>
         /// 编辑人;
         /// </summary> 
-        public string UpdatedBy { get; set; }
+        public string? UpdatedBy { get; set; }
         /// <summary>
         /// 更新时间;
         /// </summary>

@@ -361,7 +361,7 @@ namespace Repository.Database
             return base.SaveChanges();
         }
 
-        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess = false, CancellationToken cancellationToken = default)
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess = false, CancellationToken cancellationToken = default)
         {
 
             KevinDbContext db = this;
@@ -397,7 +397,7 @@ namespace Repository.Database
             }
 
             #endregion
-            return base.SaveChanges();
+            return Task.FromResult(base.SaveChanges());
         }
 
         /// <summary>

@@ -11,11 +11,11 @@ namespace Kevin.AI.Dto
         /// <summary>
         /// 
         /// </summary>
-        public string model { get; set; }
+        public string? model { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        public List<MessagesItem> messages { get; set; }
+        public List<MessagesItem>? messages { get; set; }
 
         /// <summary>
         /// 是否开启联网搜索
@@ -27,10 +27,10 @@ namespace Kevin.AI.Dto
         /// <summary>
         /// 
         /// </summary>
-        public string role { get; set; }
+        public string? role { get; set; }
         /// <summary>
         ///  
         /// </summary>
-        public string content { get; set; }
+        public string? content { get; set; }
     }
 }

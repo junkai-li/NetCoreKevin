@@ -12,17 +12,17 @@ namespace Kevin.AI.Dto
         /// <summary>
         /// 请求地址
         /// </summary>
-        public string AIUrl { get; set; }  
+        public string? AIUrl { get; set; }  
 
 
         /// <summary>
         /// 账户私钥
         /// </summary>
-        public string AIKeySecret { get; set; }
+        public string? AIKeySecret { get; set; }
 
         /// <summary>
         /// 默认模型
         /// </summary>
-        public string AIDefaultModel { get; set; }
+        public string? AIDefaultModel { get; set; }
     }
 }

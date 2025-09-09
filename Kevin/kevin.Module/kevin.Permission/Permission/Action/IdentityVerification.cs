@@ -38,7 +38,7 @@ namespace kevin.Permission.Permission.Action
                         var myarea = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyAreaAttribute)).ToList();
                         if (myarea.Count > 0)
                         {
-                            area = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyAreaAttribute)).ToList().LastOrDefault().ConstructorArguments[1].Value.ToString();
+                            area = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyAreaAttribute)).ToList().LastOrDefault()?.ConstructorArguments[1].Value?.ToString();
                         }
                     }
                     catch (Exception)
@@ -57,9 +57,14 @@ namespace kevin.Permission.Permission.Action
                     }
                     if (isAllRights)
                     {
-                        bool canAccess = httpContext.RequestServices.GetService<IKevinPermissionService>().IsAccess(PermissionId, httpContext.RequestServices.GetService<IHttpContextAccessor>());
-
-                        return canAccess;
+                        var ps = httpContext.RequestServices.GetService<IKevinPermissionService>();
+                        var http = httpContext.RequestServices.GetService<IHttpContextAccessor>();
+                        if (ps != default && http != default)
+                        {
+                            bool canAccess = ps.IsAccess(PermissionId, http);
+                            return canAccess;
+                        }
+                        return false;
                     }
 
                     return false;

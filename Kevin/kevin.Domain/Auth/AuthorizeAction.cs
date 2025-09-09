@@ -20,20 +20,23 @@ namespace Web.Auth
         /// <returns></returns>
         public static bool SmsVerifyPhone(dtoKeyValue keyValue)
         {
-            string phone = keyValue.Key.ToString();
+            string phone = keyValue.Key.ToString() ?? "";
 
             string key = "VerifyPhone_" + phone;
-
-            var code = GlobalServices.ServiceProvider.GetService<ICacheService>().GetString(key);
-
-            if (string.IsNullOrEmpty(code) == false && code == keyValue.Value.ToString())
+            var chache = GlobalServices.ServiceProvider.GetService<ICacheService>();
+            if (chache != default)
             {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+                var code = chache.GetString(key);
+                if (string.IsNullOrEmpty(code) == false && code == keyValue.Value.ToString())
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            } 
+            return false; 
         }
 
 

@@ -14,7 +14,7 @@
         /// </summary>
         [StringLength(100)]
         [Description("WxAppId")]
-        public string WxAppId { get; set; }
+        public string? WxAppId { get; set; }
 
 
         /// <summary>
@@ -22,14 +22,14 @@
         /// </summary>
         [StringLength(100)]
         [Description("WxAppSecret")]
-        public string WxAppSecret { get; set; }
+        public string? WxAppSecret { get; set; }
 
 
         /// <summary>
         /// MchId
         /// </summary>
         [Description("MchId")]
-        public string MchId { get; set; }
+        public string? MchId { get; set; }
 
 
         /// <summary>
@@ -37,7 +37,7 @@
         /// </summary>]
         [StringLength(100)]
         [Description("MchKey")]
-        public string MchKey { get; set; }
+        public string? MchKey { get; set; }
 
 
         /// <summary>
@@ -52,7 +52,7 @@
         /// </summary>
         [StringLength(100)]
         [Description("AppId 类型，['App','MiniApp','H5','Native']")]
-        public string Type { get; set; }
+        public string? Type { get; set; }
 
 
         /// <summary>
@@ -60,6 +60,6 @@
         /// </summary>
         [StringLength(1000)]
         [Description("备注")]
-        public string Remarks { get; set; }
+        public string? Remarks { get; set; }
     }
 }

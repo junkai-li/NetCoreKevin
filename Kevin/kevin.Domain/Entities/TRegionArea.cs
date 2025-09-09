@@ -21,7 +21,7 @@
         /// </summary>
         [StringLength(200)]
         [Description("区域名称")]
-        public string Area { get; set; }
+        public string? Area { get; set; }
 
 
 
@@ -30,14 +30,14 @@
         /// </summary>
         [Description("所属城市ID")]
         public int CityId { get; set; }
-        public virtual TRegionCity City { get; set; }
+        public virtual TRegionCity? City { get; set; }
 
 
 
         /// <summary>
         /// 城市下所有乡镇信息
         /// </summary>
-        public virtual List<TRegionTown> TRegionTown { get; set; }
+        public virtual List<TRegionTown>? TRegionTown { get; set; }
 
 
     }

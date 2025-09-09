@@ -36,12 +36,12 @@ namespace kevin.Application
                 return new List<Guid>();
             }
         }
-        public List<string> GetRolePermissions(List<Guid> roleIds)
+        public List<string?> GetRolePermissions(List<Guid> roleIds)
         {
             using (var db = new KevinDbContext())
             {
 
-                return db.Set<TRolePermission>().Where(r => r.IsDelete == false && roleIds.Contains(r.RoleId)).Select(r => r.PermissionId).Distinct().ToList(); ;
+                return db.Set<TRolePermission>().Where(r => r.IsDelete == false && roleIds.Contains(r.RoleId)).Select(r => r.PermissionId).Distinct().ToList() ?? new List<string?>();
 
             }
         }

@@ -16,7 +16,7 @@
         /// </summary>
         [StringLength(100)]
         [Description("文件名称")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
 
         /// <summary>
@@ -24,7 +24,7 @@
         /// </summary>
         [StringLength(200)]
         [Description("保存路径")]
-        public string Path { get; set; }
+        public string? Path { get; set; }
 
 
         /// <summary>
@@ -32,7 +32,7 @@
         /// </summary>
         [StringLength(50)]
         [Description("外链表名")]
-        public string Table { get; set; }
+        public string? Table { get; set; }
 
 
         /// <summary>
@@ -47,7 +47,7 @@
         /// </summary>
         [StringLength(50)]
         [Description("标记")]
-        public string Sign { get; set; }
+        public string? Sign { get; set; }
 
 
         /// <summary>

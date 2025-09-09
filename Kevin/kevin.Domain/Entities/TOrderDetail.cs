@@ -14,7 +14,7 @@
         /// </summary>
         [Description("订单ID")]
         public Guid OrderId { get; set; }
-        public virtual TOrder Order { get; set; }
+        public virtual TOrder? Order { get; set; }
 
 
         /// <summary>
@@ -22,7 +22,7 @@
         /// </summary>
         [Description("产品ID")]
         public Guid ProductId { get; set; }
-        public virtual TProduct Product {get;set;}
+        public virtual TProduct? Product {get;set;}
 
 
         /// <summary>

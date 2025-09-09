@@ -14,7 +14,7 @@
         /// </summary>
         [StringLength(200)]
         [Description("键")]
-        public string Key { get; set; }
+        public string? Key { get; set; }
 
 
 
@@ -23,7 +23,7 @@
         /// </summary>
         [StringLength(200)]
         [Description("值")]
-        public string Value { get; set; }
+        public string? Value { get; set; }
 
 
 

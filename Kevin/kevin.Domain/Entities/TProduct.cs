@@ -17,7 +17,7 @@ namespace kevin.Domain.Kevin
         /// </summary>
         [StringLength(200)]
         [Description("SKU")]
-        public string SKU { get; set; }
+        public string? SKU { get; set; }
 
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace kevin.Domain.Kevin
         /// </summary>
         [StringLength(200)]
         [Description("名称")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace kevin.Domain.Kevin
         /// </summary>
         [StringLength(200)]
         [Description("描述")]
-        public string Detail { get; set; }
+        public string? Detail { get; set; }
 
     }
 }

@@ -15,7 +15,7 @@
         /// </summary>
         [Description("用户ID")]
         public Guid UserId { get; set; }
-        public virtual TUser User { get; set; }
+        public virtual TUser? User { get; set; }
 
 
         /// <summary>
@@ -23,7 +23,7 @@
         /// </summary>
         [Description("关联微信账户")]
         public Guid WeiXinKeyId { get; set; }
-        public virtual TWeiXinKey WeiXinKey { get; set; }
+        public virtual TWeiXinKey? WeiXinKey { get; set; }
 
 
 
@@ -32,6 +32,6 @@
         /// </summary>
         [StringLength(100)]
         [Description("微信OpenId")]
-        public string WeiXinOpenId { get; set; }
+        public string? WeiXinOpenId { get; set; }
     }
 }

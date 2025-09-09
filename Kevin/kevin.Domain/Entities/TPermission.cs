@@ -11,7 +11,7 @@
         /// 主键标识ID
         /// </summary>
         [Description("主键标识ID")]
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
 
         /// <summary>

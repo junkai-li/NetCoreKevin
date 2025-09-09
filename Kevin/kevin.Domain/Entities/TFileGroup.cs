@@ -16,7 +16,7 @@
         /// </summary>
         [Description("文件ID")]
         public Guid FileId { get; set; }
-        public virtual TFile File { get; set; }
+        public virtual TFile? File { get; set; }
 
 
 
@@ -25,7 +25,7 @@
         /// </summary>
         [StringLength(300)]
         [Description("文件唯一值")]
-        public string Unique { get; set; }
+        public string? Unique { get; set; }
 
 
         /// <summary>

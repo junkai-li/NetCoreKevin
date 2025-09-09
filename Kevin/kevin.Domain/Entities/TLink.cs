@@ -15,7 +15,7 @@
         /// </summary>
         [StringLength(50)]
         [Description("名称")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
 
         /// <summary>
@@ -23,7 +23,7 @@
         /// </summary>
         [StringLength(50)]
         [Description("地址")]
-        public string Url { get; set; }
+        public string? Url { get; set; }
 
 
         /// <summary>
@@ -37,6 +37,6 @@
         /// 备注
         /// </summary>
         [Description("备注")]
-        public string Remarks { get; set; }
+        public string? Remarks { get; set; }
     }
 }

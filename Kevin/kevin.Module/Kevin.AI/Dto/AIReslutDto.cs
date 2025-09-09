@@ -11,11 +11,11 @@ namespace Kevin.AI.Dto
         /// <summary>
         ///  
         /// </summary>
-        public string content { get; set; }
+        public string? content { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        public string role { get; set; }
+        public string? role { get; set; }
     }
 
     public class ChoicesItem
@@ -23,7 +23,7 @@ namespace Kevin.AI.Dto
         /// <summary>
         /// 
         /// </summary>
-        public string finish_reason { get; set; }
+        public string? finish_reason { get; set; }
         /// <summary>
         /// 
         /// </summary>
@@ -31,7 +31,7 @@ namespace Kevin.AI.Dto
         /// <summary>
         /// 
         /// </summary>
-        public Message message { get; set; }
+        public Message? message { get; set; }
     }
 
     public class Usage
@@ -55,7 +55,7 @@ namespace Kevin.AI.Dto
         /// <summary>
         /// 
         /// </summary>
-        public List<ChoicesItem> choices { get; set; }
+        public List<ChoicesItem>? choices { get; set; }
         /// <summary>
         /// 
         /// </summary>
@@ -63,18 +63,18 @@ namespace Kevin.AI.Dto
         /// <summary>
         /// 
         /// </summary>
-        public string id { get; set; }
+        public string? id { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        public string model { get; set; }
+        public string? model { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        public string request_id { get; set; }
+        public string? request_id { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        public Usage usage { get; set; }
+        public Usage? usage { get; set; }
     }
 }

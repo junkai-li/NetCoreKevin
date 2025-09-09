@@ -29,60 +29,60 @@ namespace kevin.Domain.Entities
         /// 登录人
         /// </summary>
         [Description("登录人")]
-        public String user_name { get; set; }
+        public String? user_name { get; set; }
 
         /// <summary>
         /// ip
         /// </summary>
         [Description("ip")]
         [MaxLength(125)]
-        public String ip { get; set; }
+        public String? ip { get; set; }
 
         /// <summary>
         /// 设备
         /// </summary>
         [Description("设备")]
         [MaxLength(500)]
-        public String device { get; set; }
+        public String? device { get; set; }
 
         /// <summary>
         /// url
         /// </summary>
         [Description("url")] 
-        public String http_url { get; set; }
+        public String? http_url { get; set; }
 
         /// <summary>
         /// 请求内容
         /// </summary>
-        [Description("请求内容")]
-        public String http_body { get; set; }
+        [Description("请求内容")] 
+        public String? http_body { get; set; }
 
         /// <summary>
         /// 请求方法
         /// </summary>
         [Description("请求方法")]
         [MaxLength(500)]
-        public String http_method { get; set; }
+        public String? http_method { get; set; }
 
         /// <summary>
         /// 请求url不带参数
         /// </summary>
         [Description("请求url不带参数")]
         [MaxLength(500)]
-        public String http_action { get; set; }
+        public String? http_action { get; set; }
 
         /// <summary>
         /// 操作类型
         /// </summary>
         [Description("操作类型")]
         [MaxLength(50)]
-        public String operate_type { get; set; }
+        public String? operate_type { get; set; }
 
         /// <summary>
         /// 操作备注
         /// </summary>
         [Description("操作备注")]
         [MaxLength(500)]
-        public String operate_remark { get; set; }
+        public String? operate_remark { get; set; }
     }
 }

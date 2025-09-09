@@ -14,7 +14,7 @@
         /// </summary>
         [Description("类别ID")]
         public Guid CategoryId { get; set; }
-        public virtual TCategory Category { get; set; }
+        public virtual TCategory? Category { get; set; }
 
 
         /// <summary>
@@ -22,14 +22,14 @@
         /// </summary>
         [Description("标题")]
         [MaxLength(200)]
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
 
         /// <summary>
         /// 内容
         /// </summary>
         [Description("内容")] 
-        public string Content { get; set; }
+        public string? Content { get; set; }
 
 
         /// <summary>
@@ -64,7 +64,7 @@
         /// 摘要
         /// </summary>
         [Description("摘要")]
-        public string Abstract { get; set; }
+        public string? Abstract { get; set; }
 
 
     }

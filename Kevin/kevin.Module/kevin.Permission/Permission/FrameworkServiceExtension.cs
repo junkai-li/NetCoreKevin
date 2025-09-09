@@ -20,7 +20,7 @@ namespace kevin.Permission.Permisson
             {
                 if (!ctrl.IgnorePrivillege)
                 {
-                    ctrl.Actions.ForEach(a =>
+                    ctrl?.Actions?.ForEach(a =>
                     {
                         var url = a.Url;
                         if (!a.IgnorePrivillege)
@@ -183,11 +183,11 @@ namespace kevin.Permission.Permisson
 
                     var postAttr = method.GetCustomAttributes(typeof(HttpPostAttribute), false);
                     //找到post的方法且没有同名的非post的方法，添加到controller的action列表里
-                    if (postAttr.Length > 0 && model.Actions.Where(x => x.MethodName.ToLower() == method.Name.ToLower()).FirstOrDefault() == null)
+                    if (postAttr.Length > 0 && model.Actions.Where(x => x.MethodName?.ToLower() == method.Name.ToLower()).FirstOrDefault() == null)
                     {
                         if (method.Name.ToLower().StartsWith("dobatch"))
                         {
-                            if (model.Actions.Where(x => "do" + x.MethodName.ToLower() == method.Name.ToLower()).FirstOrDefault() != null)
+                            if (model.Actions.Where(x => "do" + x.MethodName?.ToLower() == method.Name.ToLower()).FirstOrDefault() != null)
                             {
                                 continue;
                             }

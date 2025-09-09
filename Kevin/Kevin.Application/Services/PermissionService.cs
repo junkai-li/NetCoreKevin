@@ -105,7 +105,7 @@ namespace kevin.Application
                     data.UpdatedTime = DateTime.Now;
                     data.UpdateUserId = CurrentUser.UserId;
                     entity.MapTo(data);
-                }  
+                }
             }
             int res = permissionRp.SaveChanges();
             return res > 0;
@@ -144,41 +144,49 @@ namespace kevin.Application
 
             foreach (var area in areas)
             {
-                var areadto = new AreaPermissionDto();
-                var areaitem = data.Where(x => x.Area == area).FirstOrDefault();
-                if (areaitem != default)
+                if (!string.IsNullOrEmpty(area))
                 {
-                    areadto.areaName = areaitem.AreaName;
-                }
-                areadto.area = area;
-                var modules = data.Where(x => x.Area == area).Select(x => x.Module).Distinct().ToList();
-                var modulesDtos = new List<ModulePermissionDto>();
-                foreach (var module in modules)
-                {
-                    var moduledto = new ModulePermissionDto();
-                    var permission = data.Where(x => x.Area == area && x.Module == module).FirstOrDefault();
-                    if (permission != default)
+                    var areadto = new AreaPermissionDto();
+                    var areaitem = data.Where(x => x.Area == area).FirstOrDefault();
+                    if (areaitem != default)
                     {
-                        moduledto.ModuleName = permission.ModuleName;
+                        areadto.areaName = areaitem.AreaName ?? "";
                     }
-                    moduledto.Module = module;
-                    var actionDtos = data.Where(x => x.Area == area && x.Module == module).OrderByDescending(x => x.Seq).Select(x => new ActionPermissionDto
+                    areadto.area = area;
+                    var modules = data.Where(x => x.Area == area).Select(x => x.Module).Distinct().ToList();
+                    var modulesDtos = new List<ModulePermissionDto>();
+                    foreach (var module in modules)
                     {
-                        Id = x.Id,
-                        IsPermission = reolePer.Contains(x.Id),
-                        ActionName = x.ActionName,
-                        Action = x.Action,
-                        FullName = x.FullName,
-                        HttpMethod = x.HttpMethod,
-                        IsManual = x.IsManual,
-                        Seq = x.Seq,
-                        Icon = x.Icon
-                    }).ToList();
-                    moduledto.actions = actionDtos;
-                    modulesDtos.Add(moduledto);
+                        if (!string.IsNullOrEmpty(module))
+                        {
+                            var moduledto = new ModulePermissionDto();
+                            var permission = data.Where(x => x.Area == area && x.Module == module).FirstOrDefault();
+                            if (permission != default)
+                            {
+                                moduledto.ModuleName = permission.ModuleName ?? "";
+                            }
+                            moduledto.Module = module;
+                            var actionDtos = data.Where(x => x.Area == area && x.Module == module).OrderByDescending(x => x.Seq).Select(x => new ActionPermissionDto
+                            {
+                                Id = x.Id,
+                                IsPermission = reolePer.Contains(x.Id),
+                                ActionName = x.ActionName,
+                                Action = x.Action,
+                                FullName = x.FullName,
+                                HttpMethod = x.HttpMethod,
+                                IsManual = x.IsManual,
+                                Seq = x.Seq,
+                                Icon = x.Icon
+                            }).ToList();
+                            moduledto.actions = actionDtos;
+                            modulesDtos.Add(moduledto);
+                        }
+                     
+                    }
+                    areadto.modules = modulesDtos;
+                    list.Add(areadto);
                 }
-                areadto.modules = modulesDtos;
-                list.Add(areadto);
+
             }
             return list;
         }
