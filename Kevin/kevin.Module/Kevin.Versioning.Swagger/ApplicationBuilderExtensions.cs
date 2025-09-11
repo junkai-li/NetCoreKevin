@@ -19,9 +19,13 @@ namespace Kevin.Api.Versioning
             app.UseSwaggerUI(options =>
             {
                 var apiVersionDescriptionProvider = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
-                foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
-                { 
-                    options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                if (apiVersionDescriptionProvider!=default)
+                {
+                    foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
+                    {
+                        options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                    }
+
                 } 
                 options.RoutePrefix = "swagger";
             });

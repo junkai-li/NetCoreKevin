@@ -116,9 +116,9 @@ namespace kevin.CrawlingService
         }
 
         // 执行JavaScript
-        public object ExecuteScript(string script)
+        public object? ExecuteScript(string script)
         {
-            return ((IJavaScriptExecutor)_driver).ExecuteScript(script);
+            return ((IJavaScriptExecutor)_driver)?.ExecuteScript(script);
         }
 
         // 关闭浏览器

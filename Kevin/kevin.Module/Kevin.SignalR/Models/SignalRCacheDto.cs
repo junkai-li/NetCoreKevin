@@ -11,7 +11,7 @@ namespace Kevin.SignalR.Models
         /// <summary>
         /// 用户组列表
         /// </summary>
-        public List<SignalRRedisItemDto> Items { get; set; }
+        public List<SignalRRedisItemDto> Items { get; set; } = new List<SignalRRedisItemDto>();
     }
     public class SignalRRedisItemDto
     {
@@ -19,7 +19,7 @@ namespace Kevin.SignalR.Models
         /// <summary>
         ///租户id
         /// </summary>
-        public int TenantId { get; set; }= 1000;
+        public int TenantId { get; set; } = 1000;
 
         /// <summary>
         /// 用户链接ids
@@ -28,8 +28,8 @@ namespace Kevin.SignalR.Models
     }
     public class UserConnectionDto
     {
-        public string UserId { get; set; }
-        public string ConnectionId { get; set; }
+        public string UserId { get; set; } = "";
+        public string ConnectionId { get; set; } = "";
 
     }
 

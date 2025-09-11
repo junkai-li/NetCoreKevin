@@ -14,13 +14,13 @@ namespace kevin.Share.Dtos.System
         /// <summary>
         /// 角色名称
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
 
         /// <summary>
         /// 备注信息
         /// </summary>
-        public string Remarks { get; set; }
+        public string Remarks { get; set; } = "";
         /// <summary>
         /// 创建时间
         /// </summary>

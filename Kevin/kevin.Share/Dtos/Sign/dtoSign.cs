@@ -10,7 +10,7 @@
         /// <summary>
         /// 表名
         /// </summary>
-        public string Table { get; set; }
+        public string Table { get; set; } = "";
 
 
         /// <summary>
@@ -22,6 +22,6 @@
         /// <summary>
         /// 标记
         /// </summary>
-        public string Sign { get; set; }
+        public string Sign { get; set; } = "";
     }
 }

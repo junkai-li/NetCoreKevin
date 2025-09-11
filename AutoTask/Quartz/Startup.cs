@@ -14,13 +14,13 @@ using Quartz.Impl;
 using Quartz.NET.Web.Extensions;
 using Quartz.NET.Web.Filters;
 using Quartz.NET.Web.Utility;
-using System;   
+using System;
 
 namespace Quartz.NET.Web
 {
     public class Startup
     {
-         public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
@@ -67,8 +67,16 @@ namespace Quartz.NET.Web
             services.AddTransient<HttpResultfulJob>();
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             services.AddSingleton<Spi.IJobFactory, IOCJobFactory>();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-         
+            //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            services.AddMvc()
+                .ConfigureApiBehaviorOptions(options =>
+                {
+
+                    // 自定义API行为配置
+                });
+                        // 新代码（推荐）
+            // services.AddControllersWithViews();  // 或 services.AddMvc()
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

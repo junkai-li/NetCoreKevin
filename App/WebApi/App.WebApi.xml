@@ -102,6 +102,7 @@
             <param name="key">记录值</param>
             <param name="sign">自定义标记</param>
             <param name="fileInfo">Key为文件URL,Value为文件名称</param>
+            <param name="cancellationToken">cancellationToken</param>
             <returns>文件ID</returns>
         </member>
         <member name="M:WebApi.Controllers.FileController.UploadFile(System.String,System.Guid,System.String,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">

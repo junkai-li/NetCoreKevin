@@ -16,10 +16,7 @@ namespace Kevin.AI.MCP.Server.Models
             this.UseStreamableHttp = UseStreamableHttp;
             this.AdditionalHeaders = AdditionalHeaders;
             this.ConnectionTimeout = ConnectionTimeout;
-        }
-        public MCPSseClientSetting()
-        {
-        }
+        } 
         /// <summary>
         /// Name
         /// </summary>

@@ -47,6 +47,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\kevin.Share\kevin.Domain.Share.csproj" />
     <ProjectReference Include="..\kevin.Cache\kevin.Cache.csproj" />
+    <ProjectReference Include="..\Kevin.log4Net\Kevin.log4Net.csproj" />
   </ItemGroup>
 
   <ItemGroup>

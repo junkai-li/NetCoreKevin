@@ -1,4 +1,5 @@
 ﻿using Kevin.Common.Helper;
+using Kevin.log4Net;
 using System;
 using TencentCloud.Cls.V20201016.Models;
 /// <summary>
@@ -34,7 +35,7 @@ namespace Common
             catch (Exception e)
             {
                 retryTimes--;
-                //LogHelper.logger.Error($"剩餘重試次數: {retryTimes}, retry error: {e.Message}, Exception detail: {Json.JsonHelper.ObjectToJSON(e)}");
+               LogHelper.logger.Error($"剩餘重試次數: {retryTimes}, retry error: {e.Message}, Exception detail: {Json.JsonHelper.ObjectToJSON(e)}");
                 System.Threading.Thread.Sleep(sleepMillisecondsTimeout);
                 return Retry(handler, retryTimes);
             }
@@ -58,7 +59,7 @@ namespace Common
                 }
                 catch (Exception e)
                 {
-                   // LogHelper.logger.Error($"第 {i}次執行錯誤(start from 0): retry error: {e.Message}, Exception detail: {Json.JsonHelper.ObjectToJSON(e)}");
+                   LogHelper.logger.Error($"第 {i}次執行錯誤(start from 0): retry error: {e.Message}, Exception detail: {Json.JsonHelper.ObjectToJSON(e)}");
                     System.Threading.Thread.Sleep(sleepMillisecondsTimeout);
                 }
             }
@@ -86,7 +87,7 @@ namespace Common
             catch (Exception e)
             {
                 retryTimes--;
-                //LogHelper.logger.Error($"剩餘重試次數: {retryTimes}, retry error: {e.Message}, Exception detail: {Json.JsonHelper.ObjectToJSON(e)}");
+                LogHelper.logger.Error($"剩餘重試次數: {retryTimes}, retry error: {e.Message}, Exception detail: {Json.JsonHelper.ObjectToJSON(e)}");
                 System.Threading.Thread.Sleep(sleepMillisecondsTimeout);
                 RetryVoid(handler, retryTimes);
             }

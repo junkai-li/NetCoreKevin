@@ -12,7 +12,7 @@ namespace Web.Auth
 {
     public class ApiResponseHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
-        public ApiResponseHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) : base(options, logger, encoder, clock)
+        public ApiResponseHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder) : base(options, logger, encoder)
         {
         }
 

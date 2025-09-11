@@ -5,6 +5,7 @@ using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol.Transport;
 using ModelContextProtocol.Protocol.Types;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Kevin.AI.MCP.Server.Client
 {
@@ -16,9 +17,9 @@ namespace Kevin.AI.MCP.Server.Client
         public MySseToolClient(IOptionsMonitor<MCPSseClientSetting> config)
         {
             mCPSSEClientSetting = config.CurrentValue;
-             GetClientAsync();
-        } 
-        public async Task<IMcpClient> GetClientAsync()
+            GetClientAsync();
+        }
+        public IMcpClient GetClientAsync()
         {
             if (_client == default)
             {
@@ -30,7 +31,7 @@ namespace Kevin.AI.MCP.Server.Client
                     UseStreamableHttp = mCPSSEClientSetting.UseStreamableHttp,
                     AdditionalHeaders = mCPSSEClientSetting.AdditionalHeaders,
                 });
-                _client = await McpClientFactory.CreateAsync(clientTransport);
+                _client = McpClientFactory.CreateAsync(clientTransport).Result;
             }
             return _client;
         }
@@ -38,26 +39,26 @@ namespace Kevin.AI.MCP.Server.Client
         /// 获取工具列表
         /// </summary>
         /// <returns></returns>
-        public async Task<List<McpClientTool>> GetListToolsAsync()
+        public Task<List<McpClientTool>> GetListToolsAsync()
         {
-            return GetClientAsync().Result.ListToolsAsync().Result.ToList();
+            return Task.FromResult(GetClientAsync().ListToolsAsync().Result.ToList());
         }
-       /// <summary>
-       ///  调用工具
-       /// </summary>
-       /// <param name="toolName">工具名称</param>
-       /// <param name="arguments"></param>
-       /// <param name="progress"></param>
-       /// <param name="serializerOptions"></param>
-       /// <param name="cancellationToken"></param>
-       /// <returns></returns>
-        public async Task<CallToolResponse> CallToolAsync(string toolName,
+        /// <summary>
+        ///  调用工具
+        /// </summary>
+        /// <param name="toolName">工具名称</param>
+        /// <param name="arguments"></param>
+        /// <param name="progress"></param>
+        /// <param name="serializerOptions"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public Task<CallToolResponse> CallToolAsync(string toolName,
         IReadOnlyDictionary<string, object?>? arguments = null,
         IProgress<ProgressNotificationValue>? progress = null,
         JsonSerializerOptions? serializerOptions = null,
         CancellationToken cancellationToken = default)
         {
-            return GetClientAsync().Result.CallToolAsync(toolName, arguments, progress, serializerOptions, cancellationToken).Result;
+            return Task.FromResult(GetClientAsync().CallToolAsync(toolName, arguments, progress, serializerOptions, cancellationToken).Result);
         }
     }
 }

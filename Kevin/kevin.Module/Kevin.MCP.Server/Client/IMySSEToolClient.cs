@@ -12,7 +12,7 @@ namespace Kevin.AI.MCP.Server.Client
         /// Get the client
         /// </summary>
         /// <returns></returns>
-        Task<IMcpClient> GetClientAsync();
+         IMcpClient GetClientAsync();
         /// <summary>
         /// Get the tools
         /// </summary>

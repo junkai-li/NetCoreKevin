@@ -112,7 +112,7 @@ namespace kevin.Application.Services
                 var upRemote = false;
                 if (upRemote == true)
                 {
-                    var upload = fileStorage.FileUpload(dlPath, basepath, fileInfo.Value.ToString());
+                    var upload = fileStorage.FileUpload(dlPath, basepath, (fileInfo.Value ?? "").ToString());
                     if (upload)
                     {
                         Common.IO.IOHelper.DeleteFile(dlPath);
@@ -128,7 +128,7 @@ namespace kevin.Application.Services
 
                     TFile f = new();
                     f.Id = Guid.NewGuid();
-                    f.Name = fileInfo.Value.ToString();
+                    f.Name = (fileInfo.Value ?? "").ToString();
                     f.Path = filePath;
                     f.Table = business;
                     f.TableId = key;
@@ -208,7 +208,7 @@ namespace kevin.Application.Services
         Task<Guid> IFileService.CreateGroupFileId(string business, Guid key, string sign, string fileName, int slicing, string unique, CancellationToken cancellationToken)
         {
             using var db = new KevinDbContext();
-            var dbfileinfo = db.Set<TFileGroup>().Where(t => t.Unique.ToLower() == unique.ToLower()).FirstOrDefault();
+            var dbfileinfo = db.Set<TFileGroup>().Where(t => (t.Unique ?? "").ToLower() == unique.ToLower()).FirstOrDefault();
             if (dbfileinfo == null)
             {
                 var fileid = Guid.NewGuid().ToString() + Path.GetExtension(fileName).ToLowerInvariant(); ;
@@ -310,7 +310,7 @@ namespace kevin.Application.Services
                                 using (FileStream outStream = new(fullfilepath, FileMode.Create))
                                 {
                                     int readedLen = 0;
-                                    FileStream srcStream = null;
+                                    FileStream? srcStream = null;
 
                                     var filelist = db.Set<TFileGroupFile>().Where(t => t.FileId == fileinfo.Id).OrderBy(t => t.Index).ToList();
 

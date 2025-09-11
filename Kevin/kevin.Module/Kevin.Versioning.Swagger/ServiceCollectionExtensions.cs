@@ -104,7 +104,7 @@ namespace Kevin.Api.Versioning
                 {
 
                     //获取验证失败的模型字段 
-                    var errors = actionContext.ModelState.Where(e => e.Value.Errors.Count > 0).Select(e => e.Value.Errors.First().ErrorMessage).ToList();
+                    var errors = actionContext.ModelState.Where(e => e.Value?.Errors.Count > 0).Select(e => e.Value?.Errors.First().ErrorMessage).ToList();
 
                     var dataStr = string.Join(" | ", errors);
 

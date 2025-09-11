@@ -16,7 +16,7 @@ namespace Kevin.SignalR.Models
         /// <summary>
         /// url
         /// </summary>
-        public string url { get; set; }
+        public string url { get; set; } = "";
         /// <summary>
         /// defaultDatabase
         /// </summary>
@@ -24,24 +24,24 @@ namespace Kevin.SignalR.Models
         /// <summary>
         /// 配置频道
         /// </summary>
-        public string configurationChannel { get; set; }
+        public string configurationChannel { get; set; } = "";
 
         /// <summary>
         ///主机名
         /// </summary>
 
-        public string hostname { get; set; }
+        public string hostname { get; set; } = "";
 
 
         /// <summary>
         ///端口
         /// </summary>
 
-        public string port { get; set; }
+        public string port { get; set; } = "";
 
         /// <summary>
         /// 密码
         /// </summary>
-        public string password { get; set; }
+        public string password { get; set; } = "";
     }
 }

@@ -29,7 +29,11 @@
             标记
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "P:kevin.Domain.Share.Dtos.System.dtoTenant.Id" -->
+        <member name="P:kevin.Domain.Share.Dtos.System.dtoTenant.Id">
+            <summary>
+            主键标识ID
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.System.dtoTenant.Code">
             <summary>
             租户编码

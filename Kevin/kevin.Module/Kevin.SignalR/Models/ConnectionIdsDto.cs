@@ -11,6 +11,6 @@ namespace Kevin.SignalR.Models
         /// <summary>
         /// 多个链接id
         /// </summary>
-        public List<string> ConnectionIds { get; set; }
+        public string ConnectionIds { get; set; } = "";
     }
 }

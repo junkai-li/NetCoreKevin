@@ -101,7 +101,7 @@ namespace kevin.Application
                 NickName = t.NickName,
                 Phone = t.Phone,
                 Email = t.Email,
-                Role = t.Role.Name,
+                Role = t.Role != default ? t.Role.Name : "",
                 CreateTime = t.CreateTime
             }).FirstOrDefault() ?? new();
         }
@@ -121,7 +121,7 @@ namespace kevin.Application
                 NickName = t.NickName,
                 Phone = t.Phone,
                 Email = t.Email,
-                Role = t.Role.Name,
+                Role = t.Role != default ? t.Role.Name : "",
                 CreateTime = t.CreateTime,
                 Id = t.Id
             }).FirstOrDefault();
@@ -133,7 +133,7 @@ namespace kevin.Application
                     NickName = t.NickName,
                     Phone = t.Phone,
                     Email = t.Email,
-                    Role = t.Role.Name,
+                    Role = t.Role != default ? t.Role.Name : "",
                     CreateTime = t.CreateTime,
                     Id = t.Id
                 }).FirstOrDefault();
@@ -226,7 +226,7 @@ namespace kevin.Application
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
 
-                data = data.Where(t => t.Name.Contains(dtoPage.searchKey) || t.Phone.Contains(dtoPage.searchKey) || t.Role.Name.Contains(dtoPage.searchKey));
+                data = data.Where(t => (t.Name??"").Contains(dtoPage.searchKey) || (t.Phone ?? "").Contains(dtoPage.searchKey));
             }
             dtoPage.total = data.Count();
             dtoPage.data = data.Skip(skip).Take(dtoPage.pageSize).Select(t => new dtoUser
@@ -234,7 +234,7 @@ namespace kevin.Application
                 Id = t.Id,
                 Name = t.Name,
                 Phone = t.Phone,
-                Role = t.Role.Name,
+                Role = t.Role != default ? t.Role.Name : "",
                 HeadImgs = fileRp.Query().Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
                 {
                     Key = f.Id,
@@ -256,9 +256,8 @@ namespace kevin.Application
             int skip = (dtoPage.pageNum - 1) * dtoPage.pageSize;
             var data = userRp.Query().Where(t => t.IsDelete == false && t.RoleId != Guid.Parse("B414EBC7-D646-4B57-B07C-4A39F08361E1"));
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
-            {
-
-                data = data.Where(t => t.Name.Contains(dtoPage.searchKey) || t.Phone.Contains(dtoPage.searchKey) || t.Role.Name.Contains(dtoPage.searchKey));
+            { 
+                data = data.Where(t => ((t.Name ?? "") ?? "").Contains(dtoPage.searchKey) || (t.Phone ?? "").Contains(dtoPage.searchKey));
             }
             dtoPage.total = data.Count();
             dtoPage.data = data.Skip(skip).Take(dtoPage.pageSize).Select(t => new dtoUser
@@ -266,7 +265,7 @@ namespace kevin.Application
                 Id = t.Id,
                 Name = t.Name,
                 Phone = t.Phone,
-                Role = t.Role.Name,
+                Role = t.Role != default ? t.Role.Name : "",
                 HeadImgs = fileRp.Query().Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
                 {
                     Key = f.Id,
@@ -290,7 +289,7 @@ namespace kevin.Application
                 Id = t.Id,
                 Name = t.Name,
                 Phone = t.Phone,
-                Role = t.Role.Name,
+                Role = t.Role != default ? t.Role.Name : "",
                 RoleId = t.RoleId,
                 PassWord = t.PasswordHash,
                 CreateTime = t.CreateTime
@@ -310,7 +309,12 @@ namespace kevin.Application
             {
                 var data = userRp.Query().Where(x => x.Id == user.Id && x.IsDelete == false).FirstOrDefault();
                 var tokenuser = userRp.Query().Where(x => x.IsDelete == false && x.Id == CurrentUser.UserId).FirstOrDefault();
-                var UserPh = userRp.Query().Where(t => t.Phone == user.Phone && t.IsDelete == false && t.Role.Name != "user").FirstOrDefault();
+                var UserPh = userRp.Query().Where(t => t.Phone == user.Phone && t.IsDelete == false).FirstOrDefault();
+                if (string.IsNullOrEmpty(user.PassWord))
+                {
+                    throw new UserFriendlyException("PassWord不能为空");
+                }
+
                 if (data != null)
                 {
                     //验证手机号唯一不允许添加
@@ -318,7 +322,7 @@ namespace kevin.Application
                     {
                         throw new UserFriendlyException("手机号码已存在");
                     }
-                    var UserName = userRp.Query().Where(t => t.Name == user.Name && t.IsDelete == false && t.Role.Name != "user").FirstOrDefault();
+                    var UserName = userRp.Query().Where(t => t.Name == user.Name && t.IsDelete == false).FirstOrDefault();
                     //验证姓名唯一不允许添加
                     if (UserName != null && data.Id != UserName.Id)
                     {
@@ -410,14 +414,14 @@ namespace kevin.Application
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
 
-                data = data.Where(t => t.Name.Contains(dtoPage.searchKey) || t.Remarks.Contains(dtoPage.searchKey));
+                data = data.Where(t => (t.Name ?? "").Contains(dtoPage.searchKey) || (t.Remarks ?? "").Contains(dtoPage.searchKey));
             }
             dtoPage.total = data.Count();
             dtoPage.data = data.Skip(skip).Take(dtoPage.pageSize).OrderByDescending(x => x.CreateTime).Select(t => new dtoRole
             {
                 Id = t.Id,
-                Name = t.Name,
-                Remarks = t.Remarks,
+                Name = t.Name ?? "",
+                Remarks = t.Remarks ?? "",
                 CreateTime = t.CreateTime
             }).ToList();
 
@@ -435,8 +439,8 @@ namespace kevin.Application
             var user = roleRp.Query().Where(t => t.Id == Id && t.IsDelete == false).Select(t => new dtoRole
             {
                 Id = t.Id,
-                Name = t.Name,
-                Remarks = t.Remarks,
+                Name = t.Name ?? "",
+                Remarks = t.Remarks ?? "",
                 CreateTime = t.CreateTime
             }).FirstOrDefault();
             return user ?? new dtoRole();
@@ -525,7 +529,7 @@ namespace kevin.Application
             var data = roleRp.Query().Where(t => t.IsDelete == false).Select(x => new dtoKeyValue
             {
                 Key = x.Id,
-                Value = x.Name,
+                Value = x.Name ?? "",
             }).ToList();
             return data;
         }
@@ -537,10 +541,10 @@ namespace kevin.Application
         public List<dtoKeyValue> GetUserSystemKey()
         {
 
-            var data = userRp.Query().Where(t => t.IsDelete == false && t.Role.Name != "user").Select(x => new dtoKeyValue
+            var data = userRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId).Select(x => new dtoKeyValue
             {
                 Key = x.Id,
-                Value = x.Name,
+                Value = x.Name ?? "",
             }).ToList();
             return data;
         }

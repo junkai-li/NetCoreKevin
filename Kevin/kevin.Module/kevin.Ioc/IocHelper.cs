@@ -31,7 +31,7 @@ namespace kevin.Ioc
                 var implementedInterfaces = serviceType.GetInterfaces().Where(a => a != typeof(IDisposable) && a != typeOf_IService);
                 foreach (Type implementedInterface in implementedInterfaces)
                 {
-                    services.AddScoped(implementedInterface, sp => sp.GetServiceOrCreateInstance(serviceType));
+                    services.AddScoped(implementedInterface, sp => sp.GetServiceOrCreateInstance(serviceType)!);
                 }
                 action.Invoke(serviceType);
                 if (!serviceType.IsGenericType)
@@ -48,20 +48,24 @@ namespace kevin.Ioc
                     try
                     {
                         var serviceTypes = item?.GetTypes()?.Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && typeOf_IService.IsAssignableFrom(a));
-                        foreach (var serviceType in serviceTypes)
+                        if (serviceTypes!=default)
                         {
+                            foreach (var serviceType in serviceTypes)
+                            {
 
-                            var implementedInterfaces = serviceType.GetInterfaces().Where(a => a != typeof(IDisposable) && a != typeOf_IService);
-                            foreach (Type implementedInterface in implementedInterfaces)
-                            {
-                                services.AddScoped(implementedInterface, sp => sp.GetServiceOrCreateInstance(serviceType));
-                            }
-                            action.Invoke(serviceType);
-                            if (!serviceType.IsGenericType)
-                            {
-                                services.AddScoped(serviceType, serviceType);
+                                var implementedInterfaces = serviceType.GetInterfaces().Where(a => a != typeof(IDisposable) && a != typeOf_IService);
+                                foreach (Type implementedInterface in implementedInterfaces)
+                                {
+                                    services.AddScoped(implementedInterface, sp => sp.GetServiceOrCreateInstance(serviceType)!);
+                                }
+                                action.Invoke(serviceType);
+                                if (!serviceType.IsGenericType)
+                                {
+                                    services.AddScoped(serviceType, serviceType);
+                                }
                             }
                         }
+                      
                     }
                     catch (Exception ex)
                     {
@@ -89,7 +93,7 @@ namespace kevin.Ioc
                 var implementedInterfaces = serviceType.GetInterfaces().Where(a => a != typeof(IDisposable) && a != typeOf_IService);
                 foreach (Type implementedInterface in implementedInterfaces)
                 {
-                    services.AddTransient(implementedInterface, sp => sp.GetServiceOrCreateInstance(serviceType));
+                    services.AddTransient(implementedInterface, sp => sp.GetServiceOrCreateInstance(serviceType)!);
                 }
                 action.Invoke(serviceType);
                 if (!serviceType.IsGenericType)
@@ -106,20 +110,24 @@ namespace kevin.Ioc
                     try
                     {
                         var serviceTypes = item?.GetTypes()?.Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && typeOf_IService.IsAssignableFrom(a));
-                        foreach (var serviceType in serviceTypes)
+                        if (serviceTypes!=default)
                         {
+                            foreach (var serviceType in serviceTypes)
+                            {
 
-                            var implementedInterfaces = serviceType.GetInterfaces().Where(a => a != typeof(IDisposable) && a != typeOf_IService);
-                            foreach (Type implementedInterface in implementedInterfaces)
-                            {
-                                services.AddTransient(implementedInterface, sp => sp.GetServiceOrCreateInstance(serviceType));
-                            }
-                            action.Invoke(serviceType);
-                            if (!serviceType.IsGenericType)
-                            {
-                                services.AddTransient(serviceType, serviceType);
+                                var implementedInterfaces = serviceType.GetInterfaces().Where(a => a != typeof(IDisposable) && a != typeOf_IService);
+                                foreach (Type implementedInterface in implementedInterfaces)
+                                {
+                                    services.AddTransient(implementedInterface, sp => sp.GetServiceOrCreateInstance(serviceType));
+                                }
+                                action.Invoke(serviceType);
+                                if (!serviceType.IsGenericType)
+                                {
+                                    services.AddTransient(serviceType, serviceType);
+                                }
                             }
                         }
+                    
                     }
                     catch (Exception ex)
                     {
@@ -164,20 +172,24 @@ namespace kevin.Ioc
                     try
                     {
                         var serviceTypes = item?.GetTypes()?.Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && typeOf_IService.IsAssignableFrom(a));
-                        foreach (var serviceType in serviceTypes)
+                        if (serviceTypes!=default)
                         {
+                            foreach (var serviceType in serviceTypes)
+                            {
 
-                            var implementedInterfaces = serviceType.GetInterfaces().Where(a => a != typeof(IDisposable) && a != typeOf_IService);
-                            foreach (Type implementedInterface in implementedInterfaces)
-                            {
-                                services.AddSingleton(implementedInterface, sp => sp.GetServiceOrCreateInstance(serviceType));
-                            }
-                            action.Invoke(serviceType);
-                            if (!serviceType.IsGenericType)
-                            {
-                                services.AddSingleton(serviceType, serviceType);
+                                var implementedInterfaces = serviceType.GetInterfaces().Where(a => a != typeof(IDisposable) && a != typeOf_IService);
+                                foreach (Type implementedInterface in implementedInterfaces)
+                                {
+                                    services.AddSingleton(implementedInterface, sp => sp.GetServiceOrCreateInstance(serviceType));
+                                }
+                                action.Invoke(serviceType);
+                                if (!serviceType.IsGenericType)
+                                {
+                                    services.AddSingleton(serviceType, serviceType);
+                                }
                             }
                         }
+                      
                     }
                     catch (Exception ex)
                     {

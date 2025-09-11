@@ -14,7 +14,7 @@ namespace kevin.Share.Dtos
         /// 用户名
         /// </summary>
         [Required(ErrorMessage = "用户名不可以空")]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace kevin.Share.Dtos
         /// 密码
         /// </summary>
         [Required(ErrorMessage = "密码不可以为空")]
-        public string PassWord { get; set; }
+        public string PassWord { get; set; }="";
 
         /// <summary>
         /// 租户id

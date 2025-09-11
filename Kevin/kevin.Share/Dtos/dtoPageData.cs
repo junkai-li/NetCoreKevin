@@ -18,15 +18,15 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 条件Key
         /// </summary>
-        public string searchKey { get; set; }
+        public string searchKey { get; set; } = "";
         /// <summary>
         /// 状态
         /// </summary>
-        public string state { get; set; }
+        public string state { get; set; } = "";
         /// <summary>
         /// 标识
         /// </summary>
-        public string sign { get; set; }
+        public string sign { get; set; } = "";
         /// <summary>
         /// 分页大小
         /// </summary>
@@ -42,7 +42,7 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 具体数据内容
         /// </summary>
-        public List<T> data { get; set; }
+        public List<T> data { get; set; } = new List<T>();
 
         public DateTime? StartTime { get; set; }
 

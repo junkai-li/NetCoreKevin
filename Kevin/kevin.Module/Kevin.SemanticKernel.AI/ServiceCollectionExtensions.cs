@@ -15,7 +15,7 @@ namespace Kevin.AI.SemanticKernel
         /// <param name="services"></param>
         /// <param name="action"></param>
         /// <param name="_kernel"></param>
-        public static void AddAIClient(this IServiceCollection services, Action<SKAISetting> action, Kernel _kernel = null)
+        public static void AddAIClient(this IServiceCollection services, Action<SKAISetting> action, Kernel? _kernel = null)
         {
             services.Configure(action);
             var SKAISetting = new SKAISetting();
@@ -77,7 +77,7 @@ namespace Kevin.AI.SemanticKernel
                     currDir = Path.GetFullPath(Path.Combine(currDir, ".."));
                 }
 
-                return null; // Not found after max attempts.
+                return ""; // Not found after max attempts.
             }
 
             // Check in the BaseDirectory and its parent directories

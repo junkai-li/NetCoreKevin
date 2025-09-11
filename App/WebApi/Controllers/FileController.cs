@@ -36,6 +36,7 @@ namespace WebApi.Controllers
         /// <param name="key">记录值</param>
         /// <param name="sign">自定义标记</param>
         /// <param name="fileInfo">Key为文件URL,Value为文件名称</param>
+        /// <param name="cancellationToken">cancellationToken</param>
         /// <returns>文件ID</returns>
         [HttpPost("RemoteUploadFile")]
         public async Task<Guid> RemoteUploadFile([FromQuery][Required] string business, [FromQuery][Required] Guid key, [FromQuery][Required] string sign, [Required][FromBody] dtoKeyValue fileInfo, CancellationToken cancellationToken)
@@ -163,8 +164,8 @@ namespace WebApi.Controllers
                         width = (int)(original.Width * percent);
                         height = (int)(original.Height * percent);
                     }
-
-                    using var resizeBitmap = original.Resize(new SKImageInfo(width, height), SKFilterQuality.High);
+                    var SKSamplingOptions = new SKSamplingOptions();  
+                    using var resizeBitmap = original.Resize(new SKImageInfo(width, height), SKSamplingOptions);
                     using var image = SKImage.FromBitmap(resizeBitmap);
                     using var imageData = image.Encode(SKEncodedImageFormat.Png, 100);
                     return File(imageData.ToArray(), "image/png");

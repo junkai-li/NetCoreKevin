@@ -561,10 +561,7 @@ namespace System
         /// <param name="targetType">目标类型</param>
         /// <returns></returns>
         public static object ChangeType_ByConvert(this object obj, Type targetType)
-        {
-            try
-            {
-
+        { 
                 if (obj.GetType().ToString() == "MySql.Data.Types.MySqlDateTime") obj = obj.ToDateTime();//MySql时间类型转成C# DateTime类型
                 if ((obj.GetType() == typeof(Byte) || obj.GetType() == typeof(SByte)))
                 {
@@ -579,14 +576,8 @@ namespace System
                 else
                 {
                     resObj = Convert.ChangeType(obj, targetType);
-                }
-
-                return resObj;
-            }
-            catch (Exception ex)
-            { 
-                throw ex;
-            }
+                } 
+                return resObj; 
         }
         public static bool ToBoolean(this object value)
         {

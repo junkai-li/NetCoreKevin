@@ -51,6 +51,7 @@ namespace kevin_ESL
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw;
             }
         }
@@ -65,6 +66,7 @@ namespace kevin_ESL
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw;
             }
         }
@@ -80,6 +82,7 @@ namespace kevin_ESL
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw;
             }
         }
@@ -97,6 +100,7 @@ namespace kevin_ESL
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw;
             }
         }
@@ -239,7 +243,7 @@ namespace kevin_ESL
             }
         }
 
-        private Action<string> EsleventCallback = default;
+        private Action<string>? EsleventCallback = default;
         /// <summary>
         /// 开启监控
         /// </summary>
@@ -259,16 +263,16 @@ namespace kevin_ESL
                 data = RecolectResponse();
                 if (data.Contains("The system is being shut down"))
                 {
-                    EnableMonitoringisRunning = false; 
+                    EnableMonitoringisRunning = false;
                     Task.Run(() =>
                     {
                         Dispose();
-                    }); 
+                    });
                     throw new Exception($"断开链接");
                 }
                 if (data.Contains("SERVER_DISCONNECTED"))
                 {
-                    EnableMonitoringisRunning = false; 
+                    EnableMonitoringisRunning = false;
                     Task.Run(() =>
                     {
                         Dispose();
@@ -287,7 +291,7 @@ namespace kevin_ESL
                 }
             }
             if (!EnableMonitoringisRunning)
-            { 
+            {
                 throw new Exception($"结束");
             }
 

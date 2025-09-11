@@ -13,6 +13,6 @@ namespace kevin.Domain.Share.Dtos
         /// id
         /// </summary>
         [Required(ErrorMessage = "id不可以为空")]
-        public T Id { get; set; }
+        public T Id { get; set; } = default!;
     }
 }

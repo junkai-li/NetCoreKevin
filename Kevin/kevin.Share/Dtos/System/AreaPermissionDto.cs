@@ -10,7 +10,7 @@ namespace kevin.Permission.Permission
         public string? area { get; set; }
         public string? areaName { get; set; }
 
-        public List<ModulePermissionDto> modules { get; set; }
+        public List<ModulePermissionDto> modules { get; set; } = new List<ModulePermissionDto>();
     }
 
     public class ModulePermissionDto

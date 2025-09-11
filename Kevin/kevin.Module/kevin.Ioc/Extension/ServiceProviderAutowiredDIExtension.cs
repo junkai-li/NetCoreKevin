@@ -14,7 +14,7 @@ namespace kevin.Ioc.Extension
         /// <param name="serviceProvider"></param>
         /// <param name="instance"> 待注入的对象实例或类型实例 </param>
         /// <returns></returns>
-        public static IServiceProvider Autowired(this IServiceProvider serviceProvider, object instance)
+        public static IServiceProvider? Autowired(this IServiceProvider serviceProvider, object instance)
         {
             if (serviceProvider == null || instance == null)
             {
@@ -24,7 +24,7 @@ namespace kevin.Ioc.Extension
             var type = instance as Type ?? instance.GetType();
             if (instance is Type)
             {
-                instance = null;
+                instance = default;
                 flags |= BindingFlags.Static;
             }
             else
@@ -47,10 +47,10 @@ namespace kevin.Ioc.Extension
             {
                 var attr = property.GetCustomAttributes().OfType<IServiceProviderFactory<IServiceProvider>>().FirstOrDefault();
                 var value = attr?.CreateServiceProvider(serviceProvider).GetServiceOrCreateInstance(property.PropertyType);
-                if (value != null)
+                if (value != default)
                 {
                     property.Set(instance, value);
-                }
+                } 
             }
 
             return serviceProvider;
@@ -62,7 +62,7 @@ namespace kevin.Ioc.Extension
         /// <param name="serviceProvider">服务提供程序</param>
         /// <param name="type">待获取或创建的对象类型</param>
         /// <returns></returns>
-        public static object GetServiceOrCreateInstance(this IServiceProvider serviceProvider, Type type)
+        public static object? GetServiceOrCreateInstance(this IServiceProvider serviceProvider, Type type)
         {
             if (serviceProvider == null)
             {
@@ -84,7 +84,7 @@ namespace kevin.Ioc.Extension
         /// <param name="instanceType">待创建的对象类型</param>
         /// <param name="argumentTypes">额外构造参数</param>
         /// <returns></returns>
-        public static ObjectFactory CreateFactory(this IServiceProvider serviceProvider, Type instanceType, Type[] argumentTypes)
+        public static ObjectFactory? CreateFactory(this IServiceProvider serviceProvider, Type instanceType, Type[] argumentTypes)
         {
             var factory = ActivatorUtilities.CreateFactory(instanceType, argumentTypes);
             if (factory == null)
@@ -109,7 +109,7 @@ namespace kevin.Ioc.Extension
         /// <param name="instanceType">待创建的对象类型</param>
         /// <param name="parameters">额外构造参数</param>
         /// <returns></returns>
-        public static object CreateInstance(this IServiceProvider provider, Type instanceType, params object[] parameters)
+        public static object? CreateInstance(this IServiceProvider provider, Type instanceType, params object[] parameters)
         {
             var obj = ActivatorUtilities.CreateInstance(provider, instanceType, parameters);
             if (obj != null)
@@ -172,7 +172,7 @@ namespace kevin.Ioc.Extension
             var method = property.GetSetMethod(true);
             if (method == null)
             {
-                if (property.DeclaringType.GetField($"<{property.Name}>k__BackingField", (BindingFlags)(-1)) is FieldInfo field)
+                if (property.DeclaringType?.GetField($"<{property.Name}>k__BackingField", (BindingFlags)(-1)) is FieldInfo field)
                 {
                     return field.SetValue;
                 }

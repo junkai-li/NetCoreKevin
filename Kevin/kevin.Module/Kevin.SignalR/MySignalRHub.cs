@@ -68,7 +68,7 @@ namespace Kevin.SignalR
         /// </summary>
         /// <param name="exception"></param>
         /// <returns></returns>
-        public override async Task OnDisconnectedAsync(Exception exception)
+        public override async Task OnDisconnectedAsync(Exception? exception)
         {
             try
             {
@@ -97,7 +97,7 @@ namespace Kevin.SignalR
         /// 关闭
         /// </summary>
         /// <returns></returns>
-        public void Dispose()
+        public new void Dispose()
         {
             _cacheService.Remove(_config.cacheMySignalRKeyName);
             base.Dispose(); ;

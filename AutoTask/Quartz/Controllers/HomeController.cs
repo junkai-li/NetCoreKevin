@@ -77,7 +77,7 @@ namespace Quartz.NET.Web.Controllers
         /// </summary>
         /// <returns></returns>
         [AllowAnonymous]
-        public async Task<IActionResult> SignOut()
+        public new async Task<IActionResult> SignOut()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return new RedirectResult("/");

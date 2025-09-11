@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Kevin.AI.SemanticKernel
 {
-    internal class demo
+    internal class Demo
     {
         /// <summary>
         // 执行完成服务

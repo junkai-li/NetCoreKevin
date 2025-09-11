@@ -19,19 +19,19 @@ namespace kevin_ESL
     public static class ESLStaticClient
     {
         public static Socket? _Socket;
-        public static string HOST="";
+        public static string HOST = "";
         public static int PORT;
-        public static string PassWord="";
+        public static string PassWord = "";
         public static ConcurrentDictionary<string, Action<string>> Callbacks = new ConcurrentDictionary<string, Action<string>>();
         public static ConcurrentQueue<string> Data = new ConcurrentQueue<string>();
         static Thread? Thread;
         static object lockObject = new();
 
-       /// <summary>
-       /// 注册启动事件
-       /// </summary>
-       /// <param name="id"></param>
-       /// <param name="callback"></param>
+        /// <summary>
+        /// 注册启动事件
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="callback"></param>
         public static void RegisterCallback(string id, Action<string> callback)
         {
             if (!Callbacks.ContainsKey(id))
@@ -343,6 +343,10 @@ namespace kevin_ESL
         {
             try
             {
+                if (_Socket == default)
+                {
+                    return;    
+                }
                 byte[] msg = Encoding.UTF8.GetBytes($"{data}\n\n");
                 socketConti();
                 _Socket.Send(msg);
@@ -413,7 +417,10 @@ namespace kevin_ESL
         /// <exception cref="Exception"></exception>
         private static string ReceiveData(int contentLength = 1, bool isstringutf = true)
         {
-
+            if (_Socket == default)
+            {
+                return "";
+            }
             try
             {
                 if (contentLength < 1)

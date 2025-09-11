@@ -16,11 +16,11 @@ namespace Kevin.Cors.Models
         /// <summary>
         /// 策略名称
         /// </summary>
-        public string PolicyName { get; set; }
+        public string PolicyName { get; set; } = "";
 
         /// <summary>
         /// 访问地址
         /// </summary>
-        public string IPs { get; set; }
+        public string IPs { get; set; } = "";
     }
 }

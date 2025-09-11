@@ -29,24 +29,24 @@ namespace kevin.Consul.Models
         /// <summary>
         /// 服务名称
         /// </summary>
-        public string ServiceName { get; init; }
+        public string ServiceName { get; init; } = "";
 
         /// <summary>
         ////服务IP
         /// </summary>
-        public string ServiceIP { get; init; }
+        public string ServiceIP { get; init; } = "";
 
         /// <summary>
         ///健康检查地址
         /// </summary>
-        public string ServiceHealthCheck { get; init; }
+        public string ServiceHealthCheck { get; init; } = "";
         /// <summary>
         /// //服务端口 因为要运行多个实例，端口不能在appsettings.json里配置，在docker容器运行时传入
         /// </summary>
-        public string ServicePort { get; init; }
-        /// <summary>
+        public string ServicePort { get; init; } = "";
+        /// <summary>   
         /// consul地址
         /// </summary>
-        public string ConsulAddress { get; init; }
+        public string ConsulAddress { get; init; } = "";
     }
 }

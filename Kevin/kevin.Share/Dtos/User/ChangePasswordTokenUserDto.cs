@@ -16,14 +16,14 @@ namespace kevin.Domain.Share.Dtos.User
         /// 旧密码
         /// </summary>
         [Required]
-        public string OldPwd { get; set; }
+        public string OldPwd { get; set; } = "";
 
 
         /// <summary>
         /// 新密码
         /// </summary>
         [Required]
-        public string NewPwd { get; set; }
+        public string NewPwd { get; set; } = "";
 
 
     }

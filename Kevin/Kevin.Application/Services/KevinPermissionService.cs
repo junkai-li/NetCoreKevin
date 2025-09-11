@@ -14,7 +14,7 @@ namespace kevin.Application
         {
             using (var db = new KevinDbContext())
             {
-                return db.Set<TPermission>().Where(x => x.IsDelete == false).Select(x => x.Id).ToList();
+                return db.Set<TPermission>().Where(x => x.IsDelete == false).Select(x => (x.Id ?? "")).ToList();
 
             }
         }

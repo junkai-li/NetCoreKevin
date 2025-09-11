@@ -10,7 +10,7 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 键
         /// </summary>
-        public object Key { get; set; }
+        public object Key { get; set; } = "";
 
 
 
@@ -18,7 +18,7 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 值
         /// </summary>
-        public object Value { get; set; }
+        public object Value { get; set; } = "";
 
 
 
@@ -26,7 +26,7 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 子级集合信息
         /// </summary>
-        public List<dtoKeyValueChild> ChildList { get; set; }
+        public List<dtoKeyValueChild> ChildList { get; set; }= new List<dtoKeyValueChild>();
 
 
 

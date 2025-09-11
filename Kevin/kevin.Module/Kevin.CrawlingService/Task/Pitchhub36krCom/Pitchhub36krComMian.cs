@@ -18,7 +18,7 @@ namespace CrawlingService.Task.Pitchhub36krCom
             var service = EdgeDriverService.CreateDefaultService(@".", "msedgedriver.exe");
             Parallel.ForEach(list, new ParallelOptions() { MaxDegreeOfParallelism = 3 }, dataitem =>
             {
-              
+
                 try
                 {
                     Random r = new Random();
@@ -42,8 +42,8 @@ namespace CrawlingService.Task.Pitchhub36krCom
                         {
                             return d.MyFindElement(By.ClassName("website"));
                         });
-                        MyCW(driver.MyFindElement(By.ClassName("website")).Text.ToString(), true); 
-                        MyCW(driver.MyFindElement(By.ClassName("css-1bazmro")).Text.ToString(), true); 
+                        MyCW(driver.MyFindElement(By.ClassName("website")).Text.ToString(), true);
+                        MyCW(driver.MyFindElement(By.ClassName("css-1bazmro")).Text.ToString(), true);
                         //查看更多
                         var chakans = driver.MyFindElements(By.XPath("//div[@class='expand-more-box css-1fm5dcy']"));
                         foreach (var item in chakans)
@@ -59,7 +59,7 @@ namespace CrawlingService.Task.Pitchhub36krCom
                             if (trs != default)
                             {
                                 foreach (var item in trs)
-                                { 
+                                {
                                     MyCW("融资轮次：" + item.MyFindElement(By.ClassName("round")).Text);
                                     MyCW("融资时间：" + item.MyFindElement(By.ClassName("time")).Text);
                                     MyCW("融资金额：" + item.MyFindElement(By.ClassName("amount")).Text);
@@ -78,7 +78,7 @@ namespace CrawlingService.Task.Pitchhub36krCom
                         {
                             var tds = gongshangDiv.MyFindElements(By.TagName("td"));
                             for (int i = 0; i < tds.Count;)
-                            { 
+                            {
                                 MyCW(tds[i].Text + " ：" + tds[i + 1].Text);
                                 Console.WriteLine();
                                 i += 2;
@@ -90,22 +90,22 @@ namespace CrawlingService.Task.Pitchhub36krCom
                         if (chigu != default)
                         {
                             var chigudivs = chigu.MyFindElements(By.XPath("//div[@class='business-table-content']"));
-                            MyCW("---股东（发起人）-----------持股比例-------认缴出资额-----认缴出资额", true); 
+                            MyCW("---股东（发起人）-----------持股比例-------认缴出资额-----认缴出资额", true);
                         }
                         int number1 = r.Next(3000, 8000);
                         System.Threading.Thread.Sleep(number1);
                         driver.Close();
                         driver.Dispose();
-                    } 
+                    }
                 }
                 catch (Exception ex)
                 {
-                   MyCW(ex.Message, true);
+                    MyCW(ex.Message, true);
                 }
                 finally
                 {
                     MyCW(dataitem, true, ConsoleColor.Yellow);
-                } 
+                }
             });
         }
 
@@ -125,27 +125,13 @@ namespace CrawlingService.Task.Pitchhub36krCom
 
         public static IWebElement MyFindElement(this ISearchContext webDriver, By by)
         {
-            try
-            {
-                return webDriver.FindElement(by);
-            }
-            catch (Exception ex)
-            {
 
-                return default;
-            }
+            return webDriver.FindElement(by);
+
         }
         public static ReadOnlyCollection<IWebElement> MyFindElements(this ISearchContext webDriver, By by)
         {
-            try
-            {
-                return webDriver.FindElements(by);
-            }
-            catch (Exception ex)
-            {
-
-                return default;
-            }
+            return webDriver.FindElements(by);
         }
     }
 

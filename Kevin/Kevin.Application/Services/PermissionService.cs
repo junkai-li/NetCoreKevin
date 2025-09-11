@@ -126,7 +126,7 @@ namespace kevin.Application
         /// <returns></returns>
         public List<string> GetAllPermissionIds()
         {
-            return permissionRp.Query().Where(x => x.IsDelete == false).Select(x => x.Id).ToList();
+            return permissionRp.Query().Where(x => x.IsDelete == false).Select(x => (x.Id ?? "")).ToList();
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace kevin.Application
                             moduledto.actions = actionDtos;
                             modulesDtos.Add(moduledto);
                         }
-                     
+
                     }
                     areadto.modules = modulesDtos;
                     list.Add(areadto);
@@ -202,14 +202,17 @@ namespace kevin.Application
             {
                 foreach (var module in perdto.modules)
                 {
-                    foreach (var action in module.actions.Where(x => x.IsPermission == true).ToList())
+                    if (module.actions != default)
                     {
-                        var roleper = new TRolePermission();
-                        roleper.PermissionId = action.Id;
-                        roleper.RoleId = Guid.Parse(dto.roleId);
-                        roleper.Id = Guid.NewGuid();
-                        rolepers.Add(roleper);
-                    }
+                        foreach (var action in module.actions.Where(x => x.IsPermission == true).ToList())
+                        {
+                            var roleper = new TRolePermission();
+                            roleper.PermissionId = action.Id;
+                            roleper.RoleId = Guid.Parse(dto.roleId);
+                            roleper.Id = Guid.NewGuid();
+                            rolepers.Add(roleper);
+                        }
+                    } 
                 }
             }
             var roleper2 = rolepers.FirstOrDefault();

@@ -140,7 +140,7 @@ namespace Repository.Database
                     //设置生成数据库时的表名为小写格式并添加前缀 t_
                     var tableName = ("t_" + StringHelper.ToGidelineLower(entity.ClrType.Name[1..]));
                     builder.ToTable(tableName);
-                    builder.HasComment(tableName);
+                    builder.ToTable(t=>t.HasComment(tableName)); 
                     //开启 PostgreSQL 全库行并发乐观锁
                     //builder.UseXminAsConcurrencyToken();  
                     //租户过滤器 
@@ -200,7 +200,7 @@ namespace Repository.Database
                     var descriptionAttrtable = tabtype.GetCustomAttributes(typeof(DescriptionAttribute), true);
                     if (descriptionAttrtable.Length > 0)
                     {
-                        modelBuilder.Entity(item.Name).HasComment(((DescriptionAttribute)descriptionAttrtable[0]).Description);
+                        modelBuilder.Entity(item.Name).ToTable(t=>t.HasComment(((DescriptionAttribute)descriptionAttrtable[0]).Description));
                     }
                     foreach (var prop in props)
                     {

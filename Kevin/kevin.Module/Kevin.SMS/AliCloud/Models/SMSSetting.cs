@@ -13,13 +13,13 @@ namespace Kevin.SMS.AliCloud.Models
         /// <summary>
         /// 账户ID
         /// </summary>
-        public string AccessKeyId { get; set; }
+        public string AccessKeyId { get; set; } = "";
 
 
         /// <summary>
         /// 账户私钥
         /// </summary>
-        public string AccessKeySecret { get; set; }
+        public string AccessKeySecret { get; set; } = "";
 
 
     }

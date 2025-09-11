@@ -23,7 +23,7 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 文件名称
         /// </summary>
-        public string FileName { get; set; }
+        public string FileName { get; set; } = "";
 
 
 
@@ -31,7 +31,7 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 文件地址
         /// </summary>
-        public string FileUrl { get; set; }
+        public string FileUrl { get; set; } = "";
 
 
 
@@ -39,7 +39,7 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 文件大小
         /// </summary>
-        public long Length { get; set; }
+        public long Length { get; set; }    
 
 
 
@@ -47,7 +47,7 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 显示文件大小
         /// </summary>
-        public string DisplayLength { get; set; }
+        public string DisplayLength { get; set; } = "";
 
 
 
@@ -70,7 +70,7 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 创建人名称
         /// </summary>
-        public string CreateUserName { get; set; }
+        public string CreateUserName { get; set; } = "";
 
 
 

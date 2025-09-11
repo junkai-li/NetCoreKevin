@@ -1,29 +1,35 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace Kevin.HttpApiClients.Helper
-{ 
+{
     public class HttpClientHelper
-    { 
+    {
         private static bool IsInit;
-        private static IHttpClientFactory InitHttpClientFactory;
-         
-        private static IHttpClientFactory HttpClientFactory
+        private static IHttpClientFactory? InitHttpClientFactory;
+
+        private static IHttpClientFactory? HttpClientFactory
         {
             get
             {
                 if (!IsInit)
                 {
-                    var programType = Assembly.GetEntryAssembly().GetTypes().Where(t => t.Name == "Program").FirstOrDefault();
-                    var serviceProvider = (IServiceProvider)programType.GetProperty("ServiceProvider", BindingFlags.Public | BindingFlags.Static).GetValue(programType);
-                    InitHttpClientFactory = serviceProvider.GetService<IHttpClientFactory>();
+                    var programType = Assembly.GetEntryAssembly()?.GetTypes().Where(t => t.Name == "Program").FirstOrDefault();
+                    if (programType != default)
+                    {
+                        var ServiceProvider = programType.GetProperty("ServiceProvider", BindingFlags.Public | BindingFlags.Static)?.GetValue(programType);
+                        if (ServiceProvider != default)
+                        {
+                            var serviceProvider = (IServiceProvider)ServiceProvider;
+                            if (serviceProvider != null)
+                            {
+                                InitHttpClientFactory = serviceProvider.GetService<IHttpClientFactory>();
+                            }
+                        }
+                    }
                     IsInit = true;
                 }
 
@@ -39,22 +45,21 @@ namespace Kevin.HttpApiClients.Helper
         /// <param name="headers">自定义Header集合</param>
         /// <param name="isSkipSslVerification">是否跳过SSL验证</param>
         /// <returns></returns>
-        public static string Get(string url, Dictionary<string, string> headers = default, bool isSkipSslVerification = false)
+        public static string? Get(string url, Dictionary<string, string> headers=default, bool isSkipSslVerification = false)
         {
             string httpClientName = isSkipSslVerification ? "SkipSsl" : "";
 
-            var client = HttpClientFactory.CreateClient(httpClientName);
+            var client = HttpClientFactory?.CreateClient(httpClientName);
 
             if (headers != default)
             {
                 foreach (var header in headers)
                 {
-                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
+                    client?.DefaultRequestHeaders.Add(header.Key, header.Value);
                 }
             }
-
-            using var httpResponse = client.GetStringAsync(url);
-            return httpResponse.Result;
+            using var httpResponse = client?.GetStringAsync(url);
+            return httpResponse?.Result;
         }
 
 
@@ -105,13 +110,13 @@ namespace Kevin.HttpApiClients.Helper
 
             string httpClientName = isSkipSslVerification ? "SkipSsl" : "";
 
-            var client = HttpClientFactory.CreateClient(httpClientName);
+            var client = HttpClientFactory?.CreateClient(httpClientName);
 
             if (headers != default)
             {
                 foreach (var header in headers)
                 {
-                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
+                    client?.DefaultRequestHeaders.Add(header.Key, header.Value);
                 }
             }
 
@@ -126,11 +131,12 @@ namespace Kevin.HttpApiClients.Helper
             {
                 content.Headers.ContentType = new MediaTypeHeaderValue("text/xml");
             }
-
-            content.Headers.ContentType.CharSet = "utf-8";
-
-            using var httpResponse = client.PostAsync(url, content);
-            return httpResponse.Result.Content.ReadAsStringAsync().Result;
+            if (content.Headers.ContentType != null)
+            {
+                content.Headers.ContentType.CharSet = "utf-8";
+            }
+            using var httpResponse = client?.PostAsync(url, content);
+            return httpResponse?.Result.Content.ReadAsStringAsync().Result ?? "";
         }
 
 
@@ -162,24 +168,24 @@ namespace Kevin.HttpApiClients.Helper
         /// <param name="headers">自定义Header集合</param>
         /// <param name="isSkipSslVerification">是否跳过SSL验证</param>
         /// <returns></returns>
-        public static string PostForm(string url, Dictionary<string, string> formItems, Dictionary<string, string> headers = default, bool isSkipSslVerification = false)
+        public static string? PostForm(string url, Dictionary<string, string> formItems, Dictionary<string, string> headers = default, bool isSkipSslVerification = false)
         {
 
             string httpClientName = isSkipSslVerification ? "SkipSsl" : "";
 
-            var client = HttpClientFactory.CreateClient(httpClientName);
+            var client = HttpClientFactory?.CreateClient(httpClientName);
 
             if (headers != default)
             {
                 foreach (var header in headers)
                 {
-                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
+                    client?.DefaultRequestHeaders.Add(header.Key, header.Value);
                 }
             }
             using FormUrlEncodedContent formContent = new(formItems);
             formContent.Headers.ContentType!.CharSet = "utf-8";
-            using var httpResponse = client.PostAsync(url, formContent);
-            return httpResponse.Result.Content.ReadAsStringAsync().Result;
+            using var httpResponse = client?.PostAsync(url, formContent);
+            return httpResponse?.Result.Content.ReadAsStringAsync().Result;
         }
 
 
@@ -192,17 +198,17 @@ namespace Kevin.HttpApiClients.Helper
         /// <param name="headers">自定义Header集合</param>
         /// <param name="isSkipSslVerification">是否跳过SSL验证</param>
         /// <returns></returns>
-        public static string PostFormData(string url, List<PostFormItem> formItems, Dictionary<string, string> headers = default, bool isSkipSslVerification = false)
+        public static string? PostFormData(string url, List<PostFormItem> formItems, Dictionary<string, string> headers = default, bool isSkipSslVerification = false)
         {
             string httpClientName = isSkipSslVerification ? "SkipSsl" : "";
 
-            var client = HttpClientFactory.CreateClient(httpClientName);
+            var client = HttpClientFactory?.CreateClient(httpClientName);
 
             if (headers != default)
             {
                 foreach (var header in headers)
                 {
-                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
+                    client?.DefaultRequestHeaders.Add(header.Key, header.Value);
                 }
             }
 
@@ -213,8 +219,11 @@ namespace Kevin.HttpApiClients.Helper
             {
                 if (item.IsFile)
                 {
-                    //上传文件
-                    formDataContent.Add(new StreamContent(item.FileContent), item.Key, item.FileName);
+                    if (item.FileContent != default)
+                    {
+                        //上传文件
+                        formDataContent.Add(new StreamContent(item.FileContent), item.Key, item.FileName);
+                    } 
                 }
                 else
                 {
@@ -223,8 +232,8 @@ namespace Kevin.HttpApiClients.Helper
                 }
             }
 
-            using var httpResponse = client.PostAsync(url, formDataContent);
-            return httpResponse.Result.Content.ReadAsStringAsync().Result;
+            using var httpResponse = client?.PostAsync(url, formDataContent);
+            return httpResponse?.Result.Content.ReadAsStringAsync().Result;
         }
 
 
@@ -238,14 +247,14 @@ namespace Kevin.HttpApiClients.Helper
             /// <summary>
             /// 表单键，request["key"]
             /// </summary>
-            public string Key { set; get; }
+            public string Key { set; get; } = "";
 
 
 
             /// <summary>
             /// 表单值,上传文件时忽略，request["key"].value
             /// </summary>
-            public string Value { set; get; }
+            public string Value { set; get; } = "";
 
 
 
@@ -270,14 +279,14 @@ namespace Kevin.HttpApiClients.Helper
             /// <summary>
             /// 上传的文件名
             /// </summary>
-            public string FileName { set; get; }
+            public string FileName { set; get; } = "";
 
 
 
             /// <summary>
             /// 上传的文件内容
             /// </summary>
-            public Stream FileContent { set; get; }
+            public Stream? FileContent { set; get; }
 
 
         }

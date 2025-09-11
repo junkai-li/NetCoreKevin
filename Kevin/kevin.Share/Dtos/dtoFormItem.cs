@@ -14,14 +14,14 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 表单键，request["key"]
         /// </summary>
-        public string Key { set; get; }
+        public string Key { set; get; } = "";
 
 
 
         /// <summary>
         /// 表单值,上传文件时忽略，request["key"].value
         /// </summary>
-        public string Value { set; get; }
+        public string Value { set; get; } = "";
 
 
 
@@ -46,14 +46,14 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 上传的文件名
         /// </summary>
-        public string FileName { set; get; }
+        public string FileName { set; get; } = "";
 
 
 
         /// <summary>
         /// 上传的文件内容
         /// </summary>
-        public Stream FileContent { set; get; }
+        public Stream? FileContent { set; get; }
 
 
     }
