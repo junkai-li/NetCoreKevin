@@ -574,5 +574,22 @@ namespace Common
             }
             return newStr;
         }
+
+        /// <summary>
+        /// 隐藏信息
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="startLen">开始长度</param>
+        /// <param name="endLen">结尾长度</param>
+        /// <param name="c">中间字符</param>
+        /// <param name="count">指定长度</param>
+        /// <returns></returns>
+        public static string InfoHidden(this string value, int startLen = 3, int endLen = 4, char c = '*', int? count = null)
+        {
+            var length = value.Length - startLen - endLen;
+            length = length < 0 ? 0 : length;
+            var reStr = $@"(\S{"{" + startLen + "}"})(\S{"{" + length + "}"})(\S{"{" + endLen + "}"})";
+            return Regex.Replace(value, reStr, $"$1{"".PadRight(count ?? length, c)}$3");
+        }
     }
 }
