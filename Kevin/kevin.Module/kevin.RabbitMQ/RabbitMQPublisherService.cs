@@ -1,4 +1,5 @@
 ﻿using kevin.RabbitMQ.Interfaces;
+using Kevin.log4Net;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
@@ -91,7 +92,7 @@ namespace kevin.RabbitMQ
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"消息发布失败:An error occurred: {ex.Message}");
+                LogHelper<RabbitMQPublisherService>.logger.Error($"消息发布失败:An error occurred: {ex.Message}"); 
                 //回滚事务
                 if (isTx) { _channel.TxRollback(); }
                 throw; 

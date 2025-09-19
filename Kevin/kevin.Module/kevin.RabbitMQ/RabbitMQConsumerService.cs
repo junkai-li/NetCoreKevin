@@ -1,4 +1,5 @@
 ﻿using kevin.RabbitMQ.Interfaces;
+using Kevin.log4Net;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TencentCloud.Cfw.V20190904.Models;
 
 namespace kevin.RabbitMQ
 {
@@ -78,10 +80,8 @@ namespace kevin.RabbitMQ
                     }
                 }
                 catch (Exception ex)
-                {
-                    // 记录日志
-                    Console.WriteLine($"消息处理异常: {ex.Message}");
-
+                { 
+                    LogHelper<RabbitMQConsumerService>.logger.Error($"消息处理异常: {ex.Message}");
                     if (!autoAck)
                     {
                         _channel.BasicNack(ea.DeliveryTag, false, false);
