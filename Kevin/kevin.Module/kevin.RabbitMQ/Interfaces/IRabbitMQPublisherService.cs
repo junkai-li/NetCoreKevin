@@ -23,6 +23,8 @@ namespace kevin.RabbitMQ.Interfaces
         /// <param name="BasicAcks">确认机制成功回调</param>
         /// <param name="BasicNacks">确认机制失败回调</param>
         /// <exception cref="UserFriendlyException">确认机制开启，必须传入BasicAcks和BasicNacks</exception>
-        void PublishList<T>(string exchange, string routingKey,List<T> messages, string queue = "", string exchangeType = "", bool isTx = false, bool isConfirmSelect = false, EventHandler<BasicAckEventArgs>? BasicAcks = default, EventHandler<BasicNackEventArgs>? BasicNacks = default);
+        void PublishList<T>(string exchange, string routingKey,List<T> messages, string queue = "", string exchangeType = "", bool isTx = false, bool isConfirmSelect = false, EventHandler<BasicAckEventArgs>? BasicAcks = default, EventHandler<BasicNackEventArgs>? BasicNacks = default) where T : class;
+        Task PublishListAsync<T>(string exchange, string routingKey, List<T> messages, string queue = "", string exchangeType = "", bool isTx = false, bool isConfirmSelect = false, EventHandler<BasicAckEventArgs>? BasicAcks = default, EventHandler<BasicNackEventArgs>? BasicNacks = default) where T : class;
+ 
     }
 }

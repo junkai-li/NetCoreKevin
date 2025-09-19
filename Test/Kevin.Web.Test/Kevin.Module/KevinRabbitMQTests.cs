@@ -23,7 +23,7 @@ namespace Kevin.Unit.Tests.Kevin.Module
             }; 
             using var rabbitMQConnection = new RabbitMQConnection(factory);
             var serv = new RabbitMQPublisherService(rabbitMQConnection);
-            serv.PublishList<string>("test_exchange", "test_queue", new List<string> { "hello", "world" }, queue: "test_queue", isConfirmSelect: true, BasicAcks: (sender, ea) =>
+            serv.PublishList<string>("test_exchange", "test_routingkey", new List<string> { "hello", "world" },exchangeType: ExchangeType.Direct, queue: "test_queue", isConfirmSelect: true, BasicAcks: (sender, ea) =>
             {
                 isPublishOk = true;
                 Console.WriteLine($"message已发送:{sender} {ea.DeliveryTag}");
@@ -35,7 +35,29 @@ namespace Kevin.Unit.Tests.Kevin.Module
             Assert.False(isPublishOk);
 
             // 创建消费者
-            isConsumer = true;
+            isConsumer = false;
+            // 创建消费端服务
+            using var rabbitMQConnection2 = new RabbitMQConnection(factory);
+            using var consumerService = new RabbitMQConsumerService(rabbitMQConnection2);
+
+            // 定义消息处理函数
+            Func<string, bool> messageHandler = (message) =>
+            {
+                Console.WriteLine($"收到消息: {message}");
+                // 处理消息
+                // 返回true表示处理成功，false表示处理失败
+                isConsumer= true;
+                return true;
+            }; 
+            // 开始消费
+            consumerService.StartConsume(
+                exchange: "test_exchange",
+                routingKey: "test_routingkey",
+                queue: "test_queue",
+                exchangeType: ExchangeType.Direct,
+                autoAck: false,
+                prefetchCount: 1,
+                messageHandler: messageHandler);  
             Assert.False(isConsumer);
         }
     }
