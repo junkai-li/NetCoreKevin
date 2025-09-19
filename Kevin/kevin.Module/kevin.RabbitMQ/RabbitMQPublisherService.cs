@@ -121,11 +121,6 @@ namespace kevin.RabbitMQ
                 }
                 _isDisposed = true;
             }
-        }
-
-        ~RabbitMQPublisherService()
-        {
-            Dispose(false);
-        }
+        } 
     }
 }
