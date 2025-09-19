@@ -25,6 +25,7 @@ using kevin.FileStorage;
 using Kevin.SignalR;
 using Kevin.AI.MCP.Server.Models;
 using Kevin.SignalR.Models;
+using kevin.RabbitMQ; 
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -121,9 +122,9 @@ namespace Web.Extension
                 var newoptions = Configuration.GetRequiredSection("SignalrRdisSetting").Get<SignalrRdisSetting>();
                 options.url = newoptions.url;
                 options.password = newoptions.password;
-                 options.port = newoptions.port;
-                options.defaultDatabase= newoptions.defaultDatabase; 
-                options.configurationChannel= newoptions.configurationChannel;
+                options.port = newoptions.port;
+                options.defaultDatabase = newoptions.defaultDatabase;
+                options.configurationChannel = newoptions.configurationChannel;
                 options.hostname = newoptions.hostname;
                 options.cacheMySignalRKeyName = newoptions.cacheMySignalRKeyName;
             });
@@ -188,6 +189,19 @@ namespace Web.Extension
             //});  
             #endregion
 
+            #region MQ服务注入
+
+            services.AddKevinRabbitMQ(options =>
+            {
+                var settings = Configuration.GetRequiredSection("RabbitMQ").Get<RabbitMQOptions>()!;
+                options.HostName = settings.HostName;
+                options.Port = settings.Port;
+                options.UserName = settings.UserName;
+                options.Password = settings.Password;
+                options.VirtualHost = settings.VirtualHost;
+            });
+
+            #endregion
 
             return services;
         }
@@ -224,7 +238,7 @@ namespace Web.Extension
                 endpoints.MapControllers();
             });
             app.UseKevinRedisSignalR(options =>
-            { 
+            {
                 var newoptions = StartConfiguration.configuration.GetRequiredSection("SignalrRdisSetting").Get<SignalrRdisSetting>();
                 options.url = newoptions.url;
                 options.password = newoptions.password;

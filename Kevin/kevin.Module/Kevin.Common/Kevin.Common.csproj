@@ -23,7 +23,6 @@
     <PackageReference Include="Emgu.CV.Bitmap" Version="4.10.0.5680" />
     <PackageReference Include="Emgu.CV.runtime.ubuntu-x64" Version="4.10.0.5680" />
     <PackageReference Include="Emgu.CV.runtime.windows" Version="4.10.0.5680" />
-    <PackageReference Include="log4net" Version="3.0.4" />
     <PackageReference Include="Mapster" Version="7.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.8" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.3.0" />
@@ -34,7 +33,6 @@
     <PackageReference Include="SkiaSharp" Version="3.119.0" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.0" />
     <PackageReference Include="SkiaSharp.QrCode" Version="0.7.0" />
-    <PackageReference Include="StackExchange.Redis" Version="2.8.37" />
     <PackageReference Include="System.Device.Gpio" Version="3.2.0" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.4" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.9.0" />

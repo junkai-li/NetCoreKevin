@@ -33,6 +33,7 @@
     <ProjectReference Include="..\kevin.Module\kevin.Ioc\kevin.Ioc.csproj" />
     <ProjectReference Include="..\kevin.Module\Kevin.log4Net\Kevin.log4Net.csproj" />
     <ProjectReference Include="..\kevin.Module\Kevin.MCP.Server\Kevin.AI.MCP.Server.csproj" />
+    <ProjectReference Include="..\kevin.Module\kevin.RabbitMQ\kevin.RabbitMQ.csproj" />
     <ProjectReference Include="..\kevin.Module\Kevin.SemanticKernel.AI\Kevin.AI.SemanticKernel.csproj" />
     <ProjectReference Include="..\kevin.Module\Kevin.SignalR\Kevin.SignalR.csproj" />
     <ProjectReference Include="..\kevin.Module\Kevin.SMS\Kevin.SMS.csproj" />
