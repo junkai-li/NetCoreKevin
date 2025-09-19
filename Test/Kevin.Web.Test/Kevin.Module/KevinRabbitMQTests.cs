@@ -8,7 +8,8 @@ namespace Kevin.Unit.Tests.Kevin.Module
         [Fact]
         public void SendMsg()
         {
-            bool isOk = false;
+            bool isPublishOk = false;
+            bool isConsumer = false;
             var factory = new ConnectionFactory()
             {
                 HostName = "localhost",
@@ -24,14 +25,18 @@ namespace Kevin.Unit.Tests.Kevin.Module
             var serv = new RabbitMQPublisherService(rabbitMQConnection);
             serv.PublishList<string>("test_exchange", "test_queue", new List<string> { "hello", "world" }, queue: "test_queue", isConfirmSelect: true, BasicAcks: (sender, ea) =>
             {
-                isOk = true;
+                isPublishOk = true;
                 Console.WriteLine($"message已发送:{sender} {ea.DeliveryTag}");
             }, BasicNacks: (sender, ea) =>
             {
                 Console.WriteLine($"message发送失败:{sender} {ea.DeliveryTag}");
             });
             // Assert
-            Assert.False(isOk);
+            Assert.False(isPublishOk);
+
+            // 创建消费者
+            isConsumer = true;
+            Assert.False(isConsumer);
         }
     }
 }
