@@ -89,6 +89,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kevin.Integration.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kevin.RabbitMQ", "Kevin\kevin.Module\kevin.RabbitMQ\kevin.RabbitMQ.csproj", "{523A36F6-90FE-4536-9AA5-B63E02656AEE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kevin.AI.AgentFramework", "kevin.AI.AgentFramework\kevin.AI.AgentFramework.csproj", "{B3070924-F1D7-4236-8AB6-A2E4CA0C7FAC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -243,6 +245,10 @@ Global
 		{523A36F6-90FE-4536-9AA5-B63E02656AEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{523A36F6-90FE-4536-9AA5-B63E02656AEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{523A36F6-90FE-4536-9AA5-B63E02656AEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3070924-F1D7-4236-8AB6-A2E4CA0C7FAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3070924-F1D7-4236-8AB6-A2E4CA0C7FAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3070924-F1D7-4236-8AB6-A2E4CA0C7FAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3070924-F1D7-4236-8AB6-A2E4CA0C7FAC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -286,6 +292,7 @@ Global
 		{FCD2D47A-C0AE-6100-9ABA-26E7914052A6} = {5835D766-9847-1D08-5E95-5A99FD0F495D}
 		{CD24E466-1A49-4C54-D9C7-86330F60CA4C} = {5835D766-9847-1D08-5E95-5A99FD0F495D}
 		{523A36F6-90FE-4536-9AA5-B63E02656AEE} = {52538984-57B4-4B42-8D6D-86B07E33B4A6}
+		{B3070924-F1D7-4236-8AB6-A2E4CA0C7FAC} = {52538984-57B4-4B42-8D6D-86B07E33B4A6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9A57BA34-E6D0-4E76-AA55-1A573F3CC798}
