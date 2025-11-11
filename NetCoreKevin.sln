@@ -85,7 +85,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kevin.Testing.Shared", "Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kevin.Unit.Tests", "Test\Kevin.Web.Test\Kevin.Unit.Tests.csproj", "{FCD2D47A-C0AE-6100-9ABA-26E7914052A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kvin.Integration.Tests", "Test\Kvin.Integration.Tests\Kvin.Integration.Tests.csproj", "{CD24E466-1A49-4C54-D9C7-86330F60CA4C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kevin.Integration.Tests", "Test\Kvin.Integration.Tests\Kevin.Integration.Tests.csproj", "{CD24E466-1A49-4C54-D9C7-86330F60CA4C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kevin.RabbitMQ", "Kevin\kevin.Module\kevin.RabbitMQ\kevin.RabbitMQ.csproj", "{523A36F6-90FE-4536-9AA5-B63E02656AEE}"
 EndProject
