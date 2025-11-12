@@ -3,12 +3,7 @@ using Microsoft.Agents.AI;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel.Connectors.InMemory;
 using OpenAI;
-using System;
 using System.ClientModel;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.AI.AgentFramework.Agent.ChatMessageStoreCom
 {

@@ -1,19 +1,11 @@
-﻿using DocumentFormat.OpenXml.Math;
-using Kevin.AI.Dto;
+﻿using Kevin.AI.Dto;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using OpenAI;
-using OpenAI.Chat;
-using System;
 using System.ClientModel;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.AI.AgentFramework.Agent
 {
@@ -54,7 +46,7 @@ namespace kevin.AI.AgentFramework.Agent
         string name = "讲笑话",
         string description = "智能体",
         IList<AITool>? tools = null,
-        Microsoft.Extensions.AI.ChatResponseFormat chatResponseFormat = default,
+        Microsoft.Extensions.AI.ChatResponseFormat? chatResponseFormat = default,
         Func<IChatClient, IChatClient>? clientFactory = null,
         ILoggerFactory? loggerFactory = null,
         IServiceProvider? services = null)

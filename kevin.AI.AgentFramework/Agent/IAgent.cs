@@ -2,11 +2,6 @@
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.AI.AgentFramework.Agent
 {
@@ -44,7 +39,7 @@ namespace kevin.AI.AgentFramework.Agent
         string name = "讲笑话",
         string description = "智能体",
         IList<AITool>? tools = null,
-        Microsoft.Extensions.AI.ChatResponseFormat chatResponseFormat = default,
+        Microsoft.Extensions.AI.ChatResponseFormat? chatResponseFormat = default,
         Func<IChatClient, IChatClient>? clientFactory = null,
         ILoggerFactory? loggerFactory = null,
         IServiceProvider? services = null);

@@ -1,14 +1,7 @@
-﻿using Microsoft.Agents.AI.Workflows;
+﻿using kevin.AI.AgentFramework.Agent;
 using Microsoft.Agents.AI;
+using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
-using OpenAI;
-using System;
-using System.ClientModel;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using kevin.AI.AgentFramework.Agent;
 
 namespace kevin.AI.AgentFramework.WorkFlows
 {
