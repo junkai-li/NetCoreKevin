@@ -9,18 +9,6 @@
             系统访问授权模块
             </summary>
         </member>
-        <member name="M:WebApi.Controllers.AuthorizeController.GetDb">
-            <summary>
-            GetErr
-            </summary> 
-            <returns></returns>
-        </member>
-        <member name="M:WebApi.Controllers.AuthorizeController.GetRdisDb">
-            <summary>
-            GetErr
-            </summary> 
-            <returns></returns>
-        </member>
         <member name="M:WebApi.Controllers.AuthorizeController.GetTokenByWeiXinMiniAppCode(kevin.Share.Dtos.dtoKeyValue)">
             <summary>
             通过微信小程序Code获取Token认证信息

@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\kevin.Module\kevin.DistributedLock\kevin.DistributedLock.csproj" />
     <ProjectReference Include="..\kevin.Module\kevin.Ioc\kevin.Ioc.csproj" />
     <ProjectReference Include="..\kevin.Module\kevin.Permission\kevin.Permission.csproj" />
     <ProjectReference Include="..\kevin.RepositorieRps\kevin.RepositorieRps.csproj" />
