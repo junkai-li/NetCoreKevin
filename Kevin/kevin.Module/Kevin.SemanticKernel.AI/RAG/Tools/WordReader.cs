@@ -2,7 +2,7 @@
 using System.Xml;
 using DocumentFormat.OpenXml.Packaging;
 
-namespace KoalaMemory_Kevin;
+namespace Kevin.AI;
 
 public class WordReader
 {
