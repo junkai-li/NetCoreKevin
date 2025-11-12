@@ -25,7 +25,9 @@ using kevin.FileStorage;
 using Kevin.SignalR;
 using Kevin.AI.MCP.Server.Models;
 using Kevin.SignalR.Models;
-using kevin.RabbitMQ; 
+using kevin.RabbitMQ;
+using Microsoft.AspNetCore.Authorization;
+using kevin.Permission.Permission.Action;
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -60,11 +62,7 @@ namespace Web.Extension
 
             #region 权限校验 
             //权限校验
-            //services.AddAuthorization(options =>
-            //{
-            //    options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().RequireAssertion(context => IdentityVerification.Authorization(context)).Build();
-            //});
-            //services.AddKevinPermission();
+            services.AddKevinAuthorizationPermission(Configuration); 
             #endregion
 
             #region 注册常用 
