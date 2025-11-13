@@ -17,7 +17,8 @@
     "ant-design-vue": "^4.2.6",
     "axios": "^1.13.2",
     "core-js": "^3.8.3",
-    "vue": "^3.2.13"
+    "vue": "^3.2.13",
+    "vue-router": "^4.6.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

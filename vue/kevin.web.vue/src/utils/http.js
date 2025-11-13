@@ -10,18 +10,17 @@ const myAxios = axios.create({
  
 // 添加请求拦截器
 myAxios.interceptors.request.use(config => {
-//   // 在发送请求之前做些什么，例如设置 token
-//   const token = localStorage.getItem('token');
-//   if (token) {
-//     config.headers.Authorization = `Bearer ${token}`;
-//   }
+  // 在发送请求之前做些什么，例如设置 token
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 }, error => { 
       if(error.status==400){
         message.warning(error.response.data.errMsg)  
-      }
-  // 对请求错误做些什么
-  return Promise.reject(error);
+      } 
+      return error; 
 });
 // 全局响应拦截器
 myAxios.interceptors.response.use(
@@ -32,16 +31,16 @@ myAxios.interceptors.response.use(
       // 不是获取用户信息的请求，并且用户目前不是已经在用户登录页面，则跳转到登录页面
       if (
         !response.request.responseURL.includes('user/get/login') &&
-        !window.location.pathname.includes('/user/login')
+        !window.location.pathname.includes('/login')
       ) {
         message.warning('请先登录')
-        window.location.href = `/user/login?redirect=${window.location.href}`
+        window.location.href = `/login?redirect=${window.location.href}`
       }
     }
-    // if(data.code==400){ 
-    //       console.log(data.errMsg)    
-    //       message.warning(data.errMsg)
-    // }
+    if(data.code==400){ 
+          console.log(data.errMsg)    
+          message.warning(data.errMsg)
+    }
     return response
   },
   function (error) {
@@ -49,8 +48,8 @@ myAxios.interceptors.response.use(
     // Do something with response error  
      if(error.status==400){
         message.warning(error.response.data.errMsg) 
-      } 
-      return  error; 
+      }  
+        return error; 
   }, ) 
 
 

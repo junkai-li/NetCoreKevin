@@ -128,7 +128,21 @@
                 </template>
               </a-input>
             </a-form-item>
-
+         <a-form-item
+              name="tenantId"
+              :rules="[{ required: true, message: '请输入租户id!' }]"
+            >
+              <a-input
+                v-model:value="smsForm.tenantId"
+                size="large"
+                placeholder="租户"
+                class="custom-input"
+              >
+                <template #prefix>
+                  <UserOutlined />
+                </template>
+              </a-input>
+            </a-form-item>
             <a-form-item
               name="captcha"
               :rules="[{ required: true, message: '请输入验证码!' }]"
@@ -153,21 +167,7 @@
                 </a-button>
               </div>
             </a-form-item>
-            <a-form-item
-              name="tenantId"
-              :rules="[{ required: true, message: '请输入租户id!' }]"
-            >
-              <a-input
-                v-model:value="smsForm.tenantId"
-                size="large"
-                placeholder="租户"
-                class="custom-input"
-              >
-                <template #prefix>
-                  <UserOutlined />
-                </template>
-              </a-input>
-            </a-form-item>
+   
             <a-button
               type="primary"
               html-type="submit"
@@ -192,6 +192,7 @@
 
 <script setup>
 import { ref, reactive, defineOptions, onMounted, onBeforeUnmount } from "vue";
+import { useRouter } from "vue-router";
 import {
   UserOutlined,
   LockOutlined,
@@ -199,11 +200,11 @@ import {
   MailOutlined,
 } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
-import { login } from "../api/userapi";
+import { login,getTokenUser } from "../api/userapi";
 defineOptions({ name: "KevinLogin" });
 const activeTab = ref("password");
 const loading = ref(false);
-
+const router = useRouter();
 // 密码登录表单
 const passwordForm = reactive({
   username: "",
@@ -260,20 +261,35 @@ const getCaptcha = () => {
 };
 
 // 密码登录
-const handlePasswordLogin = (values) => {
-  console.log("密码登录:", values);
+const handlePasswordLogin = (values) => { 
   loading.value = true;
   login(values.username, values.password, values.tenantId).then((response) => {
-    if (response.code == 200) {
+    console.log(response); 
+  if(response.status==200){ 
+   if (response.data.code == 200) {
+      if(response.data.isSuccess){
+        console.log(response);
+        localStorage.setItem('token',response.data.data);
+        getTokenUser().then((response) => 
+        {
+            if (response.data.code == 200) {
+               localStorage.setItem('user',JSON.stringify(response.data.data));
+               console.warn(response.data.data);
+            }
+        });
+      }
       setTimeout(() => {
-        loading.value = false;
+          loading.value = false; 
            message.success("登录成功！");
+           //跳转登录页
+           router.push('/home');
       }, 1000); 
-    } else {  
-      setTimeout(() => {
+    }  
+  }else{ 
+     setTimeout(() => {
         loading.value = false;
       }, 1000);
-    }
+  } 
   });
 };
 
