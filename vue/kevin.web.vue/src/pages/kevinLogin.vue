@@ -21,8 +21,8 @@
             <circle cx="50" cy="50" r="10" fill="#667eea"/>
           </svg>
         </div>
-        <h1 class="title">Kevin后台管理系统</h1>
-        <p class="subtitle">登录您的账户以继续</p>
+        <h1 class="title">NetCoreKevin后台管理系统</h1>
+        <p class="subtitle">欢迎登陆NetCoreKevin开源框架系统后台</p>
       </div>
       
       <a-tabs v-model:activeKey="activeTab" class="login-tabs">
