@@ -1,12 +1,12 @@
 {
-  "name": "kevin开源框架-后台管理系统",
+  "name": "kevin",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "serve:pre": "vue-cli-service serve --mode pre",
-    "serve:dev": "vue-cli-service serve --mode development",  
-    "build": "vue-cli-service build", 
+    "serve:dev": "vue-cli-service serve --mode development",
+    "build": "vue-cli-service build",
     "build:dev": "vue-cli-service build --mode development",
     "build:pre": "vue-cli-service build --mode pre",
     "lint": "vue-cli-service lint",
@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "ant-design-vue": "^4.2.6",
+    "axios": "^1.13.2",
     "core-js": "^3.8.3",
     "vue": "^3.2.13"
   },

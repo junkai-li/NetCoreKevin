@@ -1,4 +1,4 @@
- <template>
+<template>
   <div class="login-container">
     <!-- 动态背景 -->
     <div class="background">
@@ -16,22 +16,37 @@
       <div class="login-header">
         <div class="logo">
           <svg viewBox="0 0 100 100" class="logo-icon">
-            <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z" fill="none" stroke="#667eea" stroke-width="2"/>
-            <circle cx="50" cy="50" r="20" fill="none" stroke="#764ba2" stroke-width="2"/>
-            <circle cx="50" cy="50" r="10" fill="#667eea"/>
+            <path
+              d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z"
+              fill="none"
+              stroke="#667eea"
+              stroke-width="2"
+            />
+            <circle
+              cx="50"
+              cy="50"
+              r="20"
+              fill="none"
+              stroke="#764ba2"
+              stroke-width="2"
+            />
+            <circle cx="50" cy="50" r="10" fill="#667eea" />
           </svg>
         </div>
         <h1 class="title">NetCoreKevin后台管理系统</h1>
         <p class="subtitle">欢迎登陆NetCoreKevin开源框架系统后台</p>
       </div>
-      
+
       <a-tabs v-model:activeKey="activeTab" class="login-tabs">
         <a-tab-pane key="password" tab="密码登录">
           <a-form :model="passwordForm" @finish="handlePasswordLogin">
-            <a-form-item name="username" :rules="[{ required: true, message: '请输入用户名!' }]">
-              <a-input 
-                v-model:value="passwordForm.username" 
-                size="large" 
+            <a-form-item
+              name="username"
+              :rules="[{ required: true, message: '请输入用户名!' }]"
+            >
+              <a-input
+                v-model:value="passwordForm.username"
+                size="large"
                 placeholder="用户名/邮箱/手机号"
                 class="custom-input"
               >
@@ -40,11 +55,14 @@
                 </template>
               </a-input>
             </a-form-item>
-            
-            <a-form-item name="password" :rules="[{ required: true, message: '请输入密码!' }]">
-              <a-input-password 
-                v-model:value="passwordForm.password" 
-                size="large" 
+
+            <a-form-item
+              name="password"
+              :rules="[{ required: true, message: '请输入密码!' }]"
+            >
+              <a-input-password
+                v-model:value="passwordForm.password"
+                size="large"
                 placeholder="密码"
                 class="custom-input"
               >
@@ -53,17 +71,38 @@
                 </template>
               </a-input-password>
             </a-form-item>
-            
+
+            <a-form-item
+              name="tenantId"
+              :rules="[{ required: true, message: '请输入租户id!' }]"
+            >
+              <a-input
+                v-model:value="passwordForm.tenantId"
+                size="large"
+                placeholder="租户"
+                class="custom-input"
+              >
+                <template #prefix>
+                  <UserOutlined />
+                </template>
+              </a-input>
+            </a-form-item>
+
             <div class="form-options">
-              <a-checkbox v-model:checked="passwordForm.remember" style="color: aliceblue;" class="custom-checkbox">记住我</a-checkbox>
+              <a-checkbox
+                v-model:checked="passwordForm.remember"
+                style="color: aliceblue"
+                class="custom-checkbox"
+                >记住我</a-checkbox
+              >
               <a href="#" class="forgot-link">忘记密码？</a>
             </div>
-            
-            <a-button 
-              type="primary" 
-              html-type="submit" 
-              size="large" 
-              block 
+
+            <a-button
+              type="primary"
+              html-type="submit"
+              size="large"
+              block
               :loading="loading"
               class="login-button"
             >
@@ -71,13 +110,16 @@
             </a-button>
           </a-form>
         </a-tab-pane>
-        
+
         <a-tab-pane key="sms" tab="验证码登录">
           <a-form :model="smsForm" @finish="handleSmsLogin">
-            <a-form-item name="phone" :rules="[{ required: true, message: '请输入手机号!' }]">
-              <a-input 
-                v-model:value="smsForm.phone" 
-                size="large" 
+            <a-form-item
+              name="phone"
+              :rules="[{ required: true, message: '请输入手机号!' }]"
+            >
+              <a-input
+                v-model:value="smsForm.phone"
+                size="large"
                 placeholder="手机号"
                 class="custom-input"
               >
@@ -86,12 +128,15 @@
                 </template>
               </a-input>
             </a-form-item>
-            
-            <a-form-item name="captcha" :rules="[{ required: true, message: '请输入验证码!' }]">
+
+            <a-form-item
+              name="captcha"
+              :rules="[{ required: true, message: '请输入验证码!' }]"
+            >
               <div class="captcha-wrapper">
-                <a-input 
-                  v-model:value="smsForm.captcha" 
-                  size="large" 
+                <a-input
+                  v-model:value="smsForm.captcha"
+                  size="large"
                   placeholder="验证码"
                   class="custom-input"
                 >
@@ -99,8 +144,8 @@
                     <MailOutlined />
                   </template>
                 </a-input>
-                <a-button 
-                  :disabled="captchaDisabled" 
+                <a-button
+                  :disabled="captchaDisabled"
                   @click="getCaptcha"
                   class="captcha-button"
                 >
@@ -108,12 +153,26 @@
                 </a-button>
               </div>
             </a-form-item>
-            
-            <a-button 
-              type="primary" 
-              html-type="submit" 
-              size="large" 
-              block 
+            <a-form-item
+              name="tenantId"
+              :rules="[{ required: true, message: '请输入租户id!' }]"
+            >
+              <a-input
+                v-model:value="smsForm.tenantId"
+                size="large"
+                placeholder="租户"
+                class="custom-input"
+              >
+                <template #prefix>
+                  <UserOutlined />
+                </template>
+              </a-input>
+            </a-form-item>
+            <a-button
+              type="primary"
+              html-type="submit"
+              size="large"
+              block
               :loading="loading"
               class="login-button"
             >
@@ -122,7 +181,7 @@
           </a-form>
         </a-tab-pane>
       </a-tabs>
-      
+
       <div class="login-footer">
         <span>还没有账户？</span>
         <a href="#" class="register-link">立即注册</a>
@@ -132,85 +191,101 @@
 </template>
 
 <script setup>
-import { ref, reactive, defineOptions, onMounted, onBeforeUnmount } from 'vue';
-import { UserOutlined, LockOutlined, PhoneOutlined, MailOutlined } from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
-defineOptions({ name: 'KevinLogin' }); 
-const activeTab = ref('password');
+import { ref, reactive, defineOptions, onMounted, onBeforeUnmount } from "vue";
+import {
+  UserOutlined,
+  LockOutlined,
+  PhoneOutlined,
+  MailOutlined,
+} from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
+import { login } from "../api/userapi";
+defineOptions({ name: "KevinLogin" });
+const activeTab = ref("password");
 const loading = ref(false);
 
 // 密码登录表单
 const passwordForm = reactive({
-  username: '',
-  password: '',
-  remember: true
+  username: "",
+  password: "",
+  tenantId: "",
+  remember: true,
 });
 
 // 验证码登录表单
 const smsForm = reactive({
-  phone: '',
-  captcha: ''
+  phone: "",
+  tenantId: "",
+  captcha: "",
 });
 
 // 验证码按钮状态
 const captchaDisabled = ref(false);
-const captchaText = ref('获取验证码');
+const captchaText = ref("获取验证码");
 
 // 获取验证码
 const getCaptcha = () => {
   if (!smsForm.phone) {
-    message.warning('请输入手机号');
+    message.warning("请输入手机号");
     return;
   }
-  
+  if (!smsForm.tenantId) {
+    message.warning("请输入租户id");
+    return;
+  }
   // 验证手机号格式
   const phoneRegex = /^1[3-9]\d{9}$/;
   if (!phoneRegex.test(smsForm.phone)) {
-    message.warning('请输入正确的手机号');
+    message.warning("请输入正确的手机号");
     return;
   }
-  
+
   // 模拟发送验证码
   captchaDisabled.value = true;
   let count = 60;
   captchaText.value = `${count}秒后重试`;
-  
+
   const timer = setInterval(() => {
     count--;
     if (count <= 0) {
       clearInterval(timer);
       captchaDisabled.value = false;
-      captchaText.value = '获取验证码';
+      captchaText.value = "获取验证码";
     } else {
       captchaText.value = `${count}秒后重试`;
     }
   }, 1000);
-  
-  message.success('验证码已发送，请注意查收');
+
+  message.success("验证码已发送，请注意查收");
 };
 
 // 密码登录
 const handlePasswordLogin = (values) => {
-  console.log('密码登录:', values);
+  console.log("密码登录:", values);
   loading.value = true;
-  
-  // 模拟登录请求
-  setTimeout(() => {
-    loading.value = false;
-    message.success('登录成功！');
-    // 这里可以跳转到主页
-  }, 1500);
+  login(values.username, values.password, values.tenantId).then((response) => {
+    if (response.code == 200) {
+      setTimeout(() => {
+        loading.value = false;
+           message.success("登录成功！");
+      }, 1000); 
+    } else {  
+      setTimeout(() => {
+        loading.value = false;
+      }, 1000);
+    }
+  });
 };
 
 // 验证码登录
 const handleSmsLogin = (values) => {
-  console.log('验证码登录:', values);
+  console.log("验证码登录:", values);
   loading.value = true;
-  
+
   // 模拟登录请求
   setTimeout(() => {
     loading.value = false;
-    message.success('登录成功！');
+    message.success("登录成功！");
     // 这里可以跳转到主页
   }, 1500);
 };
@@ -226,13 +301,13 @@ onBeforeUnmount(() => {
 
 // 初始化粒子效果
 const initParticles = () => {
-  const particlesContainer = document.querySelector('.particles');
+  const particlesContainer = document.querySelector(".particles");
   if (!particlesContainer) return;
-  
+
   // 创建粒子
   for (let i = 0; i < 50; i++) {
-    const particle = document.createElement('div');
-    particle.className = 'particle';
+    const particle = document.createElement("div");
+    particle.className = "particle";
     particle.style.left = `${Math.random() * 100}%`;
     particle.style.top = `${Math.random() * 100}%`;
     particle.style.animationDelay = `${Math.random() * 5}s`;
@@ -282,7 +357,8 @@ const initParticles = () => {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0);
     opacity: 0.6;
   }
@@ -299,8 +375,7 @@ const initParticles = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 
-    linear-gradient(rgba(102, 126, 234, 0.1) 1px, transparent 1px),
+  background-image: linear-gradient(rgba(102, 126, 234, 0.1) 1px, transparent 1px),
     linear-gradient(90deg, rgba(102, 126, 234, 0.1) 1px, transparent 1px);
   background-size: 30px 30px;
   animation: grid-move 20s linear infinite;
@@ -400,18 +475,13 @@ const initParticles = () => {
 }
 
 .login-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(
-    45deg,
-    transparent,
-    rgba(102, 126, 234, 0.1),
-    transparent
-  );
+  background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.1), transparent);
   transform: rotate(45deg);
   animation: shine 6s infinite;
 }
@@ -446,7 +516,8 @@ const initParticles = () => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     filter: drop-shadow(0 0 5px rgba(102, 126, 234, 0.5));
   }
@@ -589,18 +660,13 @@ const initParticles = () => {
 }
 
 .login-button::after {
-  content: '';
+  content: "";
   position: absolute;
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(
-    45deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   transform: rotate(45deg);
   animation: button-shine 3s infinite;
 }
@@ -670,15 +736,15 @@ const initParticles = () => {
     margin: 20px;
     padding: 30px 20px;
   }
-  
+
   .title {
     font-size: 22px;
   }
-  
+
   .captcha-wrapper {
     flex-direction: column;
   }
-  
+
   .captcha-button {
     width: 100%;
   }
