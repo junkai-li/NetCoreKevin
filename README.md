@@ -12,7 +12,7 @@
 # 🌐后台管理系统（基于VUE3-AntDesign）
 ![输入图片说明](Doc/kevinlogin.png)
 
-![输入图片说明](Doc/home.png)
+![输入图片说明](home2.png)
 
 # 🌐后台自动任务调度系统（基于Quartz.NET）
 
