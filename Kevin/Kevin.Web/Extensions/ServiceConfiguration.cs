@@ -28,6 +28,7 @@ using Kevin.SignalR.Models;
 using kevin.RabbitMQ;
 using Microsoft.AspNetCore.Authorization;
 using kevin.Permission.Permission.Action;
+using Kevin.Cors.Models;
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -112,7 +113,7 @@ namespace Web.Extension
             services.ReplaceIocControllerActivator();
             //App服务注册
             RegisterAppServices(services, Configuration);
-            //services.AddKevinCors(Configuration.GetSection("CorsSetting").Get<CorsSetting>()); 
+            services.AddKevinCors(Configuration.GetSection("CorsSetting").Get<CorsSetting>()); 
 
             #region 注入SignalRRedis
             services.AddKevinSignalRRedis(options =>
