@@ -9,8 +9,12 @@
 # 思维导图
 ![思维导图](Doc/junkai-li-NetCoreKevin-mindmap.png)
 
-# 🌐后台管理页面（基于VUE3-AntDesign）
+# 🌐后台管理系统（基于VUE3-AntDesign）
 ![输入图片说明](login.png)
+
+# 🌐后台自动任务调度系统（基于Quartz.NET）
+
+![输入图片说明](Doc/task.png)
 
 # 教学文档地址 [[教学文档地址](https://blog.csdn.net/weixin_42629287/category_13037923.html)]
 
