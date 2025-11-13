@@ -1,10 +1,13 @@
 ﻿using IdentityModel.Client;
 using kevin.Cache.Service;
 using kevin.Domain.Entities;
+using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Share.Attributes;
+using kevin.Permission.Interfaces;
 using kevin.Share.Dtos;
 using Kevin.Common.Helper;
 using Medallion.Threading;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Repository.Database;
@@ -14,18 +17,18 @@ using Web.Global.Exceptions;
 namespace kevin.Application.Services
 {
     public class AuthorizeService : BaseService, IAuthorizeService
-    {
-        [IocProperty]
-        public IUserService? _IUserService { get; set; }
-
-        [IocProperty]
-        public ICacheService? _CacheService { get; set; }
-
-        [IocProperty]
-        public IConfiguration? Configuration { get; set; }
-
-        [IocProperty]
-        public IDistributedLockProvider? distLock { get; set; }
+    { 
+        public IUserService _IUserService { get; set; } 
+        public ICacheService _CacheService { get; set; } 
+        public IConfiguration Configuration { get; set; } 
+        public IDistributedLockProvider distLock { get; set; }
+        public AuthorizeService(IHttpContextAccessor _httpContextAccessor,IUserService IUserService, ICacheService ICacheService, IConfiguration IConfiguration, IDistributedLockProvider IDistributedLockProvider) : base(_httpContextAccessor)
+        {
+            this._IUserService = IUserService;
+            this._CacheService = ICacheService;
+            this.Configuration = IConfiguration;
+            this.distLock = IDistributedLockProvider;
+        }
 
         ///// <summary>
         ///// 获取Token认证信息
