@@ -155,6 +155,9 @@ NetCoreKevin 是一个非常完整的微服务架构项目，结合了 DDD、CAP
 # 基础API
 ![输入图片说明](Doc/478957534-9ac73e9a-1e3d-4d0c-add9-7e4b938e231e.png)
 
+# 后台管理页面实例 🌐
+![输入图片说明](login.png)
+
 # 作者微信
 SunSelectMan
 
