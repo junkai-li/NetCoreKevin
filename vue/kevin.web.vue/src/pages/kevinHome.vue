@@ -1,5 +1,17 @@
  <template>
   <a-layout class="layout-container">
+    <!-- 动态背景 -->
+    <div class="background">
+      <div class="particles"></div>
+      <div class="grid-lines"></div>
+      <div class="floating-elements">
+        <div class="element element-1"></div>
+        <div class="element element-2"></div>
+        <div class="element element-3"></div>
+        <div class="element element-4"></div>
+      </div>
+    </div>
+    
     <!-- 左侧导航栏 -->
     <a-layout-sider 
       v-model:collapsed="collapsed" 
@@ -9,7 +21,25 @@
       width="256"
     >
       <div class="logo">
-        <img v-if="!collapsed" src="@/assets/logo.png" alt="Logo" class="logo-img" />
+        <div class="logo-wrapper">
+          <svg viewBox="0 0 100 100" class="logo-icon">
+            <path
+              d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z"
+              fill="none"
+              stroke="#667eea"
+              stroke-width="2"
+            />
+            <circle
+              cx="50"
+              cy="50"
+              r="20"
+              fill="none"
+              stroke="#764ba2"
+              stroke-width="2"
+            />
+            <circle cx="50" cy="50" r="10" fill="#667eea" />
+          </svg>
+        </div>
         <span v-if="!collapsed" class="logo-text">NetCoreKevin后台管理系统</span>
       </div>
       
@@ -52,13 +82,11 @@
           <a-menu-item key="log-management">日志管理</a-menu-item>
             <a-menu-item key="notifications">通知中心</a-menu-item>
         </a-sub-menu>
-        
-       
       </a-menu>
     </a-layout-sider>
     
     <!-- 右侧内容区域 -->
-    <a-layout>
+    <a-layout class="main-layout">
       <!-- 头部 -->
       <a-layout-header class="header">
         <div class="header-left">
@@ -75,7 +103,7 @@
           
           <a-breadcrumb class="breadcrumb">
             <a-breadcrumb-item>首页</a-breadcrumb-item>
-            <a-breadcrumb-item>{{ currentRouteTitle }}</a-breadcrumb-item>
+            <a-breadcrumb-item style="color: aliceblue;" >{{ currentRouteTitle }}</a-breadcrumb-item>
           </a-breadcrumb>
         </div>
         
@@ -85,7 +113,7 @@
               <BellOutlined class="header-icon" />
             </a-badge>
             <template #overlay>
-              <a-menu>
+              <a-menu class="notification-menu">
                 <a-menu-item>您有3条未读消息</a-menu-item>
                 <a-menu-item>系统维护通知</a-menu-item>
                 <a-menu-item>新版本更新提醒</a-menu-item>
@@ -99,7 +127,7 @@
               <span class="user-name">{{ userInfo.name }}</span>
             </div>
             <template #overlay>
-              <a-menu>
+              <a-menu class="user-menu">
                 <a-menu-item key="profile">
                   <UserOutlined />
                   个人中心
@@ -122,15 +150,48 @@
       <!-- 主要内容 -->
       <a-layout-content class="content">
         <div class="content-wrapper">
-          <h1>欢迎来到管理系统主页</h1>
-          <p>您已成功登录系统</p>
+          <div class="welcome-card">
+            <h1>欢迎来到NetCoreKevin后台管理系统主页</h1>
+            <p>您已成功登录系统</p>
+            <div class="welcome-stats">
+              <div class="stat-item">
+                <span class="stat-value">128</span>
+                <span class="stat-label">用户数</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">24</span>
+                <span class="stat-label">在线数</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">98%</span>
+                <span class="stat-label">系统健康度</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="info-cards">
+            <a-card class="info-card" title="系统状态">
+              <p>系统运行正常</p>
+              <p>最后更新: 2024-01-01 12:00</p>
+            </a-card>
+            
+            <a-card class="info-card" title="最新消息">
+              <p>系统将在今晚进行维护</p>
+              <p>预计时间: 2小时</p>
+            </a-card>
+            
+            <a-card class="info-card" title="快捷操作">
+              <a-button type="primary" ghost>添加用户</a-button>
+              <a-button type="primary" ghost style="margin-left: 10px;">系统设置</a-button>
+            </a-card>
+          </div>
         </div>
       </a-layout-content>
       
       <!-- 底部 -->
       <a-layout-footer class="footer">
         <div class="footer-content">
-          <span>© 2024 Kevin管理系统. All Rights Reserved.</span>
+          <span>© 2025 NetCoreKevin后台管理系统. All Rights Reserved.</span>
         </div>
       </a-layout-footer>
     </a-layout>
@@ -138,7 +199,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
@@ -192,11 +253,204 @@ const handleLogout = () => {
   localStorage.removeItem('token')
   router.push('/login')
 }
+
+// 动画定时器
+let animationTimer = null
+
+// 初始化背景动画
+onMounted(() => {
+  initParticles()
+  // 设置周期性更新（可选：让粒子动态变化）
+  animationTimer = setInterval(initParticles, 30000) // 每30秒重新生成粒子
+})
+
+onBeforeUnmount(() => {
+  // 清理动画
+  if (animationTimer) {
+    clearInterval(animationTimer)
+    animationTimer = null
+  }
+  
+  // 清理粒子容器
+  const particlesContainer = document.querySelector('.particles')
+  if (particlesContainer) {
+    particlesContainer.innerHTML = ''
+  }
+})
+
+// 初始化粒子效果
+const initParticles = () => {
+  const particlesContainer = document.querySelector('.particles')
+  if (!particlesContainer) return
+
+  // 清空现有的粒子
+  particlesContainer.innerHTML = ''
+
+  // 创建粒子
+  for (let i = 0; i < 50; i++) {
+    const particle = document.createElement('div')
+    particle.className = 'particle'
+    particle.style.left = `${Math.random() * 100}%`
+    particle.style.top = `${Math.random() * 100}%`
+    particle.style.animationDelay = `${Math.random() * 5}s`
+    particle.style.opacity = Math.random() * 0.5 + 0.3 // 添加随机透明度
+    particle.style.width = `${Math.random() * 4 + 2}px`
+    particle.style.height = particle.style.width
+    particlesContainer.appendChild(particle)
+  }
+}
 </script>
 
 <style scoped>
 .layout-container {
   min-height: 100vh;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 背景层 */
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* 粒子效果 */
+.particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: float 6s infinite ease-in-out;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(20px, 20px);
+    opacity: 1;
+  }
+}
+
+/* 网格线 */
+.grid-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(rgba(102, 126, 234, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(102, 126, 234, 0.1) 1px, transparent 1px);
+  background-size: 30px 30px;
+  animation: grid-move 20s linear infinite;
+}
+
+@keyframes grid-move {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(30px, 30px);
+  }
+}
+
+/* 悬浮元素 */
+.floating-elements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.element {
+  position: absolute;
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 50%;
+  animation: float-element 15s infinite linear;
+}
+
+.element-1 {
+  width: 80px;
+  height: 80px;
+  top: 10%;
+  left: 5%;
+  animation-duration: 20s;
+}
+
+.element-2 {
+  width: 120px;
+  height: 120px;
+  bottom: 15%;
+  right: 10%;
+  animation-duration: 25s;
+  animation-direction: reverse;
+}
+
+.element-3 {
+  width: 60px;
+  height: 60px;
+  top: 40%;
+  right: 20%;
+  animation-duration: 18s;
+}
+
+.element-4 {
+  width: 100px;
+  height: 100px;
+  bottom: 20%;
+  left: 15%;
+  animation-duration: 22s;
+  animation-direction: reverse;
+}
+
+@keyframes float-element {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(20px, 30px) rotate(90deg);
+  }
+  50% {
+    transform: translate(0, 60px) rotate(180deg);
+  }
+  75% {
+    transform: translate(-20px, 30px) rotate(270deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(360deg);
+  }
+}
+
+.main-layout {
+  position: relative;
+  z-index: 1;
+  margin-left: 256px;
+  transition: margin-left 0.3s ease;
+  background: transparent !important;
+}
+
+.main-layout.collapsed {
+  margin-left: 80px;
 }
 
 .sider {
@@ -207,31 +461,74 @@ const handleLogout = () => {
   bottom: 0;
   box-shadow: 2px 0 8px 0 rgba(29, 35, 41, 0.05);
   z-index: 10;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .logo {
   height: 64px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  padding: 0 24px;
   background: rgba(255, 255, 255, 0.02);
   overflow: hidden;
 }
 
-.logo-img {
-  height: 32px;
+.logo-wrapper {
+  display: flex;
+  justify-content: center;
   margin-right: 12px;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  animation: pulse 3s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 5px rgba(102, 126, 234, 0.5));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 15px rgba(102, 126, 234, 0.8));
+  }
 }
 
 .logo-text {
   color: white;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
+  text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+:deep(.ant-menu-dark) {
+  background: transparent;
+}
+
+:deep(.ant-menu-dark .ant-menu-inline) {
+  background: transparent;
+}
+
+:deep(.ant-menu-dark .ant-menu-item:hover) {
+  background: rgba(102, 126, 234, 0.2);
+}
+
+:deep(.ant-menu-dark .ant-menu-item-selected) {
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
 }
 
 .header {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
   padding: 0 24px;
   display: flex;
   justify-content: space-between;
@@ -240,6 +537,18 @@ const handleLogout = () => {
   position: sticky;
   top: 0;
   z-index: 9;
+  color: white;
+}
+
+:deep(.ant-layout-header) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 0 24px;
+  height: 64px;
+  line-height: 64px;
+  color: white;
 }
 
 .header-left {
@@ -253,14 +562,36 @@ const handleLogout = () => {
   padding: 0 24px;
   cursor: pointer;
   transition: color 0.3s;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .trigger:hover {
-  color: #1890ff;
+  color: #667eea;
+  text-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
 }
 
 .breadcrumb {
   margin-left: 16px;
+}
+
+:deep(.ant-breadcrumb) {
+  color: white;
+}
+
+:deep(.ant-breadcrumb a) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:deep(.ant-breadcrumb span:last-child) {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+:deep(.ant-breadcrumb .ant-breadcrumb-link) {
+  color: white;
+}
+
+:deep(.ant-breadcrumb .ant-breadcrumb-separator) {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .header-right {
@@ -271,7 +602,7 @@ const handleLogout = () => {
 
 .header-icon {
   font-size: 18px;
-  color: rgba(0, 0, 0, 0.65);
+  color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
 }
 
@@ -283,32 +614,193 @@ const handleLogout = () => {
 }
 
 .user-name {
-  color: rgba(0, 0, 0, 0.85);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .content {
   margin: 24px 16px 0;
   overflow: initial;
+  position: relative;
+  z-index: 1;
+  background: transparent !important;
+}
+
+:deep(.ant-layout-content) {
+  background: transparent !important;
 }
 
 .content-wrapper {
   padding: 24px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   min-height: calc(100vh - 168px);
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  position: relative;
+  overflow: hidden;
+  color: white;
+}
+
+.content-wrapper::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+  transform: rotate(45deg);
+  animation: shine 6s infinite;
+  z-index: -1;
+}
+
+@keyframes shine {
+  0% {
+    transform: rotate(45deg) translateX(-100%);
+  }
+  100% {
+    transform: rotate(45deg) translateX(100%);
+  }
+}
+
+.welcome-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 30px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  color: white;
+}
+
+.welcome-card h1 {
+  color: white;
+  font-size: 28px;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+.welcome-card p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+  margin-bottom: 30px;
+}
+
+.welcome-stats {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 28px;
+  font-weight: bold;
+  color: #667eea;
+  text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+.stat-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.info-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.info-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+:deep(.info-card .ant-card-head) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0 20px;
+  background: transparent;
+}
+
+:deep(.info-card .ant-card-head-title) {
+  color: white;
+}
+
+:deep(.info-card .ant-card-body) {
+  color: rgba(255, 255, 255, 0.8);
+  background: transparent;
+}
+
+:deep(.ant-btn-background-ghost.ant-btn-primary) {
+  color: #667eea;
+  border-color: #667eea;
+  background: transparent;
+}
+
+:deep(.ant-btn-background-ghost.ant-btn-primary:hover) {
+  color: #764ba2;
+  border-color: #764ba2;
+  box-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
 }
 
 .footer {
   text-align: center;
   padding: 16px 24px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
   margin-top: 24px;
+  position: relative;
+  z-index: 1;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+:deep(.ant-layout-footer) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .footer-content {
-  color: rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 14px;
+}
+
+/* 下拉菜单样式 */
+:deep(.notification-menu),
+:deep(.user-menu) {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+:deep(.notification-menu .ant-menu-item),
+:deep(.user-menu .ant-menu-item) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:deep(.notification-menu .ant-menu-item:hover),
+:deep(.user-menu .ant-menu-item:hover) {
+  background: rgba(102, 126, 234, 0.2);
+  color: white;
 }
 
 /* 响应式设计 */
@@ -327,6 +819,19 @@ const handleLogout = () => {
   
   .content-wrapper {
     padding: 16px;
+  }
+  
+  .welcome-stats {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .info-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .main-layout {
+    margin-left: 0;
   }
 }
 </style>
