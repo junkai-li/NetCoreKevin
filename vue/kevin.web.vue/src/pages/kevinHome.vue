@@ -172,7 +172,7 @@
           <div class="info-cards">
             <a-card class="info-card" title="系统状态">
               <p>系统运行正常</p>
-              <p>最后更新: 2024-01-01 12:00</p>
+              <p>最后更新: 2025-11-13 12:00</p>
             </a-card>
             
             <a-card class="info-card" title="最新消息">
@@ -227,7 +227,7 @@ const userInfo = reactive({
 // 当前路由标题
 const currentRouteTitle = computed(() => {
   const titles = {
-    'dashboard': '仪表盘',
+    'dashboard': '首页',
     'user-list': '用户列表',
     'user-role': '角色管理',
     'user-permission': '权限管理',
@@ -236,7 +236,7 @@ const currentRouteTitle = computed(() => {
     'analytics': '数据分析',
     'notifications': '通知中心'
   }
-  return titles[selectedKeys.value[0]] || '仪表盘'
+  return titles[selectedKeys.value[0]] || '首页'
 })
 
 // 菜单点击事件
@@ -254,28 +254,13 @@ const handleLogout = () => {
   router.push('/login')
 }
 
-// 动画定时器
-let animationTimer = null
-
 // 初始化背景动画
 onMounted(() => {
   initParticles()
-  // 设置周期性更新（可选：让粒子动态变化）
-  animationTimer = setInterval(initParticles, 30000) // 每30秒重新生成粒子
 })
 
 onBeforeUnmount(() => {
   // 清理动画
-  if (animationTimer) {
-    clearInterval(animationTimer)
-    animationTimer = null
-  }
-  
-  // 清理粒子容器
-  const particlesContainer = document.querySelector('.particles')
-  if (particlesContainer) {
-    particlesContainer.innerHTML = ''
-  }
 })
 
 // 初始化粒子效果
@@ -293,7 +278,6 @@ const initParticles = () => {
     particle.style.left = `${Math.random() * 100}%`
     particle.style.top = `${Math.random() * 100}%`
     particle.style.animationDelay = `${Math.random() * 5}s`
-    particle.style.opacity = Math.random() * 0.5 + 0.3 // 添加随机透明度
     particle.style.width = `${Math.random() * 4 + 2}px`
     particle.style.height = particle.style.width
     particlesContainer.appendChild(particle)
