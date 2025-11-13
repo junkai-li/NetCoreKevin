@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve --mode local",
-    "serve:dev": "vue-cli-service serve --mode development", 
-    "build": "vue-cli-service build --mode local", 
+    "serve": "vue-cli-service serve",
+    "serve:pre": "vue-cli-service serve --mode pre",
+    "serve:dev": "vue-cli-service serve --mode development",  
+    "build": "vue-cli-service build", 
     "build:dev": "vue-cli-service build --mode development",
-    "lint": "vue-cli-service lint --mode local",
-    "lint:dev": "vue-cli-service lint --mode development"
+    "build:pre": "vue-cli-service build --mode pre",
+    "lint": "vue-cli-service lint",
+    "lint:dev": "vue-cli-service lint --mode development",
+    "lint:pre": "vue-cli-service lint --mode pre"
   },
   "dependencies": {
     "ant-design-vue": "^4.2.6",
