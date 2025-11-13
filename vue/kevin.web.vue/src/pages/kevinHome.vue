@@ -10,7 +10,7 @@
     >
       <div class="logo">
         <img v-if="!collapsed" src="@/assets/logo.png" alt="Logo" class="logo-img" />
-        <span v-if="!collapsed" class="logo-text">管理系统</span>
+        <span v-if="!collapsed" class="logo-text">NetCoreKevin后台管理系统</span>
       </div>
       
       <a-menu 
@@ -19,14 +19,20 @@
         theme="dark" 
         mode="inline"
         @click="handleMenuClick"
-      >
-        <a-menu-item key="dashboard">
+      > 
+        <a-sub-menu key="dashboard">
           <template #icon>
             <DashboardOutlined />
           </template>
-          <span>仪表盘</span>
-        </a-menu-item>
-        
+          <template #title>首页</template>
+          <a-menu-item key="">首页</a-menu-item> 
+        </a-sub-menu>
+         <a-menu-item key="analytics">
+          <template #icon>
+            <BarChartOutlined />
+          </template>
+          <span>AI</span>
+        </a-menu-item> 
         <a-sub-menu key="user-management">
           <template #icon>
             <UserOutlined />
@@ -41,24 +47,13 @@
           <template #icon>
             <SettingOutlined />
           </template>
-          <template #title>系统设置</template>
+          <template #title>系统管理</template>
           <a-menu-item key="system-config">系统配置</a-menu-item>
           <a-menu-item key="log-management">日志管理</a-menu-item>
+            <a-menu-item key="notifications">通知中心</a-menu-item>
         </a-sub-menu>
         
-        <a-menu-item key="analytics">
-          <template #icon>
-            <BarChartOutlined />
-          </template>
-          <span>数据分析</span>
-        </a-menu-item>
-        
-        <a-menu-item key="notifications">
-          <template #icon>
-            <BellOutlined />
-          </template>
-          <span>通知中心</span>
-        </a-menu-item>
+       
       </a-menu>
     </a-layout-sider>
     
@@ -230,7 +225,7 @@ const handleLogout = () => {
 
 .logo-text {
   color: white;
-  font-size: 18px;
+  font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
 }
