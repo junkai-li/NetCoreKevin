@@ -9,6 +9,9 @@
 # 思维导图
 ![思维导图](Doc/junkai-li-NetCoreKevin-mindmap.png)
 
+# 🌐后台管理页面（基于VUE3-AntDesign）
+![输入图片说明](login.png)
+
 # 教学文档地址 [[教学文档地址](https://blog.csdn.net/weixin_42629287/category_13037923.html)]
 
 # 🌐 项目概述
@@ -153,10 +156,7 @@ AI 模块包括：
 NetCoreKevin 是一个非常完整的微服务架构项目，结合了 DDD、CAP、Quartz、EFCore 等多种技术，并集成了 AI、OCR、短信、文件存储等实用功能。其模块化设计使得每个功能都可以独立引用，非常适合大型企业级应用的开发。
 
 # 基础API
-![输入图片说明](Doc/478957534-9ac73e9a-1e3d-4d0c-add9-7e4b938e231e.png)
-
-# 🌐后台管理页面（基于VUE3-AntDesign）
-![输入图片说明](login.png)
+![输入图片说明](Doc/478957534-9ac73e9a-1e3d-4d0c-add9-7e4b938e231e.png) 
 
 # 作者微信
 SunSelectMan
