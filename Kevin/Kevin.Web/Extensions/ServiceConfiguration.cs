@@ -29,6 +29,8 @@ using kevin.RabbitMQ;
 using Microsoft.AspNetCore.Authorization;
 using kevin.Permission.Permission.Action;
 using Kevin.Cors.Models;
+using Kevin.SMS;
+
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -142,12 +144,12 @@ namespace Web.Extension
             //});
 
 
-            //services.AddAliCloudSMS(options =>
-            //{
-            //    var settings = Configuration.GetRequiredSection("AliCloudSMS").Get<Kevin.SMS.AliCloud.Models.SMSSetting>()!;
-            //    options.AccessKeyId = settings.AccessKeyId;
-            //    options.AccessKeySecret = settings.AccessKeySecret;
-            //});
+            services.AddAliCloudSMS(options =>
+            {
+                var settings = Configuration.GetRequiredSection("AliCloudSMS").Get<Kevin.SMS.AliCloud.Models.SMSSetting>()!;
+                options.AccessKeyId = settings.AccessKeyId;
+                options.AccessKeySecret = settings.AccessKeySecret;
+            });
 
             #endregion
 

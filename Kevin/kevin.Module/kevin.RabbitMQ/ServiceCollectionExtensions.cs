@@ -32,7 +32,7 @@ namespace kevin.RabbitMQ
             //MQ生产者
             services.AddSingleton<IRabbitMQPublisherService, RabbitMQPublisherService>();
             //MQ消费者
-           // services.AddSingleton<IRabbitMQConsumerService, RabbitMQConsumerService>();
+            services.AddSingleton<IRabbitMQConsumer, RabbitMQConsumerService>();
 
         }
     }

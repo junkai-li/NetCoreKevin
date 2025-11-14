@@ -6,6 +6,7 @@ using kevin.Domain.Share.Attributes;
 using kevin.Permission.Interfaces;
 using kevin.Share.Dtos;
 using Kevin.Common.Helper;
+using Kevin.SMS;
 using Medallion.Threading;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,17 +18,20 @@ using Web.Global.Exceptions;
 namespace kevin.Application.Services
 {
     public class AuthorizeService : BaseService, IAuthorizeService
-    { 
-        public IUserService _IUserService { get; set; } 
-        public ICacheService _CacheService { get; set; } 
-        public IConfiguration Configuration { get; set; } 
+    {
+        public IUserService _IUserService { get; set; }
+        public ICacheService _CacheService { get; set; }
+        public IConfiguration Configuration { get; set; }
         public IDistributedLockProvider distLock { get; set; }
-        public AuthorizeService(IHttpContextAccessor _httpContextAccessor,IUserService IUserService, ICacheService ICacheService, IConfiguration IConfiguration, IDistributedLockProvider IDistributedLockProvider) : base(_httpContextAccessor)
+
+        public ISMS _ISMS { get; set; }
+        public AuthorizeService(IHttpContextAccessor _httpContextAccessor, IUserService IUserService, ICacheService ICacheService, IConfiguration IConfiguration, IDistributedLockProvider IDistributedLockProvider, ISMS ISMS) : base(_httpContextAccessor)
         {
             this._IUserService = IUserService;
             this._CacheService = ICacheService;
             this.Configuration = IConfiguration;
             this.distLock = IDistributedLockProvider;
+            this._ISMS = ISMS;
         }
 
         ///// <summary>
@@ -197,7 +201,7 @@ namespace kevin.Application.Services
             using KevinDbContext db = new KevinDbContext();
             if (Web.Auth.AuthorizeAction.SmsVerifyPhone(keyValue))
             {
-                string phone = keyValue.Key.ToString();
+                string phone = keyValue.Key.ToString() ?? "";
 
 
                 var user = db.Set<TUser>().Where(t => t.IsDelete == false && (t.Name == phone || t.Phone == phone) && t.RoleId == default).FirstOrDefault();
@@ -240,7 +244,7 @@ namespace kevin.Application.Services
         public bool SendSmsVerifyPhone(dtoKeyValue keyValue)
         {
 
-            string phone = keyValue.Key.ToString();
+            string phone = keyValue.Key.ToString() ?? "";
 
             string key = "VerifyPhone_" + phone;
 
@@ -253,10 +257,8 @@ namespace kevin.Application.Services
                 var jsonCode = new
                 {
                     code = code
-                };
-
-                Common.AliYun.SmsHelper sms = new();
-                var smsStatus = sms.SendSms(phone, "短信模板编号", "短信签名", Common.Json.JsonHelper.ObjectToJSON(jsonCode));
+                }; 
+                var smsStatus = _ISMS.SendSMS(phone, "短信模板编号", "短信签名", Common.Json.JsonHelper.ObjectToJSON(jsonCode));
 
                 if (smsStatus)
                 {
