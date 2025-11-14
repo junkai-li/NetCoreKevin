@@ -15,23 +15,7 @@
     <div class="login-card">
       <div class="login-header">
         <div class="logo">
-          <svg viewBox="0 0 100 100" class="logo-icon">
-            <path
-              d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z"
-              fill="none"
-              stroke="#667eea"
-              stroke-width="2"
-            />
-            <circle
-              cx="50"
-              cy="50"
-              r="20"
-              fill="none"
-              stroke="#764ba2"
-              stroke-width="2"
-            />
-            <circle cx="50" cy="50" r="10" fill="#667eea" />
-          </svg>
+          <img :src="logoImage" alt="Logo" class="logo-image" />
         </div>
         <h1 class="title">NetCoreKevin后台管理系统</h1>
         <p class="subtitle">欢迎登陆NetCoreKevin开源框架系统后台</p>
@@ -201,6 +185,8 @@ import {
 } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 import { login,getTokenUser } from "../api/userapi";
+import logoImage from '../assets/logo.png'; // 导入logo图片
+
 defineOptions({ name: "KevinLogin" });
 const activeTab = ref("password");
 const loading = ref(false);
@@ -525,21 +511,23 @@ const initParticles = () => {
   margin-bottom: 20px;
 }
 
-.logo-icon {
-  width: 60px;
-  height: 60px;
+.logo-image {
+  width: 80px;
+  height: 80px;
   animation: pulse 3s infinite;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.7));
 }
 
 @keyframes pulse {
   0%,
   100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 5px rgba(102, 126, 234, 0.5));
+    filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.7));
   }
   50% {
-    transform: scale(1.05);
-    filter: drop-shadow(0 0 15px rgba(102, 126, 234, 0.8));
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 15px rgba(102, 126, 234, 0.9));
   }
 }
 

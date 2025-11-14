@@ -1,0 +1,217 @@
+/* 统一按钮样式 */
+
+/* 主要按钮样式 */
+:deep(.ant-btn-primary) {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  border-color: transparent;
+  border-radius: 6px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+:deep(.ant-btn-primary:hover),
+:deep(.ant-btn-primary:focus) {
+  background: linear-gradient(45deg, #764ba2, #667eea);
+  border-color: transparent;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  transform: translateY(-2px);
+  color: white;
+}
+
+:deep(.ant-btn-primary:active) {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+}
+
+/* 默认按钮样式 */
+:deep(.ant-btn-default) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  transition: all 0.3s ease;
+}
+
+:deep(.ant-btn-default:hover),
+:deep(.ant-btn-default:focus) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+:deep(.ant-btn-default:active) {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 1px 4px rgba(255, 255, 255, 0.05);
+}
+
+/* 危险按钮样式 */
+:deep(.ant-btn-danger) {
+  background: linear-gradient(45deg, #ff4d4f, #f5222d);
+  border-color: transparent;
+  border-radius: 6px;
+  box-shadow: 0 4px 15px rgba(245, 34, 45, 0.3);
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+:deep(.ant-btn-danger:hover),
+:deep(.ant-btn-danger:focus) {
+  background: linear-gradient(45deg, #f5222d, #ff4d4f);
+  box-shadow: 0 6px 20px rgba(245, 34, 45, 0.5);
+  transform: translateY(-2px);
+  color: white;
+}
+
+:deep(.ant-btn-danger:active) {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(245, 34, 45, 0.4);
+}
+
+/* 链接按钮样式 */
+:deep(.ant-btn-link) {
+  color: #667eea;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+:deep(.ant-btn-link:hover),
+:deep(.ant-btn-link:focus) {
+  color: #764ba2;
+  text-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
+}
+
+:deep(.ant-btn-link:active) {
+  color: #5a6fd8;
+}
+
+/* 危险链接按钮样式 */
+:deep(.ant-btn-link.ant-btn-danger) {
+  color: #ff4d4f;
+}
+
+:deep(.ant-btn-link.ant-btn-danger:hover),
+:deep(.ant-btn-link.ant-btn-danger:focus) {
+  color: #f5222d;
+  text-shadow: 0 0 8px rgba(245, 34, 45, 0.6);
+}
+
+/* 虚线按钮样式 */
+:deep(.ant-btn-dashed) {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  transition: all 0.3s ease;
+}
+
+:deep(.ant-btn-dashed:hover),
+:deep(.ant-btn-dashed:focus) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.8);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+/* 文本按钮样式 */
+:deep(.ant-btn-text) {
+  color: #667eea;
+  transition: all 0.3s ease;
+}
+
+:deep(.ant-btn-text:hover),
+:deep(.ant-btn-text:focus) {
+  background: rgba(102, 126, 234, 0.1);
+  color: #764ba2;
+}
+
+/* 按钮大小样式 */
+:deep(.ant-btn-sm) {
+  font-size: 12px;
+  padding: 0 7px;
+  height: 24px;
+}
+
+:deep(.ant-btn-lg) {
+  font-size: 16px;
+  padding: 0 15px;
+  height: 40px;
+}
+
+/* 圆形按钮样式 */
+:deep(.ant-btn-circle) {
+  min-width: 32px;
+  border-radius: 50%;
+  padding: 0;
+}
+
+:deep(.ant-btn-circle.ant-btn-sm) {
+  min-width: 24px;
+}
+
+:deep(.ant-btn-circle.ant-btn-lg) {
+  min-width: 40px;
+}
+
+/* 禁用状态按钮样式 */
+:deep(.ant-btn:disabled),
+:deep(.ant-btn-disabled) {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* 按钮组样式 */
+:deep(.ant-btn-group) {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+:deep(.ant-btn-group .ant-btn) {
+  border-radius: 0;
+}
+
+:deep(.ant-btn-group .ant-btn:first-child) {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+:deep(.ant-btn-group .ant-btn:last-child) {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+/* 下拉按钮样式 */
+:deep(.ant-dropdown-button .ant-btn-primary) {
+  box-shadow: none;
+}
+
+:deep(.ant-dropdown-button .ant-btn-primary:hover) {
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+/* 修复未指定类型的按钮样式 */
+:deep(.ant-btn) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  transition: all 0.3s ease;
+}
+
+:deep(.ant-btn:hover),
+:deep(.ant-btn:focus) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+:deep(.ant-btn:active) {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 1px 4px rgba(255, 255, 255, 0.05);
+}

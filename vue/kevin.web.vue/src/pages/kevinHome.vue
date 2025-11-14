@@ -1,5 +1,5 @@
  <template>
-  <a-layout class="layout-container">
+  <a-layout class="layout-container" :class="currentTheme">
     <!-- 动态背景 -->
     <div class="background">
       <div class="particles"></div>
@@ -19,26 +19,11 @@
       collapsible 
       class="sider"
       width="256"
+      :style="{ position: 'fixed', height: '100vh', left: 0, top: 0, bottom: 0 }"
     >
       <div class="logo">
         <div class="logo-wrapper">
-          <svg viewBox="0 0 100 100" class="logo-icon">
-            <path
-              d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z"
-              fill="none"
-              stroke="#667eea"
-              stroke-width="2"
-            />
-            <circle
-              cx="50"
-              cy="50"
-              r="20"
-              fill="none"
-              stroke="#764ba2"
-              stroke-width="2"
-            />
-            <circle cx="50" cy="50" r="10" fill="#667eea" />
-          </svg>
+          <img :src="logoImage" alt="Logo" class="logo-image" />
         </div>
         <span v-if="!collapsed" class="logo-text">NetCoreKevin后台管理系统</span>
       </div>
@@ -86,7 +71,13 @@
     </a-layout-sider>
     
     <!-- 右侧内容区域 -->
-    <a-layout class="main-layout">
+    <a-layout 
+      class="main-layout" 
+      :style="{ 
+        marginLeft: collapsed ? '80px' : '256px',
+        transition: 'margin-left 0.3s ease'
+      }"
+    >
       <!-- 头部 -->
       <a-layout-header class="header">
         <div class="header-left">
@@ -108,6 +99,42 @@
         </div>
         
         <div class="header-right">
+          <!-- 主题切换下拉菜单 -->
+          <a-dropdown>
+            <a-button class="theme-switch-button">
+              <BgColorsOutlined />
+              主题
+            </a-button>
+            <template #overlay>
+              <a-menu class="theme-menu">
+                <a-menu-item key="default" @click="switchTheme('default')">
+                  <div class="theme-option">
+                    <div class="theme-preview theme-default"></div>
+                    <span>默认主题</span>
+                  </div>
+                </a-menu-item>
+                <a-menu-item key="green" @click="switchTheme('green')">
+                  <div class="theme-option">
+                    <div class="theme-preview theme-green"></div>
+                    <span>绿色主题</span>
+                  </div>
+                </a-menu-item>
+                <a-menu-item key="purple" @click="switchTheme('purple')">
+                  <div class="theme-option">
+                    <div class="theme-preview theme-purple"></div>
+                    <span>紫色主题</span>
+                  </div>
+                </a-menu-item>
+                <a-menu-item key="darkblue" @click="switchTheme('darkblue')">
+                  <div class="theme-option">
+                    <div class="theme-preview theme-darkblue"></div>
+                    <span>深蓝色主题</span>
+                  </div>
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+          
           <a-dropdown>
             <a-badge dot>
               <BellOutlined class="header-icon" />
@@ -175,9 +202,13 @@ import {
   SettingOutlined,
   BarChartOutlined,
   BellOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  BgColorsOutlined
 } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
+import '../css/kevinHome.css';
+import hedeImage from '../assets/hede.png'; // 导入用户头像图片
+import logoImage from '../assets/logo.png'; // 导入logo图片
 
 const router = useRouter() 
 
@@ -185,10 +216,13 @@ const collapsed = ref(false)
 const selectedKeys = ref(['dashboard'])
 const openKeys = ref(['user-management'])
 
+// 主题状态 - 将默认主题改为深蓝色
+const currentTheme = ref('theme-darkblue')
+
 // 用户信息
 const userInfo = reactive({
   name: '管理员',
-  avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png'
+  avatar: hedeImage // 使用导入的图片
 })
 
 // 当前路由标题
@@ -205,6 +239,13 @@ const currentRouteTitle = computed(() => {
   }
   return titles[selectedKeys.value[0]] || '首页'
 })
+
+// 切换主题
+const switchTheme = (theme) => {
+  currentTheme.value = `theme-${theme}`
+  // 保存主题选择到本地存储
+  localStorage.setItem('app-theme', theme)
+}
 
 // 菜单点击事件
 const handleMenuClick = ({ key }) => {
@@ -248,6 +289,11 @@ const handleLogout = () => {
 // 初始化背景动画
 onMounted(() => {
   initParticles()
+  // 检查本地存储的主题设置
+  const savedTheme = localStorage.getItem('app-theme')
+  if (savedTheme) {
+    currentTheme.value = `theme-${savedTheme}`
+  }
 })
 
 onBeforeUnmount(() => {
@@ -440,6 +486,7 @@ const initParticles = () => {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-right: 1px solid rgba(255, 255, 255, 0.18);
+  transition: width 0.3s ease;
 }
 
 .logo {
@@ -457,7 +504,7 @@ const initParticles = () => {
   margin-right: 12px;
 }
 
-.logo-icon {
+.logo-image {
   width: 32px;
   height: 32px;
   animation: pulse 3s infinite;
@@ -512,17 +559,6 @@ const initParticles = () => {
   position: sticky;
   top: 0;
   z-index: 9;
-  color: white;
-}
-
-:deep(.ant-layout-header) {
-  background: rgba(255, 255, 255, 0.08) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-  padding: 0 24px;
-  height: 64px;
-  line-height: 64px;
   color: white;
 }
 
@@ -597,10 +633,6 @@ const initParticles = () => {
   overflow: initial;
   position: relative;
   z-index: 1;
-  background: transparent !important;
-}
-
-:deep(.ant-layout-content) {
   background: transparent !important;
 }
 
@@ -718,17 +750,6 @@ const initParticles = () => {
   background: transparent;
 }
 
-:deep(.ant-btn-background-ghost.ant-btn-primary) {
-  color: #667eea;
-  border-color: #667eea;
-  background: transparent;
-}
-
-:deep(.ant-btn-background-ghost.ant-btn-primary:hover) {
-  color: #764ba2;
-  border-color: #764ba2;
-  box-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
-}
 
 .footer {
   text-align: center;
@@ -740,14 +761,6 @@ const initParticles = () => {
   margin-top: 24px;
   position: relative;
   z-index: 1;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-:deep(.ant-layout-footer) {
-  background: rgba(255, 255, 255, 0.08) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
   color: rgba(255, 255, 255, 0.7);
 }
 
@@ -778,7 +791,7 @@ const initParticles = () => {
   color: white;
 }
 
-/* 响应式设计 */
+/* 响应式设计 - 移动端适配 */
 @media (max-width: 768px) {
   .sider {
     position: absolute;

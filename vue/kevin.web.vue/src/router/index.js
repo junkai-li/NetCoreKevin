@@ -1,10 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import KevinLogin from '@/pages/kevinLogin.vue';
 import Home from '@/pages/kevinHome.vue';
-import kevinDashboard from '@/pages/kevinDashboard.vue';
+import Dashboard from '@/pages/kevinDashboard.vue';
 import UserList from '@/pages/UserList.vue';
-// 子页面组件 - 这里可以后续替换为实际的组件 
-const UserRole = { template: '<div><h2>角色管理</h2><p>这里是角色管理页面</p></div>' }
+import UserRole from '@/pages/UserRole.vue';
+
+// 子页面组件 - 这里可以后续替换为实际的组件
 const UserPermission = { template: '<div><h2>权限管理</h2><p>这里是权限管理页面</p></div>' }
 const SystemConfig = { template: '<div><h2>系统配置</h2><p>这里是系统配置页面</p></div>' }
 const LogManagement = { template: '<div><h2>日志管理</h2><p>这里是日志管理页面</p></div>' }
@@ -30,7 +31,7 @@ const routes = [
       {
         path: '',
         name: 'Dashboard',
-        component: kevinDashboard
+        component: Dashboard
       },
       {
         path: 'user/list',

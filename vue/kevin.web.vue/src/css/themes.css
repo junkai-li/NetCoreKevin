@@ -1,0 +1,172 @@
+/* 主题样式定义 */
+
+/* 默认主题 */
+.theme-default {
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e) !important;
+}
+
+.theme-default .logo-text {
+  color: white;
+}
+
+.theme-default .trigger {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.theme-default .trigger:hover {
+  color: #667eea;
+}
+
+.theme-default .user-name {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* 绿色主题 */
+.theme-green {
+  background: linear-gradient(135deg, #1a2a1d, #2c5f2d, #243b24) !important;
+}
+
+.theme-green .logo-text {
+  color: #a8e6cf;
+}
+
+.theme-green .trigger {
+  color: rgba(168, 230, 207, 0.85);
+}
+
+.theme-green .trigger:hover {
+  color: #66eea2;
+  text-shadow: 0 0 8px rgba(102, 238, 162, 0.6);
+}
+
+.theme-green .user-name {
+  color: rgba(168, 230, 207, 0.85);
+}
+
+.theme-green :deep(.ant-menu-dark .ant-menu-item:hover) {
+  background: rgba(102, 238, 162, 0.2);
+}
+
+.theme-green :deep(.ant-menu-dark .ant-menu-item-selected) {
+  background: linear-gradient(90deg, rgba(102, 238, 162, 0.3), rgba(44, 95, 45, 0.3));
+}
+
+.theme-green :deep(.ant-btn-link) {
+  color: #66eea2;
+}
+
+.theme-green :deep(.ant-btn-link:hover) {
+  color: #2c5f2d;
+}
+
+/* 紫色主题 */
+.theme-purple {
+  background: linear-gradient(135deg, #2d1a2d, #5e2a5e, #3b243b) !important;
+}
+
+.theme-purple .logo-text {
+  color: #e0b0ff;
+}
+
+.theme-purple .trigger {
+  color: rgba(224, 176, 255, 0.85);
+}
+
+.theme-purple .trigger:hover {
+  color: #c76cff;
+  text-shadow: 0 0 8px rgba(199, 108, 255, 0.6);
+}
+
+.theme-purple .user-name {
+  color: rgba(224, 176, 255, 0.85);
+}
+
+.theme-purple :deep(.ant-menu-dark .ant-menu-item:hover) {
+  background: rgba(199, 108, 255, 0.2);
+}
+
+.theme-purple :deep(.ant-menu-dark .ant-menu-item-selected) {
+  background: linear-gradient(90deg, rgba(199, 108, 255, 0.3), rgba(94, 42, 94, 0.3));
+}
+
+.theme-purple :deep(.ant-btn-link) {
+  color: #c76cff;
+}
+
+.theme-purple :deep(.ant-btn-link:hover) {
+  color: #5e2a5e;
+}
+
+/* 深蓝色企业级主题 */
+.theme-darkblue {
+  background: linear-gradient(135deg, #001f3f, #003366, #004080) !important;
+}
+
+.theme-darkblue .logo-text {
+  color: #7fdbff;
+}
+
+.theme-darkblue .trigger {
+  color: rgba(127, 219, 255, 0.85);
+}
+
+.theme-darkblue .trigger:hover {
+  color: #4da6ff;
+  text-shadow: 0 0 8px rgba(77, 166, 255, 0.6);
+}
+
+.theme-darkblue .user-name {
+  color: rgba(127, 219, 255, 0.85);
+}
+
+.theme-darkblue :deep(.ant-menu-dark .ant-menu-item:hover) {
+  background: rgba(77, 166, 255, 0.2);
+}
+
+.theme-darkblue :deep(.ant-menu-dark .ant-menu-item-selected) {
+  background: linear-gradient(90deg, rgba(77, 166, 255, 0.3), rgba(0, 51, 102, 0.3));
+}
+
+.theme-darkblue :deep(.ant-btn-link) {
+  color: #4da6ff;
+}
+
+.theme-darkblue :deep(.ant-btn-link:hover) {
+  color: #003366;
+}
+
+/* 主题预览样式 */
+.theme-preview {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.theme-default .theme-preview {
+  background: linear-gradient(135deg, #0f0c29, #302b63);
+}
+
+.theme-green .theme-preview {
+  background: linear-gradient(135deg, #1a2a1d, #2c5f2d);
+}
+
+.theme-purple .theme-preview {
+  background: linear-gradient(135deg, #2d1a2d, #5e2a5e);
+}
+
+.theme-darkblue .theme-preview {
+  background: linear-gradient(135deg, #001f3f, #003366);
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+}
+
+.theme-switch-button {
+  display: flex;
+  align-items: center;
+}

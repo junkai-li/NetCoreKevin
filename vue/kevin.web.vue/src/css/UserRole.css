@@ -1,0 +1,318 @@
+@import './buttons.css';
+
+.role-management-container {
+  color: white;
+  height: 100%;
+}
+
+.role-management-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+:deep(.role-management-card .ant-card-head) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0 20px;
+  background: transparent;
+}
+
+:deep(.role-management-card .ant-card-head-title) {
+  color: white;
+  padding: 16px 0;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.title-icon {
+  margin-right: 8px;
+  color: #667eea;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.toolbar-left {
+  display: flex;
+  gap: 8px;
+}
+
+.table-container {
+  background: transparent;
+  flex: 1;
+  overflow: hidden;
+}
+
+:deep(.ant-table) {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:deep(.ant-table-thead > tr > th) {
+  background: rgba(102, 126, 234, 0.2);
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+:deep(.ant-table-tbody > tr) {
+  background: transparent;
+}
+
+:deep(.ant-table-tbody > tr > td) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  padding: 12px 8px;
+  background: transparent;
+  transition: background 0.3s ease;
+}
+
+:deep(.ant-table-tbody > tr:hover > td) {
+  background: rgba(102, 126, 234, 0.1) !important;
+}
+
+:deep(.ant-table-tbody > tr.ant-table-row-selected > td) {
+  background: rgba(102, 126, 234, 0.2) !important;
+}
+
+/* 防止悬停时的闪烁问题 */
+:deep(.ant-table-tbody > tr.ant-table-row:hover > td) {
+  background: rgba(102, 126, 234, 0.1) !important;
+}
+
+/* 防止鼠标移出时的闪烁问题 */
+:deep(.ant-table-tbody > tr.ant-table-row) {
+  background: transparent !important;
+}
+
+:deep(.ant-table-tbody > tr.ant-table-row > td) {
+  background: transparent !important;
+  transition: background 0.3s ease;
+}
+
+:deep(.ant-pagination) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:deep(.ant-pagination-item) {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+:deep(.ant-pagination-item a) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:deep(.ant-pagination-item-active) {
+  background: #667eea;
+  border-color: #667eea;
+}
+
+:deep(.ant-pagination-next),
+:deep(.ant-pagination-prev) {
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+:deep(.ant-btn-link) {
+  color: #667eea;
+}
+
+:deep(.ant-btn-link:hover) {
+  color: #764ba2;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  background: transparent;
+}
+
+.permissions-popover {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.permission-item {
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+}
+
+.permission-icon {
+  color: #52c41a;
+  margin-right: 8px;
+}
+
+.permission-tree {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.permission-node-icon {
+  margin-right: 8px;
+  color: #667eea;
+}
+
+.search-input {
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+:deep(.search-input .ant-input) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+:deep(.search-input .ant-input::placeholder) {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+:deep(.search-input .ant-input:focus) {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+:deep(.search-input .ant-input-search-button) {
+  background: rgba(102, 126, 234, 0.8);
+  border-color: rgba(102, 126, 234, 0.8);
+}
+
+
+:deep(.ant-modal-content) {
+  background: #1a1a2e;
+  color: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+:deep(.ant-modal-header) {
+  background: rgba(102, 126, 234, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px 24px;
+}
+
+:deep(.ant-modal-title) {
+  color: white;
+}
+
+:deep(.ant-modal-close) {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+:deep(.ant-modal-close:hover) {
+  color: white;
+}
+
+:deep(.ant-form-item-label > label) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:deep(.ant-input) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+:deep(.ant-input:focus) {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+}
+
+:deep(.ant-textarea) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  resize: none;
+}
+
+:deep(.ant-textarea:focus) {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+}
+
+:deep(.ant-switch) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+:deep(.ant-switch-checked) {
+  background: #667eea;
+}
+
+:deep(.ant-tree) {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:deep(.ant-tree-treenode) {
+  padding: 2px 0;
+}
+
+:deep(.ant-tree-switcher) {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+:deep(.ant-tree-node-content-wrapper) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:deep(.ant-tree-node-content-wrapper:hover) {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+:deep(.ant-tree-node-selected) {
+  background: rgba(102, 126, 234, 0.2);
+}
+
+@media (max-width: 768px) {
+  .card-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .header-actions {
+    justify-content: space-between;
+  }
+  
+  .toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .toolbar-left {
+    width: 100%;
+  }
+}
