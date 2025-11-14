@@ -1,4 +1,5 @@
 ﻿using kevin.Share.Dtos;
+using kevin.Share.Dtos.System;
 
 namespace kevin.Domain.Share.Dtos.User
 {
@@ -30,15 +31,8 @@ namespace kevin.Domain.Share.Dtos.User
         /// 邮箱
         /// </summary>
         public string? Email { get; set; }
-        /// <summary>
-        /// 角色
-        /// </summary>
-        public Guid RoleId { get; set; }
-
-        /// <summary>
-        /// 角色
-        /// </summary>
-        public string? Role { get; set; }
+        
+        public List<dtoRole>? Roles { get; set; }
 
         /// <summary>
         /// 密码

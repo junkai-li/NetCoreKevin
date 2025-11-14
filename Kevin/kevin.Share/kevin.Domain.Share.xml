@@ -94,16 +94,6 @@
             邮箱
             </summary>
         </member>
-        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.RoleId">
-            <summary>
-            角色
-            </summary>
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Role">
-            <summary>
-            角色
-            </summary>
-        </member>
         <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.PassWord">
             <summary>
             密码

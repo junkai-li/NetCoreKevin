@@ -134,10 +134,7 @@ namespace kevin.Application.Services
                                 user.Name = DateTime.Now.ToString() + "微信小程序新用户";
                                 user.NickName = user.Name;
                                 user.ChangePassword(Guid.NewGuid().ToString());
-
-                                //开发时记得调整这个值
-                                user.RoleId = default;
-
+                                user.IsSystem = false;
                                 db.Set<TUser>().Add(user);
 
                                 db.SaveChanges();
@@ -202,9 +199,7 @@ namespace kevin.Application.Services
             if (Web.Auth.AuthorizeAction.SmsVerifyPhone(keyValue))
             {
                 string phone = keyValue.Key.ToString() ?? "";
-
-
-                var user = db.Set<TUser>().Where(t => t.IsDelete == false && (t.Name == phone || t.Phone == phone) && t.RoleId == default).FirstOrDefault();
+                var user = db.Set<TUser>().Where(t => t.IsDelete == false && (t.Name == phone || t.Phone == phone) && t.IsSystem == false).FirstOrDefault();
 
                 if (user == null)
                 {
@@ -217,6 +212,7 @@ namespace kevin.Application.Services
                     user.CreateTime = DateTime.Now;
                     user.Name = DateTime.Now.ToString() + "手机短信新用户";
                     user.NickName = user.Name;
+                    user.IsSystem= false;
                     user.ChangePassword(phone);
 
                     db.Set<TUser>().Add(user);
@@ -257,7 +253,7 @@ namespace kevin.Application.Services
                 var jsonCode = new
                 {
                     code = code
-                }; 
+                };
                 var smsStatus = _ISMS.SendSMS(phone, "短信模板编号", "短信签名", Common.Json.JsonHelper.ObjectToJSON(jsonCode));
 
                 if (smsStatus)
@@ -307,7 +303,7 @@ namespace kevin.Application.Services
                 user.Name = userInfo.nickname;
                 user.NickName = user.Name;
                 user.PasswordHash = new HashHelper().SHA256Hash(Guid.NewGuid().ToString());
-
+                user.IsSystem = false;
                 db.Set<TUser>().Add(user);
                 db.SaveChanges();
 

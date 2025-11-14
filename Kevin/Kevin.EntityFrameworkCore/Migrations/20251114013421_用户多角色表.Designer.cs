@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.Database;
 
@@ -11,9 +12,11 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(KevinDbContext))]
-    partial class dbContextModelSnapshot : ModelSnapshot
+    [Migration("20251114013421_用户多角色表")]
+    partial class 用户多角色表
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -202,7 +205,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         {
                             Id = new Guid("1b4f94ac-b697-4cbe-9626-6cd2de627538"),
                             Code = 1000,
-                            CreateTime = new DateTime(2025, 11, 14, 10, 20, 5, 881, DateTimeKind.Local).AddTicks(9269),
+                            CreateTime = new DateTime(2025, 11, 14, 9, 34, 20, 809, DateTimeKind.Local).AddTicks(4711),
                             IsDelete = 0ul,
                             Name = "admin",
                             Status = 1,
@@ -295,19 +298,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.ToTable("t_user_bind_role", null, t =>
                         {
                             t.HasComment("用户绑定角色表");
-                        });
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("eef5525d-5d64-46ad-8d64-72fb3ad9728f"),
-                            CreateTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreateUserId = new Guid("eef5525d-5d64-46ad-8d64-79fb3ad9724f"),
-                            IsDelete = 0ul,
-                            RoleId = new Guid("c23301b7-f9e0-464c-b76d-1f0a5a557548"),
-                            TenantId = 1000,
-                            UserId = new Guid("eef5525d-5d64-46ad-8d64-79fb3ad9724f"),
-                            xmin = 0u
                         });
                 });
 
@@ -1978,7 +1968,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         new
                         {
                             Id = new Guid("c23301b7-f9e0-464c-b76d-1f0a5a557548"),
-                            CreateTime = new DateTime(2025, 11, 14, 10, 20, 5, 874, DateTimeKind.Local).AddTicks(4218),
+                            CreateTime = new DateTime(2025, 11, 14, 9, 34, 20, 801, DateTimeKind.Local).AddTicks(1015),
                             IsDelete = 0ul,
                             Name = "admin",
                             Remarks = "admin",
@@ -2175,11 +2165,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("is_super_admin")
                         .HasComment("是否超级管理员");
 
-                    b.Property<ulong>("IsSystem")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_system")
-                        .HasComment("is_system");
-
                     b.Property<string>("Name")
                         .HasColumnType("longtext")
                         .HasColumnName("name")
@@ -2199,6 +2184,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("phone")
                         .HasComment("手机号");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("role_id")
+                        .HasComment("角色信息");
 
                     b.Property<Guid?>("RowVersion")
                         .IsConcurrencyToken()
@@ -2223,6 +2213,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("RoleId");
+
                     b.ToTable("t_user", null, t =>
                         {
                             t.HasComment("用户表");
@@ -2232,17 +2224,17 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         new
                         {
                             Id = new Guid("eef5525d-5d64-46ad-8d64-79fb3ad9724f"),
-                            CreateTime = new DateTime(2025, 11, 14, 10, 20, 5, 881, DateTimeKind.Local).AddTicks(5033),
+                            CreateTime = new DateTime(2025, 11, 14, 9, 34, 20, 808, DateTimeKind.Local).AddTicks(7262),
                             Email = "admin",
                             IsDelete = 0ul,
                             IsSuperAdmin = 1ul,
-                            IsSystem = 1ul,
                             Name = "admin",
                             NickName = "admin",
                             PasswordHash = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
                             Phone = "admin",
-                            TenantId = 0,
-                            UpdateTime = new DateTime(2025, 11, 14, 10, 20, 5, 881, DateTimeKind.Local).AddTicks(5061),
+                            RoleId = new Guid("c23301b7-f9e0-464c-b76d-1f0a5a557548"),
+                            TenantId = 1000,
+                            UpdateTime = new DateTime(2025, 11, 14, 9, 34, 20, 808, DateTimeKind.Local).AddTicks(7290),
                             xmin = 0u
                         });
                 });
@@ -3038,6 +3030,17 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Navigation("DeleteUser");
                 });
 
+            modelBuilder.Entity("kevin.Domain.Kevin.TUser", b =>
+                {
+                    b.HasOne("kevin.Domain.Kevin.TRole", "Role")
+                        .WithMany("RoleUserList")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("kevin.Domain.Kevin.TUserBindAlipay", b =>
                 {
                     b.HasOne("kevin.Domain.Kevin.TAlipayKey", "AlipayKey")
@@ -3123,6 +3126,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
             modelBuilder.Entity("kevin.Domain.Kevin.TRegionProvince", b =>
                 {
                     b.Navigation("TRegionCity");
+                });
+
+            modelBuilder.Entity("kevin.Domain.Kevin.TRole", b =>
+                {
+                    b.Navigation("RoleUserList");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,9 +1,12 @@
 ﻿using Common.AliYun;
+using kevin.Domain.Entities;
 using kevin.Domain.Share.Dtos.User;
 using kevin.Share.Dtos;
 using kevin.Share.Dtos.System;
 using Kevin.Common.Helper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using NPOI.SS.Formula.Functions;
 using Web.Global.Exceptions;
 
 namespace kevin.Application
@@ -17,13 +20,16 @@ namespace kevin.Application
         public IRoleRp roleRp { get; set; }
 
         public IUserBindWeixinRp userBindWeixinRp { get; set; }
-        public UserService(IHttpContextAccessor _httpContextAccessor, IUserRp _userRp, IWeiXinKeyRp _weiXinKeyRp, IFileRp _IFileRp, IRoleRp _IRoleRp, IUserBindWeixinRp _IUserBindWeixinRp) : base(_httpContextAccessor)
+
+        public IUserBindRoleRp userBindRoleRp { get; set; }
+        public UserService(IHttpContextAccessor _httpContextAccessor, IUserRp _userRp, IWeiXinKeyRp _weiXinKeyRp, IFileRp _IFileRp, IRoleRp _IRoleRp, IUserBindWeixinRp _IUserBindWeixinRp, IUserBindRoleRp userBindRoleRp) : base(_httpContextAccessor)
         {
             userRp = _userRp;
             weiXinKeyRp = _weiXinKeyRp;
             fileRp = _IFileRp;
             roleRp = _IRoleRp;
             userBindWeixinRp = _IUserBindWeixinRp;
+            this.userBindRoleRp = userBindRoleRp;
         }
 
 
@@ -92,17 +98,16 @@ namespace kevin.Application
             {
                 userId = CurrentUser.UserId;
             }
-
+            var roleData = userBindRoleRp.Query().Where(t => t.UserId == userId && t.IsDelete == false).Include(u => u.Role).ToList();
             return userRp.Query().Where(t => t.Id == userId && t.IsDelete == false).Select(t => new dtoUser
             {
                 Name = t.Name,
                 Id = t.Id,
-                RoleId = t.RoleId,
                 NickName = t.NickName,
                 Phone = t.Phone,
                 Email = t.Email,
-                Role = t.Role != default ? t.Role.Name : "",
-                CreateTime = t.CreateTime
+                CreateTime = t.CreateTime,
+                Roles = roleData.Where(r => r.Role != default).Select(r => new dtoRole { Id = r.Role.Id, Name = r.Role.Name ?? "", Remarks = r.Role.Remarks ?? "", CreateTime = r.Role.CreateTime }).ToList(),
             }).FirstOrDefault() ?? new();
         }
 
@@ -121,7 +126,6 @@ namespace kevin.Application
                 NickName = t.NickName,
                 Phone = t.Phone,
                 Email = t.Email,
-                Role = t.Role != default ? t.Role.Name : "",
                 CreateTime = t.CreateTime,
                 Id = t.Id
             }).FirstOrDefault();
@@ -133,7 +137,6 @@ namespace kevin.Application
                     NickName = t.NickName,
                     Phone = t.Phone,
                     Email = t.Email,
-                    Role = t.Role != default ? t.Role.Name : "",
                     CreateTime = t.CreateTime,
                     Id = t.Id
                 }).FirstOrDefault();
@@ -142,6 +145,8 @@ namespace kevin.Application
             {
                 throw new UserFriendlyException("账户或密码错误");
             }
+            var roleData = userBindRoleRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).Include(u => u.Role).ToList();
+            user.Roles = roleData.Where(r => r.Role != default).Select(r => new dtoRole { Id = r.RoleId, Name = r.Role?.Name ?? "", Remarks = r.Role?.Remarks ?? "", CreateTime = r.Role.CreateTime }).ToList();
             return user;
         }
 
@@ -211,8 +216,6 @@ namespace kevin.Application
             throw new UserFriendlyException("用户不存在");
 
         }
-
-
         /// <summary>
         /// 获取小程序用户列表信息
         /// </summary>
@@ -220,13 +223,11 @@ namespace kevin.Application
         /// <returns></returns> 
         public dtoPageData<dtoUser> GetUserList(dtoPageData<dtoUser> dtoPage)
         {
-
             int skip = (dtoPage.pageNum - 1) * dtoPage.pageSize;
-            var data = userRp.Query().Where(t => t.IsDelete == false && t.RoleId == Guid.Parse("B414EBC7-D646-4B57-B07C-4A39F08361E1"));
+            var data = userRp.Query().Where(t => t.IsDelete == false && t.IsSystem == false);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
-
-                data = data.Where(t => (t.Name??"").Contains(dtoPage.searchKey) || (t.Phone ?? "").Contains(dtoPage.searchKey));
+                data = data.Where(t => (t.Name ?? "").Contains(dtoPage.searchKey) || (t.Phone ?? "").Contains(dtoPage.searchKey));
             }
             dtoPage.total = data.Count();
             dtoPage.data = data.Skip(skip).Take(dtoPage.pageSize).Select(t => new dtoUser
@@ -234,7 +235,6 @@ namespace kevin.Application
                 Id = t.Id,
                 Name = t.Name,
                 Phone = t.Phone,
-                Role = t.Role != default ? t.Role.Name : "",
                 HeadImgs = fileRp.Query().Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
                 {
                     Key = f.Id,
@@ -254,9 +254,9 @@ namespace kevin.Application
         public dtoPageData<dtoUser> GetSysUserList(dtoPageData<dtoUser> dtoPage)
         {
             int skip = (dtoPage.pageNum - 1) * dtoPage.pageSize;
-            var data = userRp.Query().Where(t => t.IsDelete == false && t.RoleId != Guid.Parse("B414EBC7-D646-4B57-B07C-4A39F08361E1"));
+            var data = userRp.Query().Where(t => t.IsDelete == false && t.IsSystem == true);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
-            { 
+            {
                 data = data.Where(t => ((t.Name ?? "") ?? "").Contains(dtoPage.searchKey) || (t.Phone ?? "").Contains(dtoPage.searchKey));
             }
             dtoPage.total = data.Count();
@@ -265,7 +265,6 @@ namespace kevin.Application
                 Id = t.Id,
                 Name = t.Name,
                 Phone = t.Phone,
-                Role = t.Role != default ? t.Role.Name : "",
                 HeadImgs = fileRp.Query().Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
                 {
                     Key = f.Id,
@@ -273,7 +272,11 @@ namespace kevin.Application
                 }).Take(1).ToList(),
                 CreateTime = t.CreateTime
             }).ToList();
-
+            var roleData = userBindRoleRp.Query().Where(t => dtoPage.data.Select(d => d.Id).ToList().Contains(t.UserId) && t.IsDelete == false).Include(u => u.Role).ToList();
+            foreach (var item in dtoPage.data)
+            {
+                item.Roles = roleData.Select(t => new dtoRole { Id = t.RoleId, Name = t.Role?.Name ?? "" }).ToList();
+            }
             return dtoPage;
         }
 
@@ -289,12 +292,11 @@ namespace kevin.Application
                 Id = t.Id,
                 Name = t.Name,
                 Phone = t.Phone,
-                Role = t.Role != default ? t.Role.Name : "",
-                RoleId = t.RoleId,
                 PassWord = t.PasswordHash,
                 CreateTime = t.CreateTime
             }).FirstOrDefault();
-
+            var roleData = userBindRoleRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).Include(u => u.Role).ToList();
+            user.Roles = roleData.Where(r => r.Role != default).Select(r => new dtoRole { Id = r.RoleId, Name = r.Role?.Name ?? "", Remarks = r.Role?.Remarks ?? "", CreateTime = r.Role.CreateTime }).ToList();
             return user ?? new dtoUser();
         }
 
@@ -307,9 +309,8 @@ namespace kevin.Application
         {
             try
             {
-                var data = userRp.Query().Where(x => x.Id == user.Id && x.IsDelete == false).FirstOrDefault();
-                var tokenuser = userRp.Query().Where(x => x.IsDelete == false && x.Id == CurrentUser.UserId).FirstOrDefault();
-                var UserPh = userRp.Query().Where(t => t.Phone == user.Phone && t.IsDelete == false).FirstOrDefault();
+                var data = userRp.Query().Where(x => x.Id == user.Id && x.IsDelete == false).FirstOrDefault(); 
+                var UserPh = userRp.Query().Where(t => t.Phone == user.Phone && t.IsDelete == false&&t.IsSystem==true).FirstOrDefault();
                 if (string.IsNullOrEmpty(user.PassWord))
                 {
                     throw new UserFriendlyException("PassWord不能为空");
@@ -333,20 +334,18 @@ namespace kevin.Application
                     //编辑
                     data.Name = user.Name;
                     data.Phone = user.Phone;
-                    data.UpdateTime = DateTime.Now;
-                    data.RoleId = user.RoleId;
+                    data.UpdateTime = DateTime.Now; 
                     data.ChangePassword(user.PassWord);
 
                 }
                 else
-                {
-
+                { 
                     //验证手机号唯一不允许添加
                     if (UserPh != null)
                     {
                         throw new UserFriendlyException("手机号码已存在");
                     }
-                    var UserName = userRp.Query().Where(t => t.Name == user.Name && t.IsDelete == false && t.Role.Name != "user").FirstOrDefault();
+                    var UserName = userRp.Query().Where(t => t.Name == user.Name && t.IsDelete == false&&t.IsSystem==true).FirstOrDefault();
                     //验证姓名唯一不允许添加
                     if (UserName != null)
                     {
@@ -357,13 +356,36 @@ namespace kevin.Application
                     data.Id = user.Id == Guid.Empty ? Guid.NewGuid() : user.Id;
                     data.Name = user.Name;
                     data.Phone = user.Phone;
-                    data.RoleId = user.RoleId;
                     data.IsDelete = false;
                     data.CreateTime = DateTime.Now;
                     data.ChangePassword(user.PassWord);
+                    user.Id = data.Id;
                     userRp.Add(data);
                 }
                 userRp.SaveChanges();
+                var deleteRoleData = userBindRoleRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).ToList();
+                foreach (var item in deleteRoleData)
+                {
+                    item.IsDelete = true;
+                    item.DeleteTime = DateTime.Now;
+                    item.UserId = CurrentUser.UserId;
+                }
+                userBindRoleRp.SaveChanges();
+                if (user.Roles.Count > 0)
+                {
+                    foreach (var role in user.Roles)
+                    {
+                        var userBindRole = new TUserBindRole();
+                        userBindRole.Id = Guid.NewGuid();
+                        userBindRole.UserId = user.Id;
+                        userBindRole.RoleId = role.Id;
+                        userBindRole.IsDelete = false;
+                        userBindRole.CreateUserId = CurrentUser.UserId;
+                        userBindRole.CreateTime = DateTime.Now;
+                        userBindRoleRp.Add(userBindRole);
+                    }
+                    userBindRoleRp.SaveChanges();
+                }
                 return true;
             }
             catch (Exception)
@@ -385,13 +407,20 @@ namespace kevin.Application
             try
             {
                 var data = userRp.Query().Where(x => x.Id == Id && x.IsDelete == false).FirstOrDefault();
-                var tokenuser = userRp.Query().Where(x => x.IsDelete == false && x.Id == CurrentUser.UserId).FirstOrDefault();
                 if (data != default)
                 {
                     //编辑
                     data.IsDelete = true;
                     data.DeleteTime = DateTime.Now;
                     userRp.SaveChanges();
+                    var deleteRoleData = userBindRoleRp.Query().Where(t => t.UserId == data.Id && t.IsDelete == false).ToList();
+                    foreach (var item in deleteRoleData)
+                    {
+                        item.IsDelete = true;
+                        item.DeleteTime = DateTime.Now;
+                        item.UserId = CurrentUser.UserId;
+                    }
+                    userBindRoleRp.SaveChanges();
                 }
                 return true;
             }
@@ -412,8 +441,7 @@ namespace kevin.Application
             int skip = (dtoPage.pageNum - 1) * dtoPage.pageSize;
             var data = roleRp.Query().Where(t => t.IsDelete == false);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
-            {
-
+            { 
                 data = data.Where(t => (t.Name ?? "").Contains(dtoPage.searchKey) || (t.Remarks ?? "").Contains(dtoPage.searchKey));
             }
             dtoPage.total = data.Count();
@@ -495,8 +523,7 @@ namespace kevin.Application
         {
             try
             {
-                var users = userRp.Query().Where(x => x.RoleId == Id && x.IsDelete == false).ToList();
-                var tokenuser = userRp.Query().Where(x => x.IsDelete == false && x.Id == CurrentUser.UserId).FirstOrDefault();
+                var users = userBindRoleRp.Query().Where(x => x.RoleId == Id && x.IsDelete == false).ToList(); 
                 if (users.Count > 0)
                 {
                     throw new UserFriendlyException("当前角色含有 未失效用户删除失败");
@@ -516,10 +543,7 @@ namespace kevin.Application
 
                 return false;
             }
-        }
-
-
-
+        } 
         /// <summary>
         /// 获取可用户角色的键值对列表信息
         /// </summary> 
@@ -539,8 +563,7 @@ namespace kevin.Application
         /// </summary> 
         /// <returns></returns> 
         public List<dtoKeyValue> GetUserSystemKey()
-        {
-
+        { 
             var data = userRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId).Select(x => new dtoKeyValue
             {
                 Key = x.Id,

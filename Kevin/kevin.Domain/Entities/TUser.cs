@@ -39,22 +39,17 @@ namespace kevin.Domain.Kevin
         [Description("邮箱")]
         public string? Email { get; set; }
 
+        /// <summary>
+        /// 是否系统用户
+        /// </summary>
+        public bool IsSystem { get; set; } = true;
 
         /// <summary>
         /// 密码Hash
         /// </summary>
         [Description("密码Hash")]
-        public   string? PasswordHash { get; set; }
-
-
-        /// <summary>
-        /// 角色信息
-        /// </summary>
-        [Description("角色信息")]
-        public Guid RoleId { get; set; }
-        public virtual TRole? Role { get; set; }
-
-
+        public   string? PasswordHash { get; set; } 
+         
         /// <summary>
         /// 是否超级管理员
         /// </summary>

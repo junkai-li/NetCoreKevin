@@ -13,11 +13,14 @@ namespace kevin.Application
         public ITenantRp tenantRp { get; set; }
         public IUserRp userRp { get; set; }
         public IRoleRp roleRp { get; set; }
-        public TenantService(IHttpContextAccessor _httpContextAccessor, ITenantRp _tenantRp, IUserRp _userRp, IRoleRp _roleRp) : base(_httpContextAccessor)
+
+        public IUserBindRoleRp userBindRoleRp { get; set; }
+        public TenantService(IHttpContextAccessor _httpContextAccessor, ITenantRp _tenantRp, IUserRp _userRp, IRoleRp _roleRp, IUserBindRoleRp _userBindRoleRp) : base(_httpContextAccessor)
         {
             tenantRp = _tenantRp;
             this.userRp = _userRp;
             this.roleRp = _roleRp;
+            this.userBindRoleRp = _userBindRoleRp;
         }
 
         public async Task<bool> Inactive(Guid id, CancellationToken cancellationToken)
@@ -125,11 +128,17 @@ namespace kevin.Application
             user.ChangePassword("admin123");
             user.IsSuperAdmin = true;
             user.CreateTime = DateTime.Now;
-            user.TenantId =tenant.Code;
-            user.RoleId= role.Id;
+            user.TenantId =tenant.Code; 
             user.Email = "admin";
+            var userbindrole = new TUserBindRole();
+            userbindrole.Id = Guid.NewGuid();
+            userbindrole.RoleId = role.Id;
+            userbindrole.UserId = user.Id;
+            userbindrole.CreateTime = DateTime.Now;
+            userbindrole.TenantId = tenant.Code; 
             roleRp.Add(role);
-            userRp.Add(user); 
+            userRp.Add(user);
+            userBindRoleRp.Add(userbindrole);
             return Task.FromResult(true);
         }
     }

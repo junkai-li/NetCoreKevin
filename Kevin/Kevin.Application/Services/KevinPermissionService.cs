@@ -1,4 +1,5 @@
-﻿using kevin.Domain.Kevin;
+﻿using kevin.Domain.Entities;
+using kevin.Domain.Kevin;
 using kevin.Domain.Share.Interfaces;
 using kevin.Permission.Interfaces;
 using Kevin.Common.App;
@@ -21,13 +22,10 @@ namespace kevin.Application
         public List<Guid> GetUserRoleIds(string userId)
         {
             using var db = new KevinDbContext();
-            var user = db.Set<TUser>().Where(x => x.IsDelete == false && x.Id == Guid.Parse(userId)).FirstOrDefault();
-            if (user != null)
+            var userBindRoles = db.Set<TUserBindRole>().Where(x => x.IsDelete == false && x.UserId == Guid.Parse(userId)).ToList();
+            if (userBindRoles != default && userBindRoles.Count > 0)
             {
-                var reild = user.RoleId;
-                var data = new List<Guid>();
-                data.Add(reild);
-                return data;
+               return userBindRoles.Select(x => x.RoleId).ToList();
             }
             else
             {

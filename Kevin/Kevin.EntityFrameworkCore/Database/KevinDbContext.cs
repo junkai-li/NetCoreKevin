@@ -219,7 +219,8 @@ namespace Repository.Database
             modelBuilder.ApplyConfiguration(new TRoleConfiguration());
             modelBuilder.ApplyConfiguration(new TUserConfiguration());
             modelBuilder.ApplyConfiguration(new TTenantConfiguration());
-            Console.WriteLine("种子数据已加载");
+            modelBuilder.ApplyConfiguration(new TUserBindRoleConfig());
+            Console.WriteLine("初始化种子数据成功！");
             #endregion
 
         }

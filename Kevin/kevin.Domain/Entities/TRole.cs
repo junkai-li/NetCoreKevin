@@ -32,8 +32,8 @@ namespace kevin.Domain.Kevin
         /// <summary>
         /// 该角色所有用户
         /// </summary>
-        [InverseProperty("Role")]
-        public virtual List<TUser>? RoleUserList { get; set; }
+        //[InverseProperty("Role")]
+        //public virtual List<TUser>? RoleUserList { get; set; }
 
 
     }
