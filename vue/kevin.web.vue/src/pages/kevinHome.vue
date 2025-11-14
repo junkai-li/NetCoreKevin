@@ -101,12 +101,18 @@
         <div class="header-right">
           <!-- 主题切换下拉菜单 -->
           <a-dropdown>
-            <a-button class="theme-switch-button">
+            <a-Button  type="text" style="color: rgba(255, 255, 255, 0.85);" class="theme-switch-button">
               <BgColorsOutlined />
               主题
-            </a-button>
+            </a-Button >
             <template #overlay>
               <a-menu class="theme-menu">
+                <a-menu-item key="blackblue" @click="switchTheme('blackblue')">
+                  <div class="theme-option">
+                    <div class="theme-preview theme-blackblue"></div>
+                    <span>黑蓝主题</span>
+                  </div>
+                </a-menu-item>
                 <a-menu-item key="default" @click="switchTheme('default')">
                   <div class="theme-option">
                     <div class="theme-preview theme-default"></div>
@@ -205,6 +211,7 @@ import {
   LogoutOutlined,
   BgColorsOutlined
 } from '@ant-design/icons-vue'
+//import { Button } from 'ant-design-vue';
 import { useRouter } from 'vue-router'
 import '../css/kevinHome.css';
 import hedeImage from '../assets/hede.png'; // 导入用户头像图片
@@ -216,8 +223,8 @@ const collapsed = ref(false)
 const selectedKeys = ref(['dashboard'])
 const openKeys = ref(['user-management'])
 
-// 主题状态 - 将默认主题改为深蓝色
-const currentTheme = ref('theme-darkblue')
+// 主题状态 - 将默认主题改为黑蓝主题
+const currentTheme = ref('theme-blackblue')
 
 // 用户信息
 const userInfo = reactive({
@@ -293,6 +300,10 @@ onMounted(() => {
   const savedTheme = localStorage.getItem('app-theme')
   if (savedTheme) {
     currentTheme.value = `theme-${savedTheme}`
+  } else {
+    // 如果没有保存的主题设置，默认使用黑蓝主题
+    currentTheme.value = 'theme-blackblue'
+    localStorage.setItem('app-theme', 'blackblue')
   }
 })
 
@@ -821,5 +832,4 @@ const initParticles = () => {
   .main-layout {
     margin-left: 0;
   }
-}
-</style>
+}</style>

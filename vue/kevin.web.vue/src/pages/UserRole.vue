@@ -14,24 +14,23 @@
               style="width: 250px; margin-right: 16px"
               @search="onSearch"
             />
-            <a-button type="primary" class="add-button" @click="showAddRoleModal">
+            <Button type="primary" class="add-button" @click="showAddRoleModal">
               <template #icon>
                 <PlusOutlined />
               </template>
               添加角色
-            </a-button>
+            </Button>
           </div>
         </div>
       </template>
       
       <div class="toolbar">
         <div class="toolbar-left">
-          <a-button @click="handleBatchDelete">
-            <template #icon>
+         <Flex gap="small" wrap>
+          <Button @click="handleBatchDelete" type="primary"><template #icon>
               <DeleteOutlined />
-            </template>
-            批量删除
-          </a-button>
+            </template>批量删除</Button> 
+        </Flex> 
         </div>
       </div>
       
@@ -152,7 +151,7 @@ import {
   KeyOutlined,
   CheckCircleOutlined
 } from '@ant-design/icons-vue';
-import { message, Modal } from 'ant-design-vue';
+import { message, Modal,Button,Flex  } from 'ant-design-vue';
 import { Form } from 'ant-design-vue';
 import '../css/UserRole.css';
 

@@ -326,9 +326,8 @@ const initParticles = () => {
   min-height: 100vh;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-}
-
+  background: linear-gradient(135deg, #000000, #000000, #001529) !important;
+} 
 /* 背景层 */
 .background {
   position: absolute;

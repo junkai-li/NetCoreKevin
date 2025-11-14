@@ -214,6 +214,16 @@
   background: linear-gradient(90deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
 }
 
+/* 为黑蓝主题定制菜单项选中样式 */
+.layout-container.theme-blackblue :deep(.ant-menu-dark .ant-menu-item-selected) {
+  background: linear-gradient(90deg, rgba(22, 119, 255, 0.5), rgba(22, 119, 255, 0.1));
+}
+
+/* 为黑蓝主题定制菜单项悬停样式 */
+.layout-container.theme-blackblue :deep(.ant-menu-dark .ant-menu-item:hover) {
+  background: rgba(22, 119, 255, 0.2);
+}
+
 .header {
   background: rgba(255, 255, 255, 0.08) !important;
   backdrop-filter: blur(12px);
@@ -516,6 +526,36 @@
 :deep(.theme-switch-button:active) {
   background: rgba(102, 126, 234, 0.15);
   box-shadow: 0 1px 4px rgba(102, 126, 234, 0.2);
+}
+
+/* 主题预览样式 */
+.theme-preview {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  margin-right: 8px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.theme-default {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.theme-green {
+  background: linear-gradient(135deg, #11998e, #38ef7d);
+}
+
+.theme-purple {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.theme-darkblue {
+  background: linear-gradient(135deg, #0f0c29, #302b63);
+}
+
+.theme-blackblue {
+  background: linear-gradient(135deg, #0f172a, #1e40af);
 }
 
 /* 响应式设计 */
