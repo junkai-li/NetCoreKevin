@@ -14,7 +14,7 @@ namespace kevin.Domain.BaseDatas
     {
         public static List<TTenant> TTenants { get; set; } = new List<TTenant>()
         {
-           new TTenant(1000,"admin") { Id = Guid.Parse("1b4f94ac-b697-4cbe-9626-6cd2de627538")}
+           new TTenant(TenantHelper.GetSettingsTenantId().ToTryInt32(),"admin") { Id = Guid.Parse("1b4f94ac-b697-4cbe-9626-6cd2de627538")}
         };
     }
 }

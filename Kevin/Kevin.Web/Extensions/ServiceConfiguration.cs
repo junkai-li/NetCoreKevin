@@ -1,15 +1,25 @@
 ﻿using kevin.Cache;
 using kevin.DistributedLock;
 using kevin.Domain.EventBus;
+using kevin.FileStorage;
 using kevin.Ioc;
 using kevin.Ioc.TieredServiceRegistration;
 using kevin.Permission;
+using kevin.Permission.Permission.Action;
+using kevin.RabbitMQ;
+using Kevin.AI.MCP.Server.Models;
 using Kevin.Api.Versioning;
 using Kevin.Common.App.Global;
 using Kevin.Common.App.Start;
+using Kevin.Common.Helper;
 using Kevin.Cors;
+using Kevin.Cors.Models;
+using Kevin.SignalR;
+using Kevin.SignalR.Models;
+using Kevin.SMS;
 using Kevin.Web.Filters;
 using Kevin.Web.Filters.TransactionScope;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -21,23 +31,15 @@ using Repository.Database;
 using System;
 using Web.Filters;
 using Web.Global.User;
-using kevin.FileStorage;
-using Kevin.SignalR;
-using Kevin.AI.MCP.Server.Models;
-using Kevin.SignalR.Models;
-using kevin.RabbitMQ;
-using Microsoft.AspNetCore.Authorization;
-using kevin.Permission.Permission.Action;
-using Kevin.Cors.Models;
-using Kevin.SMS;
 
 namespace Web.Extension
 {
     public static class ServiceConfiguration
     {
         public static IServiceCollection ConfigServies(this IServiceCollection services, IConfiguration Configuration)
-        {
-
+        { 
+            ConsoleHelper.PrintFrameworkName("欢迎使用NetCoreKevin框架");
+            ConsoleHelper.PrintWithTypewriterEffect("正在初始化......");
             #region json配置
             //json动态响应压缩https://docs.microsoft.com/zh-cn/aspnet/core/performance/response-compression?view=aspnetcore-5.0
             services.AddResponseCompression();
@@ -262,8 +264,7 @@ namespace Web.Extension
         /// <returns></returns>
         public static void RegisterAppServices(this IServiceCollection services, IConfiguration Configuration)
         {
-            //AddSingleton→AddTransient→AddScoped
-
+            //AddSingleton→AddTransient→AddScoped 
             //AddSingleton的生命周期：
 
             //项目启动 - 项目关闭   相当于静态类 只会有一个
@@ -285,6 +286,7 @@ namespace Web.Extension
             //services.AddScoped<TransactionScopeFilter>();
             #endregion
 
-        }
+        } 
+   
     }
 }

@@ -2,6 +2,7 @@
 using kevin.Ioc;
 using kevin.Ioc.TieredServiceRegistration;
 using Kevin.Common.App.Global;
+using Kevin.Common.Helper;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace kevin.RepositorieRps
@@ -13,8 +14,8 @@ namespace kevin.RepositorieRps
             new IocHelper().BatchAddScopeds<IBaseRepository>(services, t =>
             {
                 GlobalServices.AddIRepositry(t); 
-            },false); 
-            Console.WriteLine("kevin.RepositorieRps仓储服务注入完成");
+            },false);
+            ConsoleHelper.Print("kevin.RepositorieRps仓储服务注入完成");
         } 
     }
 }

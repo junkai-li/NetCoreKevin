@@ -5,6 +5,7 @@ using kevin.Ioc;
 using kevin.Ioc.TieredServiceRegistration;
 using kevin.Permission.Interfaces;
 using Kevin.Common.App.Global;
+using Kevin.Common.Helper;
 using Microsoft.Extensions.DependencyInjection;
 using Web.Global.User;
 
@@ -20,7 +21,7 @@ namespace Kevin.Application
             });
             services.AddScoped<ICurrentUser, CurrentUser>();
             services.AddScoped<IKevinPermissionService, KevinPermissionService>();
-            Console.WriteLine("kevin.Application服务注册完成");
+            ConsoleHelper.Print("kevin.Application服务注册完成");
         }
     }
 }

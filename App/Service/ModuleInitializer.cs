@@ -2,6 +2,7 @@
 using kevin.Ioc;
 using kevin.Ioc.TieredServiceRegistration;
 using Kevin.Common.App.Global;
+using Kevin.Common.Helper;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
@@ -14,8 +15,8 @@ namespace App.Application
             new IocHelper().BatchAddScopeds<IService>(services, t =>
             {
                 GlobalServices.AddIService(t);
-            }); 
-            Console.WriteLine("App.Application服务注册完成");
+            });
+            ConsoleHelper.Print("App.Application服务注册完成");
         }
          
     }

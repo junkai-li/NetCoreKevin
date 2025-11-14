@@ -1,4 +1,5 @@
 ﻿using kevin.Ioc.TieredServiceRegistration;
+using Kevin.Common.Helper;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace App.Domain
@@ -7,7 +8,7 @@ namespace App.Domain
     {
         public void Initialize(IServiceCollection services)
         {
-            Console.WriteLine("DomainServices-ModuleInitializer");
+            ConsoleHelper.Print("App.Domain领域服务注入完成");
         }
     }
 }
