@@ -1,7 +1,17 @@
-# NetCoreKevin
-基于NET8搭建DDD-微服务-现代化Saas企业级WebAPI前后端分离架构：前端Vue3、IDS4单点登录、多级缓存、自动任务、分布式、AI智能体、一库多租户、日志、授权和鉴权、CAP事件、SignalR、领域事件、MCP协议服务、IOC模块化注入、Cors、Quartz自动任务、多短信、AI、AgentFramework、SemanticKernel集成、RAG检索增强+Qdrant矢量数据库、OCR识别、API多版本、单元测试、RabbitMQ
-解耦设计都可以单独引用 项目启动时注意相关Redis、db链接配置、RabbitMQ 
+# NetCoreKevin介绍
+![输入图片说明](Doc/c7e38d09-88ea-43b2-8fcb-7fa7a0ae326e.png)
 
+![输入图片说明](Doc/416a8ae9-d0e7-4459-a55a-a4206c88898a.png)
+
+![输入图片说明](Doc/a83d575f-2605-4d7f-a8aa-06e1b96623fa.png)
+
+![输入图片说明](Doc/6e28cd0e-4754-4a89-8205-fc68c774f7c3.png)
+# NetCoreKevin前言
+基于NET8搭建DDD-微服务-现代化Saas企业级WebAPI前后端分离架构：前端Vue3、IDS4单点登录、多级缓存、自动任务、分布式、AI智能体、一库多租户、日志、授权和鉴权、CAP事件、SignalR、领域事件、MCP协议服务、IOC模块化注入、Cors、Quartz自动任务、多短信、AI、AgentFramework、SemanticKernel集成、RAG检索增强+Qdrant矢量数据库、OCR识别、API多版本、单元测试、RabbitMQ
+解耦设计都可以单独引用 
+
+# 项目启动
+项目启动时注意相关Redis、db链接配置、RabbitMQ 
 生成数据库可见下面说明文件 命令生成即可 
 # DDD思想    
 ![输入图片说明](Doc/e6daeb16-5b1e-487b-93be-f73f5201964a.png)
