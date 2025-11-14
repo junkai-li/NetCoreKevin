@@ -1,6 +1,7 @@
 ﻿using Common;
 using kevin.Domain.EventBus;
 using kevin.Domain.Kevin;
+using Kevin.Common.Helper;
 using Kevin.EntityFrameworkCore.Configuration;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -220,7 +221,7 @@ namespace Repository.Database
             modelBuilder.ApplyConfiguration(new TUserConfiguration());
             modelBuilder.ApplyConfiguration(new TTenantConfiguration());
             modelBuilder.ApplyConfiguration(new TUserBindRoleConfig());
-            Console.WriteLine("初始化种子数据成功！");
+            ConsoleHelper.Print("初始化种子数据成功！");
             #endregion
 
         }

@@ -107,7 +107,7 @@ namespace kevin.Application
                 Phone = t.Phone,
                 Email = t.Email,
                 CreateTime = t.CreateTime,
-                Roles = roleData.Where(r => r.Role != default).Select(r => new dtoRole { Id = r.Role.Id, Name = r.Role.Name ?? "", Remarks = r.Role.Remarks ?? "", CreateTime = r.Role.CreateTime }).ToList(),
+                Roles = roleData.Select(r => new dtoRole { Id = r.Role.Id, Name = r.Role.Name ?? "", Remarks = r.Role.Remarks ?? "", CreateTime = r.Role.CreateTime }).ToList(),
             }).FirstOrDefault() ?? new();
         }
 
