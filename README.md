@@ -6,17 +6,17 @@
 # DDD思想    
 ![输入图片说明](Doc/e6daeb16-5b1e-487b-93be-f73f5201964a.png)
 
-# 思维导图
-![思维导图](Doc/junkai-li-NetCoreKevin-mindmap.png)
-
 # 🌐后台管理系统（基于VUE3-AntDesign）
-![输入图片说明](Doc/kevinlogin.png)
+![输入图片说明](InitData/cf218b0549ca43120dca3d1ea0cd11eb.png)
 
-![输入图片说明](Doc/home2.png)
+![输入图片说明](InitData/6271341ceebc25c93a2ae361008937f6.png)
 
 # 🌐后台自动任务调度系统（基于Quartz.NET）
 
 ![输入图片说明](Doc/task.png)
+
+# 思维导图
+![思维导图](Doc/junkai-li-NetCoreKevin-mindmap.png)
 
 # 教学文档地址 [[教学文档地址](https://blog.csdn.net/weixin_42629287/category_13037923.html)]
 
