@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>童心教育 - 启迪未来，快乐成长</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/tailwindcss">
+        @layer base {
+            html {
+                scroll-behavior: smooth;
+            }
+        }
+        @layer utilities {
+            .gradient-primary {
+                background: linear-gradient(135deg, #FFC700 0%, #FF8A00 100%); /* Sunny Yellow to Orange */
+            }
+            .gradient-secondary {
+                background: linear-gradient(135deg, #6EE7B7 0%, #34D399 100%); /* Light Green to Green */
+            }
+            .gradient-accent {
+                background: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%); /* Light Purple to Purple */
+            }
+            .text-stroke-white {
+                -webkit-text-stroke: 1px white;
+                text-stroke: 1px white;
+            }
+            .bg-pattern {
+                background-image: url('data:image/svg+xml,%3Csvg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%239CA3AF" fill-opacity="0.2" fill-rule="evenodd"%3E%3Cpath d="M5 0h1v1H0V0h5zM0 5h1v1H0V5z"/%3E%3C/g%3E%3C/svg%3E');
+            }
+        }
+    </script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+<body class="font-sans antialiased text-gray-800 bg-gray-50">
+
+    <!-- Header Section -->
+    <header id="main-header" class="bg-white shadow-md fixed w-full z-50 py-3 transition-all duration-300">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <a href="#" class="flex items-center space-x-2 text-2xl font-extrabold text-blue-600">
+                <iconify-icon icon="mdi:school" class="text-3xl text-yellow-500"></iconify-icon>
+                <span class="hidden sm:inline">童心教育</span>
+                <span class="sm:hidden">童心</span>
+            </a>
+            <nav id="main-nav" class="hidden md:flex space-x-8 text-lg font-semibold">
+                <a href="#hero" class="text-blue-600 hover:text-yellow-500 transition-colors duration-300">首页</a>
+                <a href="#programs" class="text-blue-600 hover:text-yellow-500 transition-colors duration-300">特色课程</a>
+                <a href="#philosophy" class="text-blue-600 hover:text-yellow-500 transition-colors duration-300">教育理念</a>
+                <a href="#testimonials" class="text-blue-600 hover:text-yellow-500 transition-colors duration-300">家长评价</a>
+                <a href="#contact" class="text-blue-600 hover:text-yellow-500 transition-colors duration-300">联系我们</a>
+            </nav>
+            <button id="mobile-menu-button" class="md:hidden text-blue-600 text-3xl focus:outline-none">
+                <iconify-icon icon="mdi:menu"></iconify-icon>
+            </button>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu" class="hidden md:hidden fixed inset-0 bg-blue-600 bg-opacity-95 flex flex-col items-center justify-center space-y-8 text-white text-3xl font-bold z-40">
+            <button id="close-mobile-menu" class="absolute top-6 right-6 text-white text-4xl focus:outline-none">
+                <iconify-icon icon="mdi:close"></iconify-icon>
+            </button>
+            <a href="#hero" class="hover:text-yellow-300 transition-colors duration-300">首页</a>
+            <a href="#programs" class="hover:text-yellow-300 transition-colors duration-300">特色课程</a>
+            <a href="#philosophy" class="hover:text-yellow-300 transition-colors duration-300">教育理念</a>
+            <a href="#testimonials" class="hover:text-yellow-300 transition-colors duration-300">家长评价</a>
+            <a href="#contact" class="hover:text-yellow-300 transition-colors duration-300">联系我们</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="relative bg-blue-500 overflow-hidden pt-24 pb-16 md:pt-32 md:pb-24 lg:pt-40 lg:pb-32">
+            <div class="absolute inset-0 bg-pattern opacity-10"></div>
+            <div class="container mx-auto px-4 relative z-10 flex flex-col lg:flex-row items-center justify-between">
+                <div class="text-center lg:text-left lg:w-1/2 mb-10 lg:mb-0 animate-fade-in-up">
+                    <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight text-white mb-4 drop-shadow-lg">
+                        <span class="text-yellow-300">启迪未来</span><br class="hidden sm:inline">，快乐成长
+                    </h1>
+                    <p class="text-xl md:text-2xl text-white opacity-90 mb-8 max-w-lg mx-auto lg:mx-0">
+                        我们致力于为孩子们提供富有创意和启发性的教育体验，点亮他们的无限潜能！
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="#programs" class="inline-flex items-center justify-center px-8 py-4 rounded-full text-lg font-bold bg-yellow-400 text-blue-800 hover:bg-yellow-500 transition-transform duration-300 transform hover:scale-105 shadow-xl">
+                            <iconify-icon icon="mdi:book-open-variant" class="mr-2 text-2xl"></iconify-icon> 探索课程
+                        </a>
+                        <a href="#contact" class="inline-flex items-center justify-center px-8 py-4 rounded-full text-lg font-bold bg-white text-blue-800 hover:bg-gray-100 transition-transform duration-300 transform hover:scale-105 shadow-xl">
+                            <iconify-icon icon="mdi:phone" class="mr-2 text-2xl"></iconify-icon> 立即咨询
+                        </a>
+                    </div>
+                </div>
+                <div class="lg:w-1/2 flex justify-center animate-fade-in-right">
+                    <img src="https://picsum.photos/id/409/800/600" alt="Happy children learning" class="rounded-3xl shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500 w-full max-w-md lg:max-w-xl object-cover border-8 border-white">
+                </div>
+            </div>
+            <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-gray-50 to-transparent"></div>
+        </section>
+
+        <!-- Our Programs Section -->
+        <section id="programs" class="py-16 md:py-24 bg-gray-50">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-4xl md:text-5xl font-extrabold text-blue-700 mb-6 relative inline-block">
+                    <span class="relative z-10">特色课程</span>
+                    <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2/3 h-3 bg-yellow-400 opacity-70 rounded-full -z-0"></span>
+                </h2>
+                <p class="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
+                    我们提供多样化的课程，旨在激发孩子们的好奇心，培养他们的综合能力。
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    <!-- Program Card 1 -->
+                    <div id="program-card-1" class="bg-white rounded-3xl shadow-xl p-8 transform hover:-translate-y-2 transition-transform duration-300 border-b-8 border-yellow-400">
+                        <iconify-icon icon="mdi:lightbulb-on" class="text-6xl text-yellow-500 mb-6"></iconify-icon>
+                        <h3 class="text-2xl font-bold text-blue-700 mb-3">创意美术</h3>
+                        <p class="text-gray-600 mb-5 text-balance">
+                            通过绘画、手工和雕塑，释放孩子们的想象力，培养艺术感知和表达能力。
+                        </p>
+                        <ul class="text-left text-gray-700 space-y-2 mb-6">
+                            <li class="flex items-center"><iconify-icon icon="mdi:check-circle" class="text-green-500 mr-2"></iconify-icon> 探索多种绘画技巧</li>
+                            <li class="flex items-center"><iconify-icon icon="mdi:check-circle" class="text-green-500 mr-2"></iconify-icon> 制作独特手工艺品</li>
+                            <li class="flex items-center"><iconify-icon icon="mdi:check-circle" class="text-green-500 mr-2"></iconify-icon> 培养色彩与构图</li>
+                            <li class="flex items-center"><iconify-icon icon="mdi:check-circle" class="text-green-500 mr-2"></iconify-icon> 提升审美情趣</li>
+                        </ul>
+                        <a href="#" class="inline-block px-6 py-3 bg-yellow-400 text-blue-800 rounded-full font-semibold hover:bg-yellow-500 transition-colors duration-300">了解更多</a>
+                    </div>
+
+                    <!-- Program Card 2 -->
+                    <div id="program-card-2" class="bg-white rounded-3xl shadow-xl p-8 transform hover:-translate-y-2 transition-transform duration-300 border-b-8 border-green-400">
+                        <iconify-icon icon="mdi:robot-happy" class="text-6xl text-green-500 mb-6"></iconify-icon>
+                        <h3 class="text-2xl font-bold text-blue-700 mb-3">STEM 探索</h3>
+                        <p class="text-gray-600 mb-5 text-balance">
+                            结合科学、技术、工程和数学，通过实践项目培养逻辑思维和解决问题的能力。
+                        </p>
+                        <ul class="text-left text-gray-700 space-y-2 mb-6">
+                            <li class="flex items-center"><iconify-icon icon="mdi:check-circle" class="text-green-500 mr-2"></iconify-icon> 趣味科学实验</li>
+                            <li class="flex items-center"><iconify-icon icon="mdi:check-circle" class="text-green-500 mr-2"></iconify-icon> 机器人编程入门</li>
+                            <li class="flex items-center"><iconify-icon icon="mdi:check-circle" class="text-green-500 mr-2"></iconify-icon> 创意工程搭建</li>
+                            <li class="flex items-center"><iconify-icon icon="mdi:check-circle" class="text-green-500 mr-2"></iconify-icon> 数学逻辑游戏</li>
+                        </ul>
+                        <a href="#" class="inline-block px-6 py-3 bg-green-400 text-white rounded-full font-semibold hover:bg-green-500 transition-colors duration-300">了解更多</a>
+                    </div>
+
+                    <!-- Program Card 3 -->
+                    <div id="program-card-3" class="bg-white rounded-3xl shadow-xl p-8 transform hover:-translate-y-2 transition-transform duration-300 border-b-8 border-purple-400">
+                        <iconify-icon icon="mdi:music-note" class="text-6xl text-purple-500 mb-6"></iconify-icon>
+                        <h3 class="text-2xl font-bold text-blue-700 mb-3">音乐与舞蹈</h3>
+                        <p class="text-gray-600 mb-5 text-balance">
+                            通过音乐律动和舞蹈表演，培养孩子们的节奏感、协调性和舞台表现力。
+                        </p>
+                        <ul class="text-left text-gray-700 space-y-2 mb-6">
+                            <li class="flex items-center"><iconify-icon icon="mdi:check-circle" class="text-green-500 mr-2"></iconify-icon> 乐器启蒙课程</li>
+                            <li class="flex items-center"><iconify-icon icon="mdi:check-circle" class="text-green-500 mr-2"></iconify-icon> 创意舞蹈编排</li>
+                            <li class="flex items-center"><iconify-icon icon="mdi:check-circle" class="text-green-500 mr-2"></iconify-icon> 团队合唱练习</li>
+                            <li class="flex items-center"><iconify-icon icon="mdi:check-circle" class="text-green-500 mr-2"></iconify-icon> 舞台表演实践</li>
+                        </ul>
+                        <a href="#" class="inline-block px-6 py-3 bg-purple-400 text-white rounded-full font-semibold hover:bg-purple-500 transition-colors duration-300">了解更多</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Educational Philosophy Section -->
+        <section id="philosophy" class="py-16 md:py-24 bg-blue-100 bg-pattern">
+            <div class="container mx-auto px-4 flex flex-col lg:flex-row items-center gap-12">
+                <div class="lg:w-1/2 relative">
+                    <img src="https://picsum.photos/id/237/800/600" alt="Children playing with building blocks" class="rounded-3xl shadow-2xl w-full object-cover border-8 border-white transform -rotate-6 hover:rotate-0 transition-transform duration-500">
+                    <div class="absolute -bottom-4 -right-4 bg-yellow-400 p-4 rounded-full shadow-lg transform rotate-12 hidden md:block">
+                        <iconify-icon icon="mdi:star-four-points" class="text-white text-5xl"></iconify-icon>
+                    </div>
+                </div>
+                <div class="lg:w-1/2 text-center lg:text-left">
+                    <h2 class="text-4xl md:text-5xl font-extrabold text-blue-700 mb-6 relative inline-block">
+                        <span class="relative z-10">我们的教育理念</span>
+                        <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2/3 h-3 bg-green-400 opacity-70 rounded-full -z-0"></span>
+                    </h2>
+                    <p class="text-xl text-gray-700 mb-8 max-w-xl mx-auto lg:mx-0">
+                        我们坚信每个孩子都是独一无二的，拥有无限的潜能。我们的教育旨在：
+                    </p>
+                    <ul class="space-y-6 text-lg text-gray-700">
+                        <li class="flex items-start lg:items-center bg-white p-4 rounded-xl shadow-md border-l-4 border-yellow-500">
+                            <iconify-icon icon="mdi:seed" class="text-yellow-500 text-4xl mr-4 flex-shrink-0"></iconify-icon>
+                            <div>
+                                <h4 class="font-bold text-blue-700 text-xl mb-1">激发内在好奇心</h4>
+                                <p>鼓励孩子积极探索未知，培养对学习的持久热情。</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start lg:items-center bg-white p-4 rounded-xl shadow-md border-l-4 border-green-500">
+                            <iconify-icon icon="mdi:account-group" class="text-green-500 text-4xl mr-4 flex-shrink-0"></iconify-icon>
+                            <div>
+                                <h4 class="font-bold text-blue-700 text-xl mb-1">培养全面发展</h4>
+                                <p>注重孩子的智力、情感、社交和身体等多方面均衡成长。</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start lg:items-center bg-white p-4 rounded-xl shadow-md border-l-4 border-purple-500">
+                            <iconify-icon icon="mdi:lightbulb-on-outline" class="text-purple-500 text-4xl mr-4 flex-shrink-0"></iconify-icon>
+                            <div>
+                                <h4 class="font-bold text-blue-700 text-xl mb-1">创造快乐学习环境</h4>
+                                <p>让学习成为一场充满乐趣的冒险，激发孩子们的创造力。</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section id="testimonials" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-4xl md:text-5xl font-extrabold text-blue-700 mb-6 relative inline-block">
+                    <span class="relative z-10">家长评价</span>
+                    <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2/3 h-3 bg-purple-400 opacity-70 rounded-full -z-0"></span>
+                </h2>
+                <p class="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
+                    听听家长们怎么说，他们的满意是我们最大的动力。
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <!-- Testimonial Card 1 -->
+                    <div id="testimonial-1" class="bg-blue-50 rounded-3xl shadow-lg p-8 border-l-8 border-yellow-500 relative overflow-hidden group">
+                        <iconify-icon icon="mdi:format-quote-open" class="absolute top-4 left-4 text-yellow-300 text-8xl opacity-30 group-hover:opacity-50 transition-opacity duration-300"></iconify-icon>
+                        <p class="text-lg text-gray-700 italic mb-6 relative z-10">
+                            “童心教育的老师们非常有爱心和耐心，我的孩子在这里变得更加自信和开朗，每天都期待去上课！课程内容也十分丰富有趣。”
+                        </p>
+                        <div class="flex items-center justify-center lg:justify-start space-x-4 border-t pt-4 mt-4 border-gray-200 relative z-10">
+                            <img src="https://picsum.photos/id/64/100/100" alt="Parent 1" class="w-16 h-16 rounded-full object-cover shadow-md">
+                            <div>
+                                <p class="font-bold text-blue-700 text-xl">王女士</p>
+                                <p class="text-gray-500">（小明妈妈）</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial Card 2 -->
+                    <div id="testimonial-2" class="bg-blue-50 rounded-3xl shadow-lg p-8 border-l-8 border-green-500 relative overflow-hidden group">
+                        <iconify-icon icon="mdi:format-quote-open" class="absolute top-4 left-4 text-green-300 text-8xl opacity-30 group-hover:opacity-50 transition-opacity duration-300"></iconify-icon>
+                        <p class="text-lg text-gray-700 italic mb-6 relative z-10">
+                            “这里的STEM课程让我儿子对科学产生了浓厚的兴趣，他现在总是在家里做小实验，动手能力和思考能力都得到了极大的提升！”
+                        </p>
+                        <div class="flex items-center justify-center lg:justify-start space-x-4 border-t pt-4 mt-4 border-gray-200 relative z-10">
+                            <img src="https://picsum.photos/id/65/100/100" alt="Parent 2" class="w-16 h-16 rounded-full object-cover shadow-md">
+                            <div>
+                                <p class="font-bold text-blue-700 text-xl">李先生</p>
+                                <p class="text-gray-500">（小红爸爸）</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action Section -->
+        <section id="contact" class="py-16 md:py-24 gradient-primary text-white text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-pattern opacity-20"></div>
+            <div class="container mx-auto px-4 relative z-10">
+                <iconify-icon icon="mdi:rocket-launch" class="text-6xl text-white mb-6 animate-bounce-slow"></iconify-icon>
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-6 drop-shadow-lg">
+                    立即加入童心教育，开启孩子的无限潜能！
+                </h2>
+                <p class="text-xl md:text-2xl opacity-90 mb-10 max-w-4xl mx-auto">
+                    我们期待与您和孩子一同成长，创造一个充满学习乐趣和探索精神的未来。
+                </p>
+                <a href="mailto:info@tongxinedu.com" class="inline-flex items-center px-10 py-5 rounded-full text-xl font-bold bg-white text-orange-600 hover:bg-gray-100 transition-transform duration-300 transform hover:scale-105 shadow-2xl">
+                    <iconify-icon icon="mdi:email" class="mr-3 text-3xl"></iconify-icon> 免费咨询
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Section -->
+    <footer id="main-footer" class="bg-blue-800 text-white py-12 px-6">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-10">
+            <div class="col-span-full md:col-span-1 text-center md:text-left">
+                <a href="#" class="flex items-center justify-center md:justify-start space-x-2 text-3xl font-extrabold text-white mb-4">
+                    <iconify-icon icon="mdi:school" class="text-4xl text-yellow-400"></iconify-icon>
+                    <span>童心教育</span>
+                </a>
+                <p class="text-gray-300 leading-relaxed max-w-xs mx-auto md:mx-0">
+                    我们致力于为孩子们提供富有创意和启发性的教育体验，点亮他们的无限潜能。
+                </p>
+            </div>
+
+            <div class="text-center md:text-left">
+                <h4 class="text-xl font-bold mb-4 text-yellow-400">快速链接</h4>
+                <ul class="space-y-2">
+                    <li><a href="#hero" class="text-gray-300 hover:text-white transition-colors duration-300">首页</a></li>
+                    <li><a href="#programs" class="text-gray-300 hover:text-white transition-colors duration-300">特色课程</a></li>
+                    <li><a href="#philosophy" class="text-gray-300 hover:text-white transition-colors duration-300">教育理念</a></li>
+                    <li><a href="#testimonials" class="text-gray-300 hover:text-white transition-colors duration-300">家长评价</a></li>
+                </ul>
+            </div>
+
+            <div class="text-center md:text-left">
+                <h4 class="text-xl font-bold mb-4 text-yellow-400">联系我们</h4>
+                <ul class="space-y-2">
+                    <li class="flex items-center justify-center md:justify-start">
+                        <iconify-icon icon="mdi:map-marker" class="mr-2 text-lg"></iconify-icon>
+                        <span>北京市海淀区中关村大街</span>
+                    </li>
+                    <li class="flex items-center justify-center md:justify-start">
+                        <iconify-icon icon="mdi:phone" class="mr-2 text-lg"></iconify-icon>
+                        <span>+86 10 1234 5678</span>
+                    </li>
+                    <li class="flex items-center justify-center md:justify-start">
+                        <iconify-icon icon="mdi:email" class="mr-2 text-lg"></iconify-icon>
+                        <span>info@tongxinedu.com</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="text-center md:text-left lg:col-span-1">
+                <h4 class="text-xl font-bold mb-4 text-yellow-400">关注我们</h4>
+                <div class="flex justify-center md:justify-start space-x-6 text-3xl">
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors duration-300"><iconify-icon icon="mdi:wechat"></iconify-icon></a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors duration-300"><iconify-icon icon="mdi:qqchat"></iconify-icon></a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors duration-300"><iconify-icon icon="mdi:sina-weibo"></iconify-icon></a>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-blue-700 mt-10 pt-8 text-center text-gray-400">
+            <p>&copy; 2023 童心教育. 保留所有权利。</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const closeMobileMenuButton = document.getElementById('close-mobile-menu');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuLinks = mobileMenu.querySelectorAll('a');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
+        });
+
+        closeMobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.add('hidden');
+            document.body.style.overflow = ''; // Restore scrolling
+        });
+
+        mobileMenuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+                document.body.style.overflow = ''; // Restore scrolling after clicking a link
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('main-header');
+            if (window.scrollY > 50) {
+                header.classList.add('bg-opacity-95', 'shadow-lg');
+                header.classList.remove('py-3');
+                header.classList.add('py-2');
+            } else {
+                header.classList.remove('bg-opacity-95', 'shadow-lg');
+                header.classList.add('py-3');
+                header.classList.remove('py-2');
+            }
+        });
+
+        // Simple smooth scroll for desktop nav links
+        document.querySelectorAll('#main-nav a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Animation for hero section elements (optional, can be expanded)
+        const heroTitle = document.querySelector('#hero-title');
+        const heroSubtitle = document.querySelector('#hero-subtitle');
+        const heroCtaButtons = document.querySelectorAll('#hero a');
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const fadeInObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in-up');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // if (heroTitle) fadeInObserver.observe(heroTitle);
+        // if (heroSubtitle) fadeInObserver.observe(heroSubtitle);
+        // heroCtaButtons.forEach(btn => fadeInObserver.observe(btn));
+    </script>
+</body>
+</html>

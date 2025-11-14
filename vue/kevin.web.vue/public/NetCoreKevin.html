@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetCoreKevin - NET8 DDD微服务企业级SaaS框架</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/tailwindcss">
+        @layer base {
+            html {
+                scroll-behavior: smooth;
+            }
+            body {
+                font-family: 'Inter', sans-serif;
+            }
+        }
+        @layer utilities {
+            .gradient-text-hero {
+                background: linear-gradient(90deg, #8b5cf6 0%, #06b6d4 100%); /* Purple to Cyan */
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            .gradient-bg-cta {
+                background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%); /* Purple to Pink */
+            }
+            .gradient-border-card {
+                border-image: linear-gradient(45deg, #a855f7, #06b6d4) 1;
+                border-width: 2px;
+                border-style: solid;
+            }
+            .tech-pattern {
+                background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            }
+            .animate-fade-in-up {
+                animation: fade-in-up 0.8s ease-out forwards;
+                opacity: 0;
+            }
+            @keyframes fade-in-up {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            .delay-100 { animation-delay: 0.1s; }
+            .delay-200 { animation-delay: 0.2s; }
+            .delay-300 { animation-delay: 0.3s; }
+            .delay-400 { animation-delay: 0.4s; }
+            .delay-500 { animation-delay: 0.5s; }
+            .delay-600 { animation-delay: 0.6s; }
+            .delay-700 { animation-delay: 0.7s; }
+            .delay-800 { animation-delay: 0.8s; }
+            .delay-900 { animation-delay: 0.9s; }
+            .delay-1000 { animation-delay: 1s; }
+        }
+    </script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="font-sans antialiased bg-gray-950 text-gray-100 overflow-x-hidden">
+
+    <!-- Header Section -->
+    <header id="main-header" class="bg-gray-900 bg-opacity-80 backdrop-blur-sm shadow-lg py-4 px-6 fixed w-full z-50 transition-all duration-300">
+        <nav class="container mx-auto flex justify-between items-center">
+            <div id="logo" class="text-3xl font-extrabold gradient-text-hero">NetCoreKevin</div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#hero" class="hover:text-cyan-400 transition-colors duration-300 font-semibold">首页</a>
+                <a href="#features" class="hover:text-cyan-400 transition-colors duration-300 font-semibold">特性</a>
+                <a href="#architecture" class="hover:text-cyan-400 transition-colors duration-300 font-semibold">架构</a>
+                <a href="#ai-capabilities" class="hover:text-cyan-400 transition-colors duration-300 font-semibold">AI 能力</a>
+                <a href="#community" class="hover:text-cyan-400 transition-colors duration-300 font-semibold">社区</a>
+                <a href="#contact" class="hover:text-cyan-400 transition-colors duration-300 font-semibold">联系</a>
+            </div>
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-white focus:outline-none">
+                    <iconify-icon icon="mdi:menu" class="text-3xl"></iconify-icon>
+                </button>
+            </div>
+        </nav>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-gray-900 bg-opacity-95 shadow-lg py-4">
+            <ul class="flex flex-col items-center space-y-4">
+                <li><a href="#hero" class="block py-2 hover:text-cyan-400 transition-colors duration-300 font-semibold">首页</a></li>
+                <li><a href="#features" class="block py-2 hover:text-cyan-400 transition-colors duration-300 font-semibold">特性</a></li>
+                <li><a href="#architecture" class="block py-2 hover:text-cyan-400 transition-colors duration-300 font-semibold">架构</a></li>
+                <li><a href="#ai-capabilities" class="block py-2 hover:text-cyan-400 transition-colors duration-300 font-semibold">AI 能力</a></li>
+                <li><a href="#community" class="block py-2 hover:text-cyan-400 transition-colors duration-300 font-semibold">社区</a></li>
+                <li><a href="#contact" class="block py-2 hover:text-cyan-400 transition-colors duration-300 font-semibold">联系</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative h-screen flex items-center justify-center text-center pt-16 overflow-hidden bg-gradient-to-br from-gray-950 to-gray-800">
+        <div class="absolute inset-0 z-0 opacity-10 tech-pattern"></div>
+        <div class="absolute inset-0 z-0 bg-gradient-to-br from-purple-900 to-cyan-900 opacity-20 animate-pulse-slow"></div>
+        <div class="container mx-auto px-6 z-10 relative">
+            <h1 id="hero-title" class="text-6xl md:text-8xl font-extrabold leading-tight mb-6 gradient-text-hero animate-fade-in-up">
+                NetCoreKevin
+            </h1>
+            <p id="hero-subtitle" class="text-2xl md:text-3xl text-gray-300 mb-10 animate-fade-in-up delay-200 opacity-90">
+                基于NET8的DDD微服务架构，赋能企业级SaaS未来
+            </p>
+            <div id="hero-cta-buttons" class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 animate-fade-in-up delay-400">
+                <a href="https://github.com/junkai-li/NetCoreKevin" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-10 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
+                    <iconify-icon icon="mdi:github" class="inline-block mr-2 text-2xl"></iconify-icon> 探索 GitHub
+                </a>
+                <a href="#features" class="bg-transparent border-2 border-cyan-500 text-cyan-500 hover:bg-cyan-500 hover:text-white font-bold py-4 px-10 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
+                    <iconify-icon icon="mdi:rocket-launch-outline" class="inline-block mr-2 text-2xl"></iconify-icon> 了解更多
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Framework Advantages Section -->
+    <section id="advantages" class="py-24 bg-gray-900 relative overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-5 tech-pattern"></div>
+        <div class="container mx-auto px-6 text-center relative z-10">
+            <h2 class="text-5xl font-bold mb-6 gradient-text-hero animate-fade-in-up">
+                为什么选择 NetCoreKevin？
+            </h2>
+            <p class="text-xl text-gray-300 mb-16 max-w-3xl mx-auto animate-fade-in-up delay-200">
+                一个为现代企业级SaaS应用量身定制的开源框架，融合最前沿技术，助您构建高性能、可伸缩、智能化的解决方案。
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div class="bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700 transform hover:scale-105 transition-all duration-300 animate-fade-in-up delay-300">
+                    <iconify-icon icon="mdi:speedometer-slow" class="text-6xl text-purple-400 mb-4"></iconify-icon>
+                    <h3 class="text-3xl font-semibold mb-4 text-white">极致性能</h3>
+                    <p class="text-gray-300">基于NET8，结合多级缓存与分布式架构，确保系统响应如闪电般迅速。</p>
+                </div>
+                <div class="bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700 transform hover:scale-105 transition-all duration-300 animate-fade-in-up delay-400">
+                    <iconify-icon icon="mdi:scale-balance" class="text-6xl text-cyan-400 mb-4"></iconify-icon>
+                    <h3 class="text-3xl font-semibold mb-4 text-white">高度可伸缩</h3>
+                    <p class="text-gray-300">DDD与微服务设计，支持水平扩展，轻松应对业务增长和高并发挑战。</p>
+                </div>
+                <div class="bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700 transform hover:scale-105 transition-all duration-300 animate-fade-in-up delay-500">
+                    <iconify-icon icon="mdi:robot-happy-outline" class="text-6xl text-pink-400 mb-4"></iconify-icon>
+                    <h3 class="text-3xl font-semibold mb-4 text-white">AI赋能</h3>
+                    <p class="text-gray-300">深度集成AI智能体与Semantic Kernel，开启智能应用无限可能。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Features Section -->
+    <section id="features" class="py-24 bg-gray-950 relative overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-10 tech-pattern"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <h2 class="text-5xl font-bold text-center mb-16 gradient-text-hero animate-fade-in-up">
+                核心技术特性
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <!-- Feature Card 1 -->
+                <div class="bg-gray-800 p-8 rounded-xl shadow-xl border border-gray-700 hover:border-purple-600 transition-all duration-300 transform hover:-translate-y-2 animate-fade-in-up delay-300">
+                    <iconify-icon icon="mdi:layers-triple-outline" class="text-5xl text-purple-400 mb-4"></iconify-icon>
+                    <h3 class="text-2xl font-semibold mb-3 text-white">DDD & 微服务</h3>
+                    <p class="text-gray-300">领域驱动设计与微服务架构，构建高内聚、低耦合、易于维护和扩展的系统。</p>
+                </div>
+                <!-- Feature Card 2 -->
+                <div class="bg-gray-800 p-8 rounded-xl shadow-xl border border-gray-700 hover:border-cyan-600 transition-all duration-300 transform hover:-translate-y-2 animate-fade-in-up delay-400">
+                    <iconify-icon icon="mdi:vuejs" class="text-5xl text-cyan-400 mb-4"></iconify-icon>
+                    <h3 class="text-2xl font-semibold mb-3 text-white">前后端分离 (Vue)</h3>
+                    <p class="text-gray-300">现代化Vue前端与NET8后端分离，提供卓越的用户体验和开发效率。</p>
+                </div>
+                <!-- Feature Card 3 -->
+                <div class="bg-gray-800 p-8 rounded-xl shadow-xl border border-gray-700 hover:border-pink-600 transition-all duration-300 transform hover:-translate-y-2 animate-fade-in-up delay-500">
+                    <iconify-icon icon="mdi:account-key-outline" class="text-5xl text-pink-400 mb-4"></iconify-icon>
+                    <h3 class="text-2xl font-semibold mb-3 text-white">IDS4 单点登录</h3>
+                    <p class="text-gray-300">基于IdentityServer4实现企业级单点登录，安全、便捷地管理用户身份。</p>
+                </div>
+                <!-- Feature Card 4 -->
+                <div class="bg-gray-800 p-8 rounded-xl shadow-xl border border-gray-700 hover:border-green-600 transition-all duration-300 transform hover:-translate-y-2 animate-fade-in-up delay-600">
+                    <iconify-icon icon="mdi:database-outline" class="text-5xl text-green-400 mb-4"></iconify-icon>
+                    <h3 class="text-2xl font-semibold mb-3 text-white">一库多租户</h3>
+                    <p class="text-gray-300">高效、灵活的多租户支持，满足SaaS应用隔离与共享的需求。</p>
+                </div>
+                <!-- Feature Card 5 -->
+                <div class="bg-gray-800 p-8 rounded-xl shadow-xl border border-gray-700 hover:border-yellow-600 transition-all duration-300 transform hover:-translate-y-2 animate-fade-in-up delay-700">
+                    <iconify-icon icon="mdi:server-network" class="text-5xl text-yellow-400 mb-4"></iconify-icon>
+                    <h3 class="text-2xl font-semibold mb-3 text-white">分布式架构</h3>
+                    <p class="text-gray-300">支持分布式部署，保障系统高可用性和负载均衡。</p>
+                </div>
+                <!-- Feature Card 6 -->
+                <div class="bg-gray-800 p-8 rounded-xl shadow-xl border border-gray-700 hover:border-indigo-600 transition-all duration-300 transform hover:-translate-y-2 animate-fade-in-up delay-800">
+                    <iconify-icon icon="mdi:message-processing-outline" class="text-5xl text-indigo-400 mb-4"></iconify-icon>
+                    <h3 class="text-2xl font-semibold mb-3 text-white">CAP 事件 & RabbitMQ</h3>
+                    <p class="text-gray-300">通过CAP事件总线与RabbitMQ实现可靠的分布式事务和异步通信。</p>
+                </div>
+                <!-- Feature Card 7 -->
+                <div class="bg-gray-800 p-8 rounded-xl shadow-xl border border-gray-700 hover:border-red-600 transition-all duration-300 transform hover:-translate-y-2 animate-fade-in-up delay-900">
+                    <iconify-icon icon="mdi:clock-time-three-outline" class="text-5xl text-red-400 mb-4"></iconify-icon>
+                    <h3 class="text-2xl font-semibold mb-3 text-white">Quartz 自动任务</h3>
+                    <p class="text-gray-300">强大的Quartz调度器，实现灵活、可靠的后台自动化任务。</p>
+                </div>
+                <!-- Feature Card 8 -->
+                <div class="bg-gray-800 p-8 rounded-xl shadow-xl border border-gray-700 hover:border-orange-600 transition-all duration-300 transform hover:-translate-y-2 animate-fade-in-up delay-1000">
+                    <iconify-icon icon="mdi:security" class="text-5xl text-orange-400 mb-4"></iconify-icon>
+                    <h3 class="text-2xl font-semibold mb-3 text-white">授权与鉴权</h3>
+                    <p class="text-gray-300">细粒度的授权和鉴权机制，确保系统安全和数据隐私。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Capabilities Section -->
+    <section id="ai-capabilities" class="py-24 bg-gray-900 relative overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-5 tech-pattern"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <h2 class="text-5xl font-bold text-center mb-16 gradient-text-hero animate-fade-in-up">
+                AI 赋能，智能未来
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8 animate-fade-in-up delay-300">
+                    <div class="flex items-start bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hover:border-purple-500 transition-all duration-300">
+                        <iconify-icon icon="mdi:brain" class="text-5xl text-purple-400 mr-6"></iconify-icon>
+                        <div>
+                            <h3 class="text-2xl font-semibold mb-2 text-white">AI 智能体集成</h3>
+                            <p class="text-gray-300">深度集成AgentFramework，构建自主学习、决策和执行的智能应用。</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hover:border-cyan-500 transition-all duration-300 animate-fade-in-up delay-400">
+                        <iconify-icon icon="mdi:language-microsoft" class="text-5xl text-cyan-400 mr-6"></iconify-icon>
+                        <div>
+                            <h3 class="text-2xl font-semibold mb-2 text-white">Semantic Kernel</h3>
+                            <p class="text-gray-300">无缝整合微软Semantic Kernel，轻松实现自然语言处理和AI模型交互。</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hover:border-pink-500 transition-all duration-300 animate-fade-in-up delay-500">
+                        <iconify-icon icon="mdi:text-recognition" class="text-5xl text-pink-400 mr-6"></iconify-icon>
+                        <div>
+                            <h3 class="text-2xl font-semibold mb-2 text-white">OCR 识别</h3>
+                            <p class="text-gray-300">内置光学字符识别能力，高效处理图片和文档中的文本信息。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="animate-fade-in-up delay-600">
+                    <img src="https://picsum.photos/id/1047/800/600" alt="AI Capabilities" class="rounded-xl shadow-2xl border border-gray-700 w-full h-auto object-cover transform hover:scale-105 transition-transform duration-500">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Overview Section -->
+    <section id="architecture" class="py-24 bg-gray-950 relative overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-10 tech-pattern"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <h2 class="text-5xl font-bold text-center mb-16 gradient-text-hero animate-fade-in-up">
+                现代化架构概览
+            </h2>
+            <div class="flex flex-col lg:flex-row items-center justify-center space-y-12 lg:space-y-0 lg:space-x-12">
+                <div class="lg:w-1/2 animate-fade-in-up delay-300">
+                    <img src="https://picsum.photos/id/1069/800/600" alt="Architecture Diagram" class="rounded-xl shadow-2xl border border-gray-700 w-full h-auto object-cover transform hover:scale-105 transition-transform duration-500">
+                </div>
+                <div class="lg:w-1/2 space-y-8 animate-fade-in-up delay-500">
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hover:border-purple-500 transition-all duration-300">
+                        <h3 class="text-2xl font-semibold mb-2 text-white flex items-center"><iconify-icon icon="mdi:share-variant-outline" class="text-purple-400 mr-3"></iconify-icon> 前后端分离</h3>
+                        <p class="text-gray-300">清晰职责划分，前端专注于用户体验，后端专注于业务逻辑和数据处理。</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hover:border-cyan-500 transition-all duration-300">
+                        <h3 class="text-2xl font-semibold mb-2 text-white flex items-center"><iconify-icon icon="mdi:cloud-outline" class="text-cyan-400 mr-3"></iconify-icon> 微服务生态</h3>
+                        <p class="text-gray-300">各服务独立部署、独立扩展，通过API网关协同工作，提高系统韧性。</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hover:border-pink-500 transition-all duration-300">
+                        <h3 class="text-2xl font-semibold mb-2 text-white flex items-center"><iconify-icon icon="mdi:bullhorn-outline" class="text-pink-400 mr-3"></iconify-icon> CAP事件总线</h3>
+                        <p class="text-gray-300">确保分布式服务间的数据一致性和最终一致性，提升系统可靠性。</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 hover:border-green-500 transition-all duration-300">
+                        <h3 class="text-2xl font-semibold mb-2 text-white flex items-center"><iconify-icon icon="mdi:message-text-outline" class="text-green-400 mr-3"></iconify-icon> SignalR实时通信</h3>
+                        <p class="text-gray-300">为实时通知、聊天等功能提供高性能、低延迟的双向通信能力。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community & Support Section -->
+    <section id="community" class="py-24 bg-gray-900 relative overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-5 tech-pattern"></div>
+        <div class="container mx-auto px-6 text-center relative z-10">
+            <h2 class="text-5xl font-bold mb-6 gradient-text-hero animate-fade-in-up">
+                加入我们的社区
+            </h2>
+            <p class="text-xl text-gray-300 mb-16 max-w-3xl mx-auto animate-fade-in-up delay-200">
+                NetCoreKevin是一个充满活力的开源项目。我们邀请您加入社区，共同构建和完善这个强大的框架。
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div class="bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700 transform hover:scale-105 transition-all duration-300 animate-fade-in-up delay-300">
+                    <iconify-icon icon="mdi:book-open-page-variant-outline" class="text-6xl text-purple-400 mb-4"></iconify-icon>
+                    <h3 class="text-3xl font-semibold mb-4 text-white">完善的文档</h3>
+                    <p class="text-gray-300 mb-6">提供详细的开发指南、API参考和最佳实践，助您快速上手。</p>
+                    <a href="https://blog.csdn.net/weixin_42629287/category_13037923.html?fromshare=blogcolumn&sharetype=blogcolumn&sharerId=13037923&sharerefer=PC&sharesource=weixin_42629287&sharefrom=from_link" class="inline-flex items-center text-cyan-400 hover:text-cyan-500 font-semibold text-lg transition-colors duration-300">
+                        阅读文档 <iconify-icon icon="mdi:arrow-right" class="ml-2"></iconify-icon>
+                    </a>
+                </div>
+                <div class="bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700 transform hover:scale-105 transition-all duration-300 animate-fade-in-up delay-400">
+                    <iconify-icon icon="mdi:forum-outline" class="text-6xl text-cyan-400 mb-4"></iconify-icon>
+                    <h3 class="text-3xl font-semibold mb-4 text-white">社区支持</h3>
+                    <p class="text-gray-300 mb-6">在GitHub Discussions或Discord群组中与开发者交流，获取帮助。</p>
+                    <a href="#" class="inline-flex items-center text-purple-400 hover:text-purple-500 font-semibold text-lg transition-colors duration-300">
+                        加入社区 <iconify-icon icon="mdi:arrow-right" class="ml-2"></iconify-icon>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final Call to Action Section -->
+    <section id="contact" class="py-24 gradient-bg-cta text-center text-white relative overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-10 tech-pattern"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <h2 class="text-5xl font-bold mb-6 animate-fade-in-up">
+                立即开始您的现代化SaaS之旅
+            </h2>
+            <p class="text-xl mb-12 opacity-90 max-w-3xl mx-auto animate-fade-in-up delay-200">
+                NetCoreKevin框架为您提供构建下一代企业级应用的坚实基础。现在就行动，释放您的开发潜力！
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 animate-fade-in-up delay-400">
+                <a href="https://github.com/junkai-li/NetCoreKevin" target="_blank" class="bg-white text-purple-700 hover:bg-purple-100 px-10 py-4 rounded-full text-xl font-semibold shadow-lg transition-all duration-300 transform hover:scale-105">
+                    <iconify-icon icon="mdi:github" class="inline-block mr-2 text-2xl"></iconify-icon> 访问 GitHub
+                </a>
+                <a href="#" class="bg-transparent border-2 border-white text-white hover:bg-white hover:text-pink-700 px-10 py-4 rounded-full text-xl font-semibold shadow-lg transition-all duration-300 transform hover:scale-105">
+                    <iconify-icon icon="mdi:email-outline" class="inline-block mr-2 text-2xl"></iconify-icon> 联系我们
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer id="main-footer" class="bg-gray-950 py-12 px-6 text-center text-gray-400 border-t border-gray-800">
+        <div class="container mx-auto">
+            <div id="footer-links" class="flex flex-wrap justify-center space-x-6 mb-6 text-lg">
+                <a href="#hero" class="hover:text-cyan-400 transition-colors duration-300">首页</a>
+                <a href="#features" class="hover:text-cyan-400 transition-colors duration-300">特性</a>
+                <a href="#architecture" class="hover:text-cyan-400 transition-colors duration-300">架构</a>
+                <a href="#ai-capabilities" class="hover:text-cyan-400 transition-colors duration-300">AI 能力</a>
+                <a href="#community" class="hover:text-cyan-400 transition-colors duration-300">社区</a>
+                <a href="#contact" class="hover:text-cyan-400 transition-colors duration-300">联系</a>
+            </div>
+            <div id="social-links" class="flex justify-center space-x-6 mb-6">
+                <a href="#" class="text-gray-400 hover:text-purple-400 transition-colors duration-300"><iconify-icon icon="mdi:github" class="text-3xl"></iconify-icon></a>
+                <a href="#" class="text-gray-400 hover:text-cyan-400 transition-colors duration-300"><iconify-icon icon="mdi:twitter" class="text-3xl"></iconify-icon></a>
+                <a href="#" class="text-gray-400 hover:text-indigo-400 transition-colors duration-300"><iconify-icon icon="mdi:linkedin" class="text-3xl"></iconify-icon></a>
+            </div>
+            <p id="copyright" class="text-gray-500">&copy; 2025 NetCoreKevin. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                // Close mobile menu if open
+                const mobileMenu = document.getElementById('mobile-menu');
+                if (!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+
+        // Sticky header background change on scroll
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('main-header');
+            if (window.scrollY > 80) {
+                header.classList.add('bg-gray-900', 'bg-opacity-95', 'shadow-2xl');
+                header.classList.remove('bg-opacity-80');
+            } else {
+                header.classList.remove('bg-gray-900', 'bg-opacity-95', 'shadow-2xl');
+                header.classList.add('bg-opacity-80');
+            }
+        });
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Intersection Observer for scroll animations
+        const animateOnScrollElements = document.querySelectorAll('.animate-fade-in-up');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    // Remove the class to allow re-animation if needed, or just unobserve
+                    entry.target.style.animationPlayState = 'running';
+                    observer.unobserve(entry.target); // Only animate once
+                }
+            });
+        }, {
+            threshold: 0.1, // Trigger when 10% of the element is visible
+            rootMargin: '0px 0px -50px 0px' // Start animation a bit before reaching bottom of viewport
+        });
+
+        animateOnScrollElements.forEach(element => {
+            element.style.animationPlayState = 'paused'; // Pause animation initially
+            observer.observe(element);
+        });
+    </script>
+</body>
+</html>
