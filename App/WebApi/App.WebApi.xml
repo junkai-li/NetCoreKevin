@@ -441,6 +441,11 @@
             <param data="keyValue">id租户</param>
             <returns></returns>
         </member>
+        <member name="T:App.WebApi.Controllers.v1.RoleController">
+            <summary>
+            角色管理
+            </summary>
+        </member>
         <member name="T:App.WebApi.Controllers.v1.VersionController">
             <summary>
             版本控制器
