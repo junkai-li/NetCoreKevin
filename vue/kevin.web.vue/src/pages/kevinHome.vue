@@ -150,41 +150,8 @@
       <!-- 主要内容 -->
       <a-layout-content class="content">
         <div class="content-wrapper">
-          <div class="welcome-card">
-            <h1>欢迎来到NetCoreKevin后台管理系统主页</h1>
-            <p>您已成功登录系统</p>
-            <div class="welcome-stats">
-              <div class="stat-item">
-                <span class="stat-value">128</span>
-                <span class="stat-label">用户数</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">24</span>
-                <span class="stat-label">在线数</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">98%</span>
-                <span class="stat-label">系统健康度</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="info-cards">
-            <a-card class="info-card" title="系统状态">
-              <p>系统运行正常</p>
-              <p>最后更新: 2025-11-13 12:00</p>
-            </a-card>
-            
-            <a-card class="info-card" title="最新消息">
-              <p>系统将在今晚进行维护</p>
-              <p>预计时间: 2小时</p>
-            </a-card>
-            
-            <a-card class="info-card" title="快捷操作">
-              <a-button type="primary" ghost>添加用户</a-button>
-              <a-button type="primary" ghost style="margin-left: 10px;">系统设置</a-button>
-            </a-card>
-          </div>
+          <!-- 将静态内容替换为动态路由加载区域 -->
+          <router-view />
         </div>
       </a-layout-content>
       
@@ -212,7 +179,7 @@ import {
 } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 
-const router = useRouter()
+const router = useRouter() 
 
 const collapsed = ref(false)
 const selectedKeys = ref(['dashboard'])
@@ -242,8 +209,32 @@ const currentRouteTitle = computed(() => {
 // 菜单点击事件
 const handleMenuClick = ({ key }) => {
   selectedKeys.value = [key]
-  // 这里可以根据key跳转到对应路由
-  console.log('Navigate to:', key)
+  // 根据key跳转到对应路由
+  switch(key) {
+    case 'user-list':
+      router.push('/home/user/list')
+      break
+    case 'user-role':
+      router.push('/home/user/role')
+      break
+    case 'user-permission':
+      router.push('/home/user/permission')
+      break
+    case 'system-config':
+      router.push('/home/system/config')
+      break
+    case 'log-management':
+      router.push('/home/system/log')
+      break
+    case 'notifications':
+      router.push('/home/system/notifications')
+      break
+    case 'analytics':
+      router.push('/home/analytics')
+      break
+    default:
+      router.push('/home')
+  }
 }
 
 // 退出登录

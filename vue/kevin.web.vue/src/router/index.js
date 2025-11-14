@@ -1,6 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import KevinLogin from '@/pages/kevinLogin.vue';
 import Home from '@/pages/kevinHome.vue';
+import kevinDashboard from '@/pages/kevinDashboard.vue';
+import UserList from '@/pages/UserList.vue';
+// 子页面组件 - 这里可以后续替换为实际的组件 
+const UserRole = { template: '<div><h2>角色管理</h2><p>这里是角色管理页面</p></div>' }
+const UserPermission = { template: '<div><h2>权限管理</h2><p>这里是权限管理页面</p></div>' }
+const SystemConfig = { template: '<div><h2>系统配置</h2><p>这里是系统配置页面</p></div>' }
+const LogManagement = { template: '<div><h2>日志管理</h2><p>这里是日志管理页面</p></div>' }
+const Notifications = { template: '<div><h2>通知中心</h2><p>这里是通知中心页面</p></div>' }
+const Analytics = { template: '<div><h2>数据分析</h2><p>这里是数据分析页面</p></div>' }
 
 const routes = [
   {
@@ -16,7 +25,49 @@ const routes = [
     path: '/home',
     name: 'Home',
     component: Home,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: '',
+        name: 'Dashboard',
+        component: kevinDashboard
+      },
+      {
+        path: 'user/list',
+        name: 'UserList',
+        component: UserList
+      },
+      {
+        path: 'user/role',
+        name: 'UserRole',
+        component: UserRole
+      },
+      {
+        path: 'user/permission',
+        name: 'UserPermission',
+        component: UserPermission
+      },
+      {
+        path: 'system/config',
+        name: 'SystemConfig',
+        component: SystemConfig
+      },
+      {
+        path: 'system/log',
+        name: 'LogManagement',
+        component: LogManagement
+      },
+      {
+        path: 'system/notifications',
+        name: 'Notifications',
+        component: Notifications
+      },
+      {
+        path: 'analytics',
+        name: 'Analytics',
+        component: Analytics
+      }
+    ]
   }
 ];
 
@@ -29,7 +80,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   // 检查是否需要认证
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-  const isAuthenticated = localStorage.getItem('token'); // 简单示例，实际项目中应使用更安全的方式
+  const isAuthenticated = localStorage.getItem('token'); 
 
   if (requiresAuth && !isAuthenticated) {
     next('/login');
