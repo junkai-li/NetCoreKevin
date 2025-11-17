@@ -174,14 +174,14 @@ NetCoreKevin 是一个非常完整的微服务架构项目，结合了 DDD、CAP
 # 基础API
 ![输入图片说明](Doc/478957534-9ac73e9a-1e3d-4d0c-add9-7e4b938e231e.png) 
 
-# 上手教程
+# 🧰上手教程
 
 ```
   第一步.json配置文件请配置好数据库链接默认使用MySQL（可自行更改）EFCore框架 不熟悉的可以看看微软官网文档
   第二步.执行初始化数据库命令：在Kevin.EntityFrameworkCore执行NuGet命令  Add-Migration "初始化数据库" =》Update-Database 执行完成后开始第三步
   第三步.启动App.WebApi第一次启动会初始化种子数据 种子数据配置可以在kevin.Domain.BaseDatas下面查看和更改 启动后通过http://localhost:9901/swagger/index.html路由查看接口页面和如下页面
   第四步.启动App.AuthorizationService项目统一授权中心
-  第五步.在vue文件夹下面启动前端
+  第五步.在vue文件夹下面启动前端 前端运行步骤：1、安装依赖npm install 2、运行npm run dev 3、打包npm run build
   
 ```
  ![输入图片说明](Doc/server.png)
