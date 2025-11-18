@@ -68,6 +68,7 @@
           :pagination="pagination"
           :row-selection="rowSelection"
           :scroll="{ x: 1200 }"
+          :loading="loading"
           @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
@@ -82,13 +83,17 @@
             </template>
             
             <template v-else-if="column.dataIndex === 'role'">
-              <a-tag v-for="role in record.roles" :key="role" color="processing">
-                {{ role }}
+              <a-tag v-for="role in record.roles" :key="role.id" color="processing">
+                {{ role.name }}
               </a-tag>
             </template>
             
             <template v-else-if="column.dataIndex === 'lastLogin'">
               {{ record.lastLogin ? record.lastLogin : '从未登录' }}
+            </template>
+            
+            <template v-else-if="column.dataIndex === 'createTime'">
+              {{ formatDate(record.createTime) }}
             </template>
             
             <template v-else-if="column.dataIndex === 'action'">
@@ -163,7 +168,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import { 
   UserOutlined, 
   PlusOutlined, 
@@ -175,64 +180,17 @@ import {
 } from '@ant-design/icons-vue';
 import { message, Modal } from 'ant-design-vue';
 import { Form } from 'ant-design-vue';
+import { getUserList } from '../api/userapi';
 import '../css/UserList.css';
 import hedeImage from '../assets/hede.png'; // 导入图片
 
 const useForm = Form.useForm;
 
+// 数据加载状态
+const loading = ref(false);
+
 // 用户数据
-const dataSource = ref([
-  {
-    key: '1',
-    username: 'admin',
-    email: 'admin@example.com',
-    avatar: hedeImage,
-    roles: ['admin'],
-    status: 1,
-    createTime: '2023-01-01 12:00:00',
-    lastLogin: '2023-10-01 09:30:00'
-  },
-  {
-    key: '2',
-    username: 'user1',
-    email: 'user1@example.com',
-    avatar: hedeImage,
-    roles: ['user'],
-    status: 1,
-    createTime: '2023-01-02 14:20:00',
-    lastLogin: '2023-10-02 15:45:00'
-  },
-  {
-    key: '3',
-    username: 'user2',
-    email: 'user2@example.com',
-    avatar: hedeImage,
-    roles: ['user', 'auditor'],
-    status: 0,
-    createTime: '2023-01-03 16:10:00',
-    lastLogin: null
-  },
-  {
-    key: '4',
-    username: 'operator1',
-    email: 'op1@example.com',
-    avatar: hedeImage,
-    roles: ['operator'],
-    status: 1,
-    createTime: '2023-02-15 10:30:00',
-    lastLogin: '2023-10-03 11:20:00'
-  },
-  {
-    key: '5',
-    username: 'auditor1',
-    email: 'auditor1@example.com',
-    avatar: hedeImage,
-    roles: ['auditor'],
-    status: 1,
-    createTime: '2023-03-20 09:15:00',
-    lastLogin: '2023-10-04 14:10:00'
-  }
-]);
+const dataSource = ref([]);
 
 // 表格列定义
 const columns = ref([
@@ -244,9 +202,15 @@ const columns = ref([
   },
   {
     title: '用户名',
-    dataIndex: 'username',
-    key: 'username',
+    dataIndex: 'name',
+    key: 'name',
     sorter: true,
+    width: 120
+  },
+  {
+    title: '昵称',
+    dataIndex: 'nickName',
+    key: 'nickName',
     width: 120
   },
   {
@@ -279,12 +243,6 @@ const columns = ref([
     width: 180
   },
   {
-    title: '最后登录',
-    dataIndex: 'lastLogin',
-    key: 'lastLogin',
-    width: 180
-  },
-  {
     title: '操作',
     dataIndex: 'action',
     key: 'action',
@@ -305,7 +263,7 @@ const visibleColumns = computed(() => {
 const pagination = ref({
   current: 1,
   pageSize: 10,
-  total: 5,
+  total: 0,
   showSizeChanger: true,
   showQuickJumper: true,
   showTotal: (total) => `共 ${total} 条记录`
@@ -319,6 +277,9 @@ const rowSelection = ref({
     selectedRowKeys.value = selectedKeys;
   }
 });
+
+// 搜索关键词
+const searchKey = ref('');
 
 // 模态框状态
 const userModalVisible = ref(false);
@@ -369,6 +330,50 @@ const passwordRules = reactive({
 const { validate: validateUserForm, validateInfos } = useForm(userForm, userRules);
 const { validate: validatePasswordForm, validateInfos: passwordValidateInfos } = useForm(passwordForm, passwordRules);
 
+// ResizeObserver错误处理
+let resizeObserverErrHandler = null;
+let resizeObserverWarnHandler = null;
+
+onMounted(() => {
+  // 处理ResizeObserver错误
+  resizeObserverErrHandler = window.onerror;
+  resizeObserverWarnHandler = window.onwarn;
+  
+  window.onerror = function(message, source, lineno, colno, error) {
+    if (message.includes('ResizeObserver')) {
+      // 忽略ResizeObserver相关错误
+      return true;
+    }
+    // 其他错误仍然调用原始处理函数
+    if (resizeObserverErrHandler) {
+      return resizeObserverErrHandler(message, source, lineno, colno, error);
+    }
+  };
+  
+  window.onwarn = function(message) {
+    if (message.includes('ResizeObserver')) {
+      // 忽略ResizeObserver相关警告
+      return true;
+    }
+    // 其他警告仍然调用原始处理函数
+    if (resizeObserverWarnHandler) {
+      return resizeObserverWarnHandler(message);
+    }
+  };
+  
+  fetchUserList();
+});
+
+onUnmounted(() => {
+  // 恢复原始的错误处理函数
+  if (resizeObserverErrHandler) {
+    window.onerror = resizeObserverErrHandler;
+  }
+  if (resizeObserverWarnHandler) {
+    window.onwarn = resizeObserverWarnHandler;
+  }
+});
+
 // 自定义密码确认验证
 function validateConfirmPassword(rule, value) {
   if (value && value !== passwordForm.password) {
@@ -386,10 +391,59 @@ const toggleColumn = (dataIndex, visible) => {
   }
 };
 
+// 格式化日期
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleString('zh-CN');
+};
+
 // 搜索处理
 const onSearch = (value) => {
-  console.log('搜索:', value);
-  message.info(`搜索用户: ${value}`);
+  searchKey.value = value;
+  pagination.value.current = 1;
+  fetchUserList();
+};
+
+// 获取用户列表
+const fetchUserList = async () => {
+  loading.value = true;
+  try {
+    const params = { 
+      searchKey: searchKey.value,
+      state: "",
+      sign: "",
+      pageSize: pagination.value.pageSize,
+      pageNum: pagination.value.current,
+      total: 0,
+      startTime: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString(), // 最近30天
+      endTime: new Date().toISOString()
+    }; 
+    const response = await getUserList(params);  
+    if (response &&response.status==200&&response.data.data.data) { 
+      // 处理返回的数据
+      dataSource.value = response.data.data.data.map(user => ({
+        key: user.id,
+        id: user.id,
+        name: user.name,
+        nickName: user.nickName,
+        email: user.email,
+        roles: user.roles,
+        status: 1, // 默认启用状态
+        createTime: user.createTime,
+        avatar: hedeImage
+      }));
+      
+      pagination.value.total = response.data.total;
+      pagination.value.current = response.data.pageNum;
+      pagination.value.pageSize = response.data.pageSize;
+    }
+  } catch (error) {
+    console.error('获取用户列表失败:', error);
+    message.error('获取用户列表失败: ' + error.message);
+  } finally {
+    loading.value = false;
+  }
 };
 
 // 显示添加用户模态框
@@ -412,9 +466,9 @@ const showEditUserModal = (record) => {
   currentUser.value = record;
   // 填充表单数据
   Object.assign(userForm, {
-    username: record.username,
+    username: record.name,
     email: record.email,
-    roles: [...record.roles],
+    roles: record.roles.map(role => role.name),
     status: record.status === 1
   });
   userModalVisible.value = true;
@@ -442,6 +496,7 @@ const handleUserModalOk = () => {
       message.success('用户添加成功');
     }
     userModalVisible.value = false;
+    fetchUserList(); // 重新加载数据
   }).catch(err => {
     console.log('表单验证失败:', err);
   });
@@ -455,7 +510,7 @@ const handleUserModalCancel = () => {
 // 密码模态框确认
 const handlePasswordModalOk = () => {
   validatePasswordForm().then(() => {
-    message.success(`用户 ${currentUser.value.username} 密码重置成功`);
+    message.success(`用户 ${currentUser.value.name} 密码重置成功`);
     passwordModalVisible.value = false;
   }).catch(err => {
     console.log('表单验证失败:', err);
@@ -471,6 +526,7 @@ const handlePasswordModalCancel = () => {
 const handleDelete = (key) => {
   message.success('用户删除成功');
   console.log('删除用户:', key);
+  fetchUserList(); // 重新加载数据
 };
 
 // 批量删除
@@ -487,6 +543,7 @@ const handleBatchDelete = () => {
     onOk() {
       message.success('用户批量删除成功');
       selectedRowKeys.value = [];
+      fetchUserList(); // 重新加载数据
     }
   });
 };
@@ -496,17 +553,13 @@ const handleExport = () => {
   message.success('数据导出成功');
 };
 
-// 表格变化处理
+// 表格变化处理（分页、排序、筛选）
 const handleTableChange = (pager, filters, sorter) => {
   console.log('表格变化:', pager, filters, sorter);
   pagination.value.current = pager.current;
   pagination.value.pageSize = pager.pageSize;
+  fetchUserList(); // 重新加载数据
 };
-
-// 组件挂载时的初始化
-onMounted(() => {
-  console.log('用户管理页面已加载');
-});
 </script>
 
 <style scoped>

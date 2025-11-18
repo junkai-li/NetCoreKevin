@@ -5,7 +5,7 @@ export const login = (acctount, password,tenantId) =>
   return http.post(`/api/Authorize/GetToken`,{ name:acctount, passWord: password,tenantId:tenantId });
 };
 export const getTokenUser = () => {
-  return   http.get(`/api/User/GetUser`);
+  return http.get(`/api/User/GetUser`);
 };
 
 export const createUser = (userData) => {
@@ -36,4 +36,8 @@ export const getUserProfile = () => {
       });
     }, 500);
   });
+};
+
+export const getUserList = (params) => {
+  return http.post('/api/User/GetSysUserList', params);
 };
