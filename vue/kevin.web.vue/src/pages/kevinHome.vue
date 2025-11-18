@@ -161,7 +161,7 @@
             </div>
             <template #overlay>
               <a-menu class="user-menu">
-                <a-menu-item key="profile">
+                <a-menu-item @click="handleUserInfo" key="profile">
                   <UserOutlined />
                   个人中心
                 </a-menu-item>
@@ -242,7 +242,8 @@ const currentRouteTitle = computed(() => {
     'system-config': '系统配置',
     'log-management': '日志管理',
     'analytics': '数据分析',
-    'notifications': '通知中心'
+    'notifications': '通知中心',
+    'handleUserInfo': '通知中心'
   }
   return titles[selectedKeys.value[0]] || '首页'
 })
@@ -292,7 +293,12 @@ const handleLogout = () => {
   localStorage.removeItem('token')
   router.push('/login')
 }
-
+// 个人中心
+const handleUserInfo = () => {
+  console.log('个人中心') 
+   selectedKeys.value = ['handleUserInfo']
+  router.push('/home/user/profile')
+}
 // 初始化背景动画
 onMounted(() => {
   initParticles()
@@ -832,4 +838,5 @@ const initParticles = () => {
   .main-layout {
     margin-left: 0;
   }
-}</style>
+}
+</style>

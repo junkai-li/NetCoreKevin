@@ -4,7 +4,9 @@ import Home from '@/pages/kevinHome.vue';
 import Dashboard from '@/pages/kevinDashboard.vue';
 import UserList from '@/pages/UserList.vue';
 import UserRole from '@/pages/UserRole.vue';
-
+import UserProfile from '@/pages/UserProfile.vue';
+import { getTokenUser } from "../api/userapi";
+import { message } from 'ant-design-vue';
 // 子页面组件 - 这里可以后续替换为实际的组件
 const UserPermission = { template: '<div><h2>权限管理</h2><p>这里是权限管理页面</p></div>' }
 const SystemConfig = { template: '<div><h2>系统配置</h2><p>这里是系统配置页面</p></div>' }
@@ -42,6 +44,11 @@ const routes = [
         path: 'user/role',
         name: 'UserRole',
         component: UserRole
+      },
+      {
+        path: 'user/profile',
+        name: 'UserProfile',
+        component: UserProfile
       },
       {
         path: 'user/permission',
@@ -82,7 +89,20 @@ router.beforeEach((to, from, next) => {
   // 检查是否需要认证
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const isAuthenticated = localStorage.getItem('token'); 
-
+   getTokenUser().then((response) => 
+        {
+          if(response.status==200){ 
+            if (response.data.code == 200) {
+               localStorage.setItem('user',JSON.stringify(response.data.data));
+               console.warn(response.data.data);
+            }
+          }else{
+            message.warning("登录失败");
+            localStorage.removeItem('token');
+              localStorage.removeItem('user');
+            next('/login');
+          }
+ });
   if (requiresAuth && !isAuthenticated) {
     next('/login');
   } else if (to.path === '/login' && isAuthenticated) {

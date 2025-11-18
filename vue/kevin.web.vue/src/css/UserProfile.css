@@ -1,0 +1,126 @@
+@import './buttons.css';
+
+.user-profile-container {
+  height: 100%;
+  padding: 20px;
+  color: white;
+}
+
+.user-profile-card {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+:deep(.user-profile-card .ant-card-head) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0 20px;
+  background: transparent;
+}
+
+:deep(.user-profile-card .ant-card-head-title) {
+  color: white;
+  padding: 16px 0;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.title-icon {
+  margin-right: 8px;
+  font-size: 20px;
+}
+
+.profile-content {
+  padding: 20px;
+}
+
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 20px;
+}
+
+.avatar-wrapper {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.avatar-wrapper h3 {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  font-size: 20px;
+  color: white;
+}
+
+.user-id {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  margin: 0;
+}
+
+.info-section {
+  padding-top: 20px;
+}
+
+/* 确保描述列表中的文字为白色 */
+.info-section .ant-descriptions-item-label {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.info-section .ant-descriptions-item-content {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.info-section .ant-descriptions-view {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.info-section .ant-descriptions-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.info-section .ant-descriptions-row:last-child {
+  border-bottom: none;
+}
+
+.action-buttons {
+  margin-top: 30px;
+  text-align: right;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .profile-content {
+    padding: 10px;
+  }
+  
+  .avatar-section,
+  .info-section {
+    padding-top: 10px;
+  }
+  
+  .action-buttons {
+    text-align: center;
+    margin-top: 20px;
+  }
+}
