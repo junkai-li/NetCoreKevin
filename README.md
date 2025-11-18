@@ -134,7 +134,6 @@ NetCoreKevin 是一个基于 DDD（Domain-Driven Design） 和 微服务架构 �
 - 27. Kevin.AI 系列
 - 功能：AI 集成模块，包括 SemanticKernel、MCP 服务、OCR 验证码识别等。
 - 说明：集成 AI 功能，如语义理解、验证码识别等。
-- 
 
 # 🧰 技术亮点
 技术点	说明
