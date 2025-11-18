@@ -26,13 +26,13 @@
       
       <div class="toolbar">
         <div class="toolbar-left">
-          <a-button @click="handleBatchDelete">
+          <a-button class="toolbar-button" @click="handleBatchDelete">
             <template #icon>
               <DeleteOutlined />
             </template>
             批量删除
           </a-button>
-          <a-button @click="handleExport">
+          <a-button class="toolbar-button" @click="handleExport">
             <template #icon>
               <DownloadOutlined />
             </template>
@@ -41,7 +41,7 @@
         </div>
         <div class="toolbar-right">
           <a-dropdown>
-            <a-button>
+            <a-button class="toolbar-button">
               <BarsOutlined />
               列设置
             </a-button>
@@ -70,6 +70,7 @@
           :scroll="{ x: 1200 }"
           :loading="loading"
           @change="handleTableChange"
+          class="user-table"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'avatar'">
@@ -98,13 +99,13 @@
             
             <template v-else-if="column.dataIndex === 'action'">
               <div class="action-buttons">
-                <a-button type="link" size="small" @click="showEditUserModal(record)">
+                <a-button type="link" size="small" class="action-button" @click="showEditUserModal(record)">
                   <template #icon>
                     <EditOutlined />
                   </template>
                   编辑
                 </a-button>
-                <a-button type="link" size="small" @click="showResetPasswordModal(record)">
+                <a-button type="link" size="small" class="action-button" @click="showResetPasswordModal(record)">
                   <template #icon>
                     <KeyOutlined />
                   </template>
@@ -116,7 +117,7 @@
                   cancel-text="取消"
                   @confirm="handleDelete(record.key)"
                 >
-                  <a-button type="link" size="small" danger>
+                  <a-button type="link" size="small" class="action-button danger" >
                     <template #icon>
                       <DeleteOutlined />
                     </template>
@@ -131,36 +132,66 @@
     </a-card>
     
     <!-- 添加/编辑用户模态框 -->
-    <a-modal v-model:open="userModalVisible" :title="userModalTitle" @ok="handleUserModalOk" @cancel="handleUserModalCancel">
+    <a-modal v-model:open="userModalVisible" :title="userModalTitle" @ok="handleUserModalOk" @cancel="handleUserModalCancel" class="custom-modal" :width="600">
       <a-form :model="userForm" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
         <a-form-item label="用户名" v-bind="validateInfos.username">
-          <a-input v-model:value="userForm.username" />
+          <a-input v-model:value="userForm.username" class="custom-input" />
+        </a-form-item>
+        <a-form-item label="昵称" v-bind="validateInfos.nickName">
+          <a-input v-model:value="userForm.nickName" class="custom-input" />
+        </a-form-item>
+        <a-form-item label="手机号" v-bind="validateInfos.phone">
+          <a-input v-model:value="userForm.phone" class="custom-input" />
         </a-form-item>
         <a-form-item label="邮箱" v-bind="validateInfos.email">
-          <a-input v-model:value="userForm.email" />
+          <a-input v-model:value="userForm.email" class="custom-input" />
         </a-form-item>
         <a-form-item label="角色">
-          <a-select v-model:value="userForm.roles" mode="multiple" placeholder="请选择角色">
-            <a-select-option value="admin">管理员</a-select-option>
-            <a-select-option value="user">普通用户</a-select-option>
-            <a-select-option value="auditor">审计员</a-select-option>
-            <a-select-option value="operator">操作员</a-select-option>
+          <a-select 
+            v-model:value="userForm.roles" 
+            mode="multiple" 
+            placeholder="请选择角色" 
+            class="custom-select"
+            :loading="roleLoading"
+          >
+            <a-select-option 
+              v-for="role in roleList" 
+              :key="role.id" 
+              :value="role.value"
+            >
+              {{ role.name }}
+            </a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item label="状态">
           <a-switch v-model:checked="userForm.status" checked-children="启用" un-checked-children="禁用" />
         </a-form-item>
+        <a-form-item label="头像">
+          <a-upload
+            v-model:file-list="userForm.avatar"
+            list-type="picture-card"
+            class="avatar-uploader"
+            :show-upload-list="false"
+            :before-upload="beforeUpload"
+          >
+            <img v-if="userForm.avatarUrl" :src="userForm.avatarUrl" alt="avatar" style="width: 100%" />
+            <div v-else>
+              <PlusOutlined />
+              <div style="margin-top: 8px">上传头像</div>
+            </div>
+          </a-upload>
+        </a-form-item>
       </a-form>
     </a-modal>
     
     <!-- 重置密码模态框 -->
-    <a-modal v-model:open="passwordModalVisible" title="重置密码" @ok="handlePasswordModalOk" @cancel="handlePasswordModalCancel">
+    <a-modal v-model:open="passwordModalVisible" title="重置密码" @ok="handlePasswordModalOk" @cancel="handlePasswordModalCancel" class="custom-modal">
       <a-form :model="passwordForm" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
         <a-form-item label="新密码" v-bind="passwordValidateInfos.password">
-          <a-input-password v-model:value="passwordForm.password" />
+          <a-input-password v-model:value="passwordForm.password" class="custom-input" />
         </a-form-item>
         <a-form-item label="确认密码" v-bind="passwordValidateInfos.confirmPassword">
-          <a-input-password v-model:value="passwordForm.confirmPassword" />
+          <a-input-password v-model:value="passwordForm.confirmPassword" class="custom-input" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -175,12 +206,12 @@ import {
   DeleteOutlined, 
   DownloadOutlined, 
   BarsOutlined,
-  EditOutlined,
+  EditOutlined, 
   KeyOutlined
 } from '@ant-design/icons-vue';
 import { message, Modal } from 'ant-design-vue';
 import { Form } from 'ant-design-vue';
-import { getUserList } from '../api/userapi';
+import { getUserList, createUser, updateUser, getUserRoleList } from '../api/userapi';
 import '../css/UserList.css';
 import hedeImage from '../assets/hede.png'; // 导入图片
 
@@ -188,9 +219,13 @@ const useForm = Form.useForm;
 
 // 数据加载状态
 const loading = ref(false);
+const roleLoading = ref(false);
 
 // 用户数据
 const dataSource = ref([]);
+
+// 角色列表
+const roleList = ref([]);
 
 // 表格列定义
 const columns = ref([
@@ -292,9 +327,13 @@ const currentUser = ref(null);
 // 用户表单
 const userForm = reactive({
   username: '',
+  nickName: '',
+  phone: '',
   email: '',
   roles: [],
-  status: true
+  status: true,
+  avatar: [],
+  avatarUrl: ''
 });
 
 // 密码表单
@@ -308,6 +347,12 @@ const userRules = reactive({
   username: [
     { required: true, message: '请输入用户名' },
     { min: 3, message: '用户名至少3个字符' }
+  ],
+  nickName: [
+    { required: true, message: '请输入昵称' }
+  ],
+  phone: [
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号' }
   ],
   email: [
     { required: true, message: '请输入邮箱' },
@@ -362,6 +407,7 @@ onMounted(() => {
   };
   
   fetchUserList();
+  fetchRoleList();
 });
 
 onUnmounted(() => {
@@ -381,6 +427,27 @@ function validateConfirmPassword(rule, value) {
   }
   return Promise.resolve();
 }
+
+// 头像上传前处理
+const beforeUpload = (file) => {
+  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+  if (!isJpgOrPng) {
+    message.error('只能上传JPG/PNG格式的图片!');
+  }
+  const isLt2M = file.size / 1024 / 1024 < 2;
+  if (!isLt2M) {
+    message.error('图片大小不能超过2MB!');
+  }
+  if (isJpgOrPng && isLt2M) {
+    // 读取文件并预览
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      userForm.avatarUrl = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+  return false; // 不自动上传
+};
 
 // 切换列显示/隐藏
 const toggleColumn = (dataIndex, visible) => {
@@ -427,6 +494,7 @@ const fetchUserList = async () => {
         id: user.id,
         name: user.name,
         nickName: user.nickName,
+        phone: user.phone,
         email: user.email,
         roles: user.roles,
         status: 1, // 默认启用状态
@@ -446,6 +514,26 @@ const fetchUserList = async () => {
   }
 };
 
+// 获取角色列表
+const fetchRoleList = async () => {
+  roleLoading.value = true;
+  try {
+    const response = await getUserRoleList();
+    if (response && response.status === 200 && response.data) {
+      roleList.value = response.data.data.map(role => ({
+        id: role.key,
+        name: role.value,
+        value: role.value
+      }));
+    }
+  } catch (error) {
+    console.error('获取角色列表失败:', error);
+    message.error('获取角色列表失败: ' + error.message);
+  } finally {
+    roleLoading.value = false;
+  }
+};
+
 // 显示添加用户模态框
 const showAddUserModal = () => {
   userModalTitle.value = '添加用户';
@@ -453,9 +541,13 @@ const showAddUserModal = () => {
   // 重置表单
   Object.assign(userForm, {
     username: '',
+    nickName: '',
+    phone: '',
     email: '',
     roles: [],
-    status: true
+    status: true,
+    avatar: [],
+    avatarUrl: ''
   });
   userModalVisible.value = true;
 };
@@ -467,9 +559,13 @@ const showEditUserModal = (record) => {
   // 填充表单数据
   Object.assign(userForm, {
     username: record.name,
+    nickName: record.nickName,
+    phone: record.phone,
     email: record.email,
     roles: record.roles.map(role => role.name),
-    status: record.status === 1
+    status: record.status === 1,
+    avatar: [],
+    avatarUrl: record.avatar || ''
   });
   userModalVisible.value = true;
 };
@@ -487,16 +583,33 @@ const showResetPasswordModal = (record) => {
 
 // 用户模态框确认
 const handleUserModalOk = () => {
-  validateUserForm().then(() => {
-    if (currentUser.value) {
-      // 编辑用户
-      message.success('用户信息更新成功');
-    } else {
-      // 添加用户
-      message.success('用户添加成功');
+  validateUserForm().then(async () => {
+    try {
+      const userData = {
+        name: userForm.username,
+        nickName: userForm.nickName,
+        phone: userForm.phone,
+        email: userForm.email,
+        roles: userForm.roles,
+        status: userForm.status ? 1 : 0,
+        headImgs: userForm.avatarUrl ? [{ key: 'avatar', value: userForm.avatarUrl }] : []
+      };
+
+      if (currentUser.value) {
+        // 编辑用户
+        await updateUser(userData);
+        message.success('用户信息更新成功');
+      } else {
+        // 添加用户
+        await createUser(userData);
+        message.success('用户添加成功');
+      }
+      userModalVisible.value = false;
+      fetchUserList(); // 重新加载数据
+    } catch (error) {
+      console.error('操作失败:', error);
+      message.error('操作失败: ' + error.message);
     }
-    userModalVisible.value = false;
-    fetchUserList(); // 重新加载数据
   }).catch(err => {
     console.log('表单验证失败:', err);
   });
@@ -634,87 +747,115 @@ const handleTableChange = (pager, filters, sorter) => {
   gap: 8px;
 }
 
+.toolbar-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.toolbar-button:hover {
+  background: rgba(102, 126, 234, 0.2);
+  border-color: rgba(102, 126, 234, 0.5);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.toolbar-button :deep(.anticon) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.toolbar-button:hover :deep(.anticon) {
+  color: white;
+}
+
 .table-container {
   background: transparent;
   flex: 1;
   overflow: hidden;
 }
 
-:deep(.ant-table) {
+.user-table {
+  color: white;
+}
+
+:deep(.user-table .ant-table) {
   background: transparent;
   color: rgba(255, 255, 255, 0.85);
 }
 
-:deep(.ant-table-thead > tr > th) {
+:deep(.user-table .ant-table-thead > tr > th) {
   background: rgba(102, 126, 234, 0.2);
   color: white;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 500;
 }
 
-:deep(.ant-table-tbody > tr) {
+:deep(.user-table .ant-table-tbody > tr) {
   background: transparent;
 }
 
-:deep(.ant-table-tbody > tr > td) {
+:deep(.user-table .ant-table-tbody > tr > td) {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.85);
   padding: 12px 8px;
   background: transparent;
-  transition: background 0.3s ease; /* 添加过渡效果 */
+  transition: background 0.3s ease;
 }
 
-:deep(.ant-table-tbody > tr:hover > td) {
+:deep(.user-table .ant-table-tbody > tr:hover > td) {
   background: rgba(102, 126, 234, 0.1) !important;
 }
 
-:deep(.ant-table-tbody > tr.ant-table-row-selected > td) {
+:deep(.user-table .ant-table-tbody > tr.ant-table-row-selected > td) {
   background: rgba(102, 126, 234, 0.2) !important;
 }
 
-/* 防止悬停时的闪烁问题 */
-:deep(.ant-table-tbody > tr.ant-table-row:hover > td) {
+:deep(.user-table .ant-table-tbody > tr.ant-table-row:hover > td) {
   background: rgba(102, 126, 234, 0.1) !important;
 }
 
-/* 防止鼠标移出时的闪烁问题 */
-:deep(.ant-table-tbody > tr.ant-table-row) {
+:deep(.user-table .ant-table-tbody > tr.ant-table-row) {
   background: transparent !important;
 }
 
-:deep(.ant-table-tbody > tr.ant-table-row > td) {
+:deep(.user-table .ant-table-tbody > tr.ant-table-row > td) {
   background: transparent !important;
-  transition: background 0.3s ease; /* 添加过渡效果 */
+  transition: background 0.3s ease;
 }
 
-:deep(.ant-pagination) {
+:deep(.user-table .ant-pagination) {
   color: rgba(255, 255, 255, 0.85);
 }
 
-:deep(.ant-pagination-item) {
+:deep(.user-table .ant-pagination-item) {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-:deep(.ant-pagination-item a) {
+:deep(.user-table .ant-pagination-item a) {
   color: rgba(255, 255, 255, 0.85);
 }
 
-:deep(.ant-pagination-item-active) {
+:deep(.user-table .ant-pagination-item-active) {
   background: #667eea;
   border-color: #667eea;
 }
 
-:deep(.ant-pagination-next),
-:deep(.ant-pagination-prev) {
+:deep(.user-table .ant-pagination-next),
+:deep(.user-table .ant-pagination-prev) {
   color: rgba(255, 255, 255, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-:deep(.ant-btn-link) {
+:deep(.user-table .ant-btn-link) {
   color: #667eea;
+  padding: 0;
 }
 
-:deep(.ant-btn-link:hover) {
+:deep(.user-table .ant-btn-link:hover) {
   color: #764ba2;
 }
 
@@ -722,6 +863,22 @@ const handleTableChange = (pager, filters, sorter) => {
   display: flex;
   gap: 8px;
   background: transparent;
+}
+
+.action-button {
+  color: rgba(255, 255, 255, 0.85) !important;
+  padding: 0 4px;
+  height: auto;
+  line-height: normal;
+}
+
+.action-button:hover {
+  color: #667eea !important;
+  background: transparent;
+}
+
+.action-button.danger:hover {
+  color: #ff4d4f !important;
 }
 
 .search-input {
@@ -751,7 +908,7 @@ const handleTableChange = (pager, filters, sorter) => {
 .add-button {
   background: linear-gradient(45deg, #667eea, #764ba2);
   border: none;
-  border-radius: 20px;
+  border-radius: 6px;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
   transition: all 0.3s ease;
 }
@@ -761,57 +918,59 @@ const handleTableChange = (pager, filters, sorter) => {
   transform: translateY(-2px);
 }
 
-:deep(.ant-modal-content) {
+:deep(.custom-modal .ant-modal-content) {
   background: #1a1a2e;
   color: white;
   border-radius: 12px;
   overflow: hidden;
 }
 
-:deep(.ant-modal-header) {
+:deep(.custom-modal .ant-modal-header) {
   background: rgba(102, 126, 234, 0.2);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 16px 24px;
 }
 
-:deep(.ant-modal-title) {
+:deep(.custom-modal .ant-modal-title) {
   color: white;
 }
 
-:deep(.ant-modal-close) {
+:deep(.custom-modal .ant-modal-close) {
   color: rgba(255, 255, 255, 0.8);
 }
 
-:deep(.ant-modal-close:hover) {
+:deep(.custom-modal .ant-modal-close:hover) {
   color: white;
 }
 
-:deep(.ant-form-item-label > label) {
+:deep(.custom-modal .ant-form-item-label > label) {
   color: rgba(255, 255, 255, 0.85);
 }
 
-:deep(.ant-input) {
+:deep(.custom-input .ant-input) {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
   color: white;
+  border-radius: 6px;
 }
 
-:deep(.ant-input:focus) {
+:deep(.custom-input .ant-input:focus) {
   box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
   border-color: #667eea;
 }
 
-:deep(.ant-select-selector) {
+:deep(.custom-select .ant-select-selector) {
   background: rgba(255, 255, 255, 0.1) !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
   color: white !important;
+  border-radius: 6px !important;
 }
 
-:deep(.ant-select-selection-item) {
+:deep(.custom-select .ant-select-selection-item) {
   color: white;
 }
 
-:deep(.ant-select-arrow) {
+:deep(.custom-select .ant-select-arrow) {
   color: rgba(255, 255, 255, 0.5);
 }
 
@@ -821,6 +980,18 @@ const handleTableChange = (pager, filters, sorter) => {
 
 :deep(.ant-switch-checked) {
   background: #667eea;
+}
+
+:deep(.avatar-uploader .ant-upload.ant-upload-select-picture-card) {
+  width: 100px;
+  height: 100px;
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+:deep(.avatar-uploader .ant-upload.ant-upload-select-picture-card:hover) {
+  border-color: #667eea;
 }
 
 @media (max-width: 768px) {

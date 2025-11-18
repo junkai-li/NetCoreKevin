@@ -9,35 +9,17 @@ export const getTokenUser = () => {
 };
 
 export const createUser = (userData) => {
-  return http.post('/users', userData);
+  return http.post('/api/User/EditUser', userData);
 };
 
-export const getUserProfile = () => {
-  // 模拟用户数据，实际项目中应该调用真实API
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        "id": "eef5525d-5d64-46ad-8d64-79fb3ad9724f",
-        "name": "admin",
-        "nickName": "admin",
-        "phone": "admin",
-        "email": "admin",
-        "roles": [
-          {
-            "id": "c23301b7-f9e0-464c-b76d-1f0a5a557548",
-            "name": "admin",
-            "remarks": "admin",
-            "createTime": "2025/11/14 10:20:05"
-          }
-        ],
-        "passWord": "",
-        "createTime": "2025/11/14 10:20:05",
-        "headImgs": []
-      });
-    }, 500);
-  });
-};
+export const updateUser = (userData) => {
+  return http.put(`/api/User/EditUser`, userData);
+}; 
 
 export const getUserList = (params) => {
   return http.post('/api/User/GetSysUserList', params);
+};
+
+export const getUserRoleList = () => {
+  return http.get('/api/User/GetUserRoleKey');
 };
