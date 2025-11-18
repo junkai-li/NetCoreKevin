@@ -8,11 +8,8 @@
 
 # NetCoreKevin前言
 基于NET8搭建DDD-微服务-现代化Saas企业级WebAPI前后端分离架构：前端Vue3、IDS4单点登录、多级缓存、自动任务、分布式、AI智能体、一库多租户、日志、授权和鉴权、CAP事件、SignalR、领域事件、MCP协议服务、IOC模块化注入、Cors、Quartz自动任务、多短信、AI、AgentFramework、SemanticKernel集成、RAG检索增强+Qdrant矢量数据库、OCR识别、API多版本、单元测试、RabbitMQ
-解耦设计都可以单独引用 
+解耦设计都可以单独引用项目启动时注意相关Redis、db链接配置、RabbitMQ、生成数据库可见下面说明文件 命令生成即可 
 
-# 项目启动
-项目启动时注意相关Redis、db链接配置、RabbitMQ 
-生成数据库可见下面说明文件 命令生成即可 
 # DDD思想    
 ![输入图片说明](Doc/e6daeb16-5b1e-487b-93be-f73f5201964a.png)
 
@@ -153,16 +150,6 @@ NetCoreKevin 是一个基于 DDD（Domain-Driven Design） 和 微服务架构 �
 - Docker	容器化部署，便于环境管理
 - AI 集成	SemanticKernel、MCP 服务、OCR 验证码识别等 AI 技术
 
-# 📦 项目启动与配置
-
-- 1. 配置 Redis 和数据库
-- 项目启动前需配置 Redis 和数据库连接字符串。
-- 数据库结构可通过脚本生成。
-- 2. Docker 配置
-- 项目支持 Docker 部署，Dockerfile 和配置文件已提供。
-- 3. JSON 配置
-- 项目使用 JSON 文件进行配置，包括缓存、短信、日志、AI 等模块。
-
 # 🧠 AI 集成说明
 AI 模块包括：
 
@@ -176,16 +163,30 @@ NetCoreKevin 是一个非常完整的微服务架构项目，结合了 DDD、CAP
 # 基础API
 ![输入图片说明](Doc/478957534-9ac73e9a-1e3d-4d0c-add9-7e4b938e231e.png) 
 
+# 📦 项目启动与配置
+
+- 1. 配置 Redis 和数据库
+- 项目启动前需配置 Redis 和数据库连接字符串。
+- 数据库结构可通过脚本生成。
+- 2. Docker 配置
+- 项目支持 Docker 部署，Dockerfile 和配置文件已提供。
+- 3. JSON 配置
+- 项目使用 JSON 文件进行配置，包括缓存、短信、日志、AI 等模块。
+
 # 🧰上手教程
 
-```
-  第一步.json配置文件请配置好数据库链接默认使用MySQL（可自行更改）EFCore框架 不熟悉的可以看看微软官网文档
-  第二步.执行初始化数据库命令：在Kevin.EntityFrameworkCore执行NuGet命令  Add-Migration "初始化数据库" =》Update-Database 执行完成后开始第三步
-  第三步.启动App.WebApi第一次启动会初始化种子数据 种子数据配置可以在kevin.Domain.BaseDatas下面查看和更改 启动后通过http://localhost:9901/swagger/index.html路由查看接口页面和如下页面
-  第四步.启动App.AuthorizationService项目统一授权中心
-  第五步.在vue文件夹下面启动前端 前端运行步骤：1、安装依赖npm install 2、运行npm run dev 3、打包npm run build
-  
-```
+
+  第一步
+  `json配置文件请配置好数据库链接默认使用MySQL（可自行更改）EFCore框架 不熟悉的可以看看微软官网文档`
+  第二步
+  `执行初始化数据库命令：在Kevin.EntityFrameworkCore执行NuGet命令  Add-Migration "初始化数据库" =》Update-Database 执行完成后开始第三步`
+  第三步
+  `启动App.WebApi第一次启动会初始化种子数据 种子数据配置可以在kevin.Domain.BaseDatas下面查看和更改 启动后通过http://localhost:9901/swagger/index.html路由查看接口页面和如下页面`
+  第四步
+ `启动App.AuthorizationService项目统一授权中心`
+  第五步
+  `在vue文件夹下面启动前端 前端运行步骤：1、安装依赖npm install 2、运行npm run dev 3、打包npm run build`
+
  ![输入图片说明](Doc/server.png)
         
     
