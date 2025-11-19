@@ -102,8 +102,8 @@ namespace WebApi
                     app.UseExceptionHandler(builder => builder.Run(async context => await GlobalError.ErrorEvent(context)));
                 }
 
-                //堆的硬限制设置为500兆字节
-                AppContext.SetData("GCHeapHardLimit", (ulong)500 * 1_024 * 1_024);
+                //堆的硬限制设置为1G字节
+                AppContext.SetData("GCHeapHardLimit", (ulong)1024 * 1_024 * 1_024);
 
                 //kevin初始化
                 app.UseKevin();
