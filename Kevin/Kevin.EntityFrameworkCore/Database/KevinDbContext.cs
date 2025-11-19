@@ -20,11 +20,25 @@ namespace Repository.Database
 {
     public class KevinDbContext : DbContext
     {
+        /// <summary>
+        /// 领域事件
+        /// </summary>
 
         private IMediator Mediator;
+        /// <summary>
+        /// 数据库
+        /// </summary>
         public static string ConnectionString { get; set; }
 
+        /// <summary>
+        /// 租户Id
+        /// </summary>
         public Int32 TenantId { get; set; }
+        /// <summary>
+        /// 默认需要添加索引的字段
+        /// </summary>
+
+        public static List<string> DBDefaultHasIndexFields { get; set; }
 
 
         public KevinDbContext(DbContextOptions<KevinDbContext> _ = default, IMediator mediator = default, ICurrentUser service = default) : base(GetDbContextOptions())
@@ -168,13 +182,12 @@ namespace Repository.Database
                         {
                             property.SetColumnType("char(36)");
                         }
-
-
-                        //为所有 tableid 列添加索引
-                        if (property.Name.ToLower() == "tableid")
+                        //为默认索引列添加索引
+                        if (DBDefaultHasIndexFields.Contains(property.Name.ToLower()))
                         {
                             builder.HasIndex(property.Name);
                         }
+
                         //设置字段的默认值 
                         var defaultValueAttribute = property.PropertyInfo?.GetCustomAttribute<DefaultValueAttribute>();
                         if (defaultValueAttribute != null)
@@ -226,7 +239,7 @@ namespace Repository.Database
 
         }
 
-
+ 
         ///// <summary>
         ///// 数据变化比较
         ///// </summary>

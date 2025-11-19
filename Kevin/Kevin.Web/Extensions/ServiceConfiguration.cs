@@ -29,6 +29,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Repository.Database;
 using System;
+using System.Linq;
 using Web.Filters;
 using Web.Global.User;
 
@@ -281,6 +282,7 @@ namespace Web.Extension
             #region 基本服务
             //为各数据库注入连接字符串
             Repository.Database.KevinDbContext.ConnectionString = Configuration.GetConnectionString("dbConnection");
+            Repository.Database.KevinDbContext.DBDefaultHasIndexFields = Configuration.GetRequiredSection("DBDefaultHasIndexFields").Get<string>().Split(",").ToList();
             services.AddDbContextPool<Repository.Database.KevinDbContext>(options => { }, 100);
             services.AddScoped<KevinDbContext, KevinDbContext>();
 

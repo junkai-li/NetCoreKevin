@@ -100,12 +100,44 @@
         <member name="M:Kevin.EntityFrameworkCore.Migrations.更新用户表结构.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:Kevin.EntityFrameworkCore.Migrations.初始化默认索引">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化默认索引.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化默认索引.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化默认索引.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="T:Kevin.EntityFrameworkCore._.Data.Repository`2">
             <summary>
             仓储类与类型Id
             </summary>
             <typeparam name="T"></typeparam>
             <typeparam name="TId"></typeparam>
+        </member>
+        <member name="F:Repository.Database.KevinDbContext.Mediator">
+            <summary>
+            领域事件
+            </summary>
+        </member>
+        <member name="P:Repository.Database.KevinDbContext.ConnectionString">
+            <summary>
+            数据库
+            </summary>
+        </member>
+        <member name="P:Repository.Database.KevinDbContext.TenantId">
+            <summary>
+            租户Id
+            </summary>
+        </member>
+        <member name="P:Repository.Database.KevinDbContext.DBDefaultHasIndexFields">
+            <summary>
+            默认需要添加索引的字段
+            </summary>
         </member>
         <member name="M:Repository.Database.KevinDbContext.MediatorEventBus(System.Collections.Generic.List{Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry{kevin.Domain.EventBus.IDomainEvents}})">
             <summary>
