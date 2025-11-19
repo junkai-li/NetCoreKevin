@@ -89,6 +89,7 @@ router.beforeEach((to, from, next) => {
   // 检查是否需要认证
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const isAuthenticated = localStorage.getItem('token'); 
+  if (isAuthenticated) {
    getTokenUser().then((response) => 
         {
           if(response.status==200){ 
@@ -103,6 +104,8 @@ router.beforeEach((to, from, next) => {
             next('/login');
           }
  });
+  }
+   
   if (requiresAuth && !isAuthenticated) {
     next('/login');
   } else if (to.path === '/login' && isAuthenticated) {
