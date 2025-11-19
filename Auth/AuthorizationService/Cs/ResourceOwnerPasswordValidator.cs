@@ -4,6 +4,7 @@ using Common.Json;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using kevin.Cache.Service;
+using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Kevin;
 using kevin.Domain.Share.Interfaces;
 using Kevin.Common.App.Global;
@@ -90,6 +91,7 @@ namespace AuthorizationService
             return Task.Run(() =>
             {
                 GlobalServices.ServiceProvider.GetService<ICacheService>().SetString("CacheClientUserList"+user.Id, JsonHelper.ObjectToJSON(user));
+                GlobalServices.ServiceProvider.GetService<IUserService>().UpdateRecentLoginTime(Guid.Parse(user.Id));
             });
         }
     }

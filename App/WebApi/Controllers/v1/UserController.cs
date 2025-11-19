@@ -2,6 +2,7 @@
 using kevin.Domain.Share.Dtos.User;
 using kevin.Permission.Permisson.Attributes;
 using kevin.Share.Dtos.System;
+using Kevin.Web.Filters.TransactionScope.Attribute;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -137,6 +138,7 @@ namespace WebApi.Controllers.v1
         /// <returns></returns>
         [HttpPost("EditUser")]
         [ActionDescription("新增编辑用户信息")]
+        [Transactional]
         public bool EditUser(dtoUser user)
         {
             return _userService.EditUser(user);
@@ -149,6 +151,7 @@ namespace WebApi.Controllers.v1
         /// <param name="cancellationToken">cancellationToken</param>
         /// <returns></returns>
         [HttpPost("ChangePasswordTokenUser")]
+        [Transactional]
         [ActionDescription("更改当前用户密码")]
         public async Task<bool> ChangePasswordTokenUser([FromBody] ChangePasswordTokenUserDto user, CancellationToken cancellationToken)
         {
@@ -161,6 +164,7 @@ namespace WebApi.Controllers.v1
         /// <param name="Id">Id</param>
         /// <returns></returns>
         [HttpDelete("DeleteUser")]
+        [Transactional]
         [ActionDescription("删除用户信息")]
         public bool DeleteUser(Guid Id)
         {

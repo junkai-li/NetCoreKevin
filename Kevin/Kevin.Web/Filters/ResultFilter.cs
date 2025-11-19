@@ -12,7 +12,7 @@ namespace Web.Filters
     /// 全局过滤器
     /// </summary>
     public class ResultFilter : Attribute, IResultFilter
-    { 
+    {
         /// <summary>
         /// 返回对象格式化方法
         /// </summary>
@@ -130,7 +130,16 @@ namespace Web.Filters
                         context.Result = new JsonResult(new { code = StatusCodes.Status500InternalServerError, IsSuccess = false, msg = "errmsg", errMsg = "系统内部异常" });
                         break;
                     default:
-                        context.Result = new JsonResult(new { code = StatusCodes.Status200OK, msg = "success", IsSuccess = true, data = context.Result != null ? Result?.Value : null });
+                        if (Result.StatusCode == StatusCodes.Status400BadRequest)
+                        {
+                            string errMsg2 =JsonHelper.GetValueByKey(Result.Value.EntityToJson(), "errMsg") ?? "未知错误";
+                            context.Result = new JsonResult(new { code = StatusCodes.Status400BadRequest, IsSuccess = false, msg = "errmsg", errMsg = errMsg2 });
+                        }
+                        else
+                        {
+                            context.Result = new JsonResult(new { code = StatusCodes.Status200OK, msg = "success", IsSuccess = true, data = context.Result != null ? Result?.Value : null });
+                        }
+
                         break;
                 }
             }
@@ -138,7 +147,7 @@ namespace Web.Filters
 
         public void OnResultExecuted(ResultExecutedContext context)
         {
-            
+
         }
     }
 }

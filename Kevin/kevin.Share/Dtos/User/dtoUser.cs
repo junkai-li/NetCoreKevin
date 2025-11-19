@@ -44,6 +44,16 @@ namespace kevin.Domain.Share.Dtos.User
         /// </summary>
         public DateTime CreateTime { get; set; }
 
+        /// <summary>
+        /// 状态
+        /// </summary>
+        public bool Status { get; set; } = true;
+
+        /// <summary>
+        ///最近登陆时间
+        /// </summary>
+        public DateTime? RecentLoginTime { get; set; }
+
         public List<dtoKeyValue>? HeadImgs { get; set; }
 
     }

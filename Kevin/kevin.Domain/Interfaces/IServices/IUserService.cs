@@ -137,5 +137,12 @@ namespace kevin.Domain.Interfaces.IServices
         /// <returns></returns> 
 
         List<dtoKeyValue> GetUserSystemKey();
+
+        /// <summary>
+        /// 最近登录时间
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <returns></returns>
+        Task<bool> UpdateRecentLoginTime(Guid guid);
     }
 }

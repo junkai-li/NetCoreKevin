@@ -3,10 +3,10 @@
 namespace Kevin.Web.Filters.TransactionScope.Attribute
 {
     /// <summary>
-    /// 不启动
+    ///启动事务
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class NotTransactionalAttribute : System.Attribute
+    public class TransactionalAttribute : System.Attribute
     {
     }
 }

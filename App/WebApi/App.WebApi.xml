@@ -77,6 +77,12 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:WebApi.Controllers.BaseController.GetNewGuid">
+            <summary>
+            获取一个雪花ID
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:WebApi.Controllers.FileController">
             <summary>
             文件上传控制器

@@ -45,6 +45,18 @@ namespace kevin.Domain.Kevin
         public bool IsSystem { get; set; } = true;
 
         /// <summary>
+        /// 状态 true启动 false禁用
+        /// </summary>
+        [Description("状态")]
+        public bool Status { get; set; } = true;
+
+        /// <summary>
+        ///最近登陆时间
+        /// </summary>
+        [Description("最近登陆时间")]
+        public DateTime? RecentLoginTime { get; set; }
+
+        /// <summary>
         /// 密码Hash
         /// </summary>
         [Description("密码Hash")]

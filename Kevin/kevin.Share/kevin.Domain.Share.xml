@@ -104,6 +104,16 @@
             创建时间
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Status">
+            <summary>
+            状态
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.RecentLoginTime">
+             <summary>
+            最近登陆时间
+             </summary>
+        </member>
         <member name="T:kevin.Share.Dtos.DtoFileInfo">
             <summary>
             文件信息

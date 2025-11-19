@@ -14,25 +14,26 @@ namespace Kevin.Web.Filters.TransactionScope
     {
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            bool hasNotTransactionalAttribute = false;
+            bool hasTransactionalAttribute = false;
             if (context.ActionDescriptor is ControllerActionDescriptor)
             {
                 var actionDesc = (ControllerActionDescriptor)context.ActionDescriptor;
-                hasNotTransactionalAttribute = actionDesc.MethodInfo
-                    .IsDefined(typeof(NotTransactionalAttribute));
+                hasTransactionalAttribute = actionDesc.MethodInfo
+                    .IsDefined(typeof(TransactionalAttribute));
             }
-            if (hasNotTransactionalAttribute)
+            //有TransactionalAttribute才开启事务
+            if (hasTransactionalAttribute)
             {
-                await next();
+                using var txScope = new System.Transactions.TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+                var result = await next();
+                if (result.Exception == null)
+                {
+                    txScope.Complete();
+                }
                 return;
             }
-            using var txScope =
-                new System.Transactions.TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-            var result = await next();
-            if (result.Exception == null)
-            {
-                txScope.Complete();
-            }
+            await next();
+            return;
         }
     }
 }

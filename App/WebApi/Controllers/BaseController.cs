@@ -110,10 +110,7 @@ namespace WebApi.Controllers
             }).ToList();
 
             return list;
-        }
-
-
-
+        } 
         /// <summary>
         /// 获取一个雪花ID
         /// </summary>
@@ -122,6 +119,16 @@ namespace WebApi.Controllers
         public long GetSnowflakeId()
         {
             return HttpContext.RequestServices.GetService<Common.SnowflakeHelper>().GetId();
-        } 
+        }
+
+        /// <summary>
+        /// 获取一个雪花ID
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("GetGuId")]
+        public Guid GetNewGuid()
+        {
+            return Guid.NewGuid();
+        }
     }
 }

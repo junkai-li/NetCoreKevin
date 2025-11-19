@@ -78,6 +78,8 @@ namespace Web.Extension
                 config.Filters.Add(new ResultFilter());
                 //添加过滤器
                 config.Filters.Add(typeof(HttpLogFilter));
+
+                config.Filters.Add(typeof(TransactionScopeFilter));
             });
             //注册配置文件信息
             StartConfiguration.Add(Configuration);
@@ -282,8 +284,7 @@ namespace Web.Extension
             services.AddDbContextPool<Repository.Database.KevinDbContext>(options => { }, 100);
             services.AddScoped<KevinDbContext, KevinDbContext>();
 
-            //注入事务对象
-            //services.AddScoped<TransactionScopeFilter>();
+           
             #endregion
 
         } 

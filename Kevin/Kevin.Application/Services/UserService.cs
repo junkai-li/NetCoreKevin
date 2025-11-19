@@ -1,12 +1,14 @@
 ﻿using Common.AliYun;
 using kevin.Domain.Entities;
 using kevin.Domain.Share.Dtos.User;
+using kevin.RepositorieRps.Repositories;
 using kevin.Share.Dtos;
 using kevin.Share.Dtos.System;
 using Kevin.Common.Helper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using NPOI.SS.Formula.Functions;
+using Repository.Database;
 using Web.Global.Exceptions;
 
 namespace kevin.Application
@@ -145,6 +147,10 @@ namespace kevin.Application
             {
                 throw new UserFriendlyException("账户或密码错误");
             }
+            if (!user.Status)
+            {
+                throw new UserFriendlyException("用户已失效");
+            }
             var roleData = userBindRoleRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).Include(u => u.Role).ToList();
             user.Roles = roleData.Where(r => r.Role != default).Select(r => new dtoRole { Id = r.RoleId, Name = r.Role?.Name ?? "", Remarks = r.Role?.Remarks ?? "", CreateTime = r.Role.CreateTime }).ToList();
             return user;
@@ -179,7 +185,6 @@ namespace kevin.Application
         /// <returns></returns> 
         public bool EditUserPassWordBySms(dtoKeyValue keyValue)
         {
-
             var userId = CurrentUser.UserId;
             var user = userRp.Query().Where(t => t.Id == userId).FirstOrDefault();
             if (user != default && keyValue.Value != default && keyValue.Key != default)
@@ -257,7 +262,7 @@ namespace kevin.Application
             var data = userRp.Query().Where(t => t.IsDelete == false && t.IsSystem == true);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
-                data = data.Where(t => ((t.Name ?? "") ?? "").Contains(dtoPage.searchKey) || (t.Phone ?? "").Contains(dtoPage.searchKey));
+                data = data.Where(t => ((t.Name ?? "") ?? "").Contains(dtoPage.searchKey) || (t.Phone ?? "").Contains(dtoPage.searchKey) || (t.NickName ?? "").Contains(dtoPage.searchKey) || (t.Email ?? "").Contains(dtoPage.searchKey));
             }
             dtoPage.total = data.Count();
             dtoPage.data = data.Skip(skip).Take(dtoPage.pageSize).Select(t => new dtoUser
@@ -265,6 +270,10 @@ namespace kevin.Application
                 Id = t.Id,
                 Name = t.Name,
                 Phone = t.Phone,
+                Email = t.Email,
+                NickName = t.NickName,
+                Status = t.Status,
+                RecentLoginTime = t.RecentLoginTime,
                 HeadImgs = fileRp.Query().Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
                 {
                     Key = f.Id,
@@ -275,7 +284,7 @@ namespace kevin.Application
             var roleData = userBindRoleRp.Query().Where(t => dtoPage.data.Select(d => d.Id).ToList().Contains(t.UserId) && t.IsDelete == false).Include(u => u.Role).ToList();
             foreach (var item in dtoPage.data)
             {
-                item.Roles = roleData.Select(t => new dtoRole { Id = t.RoleId, Name = t.Role?.Name ?? "" }).ToList();
+                item.Roles = roleData.Where(t => t.UserId == item.Id).Select(t => new dtoRole { Id = t.RoleId, Name = t.Role?.Name ?? "" }).ToList();
             }
             return dtoPage;
         }
@@ -293,7 +302,9 @@ namespace kevin.Application
                 Name = t.Name,
                 Phone = t.Phone,
                 PassWord = t.PasswordHash,
-                CreateTime = t.CreateTime
+                CreateTime = t.CreateTime,
+                Status = t.Status,
+                RecentLoginTime = t.RecentLoginTime,
             }).FirstOrDefault();
             var roleData = userBindRoleRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).Include(u => u.Role).ToList();
             user.Roles = roleData.Where(r => r.Role != default).Select(r => new dtoRole { Id = r.RoleId, Name = r.Role?.Name ?? "", Remarks = r.Role?.Remarks ?? "", CreateTime = r.Role.CreateTime }).ToList();
@@ -307,92 +318,89 @@ namespace kevin.Application
         /// <returns></returns> 
         public bool EditUser(dtoUser user)
         {
-            try
+            var data = userRp.Query().Where(x => x.Id == user.Id && x.IsDelete == false && x.IsSystem == true).FirstOrDefault();
+            var UserPh = userRp.Query().Where(t => t.Phone == user.Phone && t.IsDelete == false && t.IsSystem == true).FirstOrDefault();
+            if (data != null)
             {
-                var data = userRp.Query().Where(x => x.Id == user.Id && x.IsDelete == false).FirstOrDefault(); 
-                var UserPh = userRp.Query().Where(t => t.Phone == user.Phone && t.IsDelete == false&&t.IsSystem==true).FirstOrDefault();
-                if (string.IsNullOrEmpty(user.PassWord))
+                //验证手机号唯一不允许添加
+                if (UserPh != null && data.Id != UserPh.Id)
                 {
-                    throw new UserFriendlyException("PassWord不能为空");
+                    throw new UserFriendlyException("手机号码已存在");
                 }
-
-                if (data != null)
+                var UserName = userRp.Query().Where(t => t.Name == user.Name && t.IsDelete == false).FirstOrDefault();
+                //验证姓名唯一不允许添加
+                if (UserName != null && data.Id != UserName.Id)
                 {
-                    //验证手机号唯一不允许添加
-                    if (UserPh != null && data.Id != UserPh.Id)
-                    {
-                        throw new UserFriendlyException("手机号码已存在");
-                    }
-                    var UserName = userRp.Query().Where(t => t.Name == user.Name && t.IsDelete == false).FirstOrDefault();
-                    //验证姓名唯一不允许添加
-                    if (UserName != null && data.Id != UserName.Id)
-                    {
-                        throw new UserFriendlyException("人员姓名已存在");
-                    }
-                    TUser olddata = new();
-                    Common.PropertyHelper.Assignment<TUser>(olddata, data);
-                    //编辑
-                    data.Name = user.Name;
-                    data.Phone = user.Phone;
-                    data.UpdateTime = DateTime.Now; 
+                    throw new UserFriendlyException("人员姓名已存在");
+                }
+                //编辑
+                data.Name = user.Name;
+                data.Phone = user.Phone;
+                data.Email = user.Email;
+                data.UpdateTime = DateTime.Now;
+                data.NickName = user.NickName;
+                data.Status = user.Status;
+                if (!string.IsNullOrEmpty(user.PassWord))
+                {
                     data.ChangePassword(user.PassWord);
-
                 }
-                else
-                { 
-                    //验证手机号唯一不允许添加
-                    if (UserPh != null)
-                    {
-                        throw new UserFriendlyException("手机号码已存在");
-                    }
-                    var UserName = userRp.Query().Where(t => t.Name == user.Name && t.IsDelete == false&&t.IsSystem==true).FirstOrDefault();
-                    //验证姓名唯一不允许添加
-                    if (UserName != null)
-                    {
-                        throw new UserFriendlyException("人员姓名已存在");
-                    }
-
-                    data = new TUser();
-                    data.Id = user.Id == Guid.Empty ? Guid.NewGuid() : user.Id;
-                    data.Name = user.Name;
-                    data.Phone = user.Phone;
-                    data.IsDelete = false;
-                    data.CreateTime = DateTime.Now;
-                    data.ChangePassword(user.PassWord);
-                    user.Id = data.Id;
-                    userRp.Add(data);
-                }
-                userRp.SaveChanges();
-                var deleteRoleData = userBindRoleRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).ToList();
-                foreach (var item in deleteRoleData)
+            }
+            else
+            {
+                //验证手机号唯一不允许添加
+                if (UserPh != null)
                 {
-                    item.IsDelete = true;
-                    item.DeleteTime = DateTime.Now;
-                    item.UserId = CurrentUser.UserId;
+                    throw new UserFriendlyException("手机号码已存在");
+                }
+                var UserName = userRp.Query().Where(t => t.Name == user.Name && t.IsDelete == false && t.IsSystem == true).FirstOrDefault();
+                //验证姓名唯一不允许添加
+                if (UserName != null)
+                {
+                    throw new UserFriendlyException("人员姓名已存在");
+                }
+
+                data = new TUser();
+                data.Id = user.Id == Guid.Empty ? Guid.NewGuid() : user.Id;
+                data.Name = user.Name;
+                data.Phone = user.Phone;
+                data.IsDelete = false;
+                data.IsSystem = true;
+                data.Email = user.Email;
+                data.UpdateTime = DateTime.Now;
+                data.Status = true;
+                data.CreateTime = DateTime.Now;
+                if (!string.IsNullOrEmpty(user.PassWord))
+                {
+                    data.ChangePassword(user.PassWord);
+                }
+                user.Id = data.Id;
+                userRp.Add(data);
+            }
+            userRp.SaveChanges();
+            var deleteRoleData = userBindRoleRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).ToList();
+            foreach (var item in deleteRoleData)
+            {
+                item.IsDelete = true;
+                item.DeleteTime = DateTime.Now;
+                item.UserId = CurrentUser.UserId;
+            }
+            userBindRoleRp.SaveChanges();
+            if (user.Roles?.Count > 0)
+            {
+                foreach (var role in user.Roles)
+                {
+                    var userBindRole = new TUserBindRole();
+                    userBindRole.Id = Guid.NewGuid();
+                    userBindRole.UserId = user.Id;
+                    userBindRole.RoleId = role.Id;
+                    userBindRole.IsDelete = false;
+                    userBindRole.CreateUserId = CurrentUser.UserId;
+                    userBindRole.CreateTime = DateTime.Now;
+                    userBindRoleRp.Add(userBindRole);
                 }
                 userBindRoleRp.SaveChanges();
-                if (user.Roles.Count > 0)
-                {
-                    foreach (var role in user.Roles)
-                    {
-                        var userBindRole = new TUserBindRole();
-                        userBindRole.Id = Guid.NewGuid();
-                        userBindRole.UserId = user.Id;
-                        userBindRole.RoleId = role.Id;
-                        userBindRole.IsDelete = false;
-                        userBindRole.CreateUserId = CurrentUser.UserId;
-                        userBindRole.CreateTime = DateTime.Now;
-                        userBindRoleRp.Add(userBindRole);
-                    }
-                    userBindRoleRp.SaveChanges();
-                }
-                return true;
             }
-            catch (Exception)
-            {
-
-                return false;
-            }
+            return true;
         }
 
 
@@ -404,31 +412,27 @@ namespace kevin.Application
         /// <returns></returns> 
         public bool DeleteUser(Guid Id)
         {
-            try
+            var data = userRp.Query().Where(x => x.Id == Id && x.IsDelete == false && x.TenantId == CurrentUser.TenantId).FirstOrDefault();
+            if (data != default)
             {
-                var data = userRp.Query().Where(x => x.Id == Id && x.IsDelete == false).FirstOrDefault();
-                if (data != default)
+                //编辑
+                data.IsDelete = true;
+                data.DeleteTime = DateTime.Now;
+                userRp.SaveChanges();
+                var deleteRoleData = userBindRoleRp.Query().Where(t => t.UserId == data.Id && t.IsDelete == false).ToList();
+                foreach (var item in deleteRoleData)
                 {
-                    //编辑
-                    data.IsDelete = true;
-                    data.DeleteTime = DateTime.Now;
-                    userRp.SaveChanges();
-                    var deleteRoleData = userBindRoleRp.Query().Where(t => t.UserId == data.Id && t.IsDelete == false).ToList();
-                    foreach (var item in deleteRoleData)
-                    {
-                        item.IsDelete = true;
-                        item.DeleteTime = DateTime.Now;
-                        item.UserId = CurrentUser.UserId;
-                    }
-                    userBindRoleRp.SaveChanges();
+                    item.IsDelete = true;
+                    item.DeleteTime = DateTime.Now;
+                    item.UserId = CurrentUser.UserId;
                 }
-                return true;
+                userBindRoleRp.SaveChanges();
             }
-            catch (Exception)
+            else
             {
-
-                return false;
+                throw new UserFriendlyException(Id + "人员不存在");
             }
+            return true;
         }
 
         /// <summary>
@@ -441,7 +445,7 @@ namespace kevin.Application
             int skip = (dtoPage.pageNum - 1) * dtoPage.pageSize;
             var data = roleRp.Query().Where(t => t.IsDelete == false);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
-            { 
+            {
                 data = data.Where(t => (t.Name ?? "").Contains(dtoPage.searchKey) || (t.Remarks ?? "").Contains(dtoPage.searchKey));
             }
             dtoPage.total = data.Count();
@@ -523,7 +527,7 @@ namespace kevin.Application
         {
             try
             {
-                var users = userBindRoleRp.Query().Where(x => x.RoleId == Id && x.IsDelete == false).ToList(); 
+                var users = userBindRoleRp.Query().Where(x => x.RoleId == Id && x.IsDelete == false).ToList();
                 if (users.Count > 0)
                 {
                     throw new UserFriendlyException("当前角色含有 未失效用户删除失败");
@@ -543,7 +547,7 @@ namespace kevin.Application
 
                 return false;
             }
-        } 
+        }
         /// <summary>
         /// 获取可用户角色的键值对列表信息
         /// </summary> 
@@ -563,8 +567,8 @@ namespace kevin.Application
         /// </summary> 
         /// <returns></returns> 
         public List<dtoKeyValue> GetUserSystemKey()
-        { 
-            var data = userRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId).Select(x => new dtoKeyValue
+        {
+            var data = userRp.Query().Where(t => t.IsDelete == false && t.Status == true && t.TenantId == CurrentUser.TenantId).Select(x => new dtoKeyValue
             {
                 Key = x.Id,
                 Value = x.Name ?? "",
@@ -617,6 +621,25 @@ namespace kevin.Application
             }
             user.ChangePassword(newPwd);
             userRp.SaveChanges();
+            return Task.FromResult(true);
+        }
+        /// <summary>
+        /// 更新登录时间
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <returns></returns>
+        /// <exception cref="UserFriendlyException"></exception>
+        public Task<bool> UpdateRecentLoginTime(Guid guid)
+        {
+            using var db = new KevinDbContext();
+            var user = db.Set<TUser>().Where(t => t.Id == guid).FirstOrDefault();
+            if (user == default)
+            {
+                throw new UserFriendlyException("用户不存在");
+            }
+            user.UpdateTime = DateTime.Now;
+            user.RecentLoginTime = DateTime.Now;
+            db.SaveChanges();
             return Task.FromResult(true);
         }
     }
