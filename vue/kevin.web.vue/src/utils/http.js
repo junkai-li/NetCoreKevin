@@ -18,14 +18,16 @@ myAxios.interceptors.request.use(config => {
   return config;
 }, error => { 
       if(error.status==400){
-        message.warning(error.response.data.errMsg)  
+        message.error(error.response.data.errMsg) 
+        
       } 
       return error; 
 });
 // 全局响应拦截器
-myAxios.interceptors.response.use(
+myAxios.interceptors.response.use( 
   function (response) {
-    const { data } = response
+     try { 
+          const { data } = response
     // 未登录
     if (data.code === 401) {
       // 不是获取用户信息的请求，并且用户目前不是已经在用户登录页面，则跳转到登录页面
@@ -33,21 +35,31 @@ myAxios.interceptors.response.use(
         !response.request.responseURL.includes('user/get/login') &&
         !window.location.pathname.includes('/login')
       ) {
-        message.warning('请先登录')
+        message.error('请先登录')
         window.location.href = `/login?redirect=${window.location.href}`
       }
     }
     if(data.code==400){ 
           console.log(data.errMsg)    
-          message.warning(data.errMsg)
+          message.error(data.errMsg) 
+           return Promise.reject(new Error(data.errMsg)) 
     }
     return response
+  } catch (error) { 
+      if(error.status==400){
+        message.error(error.response.data.errMsg) 
+        return Promise.reject(new Error(error.response.data.errMsg)) 
+      } 
+      return error; 
+  }
+
   },
   function (error) {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error  
      if(error.status==400){
-        message.warning(error.response.data.errMsg) 
+        message.error(error.response.data.errMsg) 
+        return Promise.reject(new Error(error.response.data.errMsgg)) 
       }  
         return error; 
   }, ) 

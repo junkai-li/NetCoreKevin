@@ -13,7 +13,7 @@ export const createUser = (userData) => {
 };
 
 export const updateUser = (userData) => {
-  return http.put(`/api/User/EditUser`, userData);
+  return http.post(`/api/User/EditUser`, userData);
 }; 
 
 export const getUserList = (params) => {
@@ -22,4 +22,8 @@ export const getUserList = (params) => {
 
 export const getUserRoleList = () => {
   return http.get('/api/User/GetUserRoleKey');
+};
+ 
+export const DeleteUser = (id) => {
+  return http.delete('/api/User/DeleteUser?id='+id);
 };

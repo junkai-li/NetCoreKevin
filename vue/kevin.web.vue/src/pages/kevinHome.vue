@@ -311,6 +311,10 @@ onMounted(() => {
     currentTheme.value = 'theme-blackblue'
     localStorage.setItem('app-theme', 'blackblue')
   }
+
+     const response = JSON.parse(localStorage.getItem('user'));
+     userInfo.name=response.name;
+
 })
 
 onBeforeUnmount(() => {

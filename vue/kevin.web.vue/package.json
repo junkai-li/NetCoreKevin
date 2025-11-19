@@ -17,6 +17,7 @@
     "ant-design-vue": "^4.2.6",
     "axios": "^1.13.2",
     "core-js": "^3.8.3",
+    "resize-observer-polyfill": "^1.5.1",
     "vue": "^3.2.13",
     "vue-router": "^4.6.3"
   },
