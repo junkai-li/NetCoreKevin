@@ -15,7 +15,7 @@ namespace kevin.Permission
         {
             //判断配置文件是否开启权限认证
             if (Configuration["IsOpenPermission"].ToBoolean())
-            {
+            {  
                 //权限校验
                 services.AddAuthorization(options =>
                 {

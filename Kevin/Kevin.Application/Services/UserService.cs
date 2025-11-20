@@ -243,7 +243,7 @@ namespace kevin.Application
                 HeadImgs = fileRp.Query().Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
                 {
                     Key = f.Id,
-                    Value = OssHelper.url + f.Path
+                    Value = f.Url
                 }).Take(1).ToList(),
                 CreateTime = t.CreateTime
             }).ToList();
@@ -277,7 +277,7 @@ namespace kevin.Application
                 HeadImgs = fileRp.Query().Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
                 {
                     Key = f.Id,
-                    Value = OssHelper.url + f.Path
+                    Value = f.Url
                 }).Take(1).ToList(),
                 CreateTime = t.CreateTime
             }).ToList();

@@ -26,6 +26,12 @@
         [Description("保存路径")]
         public string? Path { get; set; }
 
+        /// <summary>
+        /// Url
+        /// </summary>
+        [StringLength(500)]
+        [Description("Url")]
+        public string Url { get; set; }
 
         /// <summary>
         /// 外链表名
@@ -33,6 +39,8 @@
         [StringLength(50)]
         [Description("外链表名")]
         public string? Table { get; set; }
+
+
 
 
         /// <summary>

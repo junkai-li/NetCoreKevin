@@ -1,4 +1,4 @@
-﻿using IdentityModel.Client;
+﻿using Duende.IdentityModel.Client;
 using kevin.Cache.Service;
 using kevin.Domain.Entities;
 using kevin.Domain.Interfaces.IServices;

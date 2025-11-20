@@ -3,7 +3,6 @@
 #region 全局引用
 
 global using System;
-global using Web.Global.Exceptions;
 #endregion
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,7 +15,7 @@ using Web.Extension;
 using Microsoft.Extensions.DependencyInjection;
 using kevin.HttpApiClients;
 using Kevin.Common.App.Global;
-using Kevin.Common.App.Start;
+using Kevin.Common.App.IO;
 
 namespace WebApi
 {
@@ -28,8 +27,7 @@ namespace WebApi
             {
 
                 Common.EnvironmentHelper.InitTestServer();
-                var builder = WebApplication.CreateBuilder(args);
-                StartWebHostEnvironment.webHostEnvironment = builder.Environment;
+                var builder = WebApplication.CreateBuilder(args); 
                 //builder.Logging.UseKevinLog4Net();日志
                 #region Kestrel Https并绑定证书
                 //启用 Kestrel Https 并绑定证书
@@ -44,7 +42,7 @@ namespace WebApi
                 #endregion
 
                 //builder.Services.AddKevinRedisCap(builder.Configuration.GetConnectionString("redisConnection"), builder.Configuration.GetConnectionString("dbConnection")); cap
-
+                Path._hostingEnvironment= builder.Environment;
                 builder.Services.ConfigServies(builder.Configuration);
                  
                
@@ -106,7 +104,7 @@ namespace WebApi
                 AppContext.SetData("GCHeapHardLimit", (ulong)1024 * 1_024 * 1_024);
 
                 //kevin初始化
-                app.UseKevin();
+                app.UseKevin(builder.Configuration);
                 //app.UseKevinConsul(builder.Configuration.GetSection("ConsulSetting").Get<ConsulSetting>(), app.Lifetime);//服务网关 
        
                 app.Run();

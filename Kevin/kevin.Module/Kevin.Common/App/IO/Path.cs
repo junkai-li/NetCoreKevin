@@ -1,19 +1,18 @@
-﻿using Kevin.Common.App.Start;
-using System.IO;
-using TencentCloud.Tsf.V20180326.Models;
+﻿using Microsoft.Extensions.Hosting;
 
 namespace Kevin.Common.App.IO
 {
-    public class Path
+    public static class Path
     {
-
+        public static IHostEnvironment _hostingEnvironment { get; set; }
+         
         /// <summary>
-        /// 获取 项目运行 路径
+        /// 获取获取应用程序根目录路径
         /// </summary>
         /// <returns></returns>
         public static string ContentRootPath()
         {
-            return StartWebHostEnvironment.webHostEnvironment.ContentRootPath;
+            return _hostingEnvironment.ContentRootPath;
         }
 
         /// <summary>
@@ -22,7 +21,7 @@ namespace Kevin.Common.App.IO
         /// <returns></returns>
         public static string WebRootPath()
         {
-            return StartWebHostEnvironment.webHostEnvironment.WebRootPath;
+            return _hostingEnvironment.ContentRootPath;
         }
 
         /// <summary>
@@ -31,7 +30,7 @@ namespace Kevin.Common.App.IO
         /// <returns></returns>
         public static string EnvironmentName()
         {
-            return StartWebHostEnvironment.webHostEnvironment.EnvironmentName;
+            return _hostingEnvironment.EnvironmentName;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Common.Json;
+using Kevin.Common.Extension;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,7 +57,7 @@ namespace Kevin.Common.App.Global
 
                 string strContent = JsonHelper.ObjectToJSON(content); 
             }
-            return context.Response.WriteAsJsonAsync(ret);
+            return context.Response.WriteAsync(ret.ToJson());
         }
     }
 }

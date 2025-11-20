@@ -8,7 +8,7 @@ using kevin.Permission;
 using kevin.RabbitMQ;
 using Kevin.Api.Versioning;
 using Kevin.Common.App.Global;
-using Kevin.Common.App.Start;
+using Kevin.Common.App.IO;
 using Kevin.Common.Helper;
 using Kevin.Cors;
 using Kevin.Cors.Models;
@@ -19,6 +19,7 @@ using Kevin.SMS;
 using Kevin.Web.Filters;
 using Kevin.Web.Filters.TransactionScope;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -77,9 +78,7 @@ namespace Web.Extension
 
                 config.Filters.Add(typeof(TransactionScopeFilter));
             });
-            //注册配置文件信息
-            StartConfiguration.Add(Configuration);
-
+            ConfigHelper.Initialize(Configuration);
             //注册HttpContext
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             //注册雪花ID算法示例
@@ -204,7 +203,7 @@ namespace Web.Extension
         /// </summary>
         /// <param name="app"></param>
         /// <returns></returns>
-        public static IApplicationBuilder UseKevin(this IApplicationBuilder app)
+        public static IApplicationBuilder UseKevin(this IApplicationBuilder app,IConfiguration Configuration)
         {
             /////json压缩
             app.UseResponseCompression();
@@ -231,7 +230,7 @@ namespace Web.Extension
             });
             app.UseKevinRedisSignalR(options =>
             {
-                var newoptions = StartConfiguration.configuration.GetRequiredSection("SignalrRdisSetting").Get<SignalrRdisSetting>();
+                var newoptions = Configuration.GetRequiredSection("SignalrRdisSetting").Get<SignalrRdisSetting>();
                 options.url = newoptions.url;
                 options.password = newoptions.password;
                 options.port = newoptions.port;

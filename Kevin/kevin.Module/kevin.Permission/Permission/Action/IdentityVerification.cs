@@ -1,9 +1,10 @@
 ﻿using Common.IO;
-using IdentityModel.Client;
+using Duende.IdentityModel.Client;
 using kevin.Cache.Service;
 using kevin.Permission.Interfaces;
 using kevin.Permission.Permisson.Attributes;
 using Kevin.Common.App;
+using Kevin.Common.Helper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -122,15 +123,15 @@ namespace kevin.Permission.Permission.Action
         private static async Task<string> RenewTokenAsync(string token, HttpContext httpContext)
         {
             var clinet = new HttpClient();
-            var disco = await clinet.GetDiscoveryDocumentAsync(Config.Get()["IdentityServerUrl"]);
+            var disco = await clinet.GetDiscoveryDocumentAsync(ConfigHelper.GetValue("IdentityServerUrl"));
             if (!disco.IsError)
             {
                 var refreshToken = await clinet.RequestRefreshTokenAsync(new RefreshTokenRequest
                 {
-                    ClientId = Config.Get()["IdentityServerInfo:ClientId"],
+                    ClientId = ConfigHelper.GetValue("IdentityServerInfo:ClientId"),
                     Address = disco.TokenEndpoint,
-                    ClientSecret = Config.Get()["IdentityServerInfo:ClientSecret"],
-                    Scope = Config.Get()["IdentityServerInfo:Scope"],
+                    ClientSecret = ConfigHelper.GetValue("IdentityServerInfo:ClientSecret"),
+                    Scope = ConfigHelper.GetValue("IdentityServerInfo:Scope"),
                     GrantType = OpenIdConnectGrantTypes.RefreshToken,
                     RefreshToken = token
                 });

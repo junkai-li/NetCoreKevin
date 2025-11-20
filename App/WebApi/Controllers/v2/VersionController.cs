@@ -1,5 +1,6 @@
 ﻿using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Mvc;
+using Web.Global.Exceptions;
 
 namespace App.WebApi.Controllers.v2
 {
@@ -18,7 +19,7 @@ namespace App.WebApi.Controllers.v2
         [HttpGet("GetVersion")]
         public string GetVersion()
         {
-            return "我是版本2";
+            throw new UserFriendlyException("我是版本2"); 
         }
     }
 }

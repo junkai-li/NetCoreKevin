@@ -8,9 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.17.1" />
-    <PackageReference Include="IdentityModel" Version="5.2.0" />
+    <PackageReference Include="Duende.IdentityModel" Version="7.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+  <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.0" /> 
   </ItemGroup>
 
   <ItemGroup>

@@ -648,43 +648,43 @@ namespace Common
             try
             {
 
-                //设置图片那的宽高
-                sheet.SetColumnWidth(colnum, 3531);
+                ////设置图片那的宽高
+                //sheet.SetColumnWidth(colnum, 3531);
 
-                var oos = new OssHelper();
-                path = path[1..(path.Length - 1)];
-                using var original = SKBitmap.Decode(oos.GetObjectStream(path));
+                //var oos = new OssHelper();
+                //path = path[1..(path.Length - 1)];
+                //using var original = SKBitmap.Decode(oos.GetObjectStream(path));
 
-                using var img = original.Resize(new SKImageInfo(100, 145), SKFilterQuality.High);
+                //using var img = original.Resize(new SKImageInfo(100, 145), SKFilterQuality.High);
 
-                //图片转换为文件流
-                MemoryStream ms = new();
-                using var image = SKImage.FromBitmap(img);
-                using var imageData = image.Encode(SKEncodedImageFormat.Png, 100);
-                imageData.SaveTo(ms);
-                //BinaryReader br = new BinaryReader(ms);
-                var picBytes = ms.ToArray();
-                ms.Close();
-                row1.Height = 2220;
-                //插入图片
-                if (picBytes != null && picBytes.Length > 0)
-                {
-                    var rows = i;
-                    var cols = colnum;
-                    /* Add Picture to Workbook, Specify picture type as PNG and Get an Index */
-                    int pictureIdx = xssfworkbook.AddPicture(picBytes, NPOI.SS.UserModel.PictureType.JPEG);  //添加图片
-                    /* Create the drawing container */
-                    XSSFDrawing drawing = (XSSFDrawing)sheet.CreateDrawingPatriarch();
-                    /* Create an anchor point */
-                    XSSFClientAnchor anchor = new(0, 0, 0, 0, cols, rows, 1, 1);
+                ////图片转换为文件流
+                //MemoryStream ms = new();
+                //using var image = SKImage.FromBitmap(img);
+                //using var imageData = image.Encode(SKEncodedImageFormat.Png, 100);
+                //imageData.SaveTo(ms);
+                ////BinaryReader br = new BinaryReader(ms);
+                //var picBytes = ms.ToArray();
+                //ms.Close();
+                //row1.Height = 2220;
+                ////插入图片
+                //if (picBytes != null && picBytes.Length > 0)
+                //{
+                //    var rows = i;
+                //    var cols = colnum;
+                //    /* Add Picture to Workbook, Specify picture type as PNG and Get an Index */
+                //    int pictureIdx = xssfworkbook.AddPicture(picBytes, NPOI.SS.UserModel.PictureType.JPEG);  //添加图片
+                //    /* Create the drawing container */
+                //    XSSFDrawing drawing = (XSSFDrawing)sheet.CreateDrawingPatriarch();
+                //    /* Create an anchor point */
+                //    XSSFClientAnchor anchor = new(0, 0, 0, 0, cols, rows, 1, 1);
 
-                    /* Invoke createPicture and pass the anchor point and ID */
-                    XSSFPicture picture = (XSSFPicture)drawing.CreatePicture(anchor, pictureIdx);
-                    /* Call resize method, which resizes the image */
-                    picture.Resize();
+                //    /* Invoke createPicture and pass the anchor point and ID */
+                //    XSSFPicture picture = (XSSFPicture)drawing.CreatePicture(anchor, pictureIdx);
+                //    /* Call resize method, which resizes the image */
+                //    picture.Resize();
 
-                    picBytes = null;
-                }
+                //    picBytes = null;
+                //}
                 //}
                 //else
                 //{
@@ -753,40 +753,40 @@ namespace Common
             try
             {
 
-                //设置图片那的宽高
-                sheet.SetColumnWidth(colnum, 3531);
-                var oos = new OssHelper();
-                using var original = SKBitmap.Decode(oos.GetObjectStream(path));
-                using var img = original.Resize(new SKImageInfo(100, 145), SKFilterQuality.High);
+                ////设置图片那的宽高
+                //sheet.SetColumnWidth(colnum, 3531);
+                //var oos = new OssHelper();
+                //using var original = SKBitmap.Decode(oos.GetObjectStream(path));
+                //using var img = original.Resize(new SKImageInfo(100, 145), SKFilterQuality.High);
 
-                //图片转换为文件流
-                MemoryStream ms = new();
-                using var image = SKImage.FromBitmap(img);
-                using var imageData = image.Encode(SKEncodedImageFormat.Png, 100);
-                imageData.SaveTo(ms);
-                //BinaryReader br = new BinaryReader(ms);
-                var picBytes = ms.ToArray();
-                ms.Close();
-                row1.Height = 2220;
-                //插入图片
-                if (picBytes != null && picBytes.Length > 0)
-                {
-                    var rows = i;
-                    var cols = colnum;
-                    /* Add Picture to Workbook, Specify picture type as PNG and Get an Index */
-                    int pictureIdx = xssfworkbook.AddPicture(picBytes, NPOI.SS.UserModel.PictureType.JPEG);  //添加图片
-                    /* Create the drawing container */
-                    XSSFDrawing drawing = (XSSFDrawing)sheet.CreateDrawingPatriarch();
-                    /* Create an anchor point */
-                    XSSFClientAnchor anchor = new(0, 0, 0, 0, cols, rows, 1, 1);
+                ////图片转换为文件流
+                //MemoryStream ms = new();
+                //using var image = SKImage.FromBitmap(img);
+                //using var imageData = image.Encode(SKEncodedImageFormat.Png, 100);
+                //imageData.SaveTo(ms);
+                ////BinaryReader br = new BinaryReader(ms);
+                //var picBytes = ms.ToArray();
+                //ms.Close();
+                //row1.Height = 2220;
+                ////插入图片
+                //if (picBytes != null && picBytes.Length > 0)
+                //{
+                //    var rows = i;
+                //    var cols = colnum;
+                //    /* Add Picture to Workbook, Specify picture type as PNG and Get an Index */
+                //    int pictureIdx = xssfworkbook.AddPicture(picBytes, NPOI.SS.UserModel.PictureType.JPEG);  //添加图片
+                //    /* Create the drawing container */
+                //    XSSFDrawing drawing = (XSSFDrawing)sheet.CreateDrawingPatriarch();
+                //    /* Create an anchor point */
+                //    XSSFClientAnchor anchor = new(0, 0, 0, 0, cols, rows, 1, 1);
 
-                    /* Invoke createPicture and pass the anchor point and ID */
-                    XSSFPicture picture = (XSSFPicture)drawing.CreatePicture(anchor, pictureIdx);
-                    /* Call resize method, which resizes the image */
-                    picture.Resize();
+                //    /* Invoke createPicture and pass the anchor point and ID */
+                //    XSSFPicture picture = (XSSFPicture)drawing.CreatePicture(anchor, pictureIdx);
+                //    /* Call resize method, which resizes the image */
+                //    picture.Resize();
 
-                    picBytes = null;
-                }
+                //    picBytes = null;
+                //}
 
                 //else
                 //{
