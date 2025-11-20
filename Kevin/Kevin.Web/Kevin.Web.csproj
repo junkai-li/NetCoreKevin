@@ -27,6 +27,7 @@
     <ProjectReference Include="..\kevin.Module\Kevin.CrawlingService\kevin.CrawlingService.csproj" />
     <ProjectReference Include="..\kevin.Module\kevin.DistributedLock\kevin.DistributedLock.csproj" />
     <ProjectReference Include="..\kevin.Module\kevin.Domain.EventBus\kevin.Domain.EventBus.csproj" />
+    <ProjectReference Include="..\kevin.Module\Kevin.Email\Kevin.Email.csproj" />
     <ProjectReference Include="..\kevin.Module\kevin.ESL\kevin.ESL.csproj" />
     <ProjectReference Include="..\kevin.Module\kevin.FileStorage\kevin.FileStorage.csproj" />
     <ProjectReference Include="..\kevin.Module\Kevin.HttpApiClients\Kevin.HttpApiClients.csproj" />

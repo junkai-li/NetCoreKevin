@@ -5,34 +5,29 @@ using kevin.FileStorage;
 using kevin.Ioc;
 using kevin.Ioc.TieredServiceRegistration;
 using kevin.Permission;
-using kevin.Permission.Permission.Action;
 using kevin.RabbitMQ;
-using Kevin.AI.MCP.Server.Models;
 using Kevin.Api.Versioning;
 using Kevin.Common.App.Global;
 using Kevin.Common.App.Start;
 using Kevin.Common.Helper;
 using Kevin.Cors;
 using Kevin.Cors.Models;
+using Kevin.Email;
 using Kevin.SignalR;
 using Kevin.SignalR.Models;
 using Kevin.SMS;
 using Kevin.Web.Filters;
 using Kevin.Web.Filters.TransactionScope;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Repository.Database;
 using System;
 using System.Linq;
 using Web.Filters;
-using Web.Global.User;
-
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -138,40 +133,18 @@ namespace Web.Extension
 
             services.AddKevinMediatRDomainEventBus(ReflectionScheduler.GetAllReferencedAssemblies());//初始化
 
-            #region 注册短信服务
-
-            //services.AddTencentCloudSMS(options =>
-            //{
-            //    var settings = Configuration.GetRequiredSection("TencentCloudSMS").Get<Kevin.SMS.TencentCloud.Models.SMSSetting>()!;
-            //    options.AppId = settings.AppId;
-            //    options.SecretId = settings.SecretId;
-            //    options.SecretKey = settings.SecretKey;
-            //});
-
+            #region 注册短信服务  
 
             services.AddAliCloudSMS(options =>
             {
                 var settings = Configuration.GetRequiredSection("AliCloudSMS").Get<Kevin.SMS.AliCloud.Models.SMSSetting>()!;
                 options.AccessKeyId = settings.AccessKeyId;
                 options.AccessKeySecret = settings.AccessKeySecret;
-            });
+            }); 
 
             #endregion
 
-            #region 注册文件服务
-
-
-            //services.AddTencentCloudStorage(options =>
-            //{
-            //    var settings = Configuration.GetRequiredSection("TencentCloudFileStorage").Get<kevin.FileStorage.TencentCloud.Models.FileStorageSetting>()!;
-            //    options.AppId = settings.AppId;
-            //    options.Region = settings.Region;
-            //    options.SecretId = settings.SecretId;
-            //    options.SecretKey = settings.SecretKey;
-            //    options.BucketName = settings.BucketName;
-            //});
-
-
+            #region 注册文件服务 
             services.AddAliCloudStorage(options =>
             {
                 var settings = Configuration.GetRequiredSection("AliCloudFileStorage").Get<kevin.FileStorage.AliCloud.Models.FileStorageSetting>()!;
@@ -179,8 +152,7 @@ namespace Web.Extension
                 options.AccessKeyId = settings.AccessKeyId;
                 options.AccessKeySecret = settings.AccessKeySecret;
                 options.BucketName = settings.BucketName;
-            });
-
+            }); 
             #endregion
 
             #region MCP服务注册
@@ -205,6 +177,20 @@ namespace Web.Extension
                 options.UserName = settings.UserName;
                 options.Password = settings.Password;
                 options.VirtualHost = settings.VirtualHost;
+            });
+
+            #endregion
+
+
+            #region 邮件服务
+
+            services.AddEmailService(options =>
+            {
+                var settings = Configuration.GetRequiredSection("EmailSetting").Get<EmailSetting>()!;
+                options.SmtpServer = settings.SmtpServer;
+                options.AccountName = settings.AccountName;
+                options.AccountPassword = settings.AccountPassword;
+                options.Port = settings.Port;
             });
 
             #endregion
@@ -279,16 +265,11 @@ namespace Web.Extension
             //  AddTransient的生命周期：
 
             //请求获取 -（GC回收 - 主动释放） 每一次获取的对象都不是同一个
-            #region 基本服务
             //为各数据库注入连接字符串
             Repository.Database.KevinDbContext.ConnectionString = Configuration.GetConnectionString("dbConnection");
             Repository.Database.KevinDbContext.DBDefaultHasIndexFields = Configuration.GetRequiredSection("DBDefaultHasIndexFields").Get<string>().Split(",").ToList();
             services.AddDbContextPool<Repository.Database.KevinDbContext>(options => { }, 100);
-            services.AddScoped<KevinDbContext, KevinDbContext>();
-
-           
-            #endregion
-
+            services.AddScoped<KevinDbContext, KevinDbContext>(); 
         } 
    
     }
