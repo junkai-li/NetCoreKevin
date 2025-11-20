@@ -25,6 +25,8 @@ namespace Kevin.Email
             _smtpClient = new(_emailSetting.SmtpServer, _emailSetting.Port);
             _smtpClient.Credentials = new NetworkCredential(_emailSetting.AccountName, _emailSetting.AccountPassword);
             _smtpClient.EnableSsl = true;
+            _smtpClient.UseDefaultCredentials = false;
+            _smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
         }
 
         public void Dispose()
@@ -57,6 +59,7 @@ namespace Kevin.Email
                 }
                 message.Subject = email.Subject;
                 message.Body = email.Body;
+                message.BodyEncoding = System.Text.Encoding.UTF8;
                 message.IsBodyHtml = email.IsBodyHtml;
                 await _smtpClient.SendMailAsync(message);
             }
