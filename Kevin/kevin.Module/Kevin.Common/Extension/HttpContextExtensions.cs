@@ -3,7 +3,11 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading.Tasks; 
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc; 
+using Web.Global.Exceptions;
 
 namespace Microsoft.AspNetCore.Http
 {
@@ -135,28 +139,8 @@ namespace Microsoft.AspNetCore.Http
 
                 return "";
             }
-        }
-        /// <summary>
-        /// 获取 Action 特性
-        /// </summary>
-        /// <typeparam name="TAttribute"></typeparam>
-        /// <param name="httpContext"></param>
-        /// <returns></returns>
-        public static TAttribute GetMetadata<TAttribute>(this HttpContext httpContext)
-            where TAttribute : class
-        {
-            return httpContext.Features.Get<IEndpointFeature>().Endpoint?.Metadata?.GetMetadata<TAttribute>();
-        }
-
-        /// <summary>
-        /// 获取 控制器/Action 描述器
-        /// </summary>
-        /// <param name="httpContext"></param>
-        /// <returns></returns>
-        public static ControllerActionDescriptor GetControllerActionDescriptor(this HttpContext httpContext)
-        {
-            return httpContext.Features.Get<IEndpointFeature>().Endpoint?.Metadata?.FirstOrDefault(u => u is ControllerActionDescriptor) as ControllerActionDescriptor;
-        }
+        } 
+         
 
         /// <summary>
         /// 设置规范化文档自动登录

@@ -2,11 +2,14 @@
 using Duende.IdentityModel.Client;
 using kevin.Cache.Service;
 using kevin.Permission.Interfaces;
+using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using Kevin.Common.App;
 using Kevin.Common.Helper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
@@ -27,7 +30,7 @@ namespace kevin.Permission.Permission.Action
                 if (authorizationHandlerContext.Resource is HttpContext httpContext)
                 {
                     IssueNewToken(httpContext);
-                    var ad = httpContext.GetControllerActionDescriptor();
+                    var ad = httpContext.Features.Get<IEndpointFeature>()?.Endpoint?.Metadata?.FirstOrDefault(u => u is ControllerActionDescriptor) as ControllerActionDescriptor;
                     var isSkip = ad.MethodInfo.IsDefined(typeof(SkipAuthorityAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(SkipAuthorityAttribute), false);
                     if (isSkip == true)
                     {
@@ -41,13 +44,34 @@ namespace kevin.Permission.Permission.Action
                         {
                             area = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyAreaAttribute)).ToList().LastOrDefault()?.ConstructorArguments[1].Value?.ToString();
                         }
+                        else
+                        {
+                            area = ad.ControllerName;
+                        }
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                    var module = "";
+                    try
+                    {
+                        var mymodule = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList();
+                        if (mymodule.Count > 0 && ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList().LastOrDefault().ConstructorArguments.Count > 1)
+                        {
+                            module = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList().LastOrDefault().ConstructorArguments[1].Value.ToString();
+                        }
+                        else
+                        {
+                            module = ad.ControllerName;
+                        }
                     }
                     catch (Exception)
                     {
 
                     }
 
-                    var PermissionId = $"{area}.{ad.ControllerName}.{ad.ActionName}";
+                    var permissionKey = $"{area}/{module}/{ad.ActionName}";
 
                     var isPublic = ad.MethodInfo.IsDefined(typeof(AllowAnonymousAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(AllowAnonymousAttribute), false);
 
@@ -62,7 +86,7 @@ namespace kevin.Permission.Permission.Action
                         var http = httpContext.RequestServices.GetService<IHttpContextAccessor>();
                         if (ps != default && http != default)
                         {
-                            bool canAccess = ps.IsAccess(PermissionId, http);
+                            bool canAccess = ps.IsAccess(permissionKey, http);
                             return canAccess;
                         }
                         return false;
