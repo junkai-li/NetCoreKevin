@@ -249,7 +249,8 @@ const getCaptcha = () => {
 // 密码登录
 const handlePasswordLogin = (values) => { 
   loading.value = true;
-  login(values.username, values.password, values.tenantId).then((response) => {
+  try{ 
+    login(values.username, values.password, values.tenantId).then((response) => {
     console.log(response); 
   if(response.status==200){ 
    if (response.data.code == 200) {
@@ -277,6 +278,10 @@ const handlePasswordLogin = (values) => {
       }, 1000);
   } 
   });
+  } catch (error) {  
+    loading.value = false;
+  }
+  
 };
 
 // 验证码登录

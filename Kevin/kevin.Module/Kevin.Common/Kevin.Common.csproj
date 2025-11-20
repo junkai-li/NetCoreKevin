@@ -15,6 +15,7 @@
     <PackageReference Include="aliyun-net-sdk-core" Version="1.6.2" />
     <PackageReference Include="Aliyun.OSS.SDK.NetCore" Version="2.14.1" />
     <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="Azure.Identity" Version="1.17.1" />
     <PackageReference Include="Baidu.AI" Version="4.15.16" />
     <PackageReference Include="Certes" Version="3.0.4" />
     <PackageReference Include="DnsClient" Version="1.8.0" />
@@ -30,12 +31,14 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="NPOI" Version="2.7.3" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
     <PackageReference Include="SkiaSharp" Version="3.119.0" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.0" />
     <PackageReference Include="SkiaSharp.QrCode" Version="0.7.0" />
     <PackageReference Include="SSH.NET" Version="2025.1.0" />
     <PackageReference Include="System.Device.Gpio" Version="3.2.0" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.4" />
+    <PackageReference Include="System.Formats.Asn1" Version="8.0.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.9.0" />
     <PackageReference Include="Tencent.QCloud.Cos.Sdk" Version="5.4.45" />
     <PackageReference Include="TencentCloudSDK" Version="3.0.1234" />

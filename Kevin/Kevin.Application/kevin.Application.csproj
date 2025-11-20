@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.17.1" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\kevin.Module\kevin.DistributedLock\kevin.DistributedLock.csproj" />
     <ProjectReference Include="..\kevin.Module\kevin.Ioc\kevin.Ioc.csproj" />
     <ProjectReference Include="..\kevin.Module\kevin.Permission\kevin.Permission.csproj" />

@@ -1,8 +1,8 @@
 ﻿
 using Common;
 using Common.Json;
-using IdentityServer4.Models;
-using IdentityServer4.Validation;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Validation;
 using kevin.Cache.Service;
 using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Kevin;

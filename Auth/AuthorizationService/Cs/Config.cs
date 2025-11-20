@@ -2,11 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityServer4;
-using IdentityServer4.Models;
-using System.Collections.Generic;
-using static IdentityModel.OidcConstants;
-
+using Duende.IdentityServer.Models; 
+using Duende.IdentityServer;
+using System.Collections.Generic;  
 namespace AuthorizationService
 {
     /// <summary>
@@ -44,24 +42,24 @@ namespace AuthorizationService
                 {
                     ClientId = "UserClient",
                     ClientName = "UserClient", 
-                    AllowedGrantTypes = IdentityServer4.Models.GrantTypes.ResourceOwnerPassword,
+                    AllowedGrantTypes = Duende.IdentityServer.Models.GrantTypes.ResourceOwnerPassword,
                     AlwaysIncludeUserClaimsInIdToken=true,
                       AllowOfflineAccess = true,//如果要获取refresh_tokens ,必须把AllowOfflineAccess设置为true
                     ClientSecrets = { new Secret("UserClientSecrets".Sha256()) },
                     AccessTokenLifetime=14000,// 20se /设置AccessToken过期时间
                       RefreshTokenExpiration = TokenExpiration.Sliding,//刷新令牌时，将刷新RefreshToken的生命周期。RefreshToken的总生命周期不会超过AbsoluteRefreshTokenLifetime。
                     AbsoluteRefreshTokenLifetime = 259200,//RefreshToken的最长生命周期, 
-                    AllowedScopes = { "WebApi",  
-                            StandardScopes.OfflineAccess, //如果要获取refresh_tokens ,必须在scopes中加上OfflineAccess
-                            StandardScopes.OpenId,//如果要获取id_token,必须在scopes中加上OpenId和Profile，id_token需要通过refresh_tokens获取AccessToken的时候才能拿到（还未找到原因）
-                            StandardScopes.Profile//如果要获取id_token,必须在scopes中加上OpenId和Profile
+                    AllowedScopes = { "WebApi",
+                            "offline_access", //如果要获取refresh_tokens ,必须在scopes中加上OfflineAccess
+                            "openid",//如果要获取id_token,必须在scopes中加上OpenId和Profile，id_token需要通过refresh_tokens获取AccessToken的时候才能拿到（还未找到原因）
+                           "profile"//如果要获取id_token,必须在scopes中加上OpenId和Profile
                           }
                 },
                 new Client
                 {
                     ClientId = "UMUserClient",
                     ClientName = "UMUserClient",
-                    AllowedGrantTypes = IdentityServer4.Models.GrantTypes.ResourceOwnerPassword,
+                    AllowedGrantTypes = Duende.IdentityServer.Models.GrantTypes.ResourceOwnerPassword,
                     AlwaysIncludeUserClaimsInIdToken=true,
                       AllowOfflineAccess = true,//如果要获取refresh_tokens ,必须把AllowOfflineAccess设置为true
                     ClientSecrets = { new Secret("UMUserClientSecrets".Sha256()) },
@@ -69,9 +67,9 @@ namespace AuthorizationService
                       RefreshTokenExpiration = TokenExpiration.Sliding,//刷新令牌时，将刷新RefreshToken的生命周期。RefreshToken的总生命周期不会超过AbsoluteRefreshTokenLifetime。
                     AbsoluteRefreshTokenLifetime = 259200,//RefreshToken的最长生命周期, 
                     AllowedScopes = { "WebApi",
-                            StandardScopes.OfflineAccess, //如果要获取refresh_tokens ,必须在scopes中加上OfflineAccess
-                            StandardScopes.OpenId,//如果要获取id_token,必须在scopes中加上OpenId和Profile，id_token需要通过refresh_tokens获取AccessToken的时候才能拿到（还未找到原因）
-                            StandardScopes.Profile//如果要获取id_token,必须在scopes中加上OpenId和Profile
+                            "offline_access", //如果要获取refresh_tokens ,必须在scopes中加上OfflineAccess
+                            "openid",//如果要获取id_token,必须在scopes中加上OpenId和Profile，id_token需要通过refresh_tokens获取AccessToken的时候才能拿到（还未找到原因）
+                           "profile"//如果要获取id_token,必须在scopes中加上OpenId和Profile
                           }
                 },
                 //// m2m client credentials flow client

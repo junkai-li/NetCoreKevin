@@ -183,10 +183,13 @@ namespace Repository.Database
                             property.SetColumnType("char(36)");
                         }
                         //为默认索引列添加索引
-                        if (DBDefaultHasIndexFields.Contains(property.Name.ToLower()))
+                        if (DBDefaultHasIndexFields!=default)
                         {
-                            builder.HasIndex(property.Name);
-                        }
+                            if (DBDefaultHasIndexFields.Contains(property.Name.ToLower()))
+                            {
+                                builder.HasIndex(property.Name);
+                            }
+                        } 
 
                         //设置字段的默认值 
                         var defaultValueAttribute = property.PropertyInfo?.GetCustomAttribute<DefaultValueAttribute>();
