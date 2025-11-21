@@ -4,6 +4,7 @@ using kevin.Domain.Share.Dtos.User;
 using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using kevin.Share.Dtos.System;
+using Kevin.Common.Helper;
 using Kevin.Web.Filters.TransactionScope.Attribute;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -34,7 +35,7 @@ namespace WebApi.Controllers.v1
         public UserController(IUserService userService)
         {
             this._userService = userService;
-        } 
+        }
 
         /// <summary>
         /// 通过 UserId 获取用户信息 
@@ -68,8 +69,8 @@ namespace WebApi.Controllers.v1
         [HttpPost("EditUserPassWordBySms")]
         [SkipAuthority]
         public bool EditUserPassWordBySms([FromBody] dtoKeyValue keyValue)
-        { 
-            return _userService.EditUserPassWordBySms(keyValue); 
+        {
+            return _userService.EditUserPassWordBySms(keyValue);
         }
 
         /// <summary>
@@ -78,10 +79,10 @@ namespace WebApi.Controllers.v1
         /// <param name="dtoPage"></param> 
         /// <returns></returns>
         [HttpPost("GetUserList")]
-        [ActionDescription("获取小程序用户列表信息")] 
+        [ActionDescription("获取小程序用户列表信息")]
         [HttpLog("用户管理", "获取小程序用户列表信息")]
         public dtoPageData<dtoUser> GetUserList(dtoPageData<dtoUser> dtoPage)
-        { 
+        {
             return _userService.GetUserList(dtoPage);
         }
 
@@ -98,6 +99,34 @@ namespace WebApi.Controllers.v1
             return _userService.GetSysUserList(dtoPage);
         }
 
+        /// <summary>
+        /// 导出获取系统用户列表信息
+        /// </summary> 
+        /// <returns></returns>
+        [HttpPost("ExportGetSysUserList")]
+        [ActionDescription("导出预览值班排期表")]
+        [SkipAuthority]
+        public IActionResult ExportGetSysUserList([FromBody] dtoPageData<dtoUser> dtoPage)
+        {
+            var keyValuePairs = new Dictionary<string, string>
+            {
+                { "用户名", "Name" },
+                { "昵称", "NickName" },
+                    { "手机号", "Phone" },
+                       { "邮箱", "Email" },
+                          { "创建时间", "CreateTimeStr" },
+                             { "状态", "StatusStr" },
+                                { "最近登陆时间", "RecentLoginTimeStr" }
+            };
+            var data = _userService.GetSysUserList(dtoPage);
+            foreach (var item in data.data)
+            {
+                item.CreateTimeStr = item.CreateTime.Date.ToString("yyyy-MM-dd");
+                item.RecentLoginTimeStr = item.RecentLoginTime.Value.Date.ToString("yyyy-MM-dd");
+                item.StatusStr = item.Status?"启用":"禁用";
+            }
+            return new NPOIHelper().ExportExcelFileStream("值班排期表.xlsx", data.data, keyValuePairs: keyValuePairs);
+        }
         /// <summary>
         /// 后台管理通过 UserId 获取用户信息 
         /// </summary>

@@ -264,6 +264,12 @@
             <param name="dtoPage"></param> 
             <returns></returns>
         </member>
+        <member name="M:WebApi.Controllers.v1.UserController.ExportGetSysUserList(kevin.Share.Dtos.dtoPageData{kevin.Domain.Share.Dtos.User.dtoUser})">
+            <summary>
+            导出获取系统用户列表信息
+            </summary> 
+            <returns></returns>
+        </member>
         <member name="M:WebApi.Controllers.v1.UserController.GetSysUserWhereId(System.Guid)">
             <summary>
             后台管理通过 UserId 获取用户信息 

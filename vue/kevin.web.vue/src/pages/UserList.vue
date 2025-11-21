@@ -212,11 +212,10 @@ import {
 } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 import { Form } from "ant-design-vue";
-import { getUserList, createUser, updateUser, getUserRoleList,DeleteUser } from "../api/userapi";
+import { getUserList, createUser, updateUser, getUserRoleList,DeleteUser,ExportGetSysUserList } from "../api/userapi";
 import { GetGuId } from "../api/baseapi";
 import "../css/UserList.css";
 import hedeImage from "../assets/hede.png"; // 导入图片
-
 const useForm = Form.useForm;
 
 // 数据加载状态
@@ -574,8 +573,26 @@ const handleDelete = (key) => {
 };
 
 // 导出数据
-const handleExport = () => {
-  message.success("数据导出成功");
+const handleExport = async ()  => {
+ loading.value = true;
+  try {
+    const params = {
+      searchKey: searchKey.value,
+      state: "",
+      sign: "",
+      pageSize: pagination.value.pageSize,
+      pageNum: pagination.value.current,
+      total: 0
+    };
+    const response = await ExportGetSysUserList(params);
+    if (response) {
+      message.success("导出用户成功");
+    }
+  } catch (error) { 
+    message.error("导出用户: " + error.message);
+  } finally {
+    loading.value = false;
+  }
 };
 
 // 表格变化处理（分页、排序、筛选）

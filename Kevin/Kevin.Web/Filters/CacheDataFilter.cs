@@ -48,8 +48,8 @@ namespace Web.Filters
 
             try
             {
-
-                var cacheInfo = GlobalServices.ServiceProvider.GetService<ICacheService>().GetString(key);
+            
+                var cacheInfo = context.HttpContext.RequestServices.GetService<ICacheService>().GetString(key);
 
                 if (!string.IsNullOrEmpty(cacheInfo))
                 {
@@ -84,11 +84,8 @@ namespace Web.Filters
                     key = context.ActionDescriptor.DisplayName + "_" + context.HttpContext.Request.QueryString;
                 }
 
-                key = "CacheData_" + Common.CryptoHelper.GetMd5(key);
-
-
-
-                GlobalServices.ServiceProvider.GetService<ICacheService>().SetString(key, value,TimeSpan.FromSeconds(TTL));
+                key = "CacheData_" + Common.CryptoHelper.GetMd5(key); 
+                context.HttpContext.RequestServices.GetService<ICacheService>().SetString(key, value,TimeSpan.FromSeconds(TTL));
 
             }
             catch

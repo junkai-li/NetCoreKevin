@@ -1,3 +1,4 @@
+ 
 import http from '../utils/http';
 
 export const login = (acctount, password,tenantId) => 
@@ -26,4 +27,8 @@ export const getUserRoleList = () => {
  
 export const DeleteUser = (id) => {
   return http.delete('/api/User/DeleteUser?id='+id);
+};
+
+export const ExportGetSysUserList = (params) => {
+  return http.post('/api/User/ExportGetSysUserList', params,{ responseType: 'blob' });
 };

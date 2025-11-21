@@ -104,12 +104,27 @@
             创建时间
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.CreateTimeStr">
+            <summary>
+            创建时间
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Status">
             <summary>
             状态
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.StatusStr">
+            <summary>
+            状态str
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.RecentLoginTime">
+             <summary>
+            最近登陆时间
+             </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.RecentLoginTimeStr">
              <summary>
             最近登陆时间
              </summary>
