@@ -86,8 +86,7 @@ import {
 } from '@ant-design/icons-vue';
 import { message, Button } from 'ant-design-vue';
 import { Form } from 'ant-design-vue';
-import { getRolePage, addEidtRole, deleteRole } from '@/api/roleapi';
-import { GetGuId } from "../api/baseapi"; 
+import { getRolePage, addEidtRole, deleteRole } from '@/api/roleapi'; 
 
 
 const useForm = Form.useForm;
@@ -252,22 +251,18 @@ const handleRoleModalOk = () => {
       };
       
       
-      
+       
       if (currentRole.value) {
-        await addEidtRole(params);
+       await addEidtRole(params);
         // 编辑角色
         message.success('角色信息更新成功');
       } else {
-        // 添加角色 
-          var dataid = await GetGuId();
-          if (dataid && dataid.status == 200 && dataid.data.data) {
-            var id = dataid.data.data;
-            params.id= id;
-            await addEidtRole(params);
-            message.success("添加成功");
-          } else {
-            message.error("添加失败"); 
-          } 
+          const addparams = { 
+        name: roleForm.name,
+        remarks: roleForm.remarks
+      }; 
+         await addEidtRole(addparams);
+          message.success("角色信息添加成功");
       }
       
       roleModalVisible.value = false;

@@ -11,7 +11,7 @@ namespace kevin.Share.Dtos.System
     {  /// <summary>
        /// Id
        /// </summary>
-        public Guid Id { get; set; }
+        public Guid Id { get; set; }= Guid.Empty;
         /// <summary>
         /// 角色名称
         /// </summary>

@@ -9,12 +9,12 @@ export const addEidtRole = (params) => {
 };
 
 export const deleteRole = (roleId) => {
-  return http.delete(`/api/Role/deleteRole?id=${roleId}`);
+  return http.delete(`/api/Role/deleteRole?roleId=${roleId}`);
 };
 
 // 获取角色详情
 export const getRoleById = (roleId) => {
-  return http.get(`/api/Role/GetRoleById?id=${roleId}`);
+  return http.get(`/api/Role/GetRoleById?roleId=${roleId}`);
 };
 
 // 获取所有角色
