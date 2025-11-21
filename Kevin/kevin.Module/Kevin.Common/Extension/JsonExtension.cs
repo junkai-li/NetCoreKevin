@@ -24,7 +24,11 @@ namespace Kevin.Common.Extension
         }
         public static JsonSerializerSettings DefaultJsonSetting = new JsonSerializerSettings
         {
-            ContractResolver = new DefaultContractResolver(),
+            ContractResolver = new DefaultContractResolver()
+            {
+                NamingStrategy = new SnakeCaseNamingStrategy() // 根据需要选择命名策略
+            },
+            Formatting = Formatting.Indented, // 使JSON格式化，更易读
             DateFormatHandling = DateFormatHandling.MicrosoftDateFormat,
             DateFormatString = "yyyy-MM-dd HH:mm:ss.fff"
         };

@@ -28,6 +28,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Repository.Database;
 using System;
 using System.Linq;
+using System.Text.Encodings.Web;
 using Web.Filters;
 namespace Web.Extension
 {
@@ -92,6 +93,8 @@ namespace Web.Extension
                 option.JsonSerializerOptions.Converters.Add(new Common.Json.DateTimeConverter());
                 option.JsonSerializerOptions.Converters.Add(new Common.Json.DateTimeNullConverter());
                 option.JsonSerializerOptions.Converters.Add(new Common.Json.LongConverter());
+                option.JsonSerializerOptions.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;// 或者使用其他适当的编码器
+                option.JsonSerializerOptions.WriteIndented=true; // 可选，美化输出 
             });
 
             services.AddControllers().AddControllersAsServices(); //控制器当做实例创建 

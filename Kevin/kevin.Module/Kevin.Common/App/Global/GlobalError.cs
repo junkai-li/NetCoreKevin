@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Text;
 using System.Threading.Tasks;
 using Web.Global.Exceptions;
 
@@ -55,11 +56,10 @@ namespace Kevin.Common.App.Global
                     parameter,
                     authorization,
                     error
-                };
-
+                }; 
                 string strContent = JsonHelper.ObjectToJSON(content);
-            }
-            return context.Response.WriteAsync(ret.ToJson());
+            }  
+            return context.Response.WriteAsync(ret.ToJson(),Encoding.UTF8);
         }
     }
 }
