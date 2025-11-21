@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,6 +19,12 @@ namespace AuthorizationService
         /// Name
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// 是否超级管理员
+        /// </summary> 
+        public   bool IsSuperAdmin { get; set; }
+
         /// <summary>
         /// Password
         /// </summary>
@@ -37,7 +44,7 @@ namespace AuthorizationService
         /// </summary> 
         public virtual DateTime? CreatedTime { get; set; }
 
-        public string TenantId { get; set; }
+        public int TenantId { get; set; }
 
     }
 }

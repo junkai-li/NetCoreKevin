@@ -1,5 +1,7 @@
 ﻿using kevin.Domain.Interfaces.IServices;
+using kevin.Domain.Share.Attributes;
 using kevin.Domain.Share.Dtos.User;
+using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using kevin.Share.Dtos.System;
 using Kevin.Web.Filters.TransactionScope.Attribute;
@@ -20,7 +22,10 @@ namespace WebApi.Controllers.v1
     [ApiVersion("1")]
     [Route("api/[controller]")]
     [Authorize]
-    [SkipAuthority]
+    [MyArea("系统管理", "System")]
+    [ActionDescription("用户管理")]
+    [MyModule("用户管理", "User")]
+    [ApiController]
     public class UserController : ApiControllerBase
     {
         private IUserService _userService { get; set; }
@@ -29,35 +34,7 @@ namespace WebApi.Controllers.v1
         public UserController(IUserService userService)
         {
             this._userService = userService;
-        }
-
-        /// <summary>
-        /// 获取微信小程序OpenId
-        /// </summary>
-        /// <param name="weixinkeyid">微信配置密钥ID</param>
-        /// <param name="code">微信临时code</param>
-        /// <returns>openid,userid</returns>
-        /// <remarks>传入租户ID和微信临时 code 获取 openid，如果 openid 在系统有中对应用户，则一并返回用户的ID值，否则用户ID值为空</remarks>
-        [HttpGet("GetWeiXinMiniAppOpenId")]
-        public string GetWeiXinMiniAppOpenId(Guid weixinkeyid, string code)
-        {
-            return _userService.GetWeiXinMiniAppOpenId(weixinkeyid, code);
-        }
-
-        /// <summary>
-        /// 获取微信小程序手机号
-        /// </summary>
-        /// <param name="iv">加密算法的初始向量</param>
-        /// <param name="encryptedData">包括敏感数据在内的完整用户信息的加密数据</param>
-        /// <param name="code">微信临时code</param>
-        /// <param name="weixinkeyid">微信配置密钥ID</param>
-        [HttpGet("GetWeiXinMiniAppPhone")]
-        public string GetWeiXinMiniAppPhone(string iv, string encryptedData, string code, Guid weixinkeyid)
-        {
-
-
-            return _userService.GetWeiXinMiniAppPhone(iv, encryptedData, code, weixinkeyid);
-        }
+        } 
 
         /// <summary>
         /// 通过 UserId 获取用户信息 
@@ -65,6 +42,7 @@ namespace WebApi.Controllers.v1
         /// <param name="userId">用户ID</param>
         /// <returns></returns>
         [HttpGet("GetUser")]
+        [SkipAuthority]
         [CacheDataFilter(TTL = 60, UseToken = true)]
         public dtoUser GetUser(Guid userId)
         {
@@ -77,6 +55,7 @@ namespace WebApi.Controllers.v1
         /// <param name="keyValue">key 为新手机号，value 为短信验证码</param>
         /// <returns></returns>
         [HttpPost("EditUserPhoneBySms")]
+        [SkipAuthority]
         public bool EditUserPhoneBySms([FromBody] dtoKeyValue keyValue)
         {
             return _userService.EditUserPhoneBySms(keyValue);
@@ -87,11 +66,10 @@ namespace WebApi.Controllers.v1
         /// <param name="keyValue">key为新密码，value为短信验证码</param>
         /// <returns></returns>
         [HttpPost("EditUserPassWordBySms")]
+        [SkipAuthority]
         public bool EditUserPassWordBySms([FromBody] dtoKeyValue keyValue)
-        {
-
-            return _userService.EditUserPassWordBySms(keyValue);
-
+        { 
+            return _userService.EditUserPassWordBySms(keyValue); 
         }
 
         /// <summary>
@@ -100,10 +78,10 @@ namespace WebApi.Controllers.v1
         /// <param name="dtoPage"></param> 
         /// <returns></returns>
         [HttpPost("GetUserList")]
-        [ActionDescription("获取小程序用户列表信息")]
+        [ActionDescription("获取小程序用户列表信息")] 
+        [HttpLog("用户管理", "获取小程序用户列表信息")]
         public dtoPageData<dtoUser> GetUserList(dtoPageData<dtoUser> dtoPage)
-        {
-
+        { 
             return _userService.GetUserList(dtoPage);
         }
 
@@ -114,6 +92,7 @@ namespace WebApi.Controllers.v1
         /// <returns></returns>
         [HttpPost("GetSysUserList")]
         [ActionDescription("获取系统用户列表信息")]
+        [HttpLog("用户管理", "获取系统用户列表信息")]
         public dtoPageData<dtoUser> GetSysUserList(dtoPageData<dtoUser> dtoPage)
         {
             return _userService.GetSysUserList(dtoPage);
@@ -139,6 +118,7 @@ namespace WebApi.Controllers.v1
         [HttpPost("EditUser")]
         [ActionDescription("新增编辑用户信息")]
         [Transactional]
+        [HttpLog("用户管理", "新增编辑用户信息")]
         public bool EditUser(dtoUser user)
         {
             return _userService.EditUser(user);
@@ -166,6 +146,7 @@ namespace WebApi.Controllers.v1
         [HttpDelete("DeleteUser")]
         [Transactional]
         [ActionDescription("删除用户信息")]
+        [HttpLog("用户管理", "删除用户信息")]
         public bool DeleteUser(Guid Id)
         {
             return _userService.DeleteUser(Id);
@@ -178,6 +159,7 @@ namespace WebApi.Controllers.v1
         /// <returns></returns>
         [HttpPost("GetUserRoleList")]
         [ActionDescription("获取用户角色列表信息")]
+        [SkipAuthority]
         public dtoPageData<dtoRole> GetUserRoleList(dtoPageData<dtoRole> dtoPage)
         {
             return _userService.GetUserRoleList(dtoPage);
@@ -202,6 +184,7 @@ namespace WebApi.Controllers.v1
         /// <returns></returns>
         [HttpPost("EditUserRole")]
         [ActionDescription("新增编辑用户角色")]
+        [HttpLog("用户管理", "新增编辑用户角色")]
         public bool EditUserRole(dtoRole role)
         {
             return _userService.EditUserRole(role);
@@ -214,6 +197,7 @@ namespace WebApi.Controllers.v1
         /// <returns></returns>
         [HttpDelete("DeleteUserRole")]
         [ActionDescription("删除用户角色")]
+        [HttpLog("用户管理", "删除用户角色")]
         public bool DeleteUserRole(Guid Id)
         {
             return _userService.DeleteUserRole(Id);
@@ -246,6 +230,7 @@ namespace WebApi.Controllers.v1
         /// </summary> 
         /// <returns></returns>
         [HttpGet("GetTokenUserId")]
+        [SkipAuthority]
         public Guid GetTokenUserId()
         {
             return CurrentUser.UserId;

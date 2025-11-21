@@ -1,5 +1,6 @@
 ﻿using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Share.Attributes;
+using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using kevin.Share.Dtos.System;
 using Microsoft.AspNetCore.Authorization;
@@ -15,8 +16,8 @@ namespace App.WebApi.Controllers.v1
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    [MyArea("系统管理", "System")]
-    [ActionDescription("角色管理")]
+    [MyArea("系统管理", "System")] 
+    [MyModule("角色管理", "Role")]
     public class RoleController : ControllerBase
     { 
         private IRoleService _roleService { get; set; }

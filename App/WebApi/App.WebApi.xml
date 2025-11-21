@@ -42,6 +42,24 @@
             系统基础方法控制器
             </summary>
         </member>
+        <member name="M:WebApi.Controllers.BaseController.GetWeiXinMiniAppOpenId(System.Guid,System.String)">
+            <summary>
+            获取微信小程序OpenId
+            </summary>
+            <param name="weixinkeyid">微信配置密钥ID</param>
+            <param name="code">微信临时code</param>
+            <returns>openid,userid</returns>
+            <remarks>传入租户ID和微信临时 code 获取 openid，如果 openid 在系统有中对应用户，则一并返回用户的ID值，否则用户ID值为空</remarks>
+        </member>
+        <member name="M:WebApi.Controllers.BaseController.GetWeiXinMiniAppPhone(System.String,System.String,System.String,System.Guid)">
+            <summary>
+            获取微信小程序手机号
+            </summary>
+            <param name="iv">加密算法的初始向量</param>
+            <param name="encryptedData">包括敏感数据在内的完整用户信息的加密数据</param>
+            <param name="code">微信临时code</param>
+            <param name="weixinkeyid">微信配置密钥ID</param>
+        </member>
         <member name="M:WebApi.Controllers.BaseController.GetRegion(System.Int32,System.Int32)">
             <summary>
             获取省市级联地址数据
@@ -211,24 +229,6 @@
             <summary>
             用户数据操作控制器
             </summary>
-        </member>
-        <member name="M:WebApi.Controllers.v1.UserController.GetWeiXinMiniAppOpenId(System.Guid,System.String)">
-            <summary>
-            获取微信小程序OpenId
-            </summary>
-            <param name="weixinkeyid">微信配置密钥ID</param>
-            <param name="code">微信临时code</param>
-            <returns>openid,userid</returns>
-            <remarks>传入租户ID和微信临时 code 获取 openid，如果 openid 在系统有中对应用户，则一并返回用户的ID值，否则用户ID值为空</remarks>
-        </member>
-        <member name="M:WebApi.Controllers.v1.UserController.GetWeiXinMiniAppPhone(System.String,System.String,System.String,System.Guid)">
-            <summary>
-            获取微信小程序手机号
-            </summary>
-            <param name="iv">加密算法的初始向量</param>
-            <param name="encryptedData">包括敏感数据在内的完整用户信息的加密数据</param>
-            <param name="code">微信临时code</param>
-            <param name="weixinkeyid">微信配置密钥ID</param>
         </member>
         <member name="M:WebApi.Controllers.v1.UserController.GetUser(System.Guid)">
             <summary>
@@ -400,7 +400,7 @@
             <summary>
             编辑角色对应权限
             </summary> 
-            <returns></returns>
+            <returns></returns> 
         </member>
         <member name="M:AdminApi.Controllers.PermissionController.GetUserPermissions">
             <summary>

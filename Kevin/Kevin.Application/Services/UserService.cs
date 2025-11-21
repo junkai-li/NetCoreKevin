@@ -1,4 +1,6 @@
 ﻿using Common.AliYun;
+using kevin.Domain.BaseDatas;
+using kevin.Domain.Configuration;
 using kevin.Domain.Entities;
 using kevin.Domain.Share.Dtos.User;
 using kevin.RepositorieRps.Repositories;
@@ -412,6 +414,18 @@ namespace kevin.Application
         /// <returns></returns> 
         public bool DeleteUser(Guid Id)
         {
+            if (CurrentUser.UserId == Id)
+            {
+                throw new UserFriendlyException("你不能删除你自己");
+            }
+            if (CurrentUser.IsSuperAdmin)
+            {
+                throw new UserFriendlyException("超级管理员不能删除");
+            }
+            if (TUserBaseData.TUsers.Where(t => t.Id == Id).FirstOrDefault() != default)
+            {
+                throw new UserFriendlyException("种子数据不能删除");
+            }
             var data = userRp.Query().Where(x => x.Id == Id && x.IsDelete == false && x.TenantId == CurrentUser.TenantId).FirstOrDefault();
             if (data != default)
             {

@@ -1,4 +1,7 @@
-﻿namespace kevin.Domain.Kevin
+﻿using kevin.Domain.Entities;
+using Kevin.Common.App;
+
+namespace kevin.Domain.Kevin
 {
     /// <summary>
     /// 系统权限表
@@ -126,5 +129,17 @@
 	    [StringLength(50)]
         [Description("图标")]
         public virtual string? Icon { get; set; }
+
+
+        /// <summary>
+        /// 租户id
+        /// </summary>
+        [Description("租户id")]
+        public int TenantId { get; set; }
+
+        /// <summary>
+        /// 权限类型1.菜单权限2.功能权限3.数据权限 4.接口权限
+        /// </summary>
+        public Int32 PermissionType { get; set; }
     }
 }

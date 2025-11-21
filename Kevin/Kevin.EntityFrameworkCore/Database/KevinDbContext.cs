@@ -447,11 +447,11 @@ namespace Repository.Database
                             adddata.ForEach(e => Mediator.Publish(e));
 
                             break;
-                        default:
-                            var data = entityEntry.Entity.GetDomainEvents().ToList();
-                            entityEntry.Entity.ClearDomainEvents();
-                            data.ForEach(e => Mediator.Publish(e));
-                            break;
+                        //default:
+                        //    var data = entityEntry.Entity.GetDomainEvents().ToList();
+                        //    entityEntry.Entity.ClearDomainEvents();
+                        //    data.ForEach(e => Mediator.Publish(e));
+                        //    break;
                     }
 
                 }

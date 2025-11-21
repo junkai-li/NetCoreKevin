@@ -13,6 +13,7 @@ namespace Kevin.Models.JwtBearer
         public const string Phone = "phone";
         public const string Name = "name";
         public const string UserId = "userid";
+        public const string issuperadmin = "issuperadmin";
         public const string CreatedTime = "createdTime";
     }
 }

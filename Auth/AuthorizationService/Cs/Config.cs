@@ -38,6 +38,7 @@ namespace AuthorizationService
         public static IEnumerable<Client> Clients =>
             new Client[]
             {
+                //系统用户端
                   new Client
                 {
                     ClientId = "UserClient",
@@ -55,6 +56,7 @@ namespace AuthorizationService
                            "profile"//如果要获取id_token,必须在scopes中加上OpenId和Profile
                           }
                 },
+                //第三方用户端
                 new Client
                 {
                     ClientId = "UMUserClient",

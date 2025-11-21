@@ -1,4 +1,6 @@
 ﻿using Aop.Api.Domain;
+using kevin.Domain.BaseDatas;
+using kevin.Domain.Configuration;
 using kevin.RepositorieRps.Repositories;
 using kevin.Share.Dtos;
 using kevin.Share.Dtos.System;
@@ -83,6 +85,10 @@ namespace kevin.Application.Services
 
         public async Task<bool> DeleteRole(Guid roleId)
         {
+            if (TRoleBaseData.TRoles.Where(t => t.Id == roleId).FirstOrDefault() != default)
+            {
+                throw new UserFriendlyException("种子数据不能删除");
+            }
             var delete = RoleRp.FirstOrDefault(t => t.Id == roleId && t.IsDelete == false);
             if (delete != default)
             {

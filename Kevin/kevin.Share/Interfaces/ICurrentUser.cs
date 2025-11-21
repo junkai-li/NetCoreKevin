@@ -20,5 +20,10 @@ namespace Web.Global.User
         /// </summary>
         Int32 TenantId { get;   }
 
+        /// <summary>
+        /// 超级管理员
+        /// </summary>
+        bool IsSuperAdmin { get; }
+
     }
 }

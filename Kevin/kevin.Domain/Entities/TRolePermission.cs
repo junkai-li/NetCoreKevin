@@ -18,7 +18,7 @@
         /// 权限编号;
         /// </summary>
         [Description("权限编号")]
-        public virtual string? PermissionId { get; set; }
+        public virtual string?  PermissionId { get; set; }
 
         /// <summary>
         /// 权限编号;

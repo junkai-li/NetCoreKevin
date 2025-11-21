@@ -16,6 +16,9 @@ using Microsoft.Extensions.DependencyInjection;
 using kevin.HttpApiClients;
 using Kevin.Common.App.Global;
 using Kevin.Common.App.IO;
+using Microsoft.AspNetCore.Authorization;
+using System.Runtime.CompilerServices;
+using kevin.Application;
 
 namespace WebApi
 {
@@ -105,10 +108,8 @@ namespace WebApi
 
                 //kevin初始化
                 app.UseKevin(builder.Configuration);
-                //app.UseKevinConsul(builder.Configuration.GetSection("ConsulSetting").Get<ConsulSetting>(), app.Lifetime);//服务网关 
-       
-                app.Run();
-
+                //app.UseKevinConsul(builder.Configuration.GetSection("ConsulSetting").Get<ConsulSetting>(), app.Lifetime);//服务网关  
+                app.Run(); 
             }
             catch (Exception ex)
             {

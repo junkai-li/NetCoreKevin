@@ -2,6 +2,7 @@
 using kevin.Domain.Kevin;
 using kevin.Domain.Share.Dtos.System;
 using kevin.Permission.Permission;
+using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +14,10 @@ namespace AdminApi.Controllers
     /// 权限管理
     /// </summary>
     [Route("api/[controller]")]
-    [MyArea("系统管理", "System")]
-    [ActionDescription("权限管理")] 
+    [MyArea("系统管理", "System")] 
+    [MyModule("权限管理", "Permission")]
     [Authorize]
+    [ApiController]
     public class PermissionController : ApiControllerBase
     {
         private IPermissionService _permissionService { get; set; }
@@ -120,9 +122,9 @@ namespace AdminApi.Controllers
         /// <summary>
         /// 编辑角色对应权限
         /// </summary> 
-        /// <returns></returns>
-        [SkipAuthority]
+        /// <returns></returns> 
         [HttpPost("EditAllAreaPermissions")]
+        [ActionDescription("编辑角色对应权限")]
         public bool EditAllAreaPermissions([Required] PermissionEditDto dto)
         {
             return _permissionService.EditAllAreaPermissions(dto);

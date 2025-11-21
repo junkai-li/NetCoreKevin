@@ -19,8 +19,7 @@ namespace Kevin.Application
             {
                 GlobalServices.AddIService(t);
             });
-            services.AddScoped<ICurrentUser, CurrentUser>();
-            services.AddScoped<IKevinPermissionService, KevinPermissionService>();
+            services.AddScoped<ICurrentUser, CurrentUser>(); 
             ConsoleHelper.Print("kevin.Application服务注册完成");
         }
     }

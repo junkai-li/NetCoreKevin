@@ -8,15 +8,18 @@ using Repository.Database;
 
 namespace kevin.Application
 {
-    public class KevinPermissionService : IKevinPermissionService
+    public class KevinPermissionService : BaseService, IKevinPermissionService
     {
+        public KevinPermissionService(IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
+        { 
+        }
+
 
         public List<string> GetAllPermissionIds()
         {
             using (var db = new KevinDbContext())
             {
-                return db.Set<TPermission>().Where(x => x.IsDelete == false).Select(x => (x.Id ?? "")).ToList();
-
+                return db.Set<TPermission>().Where(x => x.IsDelete == false).Select(x => (x.Id ?? "")).ToList(); 
             }
         }
         public List<Guid> GetUserRoleIds(string userId)
@@ -25,7 +28,7 @@ namespace kevin.Application
             var userBindRoles = db.Set<TUserBindRole>().Where(x => x.IsDelete == false && x.UserId == Guid.Parse(userId)).ToList();
             if (userBindRoles != default && userBindRoles.Count > 0)
             {
-               return userBindRoles.Select(x => x.RoleId).ToList();
+                return userBindRoles.Select(x => x.RoleId).ToList();
             }
             else
             {
@@ -71,10 +74,14 @@ namespace kevin.Application
         /// <returns></returns>
         public bool IsAccess(string permissionId, IHttpContextAccessor httpContext)
         {
+            //超级管理员直接返回true
+            if (CurrentUser.IsSuperAdmin)
+            {
+                return true;
+            }
             var pers = new Dictionary<string, bool>();
-            var userId = JwtToken.GetClaims("userid", httpContext);
-            pers = GetUserPermissions(userId);
-            if (pers.Count == 0 || !pers.ContainsKey(permissionId))
+            pers = GetUserPermissions(CurrentUser.UserId.ToString());
+            if (pers.Count == 0 || !pers.ContainsKey(CurrentUser.TenantId+"/" + permissionId))
             {
                 return false;
             }

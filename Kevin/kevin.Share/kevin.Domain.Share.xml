@@ -414,6 +414,11 @@
             当前登录用户租户code
             </summary>
         </member>
+        <member name="P:Web.Global.User.ICurrentUser.IsSuperAdmin">
+            <summary>
+            超级管理员
+            </summary>
+        </member>
         <member name="T:Models.JwtBearer.JwtSettings">
             <summary>
             JWT 配置信息

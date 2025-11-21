@@ -70,9 +70,9 @@ namespace kevin.Application.Services
             var tokenResponse = await clinet.RequestPasswordTokenAsync(new PasswordTokenRequest
             {
                 Address = disco.TokenEndpoint,
-                ClientId = Configuration["UMIdentityServerInfo:ClientId"],
-                ClientSecret = Configuration["UMIdentityServerInfo:ClientSecret"],
-                Scope = Configuration["UMIdentityServerInfo:Scope"],
+                ClientId = Configuration["IdentityServerInfo:ClientId"],
+                ClientSecret = Configuration["IdentityServerInfo:ClientSecret"],
+                Scope = Configuration["IdentityServerInfo:Scope"],
                 UserName = user.Id.ToString(),
                 Password = user.Id.ToString(),
             });

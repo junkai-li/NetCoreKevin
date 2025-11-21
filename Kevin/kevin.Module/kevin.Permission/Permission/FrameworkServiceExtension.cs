@@ -1,4 +1,5 @@
 ﻿using kevin.Domain.Kevin;
+using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using kevin.Permission.Permisson.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -13,28 +14,29 @@ namespace kevin.Permission.Permisson
     public static class FrameworkServiceExtension
     {
 
-        public static List<TPermission> GetAllMenus(List<SysCtrl> ctrls)
+        public static List<PermissionDto> GetAllMenus(List<SysCtrl> ctrls)
         {
-            var mdls = new List<TPermission>();
+            var mdls = new List<PermissionDto>();
             foreach (var ctrl in ctrls)
             {
                 if (!ctrl.IgnorePrivillege)
                 {
-                    ctrl?.Actions?.ForEach(a =>
+                    ctrl.Actions.ForEach(a =>
                     {
                         var url = a.Url;
                         if (!a.IgnorePrivillege)
-                            mdls.Add(new TPermission
+                            mdls.Add(new PermissionDto
                             {
                                 ModuleName = ctrl.ModuleName,
                                 ActionName = a.ActionName,
                                 HttpMethod = a.HttpMethod,
-                                AreaName = ctrl.Area?.AreaName ?? "",
-                                Area = ctrl.Area?.Prefix ?? "",
+                                Area = ctrl.Area?.Prefix,
+                                AreaName = ctrl.Area?.AreaName,
                                 Module = ctrl.Module,
                                 Action = a.Action,
                                 FullName = ctrl.FullName,
-                                IsManual = false
+                                IsManual = false,
+                                permission_type = 4
                             });
                     });
                 }
@@ -58,11 +60,23 @@ namespace kevin.Permission.Permisson
                 {
                     types.AddRange(ass.GetExportedTypes());
                 }
-                catch { }
-
-                controllers.AddRange(types.Where(x => typeof(ControllerBase).IsAssignableFrom(x) && !x.IsAbstract).ToList());
+                catch { } 
+                controllers.AddRange(types.Where(x => (typeof(ControllerBase).IsAssignableFrom(x)|| IsIndirectlyInheritedFromControllerBase(x)) && !x.IsAbstract).ToList());
             }
             return controllers;
+        }
+
+        // 辅助方法：检查类型是否间接继承自ControllerBase
+        private static bool IsIndirectlyInheritedFromControllerBase(Type type)
+        {
+            var baseType = type.BaseType;
+            while (baseType != null)
+            {
+                if (typeof(ControllerBase).IsAssignableFrom(baseType))
+                    return true;
+                baseType = baseType.BaseType;
+            }
+            return false;
         }
 
 
@@ -77,6 +91,11 @@ namespace kevin.Permission.Permisson
 
             foreach (var ctrl in controllers)
             {
+                if (ctrl.GetCustomAttributes(typeof(ApiControllerAttribute), false).Length <= 0)
+                {
+                    //只生成继承ApiControllerAttribute特性的
+                    continue;
+                }
                 var pubattr12 = ctrl.GetCustomAttributes(typeof(AllowAnonymousAttribute), false);
                 var skip12 = ctrl.GetCustomAttributes(typeof(SkipAuthorityAttribute), false);
 
@@ -100,19 +119,21 @@ namespace kevin.Permission.Permisson
                     model.IsApi = true;
                 }
                 model.FullName = ctrl.FullName;
-                //获取controller上标记的ActionDescription属性的值
-                var attrs = ctrl.GetCustomAttributes(typeof(ActionDescriptionAttribute), false);
+                model.ModuleName = model.ClassName;
+                model.Module = model.ClassName;
+                //获取controller上标记的MyModuleAttribute属性的值
+                var attrs = ctrl.GetCustomAttributes(typeof(MyModuleAttribute), false);
                 if (attrs.Length > 0)
                 {
-                    var ada = attrs[0] as ActionDescriptionAttribute;
-                    var nameKey = ada?.GetDescription(ctrl);
-                    model.ModuleName = nameKey ?? "";
-                    model.Module = model.ClassName;
-                }
-                else
-                {
-                    model.ModuleName = model.ClassName;
-                    model.Module = model.ClassName;
+                    var ada = attrs[0] as MyModuleAttribute;
+                    if (!string.IsNullOrEmpty(ada.ModuleName))
+                    {
+                        model.ModuleName = ada.ModuleName;
+                    }
+                    if (!string.IsNullOrEmpty(ada.Module))
+                    {
+                        model.Module = ada.Module;
+                    }
                 }
                 //获取该controller下所有的方法
                 var methods = ctrl.GetMethods(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance);
@@ -152,7 +173,7 @@ namespace kevin.Permission.Permisson
                         if (attrs2.Length > 0)
                         {
                             var ada = attrs2[0] as ActionDescriptionAttribute;
-                            action.ActionName = ada?.Description ?? "";
+                            action.ActionName = ada.Description;
                             action.Action = action.MethodName;
                         }
                         else
@@ -166,7 +187,7 @@ namespace kevin.Permission.Permisson
                             action.ParasToRunTest = new List<string>();
                             foreach (var par in pars)
                             {
-                                action.ParasToRunTest.Add(par?.Name ?? "");
+                                action.ParasToRunTest.Add(par.Name);
                             }
                         }
                         model.Actions.Add(action);
@@ -183,11 +204,11 @@ namespace kevin.Permission.Permisson
 
                     var postAttr = method.GetCustomAttributes(typeof(HttpPostAttribute), false);
                     //找到post的方法且没有同名的非post的方法，添加到controller的action列表里
-                    if (postAttr.Length > 0 && model.Actions.Where(x => x.MethodName?.ToLower() == method.Name.ToLower()).FirstOrDefault() == null)
+                    if (postAttr.Length > 0 && model.Actions.Where(x => x.MethodName.ToLower() == method.Name.ToLower()).FirstOrDefault() == null)
                     {
                         if (method.Name.ToLower().StartsWith("dobatch"))
                         {
-                            if (model.Actions.Where(x => "do" + x.MethodName?.ToLower() == method.Name.ToLower()).FirstOrDefault() != null)
+                            if (model.Actions.Where(x => "do" + x.MethodName.ToLower() == method.Name.ToLower()).FirstOrDefault() != null)
                             {
                                 continue;
                             }
@@ -206,7 +227,7 @@ namespace kevin.Permission.Permisson
                         if (attrs2.Length > 0)
                         {
                             var ada = attrs2[0] as ActionDescriptionAttribute;
-                            action.ActionName = ada?.Description ?? "";
+                            action.ActionName = ada.Description;
                             action.Action = action.MethodName;
                         }
                         else
@@ -221,20 +242,23 @@ namespace kevin.Permission.Permisson
                 {
                     if (areaattr.Length > 0)
                     {
-                        string areaName = (areaattr[0] as MyAreaAttribute)?.AreaName ?? "";
-                        var existArea = modules.Where(x => x.Area?.AreaName == areaName && x.ClassName == model.ClassName).Select(x => x.Area).FirstOrDefault();
-                        if (existArea == null)
+                        string areaName = (areaattr[0] as MyAreaAttribute).AreaName;
+                        if (!string.IsNullOrEmpty(areaName))
                         {
                             model.Area = new SysArea
                             {
-                                AreaName = (areaattr[0] as MyAreaAttribute)?.AreaName ?? "",
-                                Prefix = (areaattr[0] as MyAreaAttribute)?.Area ?? "",
+                                AreaName = (areaattr[0] as MyAreaAttribute).AreaName ?? model.ClassName,
+                                Prefix = (areaattr[0] as MyAreaAttribute).Area ?? model.ClassName,
                             };
                         }
                         else
                         {
-                            model.Area = existArea;
+                            model.Area = new SysArea { AreaName = model.ClassName, Prefix = model.ClassName };
                         }
+                    }
+                    else
+                    {
+                        model.Area = new SysArea { AreaName = model.ClassName, Prefix = model.ClassName };
                     }
                     modules.Add(model);
                 }
@@ -265,7 +289,7 @@ namespace kevin.Permission.Permisson
                 var areaAttr = ctrl.GetCustomAttribute(typeof(MyAreaAttribute), false);
                 if (areaAttr != null)
                 {
-                    area = (areaAttr as MyAreaAttribute)?.Area;
+                    area = (areaAttr as MyAreaAttribute).Area;
                 }
                 if (attrs22.Length > 0)
                 {
@@ -335,17 +359,17 @@ namespace kevin.Permission.Permisson
             return rv;
         }
 
-        public static Assembly? GetRuntimeAssembly(string name)
+        public static Assembly GetRuntimeAssembly(string name)
         {
-            var path = Assembly.GetEntryAssembly()?.Location;
-            var library = DependencyContext.Default?.RuntimeLibraries.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
+            var path = Assembly.GetEntryAssembly().Location;
+            var library = DependencyContext.Default.RuntimeLibraries.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
             if (library == null)
             {
                 return null;
             }
             var r = new CompositeCompilationAssemblyResolver(new ICompilationAssemblyResolver[]
         {
-            new AppBaseCompilationAssemblyResolver(Path.GetDirectoryName(path)??""),
+            new AppBaseCompilationAssemblyResolver(Path.GetDirectoryName(path)),
             new ReferenceAssemblyPathResolver(),
             new PackageCompilationAssemblyResolver()
         });

@@ -25,37 +25,40 @@ namespace AuthorizationService
             string dataJson = ""; 
             switch (context.Request.Client.ClientName)
             { 
-                case "UMUserClient":
-                    uMClientUserDto uMUser = null;
+                //系统用户登录
+                case "UserClient":
+                    userDto User = null;
                     //查询数据库
                     dataJson = GlobalServices.ServiceProvider.GetService<ICacheService>().GetString("CacheClientUserList"+context.UserName);
 
                     if (!string.IsNullOrEmpty(dataJson))
                     {
-                        uMUser = JsonHelper.JSONToObject<uMClientUserDto>(dataJson);
+                        User = JsonHelper.JSONToObject<userDto>(dataJson);
                     }
                     else
                     {
                         using (var db = new KevinDbContext())
                         {
-                            uMUser = db.Set<TUser>().Where(x => x.IsDelete == false && x.Id.ToString() == context.UserName).Select(x => new uMClientUserDto
+                            User = db.Set<TUser>().Where(x => x.IsDelete == false && x.Id.ToString() == context.UserName).Select(x => new userDto
                             {
                                 Id = x.Id.ToString(),
                                 Phone = x.Phone,
                                 CreatedTime = x.CreateTime,
                                 Name = x.Name,
-                                TenantId = x.TenantId
+                                TenantId = x.TenantId,
+                                IsSuperAdmin = x.IsSuperAdmin,
+
                             }).FirstOrDefault();
                         }
                     }
-                    if (uMUser != null && uMUser != default)
+                    if (User != null && User != default)
                     {
                         context.Result = new GrantValidationResult(
                          subject: context.UserName,
-                         claims: GetUserClaims(uMUser),
+                         claims: GetUserClaims(User),
                          authenticationMethod: "clientCustom"
                          );
-                        CacheUserListAsync(uMUser);
+                        CacheUserListAsync(User);
                     }
                     else
                     {
@@ -71,11 +74,12 @@ namespace AuthorizationService
             }
             return Task.FromResult(0);
         }  
-        private Claim[] GetUserClaims(uMClientUserDto user)
+        private Claim[] GetUserClaims(userDto user)
         {
             return new Claim[]
             {
             new Claim(JwtKeinClaimTypes.UserId, user.Id),
+             new Claim(JwtKeinClaimTypes.issuperadmin, user.IsSuperAdmin.ToString()),
                    new Claim(JwtKeinClaimTypes.Name, user.Name??""),
                         new Claim(JwtKeinClaimTypes.CreatedTime,user.CreatedTime!=null?user.CreatedTime.Value.ToString("yyyy-MM-dd"):""),
                          new Claim(JwtKeinClaimTypes.TenantId, user.TenantId.ToString()),
@@ -86,7 +90,7 @@ namespace AuthorizationService
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        private Task CacheUserListAsync(uMClientUserDto user)
+        private Task CacheUserListAsync(userDto user)
         {
             return Task.Run(() =>
             {

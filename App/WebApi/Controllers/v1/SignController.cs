@@ -1,6 +1,7 @@
 ﻿using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Share.Attributes;
 using kevin.Domain.Share.Dtos.Sign;
+using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,9 @@ namespace WebApi.Controllers.v1
     [ApiVersion("1")]
     [Route("api/[controller]")]
     [Authorize]
-    [SkipAuthority]
+    [ApiController]
+    [MyArea("标记管理", "Sign")]
+    [MyModule("标记管理", "Sign")]
     public class SignController : ApiControllerBase
     {
         private ISignService _signService { get; set; }
@@ -32,6 +35,7 @@ namespace WebApi.Controllers.v1
         /// <param name="sign"></param>
         /// <returns></returns>
         [HttpGet("GetSignCount")]
+        [ActionDescription("获取标记总数")]
         [HttpLog("标记", "获取标记总数")]
         public int GetSignCount(string table, Guid tableId, string sign)
         {
@@ -46,6 +50,7 @@ namespace WebApi.Controllers.v1
         /// <returns></returns>
         [HttpPost("AddSign")]
         [HttpLog("标记", "新增标记")]
+        [ActionDescription("新增标记")]
         public bool AddSign([FromBody] dtoSign addSign)
         {
             return _signService.AddSign(addSign);
@@ -60,6 +65,7 @@ namespace WebApi.Controllers.v1
         /// <returns></returns>
         [HttpDelete("DeleteSign")]
         [HttpLog("标记", "删除标记")]
+        [ActionDescription("删除标记")]
         public bool DeleteSign([FromQuery]dtoSign deleteSign)
         {
             return _signService.DeleteSign(deleteSign); 

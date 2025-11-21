@@ -6,13 +6,13 @@ using StackExchange.Redis;
 
 namespace kevin.Domain.Interfaces.IServices
 {
-    public interface IPermissionService: IService
+    public interface IPermissionService : IService
     {
         /// <summary>
         /// 初始化权限
         /// </summary> 
         /// <returns></returns>
-         bool Reload();
+        bool Reload(int tenantId = default);
 
         /// <summary>
         /// 获取单个 

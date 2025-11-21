@@ -25,12 +25,19 @@ namespace kevin.Application
         /// 初始化权限
         /// </summary> 
         /// <returns></returns>
-        public bool Reload()
+        public bool Reload(int TenantId = default)
         {
+            var userId = default(Guid);
+            if (TenantId == default)
+            {
+                TenantId = CurrentUser.TenantId;
+                userId= CurrentUser.UserId;
+            }
             var all = (new GlobalData()).AllModules;
             all.ForEach(r =>
             {
-                r.Id = $"{r.Area}.{r.Module}.{r.Action}";
+                r.Id = $"{TenantId}/{r.Area}/{r.Module}/{r.Action}";
+                r.permission_type = 4;
             });
             var areas = all.Select(x => x.Area).ToList();
             var allExist = permissionRp.Query().Where(r => r.IsManual == false && areas.Any(x => x == r.Area)).ToList();
@@ -40,7 +47,25 @@ namespace kevin.Application
             var preDelete = allExist.Where(r => !all.Any(p => p.Id == r.Id));
             var preDeleteIds = preDelete.Select(r => r.Id).ToList();
             var preDeleteRoleP = rolePermissionRp.Query().Where(r => preDeleteIds.Contains(r.PermissionId)).ToList();
-            permissionRp.AddRange(preAdd);
+            permissionRp.AddRange(preAdd.Select(t => new TPermission
+            {
+                CreateTime = DateTime.Now, 
+                Id = t.Id,
+                TenantId= TenantId,
+                CreateUserId = userId,
+                Area = t.Area,
+                AreaName = t.AreaName,
+                Module = t.Module,
+                ModuleName = t.ModuleName,
+                PermissionType= t.permission_type,
+                Action = t.Action,
+                ActionName = t.ActionName,
+                FullName = t.FullName,
+                HttpMethod = t.HttpMethod,
+                IsManual = false,
+                Seq = t.Seq,
+                Icon = t.Icon,
+            }));
             permissionRp.RemoveRange(preDelete.ToArray());
             rolePermissionRp.RemoveRange(preDeleteRoleP.ToArray());
             return permissionRp.SaveChanges() > 0 && rolePermissionRp.SaveChanges() > 0;
@@ -87,7 +112,7 @@ namespace kevin.Application
         {
             if (string.IsNullOrEmpty(entity.Id))
             {
-                entity.Id = $"{entity.Area}.{entity.Module}.{entity.Action}";
+                entity.Id = $"{CurrentUser.TenantId}/{entity.Area}/{entity.Module}/{entity.Action}";
                 entity.CreateTime = DateTime.Now;
                 entity.IsManual = true;
                 entity.CreateUserId = CurrentUser.UserId;
@@ -212,7 +237,7 @@ namespace kevin.Application
                             roleper.Id = Guid.NewGuid();
                             rolepers.Add(roleper);
                         }
-                    } 
+                    }
                 }
             }
             var roleper2 = rolepers.FirstOrDefault();
