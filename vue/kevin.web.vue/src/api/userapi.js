@@ -1,4 +1,3 @@
- 
 import http from '../utils/http';
 
 export const login = (acctount, password,tenantId) => 
@@ -31,4 +30,9 @@ export const DeleteUser = (id) => {
 
 export const ExportGetSysUserList = (params) => {
   return http.post('/api/User/ExportGetSysUserList', params,{ responseType: 'blob' });
+};
+
+// 修改密码接口
+export const changePassword = (data) => {
+  return http.post('/api/User/ChangePasswordTokenUser', data);
 };
