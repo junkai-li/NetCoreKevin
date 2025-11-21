@@ -58,8 +58,9 @@ namespace Kevin.Common.App.Global
                     error
                 }; 
                 string strContent = JsonHelper.ObjectToJSON(content);
-            }  
-            return context.Response.WriteAsync(ret.ToJson(),Encoding.UTF8);
+            }
+            context.Response.ContentType = "application/json; charset=utf-8";
+            return context.Response.WriteAsync(ret.ToJson(), Encoding.UTF8);
         }
     }
 }
