@@ -1,9 +1,11 @@
 ﻿using Aop.Api.Domain;
 using kevin.Domain.BaseDatas;
 using kevin.Domain.Configuration;
+using kevin.FileStorage;
 using kevin.RepositorieRps.Repositories;
 using kevin.Share.Dtos;
 using kevin.Share.Dtos.System;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,7 +19,7 @@ namespace kevin.Application.Services
     public class RoleService : BaseService, IRoleService
     {
         public IRoleRp RoleRp { get; set; }
-        public RoleService(IRoleRp roleRp)
+        public RoleService(IHttpContextAccessor _httpContextAccessor, IRoleRp roleRp) : base(_httpContextAccessor)
         {
             RoleRp = roleRp;
         }

@@ -280,6 +280,8 @@ const handlePasswordLogin = (values) => {
   });
   } catch (error) {  
     loading.value = false;
+  }finally {
+    loading.value = false;
   }
   
 };

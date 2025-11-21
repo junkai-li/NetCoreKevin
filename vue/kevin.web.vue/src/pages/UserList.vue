@@ -201,6 +201,7 @@
 </template>
 
 <script setup>
+import "../css/UserList.css";
 import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import {
   UserOutlined,
@@ -213,8 +214,7 @@ import {
 import { message } from "ant-design-vue";
 import { Form } from "ant-design-vue";
 import { getUserList, createUser, updateUser, getUserRoleList,DeleteUser,ExportGetSysUserList } from "../api/userapi";
-import { GetGuId } from "../api/baseapi";
-import "../css/UserList.css";
+import { GetGuId } from "../api/baseapi"; 
 import hedeImage from "../assets/hede.png"; // 导入图片
 const useForm = Form.useForm;
 
@@ -946,3 +946,4 @@ const handleTableChange = (pager, filters, sorter) => {
   }
 }
 </style>
+

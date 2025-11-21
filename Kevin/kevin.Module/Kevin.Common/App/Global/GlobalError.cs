@@ -3,6 +3,7 @@ using Kevin.Common.Extension;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Threading.Tasks;
 using Web.Global.Exceptions;
 
@@ -14,6 +15,7 @@ namespace Kevin.Common.App.Global
         {
             var feature = context.Features.Get<IExceptionHandlerFeature>();
             var error = feature?.Error;
+            Kevin.log4Net.LogHelper<Exception>.logger.Error(error.Message ?? "", error);
             var ret = new
             {
                 code = StatusCodes.Status500InternalServerError,
@@ -55,7 +57,7 @@ namespace Kevin.Common.App.Global
                     error
                 };
 
-                string strContent = JsonHelper.ObjectToJSON(content); 
+                string strContent = JsonHelper.ObjectToJSON(content);
             }
             return context.Response.WriteAsync(ret.ToJson());
         }

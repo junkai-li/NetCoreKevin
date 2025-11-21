@@ -22,52 +22,18 @@
             </Button>
           </div>
         </div>
-      </template>
-      
-      <div class="toolbar">
-        <div class="toolbar-left">
-         <Flex gap="small" wrap>
-          <Button @click="handleBatchDelete" type="primary"><template #icon>
-              <DeleteOutlined />
-            </template>批量删除</Button> 
-        </Flex> 
-        </div>
-      </div>
+      </template> 
       
       <div class="table-container">
         <a-table 
           :columns="columns" 
           :data-source="dataSource" 
-          :pagination="pagination"
-          :row-selection="rowSelection"
+          :pagination="pagination" 
           @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
-            <template v-if="column.dataIndex === 'permissions'">
-              <a-popover trigger="click" placement="left">
-                <template #content>
-                  <div class="permissions-popover">
-                    <div v-for="perm in record.permissions" :key="perm" class="permission-item">
-                      <CheckCircleOutlined class="permission-icon" />
-                      {{ perm }}
-                    </div>
-                  </div>
-                </template>
-                <a-tag color="processing">{{ record.permissions.length }} 个权限</a-tag>
-              </a-popover>
-            </template>
-            
-            <template v-else-if="column.dataIndex === 'status'">
-              <a-tag :color="record.status === 1 ? 'success' : 'error'">
-                {{ record.status === 1 ? '启用' : '禁用' }}
-              </a-tag>
-            </template>
-            
-            <template v-else-if="column.dataIndex === 'users'">
-              <a-tag color="blue">{{ record.users }} 个用户</a-tag>
-            </template>
-            
-            <template v-else-if="column.dataIndex === 'action'">
+              
+            <template v-if="column.dataIndex === 'action'">
               <div class="action-buttons">
                 <a-button type="link" size="small" @click="showEditRoleModal(record)">
                   <template #icon>
@@ -75,17 +41,11 @@
                   </template>
                   编辑
                 </a-button>
-                <a-button type="link" size="small" @click="showPermissionModal(record)">
-                  <template #icon>
-                    <KeyOutlined />
-                  </template>
-                  权限
-                </a-button>
                 <a-popconfirm
                   title="确定要删除这个角色吗?"
                   ok-text="确定"
                   cancel-text="取消"
-                  @confirm="handleDelete(record.key)"
+                  @confirm="handleDelete(record.id)"
                 >
                   <a-button type="link" size="small" danger>
                     <template #icon>
@@ -107,95 +67,33 @@
         <a-form-item label="角色名称" v-bind="validateInfos.name">
           <a-input v-model:value="roleForm.name" />
         </a-form-item>
-        <a-form-item label="角色代码" v-bind="validateInfos.code">
-          <a-input v-model:value="roleForm.code" />
-        </a-form-item>
-        <a-form-item label="描述">
-          <a-textarea v-model:value="roleForm.description" :rows="3" />
-        </a-form-item>
-        <a-form-item label="状态">
-          <a-switch v-model:checked="roleForm.status" checked-children="启用" un-checked-children="禁用" />
+        <a-form-item label="备注信息">
+          <a-textarea v-model:value="roleForm.remarks" :rows="3" />
         </a-form-item>
       </a-form>
-    </a-modal>
-    
-    <!-- 权限配置模态框 -->
-    <a-modal v-model:open="permissionModalVisible" title="权限配置" width="600px" @ok="handlePermissionModalOk" @cancel="handlePermissionModalCancel">
-      <div class="permission-tree">
-        <a-tree
-          v-model:checkedKeys="checkedPermissionKeys"
-          :tree-data="permissionTreeData"
-          checkable
-          :expandedKeys="expandedPermissionKeys"
-          @expand="onPermissionTreeExpand"
-        >
-          <template #title="{ title, icon }">
-            <span>
-              <component :is="icon" v-if="icon" class="permission-node-icon" />
-              {{ title }}
-            </span>
-          </template>
-        </a-tree>
-      </div>
     </a-modal>
   </div>
 </template>
 
 <script setup>
+import '../css/UserRole.css';
 import { ref, reactive, onMounted } from 'vue';
 import { 
   SafetyCertificateOutlined, 
   PlusOutlined, 
   DeleteOutlined,
-  EditOutlined,
-  KeyOutlined,
-  CheckCircleOutlined
+  EditOutlined,  
 } from '@ant-design/icons-vue';
-import { message, Modal,Button,Flex  } from 'ant-design-vue';
+import { message, Button } from 'ant-design-vue';
 import { Form } from 'ant-design-vue';
-import '../css/UserRole.css';
+import { getRolePage, addEidtRole, deleteRole } from '@/api/roleapi';
+import { GetGuId } from "../api/baseapi"; 
+
 
 const useForm = Form.useForm;
 
 // 角色数据
-const dataSource = ref([
-  {
-    key: '1',
-    name: '管理员',
-    code: 'admin',
-    description: '系统管理员，拥有所有权限',
-    status: 1,
-    permissions: ['用户管理', '角色管理', '权限管理', '系统配置', '日志管理'],
-    users: 1
-  },
-  {
-    key: '2',
-    name: '普通用户',
-    code: 'user',
-    description: '普通用户，拥有基本权限',
-    status: 1,
-    permissions: ['查看信息', '个人设置'],
-    users: 12
-  },
-  {
-    key: '3',
-    name: '审计员',
-    code: 'auditor',
-    description: '审计员，拥有查看日志和报表权限',
-    status: 1,
-    permissions: ['日志管理', '数据分析', '报表查看'],
-    users: 3
-  },
-  {
-    key: '4',
-    name: '操作员',
-    code: 'operator',
-    description: '操作员，拥有部分业务操作权限',
-    status: 0,
-    permissions: ['业务操作', '数据录入'],
-    users: 5
-  }
-]);
+const dataSource = ref([]);
 
 // 表格列定义
 const columns = ref([
@@ -206,34 +104,14 @@ const columns = ref([
     sorter: true
   },
   {
-    title: '角色代码',
-    dataIndex: 'code',
-    key: 'code'
+    title: '备注信息',
+    dataIndex: 'remarks',
+    key: 'remarks'
   },
   {
-    title: '描述',
-    dataIndex: 'description',
-    key: 'description'
-  },
-  {
-    title: '权限',
-    dataIndex: 'permissions',
-    key: 'permissions'
-  },
-  {
-    title: '用户数',
-    dataIndex: 'users',
-    key: 'users',
-    sorter: true
-  },
-  {
-    title: '状态',
-    dataIndex: 'status',
-    key: 'status',
-    filters: [
-      { text: '启用', value: 1 },
-      { text: '禁用', value: 0 }
-    ]
+    title: '创建时间',
+    dataIndex: 'createTime',
+    key: 'createTime'
   },
   {
     title: '操作',
@@ -248,24 +126,14 @@ const columns = ref([
 const pagination = ref({
   current: 1,
   pageSize: 10,
-  total: 4,
+  total: 0,
   showSizeChanger: true,
   showQuickJumper: true,
   showTotal: (total) => `共 ${total} 条记录`
-});
-
-// 表格选择配置
-const selectedRowKeys = ref([]);
-const rowSelection = ref({
-  selectedRowKeys: selectedRowKeys.value,
-  onChange: (selectedKeys) => {
-    selectedRowKeys.value = selectedKeys;
-  }
-});
+}); 
 
 // 模态框状态
-const roleModalVisible = ref(false);
-const permissionModalVisible = ref(false);
+const roleModalVisible = ref(false); 
 const roleModalTitle = ref('添加角色');
 
 // 当前编辑的角色
@@ -273,105 +141,54 @@ const currentRole = ref(null);
 
 // 角色表单
 const roleForm = reactive({
+  id: '',
   name: '',
-  code: '',
-  description: '',
-  status: true
+  remarks: ''
 });
-
-// 权限表单
-const checkedPermissionKeys = ref(['user:list', 'user:create', 'user:edit']);
-const expandedPermissionKeys = ref(['user', 'system']);
-
-// 权限树数据
-const permissionTreeData = ref([
-  {
-    title: '用户管理',
-    key: 'user',
-    icon: 'UserOutlined',
-    children: [
-      {
-        title: '用户列表',
-        key: 'user:list',
-        icon: 'UnorderedListOutlined'
-      },
-      {
-        title: '创建用户',
-        key: 'user:create',
-        icon: 'PlusOutlined'
-      },
-      {
-        title: '编辑用户',
-        key: 'user:edit',
-        icon: 'EditOutlined'
-      },
-      {
-        title: '删除用户',
-        key: 'user:delete',
-        icon: 'DeleteOutlined'
-      }
-    ]
-  },
-  {
-    title: '系统管理',
-    key: 'system',
-    icon: 'SettingOutlined',
-    children: [
-      {
-        title: '角色管理',
-        key: 'role:list',
-        icon: 'SafetyCertificateOutlined'
-      },
-      {
-        title: '权限管理',
-        key: 'permission:list',
-        icon: 'KeyOutlined'
-      },
-      {
-        title: '系统配置',
-        key: 'system:config',
-        icon: 'ControlOutlined'
-      }
-    ]
-  },
-  {
-    title: '日志管理',
-    key: 'log',
-    icon: 'FileTextOutlined',
-    children: [
-      {
-        title: '查看日志',
-        key: 'log:view',
-        icon: 'FileSearchOutlined'
-      },
-      {
-        title: '导出日志',
-        key: 'log:export',
-        icon: 'DownloadOutlined'
-      }
-    ]
-  }
-]);
 
 // 表单验证规则
 const roleRules = reactive({
   name: [
     { required: true, message: '请输入角色名称' },
     { min: 2, message: '角色名称至少2个字符' }
-  ],
-  code: [
-    { required: true, message: '请输入角色代码' },
-    { pattern: /^[a-zA-Z0-9_]+$/, message: '角色代码只能包含字母、数字和下划线' }
   ]
 });
 
 // 表单验证
 const { validate: validateRoleForm, validateInfos } = useForm(roleForm, roleRules);
 
+// 搜索关键字
+const searchKeyword = ref('');
+
 // 搜索处理
 const onSearch = (value) => {
-  console.log('搜索:', value);
-  message.info(`搜索角色: ${value}`);
+  searchKeyword.value = value;
+  pagination.value.current = 1;
+  loadRoleData();
+};
+
+// 加载角色数据
+const loadRoleData = async () => {
+  try {
+    const params = {
+      pageNum: pagination.value.current,
+      pageSize: pagination.value.pageSize,
+      searchKey: searchKeyword.value
+    };
+    
+    const response = await getRolePage(params); 
+    if (response && response.status == 200 && response.data.data.data) {
+   dataSource.value = response.data.data.data.map(item => ({
+      ...item,
+      key: item.id
+    }));
+        pagination.value.total = response.data.data.total; 
+    } 
+
+  } catch (error) {
+    console.error('加载角色数据失败:', error);
+    message.error('加载角色数据失败: ' + (error.message || '未知错误'));
+  }
 };
 
 // 显示添加角色模态框
@@ -380,10 +197,9 @@ const showAddRoleModal = () => {
   currentRole.value = null;
   // 重置表单
   Object.assign(roleForm, {
+    id: '',
     name: '',
-    code: '',
-    description: '',
-    status: true
+    remarks: ''
   });
   roleModalVisible.value = true;
 };
@@ -394,36 +210,72 @@ const showEditRoleModal = (record) => {
   currentRole.value = record;
   // 填充表单数据
   Object.assign(roleForm, {
+    id: record.id,
     name: record.name,
-    code: record.code,
-    description: record.description,
-    status: record.status === 1
+    remarks: record.remarks
   });
   roleModalVisible.value = true;
 };
 
-// 显示权限配置模态框
-const showPermissionModal = (record) => {
-  currentRole.value = record;
-  permissionModalVisible.value = true;
-};
+ 
 
-// 权限树展开处理
-const onPermissionTreeExpand = (expandedKeys) => {
-  expandedPermissionKeys.value = expandedKeys;
+ 
+
+// 删除角色
+const handleDelete = async (id) => {
+  try {
+    await deleteRole(id);
+    message.success('角色删除成功');
+    loadRoleData(); // 重新加载数据
+  } catch (error) {
+    console.error('删除角色失败:', error);
+    message.error('删除角色失败: ' + (error.message || '未知错误'));
+  }
+}; 
+
+// 表格变化处理
+const handleTableChange = (pager, filters, sorter) => {
+  console.log('表格变化:', pager, filters, sorter);
+  pagination.value.current = pager.current;
+  pagination.value.pageSize = pager.pageSize;
+  loadRoleData();
 };
 
 // 角色模态框确认
 const handleRoleModalOk = () => {
-  validateRoleForm().then(() => {
-    if (currentRole.value) {
-      // 编辑角色
-      message.success('角色信息更新成功');
-    } else {
-      // 添加角色
-      message.success('角色添加成功');
+  validateRoleForm().then(async () => {
+    try {
+      const params = {
+        id: roleForm.id,
+        name: roleForm.name,
+        remarks: roleForm.remarks
+      };
+      
+      
+      
+      if (currentRole.value) {
+        await addEidtRole(params);
+        // 编辑角色
+        message.success('角色信息更新成功');
+      } else {
+        // 添加角色 
+          var dataid = await GetGuId();
+          if (dataid && dataid.status == 200 && dataid.data.data) {
+            var id = dataid.data.data;
+            params.id= id;
+            await addEidtRole(params);
+            message.success("添加成功");
+          } else {
+            message.error("添加失败"); 
+          } 
+      }
+      
+      roleModalVisible.value = false;
+      loadRoleData(); // 重新加载数据
+    } catch (error) {
+      console.error('保存角色失败:', error);
+      message.error('保存角色失败: ' + (error.message || '未知错误'));
     }
-    roleModalVisible.value = false;
   }).catch(err => {
     console.log('表单验证失败:', err);
   });
@@ -434,51 +286,10 @@ const handleRoleModalCancel = () => {
   roleModalVisible.value = false;
 };
 
-// 权限模态框确认
-const handlePermissionModalOk = () => {
-  message.success(`角色 ${currentRole.value.name} 权限配置成功`);
-  permissionModalVisible.value = false;
-};
-
-// 权限模态框取消
-const handlePermissionModalCancel = () => {
-  permissionModalVisible.value = false;
-};
-
-// 删除角色
-const handleDelete = (key) => {
-  message.success('角色删除成功');
-  console.log('删除角色:', key);
-};
-
-// 批量删除
-const handleBatchDelete = () => {
-  if (selectedRowKeys.value.length === 0) {
-    message.warning('请先选择要删除的角色');
-    return;
-  }
-  Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除选中的 ${selectedRowKeys.value.length} 个角色吗?`,
-    okText: '确定',
-    cancelText: '取消',
-    onOk() {
-      message.success('角色批量删除成功');
-      selectedRowKeys.value = [];
-    }
-  });
-};
-
-// 表格变化处理
-const handleTableChange = (pager, filters, sorter) => {
-  console.log('表格变化:', pager, filters, sorter);
-  pagination.value.current = pager.current;
-  pagination.value.pageSize = pager.pageSize;
-};
-
 // 组件挂载时的初始化
 onMounted(() => {
   console.log('角色管理页面已加载');
+  loadRoleData();
 });
 </script>
 
@@ -548,9 +359,34 @@ onMounted(() => {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.toolbar-left {
+.toolbar-left,
+.toolbar-right {
   display: flex;
   gap: 8px;
+}
+
+.toolbar-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.toolbar-button:hover {
+  background: rgba(102, 126, 234, 0.2);
+  border-color: rgba(102, 126, 234, 0.5);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.toolbar-button :deep(.anticon) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.toolbar-button:hover :deep(.anticon) {
+  color: white;
 }
 
 .table-container {
@@ -559,81 +395,85 @@ onMounted(() => {
   overflow: hidden;
 }
 
-:deep(.ant-table) {
+.role-table {
+  color: white;
+}
+
+:deep(.role-table .ant-table) {
   background: transparent;
   color: rgba(255, 255, 255, 0.85);
 }
 
-:deep(.ant-table-thead > tr > th) {
+:deep(.role-table .ant-table-thead > tr > th) {
   background: rgba(102, 126, 234, 0.2);
   color: white;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 500;
 }
 
-:deep(.ant-table-tbody > tr) {
+:deep(.role-table .ant-table-tbody > tr) {
   background: transparent;
 }
 
-:deep(.ant-table-tbody > tr > td) {
+:deep(.role-table .ant-table-tbody > tr > td) {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.85);
   padding: 12px 8px;
   background: transparent;
-  transition: background 0.3s ease; /* 添加过渡效果 */
+  transition: background 0.3s ease;
 }
 
-:deep(.ant-table-tbody > tr:hover > td) {
+:deep(.role-table .ant-table-tbody > tr:hover > td) {
   background: rgba(102, 126, 234, 0.1) !important;
 }
 
-:deep(.ant-table-tbody > tr.ant-table-row-selected > td) {
+:deep(.role-table .ant-table-tbody > tr.ant-table-row-selected > td) {
   background: rgba(102, 126, 234, 0.2) !important;
 }
 
-/* 防止悬停时的闪烁问题 */
-:deep(.ant-table-tbody > tr.ant-table-row:hover > td) {
+:deep(.role-table .ant-table-tbody > tr.ant-table-row:hover > td) {
   background: rgba(102, 126, 234, 0.1) !important;
 }
 
-/* 防止鼠标移出时的闪烁问题 */
-:deep(.ant-table-tbody > tr.ant-table-row) {
+:deep(.role-table .ant-table-tbody > tr.ant-table-row) {
   background: transparent !important;
 }
 
-:deep(.ant-table-tbody > tr.ant-table-row > td) {
+:deep(.role-table .ant-table-tbody > tr.ant-table-row > td) {
   background: transparent !important;
-  transition: background 0.3s ease; /* 添加过渡效果 */
+  transition: background 0.3s ease;
 }
 
-:deep(.ant-pagination) {
+:deep(.role-table .ant-pagination) {
   color: rgba(255, 255, 255, 0.85);
 }
 
-:deep(.ant-pagination-item) {
+:deep(.role-table .ant-pagination-item) {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-:deep(.ant-pagination-item a) {
+:deep(.role-table .ant-pagination-item a) {
   color: rgba(255, 255, 255, 0.85);
 }
 
-:deep(.ant-pagination-item-active) {
+:deep(.role-table .ant-pagination-item-active) {
   background: #667eea;
   border-color: #667eea;
 }
 
-:deep(.ant-pagination-next),
-:deep(.ant-pagination-prev) {
+:deep(.role-table .ant-pagination-next),
+:deep(.role-table .ant-pagination-prev) {
   color: rgba(255, 255, 255, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-:deep(.ant-btn-link) {
+:deep(.role-table .ant-btn-link) {
   color: #667eea;
+  padding: 0;
 }
 
-:deep(.ant-btn-link:hover) {
+:deep(.role-table .ant-btn-link:hover) {
   color: #764ba2;
 }
 
@@ -641,32 +481,23 @@ onMounted(() => {
   display: flex;
   gap: 8px;
   background: transparent;
+  margin-top: 0;
 }
 
-.permissions-popover {
-  max-height: 300px;
-  overflow-y: auto;
+.action-button {
+  color: rgba(255, 255, 255, 0.85) !important;
+  padding: 0 4px;
+  height: auto;
+  line-height: normal;
 }
 
-.permission-item {
-  padding: 4px 0;
-  display: flex;
-  align-items: center;
+.action-button:hover {
+  color: #667eea !important;
+  background: transparent;
 }
 
-.permission-icon {
-  color: #52c41a;
-  margin-right: 8px;
-}
-
-.permission-tree {
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.permission-node-icon {
-  margin-right: 8px;
-  color: #667eea;
+.action-button.danger:hover {
+  color: #ff4d4f !important;
 }
 
 .search-input {
@@ -696,7 +527,7 @@ onMounted(() => {
 .add-button {
   background: linear-gradient(45deg, #667eea, #764ba2);
   border: none;
-  border-radius: 20px;
+  border-radius: 6px;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
   transition: all 0.3s ease;
 }
@@ -706,56 +537,60 @@ onMounted(() => {
   transform: translateY(-2px);
 }
 
-:deep(.ant-modal-content) {
+:deep(.custom-modal .ant-modal-content) {
   background: #1a1a2e;
   color: white;
   border-radius: 12px;
   overflow: hidden;
 }
 
-:deep(.ant-modal-header) {
+:deep(.custom-modal .ant-modal-header) {
   background: rgba(102, 126, 234, 0.2);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 16px 24px;
 }
 
-:deep(.ant-modal-title) {
+:deep(.custom-modal .ant-modal-title) {
   color: white;
 }
 
-:deep(.ant-modal-close) {
+:deep(.custom-modal .ant-modal-close) {
   color: rgba(255, 255, 255, 0.8);
 }
 
-:deep(.ant-modal-close:hover) {
+:deep(.custom-modal .ant-modal-close:hover) {
   color: white;
 }
 
-:deep(.ant-form-item-label > label) {
+:deep(.custom-modal .ant-form-item-label > label) {
   color: rgba(255, 255, 255, 0.85);
 }
 
-:deep(.ant-input) {
+:deep(.custom-input .ant-input) {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
   color: white;
+  border-radius: 6px;
 }
 
-:deep(.ant-input:focus) {
+:deep(.custom-input .ant-input:focus) {
   box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
   border-color: #667eea;
 }
 
-:deep(.ant-textarea) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  resize: none;
+:deep(.custom-select .ant-select-selector) {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  border-radius: 6px !important;
 }
 
-:deep(.ant-textarea:focus) {
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-  border-color: #667eea;
+:deep(.custom-select .ant-select-selection-item) {
+  color: white;
+}
+
+:deep(.custom-select .ant-select-arrow) {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 :deep(.ant-switch) {
@@ -766,29 +601,16 @@ onMounted(() => {
   background: #667eea;
 }
 
-:deep(.ant-tree) {
-  background: transparent;
-  color: rgba(255, 255, 255, 0.85);
+:deep(.avatar-uploader .ant-upload.ant-upload-select-picture-card) {
+  width: 100px;
+  height: 100px;
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
 }
 
-:deep(.ant-tree-treenode) {
-  padding: 2px 0;
-}
-
-:deep(.ant-tree-switcher) {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-:deep(.ant-tree-node-content-wrapper) {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-:deep(.ant-tree-node-content-wrapper:hover) {
-  background: rgba(102, 126, 234, 0.1);
-}
-
-:deep(.ant-tree-node-selected) {
-  background: rgba(102, 126, 234, 0.2);
+:deep(.avatar-uploader .ant-upload.ant-upload-select-picture-card:hover) {
+  border-color: #667eea;
 }
 
 @media (max-width: 768px) {
@@ -796,19 +618,21 @@ onMounted(() => {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .header-actions {
     justify-content: space-between;
   }
-  
+
   .toolbar {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
-  .toolbar-left {
+
+  .toolbar-left,
+  .toolbar-right {
     width: 100%;
   }
 }
 </style>
+
