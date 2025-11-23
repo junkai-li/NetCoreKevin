@@ -74,6 +74,9 @@ Kevin.AI 系列
 13.RAG检索增强实现示例</PackageReleaseNotes>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageTags>AI；智能体；RabbitMQ；跨域；RAG；EF;EFCore；SemanticKernel；AgentFramework；Quartz；Cors；IOC；Saas；SignalR；MCP；CAP；Kevin；</PackageTags>
+    <PackAsTool>True</PackAsTool>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
