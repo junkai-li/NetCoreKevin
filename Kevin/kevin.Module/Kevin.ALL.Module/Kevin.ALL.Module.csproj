@@ -4,7 +4,84 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Title>Kevin.ALL.Module</Title>
+    <Description>kevin.CrawlingService
+功能：基于 Selenium 的爬虫服务或自动化测试。
+说明：用于模拟浏览器行为进行数据采集或测试。
+Kevin.EntityFrameworkCore
+功能：基于 EFCore 的工作单元（UnitOfWork）实现。
+说明：提供统一的数据库事务管理。
+kevin.Domain
+功能：领域服务层。
+说明：实现核心业务逻辑，是 DDD 的核心部分。
+kevin.Cache
+功能：基于 IDistributedCache 的缓存服务，支持多种缓存方式。
+说明：提供缓存策略和操作接口。
+kevin.Cap
+功能：基于 CAP 的分布式事件总线。
+说明：用于微服务之间的消息通信和事件处理。
+kevin.Consul
+功能：微服务注册与发现，使用 Consul 实现。
+说明：支持服务的动态发现和负载均衡。
+Kevin.Cors
+功能：跨域配置模块。
+说明：提供自定义的跨域策略支持。
+kevin.DistributedLock
+功能：分布式锁。
+说明：用于在分布式环境中控制资源访问。
+kevin.Domain.EventBus
+功能：基于 MediatR 的领域事件实现。
+说明：用于处理业务逻辑中的事件发布与订阅。
+kevin.FileStorage
+功能：文件存储服务，支持阿里云、腾讯云。
+说明：提供文件上传、下载、管理等功能。
+Kevin.HttpApiClients
+功能：基于 IHttpClientFactory 的 HTTP 客户端。
+说明：支持 HTTP/2.0，用于调用外部 API。
+kevin.Ioc
+功能：IOC 容器模块。
+说明：提供模块化的依赖注入配置。
+Kevin.log4Net
+功能：日志系统，基于 log4Net。
+说明：用于记录系统运行日志，便于调试和分析。
+kevin.Permission
+功能：权限服务，可根据 API 配置权限。
+说明：支持基于 API 的细粒度权限控制。
+Kevin.SignalR
+功能：SignalR 实时通信服务。
+说明：用于实时消息推送、在线状态同步等。
+Kevin.SMS
+功能：短信服务，支持阿里云、腾讯云。
+说明：用于发送验证码、通知短信等。
+Kevin.AI 系列
+功能：AI 集成模块，包括 SemanticKernel、MCP 服务、OCR 验证码识别等。
+说明：集成 AI 功能，如语义理解、验证码识别等。</Description>
+    <PackageProjectUrl>https://github.com/junkai-li/NetCoreKevin</PackageProjectUrl>
+    <PackageReadmeFile>NetCoreKevin-DDD-微服务-现代化Saas企业级-WebAPI-前后端分离架构.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/junkai-li/NetCoreKevin</RepositoryUrl>
+    <PackageReleaseNotes>1.前端界面优化
+2.权限支持多租户
+3.超级管理任意权限
+4.nuget包升级删除过时不维护等包
+5.新增默认索引
+6.AI智能体集成
+7.前端vue3集成
+8.RabbitMQ集成
+9.修复已知问题
+10.开启跨域
+11.开启权限
+12.初始化种子数据
+13.RAG检索增强实现示例</PackageReleaseNotes>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\lijunkai\Downloads\NetCoreKevin-DDD-微服务-现代化Saas企业级-WebAPI-前后端分离架构.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\kevin.AI.AgentFramework\kevin.AI.AgentFramework.csproj" />
