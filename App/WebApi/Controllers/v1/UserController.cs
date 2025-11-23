@@ -122,8 +122,8 @@ namespace WebApi.Controllers.v1
             foreach (var item in data.data)
             {
                 item.CreateTimeStr = item.CreateTime.Date.ToString("yyyy-MM-dd");
-                item.RecentLoginTimeStr = item.RecentLoginTime.Value.Date.ToString("yyyy-MM-dd");
-                item.StatusStr = item.Status?"启用":"禁用";
+                item.RecentLoginTimeStr = item.RecentLoginTime != default ? item.RecentLoginTime.Value.Date.ToString("yyyy-MM-dd") : "";
+                item.StatusStr = item.Status ? "启用" : "禁用";
             }
             return new NPOIHelper().ExportExcelFileStream("值班排期表.xlsx", data.data, keyValuePairs: keyValuePairs);
         }
