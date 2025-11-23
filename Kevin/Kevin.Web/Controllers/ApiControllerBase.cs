@@ -16,10 +16,6 @@ namespace Kevin.Web.Controllers
         [IocProperty]
         public IConfiguration Configuration { get; set; }
         [IocProperty]
-        public IDistributedLockProvider distLock { get; set; }
-        [IocProperty]
-        public IDistributedSemaphoreProvider distSemaphoreLock { get; set; }
-        [IocProperty]
-        public IDistributedUpgradeableReaderWriterLockProvider distUpgradeableLock { get; set; }
+        public IDistributedLockProvider distLock { get; set; } 
     }
 }
