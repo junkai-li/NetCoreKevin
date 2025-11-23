@@ -44,7 +44,7 @@ namespace WebApi.Controllers.v1
         /// <returns></returns>
         [HttpGet("GetUser")]
         [SkipAuthority]
-        [CacheDataFilter(TTL = 60, UseToken = true)]
+        [CacheDataFilter<dtoUser>(TTL = 60, UseToken = true)]
         public dtoUser GetUser(Guid userId)
         {
             return _userService.GetUser(userId);
