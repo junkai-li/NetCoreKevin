@@ -21,15 +21,15 @@ namespace AuthorizationService
     public class ResourceOwnerPasswordValidator : IResourceOwnerPasswordValidator
     {
         public Task ValidateAsync(ResourceOwnerPasswordValidationContext context)
-        { 
-            string dataJson = ""; 
+        {
+            string dataJson = "";
             switch (context.Request.Client.ClientName)
-            { 
+            {
                 //系统用户登录
                 case "UserClient":
                     userDto User = null;
                     //查询数据库
-                    dataJson = GlobalServices.ServiceProvider.GetService<ICacheService>().GetString("CacheClientUserList"+context.UserName);
+                    dataJson = GlobalServices.ServiceProvider.GetService<ICacheService>().GetString("CacheClientUserList" + context.UserName);
 
                     if (!string.IsNullOrEmpty(dataJson))
                     {
@@ -73,7 +73,7 @@ namespace AuthorizationService
                     break;
             }
             return Task.FromResult(0);
-        }  
+        }
         private Claim[] GetUserClaims(userDto user)
         {
             return new Claim[]
@@ -94,8 +94,15 @@ namespace AuthorizationService
         {
             return Task.Run(() =>
             {
-                GlobalServices.ServiceProvider.GetService<ICacheService>().SetString("CacheClientUserList"+user.Id, JsonHelper.ObjectToJSON(user));
-                GlobalServices.ServiceProvider.GetService<IUserService>().UpdateRecentLoginTime(Guid.Parse(user.Id));
+                GlobalServices.ServiceProvider.GetService<ICacheService>().SetString("CacheClientUserList" + user.Id, JsonHelper.ObjectToJSON(user));
+                //GlobalServices.ServiceProvider.GetService<IUserService>().UpdateRecentLoginTime(Guid.Parse(user.Id));
+                using (var db = new KevinDbContext())
+                {
+                    var data = db.Set<TUser>().Where(x => x.IsDelete == false && x.Id.ToString() == user.Id).FirstOrDefault();
+                    data.RecentLoginTime=DateTime.Now;
+                    data.UpdateTime = DateTime.Now;
+                    db.SaveChanges();
+                }
             });
         }
     }
