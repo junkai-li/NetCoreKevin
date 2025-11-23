@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\kevin.AI.AgentFramework\kevin.AI.AgentFramework.csproj" />
+    <ProjectReference Include="..\Kevin.AI\Kevin.AI.csproj" />
+    <ProjectReference Include="..\kevin.Cache\kevin.Cache.csproj" />
+    <ProjectReference Include="..\kevin.Cap\kevin.Cap.csproj" />
+    <ProjectReference Include="..\Kevin.Common\Kevin.Common.csproj" />
+    <ProjectReference Include="..\kevin.Consul\kevin.Consul.csproj" />
+    <ProjectReference Include="..\Kevin.Cors\Kevin.Cors.csproj" />
+    <ProjectReference Include="..\Kevin.CrawlingService\kevin.CrawlingService.csproj" />
+    <ProjectReference Include="..\kevin.DistributedLock\kevin.DistributedLock.csproj" />
+    <ProjectReference Include="..\Kevin.Email\Kevin.Email.csproj" />
+    <ProjectReference Include="..\kevin.ESL\kevin.ESL.csproj" />
+    <ProjectReference Include="..\kevin.FileStorage\kevin.FileStorage.csproj" />
+    <ProjectReference Include="..\Kevin.HttpApiClients\Kevin.HttpApiClients.csproj" />
+    <ProjectReference Include="..\kevin.Ioc\kevin.Ioc.csproj" />
+    <ProjectReference Include="..\Kevin.log4Net\Kevin.log4Net.csproj" />
+    <ProjectReference Include="..\Kevin.MCP.Server\Kevin.AI.MCP.Server.csproj" />
+    <ProjectReference Include="..\kevin.Permission\kevin.Permission.csproj" />
+    <ProjectReference Include="..\kevin.RabbitMQ\kevin.RabbitMQ.csproj" />
+    <ProjectReference Include="..\Kevin.SemanticKernel.AI\Kevin.AI.SemanticKernel.csproj" />
+    <ProjectReference Include="..\Kevin.SignalR\Kevin.SignalR.csproj" />
+    <ProjectReference Include="..\Kevin.SMS\Kevin.SMS.csproj" />
+    <ProjectReference Include="..\Kevin.Versioning.Swagger\Kevin.Api.Versioning.csproj" />
+  </ItemGroup>
+
+</Project>

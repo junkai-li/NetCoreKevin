@@ -93,6 +93,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kevin.AI.AgentFramework", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kevin.Email", "Kevin\kevin.Module\Kevin.Email\Kevin.Email.csproj", "{5DAE97D6-95D0-4DEF-851B-3AB5C957D731}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kevin.ALL.Module", "Kevin\kevin.Module\Kevin.ALL.Module\Kevin.ALL.Module.csproj", "{A23EF94F-7B0D-448B-9076-CCCCCEB30B3D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -255,6 +257,10 @@ Global
 		{5DAE97D6-95D0-4DEF-851B-3AB5C957D731}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DAE97D6-95D0-4DEF-851B-3AB5C957D731}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DAE97D6-95D0-4DEF-851B-3AB5C957D731}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A23EF94F-7B0D-448B-9076-CCCCCEB30B3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A23EF94F-7B0D-448B-9076-CCCCCEB30B3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A23EF94F-7B0D-448B-9076-CCCCCEB30B3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A23EF94F-7B0D-448B-9076-CCCCCEB30B3D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -300,6 +306,7 @@ Global
 		{523A36F6-90FE-4536-9AA5-B63E02656AEE} = {52538984-57B4-4B42-8D6D-86B07E33B4A6}
 		{B1D3B6B6-2615-3FB5-8771-1615593500A6} = {52538984-57B4-4B42-8D6D-86B07E33B4A6}
 		{5DAE97D6-95D0-4DEF-851B-3AB5C957D731} = {52538984-57B4-4B42-8D6D-86B07E33B4A6}
+		{A23EF94F-7B0D-448B-9076-CCCCCEB30B3D} = {52538984-57B4-4B42-8D6D-86B07E33B4A6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9A57BA34-E6D0-4E76-AA55-1A573F3CC798}
