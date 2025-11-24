@@ -165,7 +165,7 @@
             v-model:checked="userForm.status"
             checked-children="启用"
             un-checked-children="禁用"
-          />
+          /> 
         </a-form-item>
         <a-form-item label="头像">
           <a-upload
@@ -503,7 +503,7 @@ const showEditUserModal = (record) => {
     phone: record.phone,
     email: record.email,
     roles: record.roles.map((role) => role.id),
-    status: record.status === 1,
+    status: record.status == 1,
     avatar: [],
     avatarUrl: record.avatar || "",
   });
