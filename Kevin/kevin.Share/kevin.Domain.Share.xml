@@ -461,7 +461,7 @@
             图标;
             </summary> 
         </member>
-        <member name="P:kevin.Permission.Permisson.PermissionDto.permission_type">
+        <member name="P:kevin.Permission.Permisson.PermissionDto.PermissionType">
             <summary>
             权限类型1.菜单权限2.功能权限3.数据权限 4.接口权限
             </summary>

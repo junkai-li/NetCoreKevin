@@ -36,7 +36,7 @@ namespace kevin.Permission.Permisson
                                 Action = a.Action,
                                 FullName = ctrl.FullName,
                                 IsManual = false,
-                                permission_type = 4
+                                PermissionType = 4
                             });
                     });
                 }

@@ -76,7 +76,7 @@
         /// <summary>
         /// 权限类型1.菜单权限2.功能权限3.数据权限 4.接口权限
         /// </summary>
-        public Int32 permission_type { get; set; } 
+        public Int32 PermissionType { get; set; }
 
         /// <summary>
         /// 租户id

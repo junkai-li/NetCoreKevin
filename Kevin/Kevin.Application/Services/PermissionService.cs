@@ -36,14 +36,14 @@ namespace kevin.Application
             if (TenantId == default)
             {
                 TenantId = CurrentUser.TenantId;
-                userId = CurrentUser.UserId; 
+                userId = CurrentUser.UserId;
             }
             var all = (new GlobalData()).AllModules;
             all.ForEach(r =>
             {
                 r.Id = $"{TenantId}/{r.Area}/{r.Module}/{r.Action}";
-                r.permission_type = 4;
-                r.FullName= $"{r.AreaName}/{r.ModuleName}/{r.ActionName}";
+                r.PermissionType = 4;
+                r.FullName = $"{r.AreaName}/{r.ModuleName}/{r.ActionName}";
             });
             var areas = all.Select(x => x.Area).ToList();
             var allExist = permissionRp.Query().Where(r => r.IsManual == false && areas.Any(x => x == r.Area)).ToList();
@@ -63,7 +63,7 @@ namespace kevin.Application
                 AreaName = t.AreaName,
                 Module = t.Module,
                 ModuleName = t.ModuleName,
-                PermissionType = t.permission_type,
+                PermissionType = t.PermissionType,
                 Action = t.Action,
                 ActionName = t.ActionName,
                 FullName = t.FullName,
@@ -98,7 +98,7 @@ namespace kevin.Application
                     );
             }
             dtoPage.total = await data.CountAsync();
-            dtoPage.data = await data.Skip(skip).Take(dtoPage.pageSize).OrderByDescending(x => x.CreateTime).Select(t => new PermissionDto
+            dtoPage.data = await data.OrderByDescending(x => x.Area).Skip(skip).Take(dtoPage.pageSize).Select(t => new PermissionDto
             {
                 Id = t.Id,
                 CreateTime = t.CreateTime,
@@ -117,7 +117,7 @@ namespace kevin.Application
                 TenantId = t.TenantId,
                 UpdatedTime = t.UpdatedTime,
                 UpdateUserId = t.UpdateUserId,
-                permission_type = t.PermissionType
+                PermissionType = t.PermissionType
             }).ToListAsync();
             return dtoPage;
         }
@@ -150,7 +150,7 @@ namespace kevin.Application
                 TenantId = entity.TenantId,
                 UpdatedTime = entity.UpdatedTime,
                 UpdateUserId = entity.UpdateUserId,
-                permission_type = entity.PermissionType
+                PermissionType = entity.PermissionType
             };
             else throw new UserFriendlyException("权限不存在");
         }
@@ -168,8 +168,8 @@ namespace kevin.Application
             if (entity.IsManual != true)
             {
                 throw new UserFriendlyException("系统权限不能删除");
-            }
-            permissionRp.RemoveRange(entity);
+            } 
+            permissionRp.Remove(entity);
             int res = permissionRp.SaveChanges();
             return res > 0;
         }
@@ -203,7 +203,7 @@ namespace kevin.Application
                 var data = permissionRp.Query().Where(t => t.Id == parm.Id).FirstOrDefault();
                 if (data != default)
                 {
-                    if (data.IsManual.HasValue != true)
+                    if (data.IsManual != true)
                     {
                         throw new UserFriendlyException("非手动添加禁止修改");
                     }
@@ -249,7 +249,7 @@ namespace kevin.Application
                 TenantId = t.TenantId,
                 UpdatedTime = t.UpdatedTime,
                 UpdateUserId = t.UpdateUserId,
-                permission_type = t.PermissionType
+                PermissionType = t.PermissionType
             }).ToList();
         }
 

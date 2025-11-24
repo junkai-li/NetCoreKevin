@@ -9,8 +9,7 @@ namespace kevin.Domain.Kevin
     /// 系统权限表
     /// </summary>
     [Table("TPermission")]
-    [Description("系统权限表")]
-    [Index(nameof(Id))]
+    [Description("系统权限表")] 
     public partial class TPermission
     {
         /// <summary>
@@ -19,6 +18,7 @@ namespace kevin.Domain.Kevin
         [Description("主键标识ID")]
         [MaxLength(255)]
         public string Id { get; set; }
+
 
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace kevin.Domain.Kevin
         /// 手动添加;
         /// </summary>
         [Description("手动添加")]
-        public virtual bool? IsManual { get; set; }
+        public virtual bool IsManual { get; set; }
         /// <summary>
         /// 序号;
         /// </summary>

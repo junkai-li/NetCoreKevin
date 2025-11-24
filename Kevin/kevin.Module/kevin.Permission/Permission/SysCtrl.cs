@@ -38,7 +38,7 @@ namespace kevin.Permission.Permisson
 
                 if (IsApi == true)
                 {
-                    rv += "(api)";
+                    //rv += "(api)";
                 }
                 return rv;
 

@@ -70,12 +70,12 @@
                 {{ record.isManual == true ? "是" : "否" }}
               </a-tag>
             </template>
-            <template v-if="column.dataIndex === 'permission_type'">
+            <template v-if="column.dataIndex === 'permissionType'">
               <a-tag :color="'success'">
-                {{ permission_types[record.permission_type] }}
+                {{ permissionTypes[record.permissionType] }}
               </a-tag>
             </template>
-            <template v-if="column.dataIndex === 'action'">
+            <template v-if="column.dataIndex === 'webaction'">
               <div class="action-buttons">
                 <a-button type="link" size="small" @click="showEditPermModal(record)">
                   <template #icon>
@@ -118,11 +118,20 @@
         <a-form-item label="区域" v-bind="validateInfos.areaName" >
           <a-input v-model:value="permForm.areaName" />
         </a-form-item>
-        <a-form-item label="模块" v-bind="validateInfos.moduleName">
+         <a-form-item label="区域(Code)" v-bind="validateInfos.area" >
+          <a-input v-model:value="permForm.area" />
+        </a-form-item>
+        <a-form-item label="模块" v-bind="validateInfos.module">
           <a-input v-model:value="permForm.moduleName"  />
+        </a-form-item>
+         <a-form-item label="模块(Code)" v-bind="validateInfos.module">
+          <a-input v-model:value="permForm.module"  />
         </a-form-item>
         <a-form-item label="功能"  v-bind="validateInfos.actionName" >
           <a-input v-model:value="permForm.actionName" />
+        </a-form-item>
+          <a-form-item label="功能(Code)"  v-bind="validateInfos.action" >
+          <a-input v-model:value="permForm.action" />
         </a-form-item>
         <a-form-item label="请求类型">
           <a-select v-model:value="permForm.httpMethod" placeholder="请选择请求类型">
@@ -172,7 +181,7 @@ const useForm = Form.useForm;
 // 隐藏的列
 const hiddenColumns = ref([]);
 //权限类型1.菜单权限2.功能权限3.数据权限 4.接口权限
-const permission_types = ["", "菜单权限", "功能权限", "数据权限", "接口权限"];
+const permissionTypes = ["", "菜单权限", "功能权限", "数据权限", "接口权限"];
 // 计算可见列
 const visibleColumns = computed(() => {
   return columns.value.filter(
@@ -191,11 +200,11 @@ const toggleColumn = (dataIndex, visible) => {
 const dataSource = ref([]);
 // 表格列定义
 const columns = ref([
-  {
-    title: "id",
-    dataIndex: "id",
-    key: "id"
-  },
+  // {
+  //   title: "id",
+  //   dataIndex: "id",
+  //   key: "id"
+  // },
   {
     title: "权限名称",
     dataIndex: "fullName",
@@ -205,16 +214,28 @@ const columns = ref([
     title: "区域",
     dataIndex: "areaName",
     key: "areaName",
+  },  {
+    title: "区域",
+    dataIndex: "area",
+    key: "area",
   },
   {
     title: "模块",
     dataIndex: "moduleName",
     key: "moduleName",
+  }, {
+    title: "模块",
+    dataIndex: "module",
+    key: "module",
   },
   {
     title: "功能",
     dataIndex: "actionName",
     key: "actionName",
+  }, {
+    title: "功能",
+    dataIndex: "action",
+    key: "action",
   },
   {
     title: "请求类型",
@@ -228,13 +249,13 @@ const columns = ref([
   },
   {
     title: "权限类型",
-    dataIndex: "permission_type",
-    key: "permission_type",
+    dataIndex: "permissionType",
+    key: "permissionType",
   },
   {
     title: "操作",
-    dataIndex: "action",
-    key: "action",
+    dataIndex: "webaction",
+    key: "webaction",
     fixed: "right",
     width: 200,
   },
@@ -281,6 +302,9 @@ const permForm = reactive({
   areaName: "",
   moduleName: "",
   actionName: "",
+   area: "",
+  module: "",
+  action: "",
   httpMethod: undefined,
   permissionType: undefined,
   isManual: true,
@@ -302,6 +326,18 @@ const permRules = reactive({
     { min: 2, message: "权限名称至少2个字符" },
   ],
   actionName: [
+    { required: true, message: "请输入权限名称" },
+    { min: 2, message: "权限名称至少2个字符" },
+  ],
+  area: [
+    { required: true, message: "请输入权限名称" },
+    { min: 2, message: "权限名称至少2个字符" },
+  ],
+  module: [
+    { required: true, message: "请输入权限名称" },
+    { min: 2, message: "权限名称至少2个字符" },
+  ],
+  action: [
     { required: true, message: "请输入权限名称" },
     { min: 2, message: "权限名称至少2个字符" },
   ],
@@ -359,6 +395,9 @@ const showAddPermModal = () => {
     areaName: "",
     moduleName: "",
     actionName: "",
+     area: "",
+    module: "",
+    action: "",
     httpMethod: undefined,
     permissionType: undefined,
     isManual: true,
@@ -373,7 +412,8 @@ const showEditPermModal = async (record) => {
     permModalTitle.value = "编辑权限";
     // 获取详细信息
     const response = await getDetails(record.id);
-    if (response && response.data && response.data.status === 200) {
+    console.log(response);
+    if (response && response.data && response.data?.code == 200) {
       currentPerm.value = response.data.data;
       // 填充表单数据
       Object.assign(permForm, {
@@ -382,8 +422,11 @@ const showEditPermModal = async (record) => {
         areaName: response.data.data.areaName,
         moduleName: response.data.data.moduleName,
         actionName: response.data.data.actionName,
+         area: response.data.data.area,
+        module: response.data.data.module,
+        action: response.data.data.action,
         httpMethod: response.data.data.httpMethod,
-        permissionType: response.data.data.permission_type,
+        permissionType: response.data.data.permissionType,
         isManual: response.data.data.isManual,
         remarks: response.data.data.remarks,
       });
@@ -400,7 +443,7 @@ const showEditPermModal = async (record) => {
 const handleDelete = async (id) => {
   try {
     const response = await Delete(id);
-    if (response && response.data && response.data.status === 200) {
+    if (response && response.data && response.data.code === 200) {
       message.success("权限删除成功");
       loadPermData(); // 重新加载数据
     } else {
@@ -430,8 +473,11 @@ const handlePermModalOk = () => {
           areaName: permForm.areaName,
           moduleName: permForm.moduleName,
           actionName: permForm.actionName,
+           area: permForm.area,
+          module: permForm.module,
+          action: permForm.action,
           httpMethod: permForm.httpMethod,
-          permission_type: permForm.permissionType,
+          permissionType: permForm.permissionType,
           isManual: permForm.isManual,
           remarks: permForm.remarks,
         };
@@ -440,19 +486,20 @@ const handlePermModalOk = () => {
         if (currentPerm.value) {
           // 编辑权限
           response = await addEidt(params);
-          if (response && response.data && response.data.status === 200) {
+          console.log(response);
+          if (response && response.data && response.data.code === 200) {
             message.success("权限信息更新成功");
           } else {
-            message.error("权限信息更新失败: " + (response?.data?.errMsg || "未知错误"));
+            message.error("权限信息更新失败: " + (response?.data?.data?.errMsg || "未知错误"));
             return;
           }
         } else {
           // 新增权限
           response = await addEidt(params);
-          if (response && response.data && response.data.status === 200) {
+          if (response && response.data && response.data?.code === 200) {
             message.success("权限信息添加成功");
           } else {
-            message.error("权限信息添加失败: " + (response?.data?.errMsg || "未知错误"));
+            message.error("权限信息添加失败: " + (response?.data?.data?.errMsg || "未知错误"));
             return;
           }
         }
