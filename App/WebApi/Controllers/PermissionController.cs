@@ -1,5 +1,6 @@
 ﻿using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Kevin;
+using kevin.Domain.Share.Attributes;
 using kevin.Domain.Share.Dtos.System;
 using kevin.Permission.Permission;
 using kevin.Permission.Permission.Attributes;
@@ -36,6 +37,7 @@ namespace AdminApi.Controllers
         [HttpGet("Reload")]
         [ActionDescription("初始化")]
         [SkipAuthority]
+        [HttpLog("权限管理", "初始化")]
         public bool Reload()
         {
             return _permissionService.Reload();
@@ -48,6 +50,7 @@ namespace AdminApi.Controllers
         /// <returns></returns>
         [HttpPost("GetPageData")]
         [ActionDescription("获取权限分页列表")]
+        [HttpLog("权限管理", "获取权限分页列表")]
         public async Task<dtoPageData<PermissionDto>> GetPageData(dtoPageData<PermissionDto> input)
         {
             return await _permissionService.GetPageData(input);
@@ -60,6 +63,7 @@ namespace AdminApi.Controllers
         /// <returns></returns>
         [HttpGet("GetDetails")]
         [ActionDescription("查看详情")]
+        [HttpLog("权限管理", "查看详情")]
         public PermissionDto GetDetails(string Id)
         {
             return _permissionService.GetDetails(Id);
@@ -71,6 +75,7 @@ namespace AdminApi.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete("Del")]
+        [HttpLog("权限管理", "删除")]
         [ActionDescription("删除")]
         public bool Del(string id)
         {
@@ -84,6 +89,7 @@ namespace AdminApi.Controllers
         /// <returns></returns>
         [HttpPost("Edit")]
         [ActionDescription("编辑")]
+        [HttpLog("权限管理", "编辑")]
         public bool Edit(PermissionDto entity)
         {
             return _permissionService.AddEdit(entity);
@@ -96,6 +102,7 @@ namespace AdminApi.Controllers
         /// <returns></returns>
         [HttpPost("Add")]
         [ActionDescription("新增")]
+        [HttpLog("权限管理", "新增")]
         public bool Add(PermissionDto entity)
         {
             return _permissionService.AddEdit(entity);
@@ -139,6 +146,7 @@ namespace AdminApi.Controllers
         /// <returns></returns> 
         [HttpPost("EditAllAreaPermissions")]
         [ActionDescription("编辑角色对应权限")]
+        [HttpLog("权限管理", "编辑角色对应权限")]
         public bool EditAllAreaPermissions([Required] PermissionEditDto dto)
         {
             return _permissionService.EditAllAreaPermissions(dto);

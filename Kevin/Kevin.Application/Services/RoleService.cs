@@ -64,7 +64,7 @@ namespace kevin.Application.Services
                         IsDelete = false
                     };
                     RoleRp.Add(add);
-                    return RoleRp.SaveChanges() > 0;
+                    return RoleRp.SaveChangesWithSaveLog() > 0;
                 }
                 else
                 {
@@ -74,7 +74,7 @@ namespace kevin.Application.Services
                         edit.Name = dtoRole.Name;
                         edit.Remarks = dtoRole.Remarks;
                         RoleRp.Update(edit);
-                        return RoleRp.SaveChanges() > 0;
+                        return RoleRp.SaveChangesWithSaveLog() > 0;
                     }
                     else
                     {
@@ -97,7 +97,7 @@ namespace kevin.Application.Services
                 delete.IsDelete = true;
                 delete.DeleteTime = DateTime.Now;
                 RoleRp.Update(delete);
-                return (RoleRp.SaveChanges()) > 0;
+                return (RoleRp.SaveChangesWithSaveLog()) > 0;
             }
             return false;
         }

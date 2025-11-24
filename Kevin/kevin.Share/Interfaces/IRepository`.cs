@@ -13,6 +13,8 @@ namespace kevin.Domain.Interface
         void AddRange(IEnumerable<T> entity);
 
         int SaveChanges();
+
+        int SaveChangesWithSaveLog();
         T FirstOrDefault(Expression<Func<T, bool>> predicate);
         Task SaveChangesAsync();
 

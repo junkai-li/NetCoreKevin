@@ -36,7 +36,7 @@ namespace kevin.Application
             {
                 tenant.Status = TenantStatusEnums.Inactive;
                 tenant.UpdateTime = DateTime.Now;
-                await tenantRp.SaveChangesAsync();
+                  tenantRp.SaveChangesWithSaveLog();
                 return true;
             }
             else
@@ -51,7 +51,7 @@ namespace kevin.Application
             {
                 tenant.Status = TenantStatusEnums.Active;
                 tenant.UpdateTime = DateTime.Now;
-                await tenantRp.SaveChangesAsync();
+                 tenantRp.SaveChangesWithSaveLog();
                 return true;
             }
             else
@@ -73,7 +73,7 @@ namespace kevin.Application
                 tenantdata.Name = tenant.Name;
                 tenantdata.Code = tenant.Code;
                 tenantdata.UpdateTime = DateTime.Now;
-                await tenantRp.SaveChangesAsync();
+                 tenantRp.SaveChangesWithSaveLog();
                 return true;
             }
             else
@@ -107,7 +107,7 @@ namespace kevin.Application
             {
                 tenant.IsDelete = true;
                 tenant.DeleteTime = DateTime.Now;
-                await tenantRp.SaveChangesAsync();
+                  tenantRp.SaveChangesWithSaveLog();
                 return true;
             }
             else

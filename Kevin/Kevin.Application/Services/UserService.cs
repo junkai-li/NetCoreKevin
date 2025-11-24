@@ -378,7 +378,7 @@ namespace kevin.Application
                 user.Id = data.Id;
                 userRp.Add(data);
             }
-            userRp.SaveChanges();
+            userRp.SaveChangesWithSaveLog();
             var deleteRoleData = userBindRoleRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).ToList();
             foreach (var item in deleteRoleData)
             {

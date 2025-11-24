@@ -1,12 +1,27 @@
-﻿namespace kevin.Domain.Kevin
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace kevin.Domain.Share.Dtos.System
 {
-    /// <summary>
-    /// 操作标记
-    /// </summary>
-    [Table("TOSLog")]
-    [Description("操作标记")]
-    public partial class TOSLog : CD
+    public class OSLogDto
     {
+        /// <summary>
+        /// 主键标识ID
+        /// </summary>
+        [Description("主键标识ID")]
+        public Guid Id { get; set; }
+
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        [Description("创建时间")]
+        public DateTime CreateTime { get; set; }
+
         /// <summary>
         /// 外链表名
         /// </summary>
@@ -45,8 +60,8 @@
         /// 操作人信息
         /// </summary>
         [Description("操作人信息")]
-        public Guid? ActionUserId { get; set; }
-        public virtual TUser? ActionUser { get; set; }
+        public Guid? ActionUserId { get; set; } 
+        public string? ActionUserName { get; set; } 
 
 
 

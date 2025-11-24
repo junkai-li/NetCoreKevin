@@ -1,24 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kevin.Domain.Entities
+namespace kevin.Domain.Share.Dtos.System
 {
-    /// <summary>
-    /// 请求日志表
-    /// </summary> 
-    [Table("THttpLog")]
-    [Description("请求日志表")]
-    public class THttpLog : CD
+    public class HttpLogDto
     {
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        [Description("创建时间")]
+        public DateTime CreateTime { get; set; }
         /// <summary>
         /// 创建人ID
         /// </summary>
         [Description("创建人ID")]
-        public Guid CreateUserId { get; set; }
-
+        public Guid CreateUserId { get; set; } 
 
         /// <summary>
         /// 登录人

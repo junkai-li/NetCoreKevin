@@ -4,16 +4,16 @@
         <name>Kevin.EntityFrameworkCore</name>
     </assembly>
     <members>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.初始表结构">
+        <member name="T:Kevin.EntityFrameworkCore.Migrations._20251124初始化数据库">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始表结构.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations._20251124初始化数据库.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始表结构.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations._20251124初始化数据库.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始表结构.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations._20251124初始化数据库.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
         <member name="T:Kevin.EntityFrameworkCore._.Data.Repository`2">

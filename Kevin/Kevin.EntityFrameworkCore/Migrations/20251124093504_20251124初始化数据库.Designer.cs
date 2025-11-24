@@ -12,8 +12,8 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(KevinDbContext))]
-    [Migration("20251124054904_初始表结构")]
-    partial class 初始表结构
+    [Migration("20251124093504_20251124初始化数据库")]
+    partial class _20251124初始化数据库
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,15 +48,56 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
 
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("delete_user_id")
-                        .HasComment("删除人ID");
+                    b.Property<string>("Device")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("device")
+                        .HasComment("设备");
+
+                    b.Property<string>("HttpAction")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("http_action")
+                        .HasComment("请求url不带参数");
+
+                    b.Property<string>("HttpBody")
+                        .HasColumnType("longtext")
+                        .HasColumnName("http_body")
+                        .HasComment("请求内容");
+
+                    b.Property<string>("HttpMethod")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("http_method")
+                        .HasComment("请求方法");
+
+                    b.Property<string>("HttpUrl")
+                        .HasColumnType("longtext")
+                        .HasColumnName("http_url")
+                        .HasComment("url");
+
+                    b.Property<string>("IP")
+                        .HasMaxLength(125)
+                        .HasColumnType("varchar(125)")
+                        .HasColumnName("i_p")
+                        .HasComment("ip");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("is_delete")
                         .HasComment("是否删除");
+
+                    b.Property<string>("OperateRemark")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("operate_remark")
+                        .HasComment("操作备注");
+
+                    b.Property<string>("OperateType")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("operate_type")
+                        .HasComment("操作类型");
 
                     b.Property<Guid?>("RowVersion")
                         .IsConcurrencyToken()
@@ -69,53 +110,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("tenant_id")
                         .HasComment("租户ID_Code");
 
-                    b.Property<string>("device")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("device")
-                        .HasComment("设备");
-
-                    b.Property<string>("http_action")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("http_action")
-                        .HasComment("请求url不带参数");
-
-                    b.Property<string>("http_body")
-                        .HasColumnType("longtext")
-                        .HasColumnName("http_body")
-                        .HasComment("请求内容");
-
-                    b.Property<string>("http_method")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("http_method")
-                        .HasComment("请求方法");
-
-                    b.Property<string>("http_url")
-                        .HasColumnType("longtext")
-                        .HasColumnName("http_url")
-                        .HasComment("url");
-
-                    b.Property<string>("ip")
-                        .HasMaxLength(125)
-                        .HasColumnType("varchar(125)")
-                        .HasColumnName("ip")
-                        .HasComment("ip");
-
-                    b.Property<string>("operate_remark")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("operate_remark")
-                        .HasComment("操作备注");
-
-                    b.Property<string>("operate_type")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("operate_type")
-                        .HasComment("操作类型");
-
-                    b.Property<string>("user_name")
+                    b.Property<string>("UserName")
                         .HasColumnType("longtext")
                         .HasColumnName("user_name")
                         .HasComment("登录人");
@@ -132,8 +127,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.HasIndex("CreateUserId");
 
                     b.HasIndex("DeleteTime");
-
-                    b.HasIndex("DeleteUserId");
 
                     b.HasIndex("TenantId");
 
@@ -934,8 +927,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("is_delete")
                         .HasComment("是否删除");
 
-                    b.Property<bool?>("IsManual")
-                        .HasColumnType("tinyint(1)")
+                    b.Property<ulong>("IsManual")
+                        .HasColumnType("bit")
                         .HasColumnName("is_manual")
                         .HasComment("手动添加");
 
@@ -985,8 +978,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.HasIndex("DeleteTime");
 
                     b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("Id");
 
                     b.HasIndex("TenantId");
 

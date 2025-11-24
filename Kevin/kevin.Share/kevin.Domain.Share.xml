@@ -54,6 +54,111 @@
             创建时间
             </summary>S
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.HttpLogDto.CreateTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.HttpLogDto.CreateUserId">
+            <summary>
+            创建人ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.HttpLogDto.UserName">
+            <summary>
+            登录人
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.HttpLogDto.IP">
+            <summary>
+            ip
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.HttpLogDto.Device">
+            <summary>
+            设备
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.HttpLogDto.HttpUrl">
+            <summary>
+            url
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.HttpLogDto.HttpBody">
+            <summary>
+            请求内容
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.HttpLogDto.HttpMethod">
+            <summary>
+            请求方法
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.HttpLogDto.HttpAction">
+            <summary>
+            请求url不带参数
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.HttpLogDto.OperateType">
+            <summary>
+            操作类型
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.HttpLogDto.OperateRemark">
+            <summary>
+            操作备注
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.OSLogDto.Id">
+            <summary>
+            主键标识ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.OSLogDto.CreateTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.OSLogDto.Table">
+            <summary>
+            外链表名
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.OSLogDto.TableId">
+            <summary>
+            外链表ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.OSLogDto.Sign">
+            <summary>
+            标记
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.OSLogDto.Content">
+            <summary>
+            变动内容
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.OSLogDto.ActionUserId">
+            <summary>
+            操作人信息
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.OSLogDto.Remarks">
+            <summary>
+            备注
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.OSLogDto.IpAddress">
+            <summary>
+            Ip地址
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.OSLogDto.DeviceMark">
+            <summary>
+             设备标记
+            </summary> 
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.User.ChangePasswordTokenUserDto">
             <summary>
             变更当前登陆人密码

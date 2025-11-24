@@ -4,6 +4,7 @@ using kevin.Domain.Kevin;
 using Kevin.Common.Helper;
 using Kevin.EntityFrameworkCore.Configuration;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -16,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Web.Global.User;
+using Kevin.Common.App;
 namespace Repository.Database
 {
     public class KevinDbContext : DbContext
@@ -34,14 +36,18 @@ namespace Repository.Database
         /// 租户Id
         /// </summary>
         public Int32 TenantId { get; set; }
+
+        public ICurrentUser CurrentUser { get; set; }
         /// <summary>
         /// 默认需要添加索引的字段
         /// </summary>
 
         public static List<string> DBDefaultHasIndexFields { get; set; }
 
+        public IHttpContextAccessor HttpContextAccessor { get; set; }
 
-        public KevinDbContext(DbContextOptions<KevinDbContext> _ = default, IMediator mediator = default, ICurrentUser service = default) : base(GetDbContextOptions())
+
+        public KevinDbContext(DbContextOptions<KevinDbContext> _ = default, IMediator mediator = default, ICurrentUser service = default, IHttpContextAccessor httpContextAccessor = null) : base(GetDbContextOptions())
         {
             if (mediator != default)
             {
@@ -51,8 +57,12 @@ namespace Repository.Database
             if (service != default)
             {
                 this.TenantId = service.TenantId;
+                this.CurrentUser = service;
             }
-
+            if (httpContextAccessor != default)
+            {
+                this.HttpContextAccessor = httpContextAccessor;
+            }
         }
 
 
@@ -155,7 +165,7 @@ namespace Repository.Database
                     //设置生成数据库时的表名为小写格式并添加前缀 t_
                     var tableName = ("t_" + StringHelper.ToGidelineLower(entity.ClrType.Name[1..]));
                     builder.ToTable(tableName);
-                    builder.ToTable(t=>t.HasComment(tableName)); 
+                    builder.ToTable(t => t.HasComment(tableName));
                     //开启 PostgreSQL 全库行并发乐观锁
                     //builder.UseXminAsConcurrencyToken();  
                     //租户过滤器 
@@ -183,13 +193,13 @@ namespace Repository.Database
                             property.SetColumnType("char(36)");
                         }
                         //为默认索引列添加索引
-                        if (DBDefaultHasIndexFields!=default)
+                        if (DBDefaultHasIndexFields != default)
                         {
                             if (DBDefaultHasIndexFields.Contains(property.Name.ToLower()))
                             {
                                 builder.HasIndex(property.Name);
                             }
-                        } 
+                        }
 
                         //设置字段的默认值 
                         var defaultValueAttribute = property.PropertyInfo?.GetCustomAttribute<DefaultValueAttribute>();
@@ -217,7 +227,7 @@ namespace Repository.Database
                     var descriptionAttrtable = tabtype.GetCustomAttributes(typeof(DescriptionAttribute), true);
                     if (descriptionAttrtable.Length > 0)
                     {
-                        modelBuilder.Entity(item.Name).ToTable(t=>t.HasComment(((DescriptionAttribute)descriptionAttrtable[0]).Description));
+                        modelBuilder.Entity(item.Name).ToTable(t => t.HasComment(((DescriptionAttribute)descriptionAttrtable[0]).Description));
                     }
                     foreach (var prop in props)
                     {
@@ -242,7 +252,7 @@ namespace Repository.Database
 
         }
 
- 
+
         ///// <summary>
         ///// 数据变化比较
         ///// </summary>
@@ -447,17 +457,17 @@ namespace Repository.Database
                             adddata.ForEach(e => Mediator.Publish(e));
 
                             break;
-                        //default:
-                        //    var data = entityEntry.Entity.GetDomainEvents().ToList();
-                        //    entityEntry.Entity.ClearDomainEvents();
-                        //    data.ForEach(e => Mediator.Publish(e));
-                        //    break;
+                            //default:
+                            //    var data = entityEntry.Entity.GetDomainEvents().ToList();
+                            //    entityEntry.Entity.ClearDomainEvents();
+                            //    data.ForEach(e => Mediator.Publish(e));
+                            //    break;
                     }
 
                 }
             }
         }
-        public int SaveChangesWithSaveLog(Guid? actionUserId = null, string ipAddress = null, string deviceMark = null)
+        public int SaveChangesWithSaveLog()
         {
 
             KevinDbContext db = this;
@@ -469,60 +479,12 @@ namespace Repository.Database
                 item.Entity.GetType().GetProperty("RowVersion")?.SetValue(item.Entity, Guid.NewGuid());
                 #endregion
 
-                var type = item.Entity.GetType();
-
-                var oldEntity = item.OriginalValues.ToObject();
-
-                var newEntity = item.CurrentValues.ToObject();
-
-                var entityId = item.CurrentValues.GetValue<Guid>("Id");
-
-                if (actionUserId == null)
-                {
-                    var isHaveUpdateUserId = item.Properties.Where(t => t.Metadata.Name == "UpdateUserId").Count();
-
-                    if (isHaveUpdateUserId > 0)
-                    {
-                        actionUserId = item.CurrentValues.GetValue<Guid?>("UpdateUserId");
-                    }
-                }
-
-                var actionUserName = "";
-
-                if (actionUserId != null)
-                {
-                    actionUserName = db.Set<TUser>().Where(t => t.Id == actionUserId.Value).Select(t => t.Name).FirstOrDefault();
-                }
-
-                object[] parameters = { oldEntity, newEntity };
-
-                var result = new KevinDbContext().GetType().GetMethod("ComparisonEntity").MakeGenericMethod(type).Invoke(new KevinDbContext(), parameters);
-
-                if (ipAddress == null | deviceMark == null)
-                {
-                    var assembly = Assembly.GetEntryAssembly();
-                    var httpContextType = assembly.GetTypes().Where(t => t.FullName.Contains("Libraries.Http.HttpContext")).FirstOrDefault();
-
-                    if (httpContextType != null)
-                    {
-                        if (ipAddress == null)
-                        {
-                            ipAddress = httpContextType.GetMethod("GetIpAddress", BindingFlags.Public | BindingFlags.Static).Invoke(null, null).ToString();
-                        }
-
-                        if (deviceMark == null)
-                        {
-                            deviceMark = httpContextType.GetMethod("GetHeader", BindingFlags.Public | BindingFlags.Static).Invoke(null, new object[] { "DeviceMark" }).ToString();
-
-                            if (deviceMark == "")
-                            {
-                                deviceMark = httpContextType.GetMethod("GetHeader", BindingFlags.Public | BindingFlags.Static).Invoke(null, new object[] { "User-Agent" }).ToString();
-                            }
-                        }
-                    }
-                }
-
-
+                var type = item.Entity.GetType(); 
+                var oldEntity = item.OriginalValues.ToObject(); 
+                var newEntity = item.CurrentValues.ToObject(); 
+                var entityId = item.CurrentValues.GetValue<Guid>("Id");   
+                object[] parameters = { oldEntity, newEntity }; 
+                var result = new KevinDbContext().GetType().GetMethod("ComparisonEntity").MakeGenericMethod(type).Invoke(new KevinDbContext(), parameters); 
                 var osLog = new TOSLog();
                 osLog.Id = Guid.NewGuid();
                 osLog.CreateTime = DateTime.Now;
@@ -530,12 +492,11 @@ namespace Repository.Database
                 osLog.TableId = entityId;
                 osLog.Sign = "Modified";
                 osLog.Content = result.ToString();
-                osLog.IpAddress = ipAddress == "" ? null : ipAddress;
-                osLog.DeviceMark = deviceMark == "" ? null : deviceMark;
-                osLog.ActionUserId = actionUserId;
+                osLog.IpAddress = HttpContextAccessor.GetIpAddress();
+                osLog.DeviceMark = HttpContextAccessor.GetDevice();
+                osLog.ActionUserId = CurrentUser.UserId;
                 osLog.TenantId = TenantId;
                 db.Set<TOSLog>().Add(osLog);
-
             }
 
             #region 新增处理多租户

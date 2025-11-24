@@ -1,4 +1,5 @@
 ﻿using kevin.Domain.Interfaces.IServices;
+using kevin.Domain.Share.Attributes;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.System;
 using kevin.Permission.Permission.Attributes;
@@ -31,6 +32,7 @@ namespace App.WebApi.Controllers
         /// <returns></returns>
         [HttpPost("Inactive")]
         [ActionDescription("设置无效")]
+        [HttpLog("租户管理", "设置无效")]
         public async Task<bool> Inactive([FromBody] dtoId<string> data, CancellationToken cancellationToken)
         {
             return await _ITenantService.Inactive(Guid.Parse(data.Id), cancellationToken);
@@ -42,6 +44,7 @@ namespace App.WebApi.Controllers
         /// <returns></returns>
         [HttpPost("Active")]
         [ActionDescription("设置有效租户")]
+        [HttpLog("租户管理", "设置有效租户")]
         public async Task<bool> Active([FromBody] dtoId<string> data, CancellationToken cancellationToken)
         {
             return await _ITenantService.Active(Guid.Parse(data.Id), cancellationToken);
@@ -53,6 +56,7 @@ namespace App.WebApi.Controllers
         /// <returns></returns>
         [HttpPost("CreateAsync")]
         [ActionDescription("新增租户")]
+        [HttpLog("租户管理", "新增租户")]
         public async Task<bool> CreateAsync([FromBody] dtoTenant data, CancellationToken cancellationToken)
         {
             return await _ITenantService.CreateAsync(data, cancellationToken);
@@ -64,6 +68,7 @@ namespace App.WebApi.Controllers
         /// <returns></returns>
         [HttpPost("EidtAsync")]
         [ActionDescription("编辑租户")]
+        [HttpLog("租户管理", "编辑租户")]
         public async Task<bool> EidtAsync([FromBody] dtoTenant data, CancellationToken cancellationToken)
         {
             return await _ITenantService.EidtAsync(data, cancellationToken);
@@ -75,6 +80,7 @@ namespace App.WebApi.Controllers
         /// <returns></returns>
         [HttpDelete("DeleteAsync")]
         [ActionDescription("删除租户")]
+        [HttpLog("租户管理", "删除租户")]
         public async Task<bool> DeleteAsync([FromBody] dtoId<string> data, CancellationToken cancellationToken)
         {
             return await _ITenantService.DeleteAsync(Guid.Parse(data.Id), cancellationToken);

@@ -35,7 +35,7 @@ namespace Kevin.EntityFrameworkCore._.Data
             catch (Exception ex)
             {
                 Type t = typeof(T);
-                var name = t.Name; 
+                var name = t.Name;
                 throw new Exception($"仓储类{t.Name}初始化失败！", ex);
             }
         }
@@ -86,6 +86,10 @@ namespace Kevin.EntityFrameworkCore._.Data
             return Context.SaveChanges();
         }
 
+        public int SaveChangesWithSaveLog()
+        {
+            return Context.SaveChangesWithSaveLog();
+        }
         public Task SaveChangesAsync()
         {
             return Context.SaveChangesAsync(false);

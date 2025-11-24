@@ -8,9 +8,9 @@ import UserProfile from '@/pages/UserProfile.vue';
 import { getTokenUser } from "../api/userapi";
 import { message } from 'ant-design-vue';
 import PermissionMg from '@/pages/PermissionMg.vue'; 
-const SystemConfig = { template: '<div><h2>系统配置</h2><p>这里是系统配置页面</p></div>' }
-const LogManagement = { template: '<div><h2>日志管理</h2><p>这里是日志管理页面</p></div>' }
-const Notifications = { template: '<div><h2>通知中心</h2><p>这里是通知中心页面</p></div>' }
+import HttpLogMg from '@/pages/HttpLog.vue'; 
+import OSLogMG from '@/pages/OSLog.vue';  
+const SystemConfig = { template: '<div><h2>系统配置</h2><p>这里是系统配置页面</p></div>' }  
 const Analytics = { template: '<div><h2>数据分析</h2><p>这里是数据分析页面</p></div>' }
 
 const routes = [
@@ -61,13 +61,13 @@ const routes = [
       },
       {
         path: 'system/log',
-        name: 'LogManagement',
-        component: LogManagement
+        name: 'HttpLogMg',
+        component: HttpLogMg
       },
       {
-        path: 'system/notifications',
-        name: 'Notifications',
-        component: Notifications
+        path: 'system/oslog',
+        name: 'OSLogMG',
+        component: OSLogMG
       },
       {
         path: 'analytics',

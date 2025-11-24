@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     /// <inheritdoc />
-    public partial class 初始表结构 : Migration
+    public partial class _20251124初始化数据库 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -46,10 +46,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 {
                     id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "主键标识ID", collation: "ascii_general_ci"),
                     create_user_id = table.Column<Guid>(type: "char(36)", nullable: false, comment: "创建人ID", collation: "ascii_general_ci"),
-                    delete_user_id = table.Column<Guid>(type: "char(36)", nullable: true, comment: "删除人ID", collation: "ascii_general_ci"),
                     user_name = table.Column<string>(type: "longtext", nullable: true, comment: "登录人")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    ip = table.Column<string>(type: "varchar(125)", maxLength: 125, nullable: true, comment: "ip")
+                    i_p = table.Column<string>(type: "varchar(125)", maxLength: 125, nullable: true, comment: "ip")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     device = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true, comment: "设备")
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -379,7 +378,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     http_method = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "Method")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    is_manual = table.Column<bool>(type: "tinyint(1)", nullable: true, comment: "手动添加"),
+                    is_manual = table.Column<ulong>(type: "bit", nullable: false, comment: "手动添加"),
                     seq = table.Column<int>(type: "int", nullable: true, comment: "序号"),
                     icon = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "图标")
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -876,11 +875,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 column: "delete_time");
 
             migrationBuilder.CreateIndex(
-                name: "IX_t_http_log_delete_user_id",
-                table: "t_http_log",
-                column: "delete_user_id");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_t_http_log_tenant_id",
                 table: "t_http_log",
                 column: "tenant_id");
@@ -944,11 +938,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 name: "IX_t_permission_delete_user_id",
                 table: "t_permission",
                 column: "delete_user_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_t_permission_id",
-                table: "t_permission",
-                column: "id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_t_permission_tenant_id",
