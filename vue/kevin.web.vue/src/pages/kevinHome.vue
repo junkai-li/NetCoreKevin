@@ -65,7 +65,7 @@
           <template #title>系统管理</template>
           <a-menu-item key="system-config">系统配置</a-menu-item>
           <a-menu-item key="log-management">日志管理</a-menu-item>
-            <a-menu-item key="oslog">数据变动日志</a-menu-item>
+            <a-menu-item key="oslog">关键数据变动日志</a-menu-item>
         </a-sub-menu>
       </a-menu>
     </a-layout-sider>
@@ -242,7 +242,7 @@ const currentRouteTitle = computed(() => {
     'system-config': '系统配置',
     'log-management': '日志管理',
     'analytics': '数据分析',
-    'oslog': '数据变动日志',
+    'oslog': '关键数据变动日志',
     'handleUserInfo': '通知中心'
   }
   return titles[selectedKeys.value[0]] || '首页'

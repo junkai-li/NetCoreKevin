@@ -5,12 +5,12 @@
         <div class="card-header">
           <div class="header-title">
             <SafetyCertificateOutlined class="title-icon" />
-            <span>数据变动日志管理</span>
+            <span>关键数据变动日志管理</span>
           </div>
           <div class="header-actions">
             <a-input-search
               class="search-input"
-              placeholder="搜索数据变动日志..."
+              placeholder="关键数据变动日志管理..."
               style="width: 250px; margin-right: 16px"
               @search="onSearch"
             /> 
