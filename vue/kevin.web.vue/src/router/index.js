@@ -7,8 +7,7 @@ import UserRole from '@/pages/UserRole.vue';
 import UserProfile from '@/pages/UserProfile.vue';
 import { getTokenUser } from "../api/userapi";
 import { message } from 'ant-design-vue';
-// 子页面组件 - 这里可以后续替换为实际的组件
-const UserPermission = { template: '<div><h2>权限管理</h2><p>这里是权限管理页面</p></div>' }
+import PermissionMg from '@/pages/PermissionMg.vue'; 
 const SystemConfig = { template: '<div><h2>系统配置</h2><p>这里是系统配置页面</p></div>' }
 const LogManagement = { template: '<div><h2>日志管理</h2><p>这里是日志管理页面</p></div>' }
 const Notifications = { template: '<div><h2>通知中心</h2><p>这里是通知中心页面</p></div>' }
@@ -52,8 +51,8 @@ const routes = [
       },
       {
         path: 'user/permission',
-        name: 'UserPermission',
-        component: UserPermission
+        name: 'PermissionMg',
+        component: PermissionMg
       },
       {
         path: 'system/config',

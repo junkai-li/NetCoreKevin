@@ -89,7 +89,7 @@ namespace kevin.Application
             {
                 throw new UserFriendlyException(tenantcode.Code + "租户Code已存在");
             }
-            var addtenant = new TTenant(tenant.Code, tenant.Name);
+            var addtenant = new TTenant(tenant.Code, tenant.Name,DateTime.Now);
             addtenant.AddDomainEvent(new TTenantCreatedEvent(addtenant), EventBusEnums.Add);
             tenantRp.Add(addtenant);
             tenantRp.SaveChanges();

@@ -1,0 +1,94 @@
+
+.table-container {
+  background: transparent;
+  flex: 1;
+  overflow: hidden;
+}
+.my-table {
+  color: white !important;
+} 
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  background: transparent;
+  margin-top: 0 !important;
+}
+.my-table .ant-table {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.my-table .ant-table-thead > tr > th {
+  background: rgba(102, 126, 234, 0.2);
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 500;
+}
+.my-table .ant-table-tbody > tr {
+  background: transparent;
+}
+
+.my-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  padding: 12px 8px;
+  background: transparent;
+  transition: background 0.3s ease;
+}
+.my-table .ant-table-tbody > tr:hover > td{
+  background: rgba(102, 126, 234, 0.1) !important;
+}
+
+.my-table .ant-table-tbody > tr.ant-table-row-selected > td {
+  background: rgba(102, 126, 234, 0.2) !important;
+}
+
+.my-table .ant-table-tbody > tr.ant-table-row:hover > td {
+  background: rgba(102, 126, 234, 0.1) !important;
+}
+
+.my-table .ant-table-tbody > tr.ant-table-row {
+  background: transparent !important;
+}
+
+.my-table .ant-table-tbody > tr.ant-table-row > td{
+  background: transparent !important;
+  transition: background 0.3s ease;
+}
+
+.my-table .ant-pagination{
+  color: rgba(255, 255, 255, 0.85);
+} 
+.table-container {
+  background: transparent;
+  flex: 1;
+  overflow: hidden;
+}
+.my-table .ant-pagination-item{
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.my-table .ant-pagination-item a{
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.my-table .ant-pagination-item-active{
+  background: #667eea;
+  border-color: #667eea;
+}
+
+.my-table .ant-pagination-next,
+.my-table .ant-pagination-prev{
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.my-table .ant-btn-link{
+  color: #667eea;
+  padding: 0;
+}
+
+.my-table .ant-btn-link:hover{
+  color: #764ba2;
+}

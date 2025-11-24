@@ -15,13 +15,13 @@ namespace kevin.Domain.Entities
     [Description("租户表")]
     public partial class TTenant: CUD
     {
-        public TTenant(Int32 code, string name)
+        public TTenant(Int32 code, string name,DateTime createTime)
         { 
             this.Id = Guid.NewGuid();
             this.Code= code;
             this.Name= name;
             this.Status = TenantStatusEnums.Active;
-            this.CreateTime = DateTime.Now;
+            this.CreateTime = createTime;
             this.IsDelete = false; 
         }
 

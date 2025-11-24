@@ -1,7 +1,12 @@
 ﻿using kevin.Permission.Interfaces;
 using kevin.Permission.Permission;
 using kevin.Permission.Permisson;
+using kevin.RepositorieRps.Repositories;
+using kevin.Share.Dtos;
+using kevin.Share.Dtos.System;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using NPOI.SS.Formula.Functions;
 using Web.Global.Exceptions;
 namespace kevin.Application
 {
@@ -31,13 +36,14 @@ namespace kevin.Application
             if (TenantId == default)
             {
                 TenantId = CurrentUser.TenantId;
-                userId= CurrentUser.UserId;
+                userId = CurrentUser.UserId; 
             }
             var all = (new GlobalData()).AllModules;
             all.ForEach(r =>
             {
                 r.Id = $"{TenantId}/{r.Area}/{r.Module}/{r.Action}";
                 r.permission_type = 4;
+                r.FullName= $"{r.AreaName}/{r.ModuleName}/{r.ActionName}";
             });
             var areas = all.Select(x => x.Area).ToList();
             var allExist = permissionRp.Query().Where(r => r.IsManual == false && areas.Any(x => x == r.Area)).ToList();
@@ -49,15 +55,15 @@ namespace kevin.Application
             var preDeleteRoleP = rolePermissionRp.Query().Where(r => preDeleteIds.Contains(r.PermissionId)).ToList();
             permissionRp.AddRange(preAdd.Select(t => new TPermission
             {
-                CreateTime = DateTime.Now, 
+                CreateTime = DateTime.Now,
                 Id = t.Id,
-                TenantId= TenantId,
+                TenantId = TenantId,
                 CreateUserId = userId,
                 Area = t.Area,
                 AreaName = t.AreaName,
                 Module = t.Module,
                 ModuleName = t.ModuleName,
-                PermissionType= t.permission_type,
+                PermissionType = t.permission_type,
                 Action = t.Action,
                 ActionName = t.ActionName,
                 FullName = t.FullName,
@@ -72,15 +78,80 @@ namespace kevin.Application
 
         }
 
+
+        /// <summary>
+        /// 获取分页数据
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<dtoPageData<PermissionDto>> GetPageData(dtoPageData<PermissionDto> dtoPage)
+        {
+            int skip = (dtoPage.pageNum - 1) * dtoPage.pageSize;
+            var data = permissionRp.Query().Where(t => t.IsDelete == false);
+            if (!string.IsNullOrEmpty(dtoPage.searchKey))
+            {
+                data = data.Where(t => (t.FullName ?? "").Contains(dtoPage.searchKey)
+                    || (t.ActionName ?? "").Contains(dtoPage.searchKey)
+                    || (t.AreaName ?? "").Contains(dtoPage.searchKey)
+                     || (t.ModuleName ?? "").Contains(dtoPage.searchKey)
+                    );
+            }
+            dtoPage.total = await data.CountAsync();
+            dtoPage.data = await data.Skip(skip).Take(dtoPage.pageSize).OrderByDescending(x => x.CreateTime).Select(t => new PermissionDto
+            {
+                Id = t.Id,
+                CreateTime = t.CreateTime,
+                CreateUserId = t.CreateUserId,
+                Action = t.Action,
+                ActionName = t.ActionName,
+                Area = t.Area,
+                AreaName = t.AreaName,
+                FullName = t.FullName,
+                HttpMethod = t.HttpMethod,
+                Icon = t.Icon,
+                IsManual = t.IsManual,
+                Module = t.Module,
+                ModuleName = t.ModuleName,
+                Seq = t.Seq,
+                TenantId = t.TenantId,
+                UpdatedTime = t.UpdatedTime,
+                UpdateUserId = t.UpdateUserId,
+                permission_type = t.PermissionType
+            }).ToListAsync();
+            return dtoPage;
+        }
+
+
         /// <summary>
         /// 获取单个 
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        public TPermission GetDetails(string Id)
+        public PermissionDto GetDetails(string Id)
         {
             var entity = permissionRp.Query().Where(t => t.Id == Id).FirstOrDefault();
-            if (entity != null) return entity;
+            if (entity != null) return new PermissionDto
+            {
+                Id = entity.Id,
+                CreateTime = entity.CreateTime,
+                CreateUserId = entity.CreateUserId,
+                Action = entity.Action,
+                ActionName = entity.ActionName,
+                Area = entity.Area,
+                AreaName = entity.AreaName,
+                FullName = entity.FullName,
+                HttpMethod = entity.HttpMethod,
+                Icon = entity.Icon,
+                IsManual = entity.IsManual,
+                Module = entity.Module,
+                ModuleName = entity.ModuleName,
+                Seq = entity.Seq,
+                TenantId = entity.TenantId,
+                UpdatedTime = entity.UpdatedTime,
+                UpdateUserId = entity.UpdateUserId,
+                permission_type = entity.PermissionType
+            };
             else throw new UserFriendlyException("权限不存在");
         }
 
@@ -94,7 +165,7 @@ namespace kevin.Application
         {
             var entity = permissionRp.Query().Where(t => t.Id == id).FirstOrDefault();
             if (entity == null) return false;
-            if (entity.IsManual.HasValue != true)
+            if (entity.IsManual != true)
             {
                 throw new UserFriendlyException("系统权限不能删除");
             }
@@ -108,28 +179,45 @@ namespace kevin.Application
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public bool Edit(TPermission entity)
+        public bool AddEdit(PermissionDto parm)
         {
-            if (string.IsNullOrEmpty(entity.Id))
+            if (string.IsNullOrEmpty(parm.Id))
             {
-                entity.Id = $"{CurrentUser.TenantId}/{entity.Area}/{entity.Module}/{entity.Action}";
-                entity.CreateTime = DateTime.Now;
-                entity.IsManual = true;
-                entity.CreateUserId = CurrentUser.UserId;
-                permissionRp.Add(entity);
+                //验证是否存在
+                var repeatData = permissionRp.Query().Where(t => t.Area == parm.Area && t.Module == parm.Module && t.Action == parm.Action).FirstOrDefault();
+                if (repeatData != default)
+                {
+                    throw new UserFriendlyException($"相同area中相同module的action不允许重复");
+                }
+                var adddata = new TPermission();
+                parm.MapTo<PermissionDto, TPermission>(adddata);
+                adddata.TenantId = CurrentUser.TenantId;
+                adddata.Id = $"{CurrentUser.TenantId}/{parm.Area}/{parm.Module}/{parm.Action}";
+                adddata.CreateTime = DateTime.Now;
+                adddata.IsManual = true;
+                adddata.CreateUserId = CurrentUser.UserId;
+                permissionRp.Add(adddata);
             }
             else
             {
-                var data = permissionRp.Query().Where(t => t.Id == entity.Id).FirstOrDefault();
+                var data = permissionRp.Query().Where(t => t.Id == parm.Id).FirstOrDefault();
                 if (data != default)
                 {
                     if (data.IsManual.HasValue != true)
                     {
-                        throw new UserFriendlyException("系统权限不能操作");
+                        throw new UserFriendlyException("非手动添加禁止修改");
                     }
+                    //验证是否重复
+                    var repeatData = permissionRp.Query().Where(t => t.Id != parm.Id && t.Area == parm.Area && t.Module == parm.Module && t.Action == parm.Action).FirstOrDefault();
+                    if (repeatData != default)
+                    {
+                        throw new UserFriendlyException($"相同area中相同module的action不允许重复");
+                    }
+                    parm.MapTo(data);
                     data.UpdatedTime = DateTime.Now;
                     data.UpdateUserId = CurrentUser.UserId;
-                    entity.MapTo(data);
+                    data.IsManual = true;
+                    data.TenantId = CurrentUser.TenantId;
                 }
             }
             int res = permissionRp.SaveChanges();
@@ -140,9 +228,29 @@ namespace kevin.Application
         /// 获取所有权限列表
         /// </summary> 
         /// <returns></returns>
-        public List<TPermission> GetAllPermissions()
+        public List<PermissionDto> GetAllPermissions()
         {
-            return permissionRp.Query().Where(x => x.IsDelete == false).ToList();
+            return permissionRp.Query().Where(x => x.IsDelete == false).Select(t => new PermissionDto
+            {
+                Id = t.Id,
+                CreateTime = t.CreateTime,
+                CreateUserId = t.CreateUserId,
+                Action = t.Action,
+                ActionName = t.ActionName,
+                Area = t.Area,
+                AreaName = t.AreaName,
+                FullName = t.FullName,
+                HttpMethod = t.HttpMethod,
+                Icon = t.Icon,
+                IsManual = t.IsManual,
+                Module = t.Module,
+                ModuleName = t.ModuleName,
+                Seq = t.Seq,
+                TenantId = t.TenantId,
+                UpdatedTime = t.UpdatedTime,
+                UpdateUserId = t.UpdateUserId,
+                permission_type = t.PermissionType
+            }).ToList();
         }
 
         /// <summary>
@@ -161,8 +269,6 @@ namespace kevin.Application
         public List<AreaPermissionDto> GetAllAreaPermissions(Guid roleId)
         {
             var data = permissionRp.Query().Where(x => x.IsDelete == false).ToList();
-
-
             var list = new List<AreaPermissionDto>();
             var areas = data.Select(x => x.Area).Distinct().ToList();
             var reolePer = rolePermissionRp.Query().Where(x => x.IsDelete == false && x.RoleId == roleId).Select(x => x.PermissionId).ToList();
@@ -259,7 +365,7 @@ namespace kevin.Application
         /// </summary>
         public List<string> GetUserPermissions()
         {
-            var user = userRp.Query().Where(x => x.IsDelete == false && x.Id == CurrentUser.UserId).FirstOrDefault();
+            var user = userRp.Query().Where(x => x.IsDelete == false).FirstOrDefault();
             if (user != null)
             {
                 if (user.IsSuperAdmin)

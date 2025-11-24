@@ -60,8 +60,8 @@ myAxios.interceptors.response.use(
       return response
     } catch (error) { 
       if(error.status==400){
-        message.error(error.response.data.errMsg) 
-        return Promise.reject(new Error(error.response.data.errMsg)) 
+        message.error(error.response.data.err_msg) 
+        return Promise.reject(new Error(error.response.data.err_msg)) 
       } 
       return error; 
     }
@@ -71,8 +71,8 @@ myAxios.interceptors.response.use(
     // Do something with response error  
     console.log(error)
     if(error.status==400){
-      message.error(error.response.data.errMsg)  
-      return Promise.reject(new Error(error.response.data.errMsg)) 
+      message.error(error.response.data.err_msg)  
+      return Promise.reject(new Error(error.response.data.err_msg)) 
     }  
     return Promise.reject(new Error(error)) 
   }

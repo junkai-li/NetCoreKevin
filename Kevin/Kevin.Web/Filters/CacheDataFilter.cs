@@ -15,26 +15,31 @@ namespace Web.Filters
     /// 缓存过滤器
     /// </summary>
     public class CacheDataFilter<T> : Attribute, IActionFilter
-    { 
+    {
         /// <summary>
         /// 缓存时效有效期，单位 秒
         /// </summary>
-        public int TTL { get; set; }  
+        public int TTL { get; set; }
         /// <summary>
         /// 是否使用 Token
         /// </summary>
-        public bool UseToken { get; set; } 
+        public bool UseToken { get; set; }
         void IActionFilter.OnActionExecuting(ActionExecutingContext context)
         {
-            string key = context.ActionDescriptor.DisplayName + "_" + context.HttpContext.Request.QueryString + "_" 
-                        + (UseToken ? context.HttpContext.Request.Headers.Where(t => t.Key == "Authorization").Select(t => t.Value).FirstOrDefault() : ""); 
-            key = "CacheData_" + Common.CryptoHelper.GetMd5(key); 
+            string key = context.ActionDescriptor.DisplayName + "_" + context.HttpContext.Request.QueryString + "_"
+                        + (UseToken ? context.HttpContext.Request.Headers.Where(t => t.Key == "Authorization").Select(t => t.Value).FirstOrDefault() : "");
+            key = "CacheData_" + Common.CryptoHelper.GetMd5(key);
             try
-            { 
-                var cacheInfo = context.HttpContext.RequestServices.GetService<ICacheService>().GetString(key); 
+            {
+                var cacheInfo = context.HttpContext.RequestServices.GetService<ICacheService>().GetString(key);
                 if (!string.IsNullOrEmpty(cacheInfo))
-                {  
-                    context.Result = new ObjectResult(JsonHelper.GetValueByKey(cacheInfo, "Value").ToObject<T>());
+                {
+                    var data = JsonHelper.GetValueByKey(cacheInfo, "Value");
+                    if (string.IsNullOrEmpty(data))
+                    {
+                        data = JsonHelper.GetValueByKey(cacheInfo, "value");
+                    }
+                    context.Result = new ObjectResult(data.ToObject<T>());
                 }
             }
             catch
@@ -50,8 +55,8 @@ namespace Web.Filters
             {
                 string key = context.ActionDescriptor.DisplayName + "_" + context.HttpContext.Request.QueryString + "_"
                        + (UseToken ? context.HttpContext.Request.Headers.Where(t => t.Key == "Authorization").Select(t => t.Value).FirstOrDefault() : "");
-                key = "CacheData_" + Common.CryptoHelper.GetMd5(key); 
-                context.HttpContext.RequestServices.GetService<ICacheService>().SetObject(key, context.Result, TimeSpan.FromSeconds(TTL)); 
+                key = "CacheData_" + Common.CryptoHelper.GetMd5(key);
+                context.HttpContext.RequestServices.GetService<ICacheService>().SetObject(key, context.Result, TimeSpan.FromSeconds(TTL));
             }
             catch
             {

@@ -1,14 +1,4 @@
-﻿using kevin.Domain.Kevin;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace kevin.Permission.Permisson
+﻿namespace kevin.Permission.Permisson
 {
     public class PermissionDto
     {

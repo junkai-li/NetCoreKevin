@@ -4,124 +4,16 @@
         <name>Kevin.EntityFrameworkCore</name>
     </assembly>
     <members>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.初始化数据库">
+        <member name="T:Kevin.EntityFrameworkCore.Migrations.初始表结构">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化数据库.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始表结构.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化数据库.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始表结构.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化数据库.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.请求日志表">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.请求日志表.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.请求日志表.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.请求日志表.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.请求日志表1">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.请求日志表1.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.请求日志表1.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.请求日志表1.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.请求日志表2">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.请求日志表2.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.请求日志表2.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.请求日志表2.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.密码哈希化">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.密码哈希化.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.密码哈希化.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.密码哈希化.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.用户多角色表">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.用户多角色表.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.用户多角色表.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.用户多角色表.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.用户多角色表2">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.用户多角色表2.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.用户多角色表2.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.用户多角色表2.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.更新用户表结构">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.更新用户表结构.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.更新用户表结构.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.更新用户表结构.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.初始化默认索引">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化默认索引.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化默认索引.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化默认索引.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.权限租户化">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.权限租户化.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.权限租户化.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.权限租户化.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始表结构.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
         <member name="T:Kevin.EntityFrameworkCore._.Data.Repository`2">
@@ -130,6 +22,12 @@
             </summary>
             <typeparam name="T"></typeparam>
             <typeparam name="TId"></typeparam>
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore._.Data.Repository`2.Query">
+            <summary>
+            自带租户过滤的查询
+            </summary>
+            <returns></returns>
         </member>
         <member name="F:Repository.Database.KevinDbContext.Mediator">
             <summary>

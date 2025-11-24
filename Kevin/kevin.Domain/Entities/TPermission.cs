@@ -1,5 +1,7 @@
 ﻿using kevin.Domain.Entities;
 using Kevin.Common.App;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Policy;
 
 namespace kevin.Domain.Kevin
 {
@@ -8,13 +10,15 @@ namespace kevin.Domain.Kevin
     /// </summary>
     [Table("TPermission")]
     [Description("系统权限表")]
+    [Index(nameof(Id))]
     public partial class TPermission
     {
         /// <summary>
         /// 主键标识ID
         /// </summary>
         [Description("主键标识ID")]
-        public string? Id { get; set; }
+        [MaxLength(255)]
+        public string Id { get; set; }
 
 
         /// <summary>

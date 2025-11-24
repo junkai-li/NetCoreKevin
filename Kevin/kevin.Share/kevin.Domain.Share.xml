@@ -381,6 +381,96 @@
             更新时间;
             </summary>
         </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.Id">
+            <summary>
+            主键标识ID
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.CreateTime">
+            <summary>
+            创建时间
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.CreateUserId">
+            <summary>
+            创建人ID
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.UpdateUserId">
+            <summary>
+            编辑人ID
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.UpdatedTime">
+            <summary>
+            更新时间
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.AreaName">
+            <summary>
+            区域;
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.ModuleName">
+            <summary>
+            模块名;
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.ActionName">
+            <summary>
+            动作名;
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.FullName">
+            <summary>
+            模块全名;
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.Module">
+            <summary>
+            Module;
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.Action">
+            <summary>
+            Action;
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.Area">
+            <summary>
+            区域名称;
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.HttpMethod">
+            <summary>
+            Method;
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.IsManual">
+            <summary>
+            手动添加;
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.Seq">
+            <summary>
+            序号;
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.Icon">
+            <summary>
+            图标;
+            </summary> 
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.permission_type">
+            <summary>
+            权限类型1.菜单权限2.功能权限3.数据权限 4.接口权限
+            </summary>
+        </member>
+        <member name="P:kevin.Permission.Permisson.PermissionDto.TenantId">
+            <summary>
+            租户id
+            </summary>
+        </member>
         <member name="M:kevin.FileStorage.IFileStorage.FileUpload(System.String,System.String,System.String)">
             <summary>
             上传文件

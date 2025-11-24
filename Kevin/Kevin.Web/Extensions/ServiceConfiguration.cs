@@ -217,7 +217,7 @@ namespace Web.Extension
             app.UseHttpsRedirection();
 
             //静态文件中间件 (UseStaticFiles) 返回静态文件，并简化进一步请求处理。
-            //app.UseStaticFiles();
+            app.UseStaticFiles();
 
             app.UseKevinUseSwagger();
 

@@ -91,6 +91,10 @@ namespace Kevin.EntityFrameworkCore._.Data
             return Context.SaveChangesAsync(false);
         }
 
+        /// <summary>
+        /// 自带租户过滤的查询
+        /// </summary>
+        /// <returns></returns>
         public IQueryable<T> Query()
         {
             try

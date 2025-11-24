@@ -60,15 +60,13 @@
               name="tenantId"
               :rules="[{ required: true, message: '请输入租户id!' }]"
             >
-              <a-input
+               <a-input
                 v-model:value="passwordForm.tenantId"
                 size="large"
+                prefix="🏠" 
                 placeholder="租户"
                 class="custom-input"
-              >
-                <template #prefix>
-                  <UserOutlined />
-                </template>
+              > 
               </a-input>
             </a-form-item>
 
@@ -116,9 +114,10 @@
               name="tenantId"
               :rules="[{ required: true, message: '请输入租户id!' }]"
             >
-              <a-input
-                v-model:value="smsForm.tenantId"
-                size="large"
+            <a-input
+                v-model:value="smsForm.tenantId" 
+               size="large"
+                prefix="🏠"  
                 placeholder="租户"
                 class="custom-input"
               >
@@ -176,15 +175,16 @@
 
 <script setup>
 import { ref, reactive, defineOptions, onMounted, onBeforeUnmount } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter } from "vue-router"; 
 import {
   UserOutlined,
   LockOutlined,
   PhoneOutlined,
   MailOutlined,
-} from "@ant-design/icons-vue";
+} from "@ant-design/icons-vue"; 
 import { message } from "ant-design-vue";
 import { login,getTokenUser } from "../api/userapi";
+import { getUserPermissions } from "../api/baseapi";
 import logoImage from '../assets/logo.png'; // 导入logo图片
 
 defineOptions({ name: "KevinLogin" });
@@ -261,6 +261,13 @@ const handlePasswordLogin = (values) => {
         {
             if (response.data.code == 200) {
                localStorage.setItem('user',JSON.stringify(response.data.data));
+               console.warn(response.data.data);
+            }
+        });
+         getUserPermissions().then((response) => 
+        {
+            if (response.data.code == 200) {
+               localStorage.setItem('UserPermissions',JSON.stringify(response.data.data));
                console.warn(response.data.data);
             }
         });
@@ -581,13 +588,12 @@ const initParticles = () => {
 
 /* 自定义输入框 */
 .custom-input {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  color: white;
-  transition: all 0.3s ease;
-}
-
+  background: rgba(255, 255, 255, 0.1) !important;;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;;
+  border-radius: 10px !important;;
+  color: white !important;;
+  transition: all 0.3s ease !important;;
+} 
 :deep(.custom-input:hover) {
   border-color: rgba(102, 126, 234, 0.6);
   box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);

@@ -25,7 +25,12 @@
         [Description("值")]
         public string? Value { get; set; }
 
-
+        /// <summary>
+        /// 类型
+        /// </summary>
+        [StringLength(100)]
+        [Description("类型")]
+        public string? Type { get; set; }
 
         /// <summary>
         /// 排序

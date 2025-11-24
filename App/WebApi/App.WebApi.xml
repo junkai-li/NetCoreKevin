@@ -356,9 +356,9 @@
             </summary> 
             <returns></returns>
         </member>
-        <member name="M:AdminApi.Controllers.PermissionController.GetPageData(kevin.Share.Dtos.dtoPageList{kevin.Domain.Kevin.TPermission})">
+        <member name="M:AdminApi.Controllers.PermissionController.GetPageData(kevin.Share.Dtos.dtoPageData{kevin.Permission.Permisson.PermissionDto})">
             <summary>
-             获取
+             获取权限分页列表
             </summary>
             <param name="input"></param>
             <returns></returns>
@@ -377,9 +377,16 @@
             <param name="id"></param>
             <returns></returns>
         </member>
-        <member name="M:AdminApi.Controllers.PermissionController.Edit(kevin.Domain.Kevin.TPermission)">
+        <member name="M:AdminApi.Controllers.PermissionController.Edit(kevin.Permission.Permisson.PermissionDto)">
             <summary>
             编辑
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AdminApi.Controllers.PermissionController.Add(kevin.Permission.Permisson.PermissionDto)">
+            <summary>
+            新增
             </summary>
             <param name="entity"></param>
             <returns></returns>

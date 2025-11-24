@@ -3,10 +3,12 @@ using kevin.Domain.Kevin;
 using kevin.Domain.Share.Dtos.System;
 using kevin.Permission.Permission;
 using kevin.Permission.Permission.Attributes;
+using kevin.Permission.Permisson;
 using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace AdminApi.Controllers
 {
@@ -40,15 +42,15 @@ namespace AdminApi.Controllers
         }
 
         /// <summary>
-        ///  获取
+        ///  获取权限分页列表
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
         [HttpPost("GetPageData")]
-        [ActionDescription("查看")]
-        public dtoPageList<TPermission> GetPageData(dtoPageList<TPermission> input)
+        [ActionDescription("获取权限分页列表")]
+        public async Task<dtoPageData<PermissionDto>> GetPageData(dtoPageData<PermissionDto> input)
         {
-            return default;
+            return await _permissionService.GetPageData(input);
         }
 
         /// <summary>
@@ -58,7 +60,7 @@ namespace AdminApi.Controllers
         /// <returns></returns>
         [HttpGet("GetDetails")]
         [ActionDescription("查看详情")]
-        public TPermission GetDetails(string Id)
+        public PermissionDto GetDetails(string Id)
         {
             return _permissionService.GetDetails(Id);
         }
@@ -82,9 +84,21 @@ namespace AdminApi.Controllers
         /// <returns></returns>
         [HttpPost("Edit")]
         [ActionDescription("编辑")]
-        public bool Edit(TPermission entity)
+        public bool Edit(PermissionDto entity)
         {
-            return _permissionService.Edit(entity);
+            return _permissionService.AddEdit(entity);
+        }
+
+        /// <summary>
+        /// 新增
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        [HttpPost("Add")]
+        [ActionDescription("新增")]
+        public bool Add(PermissionDto entity)
+        {
+            return _permissionService.AddEdit(entity);
         }
 
         /// <summary>
@@ -93,7 +107,7 @@ namespace AdminApi.Controllers
         /// <returns></returns>
         [HttpGet("GetAllPermissions")]
         [ActionDescription("查看所有权限")]
-        public List<TPermission> GetAllPermissions()
+        public List<PermissionDto> GetAllPermissions()
         {
             return _permissionService.GetAllPermissions();
         }

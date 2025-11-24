@@ -22,7 +22,8 @@ namespace kevin.Domain.BaseDatas
                     UserId = item.Id,
                     RoleId = TRoleBaseData.Id,
                     TenantId = TenantHelper.GetSettingsTenantId().ToTryInt32(),
-                    CreateUserId = item.Id
+                    CreateUserId = item.Id,
+                    CreateTime= DateTime.Parse("2020-01-01 00:00:01")
                 });
             }
             return TUserBindRoles;
