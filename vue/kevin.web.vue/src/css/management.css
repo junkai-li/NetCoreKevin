@@ -159,35 +159,7 @@
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
   transform: translateY(-2px);
 }
-
-.custom-modal .ant-modal-content{
-  background: #1a1a2e;
-  color: white;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.custom-modal .ant-modal-header{
-  background: rgba(102, 126, 234, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 16px 24px;
-}
-
-.custom-modal .ant-modal-title{
-  color: white;
-}
-
-.custom-modal .ant-modal-close{
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.custom-modal .ant-modal-close:hover{
-  color: white;
-}
-
-.custom-modal .ant-form-item-label > label{
-  color: rgba(255, 255, 255, 0.85);
-}
+ 
 
 .custom-input .ant-input{
   background: rgba(255, 255, 255, 0.1);

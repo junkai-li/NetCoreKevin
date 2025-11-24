@@ -85,10 +85,13 @@
 }
 
 .my-table .ant-btn-link{
-  color: #667eea;
+  color: aliceblue;
   padding: 0;
 }
 
 .my-table .ant-btn-link:hover{
   color: #764ba2;
+}
+.ant-table-cell{
+  border-top:1px solid rgba(255, 255, 255, 0.2) !important;
 }
