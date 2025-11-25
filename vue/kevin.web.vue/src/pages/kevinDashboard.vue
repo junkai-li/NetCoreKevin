@@ -5,12 +5,12 @@
       <p>您已成功登录系统</p>
       <div class="welcome-stats">
         <div class="stat-item">
-          <span class="stat-value">128</span>
+          <span class="stat-value">{{ userCount }}</span>
           <span class="stat-label">用户数</span>
         </div>
         <div class="stat-item">
           <span class="stat-value">24</span>
-          <span class="stat-label">在线数</span>
+          <span class="stat-label">我的消息</span>
         </div>
         <div class="stat-item">
           <span class="stat-value">98%</span>
@@ -39,7 +39,28 @@
 </template>
 
 <script setup>
-// 这里可以添加仪表盘页面的逻辑
+import { ref, onMounted } from 'vue'
+import { getAllUserCount } from '@/api/userapi.js'
+
+// 用户数量
+const userCount = ref(128)
+
+// 获取用户总数
+const fetchUserCount = async () => {
+  try {
+    const response = await getAllUserCount()
+    if (response.data.code === 200) {
+      userCount.value = response.data.data
+    }
+  } catch (error) {
+    console.error('获取用户数量失败:', error)
+  }
+}
+
+// 组件挂载时获取用户数量
+onMounted(() => {
+  fetchUserCount()
+})
 </script>
 
 <style scoped>

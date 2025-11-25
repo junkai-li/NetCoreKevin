@@ -36,3 +36,8 @@ export const ExportGetSysUserList = (params) => {
 export const changePassword = (data) => {
   return http.post('/api/User/ChangePasswordTokenUser', data);
 };
+
+// 获取用户总数接口
+export const getAllUserCount = () => {
+  return http.get('/api/User/GetAllUserCount');
+};

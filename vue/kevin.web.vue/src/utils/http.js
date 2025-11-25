@@ -43,6 +43,11 @@ myAxios.interceptors.response.use(
       const { data } = response
       // 未登录
       if (data.code === 401) {
+        // 清理 localStorage 中的用户相关信息
+        localStorage.removeItem('user');
+        localStorage.removeItem('UserPermissions');
+        localStorage.removeItem('token');
+        
         // 不是获取用户信息的请求，并且用户目前不是已经在用户登录页面，则跳转到登录页面
         if (
           !response.request.responseURL.includes('user/get/login') &&
@@ -63,6 +68,21 @@ myAxios.interceptors.response.use(
         message.error(error.response.data.err_msg) 
         return Promise.reject(new Error(error.response.data.err_msg)) 
       } 
+       if (error.status === 401) {
+        // 清理 localStorage 中的用户相关信息
+        localStorage.removeItem('user');
+        localStorage.removeItem('UserPermissions');
+        localStorage.removeItem('token');
+        
+        // 不是获取用户信息的请求，并且用户目前不是已经在用户登录页面，则跳转到登录页面
+        if (
+          !response.request.responseURL.includes('user/get/login') &&
+          !window.location.pathname.includes('/login')
+        ) {
+          message.error('请先登录')
+          window.location.href = `/login?redirect=${window.location.href}`
+        }
+      }
       return error; 
     }
   },
@@ -74,6 +94,15 @@ myAxios.interceptors.response.use(
       message.error(error.response.data.err_msg)  
       return Promise.reject(new Error(error.response.data.err_msg)) 
     }  
+    if (error.status === 401) {
+        // 清理 localStorage 中的用户相关信息
+        localStorage.removeItem('user');
+        localStorage.removeItem('UserPermissions');
+        localStorage.removeItem('token'); 
+        // 不是获取用户信息的请求，并且用户目前不是已经在用户登录页面，则跳转到登录页面
+         message.error('请先登录')
+          window.location.href = `/login?redirect=${window.location.href}`
+      }
     return Promise.reject(new Error(error)) 
   }
 );
