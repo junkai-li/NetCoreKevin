@@ -22,7 +22,8 @@ namespace kevin.Share.Dtos.System
         /// <summary>
         /// 备注信息
         /// </summary>
-        public string Remarks { get; set; } = "";
+        public string Remarks { get; set; } = ""; 
+
         /// <summary>
         /// 创建时间
         /// </summary>

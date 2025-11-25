@@ -16,6 +16,18 @@
         <member name="M:Kevin.EntityFrameworkCore.Migrations._20251124初始化数据库.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:Kevin.EntityFrameworkCore.Migrations.AI表结构初始化">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.AI表结构初始化.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.AI表结构初始化.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.AI表结构初始化.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="T:Kevin.EntityFrameworkCore._.Data.Repository`2">
             <summary>
             仓储类与类型Id

@@ -1,0 +1,59 @@
+﻿using kevin.Domain.Share.Enums;
+
+namespace kevin.Domain.Entities.AI
+{
+    /// <summary>
+    /// TAI对外api
+    /// </summary>
+    [Table("TAIApis")]
+    public partial class TAIApis : CUD_User
+    {  
+        /// <summary>
+        /// 接口名称
+        /// </summary>
+        [Required]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// 接口描述
+        /// </summary>
+        [Required]
+        public string Describe { get; set; }
+        /// <summary>
+        /// 接口地址
+        /// </summary>
+        [Required]
+        public string Url { get; set; }
+        /// <summary>
+        /// 请求方法
+        /// </summary>
+        [Required]
+        public HttpMethodType Method { get; set; }
+
+        [StringLength(1000)] 
+        public string? Header { get; set; }
+        /// <summary>
+        /// QueryString参数
+        /// </summary>
+        [StringLength(1000)]
+        public string? Query { get; set; }
+        /// <summary>
+        /// jsonBody 实体
+        /// </summary> 
+        public string JsonBody { get; set; }
+
+        /// <summary>
+        /// 入参提示词
+        /// </summary>
+        [Required]
+        [StringLength(1500)]
+        public string InputPrompt { get; set; }
+
+        /// <summary>
+        /// 返回提示词
+        /// </summary>
+        [Required]
+        [StringLength(1500)]
+        public string OutputPrompt { get; set; }
+    }
+}

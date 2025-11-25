@@ -33,6 +33,13 @@
         public string? Type { get; set; }
 
         /// <summary>
+        /// 备注信息
+        /// </summary>
+        [StringLength(500)]
+        [Description("备注信息")]
+        public string? Remarks { get; set; }
+
+        /// <summary>
         /// 排序
         /// </summary>
         [Description("排序")]

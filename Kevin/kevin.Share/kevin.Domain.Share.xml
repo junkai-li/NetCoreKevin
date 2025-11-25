@@ -234,6 +234,16 @@
             最近登陆时间
              </summary>
         </member>
+        <member name="T:kevin.Domain.Share.Enums.AIType">
+            <summary>
+            AI类型
+            </summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Enums.AIModelType">
+            <summary>
+            模型类型
+            </summary>
+        </member>
         <member name="T:kevin.Share.Dtos.DtoFileInfo">
             <summary>
             文件信息
