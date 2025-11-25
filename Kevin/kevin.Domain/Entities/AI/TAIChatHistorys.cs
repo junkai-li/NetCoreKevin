@@ -1,4 +1,5 @@
-﻿using System;
+﻿using kevin.Domain.Kevin;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,19 +8,27 @@ using System.Threading.Tasks;
 namespace kevin.Domain.Entities.AI
 {
     /// <summary>
-    /// AI会话
+    /// 聊天记录
     /// </summary>
-    [Table("TAIChats")]
-    public partial class TAIChats : CUD_User
+    [Table("TAIChatHistorys")]
+    internal class TAIChatHistorys : CD_User
     {
         /// <summary>
-        /// 用户名
+        /// 聊天用户di
         /// </summary>
-        public string UserName { get; set; }
+        public Guid UserId { get; set; }
+
+        [ForeignKey("UserId")]
+        public virtual TUser? User { get; set; }
+
         /// <summary>
         /// 应用ID
         /// </summary>
-        public string AppId { get; set; }
+        public Guid AppId { get; set; }
+
+        [ForeignKey("UserId")]
+        public virtual TAIApps? App { get; set; }
+
         /// <summary>
         /// 消息内容
         /// </summary> 
@@ -29,10 +38,6 @@ namespace kevin.Domain.Entities.AI
         /// 发送是true  接收是false
         /// </summary>
         public bool IsSend { get; set; } = false;
-        /// <summary>
-        /// 创建时间
-        /// </summary>
-        public DateTime CreateTime { get; set; }
 
         /// <summary>
         /// 文件名

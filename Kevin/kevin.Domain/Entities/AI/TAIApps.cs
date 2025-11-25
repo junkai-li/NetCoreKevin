@@ -10,7 +10,7 @@ namespace kevin.Domain.Entities.AI
     /// TAIApps
     /// </summary>
     [Table("TAIApps")]
-    public partial class TAIApps: CUD_User
+    public partial class TAIApps : CUD_User
     {
         /// <summary>
         /// 名称
@@ -56,25 +56,7 @@ namespace kevin.Domain.Entities.AI
         /// 温度
         /// </summary> 
         [DefaultValue(70)]
-        public double Temperature { get; set; } = 70f;
-
-        /// <summary>
-        /// 提示词
-        /// </summary> 
-        [MaxLength(2000)]
-        public string? Prompt { get; set; }
-
-        /// <summary>
-        /// 插件列表
-        /// </summary>
-        [MaxLength(1000)]
-        public string? ApiFunctionList { get; set; }
-
-        /// <summary>
-        /// 本地函数列表
-        /// </summary>
-        [MaxLength(1000)]
-        public string? NativeFunctionList { get; set; }
+        public double Temperature { get; set; } = 70f; 
 
         /// <summary>
         /// 知识库ID列表
@@ -111,6 +93,13 @@ namespace kevin.Domain.Entities.AI
         /// 回答最大token数
         /// </summary> 
         [DefaultValue(2048)]
-        public int AnswerTokens { get; set; } = 2048;
+        public int AnswerTokens { get; set; } = 2048; 
+
+        /// <summary>
+        /// 提示词绑定
+        /// </summary>
+        public Guid AIPromptID { get; set; }
+
+        public virtual TAIPrompts AIPrompt { get; set; }
     }
 }
