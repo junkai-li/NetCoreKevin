@@ -159,6 +159,11 @@
              设备标记
             </summary> 
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.PermissionTypeDto.PermissionType">
+            <summary>
+            权限类型
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.User.ChangePasswordTokenUserDto">
             <summary>
             变更当前登陆人密码

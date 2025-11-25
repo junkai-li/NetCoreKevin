@@ -1,4 +1,6 @@
-﻿using kevin.Permission.Interfaces;
+﻿using Consul;
+using Emgu.CV.Dnn;
+using kevin.Permission.Interfaces;
 using kevin.Permission.Permission;
 using kevin.Permission.Permisson;
 using kevin.RepositorieRps.Repositories;
@@ -18,6 +20,8 @@ namespace kevin.Application
         public IRolePermissionRp rolePermissionRp { get; set; }
         public IPermissionRp permissionRp { get; set; }
         public IUserRp userRp { get; set; }
+
+        public static string[] permissionTypeDic = new string[] { "其他", "菜单权限", "功能权限", "数据权限", "接口权限" };
         public PermissionService(IHttpContextAccessor _httpContextAccessor, IUserRp _IUserRp, IPermissionRp _IPermissionRp, IRolePermissionRp _IRolePermissionRp, IKevinPermissionService _IKevinPermissionService) : base(_httpContextAccessor)
         {
             this.userRp = _IUserRp;
@@ -168,7 +172,7 @@ namespace kevin.Application
             if (entity.IsManual != true)
             {
                 throw new UserFriendlyException("系统权限不能删除");
-            } 
+            }
             permissionRp.Remove(entity);
             int res = permissionRp.SaveChanges();
             return res > 0;
@@ -266,59 +270,66 @@ namespace kevin.Application
         /// 获取角色对应权限
         /// </summary> 
         /// <returns></returns>
-        public List<AreaPermissionDto> GetAllAreaPermissions(Guid roleId)
+        public PermissionEditDto GetAllAreaPermissions(Guid roleId)
         {
             var data = permissionRp.Query().Where(x => x.IsDelete == false).ToList();
-            var list = new List<AreaPermissionDto>();
-            var areas = data.Select(x => x.Area).Distinct().ToList();
+            var list = new PermissionEditDto();
+            var permissionTypes = data.Select(x => x.PermissionType).Distinct().ToList();
             var reolePer = rolePermissionRp.Query().Where(x => x.IsDelete == false && x.RoleId == roleId).Select(x => x.PermissionId).ToList();
-
-            foreach (var area in areas)
+            foreach (var permissionType in permissionTypes)
             {
-                if (!string.IsNullOrEmpty(area))
+                var permissionTypeData = data.Where(x => x.PermissionType == permissionType).ToList();
+                var areas = data.Where(x => x.PermissionType == permissionType).Select(x => x.Area).Distinct().ToList();
+                var permissionDto = new PermissionTypeDto();
+                permissionDto.PermissionType = permissionTypeDic[permissionType];
+                foreach (var area in areas)
                 {
-                    var areadto = new AreaPermissionDto();
-                    var areaitem = data.Where(x => x.Area == area).FirstOrDefault();
-                    if (areaitem != default)
+                    if (!string.IsNullOrEmpty(area))
                     {
-                        areadto.areaName = areaitem.AreaName ?? "";
-                    }
-                    areadto.area = area;
-                    var modules = data.Where(x => x.Area == area).Select(x => x.Module).Distinct().ToList();
-                    var modulesDtos = new List<ModulePermissionDto>();
-                    foreach (var module in modules)
-                    {
-                        if (!string.IsNullOrEmpty(module))
+                        var areadto = new AreaPermissionDto();
+                        var areaitem = permissionTypeData.Where(x => x.Area == area).FirstOrDefault();
+                        if (areaitem != default)
                         {
-                            var moduledto = new ModulePermissionDto();
-                            var permission = data.Where(x => x.Area == area && x.Module == module).FirstOrDefault();
-                            if (permission != default)
-                            {
-                                moduledto.ModuleName = permission.ModuleName ?? "";
-                            }
-                            moduledto.Module = module;
-                            var actionDtos = data.Where(x => x.Area == area && x.Module == module).OrderByDescending(x => x.Seq).Select(x => new ActionPermissionDto
-                            {
-                                Id = x.Id,
-                                IsPermission = reolePer.Contains(x.Id),
-                                ActionName = x.ActionName,
-                                Action = x.Action,
-                                FullName = x.FullName,
-                                HttpMethod = x.HttpMethod,
-                                IsManual = x.IsManual,
-                                Seq = x.Seq,
-                                Icon = x.Icon
-                            }).ToList();
-                            moduledto.actions = actionDtos;
-                            modulesDtos.Add(moduledto);
+                            areadto.areaName = areaitem.AreaName ?? "";
                         }
+                        areadto.area = area;
+                        var modules = permissionTypeData.Where(x => x.Area == area).Select(x => x.Module).Distinct().ToList();
+                        var modulesDtos = new List<ModulePermissionDto>();
+                        foreach (var module in modules)
+                        {
+                            if (!string.IsNullOrEmpty(module))
+                            {
+                                var moduledto = new ModulePermissionDto();
+                                var permission = permissionTypeData.Where(x => x.Area == area && x.Module == module).FirstOrDefault();
+                                if (permission != default)
+                                {
+                                    moduledto.ModuleName = permission.ModuleName ?? "";
+                                }
+                                moduledto.Module = module;
+                                var actionDtos = permissionTypeData.Where(x => x.Area == area && x.Module == module).OrderByDescending(x => x.Seq).Select(x => new ActionPermissionDto
+                                {
+                                    Id = x.Id,
+                                    IsPermission = reolePer.Contains(x.Id),
+                                    ActionName = x.ActionName,
+                                    Action = x.Action,
+                                    FullName = x.FullName,
+                                    HttpMethod = x.HttpMethod,
+                                    IsManual = x.IsManual,
+                                    Seq = x.Seq,
+                                    Icon = x.Icon
+                                }).ToList();
+                                moduledto.actions = actionDtos;
+                                modulesDtos.Add(moduledto);
+                            }
 
+                        }
+                        areadto.modules = modulesDtos;
+                        permissionDto.dtos.Add(areadto);
                     }
-                    areadto.modules = modulesDtos;
-                    list.Add(areadto);
                 }
-
+                list.dtos.Add(permissionDto);
             }
+
             return list;
         }
 
@@ -329,32 +340,37 @@ namespace kevin.Application
         public bool EditAllAreaPermissions(PermissionEditDto dto)
         {
             var rolepers = new List<TRolePermission>();
-            foreach (var perdto in dto.dtos)
+            foreach (var item in dto.permissionIds)
             {
-                foreach (var module in perdto.modules)
-                {
-                    if (module.actions != default)
-                    {
-                        foreach (var action in module.actions.Where(x => x.IsPermission == true).ToList())
-                        {
-                            var roleper = new TRolePermission();
-                            roleper.PermissionId = action.Id;
-                            roleper.RoleId = Guid.Parse(dto.roleId);
-                            roleper.Id = Guid.NewGuid();
-                            rolepers.Add(roleper);
-                        }
-                    }
-                }
+                var roleper = new TRolePermission();
+                roleper.PermissionId = item;
+                roleper.RoleId = Guid.Parse(dto.roleId);
+                roleper.Id = Guid.NewGuid();
+                roleper.TenantId = CurrentUser.TenantId;
+                roleper.CreateTime = DateTime.Now;
+                roleper.CreateUserId = CurrentUser.UserId;
+                rolepers.Add(roleper);
             }
             var roleper2 = rolepers.FirstOrDefault();
             if (roleper2 != default)
             {
                 var roleId = roleper2.RoleId;
-                var allP = rolePermissionRp.Query().Where(r => r.RoleId == roleId).ToList();
-                var preAdd = rolepers.Where(r => !allP.Any(p => p.PermissionId == r.PermissionId));
-                var preDelete = allP.Where(r => !rolepers.Any(p => p.PermissionId == r.PermissionId));
-                rolePermissionRp.AddRange(preAdd);
-                rolePermissionRp.RemoveRange(preDelete.ToArray());
+                var allP = rolePermissionRp.Query().Where(r => r.IsDelete == false && r.RoleId == roleId).ToList();
+                var preAdd = rolepers.Where(r => !allP.Any(p => p.PermissionId == r.PermissionId)).ToList();
+                var preDelete = allP.Where(r => !rolepers.Any(p => p.PermissionId == r.PermissionId)).ToList();
+                if (preAdd.Count > 0)
+                {
+                    rolePermissionRp.AddRange(preAdd);
+                }
+                if (preDelete.Count > 0)
+                {
+                    foreach (var item in preDelete)
+                    {
+                        item.IsDelete = true;
+                        item.DeleteTime = DateTime.Now;
+                        item.DeleteUserId = CurrentUser.UserId;
+                    } 
+                }
                 rolePermissionRp.SaveChanges();
             }
             return true;

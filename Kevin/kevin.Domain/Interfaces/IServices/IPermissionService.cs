@@ -56,7 +56,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// 获取角色对应权限
         /// </summary> 
         /// <returns></returns>
-        List<AreaPermissionDto> GetAllAreaPermissions(Guid roleId);
+        PermissionEditDto GetAllAreaPermissions(Guid roleId);
 
         /// <summary>
         /// 编辑角色对应权限

@@ -135,7 +135,7 @@ namespace AdminApi.Controllers
         /// <returns></returns>
         [SkipAuthority]
         [HttpGet("GetAllAreaPermissions")]
-        public List<AreaPermissionDto> GetAllAreaPermissions([Required] Guid roleId)
+        public PermissionEditDto GetAllAreaPermissions([Required] Guid roleId)
         {
             return _permissionService.GetAllAreaPermissions(roleId);
         }

@@ -3,6 +3,7 @@ import http from '../utils/http';
 export const reload = () => {
   return http.get('/api/Permission/Reload');
 };
+
 export const GetPageData = (params) => {
   return http.post('/api/Permission/GetPageData', params);
 };
@@ -18,4 +19,14 @@ export const Delete = (roleId) => {
 // 获取详情
 export const getDetails = (roleId) => {
   return http.get(`/api/Permission/GetDetails?Id=${roleId}`);
-};  
+};
+
+// 获取角色权限
+export const getAllAreaPermissions = (roleId) => {
+  return http.get(`/api/Permission/GetAllAreaPermissions?roleId=${roleId}`);
+};
+
+// 编辑角色权限
+export const editAllAreaPermissions = (params) => {
+  return http.post('/api/Permission/EditAllAreaPermissions', params);
+};

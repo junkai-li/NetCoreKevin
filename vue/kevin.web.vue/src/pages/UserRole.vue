@@ -33,14 +33,23 @@
            class="my-table"
         >
           <template #bodyCell="{ column, record }">
+            <template v-if="column.dataIndex === 'name'">
+              {{ record.name }}
+            </template>
               
-            <template v-if="column.dataIndex === 'action'">
+            <template v-else-if="column.dataIndex === 'action'">
               <div class="action-buttons">
                 <a-button type="link" size="small" @click="showEditRoleModal(record)">
                   <template #icon>
                     <EditOutlined />
                   </template>
                   编辑
+                </a-button>
+                <a-button type="link" size="small" @click="showPermissionModal(record)">
+                  <template #icon>
+                    <KeyOutlined />
+                  </template>
+                  权限
                 </a-button>
                 <a-popconfirm
                   title="确定要删除这个角色吗?"
@@ -73,6 +82,22 @@
         </a-form-item>
       </a-form>
     </a-modal>
+    
+    <!-- 权限配置模态框 -->
+    <a-modal 
+      v-model:open="permissionModalVisible" 
+      title="权限配置" 
+      width="900px" 
+      :footer="null"
+      @cancel="handlePermissionModalCancel"
+    >
+      <PermissionManager 
+        v-if="currentRole" 
+        :role-id="currentRole.id" 
+        @save-success="handlePermissionSaveSuccess"
+        @cancel="handlePermissionModalCancel"
+      />
+    </a-modal>
   </div>
 </template>
 
@@ -91,7 +116,8 @@ import {
 import { message, Button } from 'ant-design-vue';
 import { Form } from 'ant-design-vue';
 import { getRolePage, addEidtRole, deleteRole } from '@/api/roleapi'; 
-
+import PermissionManager from '@/components/PermissionManager.vue'
+import { KeyOutlined } from '@ant-design/icons-vue'
 
 const useForm = Form.useForm;
 
@@ -136,7 +162,8 @@ const pagination = ref({
 }); 
 
 // 模态框状态
-const roleModalVisible = ref(false); 
+const roleModalVisible = ref(false)
+const permissionModalVisible = ref(false)
 const roleModalTitle = ref('添加角色');
 
 // 当前编辑的角色
@@ -220,8 +247,11 @@ const showEditRoleModal = (record) => {
   roleModalVisible.value = true;
 };
 
- 
-
+// 显示权限配置模态框
+const showPermissionModal = (record) => {
+  currentRole.value = record
+  permissionModalVisible.value = true
+}
  
 
 // 删除角色
@@ -284,6 +314,18 @@ const handleRoleModalOk = () => {
 const handleRoleModalCancel = () => {
   roleModalVisible.value = false;
 };
+
+// handlePermissionModalOk 函数已不再需要，因为 modal 的 footer 已被移除
+
+// 权限保存成功回调
+const handlePermissionSaveSuccess = () => {
+  permissionModalVisible.value = false
+}
+
+// 权限模态框取消
+const handlePermissionModalCancel = () => {
+  permissionModalVisible.value = false
+}
 
 // 组件挂载时的初始化
 onMounted(() => {
