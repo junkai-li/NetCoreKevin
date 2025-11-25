@@ -265,5 +265,17 @@ namespace WebApi.Controllers.v1
             return CurrentUser.UserId;
         }
 
+        /// <summary>
+        /// 获取用户数量
+        /// </summary> 
+        /// <returns></returns>
+        [HttpGet("GetAllUserCount")]
+        [SkipAuthority]
+        [CacheDataFilter<int>(TTL = 3600, UseToken = false)]
+        public async Task<int> GetAllUserCount()
+        {
+            return await _userService.GetAllUserCount();
+        }
+
     }
 }

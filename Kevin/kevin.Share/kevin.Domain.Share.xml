@@ -9,6 +9,96 @@
             id
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.dtoPagePar`1.whereId">
+            <summary>
+            条件Id
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.dtoPagePar`1.searchKey">
+            <summary>
+            条件Key
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.dtoPagePar`1.state">
+            <summary>
+            状态
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.dtoPagePar`1.sign">
+            <summary>
+            标识
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.dtoPagePar`1.pageSize">
+            <summary>
+            分页大小
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.dtoPagePar`1.pageNum">
+            <summary>
+            分页页数
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.dtoPagePar`1.total">
+            <summary>
+            数据总量
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.dtoPagePar`1.Parameter">
+            <summary>
+            自定义参数内容
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Msg.MessageDto.CreateUserId">
+            <summary>
+            创建人ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Msg.MessageDto.UpdateUserId">
+            <summary>
+            编辑人ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Msg.MessageDto.Title">
+            <summary>
+            消息标题
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Msg.MessageDto.MessageContent">
+            <summary>
+            消息内容
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Msg.MessageDto.SysMsgType">
+            <summary>
+            消息类型
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Msg.MessageDto.SendUserId">
+            <summary>
+            发送人信息
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Msg.MessageDto.RecipientUserId">
+            <summary>
+            接收人信息
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Msg.MessageDto.AssociatedId">
+            <summary>
+            关联Id
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Msg.MessageDto.IsRead">
+            <summary>
+            是否已读
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Msg.MessageDto.Files">
+            <summary>
+            相关附件
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.Sign.dtoSign">
             <summary>
             标记喜欢方法入参
@@ -53,6 +143,51 @@
             <summary>
             创建时间
             </summary>S
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.System.FileDto">
+            <summary>
+            附件dto
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.FileDto.CreateUserId">
+            <summary>
+            创建人ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.FileDto.Name">
+            <summary>
+            文件名称
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.FileDto.Path">
+            <summary>
+            保存路径
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.FileDto.Url">
+            <summary>
+            Url
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.FileDto.Table">
+            <summary>
+            外链表名
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.FileDto.TableId">
+            <summary>
+            外链表ID
+            </summary>  
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.FileDto.Sign">
+            <summary>
+            标记
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.FileDto.Sort">
+            <summary>
+            排序
+            </summary>
         </member>
         <member name="P:kevin.Domain.Share.Dtos.System.HttpLogDto.CreateTime">
             <summary>
@@ -107,6 +242,31 @@
         <member name="P:kevin.Domain.Share.Dtos.System.HttpLogDto.OperateRemark">
             <summary>
             操作备注
+            </summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.System.MsgGetPageDataParDto">
+            <summary>
+            筛选条件
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.MsgGetPageDataParDto.SysMsgType">
+            <summary>
+            消息类型
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.MsgGetPageDataParDto.UserId">
+            <summary>
+            相关人id
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.MsgGetPageDataParDto.AssociatedId">
+            <summary>
+            关联Id
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.MsgGetPageDataParDto.IsRead">
+            <summary>
+             1.已读 2.未读 3.所有消息
             </summary>
         </member>
         <member name="P:kevin.Domain.Share.Dtos.System.OSLogDto.Id">

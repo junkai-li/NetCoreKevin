@@ -1,4 +1,5 @@
-﻿using kevin.Share.Dtos;
+﻿using kevin.Domain.Share.Dtos.System;
+using kevin.Share.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,6 +7,17 @@ namespace kevin.Domain.Interfaces.IServices
 {
     public interface IFileService:IBaseService
     {
+
+        /// <summary>
+        /// 获取相关文件
+        /// </summary>
+        /// <param name="tableid"></param>
+        /// <param name="table"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<List<FileDto>> GetFileDtos(List<Guid> tableid, string table);
+
+
         /// <summary>
         /// 远程单文件上传接口
         /// </summary>

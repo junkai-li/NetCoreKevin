@@ -4,7 +4,7 @@ using kevin.Domain.Kevin;
 
 namespace kevin.Domain.Interfaces.IRepositories
 {
-    public interface IFileRp : IRepository<TFile, Guid>
+    public interface IMessageReadRp : IRepository<TMessageRead, Guid>
     {
 
     }

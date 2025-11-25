@@ -144,5 +144,12 @@ namespace kevin.Domain.Interfaces.IServices
         /// <param name="guid"></param>
         /// <returns></returns>
         Task<bool> UpdateRecentLoginTime(Guid guid);
+
+        /// <summary>
+        /// 获取系统用户数量
+        /// </summary>
+        /// <param name="userId">用户ID</param>
+        /// <returns></returns>
+        Task<int> GetAllUserCount();
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.Database;
 
@@ -11,9 +12,11 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(KevinDbContext))]
-    partial class KevinDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251125055914_新增消息模块")]
+    partial class 新增消息模块
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1021,80 +1024,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         });
                 });
 
-            modelBuilder.Entity("kevin.Domain.Entities.TMessageRead", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("create_time")
-                        .HasComment("创建时间");
-
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("create_user_id")
-                        .HasComment("创建人ID");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("delete_time")
-                        .HasComment("删除时间");
-
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("delete_user_id")
-                        .HasComment("删除人ID");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_delete")
-                        .HasComment("是否删除");
-
-                    b.Property<Guid>("MessageId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("message_id")
-                        .HasComment("message_id");
-
-                    b.Property<Guid?>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("row_version")
-                        .HasComment("行版本标记");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
-                        .HasColumnName("tenant_id")
-                        .HasComment("租户ID_Code");
-
-                    b.Property<uint>("xmin")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("xmin")
-                        .HasComment("行版本标记");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("MessageId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("t_message_read", null, t =>
-                        {
-                            t.HasComment("t_message_read");
-                        });
-                });
-
             modelBuilder.Entity("kevin.Domain.Entities.TTenant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1473,8 +1402,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.HasIndex("DeleteTime");
 
                     b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("Table");
 
                     b.HasIndex("TableId");
 
@@ -3047,32 +2974,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Navigation("DeleteUser");
 
                     b.Navigation("UpdateUser");
-                });
-
-            modelBuilder.Entity("kevin.Domain.Entities.TMessageRead", b =>
-                {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
-                        .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
-                        .WithMany()
-                        .HasForeignKey("DeleteUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("kevin.Domain.Entities.TMessage", "Message")
-                        .WithMany()
-                        .HasForeignKey("MessageId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("CreateUser");
-
-                    b.Navigation("DeleteUser");
-
-                    b.Navigation("Message");
                 });
 
             modelBuilder.Entity("kevin.Domain.Entities.TUserBindRole", b =>

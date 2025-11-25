@@ -19,6 +19,18 @@ namespace kevin.Application.Services
             fileStorage = _fileStorage;
         }
 
+        /// <summary>
+        /// 获取文件
+        /// </summary>
+        /// <param name="tableid"></param>
+        /// <param name="table"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<List<FileDto>> GetFileDtos(List<Guid> tableid, string table)
+        {
+            return fileRp.Query().Where(t => t.IsDelete == false && tableid.Contains(t.TableId) && t.Table == table).ToList().MapToList<TFile, FileDto>().ToList();
+        }
+
         Task<bool> IFileService.DeleteFile(Guid id, CancellationToken cancellationToken)
         {
             try
@@ -325,8 +337,8 @@ namespace kevin.Application.Services
                                         srcStream.Close();
                                     }
                                 }
-                            } 
-                            group.Issynthesis = true; 
+                            }
+                            group.Issynthesis = true;
                             db.SaveChanges();
                         }
                         catch
@@ -335,7 +347,7 @@ namespace kevin.Application.Services
                         }
 
                     }
-                } 
+                }
                 return Task.FromResult(true);
             }
             catch

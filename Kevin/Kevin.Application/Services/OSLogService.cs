@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace kevin.Application.Services
 {
-    internal class OSLogService : BaseService, IOSLogService
+    public class OSLogService : BaseService, IOSLogService
     {
         public IOSLogRp osLogRp { get; set; }
         public OSLogService(IHttpContextAccessor _httpContextAccessor, IOSLogRp _osLogRp) : base(_httpContextAccessor)

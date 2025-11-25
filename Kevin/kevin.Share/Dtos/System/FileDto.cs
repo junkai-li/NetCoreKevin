@@ -1,19 +1,27 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace kevin.Domain.Kevin
+namespace kevin.Domain.Share.Dtos.System
 {
-
-
     /// <summary>
-    /// 文件表
+    /// 附件dto
     /// </summary>
-    [Table("TFile")]
-    [Description("文件表")]
-    [Index(nameof(Table))]
-    [Index(nameof(TableId))]
-    public partial class TFile : CD_User
+    public class FileDto
     {
+        public Guid Id { get; set; }
 
+        /// <summary>
+        /// 创建人ID
+        /// </summary>
+        [Description("创建人ID")]
+        public Guid CreateUserId { get; set; } 
+        public virtual string CreateUser { get; set; }
 
         /// <summary>
         /// 文件名称

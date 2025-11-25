@@ -345,6 +345,12 @@
             </summary> 
             <returns></returns>
         </member>
+        <member name="M:WebApi.Controllers.v1.UserController.GetAllUserCount">
+            <summary>
+            获取用户数量
+            </summary> 
+            <returns></returns>
+        </member>
         <member name="T:AdminApi.Controllers.PermissionController">
             <summary>
             权限管理

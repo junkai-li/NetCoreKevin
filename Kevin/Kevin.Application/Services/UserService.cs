@@ -656,5 +656,14 @@ namespace kevin.Application
             db.SaveChanges();
             return Task.FromResult(true);
         }
+
+        /// <summary>
+        /// 获取用户数量
+        /// </summary>
+        /// <returns></returns>
+        public async Task<int> GetAllUserCount()
+        {
+            return await userRp.Query().Where(t => t.IsDelete == false).CountAsync();
+        }
     }
 }
