@@ -4,6 +4,7 @@ using kevin.Domain.Share.Attributes;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.Msg;
 using kevin.Domain.Share.Dtos.System;
+using kevin.Domain.Share.Dtos.User;
 using kevin.Domain.Share.Enums;
 using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Web.Filters;
 
 namespace App.WebApi.Controllers.v1
 {
@@ -87,14 +89,19 @@ namespace App.WebApi.Controllers.v1
         [ActionDescription("删除消息")]
         [HttpLog("角色管理", "删除消息")]
         [HttpDelete("Delete")]
-        public async Task<bool> Delete([FromQuery][Required] Guid roleId)
+        public async Task<bool> Delete([FromQuery][Required] Guid Id)
         {
-            var result = await _messageService.Delete(roleId);
+            var result = await _messageService.Delete(Id);
             return result;
         }
-
+        /// <summary>
+        /// 获取我的未读消息数量 十分钟延迟
+        /// </summary>
+        /// <param name="messageType"></param>
+        /// <returns></returns>
         [HttpGet("GetMyNoReadCount")]
         [SkipAuthority]
+        [CacheDataFilter<int>(TTL = 3600, UseToken = true)]
         public async Task<int> GetMyNoReadCount([FromQuery] MessageType messageType = MessageType.All)
         {
             var result = await _messageService.GetMyNoReadCount(messageType);

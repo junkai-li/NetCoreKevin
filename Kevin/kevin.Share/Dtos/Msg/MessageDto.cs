@@ -14,6 +14,13 @@ namespace kevin.Domain.Share.Dtos.Msg
     public class MessageDto
     {
         public Guid Id { get; set; }
+
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        [Description("创建时间")]
+        public DateTime CreateTime { get; set; }
+
         /// <summary>
         /// 创建人ID
         /// </summary>

@@ -49,6 +49,11 @@
             自定义参数内容
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.Msg.MessageDto.CreateTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.Msg.MessageDto.CreateUserId">
             <summary>
             创建人ID

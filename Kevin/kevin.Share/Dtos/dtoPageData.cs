@@ -30,11 +30,11 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 分页大小
         /// </summary>
-        public int pageSize { get; set; }
+        public int pageSize { get; set; } = 20;
         /// <summary>
         /// 分页页数
         /// </summary>
-        public int pageNum { get; set; }
+        public int pageNum { get; set; } = 1;
         /// <summary>
         /// 数据总量
         /// </summary>

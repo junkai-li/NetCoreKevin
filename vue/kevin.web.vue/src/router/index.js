@@ -11,6 +11,14 @@ import { message } from 'ant-design-vue';
 import PermissionMg from '@/pages/PermissionMg.vue'; 
 import HttpLogMg from '@/pages/HttpLog.vue'; 
 import OSLogMG from '@/pages/OSLog.vue';   
+// 消息管理相关页面
+import SystemAnnouncement from '@/pages/SystemAnnouncement.vue';
+import MyMessages from '@/pages/MyMessages.vue';
+// AI管理相关页面
+// import AiAppsMg from '@/pages/AiAppsMg.vue';
+// import AiPromptsMg from '@/pages/AiPromptsMg.vue';
+// import AiKmssMg from '@/pages/AiKmssMg.vue';
+// import AiModelMg from '@/pages/AiModelMg.vue';
 
 const routes = [
   {
@@ -67,6 +75,16 @@ const routes = [
         path: 'system/oslog',
         name: 'OSLogMG',
         component: OSLogMG
+      },
+      {
+        path: 'system/announcement',
+        name: 'SystemAnnouncement',
+        component: SystemAnnouncement
+      },
+      {
+        path: 'my/message',
+        name: 'MyMessages',
+        component: MyMessages
       },
       {
         path: 'underdevelopment',

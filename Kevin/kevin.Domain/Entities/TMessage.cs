@@ -28,19 +28,25 @@ namespace kevin.Domain.Entities
         /// <summary>
         /// 发送人信息
         /// </summary>
+        [MaxLength(100)]
         public string SendUserId { get; set; } = "";
+        [MaxLength(100)]
         public string SendUserName { get; set; } = "";
 
         /// <summary>
         /// 接收人信息
         /// </summary>
+         [MaxLength(100)]
         public string? RecipientUserId { get; set; } = "";
+        [MaxLength(100)]
         public string? RecipientUserName { get; set; } = "";
 
         /// <summary>
         /// 关联Id
         /// </summary>
+        [MaxLength(100)]
         public string? AssociatedId { get; set; } = "";
+        [MaxLength(100)]
         public string? AssociatedTable { get; set; } = "";
 
     }

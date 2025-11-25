@@ -45,9 +45,12 @@ namespace kevin.Application.Services
                 data = data.Where(t => t.SysMsgType == messageType);
             }
             var toData = await data.AsNoTracking().ToListAsync();
-            var readData = messageReadRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId
-                                                && t.CreateUserId == CurrentUser.UserId).ToList();
-            toData = toData.Where(t => !readData.Any(x => x.MessageId == t.Id)).ToList();
+            if (toData.Count > 0)
+            {
+                var readData = messageReadRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId
+                                             && t.CreateUserId == CurrentUser.UserId).ToList();
+                toData = toData.Where(t => !readData.Any(x => x.MessageId == t.Id)).ToList();
+            }
             return toData.Count();
         }
 
@@ -77,17 +80,22 @@ namespace kevin.Application.Services
             }
 
             dataPage.total = await data.CountAsync();
-            dataPage.data = (await data.Skip(skip).Take(par.pageSize).OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TMessage, MessageDto>();
+            var dbdata = await data.Skip(skip).Take(par.pageSize).OrderByDescending(x => x.CreateTime).Include(t => t.CreateUser).ToListAsync();
+            dataPage.data = dbdata.MapToList<TMessage, MessageDto>();
             var ids = dataPage.data.Select(m => m.Id).ToList();
-            var readData = messageReadRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId
-                                                && t.CreateUserId == CurrentUser.UserId && ids.Contains(t.MessageId)).ToList();
-
-            var files = await fileService.GetFileDtos(ids, "t_message");
-            dataPage.data.ForEach(t =>
+            if (dataPage.total > 0)
             {
-                t.IsRead = readData.Any(x => x.MessageId == t.Id);
-                t.Files = files.Where(f => f.TableId == t.Id).ToList();
-            });
+                var readData = messageReadRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId
+                                              && t.CreateUserId == CurrentUser.UserId && ids.Contains(t.MessageId)).ToList();
+
+                var files = await fileService.GetFileDtos(ids, "t_message");
+                dataPage.data.ForEach(t =>
+                {
+                    t.IsRead = readData.Any(x => x.MessageId == t.Id);
+                    t.Files = files.Where(f => f.TableId == t.Id).ToList();
+                    t.CreateUser = dbdata.FirstOrDefault(d => d.Id == t.Id)?.CreateUser?.Name;
+                });
+            }
             return dataPage;
         }
 
@@ -155,13 +163,13 @@ namespace kevin.Application.Services
 
         public async Task<bool> Delete(Guid id)
         {
-            var like = messageReadRp.Query().Where(t => t.IsDelete == false && t.Id == id).FirstOrDefault();
+            var like = await messageRp.Query().Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
 
             if (like != null)
             {
                 like.IsDelete = true;
                 like.DeleteTime = DateTime.Now;
-                messageReadRp.SaveChangesWithSaveLog();
+                messageRp.SaveChangesWithSaveLog();
             }
             else
             {

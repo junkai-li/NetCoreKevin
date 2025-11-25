@@ -42,6 +42,13 @@
           <template #title>首页</template>
           <a-menu-item key="">首页</a-menu-item>
         </a-sub-menu>
+          <a-sub-menu key="my">
+          <template #icon>
+            <RobotOutlined />
+          </template>
+          <template #title>我的</template>
+          <a-menu-item key="my-message">我的消息</a-menu-item> 
+        </a-sub-menu>
         <a-sub-menu key="aimanagement">
           <template #icon>
             <GitlabOutlined />
@@ -67,6 +74,7 @@
             <SettingOutlined />
           </template>
           <template #title>系统管理</template>
+            <a-menu-item key="system-announcement">系统公告</a-menu-item>
           <a-menu-item key="system-config">系统配置</a-menu-item>
           <a-menu-item key="log-management">日志管理</a-menu-item>
           <a-menu-item key="oslog">关键数据变动日志</a-menu-item>
@@ -219,7 +227,7 @@ import {
   BellOutlined,
   LogoutOutlined,
   BgColorsOutlined,
-  GitlabOutlined,
+  GitlabOutlined,RobotOutlined
 } from "@ant-design/icons-vue";
 //import { Button } from 'ant-design-vue';
 import { useRouter } from "vue-router";
@@ -250,6 +258,7 @@ const currentRouteTitle = computed(() => {
     "user-role": "角色管理",
     "user-permission": "权限管理",
     "system-config": "系统配置",
+    "system-announcement": "系统公告",
     "log-management": "日志管理",
     oslog: "关键数据变动日志",
     handleUserInfo: "通知中心",
@@ -257,6 +266,7 @@ const currentRouteTitle = computed(() => {
     "ai-promptsmg": "提示词管理",
     "ai-kmssmg": "知识库管理",
     "ai-modelmg": "模型配置管理",
+      "my-message": "我的消息",
   };
   return titles[selectedKeys.value[0]] || "首页";
 });
@@ -284,6 +294,12 @@ const handleMenuClick = ({ key }) => {
       break;
     case "system-config":
       router.push("/home/system/config");
+      break;
+   case "system-announcement":
+      router.push("/home/system/announcement");
+      break;
+         case "my-message":
+      router.push("/home/my/message");
       break;
     case "log-management":
       router.push("/home/system/log");
