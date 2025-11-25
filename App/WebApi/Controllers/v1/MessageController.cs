@@ -48,7 +48,7 @@ namespace App.WebApi.Controllers.v1
         {
             dtoPage.Parameter = dtoPage.Parameter == default ? new MsgGetPageDataParDto() : dtoPage.Parameter;
             dtoPage.Parameter.SysMsgType = MessageType.PrivateUser;
-            dtoPage.Parameter.UserId = CurrentUser.UserId.ToString(); 
+            dtoPage.Parameter.UserId = CurrentUser.UserId.ToString();
             var result = await _messageService.GetPageData(dtoPage);
             return result;
         }
@@ -90,6 +90,14 @@ namespace App.WebApi.Controllers.v1
         public async Task<bool> Delete([FromQuery][Required] Guid roleId)
         {
             var result = await _messageService.Delete(roleId);
+            return result;
+        }
+
+        [HttpGet("GetMyNoReadCount")]
+        [SkipAuthority]
+        public async Task<int> GetMyNoReadCount([FromQuery] MessageType messageType = MessageType.All)
+        {
+            var result = await _messageService.GetMyNoReadCount(messageType);
             return result;
         }
     }

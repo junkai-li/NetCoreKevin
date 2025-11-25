@@ -9,8 +9,8 @@
           <span class="stat-label">用户数</span>
         </div>
         <div class="stat-item">
-          <span class="stat-value">24</span>
-          <span class="stat-label">我的消息</span>
+          <span class="stat-value">{{myNoReadCount}}</span>
+          <span class="stat-label">我的未读消息</span>
         </div>
         <div class="stat-item">
           <span class="stat-value">98%</span>
@@ -41,9 +41,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getAllUserCount } from '@/api/userapi.js'
-
+import { GetMyNoReadCount } from '@/api/message.js'
 // 用户数量
 const userCount = ref(128)
+// not数量
+const myNoReadCount = ref(247)
 
 // 获取用户总数
 const fetchUserCount = async () => {
@@ -56,10 +58,22 @@ const fetchUserCount = async () => {
     console.error('获取用户数量失败:', error)
   }
 }
+// 获取用户总数
+const MyNoReadCount = async () => {
+  try {
+    const response = await GetMyNoReadCount()
+    if (response.data.code === 200) {
+      myNoReadCount.value = response.data.data
+    }
+  } catch (error) {
+    console.error('获取未读数量失败:', error)
+  }
+}
 
 // 组件挂载时获取用户数量
 onMounted(() => {
   fetchUserCount()
+  MyNoReadCount();
 })
 </script>
 
