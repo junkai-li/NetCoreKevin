@@ -1,4 +1,4 @@
- <template>
+<template>
   <a-layout class="layout-container" :class="currentTheme">
     <!-- 动态背景 -->
     <div class="background">
@@ -11,12 +11,12 @@
         <div class="element element-4"></div>
       </div>
     </div>
-    
+
     <!-- 左侧导航栏 -->
-    <a-layout-sider 
-      v-model:collapsed="collapsed" 
-      :trigger="null" 
-      collapsible 
+    <a-layout-sider
+      v-model:collapsed="collapsed"
+      :trigger="null"
+      collapsible
       class="sider"
       width="256"
       :style="{ position: 'fixed', height: '100vh', left: 0, top: 0, bottom: 0 }"
@@ -27,27 +27,31 @@
         </div>
         <span v-if="!collapsed" class="logo-text">NetCoreKevin后台管理系统</span>
       </div>
-      
-      <a-menu 
-        v-model:selectedKeys="selectedKeys" 
-        v-model:openKeys="openKeys" 
-        theme="dark" 
+
+      <a-menu
+        v-model:selectedKeys="selectedKeys"
+        v-model:openKeys="openKeys"
+        theme="dark"
         mode="inline"
         @click="handleMenuClick"
-      > 
+      >
         <a-sub-menu key="dashboard">
           <template #icon>
             <DashboardOutlined />
           </template>
           <template #title>首页</template>
-          <a-menu-item key="">首页</a-menu-item> 
+          <a-menu-item key="">首页</a-menu-item>
         </a-sub-menu>
-         <a-menu-item key="analytics">
+        <a-sub-menu key="aimanagement">
           <template #icon>
-            <BarChartOutlined />
+            <GitlabOutlined />
           </template>
-          <span>AI</span>
-        </a-menu-item> 
+          <template #title>AI管理</template>
+          <a-menu-item key="ai-appsmg">智能体管理</a-menu-item>
+          <a-menu-item key="ai-promptsmg">提示词管理</a-menu-item>
+          <a-menu-item key="ai-kmssmg">知识库管理</a-menu-item>
+          <a-menu-item key="ai-modelmg">模型配置管理</a-menu-item>
+        </a-sub-menu>
         <a-sub-menu key="user-management">
           <template #icon>
             <UserOutlined />
@@ -57,7 +61,7 @@
           <a-menu-item key="user-role">角色管理</a-menu-item>
           <a-menu-item key="user-permission">权限管理</a-menu-item>
         </a-sub-menu>
-        
+
         <a-sub-menu key="system-settings">
           <template #icon>
             <SettingOutlined />
@@ -65,17 +69,17 @@
           <template #title>系统管理</template>
           <a-menu-item key="system-config">系统配置</a-menu-item>
           <a-menu-item key="log-management">日志管理</a-menu-item>
-            <a-menu-item key="oslog">关键数据变动日志</a-menu-item>
+          <a-menu-item key="oslog">关键数据变动日志</a-menu-item>
         </a-sub-menu>
       </a-menu>
     </a-layout-sider>
-    
+
     <!-- 右侧内容区域 -->
-    <a-layout 
-      class="main-layout" 
-      :style="{ 
+    <a-layout
+      class="main-layout"
+      :style="{
         marginLeft: collapsed ? '80px' : '256px',
-        transition: 'margin-left 0.3s ease'
+        transition: 'margin-left 0.3s ease',
       }"
     >
       <!-- 头部 -->
@@ -91,20 +95,26 @@
             class="trigger"
             @click="() => (collapsed = !collapsed)"
           />
-          
+
           <a-breadcrumb class="breadcrumb">
             <a-breadcrumb-item>首页</a-breadcrumb-item>
-            <a-breadcrumb-item style="color: aliceblue;" >{{ currentRouteTitle }}</a-breadcrumb-item>
+            <a-breadcrumb-item style="color: aliceblue">{{
+              currentRouteTitle
+            }}</a-breadcrumb-item>
           </a-breadcrumb>
         </div>
-        
+
         <div class="header-right">
           <!-- 主题切换下拉菜单 -->
           <a-dropdown>
-            <a-Button  type="text" style="color: rgba(255, 255, 255, 0.85);" class="theme-switch-button">
+            <a-Button
+              type="text"
+              style="color: rgba(255, 255, 255, 0.85)"
+              class="theme-switch-button"
+            >
               <BgColorsOutlined />
               主题
-            </a-Button >
+            </a-Button>
             <template #overlay>
               <a-menu class="theme-menu">
                 <a-menu-item key="blackblue" @click="switchTheme('blackblue')">
@@ -140,7 +150,7 @@
               </a-menu>
             </template>
           </a-dropdown>
-          
+
           <a-dropdown>
             <a-badge dot>
               <BellOutlined class="header-icon" />
@@ -153,7 +163,7 @@
               </a-menu>
             </template>
           </a-dropdown>
-          
+
           <a-dropdown>
             <div class="user-info">
               <a-avatar :src="userInfo.avatar" />
@@ -179,7 +189,7 @@
           </a-dropdown>
         </div>
       </a-layout-header>
-      
+
       <!-- 主要内容 -->
       <a-layout-content class="content">
         <div class="content-wrapper">
@@ -187,7 +197,7 @@
           <router-view />
         </div>
       </a-layout-content>
-      
+
       <!-- 底部 -->
       <a-layout-footer class="footer">
         <div class="footer-content">
@@ -199,148 +209,162 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from "vue";
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   DashboardOutlined,
   UserOutlined,
   SettingOutlined,
-  BarChartOutlined,
   BellOutlined,
   LogoutOutlined,
-  BgColorsOutlined
-} from '@ant-design/icons-vue'
+  BgColorsOutlined,
+  GitlabOutlined,
+} from "@ant-design/icons-vue";
 //import { Button } from 'ant-design-vue';
-import { useRouter } from 'vue-router'
-import '../css/kevinHome.css';
-import hedeImage from '../assets/hede.png'; // 导入用户头像图片
-import logoImage from '../assets/logo.png'; // 导入logo图片
+import { useRouter } from "vue-router";
+import "../css/kevinHome.css";
+import hedeImage from "../assets/hede.png"; // 导入用户头像图片
+import logoImage from "../assets/logo.png"; // 导入logo图片
 
-const router = useRouter() 
+const router = useRouter();
 
-const collapsed = ref(false)
-const selectedKeys = ref(['dashboard'])
-const openKeys = ref(['user-management'])
+const collapsed = ref(false);
+const selectedKeys = ref(["dashboard"]);
+const openKeys = ref(["user-management"]);
 
 // 主题状态 - 将默认主题改为黑蓝主题
-const currentTheme = ref('theme-blackblue')
+const currentTheme = ref("theme-blackblue");
 
 // 用户信息
 const userInfo = reactive({
-  name: '管理员',
-  avatar: hedeImage // 使用导入的图片
-})
+  name: "管理员",
+  avatar: hedeImage, // 使用导入的图片
+});
 
 // 当前路由标题
 const currentRouteTitle = computed(() => {
   const titles = {
-    'dashboard': '首页',
-    'user-list': '用户列表',
-    'user-role': '角色管理',
-    'user-permission': '权限管理',
-    'system-config': '系统配置',
-    'log-management': '日志管理',
-    'analytics': '数据分析',
-    'oslog': '关键数据变动日志',
-    'handleUserInfo': '通知中心'
-  }
-  return titles[selectedKeys.value[0]] || '首页'
-})
+    dashboard: "首页",
+    "user-list": "用户列表",
+    "user-role": "角色管理",
+    "user-permission": "权限管理",
+    "system-config": "系统配置",
+    "log-management": "日志管理",
+    oslog: "关键数据变动日志",
+    handleUserInfo: "通知中心",
+    "ai-appsmg": "智能体管理",
+    "ai-promptsmg": "提示词管理",
+    "ai-kmssmg": "知识库管理",
+    "ai-modelmg": "模型配置管理",
+  };
+  return titles[selectedKeys.value[0]] || "首页";
+});
 
 // 切换主题
 const switchTheme = (theme) => {
-  currentTheme.value = `theme-${theme}`
+  currentTheme.value = `theme-${theme}`;
   // 保存主题选择到本地存储
-  localStorage.setItem('app-theme', theme)
-}
+  localStorage.setItem("app-theme", theme);
+};
 
 // 菜单点击事件
 const handleMenuClick = ({ key }) => {
-  selectedKeys.value = [key]
+  selectedKeys.value = [key];
   // 根据key跳转到对应路由
-  switch(key) {
-    case 'user-list':
-      router.push('/home/user/list')
-      break
-    case 'user-role':
-      router.push('/home/user/role')
-      break
-    case 'user-permission':
-      router.push('/home/user/permission')
-      break
-    case 'system-config':
-      router.push('/home/system/config')
-      break
-    case 'log-management':
-      router.push('/home/system/log')
-      break
-    case 'oslog':
-      router.push('/home/system/oslog')
-      break
-    case 'analytics':
-      router.push('/home/analytics')
-      break
+  switch (key) {
+    case "user-list":
+      router.push("/home/user/list");
+      break;
+    case "user-role":
+      router.push("/home/user/role");
+      break;
+    case "user-permission":
+      router.push("/home/user/permission");
+      break;
+    case "system-config":
+      router.push("/home/system/config");
+      break;
+    case "log-management":
+      router.push("/home/system/log");
+      break;
+    case "oslog":
+      router.push("/home/system/oslog");
+      break;
+    case "aimanagement":
+      router.push("/home/aimanagement");
+      break;
+    case "ai-appsmg":
+      router.push("/home/aimanagement/aiappsmg");
+      break;
+    case "ai-promptsmg":
+      router.push("/home/aimanagement/aipromptsmg");
+      break;
+    case "ai-kmssmg":
+      router.push("/home/aimanagement/aikmssmg");
+      break;
+    case "ai-modelmg":
+      router.push("/home/aimanagement/aimodelmg");
+      break;
     default:
-      router.push('/home')
+      router.push("/home");
   }
-}
+};
 
 // 退出登录
 const handleLogout = () => {
-  console.log('用户退出登录')
+  console.log("用户退出登录");
   // 清除认证状态并跳转到登录页
-  localStorage.removeItem('token')
-  router.push('/login')
-}
+  localStorage.removeItem("token");
+  router.push("/login");
+};
 // 个人中心
 const handleUserInfo = () => {
-  console.log('个人中心') 
-   selectedKeys.value = ['handleUserInfo']
-  router.push('/home/user/profile')
-}
+  console.log("个人中心");
+  selectedKeys.value = ["handleUserInfo"];
+  router.push("/home/user/profile");
+};
 // 初始化背景动画
 onMounted(() => {
-  initParticles()
+  initParticles();
   // 检查本地存储的主题设置
-  const savedTheme = localStorage.getItem('app-theme')
+  const savedTheme = localStorage.getItem("app-theme");
   if (savedTheme) {
-    currentTheme.value = `theme-${savedTheme}`
+    currentTheme.value = `theme-${savedTheme}`;
   } else {
     // 如果没有保存的主题设置，默认使用黑蓝主题
-    currentTheme.value = 'theme-blackblue'
-    localStorage.setItem('app-theme', 'blackblue')
+    currentTheme.value = "theme-blackblue";
+    localStorage.setItem("app-theme", "blackblue");
   }
 
-     const response = JSON.parse(localStorage.getItem('user'));
-     userInfo.name=response.name;
-
-})
+  const response = JSON.parse(localStorage.getItem("user"));
+  userInfo.name = response.name;
+});
 
 onBeforeUnmount(() => {
   // 清理动画
-})
+});
 
 // 初始化粒子效果
 const initParticles = () => {
-  const particlesContainer = document.querySelector('.particles')
-  if (!particlesContainer) return
+  const particlesContainer = document.querySelector(".particles");
+  if (!particlesContainer) return;
 
   // 清空现有的粒子
-  particlesContainer.innerHTML = ''
+  particlesContainer.innerHTML = "";
 
   // 创建粒子
   for (let i = 0; i < 50; i++) {
-    const particle = document.createElement('div')
-    particle.className = 'particle'
-    particle.style.left = `${Math.random() * 100}%`
-    particle.style.top = `${Math.random() * 100}%`
-    particle.style.animationDelay = `${Math.random() * 5}s`
-    particle.style.width = `${Math.random() * 4 + 2}px`
-    particle.style.height = particle.style.width
-    particlesContainer.appendChild(particle)
+    const particle = document.createElement("div");
+    particle.className = "particle";
+    particle.style.left = `${Math.random() * 100}%`;
+    particle.style.top = `${Math.random() * 100}%`;
+    particle.style.animationDelay = `${Math.random() * 5}s`;
+    particle.style.width = `${Math.random() * 4 + 2}px`;
+    particle.style.height = particle.style.width;
+    particlesContainer.appendChild(particle);
   }
-}
+};
 </script>
 
 <style scoped>
@@ -771,7 +795,6 @@ const initParticles = () => {
   background: transparent;
 }
 
-
 .footer {
   text-align: center;
   padding: 16px 24px;
@@ -817,28 +840,28 @@ const initParticles = () => {
   .sider {
     position: absolute;
   }
-  
+
   .header {
     padding: 0 12px;
   }
-  
+
   .content {
     margin: 12px 8px 0;
   }
-  
+
   .content-wrapper {
     padding: 16px;
   }
-  
+
   .welcome-stats {
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .info-cards {
     grid-template-columns: 1fr;
   }
-  
+
   .main-layout {
     margin-left: 0;
   }

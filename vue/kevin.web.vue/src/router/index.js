@@ -5,13 +5,12 @@ import Dashboard from '@/pages/kevinDashboard.vue';
 import UserList from '@/pages/UserList.vue';
 import UserRole from '@/pages/UserRole.vue';
 import UserProfile from '@/pages/UserProfile.vue';
+import UnderDevelopment from '@/pages/UnderDevelopment.vue';
 import { getTokenUser } from "../api/userapi";
 import { message } from 'ant-design-vue';
 import PermissionMg from '@/pages/PermissionMg.vue'; 
 import HttpLogMg from '@/pages/HttpLog.vue'; 
-import OSLogMG from '@/pages/OSLog.vue';  
-const SystemConfig = { template: '<div><h2>系统配置</h2><p>这里是系统配置页面</p></div>' }  
-const Analytics = { template: '<div><h2>数据分析</h2><p>这里是数据分析页面</p></div>' }
+import OSLogMG from '@/pages/OSLog.vue';   
 
 const routes = [
   {
@@ -57,7 +56,7 @@ const routes = [
       {
         path: 'system/config',
         name: 'SystemConfig',
-        component: SystemConfig
+        component: UnderDevelopment
       },
       {
         path: 'system/log',
@@ -70,9 +69,34 @@ const routes = [
         component: OSLogMG
       },
       {
-        path: 'analytics',
-        name: 'Analytics',
-        component: Analytics
+        path: 'underdevelopment',
+        name: 'UnderDevelopment',
+        component: UnderDevelopment
+      },
+      {
+        path: 'aimanagement',
+        name: 'aimanagement',
+        component: UnderDevelopment
+      },
+        {
+        path: 'aimanagement/aiappsmg',
+        name: 'aiappsmg',
+        component: UnderDevelopment
+      },
+        {
+        path: 'aimanagement/aipromptsmg',
+        name: 'aipromptsmg',
+        component: UnderDevelopment
+      },
+        {
+        path: 'aimanagement/aikmssmg',
+        name: 'aikmssmg',
+        component: UnderDevelopment
+      },
+        {
+        path: 'aimanagement/aimodelmg',
+        name: 'aimodelmg',
+        component: UnderDevelopment
       }
     ]
   }
