@@ -70,7 +70,7 @@
                 <a-button 
                   type="link" 
                   size="small" 
-                  :disabled="record.isSystem"
+                  :disabled="record.isSystem=='是'"
                   @click="showEditDicModal(record)"
                 >
                   <template #icon>
@@ -81,8 +81,7 @@
                 <a-popconfirm
                   title="确定要删除这个字典项吗?"
                   ok-text="确定"
-                  cancel-text="取消"
-                  :disabled="record.isSystem"
+                  cancel-text="取消" 
                   @confirm="handleDelete(record.id)"
                 >
                   <a-button 
@@ -298,7 +297,7 @@ const loadDicData = async () => {
       pageNum: pagination.value.current,
       pageSize: pagination.value.pageSize,
       searchKey: searchKeyword.value,
-      type: selectedType.value
+      Parameter: selectedType.value
     };
     
     const response = await GetPageData(params); 
@@ -334,7 +333,8 @@ const showAddDicModal = () => {
 // 显示编辑字典模态框
 const showEditDicModal = (record) => {
   // 系统内置字典项不能编辑
-  if (record.isSystem) {
+  if (record.isSystem=='是') {
+    
     message.warning('系统内置字典项不能编辑');
     return;
   }
@@ -358,7 +358,7 @@ const handleDelete = async (id) => {
   // 查找要删除的字典项
   const record = dataSource.value.find(item => item.id === id);
   // 系统内置字典项不能删除
-  if (record && record.isSystem) {
+  if (record && record.isSystem=='是') {
     message.warning('系统内置字典项不能删除');
     return;
   }
@@ -384,27 +384,31 @@ const handleTableChange = (pager, filters, sorter) => {
 // 字典模态框确认
 const handleDicModalOk = () => {
   // 检查是否是系统内置字典项的编辑
-  if (currentDic.value && currentDic.value.isSystem) {
+  if (currentDic.value && currentDic.value.isSystem=='是') {
     message.warning('系统内置字典项不能编辑');
     return;
   }
   
   validateDicForm().then(async () => {
-    try {
-      const params = {
+    try { 
+      if (currentDic.value) {
+         await addEditMessage({
         id: dicForm.id,
         key: dicForm.key,
         value: dicForm.value,
         type: dicForm.type,
         sort: dicForm.sort,
         remarks: dicForm.remarks
-      };
-      
-      await addEditMessage(params);
-      
-      if (currentDic.value) {
+      });
         message.success('字典信息更新成功');
       } else {
+        await addEditMessage({ 
+        key: dicForm.key,
+        value: dicForm.value,
+        type: dicForm.type,
+        sort: dicForm.sort,
+        remarks: dicForm.remarks
+      });
         message.success("字典信息添加成功");
       }
       

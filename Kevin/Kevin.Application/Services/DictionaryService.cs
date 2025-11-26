@@ -104,6 +104,7 @@ namespace kevin.Application.Services
                     msg.Value = dic.Value;
                     msg.Remarks = dic.Remarks;
                     msg.Type = dic.Type;  
+                    msg.Sort = dic.Sort;
                 }
                 else
                 {
