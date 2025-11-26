@@ -1,4 +1,5 @@
-﻿using kevin.FileStorage;
+﻿using kevin.Domain.Share.Consts;
+using kevin.FileStorage;
 using kevin.Share.Dtos;
 using Kevin.Common.App;
 using Microsoft.AspNetCore.Http;
@@ -14,11 +15,19 @@ namespace kevin.Application.Services
     {
         public IFileRp fileRp { get; set; }
 
+        public IDictionaryRp dictionaryRp { get; set; }
+
         public IFileStorage fileStorage { get; set; }
-        public FileService(IHttpContextAccessor _httpContextAccessor, IFileRp _fileRp, IFileStorage _fileStorage) : base(_httpContextAccessor)
+        public FileService(IHttpContextAccessor _httpContextAccessor, IFileRp _fileRp, IFileStorage _fileStorage, IDictionaryRp _dictionaryRp) : base(_httpContextAccessor)
         {
             fileRp = _fileRp;
             fileStorage = _fileStorage;
+            this.dictionaryRp = _dictionaryRp;
+        }
+
+        public int? GetUploadFileLimit()
+        {
+            return dictionaryRp.Query().Where(t => t.IsDelete == false && t.Type == SysDictionaryConsts.UploadFileLimit && t.IsSystem == true).FirstOrDefault()?.Value.ToTryInt32();
         }
 
         /// <summary>
@@ -91,8 +100,8 @@ namespace kevin.Application.Services
                 {
                     //本地
                     domain = HttpContextAccessor.GetBaseUrl();
-                } 
-                string fileUrl = domain + file.Path?.Replace("\\", "/"); 
+                }
+                string fileUrl = domain + file.Path?.Replace("\\", "/");
                 return fileUrl;
             }
             else
@@ -152,16 +161,9 @@ namespace kevin.Application.Services
             throw new UserFriendlyException("文件上传失败！");
         }
 
-        public async Task<Guid> UploadFile(string table, Guid tableid, string sign, IFormFile file, CancellationToken cancellationToken, int MB = 50)
+        public async Task<Guid> UploadFile(string table, Guid tableid, string sign, IFormFile file, CancellationToken cancellationToken)
         {
-            if (file == null || file.Length == 0)
-            {
-                throw new UserFriendlyException($"文件为空");
-            }
-            if (file.Length > MB * 1024 * 1024)
-            {
-                throw new UserFriendlyException($"文件不能大于{MB}MB");
-            }
+            FileVerification(file);
             string basepath = "/Files/" + DateTime.Now.ToString("yyyy/MM/dd");
             string filepath = Kevin.Common.App.IO.Path.ContentRootPath() + basepath;
             Directory.CreateDirectory(filepath);
@@ -221,5 +223,21 @@ namespace kevin.Application.Services
             }
         }
 
+        public void FileVerification(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                throw new UserFriendlyException($"文件为空");
+            }
+            var uploadFileLimit = GetUploadFileLimit();
+            if (!(uploadFileLimit > 0))
+            {
+                uploadFileLimit = 50;
+            }
+            if (file.Length > uploadFileLimit * 1024 * 1024)
+            {
+                throw new UserFriendlyException($"文件不能大于{uploadFileLimit}MB");
+            }
+        }
     }
 }

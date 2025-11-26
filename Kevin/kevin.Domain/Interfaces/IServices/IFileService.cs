@@ -35,7 +35,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// <param name="sign">自定义标记</param>
         /// <param name="file">file</param>
         /// <returns>文件ID</returns>
-        Task<Guid> UploadFile(string business, Guid key, string sign, IFormFile file, CancellationToken cancellationToken, int MB = 50);
+        Task<Guid> UploadFile(string business, Guid key, string sign, IFormFile file, CancellationToken cancellationToken);
 
         /// <summary>
         /// 通过文件ID获取文件

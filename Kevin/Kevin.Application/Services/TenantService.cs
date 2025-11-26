@@ -1,6 +1,7 @@
 ﻿using Aop.Api.Domain;
 using kevin.Application;
 using kevin.Domain.BaseDatas;
+using kevin.Domain.Configuration;
 using kevin.Domain.Entities;
 using kevin.Domain.EventBus;
 using kevin.Domain.Events;
@@ -36,7 +37,7 @@ namespace kevin.Application
             {
                 tenant.Status = TenantStatusEnums.Inactive;
                 tenant.UpdateTime = DateTime.Now;
-                  tenantRp.SaveChangesWithSaveLog();
+                tenantRp.SaveChangesWithSaveLog();
                 return true;
             }
             else
@@ -51,7 +52,7 @@ namespace kevin.Application
             {
                 tenant.Status = TenantStatusEnums.Active;
                 tenant.UpdateTime = DateTime.Now;
-                 tenantRp.SaveChangesWithSaveLog();
+                tenantRp.SaveChangesWithSaveLog();
                 return true;
             }
             else
@@ -73,7 +74,7 @@ namespace kevin.Application
                 tenantdata.Name = tenant.Name;
                 tenantdata.Code = tenant.Code;
                 tenantdata.UpdateTime = DateTime.Now;
-                 tenantRp.SaveChangesWithSaveLog();
+                tenantRp.SaveChangesWithSaveLog();
                 return true;
             }
             else
@@ -89,7 +90,7 @@ namespace kevin.Application
             {
                 throw new UserFriendlyException(tenantcode.Code + "租户Code已存在");
             }
-            var addtenant = new TTenant(tenant.Code, tenant.Name,DateTime.Now);
+            var addtenant = new TTenant(tenant.Code, tenant.Name, DateTime.Now);
             addtenant.AddDomainEvent(new TTenantCreatedEvent(addtenant), EventBusEnums.Add);
             tenantRp.Add(addtenant);
             tenantRp.SaveChanges();
@@ -107,7 +108,7 @@ namespace kevin.Application
             {
                 tenant.IsDelete = true;
                 tenant.DeleteTime = DateTime.Now;
-                  tenantRp.SaveChangesWithSaveLog();
+                tenantRp.SaveChangesWithSaveLog();
                 return true;
             }
             else
@@ -122,37 +123,79 @@ namespace kevin.Application
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public   Task<bool> InitializedData(dtoTenant tenant, CancellationToken cancellationToken)
+        public Task<bool> InitializedData(dtoTenant tenant, CancellationToken cancellationToken)
         {
             using var db = new KevinDbContext();
-            var role = new TRole();
-            role.Id = Guid.NewGuid();
-            role.Name = "管理员";
-            role.Remarks = "初始化角色";
-            role.CreateTime = DateTime.Now;
-            role.TenantId = tenant.Code;
-            var user = new TUser();
-            user.Id = Guid.NewGuid();
-            user.Name = "admin";
-            user.NickName = "admin";
-            user.Phone = "admin";
-            user.ChangePassword("admin123");
-            user.IsSuperAdmin = true;
-            user.CreateTime = DateTime.Now;
-            user.TenantId = tenant.Code;
-            user.Email = "admin";
-            user.Status = true;
-            var userbindrole = new TUserBindRole();
-            userbindrole.Id = Guid.NewGuid();
-            userbindrole.RoleId = role.Id;
-            userbindrole.UserId = user.Id;
-            userbindrole.CreateTime = DateTime.Now;
-            userbindrole.TenantId = tenant.Code;
-            db.Set<TUser>().Add(user);
-            db.Set<TRole>().Add(role);
+            #region 初始化角色
+
+            var addroles = new List<TRole>();
+            foreach (var role in TRoleBaseData.TRoles)
+            {
+                role.Id = Guid.NewGuid();
+                role.Name = "管理员";
+                role.Remarks = "初始化角色";
+                role.CreateTime = DateTime.Now;
+                role.TenantId = tenant.Code;
+                addroles.Add(role);
+            }
+
+            #endregion
+
+            #region 初始化用户
+
+            var addusers = new List<TUser>();
+            foreach (var user in TUserBaseData.TUsers)
+            {
+                user.Id = Guid.NewGuid();
+                user.Name = "admin";
+                user.NickName = "admin";
+                user.Phone = "admin";
+                user.ChangePassword("admin123");
+                user.IsSuperAdmin = true;
+                user.CreateTime = DateTime.Now;
+                user.TenantId = tenant.Code;
+                user.Email = "admin";
+                user.Status = true;
+                addusers.Add(user);
+            }
+
+            #endregion
+
+            #region 初始化用户角色
+
+            var addUserBindRoles = new List<TUserBindRole>();
+            foreach (var user in TUserBaseData.TUsers)
+            {
+                var userbindrole = new TUserBindRole();
+                userbindrole.Id = Guid.NewGuid();
+                userbindrole.RoleId = addroles.FirstOrDefault().Id;
+                userbindrole.UserId = user.Id;
+                userbindrole.CreateTime = DateTime.Now;
+                userbindrole.TenantId = tenant.Code;
+                addUserBindRoles.Add(userbindrole);
+            }
+
+            #endregion
+
+            #region 初始化数据字典
+
+            var addDicts = new List<TDictionary>();
+            foreach (var item in TDictionaryBaseDatas.Data)
+            {
+                item.Id = Guid.NewGuid();
+                item.CreateTime = DateTime.Now;
+                item.TenantId = tenant.Code;
+                item.CreateUserId = addusers.FirstOrDefault().Id;
+                addDicts.Add(item);
+            }
+            #endregion
+
+            db.Set<TUser>().AddRange(addusers);
+            db.Set<TRole>().AddRange(addroles);
             db.SaveChanges();
-            db.Set<TUserBindRole>().Add(userbindrole);
-            db.SaveChanges();  
+            db.Set<TUserBindRole>().AddRange(addUserBindRoles);
+            db.Set<TDictionary>().AddRange(addDicts); 
+            db.SaveChanges();
             return Task.FromResult(true);
         }
     }
