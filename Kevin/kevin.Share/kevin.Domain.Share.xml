@@ -789,6 +789,12 @@
             <param name="fileName">自定义下载文件名</param>
             <returns></returns>
         </member>
+        <member name="M:kevin.FileStorage.IFileStorage.GetUrl">
+            <summary>
+            获取文件访问地址url前缀
+            </summary>
+            <returns></returns>
+        </member>
         <member name="P:Web.Global.User.ICurrentUser.UserId">
             <summary>
             当前登录用户Id

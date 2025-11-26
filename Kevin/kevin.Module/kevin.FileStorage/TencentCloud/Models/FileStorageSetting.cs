@@ -37,5 +37,10 @@ namespace kevin.FileStorage.TencentCloud.Models
         /// 存储桶名称
         /// </summary>
         public required string BucketName { get; set; }
+
+        /// <summary>
+        /// 访问前缀
+        /// </summary>
+        public required string Url { get; set; }
     }
 }

@@ -35,9 +35,7 @@ namespace kevin.FileStorage
         /// <param name="remotePath">远程文件地址</param>
         /// <returns></returns>
         public bool FileDelete(string remotePath);
-
-
-
+         
 
         /// <summary>
         /// 获取文件临时访问URL
@@ -47,5 +45,11 @@ namespace kevin.FileStorage
         /// <param name="fileName">自定义下载文件名</param>
         /// <returns></returns>
         public string? GetFileTempUrl(string remotePath, TimeSpan expiry, string? fileName = null);
+
+        /// <summary>
+        /// 获取文件访问地址url前缀
+        /// </summary>
+        /// <returns></returns>
+        Task<string> GetUrl();
     }
 }

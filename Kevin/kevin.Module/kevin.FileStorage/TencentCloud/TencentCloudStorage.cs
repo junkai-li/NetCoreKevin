@@ -3,6 +3,7 @@ using COSXML.Auth;
 using COSXML.Model.Object;
 using COSXML.Model.Tag;
 using COSXML.Transfer;
+using kevin.FileStorage.AliCloud.Models;
 using kevin.FileStorage.TencentCloud.Models;
 using Microsoft.Extensions.Options;
 using System.Text;
@@ -12,27 +13,20 @@ namespace kevin.FileStorage.TencentCloud
 {
     public class TencentCloudStorage : IFileStorage
     {
-        private readonly string appId;
-        private readonly string region;
-        private readonly string bucketName;
-
-
         private readonly CosXml cosXml;
 
+        private Models.FileStorageSetting fileStorageSetting;
 
 
-        public TencentCloudStorage(IOptionsMonitor<FileStorageSetting> config)
+        public TencentCloudStorage(IOptionsMonitor<Models.FileStorageSetting> config)
         {
-            appId = config.CurrentValue.AppId;
-            region = config.CurrentValue.Region;
-            bucketName = config.CurrentValue.BucketName;
-
+            fileStorageSetting = config.CurrentValue;
             CosXmlConfig cosXmlConfig = new CosXmlConfig.Builder()
                         .SetConnectionTimeoutMs(60000)  //设置连接超时时间，单位毫秒，默认45000ms
                         .SetReadWriteTimeoutMs(40000)  //设置读写超时时间，单位毫秒，默认45000ms
                         .IsHttps(true)  //设置默认 HTTPS 请求
-                        .SetAppid(appId) //设置腾讯云账户的账户标识 APPID
-                        .SetRegion(region) //设置一个默认的存储桶地域
+                        .SetAppid(fileStorageSetting.AppId) //设置腾讯云账户的账户标识 APPID
+                        .SetRegion(fileStorageSetting.Region) //设置一个默认的存储桶地域
                     .Build();
 
 
@@ -52,7 +46,7 @@ namespace kevin.FileStorage.TencentCloud
             {
                 remotePath = remotePath.Replace("\\", "/");
 
-                DeleteObjectRequest request = new(bucketName, remotePath);
+                DeleteObjectRequest request = new(fileStorageSetting.BucketName, remotePath);
                 DeleteObjectResult result = cosXml.DeleteObject(request);
 
                 return true;
@@ -81,7 +75,7 @@ namespace kevin.FileStorage.TencentCloud
                 string localFileName = localPath[(localPath.LastIndexOf("/") + 1)..];
 
                 // 下载对象
-                COSXMLDownloadTask downloadTask = new(bucketName, remotePath, localDir, localFileName);
+                COSXMLDownloadTask downloadTask = new(fileStorageSetting.BucketName, remotePath, localDir, localFileName);
 
                 _ = transferManager.DownloadAsync(downloadTask).Result;
 
@@ -105,7 +99,7 @@ namespace kevin.FileStorage.TencentCloud
 
                 TransferManager transferManager = new(cosXml, transferConfig);
 
-                PutObjectRequest request = new(bucketName, remotePath, localPath);
+                PutObjectRequest request = new(fileStorageSetting.BucketName, remotePath, localPath);
 
                 if (fileName != null)
                 {
@@ -136,9 +130,9 @@ namespace kevin.FileStorage.TencentCloud
 
                 PreSignatureStruct preSignatureStruct = new()
                 {
-                    appid = appId,//腾讯云账号 APPID
-                    region = region, //存储桶地域
-                    bucket = bucketName, //存储桶
+                    appid = fileStorageSetting.AppId,//腾讯云账号 APPID
+                    region = fileStorageSetting.Region, //存储桶地域
+                    bucket = fileStorageSetting.BucketName, //存储桶
                     key = remotePath, //对象键
                     httpMethod = "GET", //HTTP 请求方法
                     isHttps = true, //生成 HTTPS 请求 URL
@@ -168,6 +162,10 @@ namespace kevin.FileStorage.TencentCloud
             }
 
 
+        } 
+        public async Task<string> GetUrl()
+        {
+            return fileStorageSetting.Url;
         }
     }
 }

@@ -1,27 +1,16 @@
 ﻿using Aliyun.OSS;
 using Aliyun.OSS.Util;
-using kevin.FileStorage.AliCloud.Models;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.FileStorage.AliCloud
 {
-    public class AliCloudStorage: IFileStorage
+    public class AliCloudStorage : IFileStorage
     {
-        private readonly string endpoint;
-        private readonly string accessKeyId;
-        private readonly string accessKeySecret;
-        private readonly string bucketName;
-        public AliCloudStorage(IOptionsMonitor<FileStorageSetting> config)
+
+        private readonly Models.FileStorageSetting fileStorageSetting;
+        public AliCloudStorage(IOptionsMonitor<Models.FileStorageSetting> config)
         {
-            endpoint = config.CurrentValue.Endpoint;
-            accessKeyId = config.CurrentValue.AccessKeyId;
-            accessKeySecret = config.CurrentValue.AccessKeySecret;
-            bucketName = config.CurrentValue.BucketName;
+            fileStorageSetting = config.CurrentValue;
         }
 
         public bool FileDelete(string remotePath)
@@ -30,9 +19,9 @@ namespace kevin.FileStorage.AliCloud
             {
                 remotePath = remotePath.Replace("\\", "/");
 
-                OssClient client = new(endpoint, accessKeyId, accessKeySecret);
+                OssClient client = new(fileStorageSetting.Endpoint, fileStorageSetting.AccessKeyId, fileStorageSetting.AccessKeySecret);
 
-                client.DeleteObject(bucketName, remotePath);
+                client.DeleteObject(fileStorageSetting.BucketName, remotePath);
 
                 return true;
             }
@@ -50,10 +39,10 @@ namespace kevin.FileStorage.AliCloud
             {
                 remotePath = remotePath.Replace("\\", "/");
 
-                OssClient client = new(endpoint, accessKeyId, accessKeySecret);
+                OssClient client = new(fileStorageSetting.Endpoint, fileStorageSetting.AccessKeyId, fileStorageSetting.AccessKeySecret);
 
                 // 下载文件到流。OssObject 包含了文件的各种信息，如文件所在的存储空间、文件名、元信息以及一个输入流。
-                var obj = client.GetObject(bucketName, remotePath);
+                var obj = client.GetObject(fileStorageSetting.BucketName, remotePath);
                 using var requestStream = obj.Content;
                 byte[] buf = new byte[1024];
                 var fs = File.Open(localPath, FileMode.OpenOrCreate);
@@ -84,7 +73,7 @@ namespace kevin.FileStorage.AliCloud
                 objectName = Path.Combine(remotePath, objectName).Replace("\\", "/");
 
                 // 创建OssClient实例。
-                OssClient client = new(endpoint, accessKeyId, accessKeySecret);
+                OssClient client = new(fileStorageSetting.Endpoint, fileStorageSetting.AccessKeyId, fileStorageSetting.AccessKeySecret);
 
                 if (fileName != null)
                 {
@@ -93,11 +82,11 @@ namespace kevin.FileStorage.AliCloud
                         ContentDisposition = string.Format("attachment;filename*=utf-8''{0}", HttpUtils.EncodeUri(fileName, "utf-8"))
                     };
 
-                    client.PutObject(bucketName, objectName, localPath, metaData);
+                    client.PutObject(fileStorageSetting.BucketName, objectName, localPath, metaData);
                 }
                 else
                 {
-                    client.PutObject(bucketName, objectName, localPath);
+                    client.PutObject(fileStorageSetting.BucketName, objectName, localPath);
                 }
 
                 return true;
@@ -117,9 +106,9 @@ namespace kevin.FileStorage.AliCloud
             {
                 remotePath = remotePath.Replace("\\", "/");
 
-                OssClient client = new(endpoint, accessKeyId, accessKeySecret);
+                OssClient client = new(fileStorageSetting.Endpoint, fileStorageSetting.AccessKeyId, fileStorageSetting.AccessKeySecret);
 
-                GeneratePresignedUriRequest req = new(bucketName, remotePath);
+                GeneratePresignedUriRequest req = new(fileStorageSetting.BucketName, remotePath);
 
                 if (fileName != null)
                 {
@@ -136,6 +125,11 @@ namespace kevin.FileStorage.AliCloud
             {
                 return null;
             }
+        }
+
+        public async Task<string> GetUrl()
+        {
+            return fileStorageSetting.Url;
         }
     }
 }

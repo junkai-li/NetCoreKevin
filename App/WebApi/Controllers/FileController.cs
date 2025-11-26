@@ -184,41 +184,7 @@ namespace WebApi.Controllers
         public async Task<string> GetFilePath([Required] Guid fileid, CancellationToken cancellationToken)
         {
             return  await _fileService.GetFilePath(fileid, cancellationToken); 
-        }
-        /// <summary>
-        /// 多文件切片上传，获取初始化文件ID
-        /// </summary>
-        /// <param name="business">业务领域</param>
-        /// <param name="key">记录值</param>
-        /// <param name="sign">自定义标记</param>
-        /// <param name="fileName">文件名称</param>
-        /// <param name="slicing">总切片数</param>
-        /// <param name="unique">文件校验值</param>
-        /// <param name="cancellationToken">cancellationToken</param>
-        /// <returns></returns>
-        [HttpGet("CreateGroupFileId")]
-        public async Task<Guid> CreateGroupFileId([Required] string business, [Required] Guid key, [Required] string sign, [Required] string fileName, [Required] int slicing, [Required] string unique, CancellationToken cancellationToken)
-        { 
-           return await _fileService.CreateGroupFileId(business, key, sign, fileName, slicing, unique, cancellationToken);
-        }
-
-
-
-        /// <summary>
-        /// 文件切片上传接口
-        /// </summary>
-        /// <param name="fileId">文件组ID</param>
-        /// <param name="index">切片索引</param>
-        /// <param name="file">file</param>
-        /// <param name="cancellationToken">cancellationToken</param>
-        /// <returns>文件ID</returns>
-        [HttpPost("UploadGroupFile")]
-        public async Task<bool> UploadGroupFile([Required][FromForm] Guid fileId, [Required][FromForm] int index, [Required] IFormFile file, CancellationToken cancellationToken)
-        { 
-               return await _fileService.UploadGroupFile(fileId, index, file, cancellationToken);
-        }
-
-
+        }  
 
         /// <summary>
         /// 通过文件ID删除文件方法

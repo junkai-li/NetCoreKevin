@@ -1,8 +1,10 @@
 ﻿using kevin.FileStorage;
 using kevin.Share.Dtos;
+using Kevin.Common.App;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.EntityFrameworkCore;
 using Repository.Database;
 using Web.Global.Exceptions;
 
@@ -28,10 +30,10 @@ namespace kevin.Application.Services
         /// <returns></returns>
         public async Task<List<FileDto>> GetFileDtos(List<Guid> tableid, string table)
         {
-            return fileRp.Query().Where(t => t.IsDelete == false && tableid.Contains(t.TableId) && t.Table == table).ToList().MapToList<TFile, FileDto>().ToList();
+            return (await fileRp.Query().Where(t => t.IsDelete == false && tableid.Contains(t.TableId) && t.Table == table).ToListAsync()).MapToList<TFile, FileDto>().ToList();
         }
 
-        Task<bool> IFileService.DeleteFile(Guid id, CancellationToken cancellationToken)
+        public Task<bool> DeleteFile(Guid id, CancellationToken cancellationToken)
         {
             try
             {
@@ -50,7 +52,7 @@ namespace kevin.Application.Services
             }
         }
 
-        Task<(FileStream?, string?, string?)> IFileService.GetFile(Guid fileid, CancellationToken cancellationToken)
+        public Task<(FileStream?, string?, string?)> GetFile(Guid fileid, CancellationToken cancellationToken)
         {
             var file = fileRp.Query().Where(t => t.Id == fileid).FirstOrDefault();
             if (file != default)
@@ -74,17 +76,24 @@ namespace kevin.Application.Services
             throw new UserFriendlyException("通过指定的文件ID未找到任何文件");
         }
 
-        Task<string> IFileService.GetFilePath(Guid fileid, CancellationToken cancellationToken)
+        public async Task<string> GetFilePath(Guid fileid, CancellationToken cancellationToken)
         {
             var file = fileRp.Query().Where(t => t.Id == fileid).FirstOrDefault();
 
             if (file != null)
             {
-                string domain = "https://file.xxxx.com";
-
-                string fileUrl = domain + file.Path?.Replace("\\", "/");
-
-                return Task.FromResult(fileUrl);
+                string domain = "";
+                if (fileStorage != default)
+                {
+                    domain = await fileStorage.GetUrl();
+                }
+                else
+                {
+                    //本地
+                    domain = HttpContextAccessor.GetBaseUrl();
+                } 
+                string fileUrl = domain + file.Path?.Replace("\\", "/"); 
+                return fileUrl;
             }
             else
             {
@@ -92,37 +101,24 @@ namespace kevin.Application.Services
             }
         }
 
-        Task<FileResult> IFileService.GetImage(Guid fileId, int width, int height, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        async Task<Guid> IFileService.RemoteUploadFile(string business, Guid key, string sign, dtoKeyValue fileInfo, CancellationToken cancellationToken)
+        public async Task<Guid> RemoteUploadFile(string table, Guid tableid, string sign, dtoKeyValue fileInfo, CancellationToken cancellationToken)
         {
             string remoteFileUrl = fileInfo.Key?.ToString() ?? "";
-
             var fileExtension = Path.GetExtension(fileInfo.Value?.ToString() ?? "").ToLower();
             var fileName = Guid.NewGuid().ToString() + fileExtension;
-
             string basepath = "Files/" + DateTime.Now.ToString("yyyy/MM/dd");
-
             var filePath = Kevin.Common.App.IO.Path.ContentRootPath() + "/" + basepath + "/";
-
             //下载文件
             var dlPath = Common.IO.IOHelper.DownloadFile(remoteFileUrl, filePath, fileName);
-
             if (dlPath == null)
             {
-                Thread.Sleep(5000);
-                dlPath = Common.IO.IOHelper.DownloadFile(remoteFileUrl, filePath, fileName);
+                throw new UserFriendlyException("远程文件下载失败！");
             }
             filePath = dlPath.Replace(Kevin.Common.App.IO.Path.ContentRootPath(), "");
-
             if (dlPath != null)
             {
                 var isSuccess = true;
-                var upRemote = false;
-                if (upRemote == true)
+                if (fileStorage != default)
                 {
                     var upload = fileStorage.FileUpload(dlPath, basepath, (fileInfo.Value ?? "").ToString());
                     if (upload)
@@ -134,7 +130,6 @@ namespace kevin.Application.Services
                         isSuccess = false;
                     }
                 }
-
                 if (isSuccess)
                 {
 
@@ -142,8 +137,8 @@ namespace kevin.Application.Services
                     f.Id = Guid.NewGuid();
                     f.Name = (fileInfo.Value ?? "").ToString();
                     f.Path = filePath;
-                    f.Table = business;
-                    f.TableId = key;
+                    f.Table = table;
+                    f.TableId = tableid;
                     f.Sign = sign;
                     f.CreateUserId = CurrentUser.UserId;
                     f.CreateTime = DateTime.Now;
@@ -156,12 +151,19 @@ namespace kevin.Application.Services
             throw new UserFriendlyException("文件上传失败！");
         }
 
-        async Task<Guid> IFileService.UploadFile(string business, Guid key, string sign, IFormFile file, CancellationToken cancellationToken)
+        public async Task<Guid> UploadFile(string table, Guid tableid, string sign, IFormFile file, CancellationToken cancellationToken, int MB = 50)
         {
+            if (file == null || file.Length == 0)
+            {
+                throw new UserFriendlyException($"文件为空");
+            }
+            if (file.Length > MB * 1024 * 1024)
+            {
+                throw new UserFriendlyException($"文件不能大于{MB}MB");
+            }
             string basepath = "/Files/" + DateTime.Now.ToString("yyyy/MM/dd");
             string filepath = Kevin.Common.App.IO.Path.ContentRootPath() + basepath;
             Directory.CreateDirectory(filepath);
-
             var fileName = Guid.NewGuid();
             var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
             var fullFileName = string.Format("{0}{1}", fileName, fileExtension);
@@ -175,8 +177,7 @@ namespace kevin.Application.Services
                     file.CopyTo(fs);
                     fs.Flush();
                 }
-                var upRemote = false;
-                if (upRemote)
+                if (fileStorage != default)
                 {
                     var upload = fileStorage.FileUpload(path, "Files/" + DateTime.Now.ToString("yyyy/MM/dd"), file.FileName);
                     if (upload)
@@ -202,8 +203,8 @@ namespace kevin.Application.Services
                     f.IsDelete = false;
                     f.Name = file.FileName ?? Guid.NewGuid().ToString();
                     f.Path = path;
-                    f.Table = business;
-                    f.TableId = key;
+                    f.Table = table;
+                    f.TableId = tableid;
                     f.Sign = sign;
                     f.CreateUserId = CurrentUser.UserId;
                     f.CreateTime = DateTime.Now;
@@ -217,143 +218,6 @@ namespace kevin.Application.Services
                 throw new UserFriendlyException("文件上传失败！");
             }
         }
-        Task<Guid> IFileService.CreateGroupFileId(string business, Guid key, string sign, string fileName, int slicing, string unique, CancellationToken cancellationToken)
-        {
-            using var db = new KevinDbContext();
-            var dbfileinfo = db.Set<TFileGroup>().Where(t => (t.Unique ?? "").ToLower() == unique.ToLower()).FirstOrDefault();
-            if (dbfileinfo == null)
-            {
-                var fileid = Guid.NewGuid().ToString() + Path.GetExtension(fileName).ToLowerInvariant(); ;
-                string basepath = "/Files/" + DateTime.Now.ToString("yyyy/MM/dd") + "/" + fileid;
-                TFile f = new();
-                f.Id = Guid.NewGuid();
-                f.Name = fileName;
-                f.Path = basepath;
-                f.Table = business;
-                f.TableId = key;
-                f.Sign = sign;
-                f.CreateTime = DateTime.Now;
-                db.Set<TFile>().Add(f);
-                db.SaveChanges();
 
-                TFileGroup group = new();
-                group.Id = Guid.NewGuid();
-                group.FileId = f.Id;
-                group.Unique = unique;
-                group.Slicing = slicing;
-                group.Issynthesis = false;
-                group.Isfull = false;
-                db.Set<TFileGroup>().Add(group);
-                db.SaveChanges();
-                return Task.FromResult(f.Id);
-            }
-            else
-            {
-                return Task.FromResult(dbfileinfo.FileId);
-            }
-        }
-        Task<bool> IFileService.UploadGroupFile(Guid fileId, int index, IFormFile file, CancellationToken cancellationToken)
-        {
-            try
-            {
-                using var db = new KevinDbContext();
-                var url = string.Empty;
-                var fileName = string.Empty;
-                var fileExtension = string.Empty;
-                var fullFileName = string.Empty;
-
-                string basepath = "/Files/Group/" + DateTime.Now.ToString("yyyy/MM/dd") + "/" + fileId;
-                string filepath = Kevin.Common.App.IO.Path.ContentRootPath() + basepath;
-
-                Directory.CreateDirectory(filepath);
-
-                fileName = Guid.NewGuid().ToString();
-                fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
-                fullFileName = string.Format("{0}{1}", fileName, fileExtension);
-
-                string path = "";
-
-                if (file != null && file.Length > 0)
-                {
-                    path = filepath + "/" + fullFileName;
-
-                    using (FileStream fs = System.IO.File.Create(path))
-                    {
-                        file.CopyTo(fs);
-                        fs.Flush();
-                    }
-
-                    path = basepath + "/" + fullFileName;
-                }
-
-
-                var group = db.Set<TFileGroup>().Where(t => t.FileId == fileId).FirstOrDefault();
-
-                if (group != default)
-                {
-                    var groupfile = new TFileGroupFile();
-                    groupfile.Id = Guid.NewGuid();
-                    groupfile.FileId = group.FileId;
-                    groupfile.Path = path;
-                    groupfile.Index = index;
-                    groupfile.CreateTime = DateTime.Now;
-
-                    db.Set<TFileGroupFile>().Add(groupfile);
-
-                    if (index == group.Slicing)
-                    {
-                        group.Isfull = true;
-                    }
-
-                    db.SaveChanges();
-                    if (group.Isfull == true)
-                    {
-
-                        try
-                        {
-                            byte[] buffer = new byte[1024 * 100];
-
-                            var fileinfo = db.Set<TFile>().Where(t => t.Id == fileId).FirstOrDefault();
-                            if (fileinfo != default)
-                            {
-
-                                var fullfilepath = Kevin.Common.App.IO.Path.ContentRootPath() + fileinfo.Path;
-
-                                using (FileStream outStream = new(fullfilepath, FileMode.Create))
-                                {
-                                    int readedLen = 0;
-                                    FileStream? srcStream = null;
-
-                                    var filelist = db.Set<TFileGroupFile>().Where(t => t.FileId == fileinfo.Id).OrderBy(t => t.Index).ToList();
-
-                                    foreach (var item in filelist)
-                                    {
-                                        string p = Kevin.Common.App.IO.Path.ContentRootPath() + item.Path;
-                                        srcStream = new FileStream(p, FileMode.Open);
-                                        while ((readedLen = srcStream.Read(buffer, 0, buffer.Length)) > 0)
-                                        {
-                                            outStream.Write(buffer, 0, readedLen);
-                                        }
-                                        srcStream.Close();
-                                    }
-                                }
-                            }
-                            group.Issynthesis = true;
-                            db.SaveChanges();
-                        }
-                        catch
-                        {
-
-                        }
-
-                    }
-                }
-                return Task.FromResult(true);
-            }
-            catch
-            {
-                return Task.FromResult(false);
-            }
-        }
     }
 }

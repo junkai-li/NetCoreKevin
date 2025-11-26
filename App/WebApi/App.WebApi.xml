@@ -166,29 +166,6 @@
             <param name="cancellationToken">cancellationToken</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.FileController.CreateGroupFileId(System.String,System.Guid,System.String,System.String,System.Int32,System.String,System.Threading.CancellationToken)">
-            <summary>
-            多文件切片上传，获取初始化文件ID
-            </summary>
-            <param name="business">业务领域</param>
-            <param name="key">记录值</param>
-            <param name="sign">自定义标记</param>
-            <param name="fileName">文件名称</param>
-            <param name="slicing">总切片数</param>
-            <param name="unique">文件校验值</param>
-            <param name="cancellationToken">cancellationToken</param>
-            <returns></returns>
-        </member>
-        <member name="M:WebApi.Controllers.FileController.UploadGroupFile(System.Guid,System.Int32,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
-            <summary>
-            文件切片上传接口
-            </summary>
-            <param name="fileId">文件组ID</param>
-            <param name="index">切片索引</param>
-            <param name="file">file</param>
-            <param name="cancellationToken">cancellationToken</param>
-            <returns>文件ID</returns>
-        </member>
         <member name="M:WebApi.Controllers.FileController.DeleteFile(System.Guid,System.Threading.CancellationToken)">
             <summary>
             通过文件ID删除文件方法
@@ -470,6 +447,13 @@
             <summary>
             操作日志
             </summary>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.MessageController.GetMyNoReadCount(kevin.Domain.Share.Enums.MessageType)">
+            <summary>
+            获取我的未读消息数量 十分钟延迟
+            </summary>
+            <param name="messageType"></param>
+            <returns></returns>
         </member>
         <member name="T:App.WebApi.Controllers.v1.RoleController">
             <summary>
