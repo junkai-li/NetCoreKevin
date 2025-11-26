@@ -9,9 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.17.1" />
     <PackageReference Include="DistributedLock.Core" Version="1.0.8" />
-    <PackageReference Include="DistributedLock.MySql" Version="1.0.2" />
     <PackageReference Include="DistributedLock.Redis" Version="1.1.1" />
-    <PackageReference Include="DistributedLock.SqlServer" Version="1.0.6" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.9.0" />
   </ItemGroup>
