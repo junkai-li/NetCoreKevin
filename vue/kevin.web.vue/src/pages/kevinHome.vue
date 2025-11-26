@@ -75,7 +75,7 @@
           </template>
           <template #title>系统管理</template>
             <a-menu-item key="system-announcement">系统公告</a-menu-item>
-          <a-menu-item key="system-config">系统配置</a-menu-item>
+          <a-menu-item key="system-dic">系统配置</a-menu-item>
           <a-menu-item key="log-management">日志管理</a-menu-item>
           <a-menu-item key="oslog">关键数据变动日志</a-menu-item>
         </a-sub-menu>
@@ -257,7 +257,7 @@ const currentRouteTitle = computed(() => {
     "user-list": "用户列表",
     "user-role": "角色管理",
     "user-permission": "权限管理",
-    "system-config": "系统配置",
+    "system-dic": "系统配置",
     "system-announcement": "系统公告",
     "log-management": "日志管理",
     oslog: "关键数据变动日志",
@@ -292,8 +292,8 @@ const handleMenuClick = ({ key }) => {
     case "user-permission":
       router.push("/home/user/permission");
       break;
-    case "system-config":
-      router.push("/home/system/config");
+    case "system-dic":
+      router.push("/home/system/dic");
       break;
    case "system-announcement":
       router.push("/home/system/announcement");

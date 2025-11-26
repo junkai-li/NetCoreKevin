@@ -52,9 +52,9 @@ namespace App.WebApi.Controllers.v1
         [HttpPost("AddEdit")]
         [ActionDescription("新增或编辑")]
         [HttpLog("字典管理", "新增或编辑")]
-        public async Task<bool> AddEdit([FromBody] DictionaryDto dtoRole)
+        public async Task<bool> AddEdit([FromBody] DictionaryDto dta)
         {
-            var result = await _dictionaryService.AddEdit(dtoRole);
+            var result = await _dictionaryService.AddEdit(dta);
             return result;
         }
 

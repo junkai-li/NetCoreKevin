@@ -14,6 +14,7 @@ import OSLogMG from '@/pages/OSLog.vue';
 // 消息管理相关页面
 import SystemAnnouncement from '@/pages/SystemAnnouncement.vue';
 import MyMessages from '@/pages/MyMessages.vue';
+import DicConfig from '@/pages/DicMg.vue';
 // AI管理相关页面
 // import AiAppsMg from '@/pages/AiAppsMg.vue';
 // import AiPromptsMg from '@/pages/AiPromptsMg.vue';
@@ -62,9 +63,9 @@ const routes = [
         component: PermissionMg
       },
       {
-        path: 'system/config',
-        name: 'SystemConfig',
-        component: UnderDevelopment
+        path: 'system/dic',
+        name: 'dicConfig',
+        component: DicConfig
       },
       {
         path: 'system/log',
