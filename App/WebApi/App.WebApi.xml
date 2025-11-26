@@ -443,6 +443,11 @@
             <param data="keyValue">id租户</param>
             <returns></returns>
         </member>
+        <member name="T:App.WebApi.Controllers.v1.DictionaryController">
+            <summary>
+            字典管理
+            </summary>
+        </member>
         <member name="T:App.WebApi.Controllers.v1.LogController">
             <summary>
             操作日志

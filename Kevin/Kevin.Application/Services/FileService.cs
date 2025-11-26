@@ -142,6 +142,7 @@ namespace kevin.Application.Services
                     f.Sign = sign;
                     f.CreateUserId = CurrentUser.UserId;
                     f.CreateTime = DateTime.Now;
+                    f.TenantId = CurrentUser.TenantId;
                     fileRp.Add(f);
                     await fileRp.SaveChangesAsync();
                     return f.Id;
@@ -208,6 +209,7 @@ namespace kevin.Application.Services
                     f.Sign = sign;
                     f.CreateUserId = CurrentUser.UserId;
                     f.CreateTime = DateTime.Now;
+                    f.TenantId = CurrentUser.TenantId;
                     fileRp.Add(f);
                     await fileRp.SaveChangesAsync();
                 }

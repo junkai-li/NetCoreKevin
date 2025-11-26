@@ -247,6 +247,7 @@ namespace Repository.Database
             modelBuilder.ApplyConfiguration(new TUserConfiguration());
             modelBuilder.ApplyConfiguration(new TTenantConfiguration());
             modelBuilder.ApplyConfiguration(new TUserBindRoleConfig());
+            modelBuilder.ApplyConfiguration(new TDictionaryConfig());
             ConsoleHelper.Print("初始化种子数据成功！");
             #endregion
 

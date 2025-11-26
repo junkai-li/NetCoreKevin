@@ -124,6 +124,56 @@
             标记
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.DictionaryDto.Id">
+            <summary>
+            主键标识ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.DictionaryDto.CreateUserId">
+            <summary>
+            创建人ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.DictionaryDto.UpdateUserId">
+            <summary>
+            编辑人ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.DictionaryDto.CreateTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.DictionaryDto.Key">
+            <summary>
+            键
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.DictionaryDto.Value">
+            <summary>
+            值
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.DictionaryDto.Type">
+            <summary>
+            类型
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.DictionaryDto.Remarks">
+            <summary>
+            备注信息
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.DictionaryDto.IsSystem">
+            <summary>
+            是否系统内置
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.System.DictionaryDto.Sort">
+            <summary>
+            排序
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.System.dtoTenant.Id">
             <summary>
             主键标识ID

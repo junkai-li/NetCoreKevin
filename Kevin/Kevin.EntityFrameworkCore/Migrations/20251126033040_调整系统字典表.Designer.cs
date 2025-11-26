@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.Database;
 
@@ -11,9 +12,11 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(KevinDbContext))]
-    partial class KevinDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251126033040_调整系统字典表")]
+    partial class 调整系统字典表
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1410,22 +1413,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.ToTable("t_dictionary", null, t =>
                         {
                             t.HasComment("t_dictionary");
-                        });
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("c23301b7-f210-464c-b76d-1f0a5a557548"),
-                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            CreateUserId = new Guid("eef5525d-5d64-46ad-8d64-79fb3ad9724f"),
-                            IsDelete = 0ul,
-                            IsSystem = 1ul,
-                            Key = "上传文件限制50MB",
-                            Sort = 0,
-                            TenantId = 1000,
-                            Type = "UploadFileLimit",
-                            Value = "50",
-                            xmin = 0u
                         });
                 });
 

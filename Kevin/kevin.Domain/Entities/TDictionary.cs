@@ -5,19 +5,14 @@
     /// 字典信息表
     /// </summary>
     [Table("TDictionary")]
-    public partial class TDictionary : CD
-    {
-
-
+    public partial class TDictionary : CUD_User
+    { 
         /// <summary>
         /// 键
         /// </summary>
         [StringLength(200)]
         [Description("键")]
-        public string? Key { get; set; }
-
-
-
+        public string? Key { get; set; } 
         /// <summary>
         /// 值
         /// </summary>
@@ -38,6 +33,11 @@
         [StringLength(500)]
         [Description("备注信息")]
         public string? Remarks { get; set; }
+
+        /// <summary>
+        /// 是否系统内置
+        /// </summary>
+        public bool IsSystem { get; set; }
 
         /// <summary>
         /// 排序
