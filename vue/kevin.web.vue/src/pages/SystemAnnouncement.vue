@@ -24,7 +24,7 @@
         </div>
         <div class="toolbar-right">
           <a-form :model="searchForm" layout="inline" @submit.prevent="handleSearch">
-            <a-form-item label="标题">
+            <a-form-item >
               <a-input v-model:value="searchForm.title" placeholder="请输入标题" style="width: 200px;" />
             </a-form-item>
             <a-form-item>
