@@ -30,6 +30,8 @@ using System;
 using System.Linq;
 using System.Text.Encodings.Web;
 using Web.Filters;
+using Kevin.SnowflakeId;
+using Kevin.SnowflakeId.Models;
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -81,9 +83,7 @@ namespace Web.Extension
             });
             ConfigHelper.Initialize(Configuration);
             //注册HttpContext
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            //注册雪花ID算法示例
-            services.AddSingleton(new Common.SnowflakeHelper(0, 0));
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); 
             #endregion
 
             services.AddControllers();
@@ -195,6 +195,15 @@ namespace Web.Extension
                 options.Port = settings.Port;
             });
 
+            #endregion
+
+            #region 雪花id
+            services.AddKevinSnowflakeId(options =>
+            {
+                var settings = Configuration.GetRequiredSection("SnowflakeIdSetting").Get<SnowflakeIdSetting>()!;
+                options.MachineId = settings.MachineId;
+                options.DataCenterId = settings.DataCenterId; 
+            });
             #endregion
 
             return services;

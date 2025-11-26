@@ -1,6 +1,7 @@
 ﻿using Common;
 using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Kevin;
+using Kevin.SnowflakeId.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -151,7 +152,7 @@ namespace WebApi.Controllers
         [HttpGet("GetSnowflakeId")]
         public long GetSnowflakeId()
         {
-            return HttpContext.RequestServices.GetService<Common.SnowflakeHelper>().GetId();
+            return HttpContext.RequestServices.GetService<ISnowflakeIdService>().GetNextId();
         }
 
         /// <summary>

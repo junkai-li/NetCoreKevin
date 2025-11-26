@@ -104,6 +104,7 @@ Kevin.AI 系列
     <ProjectReference Include="..\kevin.RabbitMQ\kevin.RabbitMQ.csproj" />
     <ProjectReference Include="..\Kevin.SignalR\Kevin.SignalR.csproj" />
     <ProjectReference Include="..\Kevin.SMS\Kevin.SMS.csproj" />
+    <ProjectReference Include="..\Kevin.SnowflakeId\Kevin.SnowflakeId.csproj" />
     <ProjectReference Include="..\Kevin.Versioning.Swagger\Kevin.Api.Versioning.csproj" />
   </ItemGroup>
 
