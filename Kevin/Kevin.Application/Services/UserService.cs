@@ -96,7 +96,7 @@ namespace kevin.Application
         /// </summary>
         /// <param name="userId">用户ID</param>
         /// <returns></returns>
-        public dtoUser GetUser(Guid userId)
+        public dtoUser GetUser(long userId)
         {
             if (userId == default)
             {
@@ -165,7 +165,7 @@ namespace kevin.Application
         /// <param name="code">微信临时code</param>
         /// <returns>openid,userid</returns>
         /// <remarks>传入租户ID和微信临时 code 获取 openid，如果 openid 在系统有中对应用户，则一并返回用户的ID值，否则用户ID值为空</remarks>
-        public string GetWeiXinMiniAppOpenId(Guid weixinkeyid, string code)
+        public string GetWeiXinMiniAppOpenId(long weixinkeyid, string code)
         {
             var weixinkey = weiXinKeyRp.Query().Where(t => t.Id == weixinkeyid).FirstOrDefault();
             if (weixinkey != default)
@@ -242,7 +242,7 @@ namespace kevin.Application
                 Id = t.Id,
                 Name = t.Name,
                 Phone = t.Phone,
-                HeadImgs = fileRp.Query().Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
+                HeadImgs = fileRp.Query().Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id.ToString()).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
                 {
                     Key = f.Id,
                     Value = f.Url
@@ -276,7 +276,7 @@ namespace kevin.Application
                 NickName = t.NickName,
                 Status = t.Status,
                 RecentLoginTime = t.RecentLoginTime,
-                HeadImgs = fileRp.Query().Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
+                HeadImgs = fileRp.Query().Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id.ToString()).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
                 {
                     Key = f.Id,
                     Value = f.Url
@@ -296,7 +296,7 @@ namespace kevin.Application
         /// </summary>
         /// <param name="Id">用户ID</param>
         /// <returns></returns> 
-        public dtoUser GetSysUserWhereId(Guid Id)
+        public dtoUser GetSysUserWhereId(long Id)
         {
             var user = userRp.Query().Where(t => t.Id == Id && t.IsDelete == false).Select(t => new dtoUser
             {
@@ -362,7 +362,7 @@ namespace kevin.Application
                 }
 
                 data = new TUser();
-                data.Id = user.Id == Guid.Empty ? Guid.NewGuid() : user.Id;
+                data.Id = user.Id == default ? SnowflakeIdService.GetNextId() : user.Id;
                 data.Name = user.Name;
                 data.Phone = user.Phone;
                 data.IsDelete = false;
@@ -392,7 +392,7 @@ namespace kevin.Application
                 foreach (var role in user.Roles)
                 {
                     var userBindRole = new TUserBindRole();
-                    userBindRole.Id = Guid.NewGuid();
+                    userBindRole.Id = SnowflakeIdService.GetNextId();
                     userBindRole.UserId = user.Id;
                     userBindRole.RoleId = role.Id;
                     userBindRole.IsDelete = false;
@@ -412,7 +412,7 @@ namespace kevin.Application
         /// </summary>
         /// <param name="Id">Id</param>
         /// <returns></returns> 
-        public bool DeleteUser(Guid Id)
+        public bool DeleteUser(long Id)
         {
             if (CurrentUser.UserId == Id)
             {
@@ -480,7 +480,7 @@ namespace kevin.Application
         /// </summary>
         /// <param name="Id">ID</param>
         /// <returns></returns> 
-        public dtoRole GetRoleWhereId(Guid Id)
+        public dtoRole GetRoleWhereId(long Id)
         {
             var user = roleRp.Query().Where(t => t.Id == Id && t.IsDelete == false).Select(t => new dtoRole
             {
@@ -513,7 +513,7 @@ namespace kevin.Application
                 else
                 {
                     data = new TRole();
-                    data.Id = role.Id == Guid.Empty ? Guid.NewGuid() : role.Id;
+                    data.Id = role.Id == default ? SnowflakeIdService.GetNextId() : role.Id;
                     data.Name = role.Name;
                     data.Remarks = role.Remarks;
                     data.IsDelete = false;
@@ -537,7 +537,7 @@ namespace kevin.Application
         /// </summary>
         /// <param name="Id">Id</param>
         /// <returns></returns> 
-        public bool DeleteUserRole(Guid Id)
+        public bool DeleteUserRole(long Id)
         {
             try
             {
@@ -597,7 +597,7 @@ namespace kevin.Application
         /// <param name="encryptedData">包括敏感数据在内的完整用户信息的加密数据</param>
         /// <param name="code">微信临时code</param>
         /// <param name="weixinkeyid">微信配置密钥ID</param> 
-        public string GetWeiXinMiniAppPhone(string iv, string encryptedData, string code, Guid weixinkeyid)
+        public string GetWeiXinMiniAppPhone(string iv, string encryptedData, string code, long weixinkeyid)
         {
             var weixinkey = weiXinKeyRp.Query().Where(t => t.Id == weixinkeyid).FirstOrDefault();
             if (weixinkey != default)
@@ -643,7 +643,7 @@ namespace kevin.Application
         /// <param name="guid"></param>
         /// <returns></returns>
         /// <exception cref="UserFriendlyException"></exception>
-        public Task<bool> UpdateRecentLoginTime(Guid guid)
+        public Task<bool> UpdateRecentLoginTime(long guid)
         {
             using var db = new KevinDbContext();
             var user = db.Set<TUser>().Where(t => t.Id == guid).FirstOrDefault();

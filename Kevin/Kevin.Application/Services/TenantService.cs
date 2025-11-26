@@ -30,7 +30,7 @@ namespace kevin.Application
             this.permissionService = permissionService;
         }
 
-        public async Task<bool> Inactive(Guid id, CancellationToken cancellationToken)
+        public async Task<bool> Inactive(long id, CancellationToken cancellationToken)
         {
             var tenant = tenantRp.Query().FirstOrDefault(t => t.Id == id);
             if (tenant != default)
@@ -45,7 +45,7 @@ namespace kevin.Application
                 throw new UserFriendlyException("租户不存在");
             }
         }
-        public async Task<bool> Active(Guid id, CancellationToken cancellationToken)
+        public async Task<bool> Active(long id, CancellationToken cancellationToken)
         {
             var tenant = tenantRp.Query().FirstOrDefault(t => t.Id == id);
             if (tenant != default)
@@ -63,12 +63,12 @@ namespace kevin.Application
 
         public async Task<bool> EidtAsync(dtoTenant tenant, CancellationToken cancellationToken)
         {
-            var tenantcode = tenantRp.Query().FirstOrDefault(t => t.Id != Guid.Parse(tenant.Id) && t.Code == tenant.Code);
+            var tenantcode = tenantRp.Query().FirstOrDefault(t => t.Id !=  tenant.Id.ToTryInt64() && t.Code == tenant.Code);
             if (tenantcode != default)
             {
                 throw new UserFriendlyException(tenantcode.Code + "租户Code已存在");
             }
-            var tenantdata = tenantRp.Query().FirstOrDefault(t => t.Id == Guid.Parse(tenant.Id));
+            var tenantdata = tenantRp.Query().FirstOrDefault(t => t.Id == tenant.Id.ToTryInt64());
             if (tenantdata != default)
             {
                 tenantdata.Name = tenant.Name;
@@ -97,7 +97,7 @@ namespace kevin.Application
             return Task.FromResult(true);
         }
 
-        public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<bool> DeleteAsync(long id, CancellationToken cancellationToken)
         {
             if (TTenantBaseData.TTenants.Where(t => t.Id == id).FirstOrDefault() != default)
             {
@@ -131,7 +131,7 @@ namespace kevin.Application
             var addroles = new List<TRole>();
             foreach (var role in TRoleBaseData.TRoles)
             {
-                role.Id = Guid.NewGuid();
+                role.Id = SnowflakeIdService.GetNextId();
                 role.Name = "管理员";
                 role.Remarks = "初始化角色";
                 role.CreateTime = DateTime.Now;
@@ -146,7 +146,7 @@ namespace kevin.Application
             var addusers = new List<TUser>();
             foreach (var user in TUserBaseData.TUsers)
             {
-                user.Id = Guid.NewGuid();
+                user.Id = SnowflakeIdService.GetNextId();
                 user.Name = "admin";
                 user.NickName = "admin";
                 user.Phone = "admin";
@@ -167,7 +167,7 @@ namespace kevin.Application
             foreach (var user in TUserBaseData.TUsers)
             {
                 var userbindrole = new TUserBindRole();
-                userbindrole.Id = Guid.NewGuid();
+                userbindrole.Id = SnowflakeIdService.GetNextId();
                 userbindrole.RoleId = addroles.FirstOrDefault().Id;
                 userbindrole.UserId = user.Id;
                 userbindrole.CreateTime = DateTime.Now;
@@ -182,7 +182,7 @@ namespace kevin.Application
             var addDicts = new List<TDictionary>();
             foreach (var item in TDictionaryBaseDatas.Data)
             {
-                item.Id = Guid.NewGuid();
+                item.Id = SnowflakeIdService.GetNextId();
                 item.CreateTime = DateTime.Now;
                 item.TenantId = tenant.Code;
                 item.CreateUserId = addusers.FirstOrDefault().Id;

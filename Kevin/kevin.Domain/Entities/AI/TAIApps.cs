@@ -99,7 +99,7 @@ namespace kevin.Domain.Entities.AI
         /// <summary>
         /// 提示词绑定
         /// </summary>
-        public Guid AIPromptID { get; set; }
+        public long AIPromptID { get; set; }
 
         public virtual TAIPrompts AIPrompt { get; set; }
     }

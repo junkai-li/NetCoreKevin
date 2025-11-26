@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Web.Global.User;
 using Kevin.Common.App;
+using Kevin.SnowflakeId.Service;
 namespace Repository.Database
 {
     public class KevinDbContext : DbContext
@@ -38,6 +39,10 @@ namespace Repository.Database
         public Int32 TenantId { get; set; }
 
         public ICurrentUser CurrentUser { get; set; }
+
+        public ISnowflakeIdService SnowflakeIdService { get; set; }
+
+
         /// <summary>
         /// 默认需要添加索引的字段
         /// </summary>
@@ -47,7 +52,7 @@ namespace Repository.Database
         public IHttpContextAccessor HttpContextAccessor { get; set; }
 
 
-        public KevinDbContext(DbContextOptions<KevinDbContext> _ = default, IMediator mediator = default, ICurrentUser service = default, IHttpContextAccessor httpContextAccessor = null) : base(GetDbContextOptions())
+        public KevinDbContext(DbContextOptions<KevinDbContext> _ = default, IMediator mediator = default, ICurrentUser service = default, ISnowflakeIdService snowflakeIdService = default, IHttpContextAccessor httpContextAccessor = null) : base(GetDbContextOptions())
         {
             if (mediator != default)
             {
@@ -62,6 +67,10 @@ namespace Repository.Database
             if (httpContextAccessor != default)
             {
                 this.HttpContextAccessor = httpContextAccessor;
+            }
+            if (snowflakeIdService != default)
+            {
+                this.SnowflakeIdService= snowflakeIdService;
             }
         }
 
@@ -480,14 +489,14 @@ namespace Repository.Database
                 item.Entity.GetType().GetProperty("RowVersion")?.SetValue(item.Entity, Guid.NewGuid());
                 #endregion
 
-                var type = item.Entity.GetType(); 
-                var oldEntity = item.OriginalValues.ToObject(); 
-                var newEntity = item.CurrentValues.ToObject(); 
-                var entityId = item.CurrentValues.GetValue<Guid>("Id");   
-                object[] parameters = { oldEntity, newEntity }; 
-                var result = new KevinDbContext().GetType().GetMethod("ComparisonEntity").MakeGenericMethod(type).Invoke(new KevinDbContext(), parameters); 
+                var type = item.Entity.GetType();
+                var oldEntity = item.OriginalValues.ToObject();
+                var newEntity = item.CurrentValues.ToObject();
+                var entityId = item.CurrentValues.GetValue<string>("Id");
+                object[] parameters = { oldEntity, newEntity };
+                var result = new KevinDbContext().GetType().GetMethod("ComparisonEntity").MakeGenericMethod(type).Invoke(new KevinDbContext(), parameters);
                 var osLog = new TOSLog();
-                osLog.Id = Guid.NewGuid();
+                osLog.Id = SnowflakeIdService.GetNextId();
                 osLog.CreateTime = DateTime.Now;
                 osLog.Table = type.Name;
                 osLog.TableId = entityId;

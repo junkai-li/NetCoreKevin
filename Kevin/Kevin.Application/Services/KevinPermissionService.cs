@@ -22,10 +22,10 @@ namespace kevin.Application
                 return db.Set<TPermission>().Where(x => x.IsDelete == false).Select(x => (x.Id ?? "")).ToList(); 
             }
         }
-        public List<Guid> GetUserRoleIds(string userId)
+        public List<long> GetUserRoleIds(string userId)
         {
             using var db = new KevinDbContext();
-            var userBindRoles = db.Set<TUserBindRole>().Where(x => x.IsDelete == false && x.UserId == Guid.Parse(userId)).ToList();
+            var userBindRoles = db.Set<TUserBindRole>().Where(x => x.IsDelete == false && x.UserId ==userId.ToTryInt64()).ToList();
             if (userBindRoles != default && userBindRoles.Count > 0)
             {
                 return userBindRoles.Select(x => x.RoleId).ToList();
@@ -34,10 +34,10 @@ namespace kevin.Application
             {
                 // Handle the case where the user is not found or is deleted.
                 // You might want to return an empty list or some other appropriate response.
-                return new List<Guid>();
+                return new List<long>();
             }
         }
-        public List<string?> GetRolePermissions(List<Guid> roleIds)
+        public List<string?> GetRolePermissions(List<long> roleIds)
         {
             using (var db = new KevinDbContext())
             {

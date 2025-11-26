@@ -14,13 +14,13 @@ namespace kevin.Domain.Share.Dtos.System
     /// </summary>
     public class FileDto
     {
-        public Guid Id { get; set; }
+        public long Id { get; set; }
 
         /// <summary>
         /// 创建人ID
         /// </summary>
         [Description("创建人ID")]
-        public Guid CreateUserId { get; set; } 
+        public long CreateUserId { get; set; } 
         public virtual string CreateUser { get; set; }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace kevin.Domain.Share.Dtos.System
         /// 外链表ID
         /// </summary>  
         [Description("外链表ID")]
-        public Guid TableId { get; set; }
+        public string TableId { get; set; }
 
 
         /// <summary>

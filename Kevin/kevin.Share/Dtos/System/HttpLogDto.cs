@@ -19,7 +19,7 @@ namespace kevin.Domain.Share.Dtos.System
         /// 创建人ID
         /// </summary>
         [Description("创建人ID")]
-        public Guid CreateUserId { get; set; } 
+        public long CreateUserId { get; set; } 
 
         /// <summary>
         /// 登录人

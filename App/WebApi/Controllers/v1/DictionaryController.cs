@@ -70,7 +70,7 @@ namespace App.WebApi.Controllers.v1
         [ActionDescription("删除")]
         [HttpLog("字典管理", "删除")]
         [HttpDelete("Delete")]
-        public async Task<bool> Delete([FromQuery][Required] Guid Id)
+        public async Task<bool> Delete([FromQuery][Required] long Id)
         {
             var result = await _dictionaryService.Delete(Id);
             return result;

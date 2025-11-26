@@ -16,7 +16,7 @@ namespace kevin.Domain.Bases
         /// 主键标识ID
         /// </summary>
         [Description("主键标识ID")]
-        public Guid Id { get; set; }
+        public long Id { get; set; }
 
 
         /// <summary>

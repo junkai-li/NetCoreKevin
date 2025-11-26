@@ -22,7 +22,7 @@
         /// 外链记录ID
         /// </summary>
         [Description("外链记录ID")]
-        public Guid TableId { get; set; }
+        public string TableId { get; set; }
 
 
 

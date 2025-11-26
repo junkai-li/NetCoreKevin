@@ -42,7 +42,7 @@
             系统基础方法控制器
             </summary>
         </member>
-        <member name="M:WebApi.Controllers.BaseController.GetWeiXinMiniAppOpenId(System.Guid,System.String)">
+        <member name="M:WebApi.Controllers.BaseController.GetWeiXinMiniAppOpenId(System.Int64,System.String)">
             <summary>
             获取微信小程序OpenId
             </summary>
@@ -51,7 +51,7 @@
             <returns>openid,userid</returns>
             <remarks>传入租户ID和微信临时 code 获取 openid，如果 openid 在系统有中对应用户，则一并返回用户的ID值，否则用户ID值为空</remarks>
         </member>
-        <member name="M:WebApi.Controllers.BaseController.GetWeiXinMiniAppPhone(System.String,System.String,System.String,System.Guid)">
+        <member name="M:WebApi.Controllers.BaseController.GetWeiXinMiniAppPhone(System.String,System.String,System.String,System.Int64)">
             <summary>
             获取微信小程序手机号
             </summary>
@@ -106,7 +106,7 @@
             文件上传控制器
             </summary>
         </member>
-        <member name="M:WebApi.Controllers.FileController.RemoteUploadFile(System.String,System.Guid,System.String,kevin.Share.Dtos.dtoKeyValue,System.Threading.CancellationToken)">
+        <member name="M:WebApi.Controllers.FileController.RemoteUploadFile(System.String,System.String,System.String,kevin.Share.Dtos.dtoKeyValue,System.Threading.CancellationToken)">
             <summary>
             远程单文件上传接口
             </summary>
@@ -117,7 +117,7 @@
             <param name="cancellationToken">cancellationToken</param>
             <returns>文件ID</returns>
         </member>
-        <member name="M:WebApi.Controllers.FileController.UploadFile(System.String,System.Guid,System.String,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
+        <member name="M:WebApi.Controllers.FileController.UploadFile(System.String,System.String,System.String,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
             <summary>
             单文件上传接口
             </summary>
@@ -128,7 +128,7 @@
             <param name="cancellationToken">cancellationToken</param>
             <returns>文件ID</returns>
         </member>
-        <member name="M:WebApi.Controllers.FileController.BatchUploadFile(System.String,System.Guid,System.String,System.Threading.CancellationToken)">
+        <member name="M:WebApi.Controllers.FileController.BatchUploadFile(System.String,System.String,System.String,System.Threading.CancellationToken)">
             <summary>
             多文件上传接口
             </summary>
@@ -139,7 +139,7 @@
             <returns></returns>
             <remarks>swagger 暂不支持多文件接口测试，请使用 postman</remarks>
         </member>
-        <member name="M:WebApi.Controllers.FileController.GetFile(System.Guid,System.Threading.CancellationToken)">
+        <member name="M:WebApi.Controllers.FileController.GetFile(System.Int64,System.Threading.CancellationToken)">
             <summary>
             通过文件ID获取文件
             </summary>
@@ -147,7 +147,7 @@
             <param name="cancellationToken">cancellationToken</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.FileController.GetImage(System.Guid,System.Int32,System.Int32,System.Threading.CancellationToken)">
+        <member name="M:WebApi.Controllers.FileController.GetImage(System.Int64,System.Int32,System.Int32,System.Threading.CancellationToken)">
             <summary>
             通过图片文件ID获取图片
             </summary>
@@ -158,7 +158,7 @@
             <returns></returns>
             <remarks>不指定宽高参数,返回原图</remarks>
         </member>
-        <member name="M:WebApi.Controllers.FileController.GetFilePath(System.Guid,System.Threading.CancellationToken)">
+        <member name="M:WebApi.Controllers.FileController.GetFilePath(System.Int64,System.Threading.CancellationToken)">
             <summary>
             通过文件ID获取文件静态访问路径
             </summary>
@@ -166,7 +166,7 @@
             <param name="cancellationToken">cancellationToken</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.FileController.DeleteFile(System.Guid,System.Threading.CancellationToken)">
+        <member name="M:WebApi.Controllers.FileController.DeleteFile(System.Int64,System.Threading.CancellationToken)">
             <summary>
             通过文件ID删除文件方法
             </summary>
@@ -179,7 +179,7 @@
             标记相关控制器
             </summary>
         </member>
-        <member name="M:WebApi.Controllers.v1.SignController.GetSignCount(System.String,System.Guid,System.String)">
+        <member name="M:WebApi.Controllers.v1.SignController.GetSignCount(System.String,System.String,System.String)">
             <summary>
             获取标记总数
             </summary>
@@ -207,7 +207,7 @@
             用户数据操作控制器
             </summary>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.GetUser(System.Guid)">
+        <member name="M:WebApi.Controllers.v1.UserController.GetUser(System.Int64)">
             <summary>
             通过 UserId 获取用户信息 
             </summary>
@@ -247,7 +247,7 @@
             </summary> 
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.GetSysUserWhereId(System.Guid)">
+        <member name="M:WebApi.Controllers.v1.UserController.GetSysUserWhereId(System.Int64)">
             <summary>
             后台管理通过 UserId 获取用户信息 
             </summary>
@@ -269,7 +269,7 @@
             <param name="cancellationToken">cancellationToken</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.DeleteUser(System.Guid)">
+        <member name="M:WebApi.Controllers.v1.UserController.DeleteUser(System.Int64)">
             <summary>
             删除用户信息 
             </summary>
@@ -283,7 +283,7 @@
             <param name="dtoPage"></param> 
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.GetRoleWhereId(System.Guid)">
+        <member name="M:WebApi.Controllers.v1.UserController.GetRoleWhereId(System.Int64)">
             <summary>
             通过id获取角色信息 
             </summary>
@@ -297,7 +297,7 @@
             <param name="role">user</param>
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.DeleteUserRole(System.Guid)">
+        <member name="M:WebApi.Controllers.v1.UserController.DeleteUserRole(System.Int64)">
             <summary>
             删除用户角色信息 
             </summary>
@@ -386,7 +386,7 @@
             </summary> 
             <returns></returns>
         </member>
-        <member name="M:AdminApi.Controllers.PermissionController.GetAllAreaPermissions(System.Guid)">
+        <member name="M:AdminApi.Controllers.PermissionController.GetAllAreaPermissions(System.Int64)">
             <summary>
             获取角色对应权限
             </summary> 
@@ -408,14 +408,14 @@
             租户管理
             </summary>
         </member>
-        <member name="M:App.WebApi.Controllers.TenantController.Inactive(kevin.Domain.Share.Dtos.dtoId{System.String},System.Threading.CancellationToken)">
+        <member name="M:App.WebApi.Controllers.TenantController.Inactive(kevin.Domain.Share.Dtos.dtoId{System.Int64},System.Threading.CancellationToken)">
             <summary>
             设置无效租户
             </summary>
             <param data="keyValue">id租户</param>
             <returns></returns>
         </member>
-        <member name="M:App.WebApi.Controllers.TenantController.Active(kevin.Domain.Share.Dtos.dtoId{System.String},System.Threading.CancellationToken)">
+        <member name="M:App.WebApi.Controllers.TenantController.Active(kevin.Domain.Share.Dtos.dtoId{System.Int64},System.Threading.CancellationToken)">
             <summary>
             设置有效租户
             </summary>
@@ -436,7 +436,7 @@
             <param data="dtoTenant">租户信息</param>
             <returns></returns>
         </member>
-        <member name="M:App.WebApi.Controllers.TenantController.DeleteAsync(kevin.Domain.Share.Dtos.dtoId{System.String},System.Threading.CancellationToken)">
+        <member name="M:App.WebApi.Controllers.TenantController.DeleteAsync(kevin.Domain.Share.Dtos.dtoId{System.Int64},System.Threading.CancellationToken)">
             <summary>
             删除租户
             </summary>

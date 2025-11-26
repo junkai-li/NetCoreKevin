@@ -16,8 +16,7 @@ namespace kevin.Domain.Entities
     public partial class TTenant: CUD
     {
         public TTenant(Int32 code, string name,DateTime createTime)
-        { 
-            this.Id = Guid.NewGuid();
+        {  
             this.Code= code;
             this.Name= name;
             this.Status = TenantStatusEnums.Active;

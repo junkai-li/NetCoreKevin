@@ -39,12 +39,12 @@ namespace kevin.Domain.Entities.Organizational
         /// <summary>
         /// 上级部门ID
         /// </summary>
-        public Guid ParentId { get; set; }
+        public long ParentId { get; set; }
 
         /// <summary>
         /// 部门负责人ID
         /// </summary>
-        public Guid ManagerUserId { get; set; }
+        public long ManagerUserId { get; set; }
 
         /// <summary>
         /// 排序

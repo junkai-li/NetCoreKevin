@@ -15,7 +15,7 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 文件ID
         /// </summary>
-        public Guid FileId { get; set; }
+        public long FileId { get; set; }
 
 
 
@@ -62,7 +62,7 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 创建人ID
         /// </summary>
-        public Guid CreateUserId { get; set; }
+        public long CreateUserId { get; set; }
 
 
 

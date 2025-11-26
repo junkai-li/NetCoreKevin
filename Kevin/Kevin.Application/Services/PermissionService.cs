@@ -36,7 +36,7 @@ namespace kevin.Application
         /// <returns></returns>
         public bool Reload(int TenantId = default)
         {
-            var userId = default(Guid);
+            var userId = default(long?);
             if (TenantId == default)
             {
                 TenantId = CurrentUser.TenantId;
@@ -270,7 +270,7 @@ namespace kevin.Application
         /// 获取角色对应权限
         /// </summary> 
         /// <returns></returns>
-        public PermissionEditDto GetAllAreaPermissions(Guid roleId)
+        public PermissionEditDto GetAllAreaPermissions(long roleId)
         {
             var data = permissionRp.Query().Where(x => x.IsDelete == false).ToList();
             var list = new PermissionEditDto();
@@ -344,8 +344,8 @@ namespace kevin.Application
             {
                 var roleper = new TRolePermission();
                 roleper.PermissionId = item;
-                roleper.RoleId = Guid.Parse(dto.roleId);
-                roleper.Id = Guid.NewGuid();
+                roleper.RoleId =  dto.roleId.ToTryInt64();
+                roleper.Id = SnowflakeIdService.GetNextId();
                 roleper.TenantId = CurrentUser.TenantId;
                 roleper.CreateTime = DateTime.Now;
                 roleper.CreateUserId = CurrentUser.UserId;

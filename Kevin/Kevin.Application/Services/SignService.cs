@@ -21,7 +21,7 @@ namespace kevin.Application
         /// <param name="tableId"></param>
         /// <param name="sign"></param>
         /// <returns></returns> 
-        public int GetSignCount(string table, Guid tableId, string sign)
+        public int GetSignCount(string table, string tableId, string sign)
         {
 
             var count = signRp.Query().Where(t => t.IsDelete == false && t.Table == table && t.TableId == tableId && t.Sign == sign).Count();
@@ -38,7 +38,7 @@ namespace kevin.Application
         public bool AddSign(dtoSign addSign)
         {
             var like = new TSign();
-            like.Id = Guid.NewGuid();
+            like.Id = SnowflakeIdService.GetNextId();
             like.IsDelete = false;
             like.CreateTime = DateTime.Now;
             like.CreateUserId = CurrentUser.UserId;

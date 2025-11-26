@@ -3,6 +3,7 @@ using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Kevin;
 using Kevin.Common.App;
 using Kevin.EntityFrameworkCore._.Data;
+using Kevin.SnowflakeId.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
@@ -16,6 +17,7 @@ namespace kevin.RepositorieRps.Repositories
 {
     public class HttpLogRp : Repository<THttpLog, Guid>, IHttpLogRp
     {
+
         public HttpLogRp(IServiceProvider serviceProvider) : base(serviceProvider)
         {
 
@@ -29,7 +31,7 @@ namespace kevin.RepositorieRps.Repositories
         public Task<bool> Add(string operateType, string operateRemark)
         {
             var log = new THttpLog();
-            log.Id = Guid.NewGuid();
+            log.Id = SnowflakeIdService.GetNextId();
             log.CreateTime = DateTime.Now;
             log.IsDelete = false;
             log.CreateUserId = log.Id;
@@ -37,7 +39,7 @@ namespace kevin.RepositorieRps.Repositories
             log.TenantId = CurrentUser.TenantId;
             if (CurrentUser != default)
             {
-                log.CreateUserId = Guid.Parse(CurrentUser.UserId.ToString() ?? log.Id.ToString());
+                log.CreateUserId = CurrentUser.UserId.ToTryInt64() > 0 ? CurrentUser.UserId.ToTryInt64() : log.Id.ToTryInt64();
                 log.UserName = CurrentUser.UserName ?? "未知";
             }
             log.OperateRemark = operateRemark;

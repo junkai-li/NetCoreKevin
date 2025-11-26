@@ -4,136 +4,16 @@
         <name>Kevin.EntityFrameworkCore</name>
     </assembly>
     <members>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations._20251124初始化数据库">
+        <member name="T:Kevin.EntityFrameworkCore.Migrations.初始化数据库">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations._20251124初始化数据库.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化数据库.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations._20251124初始化数据库.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化数据库.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations._20251124初始化数据库.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.AI表结构初始化">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.AI表结构初始化.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.AI表结构初始化.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.AI表结构初始化.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.AI功能矢量提示词和多模型聊天记录">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.AI功能矢量提示词和多模型聊天记录.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.AI功能矢量提示词和多模型聊天记录.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.AI功能矢量提示词和多模型聊天记录.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.新增消息模块">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增消息模块.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增消息模块.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增消息模块.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.新增消息模块1">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增消息模块1.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增消息模块1.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增消息模块1.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.消息已读表">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.消息已读表.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.消息已读表.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.消息已读表.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.删除文件切割上传逻辑">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.删除文件切割上传逻辑.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.删除文件切割上传逻辑.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.删除文件切割上传逻辑.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.调整系统字典表">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.调整系统字典表.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.调整系统字典表.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.调整系统字典表.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.初始化种子数据系统字典">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化种子数据系统字典.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化种子数据系统字典.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化种子数据系统字典.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.初始化组织架构表">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化组织架构表.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化组织架构表.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化组织架构表.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.添加描述">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.添加描述.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.添加描述.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.添加描述.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化数据库.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
         <member name="T:Kevin.EntityFrameworkCore._.Data.Repository`2">

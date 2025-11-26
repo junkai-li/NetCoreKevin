@@ -17,7 +17,7 @@ namespace kevin.Domain.Entities.AI
         /// <summary>
         /// 聊天用户di
         /// </summary>
-        public Guid UserId { get; set; }
+        public long UserId { get; set; }
 
         [ForeignKey("UserId")]
         public virtual TUser? User { get; set; }
@@ -25,7 +25,7 @@ namespace kevin.Domain.Entities.AI
         /// <summary>
         /// 应用ID
         /// </summary>
-        public Guid AppId { get; set; }
+        public long AppId { get; set; }
 
         [ForeignKey("UserId")]
         public virtual TAIApps? App { get; set; }

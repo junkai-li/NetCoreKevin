@@ -17,7 +17,7 @@ namespace kevin.Domain.Entities
         /// 创建人ID
         /// </summary>
         [Description("创建人ID")]
-        public Guid CreateUserId { get; set; }
+        public long CreateUserId { get; set; }
 
 
         /// <summary>

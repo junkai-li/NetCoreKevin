@@ -40,7 +40,7 @@ namespace kevin.Domain.Kevin
         /// 创建人ID
         /// </summary>
         [Description("创建人ID")]
-        public Guid? CreateUserId { get; set; }
+        public long? CreateUserId { get; set; }
         public TUser? CreateUser { get; set; }
 
 
@@ -48,7 +48,7 @@ namespace kevin.Domain.Kevin
         /// 编辑人ID
         /// </summary>
         [Description("编辑人ID")]
-        public Guid? UpdateUserId { get; set; }
+        public long? UpdateUserId { get; set; }
         public TUser? UpdateUser { get; set; }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace kevin.Domain.Kevin
         /// 删除人ID
         /// </summary>
         [Description("删除人ID")]
-        public Guid? DeleteUserId { get; set; }
+        public long? DeleteUserId { get; set; }
         public TUser? DeleteUser { get; set; }
 
         /// <summary>

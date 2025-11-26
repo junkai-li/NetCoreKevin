@@ -16,7 +16,7 @@ namespace kevin.Domain.Bases
         /// 创建人ID
         /// </summary>
         [Description("创建人ID")]
-        public Guid CreateUserId { get; set; }
+        public long CreateUserId { get; set; }
 
         [ForeignKey("CreateUserId")]
         public virtual TUser? CreateUser { get; set; }
@@ -26,7 +26,7 @@ namespace kevin.Domain.Bases
         /// 编辑人ID
         /// </summary>
         [Description("编辑人ID")]
-        public Guid? UpdateUserId { get; set; }
+        public long? UpdateUserId { get; set; }
 
         [ForeignKey("UpdateUserId")]
         public virtual TUser? UpdateUser { get; set; }
@@ -36,7 +36,7 @@ namespace kevin.Domain.Bases
         /// 删除人ID
         /// </summary>
         [Description("删除人ID")]
-        public Guid? DeleteUserId { get; set; }
+        public long? DeleteUserId { get; set; }
         public virtual TUser? DeleteUser { get; set; }
 
 

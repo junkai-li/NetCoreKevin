@@ -1,6 +1,7 @@
 ﻿using kevin.Domain.Bases;
 using kevin.Domain.Interface;
 using Kevin.Common.App;
+using Kevin.SnowflakeId.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +31,7 @@ namespace Kevin.EntityFrameworkCore._.Data
                 DbSet = Context.Set<T>();
                 ServiceProvider = serviceProvider;
                 CurrentUser = serviceProvider.GetService<ICurrentUser>();
+                SnowflakeIdService = serviceProvider.GetService<ISnowflakeIdService>();
 
             }
             catch (Exception ex)
@@ -47,6 +49,8 @@ namespace Kevin.EntityFrameworkCore._.Data
         protected IServiceProvider ServiceProvider;
 
         protected ICurrentUser CurrentUser;
+
+        protected ISnowflakeIdService SnowflakeIdService;
 
         public void Add(T entity)
         {

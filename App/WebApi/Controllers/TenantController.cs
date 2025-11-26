@@ -33,9 +33,9 @@ namespace App.WebApi.Controllers
         [HttpPost("Inactive")]
         [ActionDescription("设置无效")]
         [HttpLog("租户管理", "设置无效")]
-        public async Task<bool> Inactive([FromBody] dtoId<string> data, CancellationToken cancellationToken)
+        public async Task<bool> Inactive([FromBody] dtoId<long> data, CancellationToken cancellationToken)
         {
-            return await _ITenantService.Inactive(Guid.Parse(data.Id), cancellationToken);
+            return await _ITenantService.Inactive(data.Id, cancellationToken);
         }
         /// <summary>
         /// 设置有效租户
@@ -45,9 +45,9 @@ namespace App.WebApi.Controllers
         [HttpPost("Active")]
         [ActionDescription("设置有效租户")]
         [HttpLog("租户管理", "设置有效租户")]
-        public async Task<bool> Active([FromBody] dtoId<string> data, CancellationToken cancellationToken)
+        public async Task<bool> Active([FromBody] dtoId<long> data, CancellationToken cancellationToken)
         {
-            return await _ITenantService.Active(Guid.Parse(data.Id), cancellationToken);
+            return await _ITenantService.Active(data.Id, cancellationToken);
         }
         /// <summary>
         /// 新增租户
@@ -81,9 +81,9 @@ namespace App.WebApi.Controllers
         [HttpDelete("DeleteAsync")]
         [ActionDescription("删除租户")]
         [HttpLog("租户管理", "删除租户")]
-        public async Task<bool> DeleteAsync([FromBody] dtoId<string> data, CancellationToken cancellationToken)
+        public async Task<bool> DeleteAsync([FromBody] dtoId<long> data, CancellationToken cancellationToken)
         {
-            return await _ITenantService.DeleteAsync(Guid.Parse(data.Id), cancellationToken);
+            return await _ITenantService.DeleteAsync(data.Id, cancellationToken);
         }
     }
 }

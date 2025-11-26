@@ -38,7 +38,7 @@ namespace kevin.Domain.Entities.Organizational
         /// <summary>
         /// 上级岗位ID
         /// </summary>
-        public Guid ParentId { get; set; }
+        public long ParentId { get; set; }
 
 
         /// <summary>

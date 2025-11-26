@@ -25,7 +25,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// 已读
         /// </summary> 
         /// <returns></returns>
-        Task<bool> Read(Guid id);
+        Task<bool> Read(long id);
 
         /// <summary>
         /// 新增编辑
@@ -37,7 +37,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// 删除标记
         /// </summary> 
         /// <returns></returns>  
-        Task<bool> Delete(Guid id);
+        Task<bool> Delete(long id);
 
         /// <summary>
         /// 获取我的未读消息数量

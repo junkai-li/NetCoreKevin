@@ -88,18 +88,18 @@ namespace kevin.Application.Services
                 var readData = messageReadRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId
                                               && t.CreateUserId == CurrentUser.UserId && ids.Contains(t.MessageId)).ToList();
 
-                var files = await fileService.GetFileDtos(ids, "t_message");
+                var files = await fileService.GetFileDtos(ids.Select(t => t.ToString()).ToList(), "t_message");
                 dataPage.data.ForEach(t =>
                 {
                     t.IsRead = readData.Any(x => x.MessageId == t.Id);
-                    t.Files = files.Where(f => f.TableId == t.Id).ToList();
+                    t.Files = files.Where(f => f.TableId == t.Id.ToString()).ToList();
                     t.CreateUser = dbdata.FirstOrDefault(d => d.Id == t.Id)?.CreateUser?.Name;
                 });
             }
             return dataPage;
         }
 
-        public async Task<bool> Read(Guid id)
+        public async Task<bool> Read(long id)
         {
             var addread = new TMessageRead();
             addread.MessageId = id;
@@ -126,7 +126,7 @@ namespace kevin.Application.Services
             if (isAdd)
             {
                 var add = message.MapTo<TMessage>();
-                add.Id = message.Id == default ? Guid.NewGuid() : message.Id;
+                add.Id = message.Id == default ? SnowflakeIdService.GetNextId() : message.Id;
                 add.IsDelete = false;
                 add.CreateTime = DateTime.Now;
                 add.CreateUserId = CurrentUser.UserId;
@@ -161,7 +161,7 @@ namespace kevin.Application.Services
             return true;
         }
 
-        public async Task<bool> Delete(Guid id)
+        public async Task<bool> Delete(long id)
         {
             var like = await messageRp.Query().Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
 

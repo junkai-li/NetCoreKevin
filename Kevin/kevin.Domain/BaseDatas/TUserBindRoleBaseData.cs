@@ -18,7 +18,7 @@ namespace kevin.Domain.BaseDatas
             {
                 TUserBindRoles.Add(new TUserBindRole
                 {
-                    Id= Guid.Parse("eef5525d-5d64-46ad-8d64-72fb3ad9728f"),
+                    Id= 4514140314251221771,
                     UserId = item.Id,
                     RoleId = TRoleBaseData.Id,
                     TenantId = TenantHelper.GetSettingsTenantId().ToTryInt32(),

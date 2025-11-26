@@ -12,7 +12,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// <param name="tableId"></param>
         /// <param name="sign"></param>
         /// <returns></returns> 
-        int GetSignCount(string table, Guid tableId, string sign);
+        int GetSignCount(string table, string tableId, string sign);
 
         /// <summary>
         /// 新增标记

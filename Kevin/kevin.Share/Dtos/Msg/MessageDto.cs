@@ -13,7 +13,7 @@ namespace kevin.Domain.Share.Dtos.Msg
 {
     public class MessageDto
     {
-        public Guid Id { get; set; }
+        public long Id { get; set; }
 
         /// <summary>
         /// 创建时间
@@ -25,14 +25,14 @@ namespace kevin.Domain.Share.Dtos.Msg
         /// 创建人ID
         /// </summary>
         [Description("创建人ID")]
-        public Guid CreateUserId { get; set; }
+        public long CreateUserId { get; set; }
         public string? CreateUser { get; set; }
 
         /// <summary>
         /// 编辑人ID
         /// </summary>
         [Description("编辑人ID")]
-        public Guid? UpdateUserId { get; set; }
+        public long? UpdateUserId { get; set; }
         public string? UpdateUser { get; set; }
 
         /// <summary>

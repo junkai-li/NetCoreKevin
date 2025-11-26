@@ -15,13 +15,13 @@ namespace kevin.Domain.Entities
         /// 用户ID
         /// </summary>
         [Description("用户ID")]
-        public Guid UserId { get; set; }
+        public long UserId { get; set; }
         public virtual TUser? User { get; set; } 
         /// <summary>
         /// 角色信息
         /// </summary>
         [Description("角色信息")]
-        public Guid RoleId { get; set; }
+        public long RoleId { get; set; }
         public virtual TRole? Role { get; set; }
 
     }

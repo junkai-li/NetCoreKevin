@@ -37,7 +37,7 @@ namespace WebApi.Controllers.v1
         [HttpGet("GetSignCount")]
         [ActionDescription("获取标记总数")]
         [HttpLog("标记", "获取标记总数")]
-        public int GetSignCount(string table, Guid tableId, string sign)
+        public int GetSignCount(string table, string tableId, string sign)
         {
             return _signService.GetSignCount(table, tableId, sign);
         }

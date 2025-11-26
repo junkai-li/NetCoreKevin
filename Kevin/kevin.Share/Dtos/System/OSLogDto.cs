@@ -14,7 +14,7 @@ namespace kevin.Domain.Share.Dtos.System
         /// 主键标识ID
         /// </summary>
         [Description("主键标识ID")]
-        public Guid Id { get; set; }
+        public long Id { get; set; }
 
         /// <summary>
         /// 创建时间
@@ -35,7 +35,7 @@ namespace kevin.Domain.Share.Dtos.System
         /// 外链表ID
         /// </summary>
         [Description("外链表ID")]
-        public Guid TableId { get; set; }
+        public string TableId { get; set; }
 
 
 
@@ -60,7 +60,7 @@ namespace kevin.Domain.Share.Dtos.System
         /// 操作人信息
         /// </summary>
         [Description("操作人信息")]
-        public Guid? ActionUserId { get; set; } 
+        public long? ActionUserId { get; set; } 
         public string? ActionUserName { get; set; } 
 
 

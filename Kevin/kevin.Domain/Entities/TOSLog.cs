@@ -20,7 +20,7 @@
         /// 外链表ID
         /// </summary>
         [Description("外链表ID")]
-        public Guid TableId { get; set; }
+        public string TableId { get; set; }
 
 
 
@@ -45,7 +45,7 @@
         /// 操作人信息
         /// </summary>
         [Description("操作人信息")]
-        public Guid? ActionUserId { get; set; }
+        public long? ActionUserId { get; set; }
         public virtual TUser? ActionUser { get; set; }
 
 

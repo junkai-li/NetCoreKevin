@@ -10,13 +10,13 @@ namespace kevin.Domain.Interfaces.IServices
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task<bool> Inactive(Guid id, CancellationToken cancellationToken);
+        Task<bool> Inactive(long id, CancellationToken cancellationToken);
         /// <summary>
         /// 设置有效租户
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task<bool> Active(Guid id, CancellationToken cancellationToken);
+        Task<bool> Active(long id, CancellationToken cancellationToken);
         /// <summary>
         /// 编辑租户
         /// </summary>
@@ -34,7 +34,7 @@ namespace kevin.Domain.Interfaces.IServices
        /// </summary>
        /// <param name="id"></param>
        /// <returns></returns>
-        Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken);
+        Task<bool> DeleteAsync(long id, CancellationToken cancellationToken);
 
         /// <summary>
         /// 初始化租户数据

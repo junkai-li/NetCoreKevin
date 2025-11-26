@@ -51,7 +51,7 @@ namespace kevin.Domain.Kevin
         /// 外链表ID
         /// </summary>  
         [Description("外链表ID")]
-        public Guid TableId { get; set; }
+        public string TableId { get; set; }
 
 
         /// <summary>

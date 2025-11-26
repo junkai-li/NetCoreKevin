@@ -95,7 +95,7 @@ namespace kevin.Application.Services
         public async Task<string> GetTokenByWeiXinMiniAppCode([FromBody] dtoKeyValue keyValue)
         {
             using KevinDbContext db = new KevinDbContext();
-            var weixinkeyid = Guid.Parse(keyValue.Key.ToString());
+            var weixinkeyid = keyValue.Key.ToTryInt64();
             string code = keyValue.Value.ToString();
 
             var weixinkey = db.Set<TWeiXinKey>().Where(t => t.Id == weixinkeyid).FirstOrDefault();
@@ -128,7 +128,7 @@ namespace kevin.Application.Services
                                 //注册一个只有基本信息的账户出来
                                 user = new TUser();
 
-                                user.Id = Guid.NewGuid();
+                                user.Id = SnowflakeIdService.GetNextId();
                                 user.IsDelete = false;
                                 user.CreateTime = DateTime.Now;
                                 user.Name = DateTime.Now.ToString() + "微信小程序新用户";
@@ -140,7 +140,7 @@ namespace kevin.Application.Services
                                 db.SaveChanges();
 
                                 TUserBindWeixin userBind = new();
-                                userBind.Id = Guid.NewGuid();
+                                userBind.Id = SnowflakeIdService.GetNextId();
                                 userBind.IsDelete = false;
                                 userBind.CreateTime = DateTime.Now;
                                 userBind.UserId = user.Id;
@@ -207,12 +207,12 @@ namespace kevin.Application.Services
 
                     user = new TUser();
 
-                    user.Id = Guid.NewGuid();
+                    user.Id = SnowflakeIdService.GetNextId();
                     user.IsDelete = false;
                     user.CreateTime = DateTime.Now;
                     user.Name = DateTime.Now.ToString() + "手机短信新用户";
                     user.NickName = user.Name;
-                    user.IsSystem= false;
+                    user.IsSystem = false;
                     user.ChangePassword(phone);
 
                     db.Set<TUser>().Add(user);
@@ -285,7 +285,7 @@ namespace kevin.Application.Services
         public async Task<string> GetTokenByWeiXinAppCode(dtoKeyValue keyValue)
         {
             using KevinDbContext db = new KevinDbContext();
-            var weixinkeyid = Guid.Parse(keyValue.Key.ToString());
+            var weixinkeyid =  keyValue.Key.ToTryInt64();
             string code = keyValue.Value.ToString();
             var wxInfo = db.Set<TWeiXinKey>().Where(t => t.Id == weixinkeyid).FirstOrDefault();
             var weiXinHelper = new Web.Libraries.WeiXin.App.WeiXinHelper(wxInfo.WxAppId, wxInfo.WxAppSecret);
@@ -297,7 +297,7 @@ namespace kevin.Application.Services
             if (user == null)
             {
                 user = new TUser();
-                user.Id = Guid.NewGuid();
+                user.Id = SnowflakeIdService.GetNextId();
                 user.IsDelete = false;
                 user.CreateTime = DateTime.Now;
                 user.Name = userInfo.nickname;
@@ -308,7 +308,7 @@ namespace kevin.Application.Services
                 db.SaveChanges();
 
                 var bind = new TUserBindWeixin();
-                bind.Id = Guid.NewGuid();
+                bind.Id = SnowflakeIdService.GetNextId();
                 bind.IsDelete = false;
                 bind.CreateTime = DateTime.Now;
 

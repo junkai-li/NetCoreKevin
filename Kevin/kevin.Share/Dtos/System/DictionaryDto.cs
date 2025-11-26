@@ -15,13 +15,13 @@ namespace kevin.Domain.Share.Dtos.System
         /// 主键标识ID
         /// </summary>
         [Description("主键标识ID")]
-        public Guid Id { get; set; }
+        public long Id { get; set; }
 
         /// <summary>
         /// 创建人ID
         /// </summary>
         [Description("创建人ID")]
-        public Guid CreateUserId { get; set; } 
+        public long CreateUserId { get; set; } 
         public virtual string? CreateUserName { get; set; }
 
 
@@ -29,7 +29,7 @@ namespace kevin.Domain.Share.Dtos.System
         /// 编辑人ID
         /// </summary>
         [Description("编辑人ID")]
-        public Guid? UpdateUserId { get; set; } 
+        public long? UpdateUserId { get; set; } 
         public virtual string? UpdateUserName { get; set; }
         /// <summary>
         /// 创建时间

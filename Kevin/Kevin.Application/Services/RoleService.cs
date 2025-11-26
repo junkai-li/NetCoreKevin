@@ -52,11 +52,11 @@ namespace kevin.Application.Services
         {
             if (dtoRole != default)
             {
-                if (dtoRole.Id == default || dtoRole.Id == Guid.Empty)
+                if (dtoRole.Id == default || dtoRole.Id == default)
                 {
                     var add = new TRole
                     {
-                        Id = Guid.NewGuid(),
+                        Id = SnowflakeIdService.GetNextId(),
                         Name = dtoRole.Name,
                         Remarks = dtoRole.Remarks,
                         CreateTime = DateTime.Now,
@@ -85,7 +85,7 @@ namespace kevin.Application.Services
             return false;
         }
 
-        public async Task<bool> DeleteRole(Guid roleId)
+        public async Task<bool> DeleteRole(long roleId)
         {
             if (TRoleBaseData.TRoles.Where(t => t.Id == roleId).FirstOrDefault() != default)
             {
@@ -113,7 +113,7 @@ namespace kevin.Application.Services
             }).ToListAsync();
         }
 
-        public async Task<dtoRole> GetRoleById(Guid roleId)
+        public async Task<dtoRole> GetRoleById(long roleId)
         {
             return await RoleRp.Query().Where(t => t.Id == roleId && t.IsDelete == false).Select(t => new dtoRole
             {

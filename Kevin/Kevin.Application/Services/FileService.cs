@@ -37,12 +37,12 @@ namespace kevin.Application.Services
         /// <param name="table"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<List<FileDto>> GetFileDtos(List<Guid> tableid, string table)
+        public async Task<List<FileDto>> GetFileDtos(List<string> tableid, string table)
         {
             return (await fileRp.Query().Where(t => t.IsDelete == false && tableid.Contains(t.TableId) && t.Table == table).ToListAsync()).MapToList<TFile, FileDto>().ToList();
         }
 
-        public Task<bool> DeleteFile(Guid id, CancellationToken cancellationToken)
+        public Task<bool> DeleteFile(long id, CancellationToken cancellationToken)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace kevin.Application.Services
             }
         }
 
-        public Task<(FileStream?, string?, string?)> GetFile(Guid fileid, CancellationToken cancellationToken)
+        public Task<(FileStream?, string?, string?)> GetFile(long fileid, CancellationToken cancellationToken)
         {
             var file = fileRp.Query().Where(t => t.Id == fileid).FirstOrDefault();
             if (file != default)
@@ -85,7 +85,7 @@ namespace kevin.Application.Services
             throw new UserFriendlyException("通过指定的文件ID未找到任何文件");
         }
 
-        public async Task<string> GetFilePath(Guid fileid, CancellationToken cancellationToken)
+        public async Task<string> GetFilePath(long fileid, CancellationToken cancellationToken)
         {
             var file = fileRp.Query().Where(t => t.Id == fileid).FirstOrDefault();
 
@@ -110,7 +110,7 @@ namespace kevin.Application.Services
             }
         }
 
-        public async Task<Guid> RemoteUploadFile(string table, Guid tableid, string sign, dtoKeyValue fileInfo, CancellationToken cancellationToken)
+        public async Task<long> RemoteUploadFile(string table, string tableid, string sign, dtoKeyValue fileInfo, CancellationToken cancellationToken)
         {
             string remoteFileUrl = fileInfo.Key?.ToString() ?? "";
             var fileExtension = Path.GetExtension(fileInfo.Value?.ToString() ?? "").ToLower();
@@ -143,7 +143,7 @@ namespace kevin.Application.Services
                 {
 
                     TFile f = new();
-                    f.Id = Guid.NewGuid();
+                    f.Id = SnowflakeIdService.GetNextId();
                     f.Name = (fileInfo.Value ?? "").ToString();
                     f.Path = filePath;
                     f.Table = table;
@@ -161,13 +161,13 @@ namespace kevin.Application.Services
             throw new UserFriendlyException("文件上传失败！");
         }
 
-        public async Task<Guid> UploadFile(string table, Guid tableid, string sign, IFormFile file, CancellationToken cancellationToken)
+        public async Task<long> UploadFile(string table, string tableid, string sign, IFormFile file, CancellationToken cancellationToken)
         {
             FileVerification(file);
             string basepath = "/Files/" + DateTime.Now.ToString("yyyy/MM/dd");
             string filepath = Kevin.Common.App.IO.Path.ContentRootPath() + basepath;
             Directory.CreateDirectory(filepath);
-            var fileName = Guid.NewGuid();
+            var fileName = SnowflakeIdService.GetNextId();
             var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
             var fullFileName = string.Format("{0}{1}", fileName, fileExtension);
             string path = "";

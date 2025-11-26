@@ -8,7 +8,7 @@
         /// 角色编号;
         /// </summary>
         [Description("角色编号")]
-        public virtual Guid RoleId { get; set; }
+        public virtual long RoleId { get; set; }
         /// <summary>
         /// 角色编号;
         /// </summary> 

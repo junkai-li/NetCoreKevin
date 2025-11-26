@@ -9,10 +9,11 @@ namespace kevin.Application
     public class CurrentUser : ICurrentUser
     {
         public IHttpContextAccessor _httpContextAccessor { get; set; }
-        public CurrentUser(IHttpContextAccessor httpContextAccessor) {
-            _httpContextAccessor= httpContextAccessor;
+        public CurrentUser(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
         }
-        public virtual Guid UserId { get => JwtToken.GetClaims(JwtKeinClaimTypes.UserId, _httpContextAccessor).IsEmpty()?default:Guid.Parse(JwtToken.GetClaims(JwtKeinClaimTypes.UserId, _httpContextAccessor)); }
+        public virtual long UserId { get => JwtToken.GetClaims(JwtKeinClaimTypes.UserId, _httpContextAccessor).IsEmpty() ? default : JwtToken.GetClaims(JwtKeinClaimTypes.UserId, _httpContextAccessor).ToTryInt64(); }
 
         public virtual string UserName => JwtToken.GetClaims(JwtKeinClaimTypes.Name, _httpContextAccessor);
 

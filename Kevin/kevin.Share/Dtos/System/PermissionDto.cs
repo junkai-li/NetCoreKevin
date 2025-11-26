@@ -15,13 +15,13 @@
         /// <summary>
         /// 创建人ID
         /// </summary> 
-        public Guid? CreateUserId { get; set; } 
+        public long? CreateUserId { get; set; } 
 
 
         /// <summary>
         /// 编辑人ID
         /// </summary> 
-        public Guid? UpdateUserId { get; set; } 
+        public long? UpdateUserId { get; set; } 
 
         /// <summary>
         /// 更新时间

@@ -10,7 +10,7 @@ namespace Web.Global.User
         /// <summary>
         /// 当前登录用户Id
         /// </summary>
-        Guid UserId { get; }
+        long UserId { get; }
         /// <summary>
         /// 当前登录用户
         /// </summary>

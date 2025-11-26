@@ -13,8 +13,8 @@ namespace kevin.Domain.Interfaces.IServices
     {
         Task<dtoPageData<dtoRole>> GetRolePage(dtoPageData<dtoRole> dtoPage);
         Task<bool> AddEidt(dtoRole dtoRole);
-        Task<bool> DeleteRole(Guid roleId);
-        Task<dtoRole> GetRoleById(Guid roleId);
+        Task<bool> DeleteRole(long roleId);
+        Task<dtoRole> GetRoleById(long roleId);
         Task<List<dtoRole>> GetAllRoles();
     }
 }

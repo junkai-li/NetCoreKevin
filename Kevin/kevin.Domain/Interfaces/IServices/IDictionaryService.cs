@@ -35,6 +35,6 @@ namespace kevin.Domain.Interfaces.IServices
         /// </summary>
         /// <param name="dic"></param>
         /// <returns></returns>
-        Task<bool> Delete(Guid id);
+        Task<bool> Delete(long id);
     }
 }

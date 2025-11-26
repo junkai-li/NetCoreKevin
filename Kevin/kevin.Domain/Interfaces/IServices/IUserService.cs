@@ -11,7 +11,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// </summary>
         /// <param name="userId">用户ID</param>
         /// <returns></returns>
-        dtoUser GetUser(Guid userId);
+        dtoUser GetUser(long userId);
 
         /// <summary>
         /// 登录用户信息
@@ -45,7 +45,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// <param name="code">微信临时code</param>
         /// <returns>openid,userid</returns>
         /// <remarks>传入租户ID和微信临时 code 获取 openid，如果 openid 在系统有中对应用户，则一并返回用户的ID值，否则用户ID值为空</remarks>
-        string GetWeiXinMiniAppOpenId(Guid weixinkeyid, string code);
+        string GetWeiXinMiniAppOpenId(long weixinkeyid, string code);
 
         /// <summary>
         /// 获取微信小程序手机号
@@ -54,7 +54,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// <param name="encryptedData">包括敏感数据在内的完整用户信息的加密数据</param>
         /// <param name="code">微信临时code</param>
         /// <param name="weixinkeyid">微信配置密钥ID</param> 
-        string GetWeiXinMiniAppPhone(string iv, string encryptedData, string code, Guid weixinkeyid);
+        string GetWeiXinMiniAppPhone(string iv, string encryptedData, string code, long weixinkeyid);
 
         /// <summary>
         /// 通过短信验证码修改账户密码</summary>
@@ -81,7 +81,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// </summary>
         /// <param name="Id">用户ID</param>
         /// <returns></returns> 
-        dtoUser GetSysUserWhereId(Guid Id);
+        dtoUser GetSysUserWhereId(long Id);
 
         /// <summary>
         /// 新增编辑用户信息 
@@ -95,7 +95,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// </summary>
         /// <param name="Id">Id</param>
         /// <returns></returns> 
-        bool DeleteUser(Guid Id);
+        bool DeleteUser(long Id);
 
         /// <summary>
         /// 获取用户角色列表信息
@@ -109,7 +109,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// </summary>
         /// <param name="Id">ID</param>
         /// <returns></returns> 
-        dtoRole GetRoleWhereId(Guid Id);
+        dtoRole GetRoleWhereId(long Id);
 
         /// <summary>
         /// 新增编辑用户角色信息 
@@ -123,7 +123,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// </summary>
         /// <param name="Id">Id</param>
         /// <returns></returns> 
-        bool DeleteUserRole(Guid Id);
+        bool DeleteUserRole(long Id);
 
         /// <summary>
         /// 获取可用户角色的键值对列表信息
@@ -141,9 +141,9 @@ namespace kevin.Domain.Interfaces.IServices
         /// <summary>
         /// 最近登录时间
         /// </summary>
-        /// <param name="guid"></param>
+        /// <param name="long"></param>
         /// <returns></returns>
-        Task<bool> UpdateRecentLoginTime(Guid guid);
+        Task<bool> UpdateRecentLoginTime(long id);
 
         /// <summary>
         /// 获取系统用户数量

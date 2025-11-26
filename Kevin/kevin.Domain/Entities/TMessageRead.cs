@@ -16,7 +16,7 @@ namespace kevin.Domain.Entities
         /// <summary>
         /// 消息ID
         /// </summary>
-        public Guid MessageId { get; set; }
+        public long MessageId { get; set; }
 
         /// <summary>
         /// 消息

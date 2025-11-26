@@ -14,7 +14,7 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 条件Id
         /// </summary>
-        public Guid whereId { get; set; }
+        public long whereId { get; set; }
         /// <summary>
         /// 条件Key
         /// </summary>

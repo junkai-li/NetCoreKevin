@@ -13,7 +13,7 @@ namespace kevin.Domain.Kevin
         /// 用户ID
         /// </summary>
         [Description("用户ID")]
-        public Guid UserId { get; set; }
+        public long UserId { get; set; }
         public virtual TUser? User { get; set; }
 
         /// <summary>
@@ -47,19 +47,19 @@ namespace kevin.Domain.Kevin
         /// 部门ID
         /// </summary> 
         [Description("部门ID")]
-        public Guid? DepartmentId { get; set; }
+        public long? DepartmentId { get; set; }
 
         /// <summary>
         /// 岗位Id
         /// </summary> 
         [Description("岗位Id")]
-        public Guid? PositionId { get; set; }
+        public long? PositionId { get; set; }
 
         /// <summary>
         /// 上级用户id
         /// </summary>
         [Description("上级用户id")]
-        public Guid? SupervisorId { get; set; }
+        public long? SupervisorId { get; set; }
 
         /// <summary>
         /// 工号

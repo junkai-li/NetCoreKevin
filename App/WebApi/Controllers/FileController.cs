@@ -39,7 +39,7 @@ namespace WebApi.Controllers
         /// <param name="cancellationToken">cancellationToken</param>
         /// <returns>文件ID</returns>
         [HttpPost("RemoteUploadFile")]
-        public async Task<Guid> RemoteUploadFile([FromQuery][Required] string business, [FromQuery][Required] Guid key, [FromQuery][Required] string sign, [Required][FromBody] dtoKeyValue fileInfo, CancellationToken cancellationToken)
+        public async Task<long> RemoteUploadFile([FromQuery][Required] string business, [FromQuery][Required] string key, [FromQuery][Required] string sign, [Required][FromBody] dtoKeyValue fileInfo, CancellationToken cancellationToken)
         {
             return await _fileService.RemoteUploadFile(business, key, sign, fileInfo, cancellationToken);
         }
@@ -55,7 +55,7 @@ namespace WebApi.Controllers
         /// <returns>文件ID</returns>
         [DisableRequestSizeLimit]
         [HttpPost("UploadFile")]
-        public async Task<Guid> UploadFile([FromQuery][Required] string business, [FromQuery][Required] Guid key, [FromQuery][Required] string sign, [Required] IFormFile file, CancellationToken cancellationToken)
+        public async Task<long> UploadFile([FromQuery][Required] string business, [FromQuery][Required] string key, [FromQuery][Required] string sign, [Required] IFormFile file, CancellationToken cancellationToken)
         {
 
             return await _fileService.UploadFile(business, key, sign, file, cancellationToken);
@@ -74,9 +74,9 @@ namespace WebApi.Controllers
         /// <remarks>swagger 暂不支持多文件接口测试，请使用 postman</remarks>
         [DisableRequestSizeLimit]
         [HttpPost("BatchUploadFile")]
-        public async Task<List<Guid>> BatchUploadFile([FromQuery][Required] string business, [FromQuery][Required] Guid key, [FromQuery][Required] string sign, CancellationToken cancellationToken)
+        public async Task<List<long>> BatchUploadFile([FromQuery][Required] string business, [FromQuery][Required] string key, [FromQuery][Required] string sign, CancellationToken cancellationToken)
         {
-            var fileIds = new List<Guid>();
+            var fileIds = new List<long>();
             var ReqFiles = Request.Form.Files;
             List<IFormFile> Attachments = new();
             for (int i = 0; i < ReqFiles.Count; i++)
@@ -101,7 +101,7 @@ namespace WebApi.Controllers
         /// <returns></returns>
         [AllowAnonymous]
         [HttpGet("GetFile")]
-        public async Task<FileResult> GetFile([Required] Guid fileid, CancellationToken cancellationToken)
+        public async Task<FileResult> GetFile([Required] long fileid, CancellationToken cancellationToken)
         {
             var data = await _fileService.GetFile(fileid, cancellationToken);
             return File(data.Item1, data.Item2, data.Item3); 
@@ -121,7 +121,7 @@ namespace WebApi.Controllers
         /// <remarks>不指定宽高参数,返回原图</remarks>
         [AllowAnonymous]
         [HttpGet("GetImage")]
-        public FileResult GetImage([Required] Guid fileId, int width, int height, CancellationToken cancellationToken)
+        public FileResult GetImage([Required] long fileId, int width, int height, CancellationToken cancellationToken)
         {
 
             var file = db.Set<TFile>().Where(t => t.Id == fileId).FirstOrDefault();
@@ -181,7 +181,7 @@ namespace WebApi.Controllers
         /// <param name="cancellationToken">cancellationToken</param>
         /// <returns></returns>
         [HttpGet("GetFilePath")]
-        public async Task<string> GetFilePath([Required] Guid fileid, CancellationToken cancellationToken)
+        public async Task<string> GetFilePath([Required] long fileid, CancellationToken cancellationToken)
         {
             return  await _fileService.GetFilePath(fileid, cancellationToken); 
         }  
@@ -193,7 +193,7 @@ namespace WebApi.Controllers
         /// <param name="cancellationToken">cancellationToken</param>
         /// <returns></returns>
         [HttpDelete("DeleteFile")]
-        public async Task<bool> DeleteFile(Guid id, CancellationToken cancellationToken)
+        public async Task<bool> DeleteFile(long id, CancellationToken cancellationToken)
         {
             return  await _fileService.DeleteFile(id, cancellationToken);
         }

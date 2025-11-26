@@ -13,7 +13,7 @@ namespace kevin.Domain.Entities.AI
     [Description("TAIKmsDetails")]
     public class TAIKmsDetails : CUD_User
     { 
-        public Guid KmsId { get; set; }
+        public long KmsId { get; set; }
         public virtual TAIKmss? Kms { get; set; }
 
         /// <summary>

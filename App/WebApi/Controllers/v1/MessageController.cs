@@ -89,7 +89,7 @@ namespace App.WebApi.Controllers.v1
         [ActionDescription("删除消息")]
         [HttpLog("角色管理", "删除消息")]
         [HttpDelete("Delete")]
-        public async Task<bool> Delete([FromQuery][Required] Guid Id)
+        public async Task<bool> Delete([FromQuery][Required] long Id)
         {
             var result = await _messageService.Delete(Id);
             return result;

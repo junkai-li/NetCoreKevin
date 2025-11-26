@@ -8,7 +8,7 @@ namespace kevin.Domain.Share.Dtos.User
         /// <summary>
         /// Id
         /// </summary>
-        public Guid Id { get; set; }
+        public long Id { get; set; }
         /// <summary>
         /// 用户名
         /// </summary>

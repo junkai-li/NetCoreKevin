@@ -22,8 +22,10 @@ namespace Kevin.SnowflakeId.Service
         private long datacenterId; // 数据中心ID
         private long sequence = 0L; // 序列号
 
-        public SnowflakeIdService(IOptionsMonitor<SnowflakeIdSetting> config)
+        private SnowflakeIdSetting _config;
+        public SnowflakeIdService()
         {
+            _config = new SnowflakeIdSetting();
             if (workerId > maxWorkerId || workerId < 0)
             {
                 throw new ArgumentException($"worker Id can't be greater than {maxWorkerId} or less than 0");
@@ -32,8 +34,26 @@ namespace Kevin.SnowflakeId.Service
             {
                 throw new ArgumentException($"datacenter Id can't be greater than {maxDatacenterId} or less than 0");
             }
-            this.workerId = config.CurrentValue.MachineId;
-            this.datacenterId = config.CurrentValue.DataCenterId; ;
+            this.workerId = _config.MachineId;
+            this.datacenterId = _config.DataCenterId; ;
+        }
+        public SnowflakeIdService(IOptionsMonitor<SnowflakeIdSetting> config)
+        {
+            _config = config.CurrentValue;
+            if (_config == default)
+            {
+                _config = new SnowflakeIdSetting();
+            }
+            if (workerId > maxWorkerId || workerId < 0)
+            {
+                throw new ArgumentException($"worker Id can't be greater than {maxWorkerId} or less than 0");
+            }
+            if (datacenterId > maxDatacenterId || datacenterId < 0)
+            {
+                throw new ArgumentException($"datacenter Id can't be greater than {maxDatacenterId} or less than 0");
+            }
+            this.workerId = _config.MachineId;
+            this.datacenterId = _config.DataCenterId; ;
         }
 
         public long GetNextId()

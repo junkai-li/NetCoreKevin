@@ -12,8 +12,8 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(KevinDbContext))]
-    [Migration("20251126033152_初始化种子数据系统字典")]
-    partial class 初始化种子数据系统字典
+    [Migration("20251126082217_初始化数据库")]
+    partial class 初始化数据库
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,14 +27,16 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Entities.AI.TAIApps", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
 
-                    b.Property<Guid>("AIPromptID")
-                        .HasColumnType("char(36)")
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AIPromptID")
+                        .HasColumnType("bigint")
                         .HasColumnName("a_i_prompt_i_d")
                         .HasComment("a_i_prompt_i_d");
 
@@ -56,8 +58,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("create_user_id")
                         .HasComment("创建人ID");
 
@@ -66,8 +68,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
 
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
@@ -178,8 +180,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("update_time")
                         .HasComment("更新时间");
 
-                    b.Property<Guid?>("UpdateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("update_user_id")
                         .HasComment("编辑人ID");
 
@@ -208,20 +210,22 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_a_i_apps", null, t =>
                         {
-                            t.HasComment("t_a_i_apps");
+                            t.HasComment("AIAPP");
                         });
                 });
 
             modelBuilder.Entity("kevin.Domain.Entities.AI.TAIChatHistorys", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
 
-                    b.Property<Guid>("AppId")
-                        .HasColumnType("char(36)")
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AppId")
+                        .HasColumnType("bigint")
                         .HasColumnName("app_id")
                         .HasComment("app_id");
 
@@ -236,8 +240,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("create_user_id")
                         .HasComment("创建人ID");
 
@@ -246,8 +250,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
 
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
@@ -277,8 +281,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("tenant_id")
                         .HasComment("租户ID_Code");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("user_id")
                         .HasComment("user_id");
 
@@ -303,25 +307,27 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_a_i_chat_historys", null, t =>
                         {
-                            t.HasComment("t_a_i_chat_historys");
+                            t.HasComment("AI聊天记录");
                         });
                 });
 
             modelBuilder.Entity("kevin.Domain.Entities.AI.TAIKmsDetails", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("create_time")
                         .HasComment("create_time");
 
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("create_user_id")
                         .HasComment("创建人ID");
 
@@ -335,8 +341,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
 
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
@@ -357,8 +363,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("is_delete")
                         .HasComment("是否删除");
 
-                    b.Property<Guid>("KmsId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("KmsId")
+                        .HasColumnType("bigint")
                         .HasColumnName("kms_id")
                         .HasComment("kms_id");
 
@@ -389,8 +395,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("update_time")
                         .HasComment("更新时间");
 
-                    b.Property<Guid?>("UpdateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("update_user_id")
                         .HasComment("编辑人ID");
 
@@ -425,17 +431,19 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_a_i_kms_details", null, t =>
                         {
-                            t.HasComment("t_a_i_kms_details");
+                            t.HasComment("TAIKmsDetails");
                         });
                 });
 
             modelBuilder.Entity("kevin.Domain.Entities.AI.TAIKmss", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("ChatModelID")
                         .IsRequired()
@@ -448,8 +456,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("create_user_id")
                         .HasComment("创建人ID");
 
@@ -458,8 +466,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
 
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
@@ -534,8 +542,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("update_time")
                         .HasComment("更新时间");
 
-                    b.Property<Guid?>("UpdateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("update_user_id")
                         .HasComment("编辑人ID");
 
@@ -562,17 +570,19 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_a_i_kmss", null, t =>
                         {
-                            t.HasComment("t_a_i_kmss");
+                            t.HasComment("TAIKmss");
                         });
                 });
 
             modelBuilder.Entity("kevin.Domain.Entities.AI.TAIModels", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<int>("AIModelType")
                         .HasColumnType("int")
@@ -589,8 +599,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("create_user_id")
                         .HasComment("创建人ID");
 
@@ -599,8 +609,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
 
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
@@ -649,8 +659,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("update_time")
                         .HasComment("更新时间");
 
-                    b.Property<Guid?>("UpdateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("update_user_id")
                         .HasComment("编辑人ID");
 
@@ -677,25 +687,27 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_a_i_models", null, t =>
                         {
-                            t.HasComment("t_a_i_models");
+                            t.HasComment("AI模型配置");
                         });
                 });
 
             modelBuilder.Entity("kevin.Domain.Entities.AI.TAIPrompts", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("create_user_id")
                         .HasComment("创建人ID");
 
@@ -704,8 +716,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
 
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
@@ -750,8 +762,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("update_time")
                         .HasComment("更新时间");
 
-                    b.Property<Guid?>("UpdateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("update_user_id")
                         .HasComment("编辑人ID");
 
@@ -778,25 +790,259 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_a_i_prompts", null, t =>
                         {
-                            t.HasComment("t_a_i_prompts");
+                            t.HasComment("AI提示词配置");
                         });
                 });
 
-            modelBuilder.Entity("kevin.Domain.Entities.THttpLog", b =>
+            modelBuilder.Entity("kevin.Domain.Entities.Organizational.TDepartment", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Code")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("code")
+                        .HasComment("部门编码");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
-                    b.Property<Guid>("CreateUserId")
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_user_id")
+                        .HasComment("创建人ID");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("delete_user_id")
+                        .HasComment("删除人ID");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("description")
+                        .HasComment("岗位描述");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<long>("ManagerUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("manager_user_id")
+                        .HasComment("manager_user_id");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("name")
+                        .HasComment("部门名称");
+
+                    b.Property<long>("ParentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("parent_id")
+                        .HasComment("parent_id");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
                         .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<int>("Sort")
+                        .HasColumnType("int")
+                        .HasColumnName("sort")
+                        .HasComment("sort");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int")
+                        .HasColumnName("status")
+                        .HasComment("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("update_time")
+                        .HasComment("更新时间");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_user_id")
+                        .HasComment("编辑人ID");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("CreateUserId");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UpdateTime");
+
+                    b.HasIndex("UpdateUserId");
+
+                    b.ToTable("t_department", null, t =>
+                        {
+                            t.HasComment("部门表");
+                        });
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.Organizational.TPosition", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Code")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("code")
+                        .HasComment("岗位编码");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_user_id")
+                        .HasComment("创建人ID");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("delete_user_id")
+                        .HasComment("删除人ID");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("description")
+                        .HasComment("岗位描述");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("name")
+                        .HasComment("岗位名称");
+
+                    b.Property<long>("ParentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("parent_id")
+                        .HasComment("parent_id");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int")
+                        .HasColumnName("status")
+                        .HasComment("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("update_time")
+                        .HasComment("更新时间");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_user_id")
+                        .HasComment("编辑人ID");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("CreateUserId");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UpdateTime");
+
+                    b.HasIndex("UpdateUserId");
+
+                    b.ToTable("t_position", null, t =>
+                        {
+                            t.HasComment("岗位表");
+                        });
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.THttpLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("create_user_id")
                         .HasComment("创建人ID");
 
@@ -895,11 +1141,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Entities.TMessage", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("AssociatedId")
                         .HasMaxLength(100)
@@ -918,8 +1166,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("create_user_id")
                         .HasComment("创建人ID");
 
@@ -928,8 +1176,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
 
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
@@ -998,8 +1246,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("update_time")
                         .HasComment("更新时间");
 
-                    b.Property<Guid?>("UpdateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("update_user_id")
                         .HasComment("编辑人ID");
 
@@ -1026,25 +1274,27 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_message", null, t =>
                         {
-                            t.HasComment("t_message");
+                            t.HasComment("消息表");
                         });
                 });
 
             modelBuilder.Entity("kevin.Domain.Entities.TMessageRead", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("create_user_id")
                         .HasComment("创建人ID");
 
@@ -1053,8 +1303,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
 
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
@@ -1063,8 +1313,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("is_delete")
                         .HasComment("是否删除");
 
-                    b.Property<Guid>("MessageId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("MessageId")
+                        .HasColumnType("bigint")
                         .HasColumnName("message_id")
                         .HasComment("message_id");
 
@@ -1100,17 +1350,19 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_message_read", null, t =>
                         {
-                            t.HasComment("t_message_read");
+                            t.HasComment("消息已读表");
                         });
                 });
 
             modelBuilder.Entity("kevin.Domain.Entities.TTenant", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<int>("Code")
                         .HasColumnType("int")
@@ -1182,7 +1434,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("1b4f94ac-b697-4cbe-9626-6cd2de627538"),
+                            Id = 4514140354251222771L,
                             Code = 1000,
                             CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
                             IsDelete = 0ul,
@@ -1195,19 +1447,21 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Entities.TUserBindRole", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("create_user_id")
                         .HasComment("创建人ID");
 
@@ -1216,8 +1470,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
 
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
@@ -1226,8 +1480,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("is_delete")
                         .HasComment("是否删除");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint")
                         .HasColumnName("role_id")
                         .HasComment("角色信息");
 
@@ -1247,13 +1501,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("update_time")
                         .HasComment("更新时间");
 
-                    b.Property<Guid?>("UpdateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("update_user_id")
                         .HasComment("编辑人ID");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("user_id")
                         .HasComment("用户ID");
 
@@ -1290,32 +1544,34 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("eef5525d-5d64-46ad-8d64-72fb3ad9728f"),
+                            Id = 4514140314251221771L,
                             CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            CreateUserId = new Guid("eef5525d-5d64-46ad-8d64-79fb3ad9724f"),
+                            CreateUserId = 4514140314251222771L,
                             IsDelete = 0ul,
-                            RoleId = new Guid("c23301b7-f9e0-464c-b76d-1f0a5a557548"),
+                            RoleId = 4514140354257222771L,
                             TenantId = 1000,
-                            UserId = new Guid("eef5525d-5d64-46ad-8d64-79fb3ad9724f"),
+                            UserId = 4514140314251222771L,
                             xmin = 0u
                         });
                 });
 
             modelBuilder.Entity("kevin.Domain.Kevin.TDictionary", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("create_user_id")
                         .HasComment("创建人ID");
 
@@ -1324,8 +1580,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
 
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
@@ -1378,8 +1634,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("update_time")
                         .HasComment("更新时间");
 
-                    b.Property<Guid?>("UpdateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("update_user_id")
                         .HasComment("编辑人ID");
 
@@ -1412,15 +1668,15 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_dictionary", null, t =>
                         {
-                            t.HasComment("t_dictionary");
+                            t.HasComment("字典信息表");
                         });
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("c23301b7-f210-464c-b76d-1f0a5a557548"),
+                            Id = 4514140354257227771L,
                             CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            CreateUserId = new Guid("eef5525d-5d64-46ad-8d64-79fb3ad9724f"),
+                            CreateUserId = 4514140314251222771L,
                             IsDelete = 0ul,
                             IsSystem = 1ul,
                             Key = "上传文件限制50MB",
@@ -1434,19 +1690,21 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Kevin.TFile", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("create_user_id")
                         .HasComment("创建人ID");
 
@@ -1455,8 +1713,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
 
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
@@ -1500,8 +1758,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("table")
                         .HasComment("外链表名");
 
-                    b.Property<Guid>("TableId")
-                        .HasColumnType("char(36)")
+                    b.Property<string>("TableId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
                         .HasColumnName("table_id")
                         .HasComment("外链表ID");
 
@@ -1546,11 +1805,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Kevin.TLog", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -1619,14 +1880,16 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Kevin.TOSLog", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
 
-                    b.Property<Guid?>("ActionUserId")
-                        .HasColumnType("char(36)")
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("ActionUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("action_user_id")
                         .HasComment("操作人信息");
 
@@ -1684,8 +1947,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("table")
                         .HasComment("外链表名");
 
-                    b.Property<Guid>("TableId")
-                        .HasColumnType("char(36)")
+                    b.Property<string>("TableId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
                         .HasColumnName("table_id")
                         .HasComment("外链表ID");
 
@@ -1754,8 +2018,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
-                    b.Property<Guid?>("CreateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("create_user_id")
                         .HasComment("创建人ID");
 
@@ -1764,8 +2028,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
 
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
@@ -1824,8 +2088,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("tenant_id")
                         .HasComment("租户id");
 
-                    b.Property<Guid?>("UpdateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("update_user_id")
                         .HasComment("编辑人ID");
 
@@ -2109,11 +2373,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Kevin.TRole", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
@@ -2174,7 +2440,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("c23301b7-f9e0-464c-b76d-1f0a5a557548"),
+                            Id = 4514140354257222771L,
                             CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
                             IsDelete = 0ul,
                             Name = "admin",
@@ -2186,19 +2452,21 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Kevin.TRolePermission", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("create_user_id")
                         .HasComment("创建人ID");
 
@@ -2207,8 +2475,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
 
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
@@ -2222,8 +2490,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("permission_id")
                         .HasComment("权限编号");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint")
                         .HasColumnName("role_id")
                         .HasComment("角色编号");
 
@@ -2267,19 +2535,21 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Kevin.TSign", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
-                    b.Property<Guid>("CreateUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("create_user_id")
                         .HasComment("创建人ID");
 
@@ -2288,8 +2558,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
 
-                    b.Property<Guid?>("DeleteUserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
@@ -2316,8 +2586,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("table")
                         .HasComment("外链表名称");
 
-                    b.Property<Guid>("TableId")
-                        .HasColumnType("char(36)")
+                    b.Property<string>("TableId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
                         .HasColumnName("table_id")
                         .HasComment("外链记录ID");
 
@@ -2353,11 +2624,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Kevin.TUser", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
@@ -2458,7 +2731,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("eef5525d-5d64-46ad-8d64-79fb3ad9724f"),
+                            Id = 4514140314251222771L,
                             CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
                             Email = "admin",
                             IsDelete = 0ul,
@@ -2476,11 +2749,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Kevin.TUserBindWeixin", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
@@ -2508,13 +2783,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("tenant_id")
                         .HasComment("租户ID_Code");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("user_id")
                         .HasComment("用户ID");
 
-                    b.Property<Guid>("WeiXinKeyId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("WeiXinKeyId")
+                        .HasColumnType("bigint")
                         .HasColumnName("wei_xin_key_id")
                         .HasComment("关联微信账户");
 
@@ -2549,23 +2824,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Kevin.TUserInfo", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
 
-                    b.Property<string>("Address")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("address")
-                        .HasComment("地址详细信息");
-
-                    b.Property<string>("Company")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("company")
-                        .HasComment("公司名称");
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
@@ -2577,27 +2842,42 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
 
+                    b.Property<long?>("DepartmentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("department_id")
+                        .HasComment("部门ID");
+
+                    b.Property<string>("EmployeeNo")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("employee_no")
+                        .HasComment("employee_no");
+
+                    b.Property<int>("EmployeeStatus")
+                        .HasColumnType("int")
+                        .HasColumnName("employee_status")
+                        .HasComment("员工状态 -1:离职 1:在职 2:休假 3:停职 4:退休 5:实习");
+
+                    b.Property<DateTime?>("HireDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("hire_date")
+                        .HasComment("入职时间");
+
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("is_delete")
                         .HasComment("是否删除");
 
-                    b.Property<string>("Position")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("position")
-                        .HasComment("职务");
+                    b.Property<long?>("PositionId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("position_id")
+                        .HasComment("岗位Id");
 
                     b.Property<string>("QQ")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("q_q")
                         .HasComment("q_q");
-
-                    b.Property<int>("RegionAreaId")
-                        .HasColumnType("int")
-                        .HasColumnName("region_area_id")
-                        .HasComment("地址区域ID");
 
                     b.Property<Guid?>("RowVersion")
                         .IsConcurrencyToken()
@@ -2616,13 +2896,18 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("signature")
                         .HasComment("个性签名");
 
+                    b.Property<long?>("SupervisorId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("supervisor_id")
+                        .HasComment("上级用户id");
+
                     b.Property<int>("TenantId")
                         .HasColumnType("int")
                         .HasColumnName("tenant_id")
                         .HasComment("租户ID_Code");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)")
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("user_id")
                         .HasComment("用户ID");
 
@@ -2643,8 +2928,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("DeleteTime");
 
-                    b.HasIndex("RegionAreaId");
-
                     b.HasIndex("TenantId");
 
                     b.HasIndex("UserId");
@@ -2657,11 +2940,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Kevin.TWeiXinKey", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)")
+                        .HasColumnType("bigint")
                         .HasColumnName("id")
                         .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
@@ -2899,6 +3184,56 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 });
 
             modelBuilder.Entity("kevin.Domain.Entities.AI.TAIPrompts", b =>
+                {
+                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("DeleteUser");
+
+                    b.Navigation("UpdateUser");
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.Organizational.TDepartment", b =>
+                {
+                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("DeleteUser");
+
+                    b.Navigation("UpdateUser");
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.Organizational.TPosition", b =>
                 {
                     b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
                         .WithMany()
@@ -3197,19 +3532,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Kevin.TUserInfo", b =>
                 {
-                    b.HasOne("kevin.Domain.Kevin.TRegionArea", "RegionArea")
-                        .WithMany()
-                        .HasForeignKey("RegionAreaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("kevin.Domain.Kevin.TUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("RegionArea");
 
                     b.Navigation("User");
                 });

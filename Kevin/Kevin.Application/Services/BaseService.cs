@@ -1,4 +1,5 @@
 ﻿using kevin.Domain.Share;
+using Kevin.SnowflakeId.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Web.Global.User;
@@ -9,6 +10,8 @@ public class BaseService : IBaseService
     public IServiceProvider? _serviceProvider { get; set; }
     public required ICurrentUser CurrentUser { get; set; }
     public required IHttpContextAccessor HttpContextAccessor { get; set; }
+
+    public required ISnowflakeIdService SnowflakeIdService { get; set; }
     /// <summary>
     /// 
     /// </summary>
@@ -26,6 +29,7 @@ public class BaseService : IBaseService
         {
             _serviceProvider = _httpContextAccessor.HttpContext.RequestServices;
             CurrentUser = _serviceProvider.GetService<ICurrentUser>() ?? new CurrentUser(_httpContextAccessor);
+            SnowflakeIdService = _serviceProvider.GetService<ISnowflakeIdService>() ?? new SnowflakeIdService();
         }
     }
 }

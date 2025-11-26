@@ -93,7 +93,7 @@ namespace kevin.Application.Services
             if (isAdd)
             {
                 var add = dic.MapTo<TDictionary>();
-                add.Id = dic.Id == default ? Guid.NewGuid() : dic.Id;
+                add.Id = dic.Id == default ? SnowflakeIdService.GetNextId() : dic.Id;
                 add.IsDelete = false;
                 add.IsSystem = false;
                 add.CreateTime = DateTime.Now;
@@ -132,7 +132,7 @@ namespace kevin.Application.Services
         /// <param name="id"></param>
         /// <returns></returns>
         /// <exception cref="UserFriendlyException"></exception>
-        public async Task<bool> Delete(Guid id)
+        public async Task<bool> Delete(long id)
         {
             var like = await dictionaryRp.Query().Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
 

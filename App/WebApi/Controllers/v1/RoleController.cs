@@ -49,7 +49,7 @@ namespace App.WebApi.Controllers.v1
         [ActionDescription("删除角色数据")]
         [HttpLog("角色管理", "删除角色数据")]
         [HttpDelete("DeleteRole")]
-        public async Task<bool> DeleteRole([FromQuery][Required]Guid roleId)
+        public async Task<bool> DeleteRole([FromQuery][Required]long roleId)
         {
             var result = await _roleService.DeleteRole(roleId);
             return result;
@@ -58,7 +58,7 @@ namespace App.WebApi.Controllers.v1
         [ActionDescription("获取指定角色数据")]
         [HttpLog("角色管理", "获取指定角色数据")]
         [HttpGet("GetRoleById")]
-        public async Task<dtoRole> GetRoleById([FromQuery][Required]Guid roleId)
+        public async Task<dtoRole> GetRoleById([FromQuery][Required] long roleId)
         {
             var result = await _roleService.GetRoleById(roleId);
             return result;

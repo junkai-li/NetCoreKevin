@@ -32,7 +32,7 @@ namespace WebApi.Controllers
         /// <returns>openid,userid</returns>
         /// <remarks>传入租户ID和微信临时 code 获取 openid，如果 openid 在系统有中对应用户，则一并返回用户的ID值，否则用户ID值为空</remarks>
         [HttpGet("GetWeiXinMiniAppOpenId")]
-        public string GetWeiXinMiniAppOpenId(Guid weixinkeyid, string code)
+        public string GetWeiXinMiniAppOpenId(long weixinkeyid, string code)
         {
             return _userService.GetWeiXinMiniAppOpenId(weixinkeyid, code);
         }
@@ -45,7 +45,7 @@ namespace WebApi.Controllers
         /// <param name="code">微信临时code</param>
         /// <param name="weixinkeyid">微信配置密钥ID</param>
         [HttpGet("GetWeiXinMiniAppPhone")]
-        public string GetWeiXinMiniAppPhone(string iv, string encryptedData, string code, Guid weixinkeyid)
+        public string GetWeiXinMiniAppPhone(string iv, string encryptedData, string code, long weixinkeyid)
         {
 
 

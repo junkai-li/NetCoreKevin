@@ -45,7 +45,7 @@ namespace WebApi.Controllers.v1
         [HttpGet("GetUser")]
         [SkipAuthority]
         [CacheDataFilter<dtoUser>(TTL = 60, UseToken = true)]
-        public dtoUser GetUser(Guid userId)
+        public dtoUser GetUser(long userId)
         {
             return _userService.GetUser(userId);
         }
@@ -134,7 +134,7 @@ namespace WebApi.Controllers.v1
         /// <returns></returns>
         [HttpGet("GetSysUserWhereId")]
         [SkipAuthority]
-        public dtoUser GetSysUserWhereId([Required] Guid Id)
+        public dtoUser GetSysUserWhereId([Required] long Id)
         {
             return _userService.GetSysUserWhereId(Id);
         }
@@ -176,7 +176,7 @@ namespace WebApi.Controllers.v1
         [Transactional]
         [ActionDescription("删除用户信息")]
         [HttpLog("用户管理", "删除用户信息")]
-        public bool DeleteUser(Guid Id)
+        public bool DeleteUser(long Id)
         {
             return _userService.DeleteUser(Id);
         }
@@ -201,7 +201,7 @@ namespace WebApi.Controllers.v1
         /// <returns></returns>
         [HttpGet("GetRoleWhereId")]
         [SkipAuthority]
-        public dtoRole GetRoleWhereId([Required] Guid Id)
+        public dtoRole GetRoleWhereId([Required] long Id)
         {
             return _userService.GetRoleWhereId(Id);
         }
@@ -227,7 +227,7 @@ namespace WebApi.Controllers.v1
         [HttpDelete("DeleteUserRole")]
         [ActionDescription("删除用户角色")]
         [HttpLog("用户管理", "删除用户角色")]
-        public bool DeleteUserRole(Guid Id)
+        public bool DeleteUserRole(long Id)
         {
             return _userService.DeleteUserRole(Id);
         }
@@ -260,7 +260,7 @@ namespace WebApi.Controllers.v1
         /// <returns></returns>
         [HttpGet("GetTokenUserId")]
         [SkipAuthority]
-        public Guid GetTokenUserId()
+        public long GetTokenUserId()
         {
             return CurrentUser.UserId;
         }
