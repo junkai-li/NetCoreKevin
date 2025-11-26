@@ -6,6 +6,7 @@ namespace kevin.Domain.Entities
     /// 消息表
     /// </summary>
     [Table("TMessage")]
+    [Description("消息表")]
     public class TMessage : CUD_User
     {
 

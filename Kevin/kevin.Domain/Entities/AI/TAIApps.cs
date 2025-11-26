@@ -10,6 +10,7 @@ namespace kevin.Domain.Entities.AI
     /// TAIApps
     /// </summary>
     [Table("TAIApps")]
+    [Description("AIAPP")]
     public partial class TAIApps : CUD_User
     {
         /// <summary>

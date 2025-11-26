@@ -11,6 +11,7 @@ namespace kevin.Domain.Entities.AI
     /// AI模型配置
     /// </summary>
     [Table("TAIModels")]
+    [Description("AI模型配置")]
     public partial class TAIModels: CUD_User
     { 
         /// <summary>

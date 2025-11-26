@@ -10,6 +10,7 @@ namespace kevin.Domain.Entities.AI
     /// AI提示词配置
     /// </summary>
     [Table("TAIPrompts")]
+    [Description("AI提示词配置")]
     public partial class TAIPrompts : CUD_User
     {
         /// <summary>

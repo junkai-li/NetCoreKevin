@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace kevin.Domain.Entities.AI
 {
+    /// <summary>
+    /// TAIKmss
+    /// </summary>
     [Table("TAIKmss")]
+    [Description("TAIKmss")]
     public partial class TAIKmss: CUD_User
     {
         /// <summary>

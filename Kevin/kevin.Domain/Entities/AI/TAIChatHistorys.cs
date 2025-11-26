@@ -11,6 +11,7 @@ namespace kevin.Domain.Entities.AI
     /// 聊天记录
     /// </summary>
     [Table("TAIChatHistorys")]
+    [Description("AI聊天记录")]
     public class TAIChatHistorys : CD_User
     {
         /// <summary>

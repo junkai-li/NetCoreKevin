@@ -10,6 +10,7 @@ namespace kevin.Domain.Entities
     /// 消息已读表
     /// </summary>
     [Table("TMessageRead")]
+    [Description("消息已读表")]
     public class TMessageRead : CD_User
     {
         /// <summary>

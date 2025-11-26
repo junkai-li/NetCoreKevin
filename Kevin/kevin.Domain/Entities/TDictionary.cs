@@ -5,6 +5,7 @@
     /// 字典信息表
     /// </summary>
     [Table("TDictionary")]
+    [Description("字典信息表")]
     public partial class TDictionary : CUD_User
     { 
         /// <summary>

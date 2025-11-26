@@ -112,6 +112,30 @@
         <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化种子数据系统字典.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:Kevin.EntityFrameworkCore.Migrations.初始化组织架构表">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化组织架构表.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化组织架构表.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化组织架构表.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:Kevin.EntityFrameworkCore.Migrations.添加描述">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.添加描述.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.添加描述.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.添加描述.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="T:Kevin.EntityFrameworkCore._.Data.Repository`2">
             <summary>
             仓储类与类型Id

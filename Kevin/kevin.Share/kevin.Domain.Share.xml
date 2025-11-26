@@ -464,6 +464,16 @@
             模型类型
             </summary>
         </member>
+        <member name="T:kevin.Domain.Share.Enums.EmployeeStatus">
+            <summary>
+            员工状态 -1:离职 1:在职 2:休假 3:停职 4:退休 5:实习
+            </summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Enums.OrganizationalStatus">
+            <summary>
+            Organizational Status 
+            </summary>
+        </member>
         <member name="T:kevin.Share.Dtos.DtoFileInfo">
             <summary>
             文件信息

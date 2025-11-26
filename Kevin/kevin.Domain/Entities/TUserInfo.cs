@@ -1,4 +1,6 @@
-﻿namespace kevin.Domain.Kevin
+﻿using kevin.Domain.Share.Enums;
+
+namespace kevin.Domain.Kevin
 {
     /// <summary>
     /// 用户详细信息表
@@ -7,7 +9,6 @@
     [Description("用户详细信息表")]
     public partial class TUserInfo : CD
     {
-
         /// <summary>
         /// 用户ID
         /// </summary>
@@ -15,23 +16,17 @@
         public Guid UserId { get; set; }
         public virtual TUser? User { get; set; }
 
+        /// <summary>
+        /// 员工状态 0:离职 1:在职 2:休假 3:停职 4:退休 5:实习
+        /// </summary>
+        [Description("员工状态 -1:离职 1:在职 2:休假 3:停职 4:退休 5:实习")]
+        public EmployeeStatus EmployeeStatus { get; set; }
 
         /// <summary>
-        /// 地址区域ID
+        /// 入职时间
         /// </summary>
-        [Description("地址区域ID")]
-        public int RegionAreaId { get; set; }
-        public virtual TRegionArea? RegionArea { get; set; }
-
-
-
-        /// <summary>
-        /// 地址详细信息
-        /// </summary>
-        [StringLength(200)]
-        [Description("地址详细信息")]
-        public string? Address { get; set; }
-
+        [Description("入职时间")]
+        public DateTime? HireDate { get; set; }
 
         /// <summary>
         /// 个性签名
@@ -49,22 +44,28 @@
 
 
         /// <summary>
-        /// 公司名称
-        /// </summary>
-        [StringLength(200)]
-        [Description("公司名称")]
-        public string? Company { get; set; }
-
-
+        /// 部门ID
+        /// </summary> 
+        [Description("部门ID")]
+        public Guid? DepartmentId { get; set; }
 
         /// <summary>
-        /// 职务
+        /// 岗位Id
+        /// </summary> 
+        [Description("岗位Id")]
+        public Guid? PositionId { get; set; }
+
+        /// <summary>
+        /// 上级用户id
+        /// </summary>
+        [Description("上级用户id")]
+        public Guid? SupervisorId { get; set; }
+
+        /// <summary>
+        /// 工号
         /// </summary>
         [StringLength(200)]
-        [Description("职务")]
-        public string? Position { get; set; }
-
-
+        public string? EmployeeNo { get; set; }
 
         /// <summary>
         /// 微信号

@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 
 namespace kevin.Domain.Entities.AI
 {
+
     [Table("TAIKmsDetails")]
+    [Description("TAIKmsDetails")]
     public class TAIKmsDetails : CUD_User
     { 
         public Guid KmsId { get; set; }

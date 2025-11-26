@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.Database;
 
@@ -11,9 +12,11 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(KevinDbContext))]
-    partial class KevinDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251126065700_初始化组织架构表")]
+    partial class 初始化组织架构表
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -205,7 +208,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_a_i_apps", null, t =>
                         {
-                            t.HasComment("AIAPP");
+                            t.HasComment("t_a_i_apps");
                         });
                 });
 
@@ -300,7 +303,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_a_i_chat_historys", null, t =>
                         {
-                            t.HasComment("AI聊天记录");
+                            t.HasComment("t_a_i_chat_historys");
                         });
                 });
 
@@ -422,7 +425,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_a_i_kms_details", null, t =>
                         {
-                            t.HasComment("TAIKmsDetails");
+                            t.HasComment("t_a_i_kms_details");
                         });
                 });
 
@@ -559,7 +562,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_a_i_kmss", null, t =>
                         {
-                            t.HasComment("TAIKmss");
+                            t.HasComment("t_a_i_kmss");
                         });
                 });
 
@@ -674,7 +677,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_a_i_models", null, t =>
                         {
-                            t.HasComment("AI模型配置");
+                            t.HasComment("t_a_i_models");
                         });
                 });
 
@@ -775,7 +778,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_a_i_prompts", null, t =>
                         {
-                            t.HasComment("AI提示词配置");
+                            t.HasComment("t_a_i_prompts");
                         });
                 });
 
@@ -894,7 +897,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_department", null, t =>
                         {
-                            t.HasComment("部门表");
+                            t.HasComment("t_department");
                         });
                 });
 
@@ -1003,7 +1006,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_position", null, t =>
                         {
-                            t.HasComment("岗位表");
+                            t.HasComment("t_position");
                         });
                 });
 
@@ -1251,7 +1254,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_message", null, t =>
                         {
-                            t.HasComment("消息表");
+                            t.HasComment("t_message");
                         });
                 });
 
@@ -1325,7 +1328,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_message_read", null, t =>
                         {
-                            t.HasComment("消息已读表");
+                            t.HasComment("t_message_read");
                         });
                 });
 
@@ -1637,7 +1640,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.ToTable("t_dictionary", null, t =>
                         {
-                            t.HasComment("字典信息表");
+                            t.HasComment("t_dictionary");
                         });
 
                     b.HasData(
