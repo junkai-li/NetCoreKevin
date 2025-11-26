@@ -10,7 +10,9 @@ export const GetTypeList = () => {
 export const addEditMessage = (data) => {
   return http.post('/api/Dictionary/AddEdit', data);
 };
-
+export const GetTypeWhereList = (type) => {
+  return http.delete(`/api/Dictionary/GetTypeWhereList?type=${type}`);
+};
 export const deleteMessage = (id) => {
   return http.delete(`/api/Dictionary/Delete?Id=${id}`);
 };

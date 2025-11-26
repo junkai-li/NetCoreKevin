@@ -49,12 +49,21 @@ namespace App.WebApi.Controllers.v1
             return result;
         }
 
+        [HttpGet("GetTypeWhereList")]
+        [HttpLog("字典管理", "获取系统字典指定类型列表")]
+        [SkipAuthority]
+        public async Task<List<DictionaryDto>> GetTypeWhereList([FromQuery][Required] string type)
+        {
+            var result = await _dictionaryService.GetTypeWhereList(type);
+            return result;
+        }
+
         [HttpPost("AddEdit")]
         [ActionDescription("新增或编辑")]
         [HttpLog("字典管理", "新增或编辑")]
-        public async Task<bool> AddEdit([FromBody] DictionaryDto dta)
+        public async Task<bool> AddEdit([FromBody] DictionaryDto data)
         {
-            var result = await _dictionaryService.AddEdit(dta);
+            var result = await _dictionaryService.AddEdit(data);
             return result;
         }
 

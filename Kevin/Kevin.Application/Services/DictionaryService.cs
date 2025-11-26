@@ -32,6 +32,15 @@ namespace kevin.Application.Services
         }
 
         /// <summary>
+        /// 获取指定类型列表
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<DictionaryDto>> GetTypeWhereList(string type)
+        {
+            return (await dictionaryRp.Query().Where(t => t.IsDelete == false && t.Type == type).ToListAsync()).OrderByDescending(t => t.Sort).MapToList<TDictionary, DictionaryDto>();
+        }
+
+        /// <summary>
         /// 获取变动日志分页数据
         /// </summary>
         /// <param name="dtoPage"></param> 
@@ -47,10 +56,10 @@ namespace kevin.Application.Services
             }
             if (!string.IsNullOrEmpty(dtoPage.Parameter))
             {
-                data= data.Where(t => t.Type == dtoPage.Parameter);
+                data = data.Where(t => t.Type == dtoPage.Parameter);
             }
             result.total = await data.CountAsync();
-            var list = (await data.Skip(skip).Take(dtoPage.pageSize).OrderByDescending(x => x.CreateTime).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync());
+            var list = (await data.Skip(skip).Take(dtoPage.pageSize).OrderByDescending(x => x.Sort).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync());
             result.data = list.MapToList<TDictionary, DictionaryDto>();
             foreach (var item in result.data)
             {
@@ -103,7 +112,7 @@ namespace kevin.Application.Services
                     msg.Key = dic.Key;
                     msg.Value = dic.Value;
                     msg.Remarks = dic.Remarks;
-                    msg.Type = dic.Type;  
+                    msg.Type = dic.Type;
                     msg.Sort = dic.Sort;
                 }
                 else

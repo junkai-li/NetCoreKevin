@@ -17,7 +17,12 @@ namespace kevin.Domain.Interfaces.IServices
         /// <param name="dtoPage"></param>
         /// <returns></returns>
         Task<dtoPageData<DictionaryDto>> GetPageData(dtoPagePar<string> dtoPage);
-
+        /// <summary>
+        /// 获取类型下的字典列表
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        Task<List<DictionaryDto>> GetTypeWhereList(string type);
         /// <summary>
         /// 新增或编辑
         /// </summary>
