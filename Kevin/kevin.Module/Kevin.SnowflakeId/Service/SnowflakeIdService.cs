@@ -26,34 +26,35 @@ namespace Kevin.SnowflakeId.Service
         public SnowflakeIdService()
         {
             _config = new SnowflakeIdSetting();
+            this.workerId = _config.MachineId;
+            this.datacenterId = _config.DataCenterId; ;
             if (workerId > maxWorkerId || workerId < 0)
             {
-                throw new ArgumentException($"worker Id can't be greater than {maxWorkerId} or less than 0");
+                throw new ArgumentException($"Worker ID 必须在 0 到 {maxWorkerId} 之间");
             }
             if (datacenterId > maxDatacenterId || datacenterId < 0)
             {
-                throw new ArgumentException($"datacenter Id can't be greater than {maxDatacenterId} or less than 0");
-            }
-            this.workerId = _config.MachineId;
-            this.datacenterId = _config.DataCenterId; ;
+                throw new ArgumentException($"Datacenter ID 必须在 0 到 {maxDatacenterId} 之间");
+            } 
         }
         public SnowflakeIdService(IOptionsMonitor<SnowflakeIdSetting> config)
         {
             _config = config.CurrentValue;
+            this.workerId = _config.MachineId;
+            this.datacenterId = _config.DataCenterId; ;
             if (_config == default)
             {
                 _config = new SnowflakeIdSetting();
             }
             if (workerId > maxWorkerId || workerId < 0)
             {
-                throw new ArgumentException($"worker Id can't be greater than {maxWorkerId} or less than 0");
+                throw new ArgumentException($"Worker ID 必须在 0 到 {maxWorkerId} 之间");
             }
             if (datacenterId > maxDatacenterId || datacenterId < 0)
             {
-                throw new ArgumentException($"datacenter Id can't be greater than {maxDatacenterId} or less than 0");
+                throw new ArgumentException($"Datacenter ID 必须在 0 到 {maxDatacenterId} 之间"); 
             }
-            this.workerId = _config.MachineId;
-            this.datacenterId = _config.DataCenterId; ;
+           
         }
 
         public long GetNextId()
