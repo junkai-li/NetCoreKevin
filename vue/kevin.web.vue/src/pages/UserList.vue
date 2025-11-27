@@ -126,82 +126,19 @@
       </div>
     </a-card>
 
-    <!-- 添加/编辑用户模态框 -->
-    <a-modal
-      v-model:open="userModalVisible"
+    <!-- 用户管理模态框 -->
+    <UserManagementModal
+      :visible="userModalVisible"
       :title="userModalTitle"
+      :user="currentUser"
       @ok="handleUserModalOk"
-      @cancel="handleUserModalCancel" 
-      :width="600"
-    >
-      <a-form :model="userForm" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
-        <a-form-item label="用户名" v-bind="validateInfos.username">
-          <a-input v-model:value="userForm.username" class="custom-input" />
-        </a-form-item>
-        <a-form-item label="昵称" v-bind="validateInfos.nickName">
-          <a-input v-model:value="userForm.nickName" class="custom-input" />
-        </a-form-item>
-        <a-form-item label="手机号" v-bind="validateInfos.phone">
-          <a-input v-model:value="userForm.phone" class="custom-input" />
-        </a-form-item>
-        <a-form-item label="邮箱" v-bind="validateInfos.email">
-          <a-input v-model:value="userForm.email" class="custom-input" />
-        </a-form-item>
-        <a-form-item label="角色">
-          <a-select
-            v-model:value="userForm.roles"
-            mode="multiple"
-            placeholder="请选择角色"
-            class="custom-select"
-            :loading="roleLoading"
-          >
-            <a-select-option v-for="role in roleList" :key="role.id" :value="role.id">
-              {{ role.name }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item label="状态">
-          <a-switch
-            v-model:checked="userForm.status"
-            checked-children="启用"
-            un-checked-children="禁用"
-          /> 
-        </a-form-item>
-        <a-form-item label="头像">
-          <a-upload
-            v-model:file-list="userForm.avatar"
-            list-type="picture-card"
-            class="avatar-uploader"
-            :show-upload-list="false"
-            :before-upload="beforeUpload"
-          >
-            <img
-              v-if="userForm.avatarUrl"
-              :src="userForm.avatarUrl"
-              alt="avatar"
-              style="width: 100%"
-            />
-            <div v-else>
-              <PlusOutlined />
-              <div style="margin-top: 8px">上传头像</div>
-            </div>
-          </a-upload>
-        </a-form-item>
-        <a-form-item label="密码" v-bind="validateInfos.PassWord">
-          <a-input-password
-            size="middle"
-            placeholder="密码"
-            v-model:value="userForm.PassWord"
-          />
-        </a-form-item>
-      </a-form>
-    </a-modal>
+      @cancel="handleUserModalCancel"
+    />
   </div>
 </template>
 
 <script setup>
-
-import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import {
   UserOutlined,
   PlusOutlined,
@@ -211,21 +148,15 @@ import {
   EditOutlined,
 } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
-import { Form } from "ant-design-vue";
-import { getUserList, createUser, updateUser, getUserRoleList,DeleteUser,ExportGetSysUserList } from "../api/userapi";
-import { GetGuId } from "../api/baseapi"; 
+import { getUserList, DeleteUser, ExportGetSysUserList } from "../api/userapi";
 import hedeImage from "../assets/hede.png"; // 导入图片
-const useForm = Form.useForm;
+import UserManagementModal from "../components/UserManagementModal.vue";
 
 // 数据加载状态
 const loading = ref(false);
-const roleLoading = ref(false);
 
 // 用户数据
 const dataSource = ref([]);
-
-// 角色列表
-const roleList = ref([]);
 
 // 表格列定义
 const columns = ref([
@@ -235,11 +166,16 @@ const columns = ref([
     key: "avatar",
     width: 80,
   },
+    {
+    title: "手机号",
+    dataIndex: "phone",
+    key: "phone", 
+    width: 120,
+  },
   {
     title: "用户名",
     dataIndex: "name",
-    key: "name",
-    sorter: true,
+    key: "name", 
     width: 120,
   },
   {
@@ -252,7 +188,7 @@ const columns = ref([
     title: "邮箱",
     dataIndex: "email",
     key: "email",
-    width: 200,
+    width: 150,
   },
   {
     title: "角色",
@@ -324,66 +260,9 @@ const userModalTitle = ref("添加用户");
 // 当前编辑的用户
 const currentUser = ref(null);
 
-// 用户表单
-const userForm = reactive({
-  username: "",
-  id: "",
-  nickName: "",
-  PassWord: "",
-  phone: "",
-  email: "",
-  roles: [],
-  status: true,
-  avatar: [],
-  avatarUrl: "",
-});
-
-// 表单验证规则
-const userRules = reactive({
-  username: [
-    { required: true, message: "请输入用户名" },
-    { min: 3, message: "用户名至少3个字符" },
-  ],
-  nickName: [{ required: true, message: "请输入昵称" }],
-  phone: [{ pattern: /^1[3-9]\d{9}$/, message: "请输入正确的手机号" }],
-  email: [
-    { required: true, message: "请输入邮箱" },
-    { type: "email", message: "请输入有效的邮箱地址" },
-  ],
-});
-
-// 表单验证
-const { validate: validateUserForm, validateInfos } = useForm(userForm, userRules);
-
 onMounted(() => {
   fetchUserList();
-  fetchRoleList();
 });
-
-onUnmounted(() => {
-  // 不需要在这里做任何事情，因为错误处理现在在全局进行
-});
-
-// 头像上传前处理
-const beforeUpload = (file) => {
-  const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
-  if (!isJpgOrPng) {
-    message.error("只能上传JPG/PNG格式的图片!");
-  }
-  const isLt2M = file.size / 1024 / 1024 < 2;
-  if (!isLt2M) {
-    message.error("图片大小不能超过2MB!");
-  }
-  if (isJpgOrPng && isLt2M) {
-    // 读取文件并预览
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      userForm.avatarUrl = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-  return false; // 不自动上传
-};
 
 // 切换列显示/隐藏
 const toggleColumn = (dataIndex, visible) => {
@@ -419,8 +298,6 @@ const fetchUserList = async () => {
       pageSize: pagination.value.pageSize,
       pageNum: pagination.value.current,
       total: 0,
-      // startTime: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString(), // 最近30天
-      // endTime: new Date().toISOString()
     };
     const response = await getUserList(params);
     if (response && response.status == 200 && response.data.data.data) {
@@ -440,8 +317,6 @@ const fetchUserList = async () => {
       }));
 
       pagination.value.total = response.data.total;
-      // pagination.value.current = response.data.pageNum;
-      // pagination.value.pageSize = response.data.pageSize;
     }
   } catch (error) {
     console.error("获取用户列表失败:", error);
@@ -451,43 +326,10 @@ const fetchUserList = async () => {
   }
 };
 
-// 获取角色列表
-const fetchRoleList = async () => {
-  roleLoading.value = true;
-  try {
-    const response = await getUserRoleList();
-    if (response && response.status === 200 && response.data) {
-      roleList.value = response.data.data.map((role) => ({
-        id: role.key,
-        name: role.value,
-        value: role.key,
-      }));
-      console.log(roleList.value);
-    }
-  } catch (error) {
-    console.error("获取角色列表失败:", error);
-    message.error("获取角色列表失败: " + error.message);
-  } finally {
-    roleLoading.value = false;
-  }
-};
-
 // 显示添加用户模态框
 const showAddUserModal = () => {
   userModalTitle.value = "添加用户";
   currentUser.value = null;
-  // 重置表单
-  Object.assign(userForm, {
-    username: "",
-    id: "",
-    nickName: "",
-    phone: "",
-    email: "",
-    roles: [],
-    status: true,
-    avatar: [],
-    avatarUrl: "",
-  });
   userModalVisible.value = true;
 };
 
@@ -495,67 +337,13 @@ const showAddUserModal = () => {
 const showEditUserModal = (record) => {
   userModalTitle.value = "编辑用户";
   currentUser.value = record;
-  // 填充表单数据
-  Object.assign(userForm, {
-    id: record.id,
-    username: record.name,
-    nickName: record.nickName,
-    phone: record.phone,
-    email: record.email,
-    roles: record.roles.map((role) => role.id),
-    status: record.status == 1,
-    avatar: [],
-    avatarUrl: record.avatar || "",
-  });
   userModalVisible.value = true;
 };
 
 // 用户模态框确认
-const handleUserModalOk = () => {
-  validateUserForm()
-    .then(async () => {
-      try {
-        var roles = roleList.value.filter((role) => userForm.roles.includes(role.id));
-        console.log(roles);
-        const userData = {
-          id: userForm.id,
-          name: userForm.username,
-          nickName: userForm.nickName,
-          PassWord: userForm.PassWord,
-          phone: userForm.phone,
-          email: userForm.email,
-          roles: roles.map((role) => ({ id: role.id, name: role.name })),
-          status: userForm.status,
-          headImgs: userForm.avatarUrl
-            ? [{ key: "avatar", value: userForm.avatarUrl }]
-            : [],
-        };
-
-        if (currentUser.value) {
-          // 编辑用户
-          await updateUser(userData);
-          message.success("用户信息更新成功");
-        } else {
-          // 添加用户
-          var dataid = await GetGuId();
-          if (dataid && dataid.status == 200 && dataid.data.data) {
-            var id = dataid.data.data;
-            userData.id= id;
-            await createUser(userData);
-            message.success("用户添加成功");
-          } else {
-            message.error("获取用户ID失败"); 
-          }
-        }
-        userModalVisible.value = false;
-        fetchUserList(); // 重新加载数据
-      } catch (error) {
-        console.error("操作失败:", error);
-      }
-    })
-    .catch((err) => {
-      console.log("表单验证失败:", err);
-    });
+const handleUserModalOk = async () => {
+  userModalVisible.value = false;
+  fetchUserList(); // 重新加载数据
 };
 
 // 用户模态框取消
