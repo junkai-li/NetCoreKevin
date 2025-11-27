@@ -5,8 +5,11 @@ using kevin.Domain.Entities.Organizational;
 using kevin.Domain.Interfaces.IRepositories.Organizational;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.Organizational;
+using kevin.Domain.Share.Enums;
 using kevin.RepositorieRps.Repositories;
 using kevin.Share.Dtos;
+using System;
+using System.Collections.Generic;
 using Web.Global.Exceptions;
 
 namespace kevin.Domain.Interfaces.IServices.Organizational
@@ -27,16 +30,50 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
             if (!string.IsNullOrEmpty(par.searchKey))
             {
                 data = data.Where(t => (t.Name ?? "").Contains(par.searchKey) || (t.Code ?? "").Contains(par.searchKey));
-            } 
+            }
             dataPage.total = await data.CountAsync();
             var dbdata = await data.Skip(skip).Take(par.pageSize).OrderByDescending(x => x.Sort).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
             dataPage.data = dbdata.MapToList<TPosition, PositionDto>();
-            dataPage.data.ForEach(t => {
+            dataPage.data.ForEach(t =>
+            {
                 t.CreateUser = dbdata.FirstOrDefault(d => d.Id == t.Id)?.CreateUser?.Name;
                 t.UpdateUser = dbdata.FirstOrDefault(d => d.Id == t.Id)?.UpdateUser?.Name;
             });
             return dataPage;
-        } 
+        }
+
+
+        public Task<PositionDto> GetPositionTree()
+        {
+            var dataPage = new PositionDto();
+            var allList = positionRp.Query().Where(t => t.IsDelete == false && t.Status == OrganizationalStatus.Active && t.TenantId == CurrentUser.TenantId).ToList().MapToList<TPosition, PositionDto>();
+            var data = allList.FirstOrDefault(t => t.ParentId == default);
+            if (data != default)
+            {
+                dataPage = GetChildListData(data.Id, allList, data);
+            }
+            return Task.FromResult(dataPage);
+        }
+
+        /// <summary>
+        /// 获取子集数据
+        /// </summary>
+        /// <returns></returns>
+        private PositionDto GetChildListData(long id, List<PositionDto> allList, PositionDto reslut)
+        {
+            //获取上级是我的数据
+            var data = allList.Where(t => id == t.ParentId).ToList();
+            if (data.Count > 0)
+            {
+                reslut.Children = data.OrderByDescending(t => t.Sort).ToList();
+                foreach (var item in reslut.Children)
+                {
+                    GetChildListData(item.Id, allList, item);
+                }
+
+            }
+            return reslut;
+        }
 
         public async Task<bool> AddEdit(PositionDto data)
         {

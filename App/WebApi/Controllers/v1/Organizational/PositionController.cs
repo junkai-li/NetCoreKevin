@@ -41,6 +41,15 @@ namespace App.WebApi.Controllers.v1.Organizational
             return result;
         }
 
+        [HttpGet("GetPositionTree")]
+        [ActionDescription("获取岗位树形结构")]
+        [HttpLog("岗位管理", "获取岗位树形结构")]
+        public async Task<PositionDto> GetPositionTree()
+        {
+            var result = await _positionService.GetPositionTree();
+            return result;
+        }
+
         [HttpPost("AddEdit")]
         [ActionDescription("新增或编辑岗位")]
         [HttpLog("岗位管理", "新增或编辑岗位")]

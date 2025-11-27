@@ -42,12 +42,12 @@
           <template #title>首页</template>
           <a-menu-item key="">首页</a-menu-item>
         </a-sub-menu>
-          <a-sub-menu key="my">
+        <a-sub-menu key="my">
           <template #icon>
             <RobotOutlined />
           </template>
           <template #title>我的</template>
-          <a-menu-item key="my-message">我的消息</a-menu-item> 
+          <a-menu-item key="my-message">我的消息</a-menu-item>
         </a-sub-menu>
         <a-sub-menu key="aimanagement">
           <template #icon>
@@ -59,12 +59,20 @@
           <a-menu-item key="ai-kmssmg">知识库管理</a-menu-item>
           <a-menu-item key="ai-modelmg">模型配置管理</a-menu-item>
         </a-sub-menu>
+        <a-sub-menu key="organizational-management">
+          <template #icon>
+            <UserOutlined />
+          </template>
+          <template #title>组织架构</template>
+          <a-menu-item key="organizational-position">岗位管理</a-menu-item>
+          <a-menu-item key="organizational-department">部门管理</a-menu-item>
+        </a-sub-menu>
         <a-sub-menu key="user-management">
           <template #icon>
             <UserOutlined />
           </template>
           <template #title>用户管理</template>
-          <a-menu-item key="user-list">用户列表</a-menu-item>
+          <a-menu-item key="user-list">用户管理</a-menu-item>
           <a-menu-item key="user-role">角色管理</a-menu-item>
           <a-menu-item key="user-permission">权限管理</a-menu-item>
         </a-sub-menu>
@@ -74,7 +82,7 @@
             <SettingOutlined />
           </template>
           <template #title>系统管理</template>
-            <a-menu-item key="system-announcement">系统公告</a-menu-item>
+          <a-menu-item key="system-announcement">系统公告</a-menu-item>
           <a-menu-item key="system-dic">系统配置</a-menu-item>
           <a-menu-item key="log-management">日志管理</a-menu-item>
           <a-menu-item key="oslog">关键数据变动日志</a-menu-item>
@@ -227,7 +235,8 @@ import {
   BellOutlined,
   LogoutOutlined,
   BgColorsOutlined,
-  GitlabOutlined,RobotOutlined
+  GitlabOutlined,
+  RobotOutlined,
 } from "@ant-design/icons-vue";
 //import { Button } from 'ant-design-vue';
 import { useRouter } from "vue-router";
@@ -266,7 +275,9 @@ const currentRouteTitle = computed(() => {
     "ai-promptsmg": "提示词管理",
     "ai-kmssmg": "知识库管理",
     "ai-modelmg": "模型配置管理",
-      "my-message": "我的消息",
+    "my-message": "我的消息",
+    "organizational-position": "岗位管理",
+    "organizational-department": "部门管理",
   };
   return titles[selectedKeys.value[0]] || "首页";
 });
@@ -295,10 +306,10 @@ const handleMenuClick = ({ key }) => {
     case "system-dic":
       router.push("/home/system/dic");
       break;
-   case "system-announcement":
+    case "system-announcement":
       router.push("/home/system/announcement");
       break;
-         case "my-message":
+    case "my-message":
       router.push("/home/my/message");
       break;
     case "log-management":
@@ -321,6 +332,12 @@ const handleMenuClick = ({ key }) => {
       break;
     case "ai-modelmg":
       router.push("/home/aimanagement/aimodelmg");
+      break;
+    case "organizational-position":
+      router.push("/home/position/management");
+      break;
+    case "organizational-management":
+      router.push("/home/position/management");
       break;
     default:
       router.push("/home");

@@ -20,6 +20,8 @@ import DicConfig from '@/pages/DicMg.vue';
 // import AiPromptsMg from '@/pages/AiPromptsMg.vue';
 // import AiKmssMg from '@/pages/AiKmssMg.vue';
 // import AiModelMg from '@/pages/AiModelMg.vue';
+//组织架构相关页面
+import PositionManagement from '@/pages/organizational/PositionManagement.vue';
 
 const routes = [
   {
@@ -116,9 +118,13 @@ const routes = [
         path: 'aimanagement/aimodelmg',
         name: 'aimodelmg',
         component: UnderDevelopment
-      }
+      },{
+        path: 'position/management',
+        name: 'positionManagement',
+        component: PositionManagement
+      }  
     ]
-  }
+  } 
 ];
 
 const router = createRouter({

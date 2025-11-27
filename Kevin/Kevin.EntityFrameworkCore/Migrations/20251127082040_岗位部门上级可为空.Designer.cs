@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.Database;
 
@@ -11,9 +12,11 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(KevinDbContext))]
-    partial class KevinDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251127082040_岗位部门上级可为空")]
+    partial class 岗位部门上级可为空
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1036,112 +1039,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.ToTable("t_position", null, t =>
                         {
                             t.HasComment("岗位表");
-                        });
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 4514141354257227771L,
-                            Code = "NET-CEO",
-                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            CreateUserId = 4514140314251222771L,
-                            Description = "CEO",
-                            IsDelete = 0ul,
-                            Name = "CEO",
-                            Sort = 0,
-                            Status = 0,
-                            TenantId = 1000,
-                            xmin = 0u
-                        },
-                        new
-                        {
-                            Id = 4514141354257227371L,
-                            Code = "NET-CTO",
-                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            CreateUserId = 4514140314251222771L,
-                            Description = "CTO",
-                            IsDelete = 0ul,
-                            Name = "CTO",
-                            ParentId = 4514141354257227771L,
-                            Sort = 0,
-                            Status = 0,
-                            TenantId = 1000,
-                            xmin = 0u
-                        },
-                        new
-                        {
-                            Id = 4514141352257227371L,
-                            Code = "NET-NET",
-                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            CreateUserId = 4514140314251222771L,
-                            Description = "NET",
-                            IsDelete = 0ul,
-                            Name = "NET开发人员",
-                            ParentId = 4514141354257227371L,
-                            Sort = 0,
-                            Status = 0,
-                            TenantId = 1000,
-                            xmin = 0u
-                        },
-                        new
-                        {
-                            Id = 4514141324257227371L,
-                            Code = "NET-JAVA",
-                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            CreateUserId = 4514140314251222771L,
-                            Description = "JAVA",
-                            IsDelete = 0ul,
-                            Name = "JAVA开发人员",
-                            ParentId = 4514141354257227371L,
-                            Sort = 0,
-                            Status = 0,
-                            TenantId = 1000,
-                            xmin = 0u
-                        },
-                        new
-                        {
-                            Id = 4514141354257217771L,
-                            Code = "NET-CHO",
-                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            CreateUserId = 4514140314251222771L,
-                            Description = "CHO",
-                            IsDelete = 0ul,
-                            Name = "CHO",
-                            ParentId = 4514141354257227771L,
-                            Sort = 0,
-                            Status = 0,
-                            TenantId = 1000,
-                            xmin = 0u
-                        },
-                        new
-                        {
-                            Id = 4514141354252217771L,
-                            Code = "NET-ZP",
-                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            CreateUserId = 4514140314251222771L,
-                            Description = "招聘",
-                            IsDelete = 0ul,
-                            Name = "招聘",
-                            ParentId = 4514141354257217771L,
-                            Sort = 0,
-                            Status = 0,
-                            TenantId = 1000,
-                            xmin = 0u
-                        },
-                        new
-                        {
-                            Id = 4514141352512124771L,
-                            Code = "NET-XZ",
-                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            CreateUserId = 4514140314251222771L,
-                            Description = "行政",
-                            IsDelete = 0ul,
-                            Name = "行政",
-                            ParentId = 4514141354257217771L,
-                            Sort = 0,
-                            Status = 0,
-                            TenantId = 1000,
-                            xmin = 0u
                         });
                 });
 

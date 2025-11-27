@@ -1,4 +1,5 @@
-﻿using kevin.Domain.Share.Enums;
+﻿using kevin.Domain.Kevin;
+using kevin.Domain.Share.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,12 +40,15 @@ namespace kevin.Domain.Entities.Organizational
         /// <summary>
         /// 上级部门ID
         /// </summary>
-        public long ParentId { get; set; }
+        public long? ParentId { get; set; }
+
+        public virtual TDepartment? Parent { get; set; }
 
         /// <summary>
         /// 部门负责人ID
         /// </summary>
-        public long ManagerUserId { get; set; }
+        public long? ManagerUserId { get; set; }
+        public virtual TUser? User { get; set; }
 
         /// <summary>
         /// 排序

@@ -37,7 +37,7 @@ namespace Web.Extension
     public static class ServiceConfiguration
     {
         public static IServiceCollection ConfigServies(this IServiceCollection services, IConfiguration Configuration)
-        { 
+        {
             ConsoleHelper.PrintFrameworkName("欢迎使用NetCoreKevin框架");
             ConsoleHelper.PrintWithTypewriterEffect("正在初始化......");
             #region json配置
@@ -67,7 +67,7 @@ namespace Web.Extension
 
             #region 权限校验 
             //权限校验
-            services.AddKevinAuthorizationPermission(Configuration); 
+            services.AddKevinAuthorizationPermission(Configuration);
             #endregion
 
             #region 注册常用 
@@ -83,7 +83,7 @@ namespace Web.Extension
             });
             ConfigHelper.Initialize(Configuration);
             //注册HttpContext
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             #endregion
 
             services.AddControllers();
@@ -94,7 +94,8 @@ namespace Web.Extension
                 option.JsonSerializerOptions.Converters.Add(new Common.Json.DateTimeNullConverter());
                 option.JsonSerializerOptions.Converters.Add(new Common.Json.LongConverter());
                 option.JsonSerializerOptions.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;// 或者使用其他适当的编码器
-                option.JsonSerializerOptions.WriteIndented=true; // 可选，美化输出 
+                option.JsonSerializerOptions.WriteIndented = true; // 可选，美化输出 
+                option.JsonSerializerOptions.MaxDepth= 128; // 可选，设置最大深度
             });
 
             services.AddControllers().AddControllersAsServices(); //控制器当做实例创建 
@@ -117,7 +118,7 @@ namespace Web.Extension
             services.ReplaceIocControllerActivator();
             //App服务注册
             RegisterAppServices(services, Configuration);
-            services.AddKevinCors(Configuration.GetSection("CorsSetting").Get<CorsSetting>()); 
+            services.AddKevinCors(Configuration.GetSection("CorsSetting").Get<CorsSetting>());
 
             #region 注入SignalRRedis
             services.AddKevinSignalRRedis(options =>
@@ -142,7 +143,7 @@ namespace Web.Extension
                 var settings = Configuration.GetRequiredSection("AliCloudSMS").Get<Kevin.SMS.AliCloud.Models.SMSSetting>()!;
                 options.AccessKeyId = settings.AccessKeyId;
                 options.AccessKeySecret = settings.AccessKeySecret;
-            }); 
+            });
 
             #endregion
 
@@ -154,7 +155,7 @@ namespace Web.Extension
                 options.AccessKeyId = settings.AccessKeyId;
                 options.AccessKeySecret = settings.AccessKeySecret;
                 options.BucketName = settings.BucketName;
-            }); 
+            });
             #endregion
 
             #region MCP服务注册
@@ -202,7 +203,7 @@ namespace Web.Extension
             {
                 var settings = Configuration.GetRequiredSection("SnowflakeIdSetting").Get<SnowflakeIdSetting>()!;
                 options.MachineId = settings.MachineId;
-                options.DataCenterId = settings.DataCenterId; 
+                options.DataCenterId = settings.DataCenterId;
             });
             #endregion
 
@@ -215,7 +216,7 @@ namespace Web.Extension
         /// </summary>
         /// <param name="app"></param>
         /// <returns></returns>
-        public static IApplicationBuilder UseKevin(this IApplicationBuilder app,IConfiguration Configuration)
+        public static IApplicationBuilder UseKevin(this IApplicationBuilder app, IConfiguration Configuration)
         {
             /////json压缩
             app.UseResponseCompression();
@@ -280,8 +281,8 @@ namespace Web.Extension
             Repository.Database.KevinDbContext.ConnectionString = Configuration.GetConnectionString("dbConnection");
             Repository.Database.KevinDbContext.DBDefaultHasIndexFields = Configuration.GetRequiredSection("DBDefaultHasIndexFields").Get<string>().Split(",").ToList();
             services.AddDbContextPool<Repository.Database.KevinDbContext>(options => { }, 100);
-            services.AddScoped<KevinDbContext, KevinDbContext>(); 
-        } 
-   
+            services.AddScoped<KevinDbContext, KevinDbContext>();
+        }
+
     }
 }

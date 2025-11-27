@@ -1,4 +1,5 @@
-﻿using kevin.Domain.Share.Enums;
+﻿using kevin.Domain.Kevin;
+using kevin.Domain.Share.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,8 +39,8 @@ namespace kevin.Domain.Entities.Organizational
         /// <summary>
         /// 上级岗位ID
         /// </summary>
-        public long ParentId { get; set; }
-
+        public long? ParentId { get; set; } 
+        public virtual TPosition? Parent { get; set; }
 
         /// <summary>
         /// 状态（1.启用/禁用-1）

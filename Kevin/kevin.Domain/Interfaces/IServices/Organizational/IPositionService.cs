@@ -11,6 +11,8 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
 {
     public interface IPositionService : IBaseService
     {
+
+        Task<PositionDto> GetPositionTree();
         Task<dtoPageData<PositionDto>> GetPageData(dtoPagePar<string> par);
 
         Task<bool> AddEdit(PositionDto data);

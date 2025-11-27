@@ -9,7 +9,7 @@ using kevin.Domain.Share.Dtos.Bases;
 namespace kevin.Domain.Share.Dtos.Organizational
 {
     public class PositionDto : CUD_User_Dto
-    {  
+    {
 
         /// <summary>
         /// 岗位名称
@@ -21,20 +21,17 @@ namespace kevin.Domain.Share.Dtos.Organizational
         /// </summary> 
         public string? Code { get; set; }
 
+        public long? ParentId { get; set; }
+
         /// <summary>
         /// 岗位描述
         /// </summary> 
-        public string? Description { get; set; }
+        public string? Description { get; set; } 
 
         /// <summary>
-        /// 上级岗位ID
+        /// 我的下级
         /// </summary>
-        public long ParentId { get; set; }
-
-        /// <summary>
-        /// 上级岗位ID
-        /// </summary>
-        public long ParentName { get; set; }
+        public List<PositionDto> Children { get; set; }= new List<PositionDto>();
 
         /// <summary>
         /// 状态（1.启用/禁用-1）

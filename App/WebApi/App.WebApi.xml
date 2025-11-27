@@ -465,6 +465,11 @@
             <param name="messageType"></param>
             <returns></returns>
         </member>
+        <member name="T:App.WebApi.Controllers.v1.Organizational.DepartmentController">
+            <summary>
+            部门管理
+            </summary>
+        </member>
         <member name="T:App.WebApi.Controllers.v1.Organizational.PositionController">
             <summary>
             岗位管理

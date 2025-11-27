@@ -257,6 +257,7 @@ namespace Repository.Database
             modelBuilder.ApplyConfiguration(new TTenantConfiguration());
             modelBuilder.ApplyConfiguration(new TUserBindRoleConfig());
             modelBuilder.ApplyConfiguration(new TDictionaryConfig());
+            modelBuilder.ApplyConfiguration(new TPositionConfig());
             ConsoleHelper.Print("初始化种子数据成功！");
             #endregion
 
@@ -492,7 +493,7 @@ namespace Repository.Database
                 var type = item.Entity.GetType();
                 var oldEntity = item.OriginalValues.ToObject();
                 var newEntity = item.CurrentValues.ToObject();
-                var entityId = item.CurrentValues.GetValue<string>("Id");
+                var entityId = oldEntity.GetType().GetProperty("Id")?.GetValue(oldEntity)?.ToString();
                 object[] parameters = { oldEntity, newEntity };
                 var result = new KevinDbContext().GetType().GetMethod("ComparisonEntity").MakeGenericMethod(type).Invoke(new KevinDbContext(), parameters);
                 var osLog = new TOSLog();

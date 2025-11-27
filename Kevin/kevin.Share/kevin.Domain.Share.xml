@@ -224,14 +224,9 @@
             岗位描述
             </summary> 
         </member>
-        <member name="P:kevin.Domain.Share.Dtos.Organizational.PositionDto.ParentId">
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.PositionDto.Children">
             <summary>
-            上级岗位ID
-            </summary>
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.Organizational.PositionDto.ParentName">
-            <summary>
-            上级岗位ID
+            我的下级
             </summary>
         </member>
         <member name="P:kevin.Domain.Share.Dtos.Organizational.PositionDto.Status">

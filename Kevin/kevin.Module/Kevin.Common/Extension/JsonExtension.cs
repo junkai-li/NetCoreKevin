@@ -30,7 +30,8 @@ namespace Kevin.Common.Extension
             },
             Formatting = Formatting.Indented, // 使JSON格式化，更易读
             DateFormatHandling = DateFormatHandling.MicrosoftDateFormat,
-            DateFormatString = "yyyy-MM-dd HH:mm:ss.fff"
+            DateFormatString = "yyyy-MM-dd HH:mm:ss.fff",
+            MaxDepth = 128 // 可选，设置最大深度
         };
 
         /// <summary>
