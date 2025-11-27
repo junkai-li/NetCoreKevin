@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace kevin.Domain.Interfaces.IRepositories
 {
-    public interface IUserBindRoleRp : IRepository<TUserBindRole, Guid>
+    public interface IUserBindRoleRp : IRepository<TUserBindRole, long>
     {
 
     }

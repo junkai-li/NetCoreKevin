@@ -6,7 +6,7 @@ namespace kevin.Domain.Interfaces.IRepositories
     /// <summary>
     /// 仓储接口
     /// </summary>
-    public interface ISignRp : IRepository<TSign, Guid>
+    public interface ISignRp : IRepository<TSign, long>
     {
 
     }

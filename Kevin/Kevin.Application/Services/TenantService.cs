@@ -1,12 +1,9 @@
-﻿using Aop.Api.Domain;
-using kevin.Application;
-using kevin.Domain.BaseDatas;
+﻿using kevin.Domain.BaseDatas;
 using kevin.Domain.Configuration;
 using kevin.Domain.Entities;
 using kevin.Domain.EventBus;
 using kevin.Domain.Events;
 using kevin.Domain.Share.Enums;
-using Microsoft.AspNetCore.Http;
 using Repository.Database;
 using Web.Global.Exceptions;
 

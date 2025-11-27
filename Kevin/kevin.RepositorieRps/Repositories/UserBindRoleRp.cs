@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace kevin.RepositorieRps.Repositories
 {
-    public class UserBindRoleRp : Repository<TUserBindRole, Guid>, IUserBindRoleRp
+    public class UserBindRoleRp : Repository<TUserBindRole, long>, IUserBindRoleRp
     {
         public UserBindRoleRp(IServiceProvider serviceProvider) : base(serviceProvider)
         {

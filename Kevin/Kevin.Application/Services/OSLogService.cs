@@ -1,14 +1,4 @@
-﻿using kevin.Domain.Entities;
-using kevin.Domain.Interfaces.IRepositories;
-using kevin.RepositorieRps.Repositories;
-using kevin.Share.Dtos;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using kevin.Share.Dtos;
 
 namespace kevin.Application.Services
 {

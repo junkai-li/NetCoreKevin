@@ -1,17 +1,6 @@
-﻿using Aop.Api.Domain;
-using kevin.Domain.BaseDatas;
-using kevin.Domain.Configuration;
-using kevin.FileStorage;
-using kevin.RepositorieRps.Repositories;
+﻿using kevin.Domain.BaseDatas;
 using kevin.Share.Dtos;
 using kevin.Share.Dtos.System;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Web.Global.Exceptions;
 
 namespace kevin.Application.Services

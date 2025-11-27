@@ -27,7 +27,7 @@ namespace Kevin.SnowflakeId.Service
         {
             _config = new SnowflakeIdSetting();
             this.workerId = _config.MachineId;
-            this.datacenterId = _config.DataCenterId; ;
+            this.datacenterId = _config.DataCenterId;
             if (workerId > maxWorkerId || workerId < 0)
             {
                 throw new ArgumentException($"Worker ID 必须在 0 到 {maxWorkerId} 之间");
@@ -41,7 +41,7 @@ namespace Kevin.SnowflakeId.Service
         {
             _config = config.CurrentValue;
             this.workerId = _config.MachineId;
-            this.datacenterId = _config.DataCenterId; ;
+            this.datacenterId = _config.DataCenterId;
             if (_config == default)
             {
                 _config = new SnowflakeIdSetting();

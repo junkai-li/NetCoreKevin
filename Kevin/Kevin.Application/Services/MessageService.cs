@@ -2,15 +2,7 @@
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.Msg;
 using kevin.Domain.Share.Enums;
-using kevin.RepositorieRps.Repositories;
 using kevin.Share.Dtos;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Web.Global.Exceptions;
 
 namespace kevin.Application.Services

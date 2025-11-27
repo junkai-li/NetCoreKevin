@@ -4,7 +4,7 @@ using kevin.Domain.Kevin;
 
 namespace kevin.Domain.Interfaces.IRepositories
 {
-    public interface IAIPromptsRp : IRepository<TAIPrompts, Guid>
+    public interface IAIPromptsRp : IRepository<TAIPrompts, long>
     {
 
     }

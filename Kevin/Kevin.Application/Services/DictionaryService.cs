@@ -1,15 +1,5 @@
-﻿using kevin.Domain.Entities;
-using kevin.Domain.Share.Dtos;
-using kevin.FileStorage;
-using kevin.RepositorieRps.Repositories;
+﻿using kevin.Domain.Share.Dtos;
 using kevin.Share.Dtos;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Web.Global.Exceptions;
 
 namespace kevin.Application.Services

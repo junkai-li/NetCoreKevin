@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace kevin.Domain.Interfaces.IRepositories
 {
-    public interface IOSLogRp : IRepository<TOSLog, Guid>
+    public interface IOSLogRp : IRepository<TOSLog, long>
     {
     }
 }

@@ -5,7 +5,7 @@ using Kevin.EntityFrameworkCore._.Data;
 
 namespace kevin.Domain.Interfaces.IRepositories
 { 
-    public class AIKmsDetailsRp : Repository<TAIKmsDetails, Guid>, IAIKmsDetailsRp
+    public class AIKmsDetailsRp : Repository<TAIKmsDetails, long>, IAIKmsDetailsRp
     {
         public AIKmsDetailsRp(IServiceProvider serviceProvider) : base(serviceProvider)
         {

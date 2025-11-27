@@ -3,7 +3,7 @@ using Kevin.EntityFrameworkCore._.Data;
 
 namespace kevin.RepositorieRps.Repositories
 {
-    public class FileRp : Repository<TFile, Guid>, IFileRp
+    public class FileRp : Repository<TFile, long>, IFileRp
     {
         public FileRp(IServiceProvider serviceProvider) : base(serviceProvider)
         {

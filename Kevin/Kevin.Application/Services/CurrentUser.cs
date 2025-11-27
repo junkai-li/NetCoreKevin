@@ -1,7 +1,5 @@
 ﻿using Kevin.Common.App;
 using Kevin.Models.JwtBearer;
-using Microsoft.AspNetCore.Http;
-using System;
 using Web.Global.User;
 
 namespace kevin.Application

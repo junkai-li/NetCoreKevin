@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace kevin.RepositorieRps.Repositories
 {  
-    public class DictionaryRp : Repository<TDictionary, Guid>, IDictionaryRp
+    public class DictionaryRp : Repository<TDictionary, long>, IDictionaryRp
     {
         public DictionaryRp(IServiceProvider serviceProvider) : base(serviceProvider)
         {

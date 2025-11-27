@@ -2,11 +2,7 @@
 using kevin.FileStorage;
 using kevin.Share.Dtos;
 using Kevin.Common.App;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.EntityFrameworkCore;
-using Repository.Database;
 using Web.Global.Exceptions;
 
 namespace kevin.Application.Services

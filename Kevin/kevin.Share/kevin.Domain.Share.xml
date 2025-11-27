@@ -4,6 +4,71 @@
         <name>kevin.Domain.Share</name>
     </assembly>
     <members>
+        <member name="T:kevin.Domain.Share.Dtos.Bases.CD_Dto">
+            <summary>
+            创建，删除
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Bases.CD_Dto.Id">
+            <summary>
+            主键标识ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Bases.CD_Dto.CreateTime">
+            <summary>
+            创建时间
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Bases.CD_Dto.TenantId">
+            <summary>
+            租户ID;
+            </summary> 
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.Bases.CD_User_Dto">
+            <summary>
+            创建，编辑，删除，并关联了用户
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Bases.CD_User_Dto.CreateUserId">
+            <summary>
+            创建人ID
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Bases.CD_User_Dto.DeleteUserId">
+            <summary>
+            删除人ID
+            </summary> 
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.Bases.CUD_Dto">
+            <summary>
+            创建，编辑，删除
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Bases.CUD_Dto.UpdateTime">
+            <summary>
+            更新时间
+            </summary>  
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.Bases.CUD_User_Dto">
+            <summary>
+            创建，编辑，删除，并关联了用户
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Bases.CUD_User_Dto.CreateUserId">
+            <summary>
+            创建人ID
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Bases.CUD_User_Dto.UpdateUserId">
+            <summary>
+            编辑人ID
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Bases.CUD_User_Dto.DeleteUserId">
+            <summary>
+            删除人ID
+            </summary> 
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.dtoId`1.Id">
             <summary>
             id
@@ -102,6 +167,76 @@
         <member name="P:kevin.Domain.Share.Dtos.Msg.MessageDto.Files">
             <summary>
             相关附件
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.DepartmentDto.Name">
+            <summary>
+            部门名称
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.DepartmentDto.Code">
+            <summary>
+            部门编码
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.DepartmentDto.Description">
+            <summary>
+            部门描述
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.DepartmentDto.ParentId">
+            <summary>
+            上级部门ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.DepartmentDto.ParentName">
+            <summary>
+            上级部门
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.DepartmentDto.ManagerUserId">
+            <summary>
+            部门负责人ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.DepartmentDto.Sort">
+            <summary>
+            排序
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.DepartmentDto.Status">
+            <summary>
+            状态（1.启用/禁用-1）
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.PositionDto.Name">
+            <summary>
+            岗位名称
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.PositionDto.Code">
+            <summary>
+            岗位编码
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.PositionDto.Description">
+            <summary>
+            岗位描述
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.PositionDto.ParentId">
+            <summary>
+            上级岗位ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.PositionDto.ParentName">
+            <summary>
+            上级岗位ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.PositionDto.Status">
+            <summary>
+            状态（1.启用/禁用-1）
             </summary>
         </member>
         <member name="T:kevin.Domain.Share.Dtos.Sign.dtoSign">

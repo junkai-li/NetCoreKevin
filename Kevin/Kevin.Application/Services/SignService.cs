@@ -1,7 +1,4 @@
-﻿using kevin.Domain.Interfaces.IServices;
-using kevin.Domain.Kevin;
-using kevin.Domain.Share.Dtos.Sign;
-using Microsoft.AspNetCore.Http;
+﻿using kevin.Domain.Share.Dtos.Sign;
 
 namespace kevin.Application
 {

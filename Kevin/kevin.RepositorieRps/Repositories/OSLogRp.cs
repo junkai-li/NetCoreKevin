@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace kevin.RepositorieRps.Repositories
 {
-    public class OSLogRp : Repository<TOSLog, Guid>, IOSLogRp
+    public class OSLogRp : Repository<TOSLog, long>, IOSLogRp
     {
         public OSLogRp(IServiceProvider serviceProvider) : base(serviceProvider)
         {

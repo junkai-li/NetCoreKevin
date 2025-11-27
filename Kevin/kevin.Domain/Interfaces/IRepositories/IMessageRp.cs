@@ -5,7 +5,7 @@ using kevin.Domain.Kevin;
 namespace kevin.Domain.Interfaces.IRepositories
 {
 
-    public interface IMessageRp : IRepository<TMessage, Guid>
+    public interface IMessageRp : IRepository<TMessage, long>
     {
 
     }

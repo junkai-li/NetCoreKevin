@@ -1,14 +1,7 @@
-﻿using Consul;
-using Emgu.CV.Dnn;
-using kevin.Permission.Interfaces;
+﻿using kevin.Permission.Interfaces;
 using kevin.Permission.Permission;
 using kevin.Permission.Permisson;
-using kevin.RepositorieRps.Repositories;
 using kevin.Share.Dtos;
-using kevin.Share.Dtos.System;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using NPOI.SS.Formula.Functions;
 using Web.Global.Exceptions;
 namespace kevin.Application
 {

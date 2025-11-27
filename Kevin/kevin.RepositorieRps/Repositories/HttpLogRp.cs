@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace kevin.RepositorieRps.Repositories
 {
-    public class HttpLogRp : Repository<THttpLog, Guid>, IHttpLogRp
+    public class HttpLogRp : Repository<THttpLog, long>, IHttpLogRp
     {
 
         public HttpLogRp(IServiceProvider serviceProvider) : base(serviceProvider)

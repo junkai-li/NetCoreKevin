@@ -7,7 +7,7 @@ namespace kevin.Domain.Interfaces.IRepositories
     /// <summary>
     /// 仓储接口
     /// </summary>
-    public interface IHttpLogRp : IRepository<THttpLog, Guid>
+    public interface IHttpLogRp : IRepository<THttpLog, long>
     {
         /// <summary>
         /// 请求日志

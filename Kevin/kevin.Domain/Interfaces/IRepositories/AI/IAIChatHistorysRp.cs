@@ -4,7 +4,7 @@ using kevin.Domain.Kevin;
 
 namespace kevin.Domain.Interfaces.IRepositories
 {
-    public interface IAIChatHistorysRp : IRepository<TAIChatHistorys, Guid>
+    public interface IAIChatHistorysRp : IRepository<TAIChatHistorys, long>
     {
 
     }

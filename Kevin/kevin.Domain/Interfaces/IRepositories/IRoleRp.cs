@@ -6,7 +6,7 @@ namespace kevin.Domain.Interfaces.IRepositories
     /// <summary>
     /// 仓储接口
     /// </summary>
-    public interface IRoleRp : IRepository<TRole, Guid>
+    public interface IRoleRp : IRepository<TRole, long>
     {
 
     }

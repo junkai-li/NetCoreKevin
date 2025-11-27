@@ -30,9 +30,9 @@ namespace kevin.Domain.Entities.Organizational
 
 
         /// <summary>
-        /// 岗位描述
+        /// 部门描述
         /// </summary>
-        [Description("岗位描述")]
+        [Description("部门描述")]
         [MaxLength(500)]
         public string? Description { get; set; }
 

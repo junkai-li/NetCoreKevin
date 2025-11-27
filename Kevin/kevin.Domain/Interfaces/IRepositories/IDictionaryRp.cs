@@ -3,7 +3,7 @@ using kevin.Domain.Kevin;
 
 namespace kevin.Domain.Interfaces.IRepositories
 { 
-    public interface IDictionaryRp : IRepository<TDictionary, Guid>
+    public interface IDictionaryRp : IRepository<TDictionary, long>
     {
 
     }

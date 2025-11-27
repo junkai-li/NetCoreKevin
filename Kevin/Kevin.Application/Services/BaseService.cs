@@ -1,6 +1,5 @@
 ﻿using kevin.Domain.Share;
 using Kevin.SnowflakeId.Service;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Web.Global.User;
 

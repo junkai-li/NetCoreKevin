@@ -4,7 +4,7 @@ using kevin.Domain.Kevin;
 
 namespace kevin.Domain.Interfaces.IRepositories
 {
-    public interface IAIKmsDetailsRp : IRepository<TAIKmsDetails, Guid>
+    public interface IAIKmsDetailsRp : IRepository<TAIKmsDetails, long>
     {
 
     }
