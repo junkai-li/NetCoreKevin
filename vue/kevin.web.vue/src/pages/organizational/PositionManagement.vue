@@ -119,7 +119,7 @@ import {
   DeleteOutlined,
   EditOutlined
 } from '@ant-design/icons-vue';
-import { message, Button } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 import { Form } from 'ant-design-vue';
 import { getPositionTree, addEditPosition, deletePosition } from '@/api/organizational/position';
 
