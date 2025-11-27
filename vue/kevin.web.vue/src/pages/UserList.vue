@@ -127,7 +127,7 @@
     </a-card>
 
     <!-- 用户管理模态框 -->
-    <UserManagementModal
+    <UserAddEdit
       :visible="userModalVisible"
       :title="userModalTitle"
       :user="currentUser"
@@ -150,7 +150,7 @@ import {
 import { message } from "ant-design-vue";
 import { getUserList, DeleteUser, ExportGetSysUserList } from "../api/userapi";
 import hedeImage from "../assets/hede.png"; // 导入图片
-import UserManagementModal from "../components/UserManagementModal.vue";
+import UserAddEdit from "../components/UserAddEdit.vue";
 
 // 数据加载状态
 const loading = ref(false);
