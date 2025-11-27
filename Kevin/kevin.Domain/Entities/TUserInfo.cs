@@ -47,13 +47,7 @@ namespace kevin.Domain.Kevin
         /// 部门ID
         /// </summary> 
         [Description("部门ID")]
-        public long? DepartmentId { get; set; }
-
-        /// <summary>
-        /// 岗位Id
-        /// </summary> 
-        [Description("岗位Id")]
-        public long? PositionId { get; set; }
+        public long? DepartmentId { get; set; }  
 
         /// <summary>
         /// 上级用户id

@@ -46,6 +46,10 @@ namespace kevin.Domain.Entities.Organizational
         /// </summary>
         public OrganizationalStatus Status { get; set; }
 
+        /// <summary>
+        /// 排序
+        /// </summary>
+        public int Sort { get; set; }
 
     }
 }

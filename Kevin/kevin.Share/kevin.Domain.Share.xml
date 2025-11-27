@@ -239,6 +239,11 @@
             状态（1.启用/禁用-1）
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.PositionDto.Sort">
+            <summary>
+            排序
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.Sign.dtoSign">
             <summary>
             标记喜欢方法入参

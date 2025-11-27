@@ -1,4 +1,7 @@
-﻿using System;
+﻿using kevin.Domain.Share.Dtos;
+using kevin.Domain.Share.Dtos.Organizational;
+using kevin.Share.Dtos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +11,10 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
 {
     public interface IPositionService : IBaseService
     {
+        Task<dtoPageData<PositionDto>> GetPageData(dtoPagePar<string> par);
+
+        Task<bool> AddEdit(PositionDto data);
+
+        Task<bool> Delete(long id);
     }
 }

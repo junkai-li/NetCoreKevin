@@ -18,6 +18,9 @@ using Web.Filters;
 
 namespace App.WebApi.Controllers.v1
 {
+    /// <summary>
+    /// 消息管理
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
@@ -27,7 +30,7 @@ namespace App.WebApi.Controllers.v1
     {
         private IMessageService _messageService { get; set; }
 
-        public MessageController(IHttpLogService httpLogService, IMessageService messageService)
+        public MessageController(IMessageService messageService)
         {
             this._messageService = messageService;
         }

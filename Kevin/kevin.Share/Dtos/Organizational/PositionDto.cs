@@ -40,5 +40,10 @@ namespace kevin.Domain.Share.Dtos.Organizational
         /// 状态（1.启用/禁用-1）
         /// </summary>
         public OrganizationalStatus Status { get; set; }
+
+        /// <summary>
+        /// 排序
+        /// </summary>
+        public int Sort { get; set; }
     }
 }

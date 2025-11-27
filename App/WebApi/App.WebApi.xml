@@ -453,12 +453,22 @@
             操作日志
             </summary>
         </member>
+        <member name="T:App.WebApi.Controllers.v1.MessageController">
+            <summary>
+            消息管理
+            </summary>
+        </member>
         <member name="M:App.WebApi.Controllers.v1.MessageController.GetMyNoReadCount(kevin.Domain.Share.Enums.MessageType)">
             <summary>
             获取我的未读消息数量 十分钟延迟
             </summary>
             <param name="messageType"></param>
             <returns></returns>
+        </member>
+        <member name="T:App.WebApi.Controllers.v1.Organizational.PositionController">
+            <summary>
+            岗位管理
+            </summary>
         </member>
         <member name="T:App.WebApi.Controllers.v1.RoleController">
             <summary>
