@@ -12,8 +12,8 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(KevinDbContext))]
-    [Migration("20251127082040_岗位部门上级可为空")]
-    partial class 岗位部门上级可为空
+    [Migration("20251128072225_初始化数据库")]
+    partial class 初始化数据库
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -922,6 +922,105 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         {
                             t.HasComment("部门表");
                         });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 4514141254257227771L,
+                            Code = "NET",
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            IsDelete = 0ul,
+                            Name = "NET科技有限公司",
+                            Sort = 0,
+                            Status = 1,
+                            TenantId = 1000,
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514141354257227371L,
+                            Code = "NET-DEV",
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            IsDelete = 0ul,
+                            Name = "开发部",
+                            ParentId = 4514141254257227771L,
+                            Sort = 0,
+                            Status = 1,
+                            TenantId = 1000,
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514141352227227371L,
+                            Code = "NET-DEV-NET",
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            IsDelete = 0ul,
+                            Name = ".NET部门",
+                            ParentId = 4514141354257227371L,
+                            Sort = 0,
+                            Status = 1,
+                            TenantId = 1000,
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514141324252227371L,
+                            Code = "NET-DEV-JAVA",
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            IsDelete = 0ul,
+                            Name = "JAVA部门",
+                            ParentId = 4514141354257227371L,
+                            Sort = 0,
+                            Status = 1,
+                            TenantId = 1000,
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514141354257217771L,
+                            Code = "NET-CHO-DEPT",
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            IsDelete = 0ul,
+                            Name = "人力部门",
+                            ParentId = 4514141254257227771L,
+                            Sort = 0,
+                            Status = 1,
+                            TenantId = 1000,
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514141354252217771L,
+                            Code = "NET-ZP",
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            IsDelete = 0ul,
+                            Name = "招聘部门",
+                            ParentId = 4514141354257217771L,
+                            Sort = 0,
+                            Status = 1,
+                            TenantId = 1000,
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514141352512124771L,
+                            Code = "NET-XZ",
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            IsDelete = 0ul,
+                            Name = "行政部门",
+                            ParentId = 4514141354257217771L,
+                            Sort = 0,
+                            Status = 1,
+                            TenantId = 1000,
+                            xmin = 0u
+                        });
                 });
 
             modelBuilder.Entity("kevin.Domain.Entities.Organizational.TPosition", b =>
@@ -1039,6 +1138,112 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.ToTable("t_position", null, t =>
                         {
                             t.HasComment("岗位表");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 4514141354257227771L,
+                            Code = "NET-CEO",
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            Description = "CEO",
+                            IsDelete = 0ul,
+                            Name = "CEO",
+                            Sort = 0,
+                            Status = 1,
+                            TenantId = 1000,
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514141354257227371L,
+                            Code = "NET-CTO",
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            Description = "CTO",
+                            IsDelete = 0ul,
+                            Name = "CTO",
+                            ParentId = 4514141354257227771L,
+                            Sort = 0,
+                            Status = 1,
+                            TenantId = 1000,
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514141352257227371L,
+                            Code = "NET-NET",
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            Description = "NET",
+                            IsDelete = 0ul,
+                            Name = "NET开发人员",
+                            ParentId = 4514141354257227371L,
+                            Sort = 0,
+                            Status = 1,
+                            TenantId = 1000,
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514141324257227371L,
+                            Code = "NET-JAVA",
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            Description = "JAVA",
+                            IsDelete = 0ul,
+                            Name = "JAVA开发人员",
+                            ParentId = 4514141354257227371L,
+                            Sort = 0,
+                            Status = 1,
+                            TenantId = 1000,
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514141354257217771L,
+                            Code = "NET-CHO",
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            Description = "CHO",
+                            IsDelete = 0ul,
+                            Name = "CHO",
+                            ParentId = 4514141354257227771L,
+                            Sort = 0,
+                            Status = 1,
+                            TenantId = 1000,
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514141354252217771L,
+                            Code = "NET-ZP",
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            Description = "招聘",
+                            IsDelete = 0ul,
+                            Name = "招聘",
+                            ParentId = 4514141354257217771L,
+                            Sort = 0,
+                            Status = 1,
+                            TenantId = 1000,
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514141352512124771L,
+                            Code = "NET-XZ",
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            Description = "行政",
+                            IsDelete = 0ul,
+                            Name = "行政",
+                            ParentId = 4514141354257217771L,
+                            Sort = 0,
+                            Status = 1,
+                            TenantId = 1000,
+                            xmin = 0u
                         });
                 });
 
@@ -2950,10 +3155,20 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_user_id")
+                        .HasComment("创建人ID");
+
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("delete_user_id")
+                        .HasComment("删除人ID");
 
                     b.Property<long?>("DepartmentId")
                         .HasColumnType("bigint")
@@ -3014,6 +3229,16 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("tenant_id")
                         .HasComment("租户ID_Code");
 
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("update_time")
+                        .HasComment("更新时间");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_user_id")
+                        .HasComment("编辑人ID");
+
                     b.Property<long>("UserId")
                         .HasColumnType("bigint")
                         .HasColumnName("user_id")
@@ -3034,15 +3259,41 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("CreateTime");
 
+                    b.HasIndex("CreateUserId");
+
                     b.HasIndex("DeleteTime");
 
+                    b.HasIndex("DeleteUserId");
+
                     b.HasIndex("TenantId");
+
+                    b.HasIndex("UpdateTime");
+
+                    b.HasIndex("UpdateUserId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("t_user_info", null, t =>
                         {
                             t.HasComment("用户详细信息表");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 4514140314251221771L,
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            DepartmentId = 4514141254257227771L,
+                            EmployeeNo = "NetCoreKevin-00001",
+                            EmployeeStatus = 1,
+                            HireDate = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            IsDelete = 0ul,
+                            Sex = true,
+                            Signature = "你好.NET",
+                            TenantId = 1000,
+                            UserId = 4514140314251222771L,
+                            xmin = 0u
                         });
                 });
 
@@ -3702,11 +3953,33 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Kevin.TUserInfo", b =>
                 {
+                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("kevin.Domain.Kevin.TUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("DeleteUser");
+
+                    b.Navigation("UpdateUser");
 
                     b.Navigation("User");
                 });

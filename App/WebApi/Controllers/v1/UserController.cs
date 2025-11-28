@@ -95,9 +95,9 @@ namespace WebApi.Controllers.v1
         [HttpPost("GetSysUserList")]
         [ActionDescription("获取系统用户列表信息")]
         [HttpLog("用户管理", "获取系统用户列表信息")]
-        public dtoPageData<dtoUser> GetSysUserList(dtoPagePar<dtoUserPar> dtoPage)
+        public async Task<dtoPageData<dtoUser>> GetSysUserList(dtoPagePar<dtoUserPar> dtoPage)
         {
-            return _userService.GetSysUserList(dtoPage);
+            return await _userService.GetSysUserList(dtoPage);
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace WebApi.Controllers.v1
         [HttpPost("ExportGetSysUserList")]
         [ActionDescription("导出预览值班排期表")]
         [SkipAuthority]
-        public IActionResult ExportGetSysUserList([FromBody] dtoPagePar<dtoUserPar> dtoPage)
+        public async Task<IActionResult> ExportGetSysUserList([FromBody] dtoPagePar<dtoUserPar> dtoPage)
         {
             var keyValuePairs = new Dictionary<string, string>
             {
@@ -119,7 +119,7 @@ namespace WebApi.Controllers.v1
                              { "状态", "StatusStr" },
                                 { "最近登陆时间", "RecentLoginTimeStr" }
             };
-            var data = _userService.GetSysUserList(dtoPage);
+            var data = await _userService.GetSysUserList(dtoPage);
             foreach (var item in data.data)
             {
                 item.CreateTimeStr = item.CreateTime.Date.ToString("yyyy-MM-dd");

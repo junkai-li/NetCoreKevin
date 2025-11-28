@@ -86,6 +86,11 @@
                 {{ role.name }}
               </a-tag>
             </template>
+            <template v-else-if="column.dataIndex === 'departmentName'">
+              <a-tag  color="processing">
+                {{ record.dtoUserInfo.departmentName }}
+              </a-tag>
+            </template>
             <template v-else-if="column.dataIndex === 'lastLogin'">
               {{ record.lastLogin ? record.lastLogin : "从未登录" }}
             </template>
@@ -257,6 +262,12 @@ const columns = ref([
     key: "position",
     width: 200,
   },
+    {
+    title: "部门",
+    dataIndex: "departmentName",
+    key: "departmentName",
+    width: 200,
+  },
   {
     title: "状态",
     dataIndex: "status",
@@ -381,6 +392,7 @@ const fetchUserList = async () => {
         email: user.email,
         roles: user.roles,
         positions: user.positions,
+        dtoUserInfo: user.dtoUserInfo??{},
         status: user.status, 
         createTime: user.createTime,
         recentLoginTime: user.recentLoginTime,

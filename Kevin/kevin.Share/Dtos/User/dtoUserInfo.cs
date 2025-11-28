@@ -50,8 +50,8 @@ namespace kevin.Domain.Share.Dtos.User
         /// 部门ID
         /// </summary> 
         [Description("部门ID")]
-        public long? DepartmentId { get; set; }
-
+        public long DepartmentId { get; set; }
+        public virtual string? DepartmentName { get; set; }
         /// <summary>
         /// 上级用户id
         /// </summary>

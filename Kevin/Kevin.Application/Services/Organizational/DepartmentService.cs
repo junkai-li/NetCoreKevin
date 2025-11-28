@@ -48,6 +48,12 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
                  .ToListAsync()).MapToList<TDepartment, DepartmentDto>();
         }
 
+        public async Task<List<DepartmentDto>> GetALLList(List<long> Ids)
+        {
+            return (await departmentRp.Query().Where(t => t.IsDelete == false && Ids.Contains(t.Id) && t.TenantId == CurrentUser.TenantId).OrderByDescending(x => x.Sort)
+                 .ToListAsync()).MapToList<TDepartment, DepartmentDto>();
+        }
+
 
         public Task<DepartmentDto> GetDepartmentTree()
         {

@@ -9,6 +9,8 @@ using kevin.Share.Dtos;
 using kevin.Share.Dtos.System;
 using Kevin.Common.Helper;
 using Repository.Database;
+using System;
+using System.Threading.Tasks;
 using Web.Global.Exceptions;
 
 namespace kevin.Application
@@ -270,7 +272,7 @@ namespace kevin.Application
         /// </summary>
         /// <param name="dtoPage"></param> 
         /// <returns></returns> 
-        public dtoPageData<dtoUser> GetSysUserList(dtoPagePar<dtoUserPar> par)
+        public async Task<dtoPageData<dtoUser>> GetSysUserList(dtoPagePar<dtoUserPar> par)
         {
             var dtoPage = new dtoPageData<dtoUser>();
             int skip = (dtoPage.pageNum - 1) * dtoPage.pageSize;
@@ -318,10 +320,20 @@ namespace kevin.Application
             {
                 item.Positions = positionData.Where(t => t.UserId == item.Id).Select(t => new PositionDto { Id = t.PositionId, Name = t.Position?.Name ?? "" }).ToList();
             }
-            var userInfoData = userInfoRp.Query().Where(t => dtoPage.data.Select(d => d.Id).ToList().Contains(t.UserId) && t.IsDelete == false).ToList().MapToList<TUserInfo, dtoUserInfo>().ToList();
+            var userInfoData = userInfoRp.Query().Where(t => dtoPage.data.Select(d => d.Id).ToList().Contains(t.UserId) && t.IsDelete == false).Include(t => t.User).ToList().MapToList<TUserInfo, dtoUserInfo>();
+            var departmentData = new List<DepartmentDto>();
+            if (userInfoData.Select(t => t.DepartmentId).ToList().Count > 0)
+            {
+                departmentData = await departmentService.GetALLList(userInfoData.Select(t => t.DepartmentId).ToList());
+            }
+
             foreach (var item in dtoPage.data)
             {
                 item.dtoUserInfo = userInfoData.FirstOrDefault(t => t.UserId == item.Id);
+                if (item.dtoUserInfo != default)
+                {
+                    item.dtoUserInfo.DepartmentName = departmentData.FirstOrDefault(t => t.Id == item.dtoUserInfo.DepartmentId)?.Name;
+                }
             }
             return dtoPage;
         }
@@ -345,6 +357,11 @@ namespace kevin.Application
             }).FirstOrDefault();
             var roleData = userBindRoleRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).Include(u => u.Role).ToList();
             user.Roles = roleData.Where(r => r.Role != default).Select(r => new dtoRole { Id = r.RoleId, Name = r.Role?.Name ?? "", Remarks = r.Role?.Remarks ?? "", CreateTime = r.Role.CreateTime }).ToList();
+            var positionData = userBindPositionRp.Query().Where(t => Id == t.UserId && t.IsDelete == false).Include(u => u.Position).ToList();
+            user.Positions = positionData.Where(t => t.UserId == user.Id).Select(t => new PositionDto { Id = t.PositionId, Name = t.Position?.Name ?? "" }).ToList();
+
+            var userInfoData = userInfoRp.Query().Where(t => Id == t.UserId && t.IsDelete == false).ToList().MapToList<TUserInfo, dtoUserInfo>().ToList();
+            user.dtoUserInfo = userInfoData.FirstOrDefault(t => t.UserId == user.Id);
             return user ?? new dtoUser();
         }
 

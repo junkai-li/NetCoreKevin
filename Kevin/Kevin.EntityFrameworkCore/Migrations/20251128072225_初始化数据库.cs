@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     /// <inheritdoc />
@@ -412,10 +414,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     code = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "部门编码")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true, comment: "岗位描述")
+                    description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true, comment: "部门描述")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    parent_id = table.Column<long>(type: "bigint", nullable: false, comment: "parent_id"),
-                    manager_user_id = table.Column<long>(type: "bigint", nullable: false, comment: "manager_user_id"),
+                    parent_id = table.Column<long>(type: "bigint", nullable: true, comment: "parent_id"),
+                    manager_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "manager_user_id"),
+                    user_id = table.Column<long>(type: "bigint", nullable: true, comment: "user_id"),
                     sort = table.Column<int>(type: "int", nullable: false, comment: "sort"),
                     status = table.Column<int>(type: "int", nullable: false, comment: "status"),
                     create_time = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
@@ -433,6 +436,12 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 {
                     table.PrimaryKey("PK_t_department", x => x.id);
                     table.ForeignKey(
+                        name: "FK_t_department_t_department_parent_id",
+                        column: x => x.parent_id,
+                        principalTable: "t_department",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_t_department_t_user_create_user_id",
                         column: x => x.create_user_id,
                         principalTable: "t_user",
@@ -447,6 +456,12 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     table.ForeignKey(
                         name: "FK_t_department_t_user_update_user_id",
                         column: x => x.update_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_department_t_user_user_id",
+                        column: x => x.user_id,
                         principalTable: "t_user",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
@@ -726,8 +741,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true, comment: "岗位描述")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    parent_id = table.Column<long>(type: "bigint", nullable: false, comment: "parent_id"),
+                    parent_id = table.Column<long>(type: "bigint", nullable: true, comment: "parent_id"),
                     status = table.Column<int>(type: "int", nullable: false, comment: "status"),
+                    sort = table.Column<int>(type: "int", nullable: false, comment: "sort"),
                     create_time = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
                     is_delete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
                     delete_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
@@ -742,6 +758,12 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_t_position", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_t_position_t_position_parent_id",
+                        column: x => x.parent_id,
+                        principalTable: "t_position",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_t_position_t_user_create_user_id",
                         column: x => x.create_user_id,
@@ -873,7 +895,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     sex = table.Column<bool>(type: "tinyint(1)", nullable: true, comment: "性别"),
                     department_id = table.Column<long>(type: "bigint", nullable: true, comment: "部门ID"),
-                    position_id = table.Column<long>(type: "bigint", nullable: true, comment: "岗位Id"),
                     supervisor_id = table.Column<long>(type: "bigint", nullable: true, comment: "上级用户id"),
                     employee_no = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "employee_no")
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -886,11 +907,33 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     delete_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
                     row_version = table.Column<Guid>(type: "char(36)", nullable: true, comment: "行版本标记", collation: "ascii_general_ci"),
                     xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "行版本标记"),
-                    tenant_id = table.Column<int>(type: "int", nullable: false, comment: "租户ID_Code")
+                    tenant_id = table.Column<int>(type: "int", nullable: false, comment: "租户ID_Code"),
+                    update_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "更新时间"),
+                    create_user_id = table.Column<long>(type: "bigint", nullable: false, comment: "创建人ID"),
+                    update_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "编辑人ID"),
+                    delete_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "删除人ID")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_t_user_info", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_t_user_info_t_user_create_user_id",
+                        column: x => x.create_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_user_info_t_user_delete_user_id",
+                        column: x => x.delete_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_user_info_t_user_update_user_id",
+                        column: x => x.update_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_t_user_info_t_user_user_id",
                         column: x => x.user_id,
@@ -1190,6 +1233,62 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "t_user_bind_position",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false, comment: "主键标识ID")
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    user_id = table.Column<long>(type: "bigint", nullable: false, comment: "用户ID"),
+                    position_id = table.Column<long>(type: "bigint", nullable: false, comment: "岗位Id"),
+                    create_time = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
+                    is_delete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
+                    delete_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
+                    row_version = table.Column<Guid>(type: "char(36)", nullable: true, comment: "行版本标记", collation: "ascii_general_ci"),
+                    xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "行版本标记"),
+                    tenant_id = table.Column<int>(type: "int", nullable: false, comment: "租户ID_Code"),
+                    update_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "更新时间"),
+                    create_user_id = table.Column<long>(type: "bigint", nullable: false, comment: "创建人ID"),
+                    update_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "编辑人ID"),
+                    delete_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "删除人ID")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_user_bind_position", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_t_user_bind_position_t_position_position_id",
+                        column: x => x.position_id,
+                        principalTable: "t_position",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_user_bind_position_t_user_create_user_id",
+                        column: x => x.create_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_user_bind_position_t_user_delete_user_id",
+                        column: x => x.delete_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_user_bind_position_t_user_update_user_id",
+                        column: x => x.update_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_user_bind_position_t_user_user_id",
+                        column: x => x.user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                },
+                comment: "用户绑定岗位表")
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "t_region_town",
                 columns: table => new
                 {
@@ -1286,14 +1385,69 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 values: new object[] { 4514140314251222771L, new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), null, "admin", 0ul, 1ul, 1ul, "admin", "admin", "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918", "admin", null, null, 1ul, 1000, null, 0u });
 
             migrationBuilder.InsertData(
+                table: "t_department",
+                columns: new[] { "id", "code", "create_time", "create_user_id", "delete_time", "delete_user_id", "description", "is_delete", "manager_user_id", "name", "parent_id", "row_version", "sort", "status", "tenant_id", "update_time", "update_user_id", "user_id", "xmin" },
+                values: new object[] { 4514141254257227771L, "NET", new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, null, 0ul, null, "NET科技有限公司", null, null, 0, 1, 1000, null, null, null, 0u });
+
+            migrationBuilder.InsertData(
                 table: "t_dictionary",
                 columns: new[] { "id", "create_time", "create_user_id", "delete_time", "delete_user_id", "is_delete", "is_system", "key", "remarks", "row_version", "sort", "tenant_id", "type", "update_time", "update_user_id", "value", "xmin" },
                 values: new object[] { 4514140354257227771L, new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, 0ul, 1ul, "上传文件限制50MB", null, null, 0, 1000, "UploadFileLimit", null, null, "50", 0u });
 
             migrationBuilder.InsertData(
+                table: "t_position",
+                columns: new[] { "id", "code", "create_time", "create_user_id", "delete_time", "delete_user_id", "description", "is_delete", "name", "parent_id", "row_version", "sort", "status", "tenant_id", "update_time", "update_user_id", "xmin" },
+                values: new object[] { 4514141354257227771L, "NET-CEO", new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, "CEO", 0ul, "CEO", null, null, 0, 1, 1000, null, null, 0u });
+
+            migrationBuilder.InsertData(
                 table: "t_user_bind_role",
                 columns: new[] { "id", "create_time", "create_user_id", "delete_time", "delete_user_id", "is_delete", "role_id", "row_version", "tenant_id", "update_time", "update_user_id", "user_id", "xmin" },
                 values: new object[] { 4514140314251221771L, new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, 0ul, 4514140354257222771L, null, 1000, null, null, 4514140314251222771L, 0u });
+
+            migrationBuilder.InsertData(
+                table: "t_user_info",
+                columns: new[] { "id", "create_time", "create_user_id", "delete_time", "delete_user_id", "department_id", "employee_no", "employee_status", "hire_date", "is_delete", "q_q", "row_version", "sex", "signature", "supervisor_id", "tenant_id", "update_time", "update_user_id", "user_id", "we_chat", "xmin" },
+                values: new object[] { 4514140314251221771L, new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, 4514141254257227771L, "NetCoreKevin-00001", 1, new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 0ul, null, null, true, "你好.NET", null, 1000, null, null, 4514140314251222771L, null, 0u });
+
+            migrationBuilder.InsertData(
+                table: "t_department",
+                columns: new[] { "id", "code", "create_time", "create_user_id", "delete_time", "delete_user_id", "description", "is_delete", "manager_user_id", "name", "parent_id", "row_version", "sort", "status", "tenant_id", "update_time", "update_user_id", "user_id", "xmin" },
+                values: new object[,]
+                {
+                    { 4514141354257217771L, "NET-CHO-DEPT", new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, null, 0ul, null, "人力部门", 4514141254257227771L, null, 0, 1, 1000, null, null, null, 0u },
+                    { 4514141354257227371L, "NET-DEV", new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, null, 0ul, null, "开发部", 4514141254257227771L, null, 0, 1, 1000, null, null, null, 0u }
+                });
+
+            migrationBuilder.InsertData(
+                table: "t_position",
+                columns: new[] { "id", "code", "create_time", "create_user_id", "delete_time", "delete_user_id", "description", "is_delete", "name", "parent_id", "row_version", "sort", "status", "tenant_id", "update_time", "update_user_id", "xmin" },
+                values: new object[,]
+                {
+                    { 4514141354257217771L, "NET-CHO", new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, "CHO", 0ul, "CHO", 4514141354257227771L, null, 0, 1, 1000, null, null, 0u },
+                    { 4514141354257227371L, "NET-CTO", new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, "CTO", 0ul, "CTO", 4514141354257227771L, null, 0, 1, 1000, null, null, 0u }
+                });
+
+            migrationBuilder.InsertData(
+                table: "t_department",
+                columns: new[] { "id", "code", "create_time", "create_user_id", "delete_time", "delete_user_id", "description", "is_delete", "manager_user_id", "name", "parent_id", "row_version", "sort", "status", "tenant_id", "update_time", "update_user_id", "user_id", "xmin" },
+                values: new object[,]
+                {
+                    { 4514141324252227371L, "NET-DEV-JAVA", new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, null, 0ul, null, "JAVA部门", 4514141354257227371L, null, 0, 1, 1000, null, null, null, 0u },
+                    { 4514141352227227371L, "NET-DEV-NET", new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, null, 0ul, null, ".NET部门", 4514141354257227371L, null, 0, 1, 1000, null, null, null, 0u },
+                    { 4514141352512124771L, "NET-XZ", new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, null, 0ul, null, "行政部门", 4514141354257217771L, null, 0, 1, 1000, null, null, null, 0u },
+                    { 4514141354252217771L, "NET-ZP", new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, null, 0ul, null, "招聘部门", 4514141354257217771L, null, 0, 1, 1000, null, null, null, 0u }
+                });
+
+            migrationBuilder.InsertData(
+                table: "t_position",
+                columns: new[] { "id", "code", "create_time", "create_user_id", "delete_time", "delete_user_id", "description", "is_delete", "name", "parent_id", "row_version", "sort", "status", "tenant_id", "update_time", "update_user_id", "xmin" },
+                values: new object[,]
+                {
+                    { 4514141324257227371L, "NET-JAVA", new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, "JAVA", 0ul, "JAVA开发人员", 4514141354257227371L, null, 0, 1, 1000, null, null, 0u },
+                    { 4514141352257227371L, "NET-NET", new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, "NET", 0ul, "NET开发人员", 4514141354257227371L, null, 0, 1, 1000, null, null, 0u },
+                    { 4514141352512124771L, "NET-XZ", new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, "行政", 0ul, "行政", 4514141354257217771L, null, 0, 1, 1000, null, null, 0u },
+                    { 4514141354252217771L, "NET-ZP", new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified), 4514140314251222771L, null, null, "招聘", 0ul, "招聘", 4514141354257217771L, null, 0, 1, 1000, null, null, 0u }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_t_a_i_apps_a_i_prompt_i_d",
@@ -1531,6 +1685,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 column: "delete_user_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_t_department_parent_id",
+                table: "t_department",
+                column: "parent_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_t_department_tenant_id",
                 table: "t_department",
                 column: "tenant_id");
@@ -1544,6 +1703,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 name: "IX_t_department_update_user_id",
                 table: "t_department",
                 column: "update_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_department_user_id",
+                table: "t_department",
+                column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_t_dictionary_create_time",
@@ -1791,6 +1955,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 column: "delete_user_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_t_position_parent_id",
+                table: "t_position",
+                column: "parent_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_t_position_tenant_id",
                 table: "t_position",
                 column: "tenant_id");
@@ -2001,6 +2170,51 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 column: "update_time");
 
             migrationBuilder.CreateIndex(
+                name: "IX_t_user_bind_position_create_time",
+                table: "t_user_bind_position",
+                column: "create_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_user_bind_position_create_user_id",
+                table: "t_user_bind_position",
+                column: "create_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_user_bind_position_delete_time",
+                table: "t_user_bind_position",
+                column: "delete_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_user_bind_position_delete_user_id",
+                table: "t_user_bind_position",
+                column: "delete_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_user_bind_position_position_id",
+                table: "t_user_bind_position",
+                column: "position_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_user_bind_position_tenant_id",
+                table: "t_user_bind_position",
+                column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_user_bind_position_update_time",
+                table: "t_user_bind_position",
+                column: "update_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_user_bind_position_update_user_id",
+                table: "t_user_bind_position",
+                column: "update_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_user_bind_position_user_id",
+                table: "t_user_bind_position",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_t_user_bind_role_create_time",
                 table: "t_user_bind_role",
                 column: "create_time");
@@ -2076,14 +2290,34 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 column: "create_time");
 
             migrationBuilder.CreateIndex(
+                name: "IX_t_user_info_create_user_id",
+                table: "t_user_info",
+                column: "create_user_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_t_user_info_delete_time",
                 table: "t_user_info",
                 column: "delete_time");
 
             migrationBuilder.CreateIndex(
+                name: "IX_t_user_info_delete_user_id",
+                table: "t_user_info",
+                column: "delete_user_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_t_user_info_tenant_id",
                 table: "t_user_info",
                 column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_user_info_update_time",
+                table: "t_user_info",
+                column: "update_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_user_info_update_user_id",
+                table: "t_user_info",
+                column: "update_user_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_t_user_info_user_id",
@@ -2140,9 +2374,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 name: "t_o_s_log");
 
             migrationBuilder.DropTable(
-                name: "t_position");
-
-            migrationBuilder.DropTable(
                 name: "t_region_town");
 
             migrationBuilder.DropTable(
@@ -2153,6 +2384,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             migrationBuilder.DropTable(
                 name: "t_tenant");
+
+            migrationBuilder.DropTable(
+                name: "t_user_bind_position");
 
             migrationBuilder.DropTable(
                 name: "t_user_bind_role");
@@ -2177,6 +2411,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             migrationBuilder.DropTable(
                 name: "t_permission");
+
+            migrationBuilder.DropTable(
+                name: "t_position");
 
             migrationBuilder.DropTable(
                 name: "t_role");

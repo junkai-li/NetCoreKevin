@@ -11,6 +11,8 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
 
         Task<List<DepartmentDto>> GetALLList();
 
+        Task<List<DepartmentDto>> GetALLList(List<long> Ids);
+
         List<long> GetChildIdList(long id);
 
         List<long> GetChildUserIds(long id);

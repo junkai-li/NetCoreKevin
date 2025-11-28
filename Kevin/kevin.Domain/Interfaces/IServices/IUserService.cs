@@ -75,7 +75,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// </summary>
         /// <param name="dtoPage"></param> 
         /// <returns></returns> 
-        dtoPageData<dtoUser> GetSysUserList(dtoPagePar<dtoUserPar> dtoPage);
+        Task<dtoPageData<dtoUser>>  GetSysUserList(dtoPagePar<dtoUserPar> dtoPage);
 
         /// <summary>
         /// 后台管理通过 UserId 获取用户信息 

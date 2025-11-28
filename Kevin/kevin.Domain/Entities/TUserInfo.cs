@@ -1,4 +1,5 @@
 ﻿using kevin.Domain.Share.Enums;
+using TencentCloud.Aca.V20210323.Models;
 
 namespace kevin.Domain.Kevin
 {
@@ -47,14 +48,13 @@ namespace kevin.Domain.Kevin
         /// 部门ID
         /// </summary> 
         [Description("部门ID")]
-        public long? DepartmentId { get; set; }  
+        public long? DepartmentId { get; set; } 
 
         /// <summary>
         /// 上级用户id
         /// </summary>
         [Description("上级用户id")]
-        public long? SupervisorId { get; set; }
-
+        public long? SupervisorId { get; set; } 
         /// <summary>
         /// 工号
         /// </summary>

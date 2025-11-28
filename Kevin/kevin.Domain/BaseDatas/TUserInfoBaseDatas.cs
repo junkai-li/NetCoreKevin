@@ -23,7 +23,7 @@ namespace kevin.Domain.BaseDatas
                 {
                     Id = 4514140314251221771,
                     UserId = item.Id,
-                    DepartmentId = TDepartmentBaseDatas.Data.FirstOrDefault()?.Id,
+                    DepartmentId = TDepartmentBaseDatas.Data.FirstOrDefault().Id,
                     TenantId = TenantHelper.GetSettingsTenantId().ToTryInt32(),
                     CreateUserId = item.Id,
                     EmployeeStatus= EmployeeStatus.OnDuty,
