@@ -93,9 +93,9 @@ namespace WebApi
                 if (app.Environment.IsDevelopment())
                 {
 
-                    app.UseDeveloperExceptionPage(); 
+                   // app.UseDeveloperExceptionPage(); 
                     ////注册全局异常处理机制
-                    //app.UseExceptionHandler(builder => builder.Run(async context => await GlobalError.ErrorEvent(context)));
+                    app.UseExceptionHandler(builder => builder.Run(async context => await GlobalError.ErrorEvent(context)));
                 }
                 else
                 {
