@@ -34,12 +34,16 @@ namespace Web.Filters
                 var cacheInfo = context.HttpContext.RequestServices.GetService<ICacheService>().GetString(key);
                 if (!string.IsNullOrEmpty(cacheInfo))
                 {
-                    var data = JsonHelper.GetValueByKey(cacheInfo, "Value");
+                    var data = JsonHelper.GetValueByKeyTry(cacheInfo, "Value");
                     if (string.IsNullOrEmpty(data))
                     {
-                        data = JsonHelper.GetValueByKey(cacheInfo, "value");
+                        data = JsonHelper.GetValueByKeyTry(cacheInfo, "value");
                     }
-                    context.Result = new ObjectResult(data.ToObject<T>());
+
+                    if (!string.IsNullOrEmpty(data))
+                    {
+                        context.Result = new ObjectResult(data.ToObject<T>());
+                    } 
                 }
             }
             catch

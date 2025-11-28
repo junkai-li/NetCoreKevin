@@ -28,7 +28,7 @@ public class BaseService : IBaseService
         {
             _serviceProvider = _httpContextAccessor.HttpContext.RequestServices;
             CurrentUser = _serviceProvider.GetService<ICurrentUser>() ?? new CurrentUser(_httpContextAccessor);
-            SnowflakeIdService = _serviceProvider.GetService<ISnowflakeIdService>() ?? new SnowflakeIdService();
+            SnowflakeIdService = _serviceProvider.GetService<ISnowflakeIdService>();
         }
     }
 }

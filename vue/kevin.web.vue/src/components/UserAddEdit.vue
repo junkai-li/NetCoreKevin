@@ -33,7 +33,21 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-            <a-form-item label="岗位" v-bind="validateInfos.positions">
+      <a-form-item label="部门" v-bind="validateInfos['dtoUserInfo.departmentId']">
+        <a-select
+          v-model:value="form.dtoUserInfo.departmentId"
+         ref="select"
+          show-search
+          placeholder="请选择部门"
+          
+          :loading="roleLoading"
+        >
+          <a-select-option v-for="dept in departmentList" :key="dept.id" :value="dept.id">
+            {{ dept.name }}
+          </a-select-option>
+        </a-select>
+      </a-form-item> 
+        <a-form-item label="岗位" v-bind="validateInfos.positions">
         <a-select
           v-model:value="form.positions"
           mode="multiple"
@@ -41,8 +55,8 @@
           class="custom-select"
           :loading="roleLoading"
         >
-          <a-select-option v-for="role in positionList" :key="role.id" :value="role.id">
-            {{ role.name }}
+          <a-select-option v-for="pos in positionList" :key="pos.id" :value="pos.id">
+            {{ pos.name }}
           </a-select-option>
         </a-select>
       </a-form-item> 
@@ -92,7 +106,8 @@ import { message } from "ant-design-vue";
 import { Form } from "ant-design-vue"; 
 import { GetSnowflakeId } from "../api/baseapi"; 
 import { createUser, updateUser, getUserRoleList } from "../api/userapi";
-import { GetALLList } from "../api/organizational/position";
+import { getPositionALLList } from "../api/organizational/position";
+import { getDepartmentALLList } from "../api/organizational/department";
 const emit = defineEmits(['ok', 'cancel']);
 
 const useForm = Form.useForm;
@@ -110,6 +125,7 @@ const form = reactive({
   status: true,
   avatar: [],
   avatarUrl: "",
+ dtoUserInfo:{ departmentId: ""}
 });
 
 // 表单验证规则
@@ -128,6 +144,9 @@ const formRules = reactive({
   roles: [ 
       { required: true, message: "请选择角色" },   
   ], positions: [ 
+      { required: true, message: "请选择岗位" },   
+  ],
+  departmentId: [ 
       { required: true, message: "请选择岗位" },   
   ],
 });
@@ -166,13 +185,14 @@ const confirmLoading = ref(false);
 const roleLoading = ref(false);
 const roleList = ref([]);
 const positionList = ref([]);
-
+const departmentList = ref([]);
 // 监听props变化
 watch(() => props.visible, (newVal) => {
   modalVisible.value = newVal;
   if (newVal) {
     loadRoleList();
     loadPositionList();
+    loadDepartmentList();
   }
 });
 
@@ -194,6 +214,7 @@ watch(() => props.user, (newVal) => {
       status: newVal.status == 1,
       avatar: [],
       avatarUrl: newVal.avatar || "",
+      dtoUserInfo:newVal.dtoUserInfo
     });
   } else {
     // 重置表单
@@ -208,6 +229,7 @@ watch(() => props.user, (newVal) => {
       status: true,
       avatar: [],
       avatarUrl: "",
+      dtoUserInfo:{ departmentId: ""}
     });
   }
 });
@@ -255,8 +277,8 @@ const loadRoleList = async () => {
 const loadPositionList = async () => {
   roleLoading.value = true;
   try {
-    const response = await GetALLList();
-    if (response && response.status === 200 && response.data) {
+    const response = await getPositionALLList();
+    if (response && response.status === 200 && response.data&&response.data.code==200) {
       positionList.value = response.data.data.map((role) => ({
         id: role.id,
         name: role.name+'-'+role.code,
@@ -264,12 +286,30 @@ const loadPositionList = async () => {
       }));
     }
   } catch (error) {
-    console.error("获取角色列表失败:", error);
-    message.error("获取角色列表失败: " + error.message);
+    console.error("获取岗位列表失败:", error);
+    message.error("获取岗位列表失败: " + error.message);
   } finally {
     roleLoading.value = false;
   }
 };
+const loadDepartmentList = async () => {
+  roleLoading.value = true;
+  try {
+    const response = await getDepartmentALLList();
+    if (response && response.status === 200 && response.data&&response.data.code==200) {
+      departmentList.value = response.data.data.map((role) => ({
+        id: role.id,
+        name: role.name+'-'+role.code,
+        value: role.id,
+      }));
+    }
+  } catch (error) {
+    console.error("获取部门列表失败:", error);
+    message.error("获取部门列表失败: " + error.message);
+  } finally {
+    roleLoading.value = false;
+  }
+}; 
 
 // 处理确认
 const handleOk = () => {
@@ -286,6 +326,7 @@ const handleOk = () => {
           PassWord: form.PassWord,
           phone: form.phone,
           email: form.email,
+          dtoUserInfo:form.dtoUserInfo,
           roles: roles.map((role) => ({ id: role.id, name: role.name })),
           positions: positions.map((role) => ({ id: role.id, name: role.name })),
           status: form.status,

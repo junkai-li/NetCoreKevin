@@ -11,7 +11,7 @@ export const addEditDepartment = (data) => {
 export const getDepartmentTree = () => {
   return http.get('/api/Department/GetDepartmentTree');
 };
-export const getALLList = () => {
+export const getDepartmentALLList = () => {
   return http.get('/api/Department/GetALLList');
 };
 export const deleteDepartment = (id) => {

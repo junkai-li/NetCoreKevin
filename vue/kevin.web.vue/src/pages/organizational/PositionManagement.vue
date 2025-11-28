@@ -12,7 +12,19 @@
       
       <div class="layout-container">
         <!-- 左侧岗位树 -->
-        <div class="left-panel">  
+        <div class="left-panel">
+          <!-- <div class="panel-header">
+            <h3>组织架构</h3>
+            <div class="header-actions">
+              <a-button type="primary" size="small" @click="showAddPositionModal(0)">
+                <template #icon>
+                  <PlusOutlined />
+                </template>
+                添加根岗位
+              </a-button>
+            </div>
+          </div> -->
+          
           <div class="org-chart-container">
             <a-spin :spinning="loading">
               <a-directory-tree
@@ -67,8 +79,8 @@
         <!-- 右侧用户管理 -->
         <div class="right-panel">
           <UserManagement 
-          ref="userManagementRef"
-            title="用户"
+            ref="userManagementRef"
+            title="用户管理"
             :query-params="userQueryParams"
             :auto-load="!!selectedPositionId"
           />
@@ -112,11 +124,10 @@
       </a-form>
     </a-modal>
   </div>
-</template> 
+</template>
+
 <script setup>
-/* eslint-disable no-undef */
-import "../../css/MyTable.css";
-import "../../css/UserList.css";   
+import '../../css/UserRole.css';
 import '../../css/MyTable.css';
 import '../../css/buttons.css';
 import '../../css/management.css';
@@ -133,7 +144,7 @@ import { getPositionTree, addEditPosition, deletePosition } from '@/api/organiza
 import UserManagement from '@/components/UserManagement.vue';
 
 const useForm = Form.useForm;
- 
+
 // 岗位数据
 const dataSource = ref([]);
 // 组织架构树数据
@@ -156,7 +167,8 @@ const currentPosition = ref(null);
 const parentPositions = ref([{ value: 0, title: '无上级岗位', key: 0 }]);
 
 // 用户管理引用
-const userManagementRef = ref();
+const userManagementRef = ref(null);
+
 // 选中的岗位ID
 const selectedPositionId = ref(null);
 
@@ -436,24 +448,27 @@ onMounted(() => {
   loadPositionData();
   loadParentPositions();
 });
-</script> 
-<style scoped>  
+</script>
+
+<style scoped>
 .layout-container {
   display: flex;
   height: calc(100vh - 200px);
   gap: 20px;
-  background: transparent;
 }
 
 .left-panel {
-  flex: 3; 
+  flex: 1;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  padding-right: 20px;
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
+  background: transparent;
   color: rgba(255, 255, 255, 0.85);
 }
 
 .right-panel {
-  flex: 8;
+  flex: 2;
   overflow-y: auto;
 }
 
@@ -474,6 +489,7 @@ onMounted(() => {
 .org-chart-container {
   flex: 1;
   padding: 10px 0;
+  background: transparent;
   border-radius: 8px;
   min-height: 500px;
   display: flex;
@@ -555,17 +571,54 @@ onMounted(() => {
 }
 
 :deep(.ant-tree-node-content-wrapper:hover) {
-  background: rgba(5, 15, 29, 0.1) !important;
+  background: rgba(22, 119, 255, 0.1) !important;
 }
 
 :deep(.ant-tree-node-selected) {
-  background: rgba(5, 15, 29, 0.2) !important;
+  background: rgba(22, 119, 255, 0.2) !important;
 }
 
 :deep(.ant-tree-node-selected:hover) {
   background: rgba(22, 119, 255, 0.3) !important;
 }
-:deep(.ant-tree-treenode-selected::before){
-  background:transparent !important; 
+
+/* 添加按钮样式 */
+:deep(.ant-btn-primary) {
+  background: linear-gradient(45deg, #1677ff, #001529);
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 4px 15px rgba(22, 119, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+:deep(.ant-btn-primary:hover) {
+  box-shadow: 0 6px 20px rgba(22, 119, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+:deep(.ant-btn-link) {
+  color: #7fdbff;
+}
+
+:deep(.ant-btn-link:hover) {
+  color: #4da6ff;
+}
+
+:deep(.ant-btn-dangerous) {
+  color: #ff4d4f;
+}
+
+:deep(.ant-btn-sm) {
+  font-size: 12px;
+}
+
+:deep(.ant-tag) {
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+:deep(.ant-spin-nested-loading), 
+:deep(.ant-spin-container) {
+  height: 100%;
 }
 </style>

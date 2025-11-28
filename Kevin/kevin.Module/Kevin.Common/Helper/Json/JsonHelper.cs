@@ -43,6 +43,25 @@ namespace Common.Json
         }
 
 
+        /// <summary>
+        /// 通过 Key 获取 Value
+        /// </summary>
+        /// <returns></returns>
+        public static string GetValueByKeyTry(string json, string key)
+        {
+            try
+            {
+                JObject jo = (JObject)JsonConvert.DeserializeObject(json);
+
+                return jo[key].ToString();
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+
 
 
         /// <summary>
@@ -114,7 +133,7 @@ namespace Common.Json
         public static string ObjectToJSON(object obj)
         {
             try
-            { 
+            {
                 return JsonConvert.SerializeObject(obj, _ObToJsonSettings).ToString();
             }
             catch (Exception ex)
