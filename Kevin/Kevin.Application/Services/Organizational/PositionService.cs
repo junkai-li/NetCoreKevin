@@ -83,6 +83,17 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
         }
 
         /// <summary>
+        /// 获取某个岗位下面的所有用户ids
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        public List<long> GetChildUserIds(long id)
+        {
+            var dataPids = GetChildIdList(id);
+            return userBindPositionRp.Query().Where(t => t.IsDelete == false && dataPids.Contains(t.PositionId)).Select(t => t.UserId).ToList(); 
+        }
+
+        /// <summary>
         /// 获取子集数据
         /// </summary>
         /// <returns></returns>
@@ -202,7 +213,7 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
                     userBindRole.CreateTime = DateTime.Now;
                     userBindPositionRp.Add(userBindRole);
                 }
-               await userBindPositionRp.SaveChangesAsync();
+                await userBindPositionRp.SaveChangesAsync();
             }
             return true;
         }

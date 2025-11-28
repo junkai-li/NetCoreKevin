@@ -1,4 +1,4 @@
-uf<template>
+<template>
   <div class="management-container">
     <a-card class="management-card">
       <template #title>
@@ -7,65 +7,84 @@ uf<template>
             <ApartmentOutlined class="title-icon" />
             <span>岗位管理</span>
           </div>
-          <div class="header-actions">
-            <!-- <Button type="primary" class="add-button" @click="showAddPositionModal(0)">
-              <template #icon>
-                <PlusOutlined />
-              </template>
-              添加根岗位
-            </Button> -->
+        </div>
+      </template>
+      
+      <div class="layout-container">
+        <!-- 左侧岗位树 -->
+        <div class="left-panel">
+          <!-- <div class="panel-header">
+            <h3>组织架构</h3>
+            <div class="header-actions">
+              <a-button type="primary" size="small" @click="showAddPositionModal(0)">
+                <template #icon>
+                  <PlusOutlined />
+                </template>
+                添加根岗位
+              </a-button>
+            </div>
+          </div> -->
+          
+          <div class="org-chart-container">
+            <a-spin :spinning="loading">
+              <a-directory-tree
+                :tree-data="orgTreeData"
+                :expandedKeys="expandedKeys"
+                :selectedKeys="selectedKeys"
+                @expand="onExpand"
+                @select="onSelect"
+              >
+                <template #title="{ title, code, status, id }">
+                  <div class="org-node-content">
+                    <div class="org-node-info">
+                      <span class="org-node-name">{{ title }}</span>
+                      <span class="org-node-code">{{ code }}</span>
+                    </div>
+                    <div class="org-node-status">
+                      <a-tag :color="status === 1 ? 'green' : 'red'" class="org-status-tag">
+                        {{ status === 1 ? '启用' : '禁用' }}
+                      </a-tag>
+                    </div>
+                    <div class="org-node-actions">
+                      <a-button type="link" size="small" @click.stop="showAddPositionModal(id)" title="添加下级岗位">
+                        <template #icon>
+                          <PlusOutlined />
+                        </template>
+                      </a-button>
+                      <a-button type="link" size="small" @click.stop="showEditPositionModalById(id)" title="编辑岗位">
+                        <template #icon>
+                          <EditOutlined />
+                        </template>
+                      </a-button>
+                      <a-popconfirm
+                        title="确定要删除这个岗位吗?"
+                        ok-text="确定"
+                        cancel-text="取消"
+                        @confirm.stop="handleDelete(id)"
+                      >
+                        <a-button type="link" size="small" danger title="删除岗位">
+                          <template #icon>
+                            <DeleteOutlined />
+                          </template>
+                        </a-button>
+                      </a-popconfirm>
+                    </div>
+                  </div>
+                </template>
+              </a-directory-tree>
+            </a-spin>
           </div>
         </div>
-      </template> 
-      
-      <div class="org-chart-container">
-        <a-spin :spinning="loading">
-          <a-directory-tree
-            :tree-data="orgTreeData"
-            :expandedKeys="expandedKeys"
-            :selectedKeys="selectedKeys"
-            @expand="onExpand"
-            @select="onSelect"
-          >
-            <template #title="{ title, code, status, id }">
-              <div class="org-node-content">
-                <div class="org-node-info">
-                  <span class="org-node-name">{{ title }}</span>
-                  <span class="org-node-code">{{ code }}</span>
-                </div>
-                <div class="org-node-status">
-                  <a-tag :color="status === 1 ? 'green' : 'red'" class="org-status-tag">
-                    {{ status === 1 ? '启用' : '禁用' }}
-                  </a-tag>
-                </div>
-                <div class="org-node-actions">
-                  <a-button type="link" size="small" @click.stop="showAddPositionModal(id)" title="添加下级岗位">
-                    <template #icon>
-                      <PlusOutlined />
-                    </template>
-                  </a-button>
-                  <a-button type="link" size="small" @click.stop="showEditPositionModalById(id)" title="编辑岗位">
-                    <template #icon>
-                      <EditOutlined />
-                    </template>
-                  </a-button>
-                  <a-popconfirm
-                    title="确定要删除这个岗位吗?"
-                    ok-text="确定"
-                    cancel-text="取消"
-                    @confirm.stop="handleDelete(id)"
-                  >
-                    <a-button type="link" size="small" danger title="删除岗位">
-                      <template #icon>
-                        <DeleteOutlined />
-                      </template>
-                    </a-button>
-                  </a-popconfirm>
-                </div>
-              </div>
-            </template>
-          </a-directory-tree>
-        </a-spin>
+        
+        <!-- 右侧用户管理 -->
+        <div class="right-panel">
+          <UserManagement 
+            ref="userManagementRef"
+            title="用户管理"
+            :query-params="userQueryParams"
+            :auto-load="!!selectedPositionId"
+          />
+        </div>
       </div>
     </a-card>
     
@@ -112,7 +131,7 @@ import '../../css/UserRole.css';
 import '../../css/MyTable.css';
 import '../../css/buttons.css';
 import '../../css/management.css';
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { 
   ApartmentOutlined,
   PlusOutlined, 
@@ -122,6 +141,7 @@ import {
 import { message } from 'ant-design-vue';
 import { Form } from 'ant-design-vue';
 import { getPositionTree, addEditPosition, deletePosition } from '@/api/organizational/position';
+import UserManagement from '@/components/UserManagement.vue';
 
 const useForm = Form.useForm;
 
@@ -145,6 +165,17 @@ const currentPosition = ref(null);
 
 // 上级岗位选项
 const parentPositions = ref([{ value: 0, title: '无上级岗位', key: 0 }]);
+
+// 用户管理引用
+const userManagementRef = ref(null);
+
+// 选中的岗位ID
+const selectedPositionId = ref(null);
+
+// 用户查询参数
+const userQueryParams = computed(() => {
+  return selectedPositionId.value ? { Parameter:{positionId: selectedPositionId.value }} : {};
+});
 
 // 岗位表单
 const positionForm = reactive({
@@ -180,6 +211,11 @@ const onExpand = (keys) => {
 // 树节点选择事件
 const onSelect = (keys) => {
   selectedKeys.value = keys;
+  if (keys && keys.length > 0) {
+    selectedPositionId.value = keys[0];
+  } else {
+    selectedPositionId.value = null;
+  }
 };
 
 // 通过ID查找岗位数据
@@ -415,11 +451,49 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.layout-container {
+  display: flex;
+  height: calc(100vh - 200px);
+  gap: 20px;
+}
+
+.left-panel {
+  flex: 2; 
+  padding-right: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.right-panel {
+  flex: 5;
+  overflow-y: auto;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.panel-header h3 {
+  margin: 0;
+  color: #333;
+}
+
 .org-chart-container {
-  padding: 20px;
+  flex: 1;
+  padding: 10px 0;
   background: #f5f7fa;
   border-radius: 8px;
   min-height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.org-chart-container :deep(.ant-tree) {
+  flex: 1;
+  overflow-y: auto;
 }
 
 .org-node-content {

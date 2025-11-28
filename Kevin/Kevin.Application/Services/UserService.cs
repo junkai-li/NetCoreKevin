@@ -273,9 +273,9 @@ namespace kevin.Application
             }
             if (par.Parameter?.PositionId > 0)
             {
-                //获取当前岗位下所有用户
-                var ids = positionService.GetChildIdList(par.Parameter.PositionId);
-                data = data.Where(t => ids.Contains(t.TenantId));
+                //获取当前岗位下所有USERID
+                var ids = positionService.GetChildUserIds(par.Parameter.PositionId);
+                data = data.Where(t => ids.Contains(t.Id));
             }
             dtoPage.total = data.Count();
             dtoPage.data = data.Skip(skip).Take(dtoPage.pageSize).Select(t => new dtoUser
@@ -417,7 +417,7 @@ namespace kevin.Application
                     userBindRoleRp.Add(userBindRole);
                 }
                 userBindRoleRp.SaveChanges();
-            } 
+            }
             positionService.AddEditUserBindPosition(user.Id, user.Positions?.Select(t => t.Id).ToList() ?? new List<long>());
             return true;
         }

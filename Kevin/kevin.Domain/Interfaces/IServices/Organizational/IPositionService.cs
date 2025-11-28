@@ -24,5 +24,7 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
         Task<bool> Delete(long id);
 
         Task<bool> AddEditUserBindPosition(long userId, List<long> positionIds);
+
+        List<long> GetChildUserIds(long id);
     }
 }
