@@ -450,25 +450,23 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style scoped>  
 .layout-container {
   display: flex;
   height: calc(100vh - 200px);
   gap: 20px;
+  background: transparent;
 }
 
 .left-panel {
-  flex: 1;
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
-  padding-right: 20px;
+  flex: 3; 
   display: flex;
-  flex-direction: column;
-  background: transparent;
+  flex-direction: column; 
   color: rgba(255, 255, 255, 0.85);
 }
 
 .right-panel {
-  flex: 2;
+  flex: 8;
   overflow-y: auto;
 }
 
@@ -489,7 +487,6 @@ onMounted(() => {
 .org-chart-container {
   flex: 1;
   padding: 10px 0;
-  background: transparent;
   border-radius: 8px;
   min-height: 500px;
   display: flex;
@@ -571,54 +568,17 @@ onMounted(() => {
 }
 
 :deep(.ant-tree-node-content-wrapper:hover) {
-  background: rgba(22, 119, 255, 0.1) !important;
+  background: rgba(5, 15, 29, 0.1) !important;
 }
 
 :deep(.ant-tree-node-selected) {
-  background: rgba(22, 119, 255, 0.2) !important;
+  background: rgba(5, 15, 29, 0.2) !important;
 }
 
 :deep(.ant-tree-node-selected:hover) {
   background: rgba(22, 119, 255, 0.3) !important;
 }
-
-/* 添加按钮样式 */
-:deep(.ant-btn-primary) {
-  background: linear-gradient(45deg, #1677ff, #001529);
-  border: none;
-  border-radius: 6px;
-  box-shadow: 0 4px 15px rgba(22, 119, 255, 0.3);
-  transition: all 0.3s ease;
-}
-
-:deep(.ant-btn-primary:hover) {
-  box-shadow: 0 6px 20px rgba(22, 119, 255, 0.5);
-  transform: translateY(-2px);
-}
-
-:deep(.ant-btn-link) {
-  color: #7fdbff;
-}
-
-:deep(.ant-btn-link:hover) {
-  color: #4da6ff;
-}
-
-:deep(.ant-btn-dangerous) {
-  color: #ff4d4f;
-}
-
-:deep(.ant-btn-sm) {
-  font-size: 12px;
-}
-
-:deep(.ant-tag) {
-  border-radius: 4px;
-  font-size: 12px;
-}
-
-:deep(.ant-spin-nested-loading), 
-:deep(.ant-spin-container) {
-  height: 100%;
+:deep(.ant-tree-treenode-selected::before){
+  background:transparent !important; 
 }
 </style>

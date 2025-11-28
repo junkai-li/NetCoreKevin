@@ -418,12 +418,17 @@ const fetchUserList = async () => {
 
 // 显示添加用户模态框
 const showAddUserModal = () => {
-  userModalTitle.value = "添加用户";
-  currentUser.value = null;
-  if(props.queryParams&props.queryParams.Parameter&&props.queryParams.Parameter.positionId){
-     currentUser.value={};
-     currentUser.value.roles=[]; 
-     currentUser.value.positions=[{id:props.queryParams.Parameter.positionId}];
+  userModalTitle.value = "添加用户";   
+  if(props.queryParams&&props.queryParams.Parameter&&props.queryParams.Parameter.positionId){  
+      currentUser.value = { 
+      positions:[{id:props.queryParams.Parameter.positionId}],
+      dtoUserInfo:{ departmentId: ""}
+    };  
+  }
+   if(props.queryParams&&props.queryParams.Parameter&&props.queryParams.Parameter.departmentId){  
+      currentUser.value = {  
+      dtoUserInfo:{ departmentId: props.queryParams.Parameter.departmentId}
+    };  
   }
   console.log(currentUser.value);
   userModalVisible.value = true;

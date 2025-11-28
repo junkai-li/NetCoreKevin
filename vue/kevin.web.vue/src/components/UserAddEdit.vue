@@ -33,7 +33,7 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item label="部门" v-bind="validateInfos['dtoUserInfo.departmentId']">
+      <a-form-item label="部门" v-bind="validateInfos.departmentId">
         <a-select
           v-model:value="form.dtoUserInfo.departmentId"
          ref="select"
@@ -201,7 +201,9 @@ watch(() => props.title, (newVal) => {
 });
 
 watch(() => props.user, (newVal) => {
-  if (newVal) {
+   // 重置表单 
+  if (newVal.id) {
+    console.log('编辑'+newVal);
     // 填充表单数据
     Object.assign(form, {
       id: newVal.id,
@@ -217,7 +219,7 @@ watch(() => props.user, (newVal) => {
       dtoUserInfo:newVal.dtoUserInfo
     });
   } else {
-    // 重置表单
+     console.log('新增'+newVal);
     Object.assign(form, {
       username: "",
       id: "",
@@ -225,11 +227,11 @@ watch(() => props.user, (newVal) => {
       phone: "",
       email: "",
       roles: [],
-      positions:[],
+      positions:newVal.positions?.map((role) => role.id),
       status: true,
       avatar: [],
       avatarUrl: "",
-      dtoUserInfo:{ departmentId: ""}
+      dtoUserInfo:newVal.dtoUserInfo??{}
     });
   }
 });
@@ -315,6 +317,10 @@ const loadDepartmentList = async () => {
 const handleOk = () => {
   validateForm()
     .then(async () => {
+      if(!form.dtoUserInfo.departmentId){
+           message.error("请选择部门！");  
+            return;
+      }
       try {
         confirmLoading.value = true;
         var roles = roleList.value.filter((role) => form.roles.includes(role.id));
@@ -337,7 +343,7 @@ const handleOk = () => {
 
         let result;
         // 如果是新增用户，获取新ID
-        if (!props.user) {
+        if (!props.user?.id) {
           var dataid = await GetSnowflakeId();
           if (dataid && dataid.status == 200 && dataid.data.data) {
             var id = dataid.data.data;
@@ -373,6 +379,19 @@ const handleOk = () => {
 
 // 处理取消
 const handleCancel = () => {
+    Object.assign(form, {
+      username: "",
+      id: "",
+      nickName: "",
+      phone: "",
+      email: "",
+      roles: [],
+      positions:[],
+      status: true,
+      avatar: [],
+      avatarUrl: "",
+      dtoUserInfo:{}
+    });
   emit('cancel');
 };
 </script>

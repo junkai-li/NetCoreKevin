@@ -23,7 +23,7 @@ namespace kevin.Domain.Share.Dtos.User
         /// 员工状态 0:离职 1:在职 2:休假 3:停职 4:退休 5:实习
         /// </summary>
         [Description("员工状态 -1:离职 1:在职 2:休假 3:停职 4:退休 5:实习")]
-        public EmployeeStatus EmployeeStatus { get; set; }
+        public EmployeeStatus EmployeeStatus { get; set; } = EmployeeStatus.Resignation;
 
         /// <summary>
         /// 入职时间

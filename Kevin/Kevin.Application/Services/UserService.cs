@@ -476,10 +476,10 @@ namespace kevin.Application
         private void EditUserInfo(dtoUser user)
         {
             if (user.dtoUserInfo != default)
-            {
-                var data = userInfoRp.Query().Where(t => t.Id == user.dtoUserInfo.Id && t.IsDelete == false).FirstOrDefault();
-                if (data != null)
+            { 
+                if (user.dtoUserInfo.Id != default)
                 {
+                    var data = userInfoRp.Query().Where(t => t.Id == user.dtoUserInfo.Id && t.IsDelete == false).FirstOrDefault();
                     data.Sex = user.dtoUserInfo.Sex;
                     data.EmployeeStatus = user.dtoUserInfo.EmployeeStatus;
                     data.Signature = user.dtoUserInfo.Signature;
@@ -495,6 +495,7 @@ namespace kevin.Application
                     var addinfo = new TUserInfo();
                     addinfo.Id = SnowflakeIdService.GetNextId();
                     addinfo.CreateTime = DateTime.Now;
+                    addinfo.CreateUserId= CurrentUser.UserId;
                     addinfo.UserId = user.Id;
                     addinfo.Sex = user.dtoUserInfo.Sex;
                     addinfo.EmployeeStatus = user.dtoUserInfo.EmployeeStatus;
