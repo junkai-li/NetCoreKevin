@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Web.Filters;
 
 namespace App.WebApi.Controllers.v1.Organizational
 {
@@ -44,6 +45,7 @@ namespace App.WebApi.Controllers.v1.Organizational
         [HttpGet("GetALLList")]
         [ActionDescription("获取岗位列表")]
         [HttpLog("岗位管理", "获取岗位列表")]
+        [CacheDataFilter<List<PositionDto>>(TTL = 60, UseToken = false)]
         public async Task<List<PositionDto>> GetALLlist()
         {
             var result = await _positionService.GetALLList();
@@ -53,6 +55,7 @@ namespace App.WebApi.Controllers.v1.Organizational
         [HttpGet("GetPositionTree")]
         [ActionDescription("获取岗位树形结构")]
         [HttpLog("岗位管理", "获取岗位树形结构")]
+        [CacheDataFilter<PositionDto>(TTL = 60, UseToken = false)]
         public async Task<PositionDto> GetPositionTree()
         {
             var result = await _positionService.GetPositionTree();

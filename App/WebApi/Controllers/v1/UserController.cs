@@ -239,6 +239,7 @@ namespace WebApi.Controllers.v1
         /// <returns></returns>
         [HttpGet("GetUserRoleKey")]
         [SkipAuthority]
+        [CacheDataFilter<List<dtoKeyValue>>(TTL = 60, UseToken = false)]
         public List<dtoKeyValue> GetUserRoleKey()
         {
             return _userService.GetUserRoleKey();
