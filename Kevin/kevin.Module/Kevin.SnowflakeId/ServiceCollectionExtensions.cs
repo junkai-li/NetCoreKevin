@@ -9,7 +9,7 @@ namespace Kevin.SnowflakeId
         public static void AddKevinSnowflakeId(this IServiceCollection services, Action<SnowflakeIdSetting> action)
         {
             services.Configure(action);
-            services.AddTransient<ISnowflakeIdService, SnowflakeIdService>();
+            services.AddSingleton<ISnowflakeIdService, SnowflakeIdService>();
         }
     }
 }
