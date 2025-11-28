@@ -458,14 +458,17 @@ onMounted(() => {
 }
 
 .left-panel {
-  flex: 2; 
-  padding-right: 10px;
+  flex: 1;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  padding-right: 20px;
   display: flex;
   flex-direction: column;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .right-panel {
-  flex: 5;
+  flex: 2;
   overflow-y: auto;
 }
 
@@ -478,13 +481,15 @@ onMounted(() => {
 
 .panel-header h3 {
   margin: 0;
-  color: #333;
+  color: #7fdbff;
+  font-size: 18px;
+  font-weight: 500;
 }
 
 .org-chart-container {
   flex: 1;
   padding: 10px 0;
-  background: #f5f7fa;
+  background: transparent;
   border-radius: 8px;
   min-height: 500px;
   display: flex;
@@ -494,6 +499,8 @@ onMounted(() => {
 .org-chart-container :deep(.ant-tree) {
   flex: 1;
   overflow-y: auto;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .org-node-content {
@@ -513,13 +520,13 @@ onMounted(() => {
 
 .org-node-name {
   font-weight: 500;
-  color: #333;
+  color: #7fdbff;
 }
 
 .org-node-code {
-  color: #666;
+  color: rgba(127, 219, 255, 0.85);
   font-size: 12px;
-  background: #e6f7ff;
+  background: rgba(22, 119, 255, 0.2);
   padding: 2px 6px;
   border-radius: 4px;
 }
@@ -550,21 +557,68 @@ onMounted(() => {
 
 :deep(.ant-tree-switcher) {
   align-self: center;
+  color: rgba(127, 219, 255, 0.5);
 }
 
 :deep(.ant-tree-node-content-wrapper) {
   display: flex;
   align-items: center;
-  padding: 0 !important;
+  padding: 0 8px !important;
   border-radius: 6px;
   transition: all 0.3s;
+  color: rgba(255, 255, 255, 0.85);
+  background: transparent;
 }
 
 :deep(.ant-tree-node-content-wrapper:hover) {
-  background: transparent !important;
+  background: rgba(22, 119, 255, 0.1) !important;
 }
 
 :deep(.ant-tree-node-selected) {
-  background: rgba(24, 144, 255, 0.1) !important;
+  background: rgba(22, 119, 255, 0.2) !important;
+}
+
+:deep(.ant-tree-node-selected:hover) {
+  background: rgba(22, 119, 255, 0.3) !important;
+}
+
+/* 添加按钮样式 */
+:deep(.ant-btn-primary) {
+  background: linear-gradient(45deg, #1677ff, #001529);
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 4px 15px rgba(22, 119, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+:deep(.ant-btn-primary:hover) {
+  box-shadow: 0 6px 20px rgba(22, 119, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+:deep(.ant-btn-link) {
+  color: #7fdbff;
+}
+
+:deep(.ant-btn-link:hover) {
+  color: #4da6ff;
+}
+
+:deep(.ant-btn-dangerous) {
+  color: #ff4d4f;
+}
+
+:deep(.ant-btn-sm) {
+  font-size: 12px;
+}
+
+:deep(.ant-tag) {
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+:deep(.ant-spin-nested-loading), 
+:deep(.ant-spin-container) {
+  height: 100%;
 }
 </style>
