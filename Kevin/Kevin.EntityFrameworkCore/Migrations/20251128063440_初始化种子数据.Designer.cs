@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.Database;
 
@@ -11,9 +12,11 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(KevinDbContext))]
-    partial class KevinDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251128063440_初始化种子数据")]
+    partial class 初始化种子数据
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3152,20 +3155,10 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("create_time")
                         .HasComment("创建时间");
 
-                    b.Property<long>("CreateUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("create_user_id")
-                        .HasComment("创建人ID");
-
                     b.Property<DateTime?>("DeleteTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("delete_time")
                         .HasComment("删除时间");
-
-                    b.Property<long?>("DeleteUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("delete_user_id")
-                        .HasComment("删除人ID");
 
                     b.Property<long?>("DepartmentId")
                         .HasColumnType("bigint")
@@ -3226,16 +3219,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("tenant_id")
                         .HasComment("租户ID_Code");
 
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("update_time")
-                        .HasComment("更新时间");
-
-                    b.Property<long?>("UpdateUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("update_user_id")
-                        .HasComment("编辑人ID");
-
                     b.Property<long>("UserId")
                         .HasColumnType("bigint")
                         .HasColumnName("user_id")
@@ -3256,41 +3239,15 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("CreateTime");
 
-                    b.HasIndex("CreateUserId");
-
                     b.HasIndex("DeleteTime");
 
-                    b.HasIndex("DeleteUserId");
-
                     b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
-
-                    b.HasIndex("UpdateUserId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("t_user_info", null, t =>
                         {
                             t.HasComment("用户详细信息表");
-                        });
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 4514140314251221771L,
-                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            CreateUserId = 4514140314251222771L,
-                            DepartmentId = 4514141254257227771L,
-                            EmployeeNo = "NetCoreKevin-00001",
-                            EmployeeStatus = 1,
-                            HireDate = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            IsDelete = 0ul,
-                            Sex = true,
-                            Signature = "你好.NET",
-                            TenantId = 1000,
-                            UserId = 4514140314251222771L,
-                            xmin = 0u
                         });
                 });
 
@@ -3950,33 +3907,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Kevin.TUserInfo", b =>
                 {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
-                        .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
-                        .WithMany()
-                        .HasForeignKey("DeleteUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
-                        .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("kevin.Domain.Kevin.TUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("CreateUser");
-
-                    b.Navigation("DeleteUser");
-
-                    b.Navigation("UpdateUser");
 
                     b.Navigation("User");
                 });

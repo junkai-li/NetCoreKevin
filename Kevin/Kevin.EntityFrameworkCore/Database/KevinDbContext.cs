@@ -258,6 +258,8 @@ namespace Repository.Database
             modelBuilder.ApplyConfiguration(new TUserBindRoleConfig());
             modelBuilder.ApplyConfiguration(new TDictionaryConfig());
             modelBuilder.ApplyConfiguration(new TPositionConfig());
+            modelBuilder.ApplyConfiguration(new TDepartmentConfig());
+            modelBuilder.ApplyConfiguration(new TUserInfoConfig());
             ConsoleHelper.Print("初始化种子数据成功！");
             #endregion
 

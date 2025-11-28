@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Web.Filters;
 
 namespace App.WebApi.Controllers.v1.Organizational
 {
@@ -35,6 +36,26 @@ namespace App.WebApi.Controllers.v1.Organizational
         public async Task<dtoPageData<DepartmentDto>> GetPageData([FromBody] dtoPagePar<string> par)
         {
             var result = await _departmentService.GetPageData(par);
+            return result;
+        }
+
+        [HttpGet("GetALLList")]
+        [ActionDescription("获取岗位列表")]
+        [HttpLog("部门管理", "获取岗位列表")]
+        [CacheDataFilter<List<DepartmentDto>>(TTL = 60, UseToken = false)]
+        public async Task<List<DepartmentDto>> GetALLlist()
+        {
+            var result = await _departmentService.GetALLList();
+            return result;
+        }
+
+        [HttpGet("GetDepartmentTree")]
+        [ActionDescription("获取部门树形结构")]
+        [HttpLog("部门管理", "获取部门树形结构")]
+        [CacheDataFilter<DepartmentDto>(TTL = 60, UseToken = false)]
+        public async Task<DepartmentDto> GetDepartmentTree()
+        {
+            var result = await _departmentService.GetDepartmentTree();
             return result;
         }
 

@@ -90,7 +90,7 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
         public List<long> GetChildUserIds(long id)
         {
             var dataPids = GetChildIdList(id);
-            return userBindPositionRp.Query().Where(t => t.IsDelete == false && dataPids.Contains(t.PositionId)).Select(t => t.UserId).ToList(); 
+            return userBindPositionRp.Query().Where(t => t.IsDelete == false && dataPids.Contains(t.PositionId)).Select(t => t.UserId).ToList();
         }
 
         /// <summary>
@@ -178,6 +178,12 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
 
             if (data != null)
             {
+                //查询是否还有绑定岗位的用户
+                var userIds = GetChildUserIds(id);
+                if (userIds.Count > 0)
+                {
+                    throw new UserFriendlyException($"此岗位下有{userIds.Count}位用户，请先解绑{userIds.Count}位用户");
+                }
                 data.IsDelete = true;
                 data.DeleteTime = DateTime.Now;
                 positionRp.SaveChangesWithSaveLog();

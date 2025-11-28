@@ -9,40 +9,39 @@ namespace kevin.Domain.Share.Dtos.Organizational
     {
         /// <summary>
         /// 部门名称
-        /// </summary>
-        [Description("部门名称")]
-        [MaxLength(100)]
-        public string? Name { get; set; }
+        /// </summary> 
+        public string Name { get; set; } = "";
 
         /// <summary>
         /// 部门编码
-        /// </summary>
-        [Description("部门编码")]
-        [MaxLength(100)]
-        public string? Code { get; set; }
+        /// </summary> 
+        public string Code { get; set; } = "";
 
 
         /// <summary>
         /// 部门描述
-        /// </summary>
-        [Description("部门描述")]
-        [MaxLength(500)]
-        public string? Description { get; set; }
+        /// </summary> 
+        public string Description { get; set; } = "";
 
         /// <summary>
         /// 上级部门ID
         /// </summary>
-        public long ParentId { get; set; }
+        public long? ParentId { get; set; }
 
         /// <summary>
         /// 上级部门
         /// </summary>
-        public long ParentName { get; set; }
+        public string ParentName { get; set; } = "";
+
+        /// <summary>
+        /// 我的下级
+        /// </summary>
+        public List<DepartmentDto> Children { get; set; } = new List<DepartmentDto>();
 
         /// <summary>
         /// 部门负责人ID
         /// </summary>
-        public long ManagerUserId { get; set; }
+        public long? ManagerUserId { get; set; }
 
         /// <summary>
         /// 排序

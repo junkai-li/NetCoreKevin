@@ -336,8 +336,8 @@ const handleMenuClick = ({ key }) => {
     case "organizational-position":
       router.push("/home/position/management");
       break;
-    case "organizational-management":
-      router.push("/home/position/management");
+    case "organizational-department":
+      router.push("/home/department/management");
       break;
     default:
       router.push("/home");

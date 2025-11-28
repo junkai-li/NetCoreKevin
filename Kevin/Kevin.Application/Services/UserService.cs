@@ -1,4 +1,5 @@
-﻿using kevin.Domain.Configuration;
+﻿using Aop.Api.Domain;
+using kevin.Domain.Configuration;
 using kevin.Domain.Entities;
 using kevin.Domain.Interfaces.IServices.Organizational;
 using kevin.Domain.Share.Dtos;
@@ -26,9 +27,14 @@ namespace kevin.Application
 
         public IPositionService positionService { get; set; }
 
+        public IDepartmentService departmentService { get; set; }
+
+        public IUserInfoRp userInfoRp { get; set; }
+
         public IUserBindPositionRp userBindPositionRp { get; set; }
         public UserService(IHttpContextAccessor _httpContextAccessor, IUserRp _userRp, IWeiXinKeyRp _weiXinKeyRp, IFileRp _IFileRp, IRoleRp _IRoleRp,
-            IUserBindWeixinRp _IUserBindWeixinRp, IUserBindRoleRp userBindRoleRp, IPositionService _positionService, IUserBindPositionRp _userBindPositionRp) : base(_httpContextAccessor)
+            IUserBindWeixinRp _IUserBindWeixinRp, IUserBindRoleRp userBindRoleRp, IPositionService _positionService,
+            IUserBindPositionRp _userBindPositionRp, IDepartmentService _departmentService, IUserInfoRp _userInfoRp) : base(_httpContextAccessor)
         {
             userRp = _userRp;
             weiXinKeyRp = _weiXinKeyRp;
@@ -38,6 +44,8 @@ namespace kevin.Application
             this.userBindRoleRp = userBindRoleRp;
             this.positionService = _positionService;
             this.userBindPositionRp = _userBindPositionRp;
+            this.departmentService = _departmentService;
+            this.userInfoRp = _userInfoRp;
         }
 
 
@@ -277,6 +285,12 @@ namespace kevin.Application
                 var ids = positionService.GetChildUserIds(par.Parameter.PositionId);
                 data = data.Where(t => ids.Contains(t.Id));
             }
+            if (par.Parameter?.DepartmentId > 0)
+            {
+                //获取当前岗位下所有USERID
+                var ids = departmentService.GetChildUserIds(par.Parameter.DepartmentId);
+                data = data.Where(t => ids.Contains(t.Id));
+            }
             dtoPage.total = data.Count();
             dtoPage.data = data.Skip(skip).Take(dtoPage.pageSize).Select(t => new dtoUser
             {
@@ -303,6 +317,11 @@ namespace kevin.Application
             foreach (var item in dtoPage.data)
             {
                 item.Positions = positionData.Where(t => t.UserId == item.Id).Select(t => new PositionDto { Id = t.PositionId, Name = t.Position?.Name ?? "" }).ToList();
+            }
+            var userInfoData = userInfoRp.Query().Where(t => dtoPage.data.Select(d => d.Id).ToList().Contains(t.UserId) && t.IsDelete == false).ToList().MapToList<TUserInfo, dtoUserInfo>().ToList();
+            foreach (var item in dtoPage.data)
+            {
+                item.dtoUserInfo = userInfoData.FirstOrDefault(t => t.UserId == item.Id);
             }
             return dtoPage;
         }
@@ -395,6 +414,20 @@ namespace kevin.Application
                 userRp.Add(data);
             }
             userRp.SaveChangesWithSaveLog();
+            //处理角色信息
+            EditUserRoles(user);
+            //处理其他信息
+            EditUserInfo(user);
+            //处理处理职位信息
+            positionService.AddEditUserBindPosition(user.Id, user.Positions?.Select(t => t.Id).ToList() ?? new List<long>());
+            return true;
+        }
+        /// <summary>
+        /// 处理角色信息
+        /// </summary>
+        /// <param name="user"></param>
+        private void EditUserRoles(dtoUser user)
+        {
             var deleteRoleData = userBindRoleRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).ToList();
             foreach (var item in deleteRoleData)
             {
@@ -418,12 +451,49 @@ namespace kevin.Application
                 }
                 userBindRoleRp.SaveChanges();
             }
-            positionService.AddEditUserBindPosition(user.Id, user.Positions?.Select(t => t.Id).ToList() ?? new List<long>());
-            return true;
         }
+        /// <summary>
+        /// 处理角色信息
+        /// </summary>
+        /// <param name="user"></param>
+        private void EditUserInfo(dtoUser user)
+        {
+            if (user.dtoUserInfo != default)
+            {
+                var data = userInfoRp.Query().Where(t => t.Id == user.dtoUserInfo.Id && t.IsDelete == false).FirstOrDefault();
+                if (data != null)
+                {
+                    data.Sex = user.dtoUserInfo.Sex;
+                    data.EmployeeStatus = user.dtoUserInfo.EmployeeStatus;
+                    data.Signature = user.dtoUserInfo.Signature;
+                    data.HireDate = user.dtoUserInfo.HireDate;
+                    data.DepartmentId = user.dtoUserInfo.DepartmentId;
+                    data.SupervisorId = user.dtoUserInfo.SupervisorId;
+                    data.EmployeeNo = user.dtoUserInfo.EmployeeNo;
+                    data.WeChat = user.dtoUserInfo.WeChat;
+                    data.QQ = user.dtoUserInfo.QQ;
+                }
+                else
+                {
+                    var addinfo = new TUserInfo();
+                    addinfo.Id = SnowflakeIdService.GetNextId();
+                    addinfo.CreateTime = DateTime.Now;
+                    addinfo.UserId = user.Id;
+                    addinfo.Sex = user.dtoUserInfo.Sex;
+                    addinfo.EmployeeStatus = user.dtoUserInfo.EmployeeStatus;
+                    addinfo.Signature = user.dtoUserInfo.Signature;
+                    addinfo.HireDate = user.dtoUserInfo.HireDate;
+                    addinfo.DepartmentId = user.dtoUserInfo.DepartmentId;
+                    addinfo.SupervisorId = user.dtoUserInfo.SupervisorId;
+                    addinfo.EmployeeNo = user.dtoUserInfo.EmployeeNo;
+                    addinfo.WeChat = user.dtoUserInfo.WeChat;
+                    addinfo.QQ = user.dtoUserInfo.QQ;
+                    userInfoRp.Add(addinfo);
 
-
-
+                }
+                userInfoRp.SaveChanges();
+            }
+        }
         /// <summary>
         /// 删除用户信息 
         /// </summary>

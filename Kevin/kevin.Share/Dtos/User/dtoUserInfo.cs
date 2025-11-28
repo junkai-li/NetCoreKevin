@@ -1,20 +1,23 @@
-﻿using kevin.Domain.Share.Enums;
+﻿using kevin.Domain.Share.Dtos.Bases;
+using kevin.Domain.Share.Enums;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace kevin.Domain.Kevin
+namespace kevin.Domain.Share.Dtos.User
 {
-    /// <summary>
-    /// 用户详细信息表
-    /// </summary>
-    [Table("TUserInfo")]
-    [Description("用户详细信息表")]
-    public partial class TUserInfo : CUD_User
+    public class dtoUserInfo : CD_Dto
     {
         /// <summary>
         /// 用户ID
         /// </summary>
         [Description("用户ID")]
         public long UserId { get; set; }
-        public virtual TUser? User { get; set; }
+        public virtual string? User { get; set; }
 
         /// <summary>
         /// 员工状态 0:离职 1:在职 2:休假 3:停职 4:退休 5:实习
@@ -47,7 +50,7 @@ namespace kevin.Domain.Kevin
         /// 部门ID
         /// </summary> 
         [Description("部门ID")]
-        public long? DepartmentId { get; set; }  
+        public long? DepartmentId { get; set; }
 
         /// <summary>
         /// 上级用户id

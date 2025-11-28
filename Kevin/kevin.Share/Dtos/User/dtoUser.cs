@@ -32,7 +32,7 @@ namespace kevin.Domain.Share.Dtos.User
         /// 邮箱
         /// </summary>
         public string? Email { get; set; }
-        
+
         public List<dtoRole>? Roles { get; set; }
 
         /// <summary>
@@ -76,6 +76,11 @@ namespace kevin.Domain.Share.Dtos.User
         /// 岗位信息
         /// </summary>
         public List<PositionDto>? Positions { get; set; }
+
+        /// <summary>
+        /// 用户额外信息
+        /// </summary>
+        public dtoUserInfo? dtoUserInfo { get; set; }
 
     }
 }

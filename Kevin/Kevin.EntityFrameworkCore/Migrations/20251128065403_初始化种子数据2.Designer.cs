@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.Database;
 
@@ -11,9 +12,11 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(KevinDbContext))]
-    partial class KevinDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251128065403_初始化种子数据2")]
+    partial class 初始化种子数据2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3273,24 +3276,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.ToTable("t_user_info", null, t =>
                         {
                             t.HasComment("用户详细信息表");
-                        });
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 4514140314251221771L,
-                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            CreateUserId = 4514140314251222771L,
-                            DepartmentId = 4514141254257227771L,
-                            EmployeeNo = "NetCoreKevin-00001",
-                            EmployeeStatus = 1,
-                            HireDate = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            IsDelete = 0ul,
-                            Sex = true,
-                            Signature = "你好.NET",
-                            TenantId = 1000,
-                            UserId = 4514140314251222771L,
-                            xmin = 0u
                         });
                 });
 

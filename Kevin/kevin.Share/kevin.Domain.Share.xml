@@ -172,17 +172,17 @@
         <member name="P:kevin.Domain.Share.Dtos.Organizational.DepartmentDto.Name">
             <summary>
             部门名称
-            </summary>
+            </summary> 
         </member>
         <member name="P:kevin.Domain.Share.Dtos.Organizational.DepartmentDto.Code">
             <summary>
             部门编码
-            </summary>
+            </summary> 
         </member>
         <member name="P:kevin.Domain.Share.Dtos.Organizational.DepartmentDto.Description">
             <summary>
             部门描述
-            </summary>
+            </summary> 
         </member>
         <member name="P:kevin.Domain.Share.Dtos.Organizational.DepartmentDto.ParentId">
             <summary>
@@ -192,6 +192,11 @@
         <member name="P:kevin.Domain.Share.Dtos.Organizational.DepartmentDto.ParentName">
             <summary>
             上级部门
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.Organizational.DepartmentDto.Children">
+            <summary>
+            我的下级
             </summary>
         </member>
         <member name="P:kevin.Domain.Share.Dtos.Organizational.DepartmentDto.ManagerUserId">
@@ -592,6 +597,61 @@
         <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Positions">
             <summary>
             岗位信息
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.dtoUserInfo">
+            <summary>
+            用户额外信息
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUserInfo.UserId">
+            <summary>
+            用户ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUserInfo.EmployeeStatus">
+            <summary>
+            员工状态 0:离职 1:在职 2:休假 3:停职 4:退休 5:实习
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUserInfo.HireDate">
+            <summary>
+            入职时间
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUserInfo.Signature">
+            <summary>
+            个性签名
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUserInfo.Sex">
+            <summary>
+            性别
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUserInfo.DepartmentId">
+            <summary>
+            部门ID
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUserInfo.SupervisorId">
+            <summary>
+            上级用户id
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUserInfo.EmployeeNo">
+            <summary>
+            工号
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUserInfo.WeChat">
+            <summary>
+            微信号
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUserInfo.QQ">
+            <summary>
+            QQ
             </summary>
         </member>
         <member name="P:kevin.Domain.Share.Dtos.User.dtoUserPar.PositionId">

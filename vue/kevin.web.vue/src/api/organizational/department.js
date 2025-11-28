@@ -8,7 +8,12 @@ export const getDepartmentPageData = (params) => {
 export const addEditDepartment = (data) => {
   return http.post('/api/Department/AddEdit', data);
 };
-
+export const getDepartmentTree = () => {
+  return http.get('/api/Department/GetDepartmentTree');
+};
+export const getALLList = () => {
+  return http.get('/api/Department/GetALLList');
+};
 export const deleteDepartment = (id) => {
   return http.delete('/api/Department/Delete?Id='+id);
 };

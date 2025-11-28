@@ -22,7 +22,7 @@ import DicConfig from '@/pages/DicMg.vue';
 // import AiModelMg from '@/pages/AiModelMg.vue';
 //组织架构相关页面
 import PositionManagement from '@/pages/organizational/PositionManagement.vue';
-
+import DepartmentManagement from '@/pages/organizational/DepartmentManagement.vue';
 const routes = [
   {
     path: '/',
@@ -122,6 +122,10 @@ const routes = [
         path: 'position/management',
         name: 'positionManagement',
         component: PositionManagement
+      }  ,{
+        path: 'department/management',
+        name: 'departmentManagement',
+        component: DepartmentManagement
       }  
     ]
   } 
