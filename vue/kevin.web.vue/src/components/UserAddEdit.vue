@@ -259,7 +259,7 @@ const loadPositionList = async () => {
     if (response && response.status === 200 && response.data) {
       positionList.value = response.data.data.map((role) => ({
         id: role.id,
-        name: role.name+role.code,
+        name: role.name+'-'+role.code,
         value: role.id,
       }));
     }

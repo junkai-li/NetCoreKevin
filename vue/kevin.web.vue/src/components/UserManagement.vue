@@ -408,6 +408,12 @@ const fetchUserList = async () => {
 const showAddUserModal = () => {
   userModalTitle.value = "添加用户";
   currentUser.value = null;
+  if(props.queryParams.Parameter.positionId){
+     currentUser.value={};
+     currentUser.value.roles=[]; 
+     currentUser.value.positions=[{id:props.queryParams.Parameter.positionId}];
+  }
+  console.log(currentUser.value);
   userModalVisible.value = true;
 };
 
