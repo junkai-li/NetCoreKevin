@@ -1,5 +1,8 @@
 ﻿using kevin.Domain.Configuration;
 using kevin.Domain.Entities;
+using kevin.Domain.Interfaces.IServices.Organizational;
+using kevin.Domain.Share.Dtos;
+using kevin.Domain.Share.Dtos.Organizational;
 using kevin.Domain.Share.Dtos.User;
 using kevin.Share.Dtos;
 using kevin.Share.Dtos.System;
@@ -20,7 +23,12 @@ namespace kevin.Application
         public IUserBindWeixinRp userBindWeixinRp { get; set; }
 
         public IUserBindRoleRp userBindRoleRp { get; set; }
-        public UserService(IHttpContextAccessor _httpContextAccessor, IUserRp _userRp, IWeiXinKeyRp _weiXinKeyRp, IFileRp _IFileRp, IRoleRp _IRoleRp, IUserBindWeixinRp _IUserBindWeixinRp, IUserBindRoleRp userBindRoleRp) : base(_httpContextAccessor)
+
+        public IPositionService positionService { get; set; }
+
+        public IUserBindPositionRp userBindPositionRp { get; set; }
+        public UserService(IHttpContextAccessor _httpContextAccessor, IUserRp _userRp, IWeiXinKeyRp _weiXinKeyRp, IFileRp _IFileRp, IRoleRp _IRoleRp,
+            IUserBindWeixinRp _IUserBindWeixinRp, IUserBindRoleRp userBindRoleRp, IPositionService _positionService, IUserBindPositionRp _userBindPositionRp) : base(_httpContextAccessor)
         {
             userRp = _userRp;
             weiXinKeyRp = _weiXinKeyRp;
@@ -28,6 +36,8 @@ namespace kevin.Application
             roleRp = _IRoleRp;
             userBindWeixinRp = _IUserBindWeixinRp;
             this.userBindRoleRp = userBindRoleRp;
+            this.positionService = _positionService;
+            this.userBindPositionRp = _userBindPositionRp;
         }
 
 
@@ -252,13 +262,20 @@ namespace kevin.Application
         /// </summary>
         /// <param name="dtoPage"></param> 
         /// <returns></returns> 
-        public dtoPageData<dtoUser> GetSysUserList(dtoPageData<dtoUser> dtoPage)
+        public dtoPageData<dtoUser> GetSysUserList(dtoPagePar<dtoUserPar> par)
         {
+            var dtoPage = new dtoPageData<dtoUser>();
             int skip = (dtoPage.pageNum - 1) * dtoPage.pageSize;
             var data = userRp.Query().Where(t => t.IsDelete == false && t.IsSystem == true);
-            if (!string.IsNullOrEmpty(dtoPage.searchKey))
+            if (!string.IsNullOrEmpty(par.searchKey))
             {
                 data = data.Where(t => ((t.Name ?? "") ?? "").Contains(dtoPage.searchKey) || (t.Phone ?? "").Contains(dtoPage.searchKey) || (t.NickName ?? "").Contains(dtoPage.searchKey) || (t.Email ?? "").Contains(dtoPage.searchKey));
+            }
+            if (par.Parameter?.PositionId > 0)
+            {
+                //获取当前岗位下所有用户
+                var ids = positionService.GetChildIdList(par.Parameter.PositionId);
+                data = data.Where(t => ids.Contains(t.TenantId));
             }
             dtoPage.total = data.Count();
             dtoPage.data = data.Skip(skip).Take(dtoPage.pageSize).Select(t => new dtoUser
@@ -281,6 +298,11 @@ namespace kevin.Application
             foreach (var item in dtoPage.data)
             {
                 item.Roles = roleData.Where(t => t.UserId == item.Id).Select(t => new dtoRole { Id = t.RoleId, Name = t.Role?.Name ?? "" }).ToList();
+            }
+            var positionData = userBindPositionRp.Query().Where(t => dtoPage.data.Select(d => d.Id).ToList().Contains(t.UserId) && t.IsDelete == false).Include(u => u.Position).ToList();
+            foreach (var item in dtoPage.data)
+            {
+                item.Positions = positionData.Where(t => t.UserId == item.Id).Select(t => new PositionDto { Id = t.PositionId, Name = t.Position?.Name ?? "" }).ToList();
             }
             return dtoPage;
         }
@@ -395,7 +417,8 @@ namespace kevin.Application
                     userBindRoleRp.Add(userBindRole);
                 }
                 userBindRoleRp.SaveChanges();
-            }
+            } 
+            positionService.AddEditUserBindPosition(user.Id, user.Positions?.Select(t => t.Id).ToList() ?? new List<long>());
             return true;
         }
 

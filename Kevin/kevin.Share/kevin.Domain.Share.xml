@@ -589,6 +589,21 @@
             最近登陆时间
              </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.Positions">
+            <summary>
+            岗位信息
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUserPar.PositionId">
+            <summary>
+            岗位id
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUserPar.DepartmentId">
+            <summary>
+            部门id
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Enums.AIType">
             <summary>
             AI类型

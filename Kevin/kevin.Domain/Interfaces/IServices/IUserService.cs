@@ -1,4 +1,5 @@
-﻿using kevin.Domain.Share.Dtos.User;
+﻿using kevin.Domain.Share.Dtos;
+using kevin.Domain.Share.Dtos.User;
 using kevin.Share.Dtos;
 using kevin.Share.Dtos.System;
 
@@ -74,7 +75,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// </summary>
         /// <param name="dtoPage"></param> 
         /// <returns></returns> 
-        dtoPageData<dtoUser> GetSysUserList(dtoPageData<dtoUser> dtoPage);
+        dtoPageData<dtoUser> GetSysUserList(dtoPagePar<dtoUserPar> dtoPage);
 
         /// <summary>
         /// 后台管理通过 UserId 获取用户信息 

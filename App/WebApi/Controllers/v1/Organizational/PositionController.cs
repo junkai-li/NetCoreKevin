@@ -25,7 +25,7 @@ namespace App.WebApi.Controllers.v1.Organizational
     [MyModule("岗位管理", "Position")]
     public class PositionController : ControllerBase
     {
-        private  IPositionService _positionService { get; set; }
+        private IPositionService _positionService { get; set; }
 
         public PositionController(IPositionService positionService)
         {
@@ -36,8 +36,17 @@ namespace App.WebApi.Controllers.v1.Organizational
         [ActionDescription("获取岗位列表")]
         [HttpLog("岗位管理", "获取岗位列表")]
         public async Task<dtoPageData<PositionDto>> GetPageData([FromBody] dtoPagePar<string> par)
-        { 
+        {
             var result = await _positionService.GetPageData(par);
+            return result;
+        }
+
+        [HttpGet("GetALLList")]
+        [ActionDescription("获取岗位列表")]
+        [HttpLog("岗位管理", "获取岗位列表")]
+        public async Task<List<PositionDto>> GetALLlist()
+        {
+            var result = await _positionService.GetALLList();
             return result;
         }
 

@@ -33,6 +33,19 @@
           </a-select-option>
         </a-select>
       </a-form-item>
+            <a-form-item label="岗位" v-bind="validateInfos.positions">
+        <a-select
+          v-model:value="form.positions"
+          mode="multiple"
+          placeholder="请选择岗位"
+          class="custom-select"
+          :loading="roleLoading"
+        >
+          <a-select-option v-for="role in positionList" :key="role.id" :value="role.id">
+            {{ role.name }}
+          </a-select-option>
+        </a-select>
+      </a-form-item> 
       <a-form-item label="状态">
         <a-switch
           v-model:checked="form.status"
@@ -79,7 +92,7 @@ import { message } from "ant-design-vue";
 import { Form } from "ant-design-vue"; 
 import { GetSnowflakeId } from "../api/baseapi"; 
 import { createUser, updateUser, getUserRoleList } from "../api/userapi";
-
+import { GetALLList } from "../api/organizational/position";
 const emit = defineEmits(['ok', 'cancel']);
 
 const useForm = Form.useForm;
@@ -93,6 +106,7 @@ const form = reactive({
   phone: "",
   email: "",
   roles: [],
+  positions:[],
   status: true,
   avatar: [],
   avatarUrl: "",
@@ -113,6 +127,8 @@ const formRules = reactive({
   ], 
   roles: [ 
       { required: true, message: "请选择角色" },   
+  ], positions: [ 
+      { required: true, message: "请选择岗位" },   
   ],
 });
 
@@ -149,12 +165,14 @@ const modalTitle = ref("用户管理");
 const confirmLoading = ref(false);
 const roleLoading = ref(false);
 const roleList = ref([]);
+const positionList = ref([]);
 
 // 监听props变化
 watch(() => props.visible, (newVal) => {
   modalVisible.value = newVal;
   if (newVal) {
     loadRoleList();
+    loadPositionList();
   }
 });
 
@@ -172,6 +190,7 @@ watch(() => props.user, (newVal) => {
       phone: newVal.phone,
       email: newVal.email,
       roles: newVal.roles.map((role) => role.id),
+       positions: newVal.positions.map((role) => role.id),
       status: newVal.status == 1,
       avatar: [],
       avatarUrl: newVal.avatar || "",
@@ -185,6 +204,7 @@ watch(() => props.user, (newVal) => {
       phone: "",
       email: "",
       roles: [],
+      positions:[],
       status: true,
       avatar: [],
       avatarUrl: "",
@@ -232,6 +252,24 @@ const loadRoleList = async () => {
     roleLoading.value = false;
   }
 };
+const loadPositionList = async () => {
+  roleLoading.value = true;
+  try {
+    const response = await GetALLList();
+    if (response && response.status === 200 && response.data) {
+      positionList.value = response.data.data.map((role) => ({
+        id: role.id,
+        name: role.name+role.code,
+        value: role.id,
+      }));
+    }
+  } catch (error) {
+    console.error("获取角色列表失败:", error);
+    message.error("获取角色列表失败: " + error.message);
+  } finally {
+    roleLoading.value = false;
+  }
+};
 
 // 处理确认
 const handleOk = () => {
@@ -240,6 +278,7 @@ const handleOk = () => {
       try {
         confirmLoading.value = true;
         var roles = roleList.value.filter((role) => form.roles.includes(role.id));
+          var positions = positionList.value.filter((role) => form.positions.includes(role.id));
         const userData = {
           id: form.id,
           name: form.username,
@@ -248,6 +287,7 @@ const handleOk = () => {
           phone: form.phone,
           email: form.email,
           roles: roles.map((role) => ({ id: role.id, name: role.name })),
+          positions: positions.map((role) => ({ id: role.id, name: role.name })),
           status: form.status,
           headImgs: form.avatarUrl
             ? [{ key: "avatar", value: form.avatarUrl }]

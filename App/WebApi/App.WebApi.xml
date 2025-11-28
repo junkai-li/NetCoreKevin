@@ -234,14 +234,14 @@
             <param name="dtoPage"></param> 
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.GetSysUserList(kevin.Share.Dtos.dtoPageData{kevin.Domain.Share.Dtos.User.dtoUser})">
+        <member name="M:WebApi.Controllers.v1.UserController.GetSysUserList(kevin.Domain.Share.Dtos.dtoPagePar{kevin.Domain.Share.Dtos.User.dtoUserPar})">
             <summary>
             获取系统用户列表信息
             </summary>
             <param name="dtoPage"></param> 
             <returns></returns>
         </member>
-        <member name="M:WebApi.Controllers.v1.UserController.ExportGetSysUserList(kevin.Share.Dtos.dtoPageData{kevin.Domain.Share.Dtos.User.dtoUser})">
+        <member name="M:WebApi.Controllers.v1.UserController.ExportGetSysUserList(kevin.Domain.Share.Dtos.dtoPagePar{kevin.Domain.Share.Dtos.User.dtoUserPar})">
             <summary>
             导出获取系统用户列表信息
             </summary> 

@@ -1,4 +1,5 @@
-﻿using kevin.Share.Dtos;
+﻿using kevin.Domain.Share.Dtos.Organizational;
+using kevin.Share.Dtos;
 using kevin.Share.Dtos.System;
 
 namespace kevin.Domain.Share.Dtos.User
@@ -70,6 +71,11 @@ namespace kevin.Domain.Share.Dtos.User
         public string? RecentLoginTimeStr { get; set; }
 
         public List<dtoKeyValue>? HeadImgs { get; set; }
+
+        /// <summary>
+        /// 岗位信息
+        /// </summary>
+        public List<PositionDto>? Positions { get; set; }
 
     }
 }

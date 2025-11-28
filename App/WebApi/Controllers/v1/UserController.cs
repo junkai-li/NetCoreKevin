@@ -1,5 +1,6 @@
 ﻿using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Share.Attributes;
+using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.User;
 using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
@@ -94,7 +95,7 @@ namespace WebApi.Controllers.v1
         [HttpPost("GetSysUserList")]
         [ActionDescription("获取系统用户列表信息")]
         [HttpLog("用户管理", "获取系统用户列表信息")]
-        public dtoPageData<dtoUser> GetSysUserList(dtoPageData<dtoUser> dtoPage)
+        public dtoPageData<dtoUser> GetSysUserList(dtoPagePar<dtoUserPar> dtoPage)
         {
             return _userService.GetSysUserList(dtoPage);
         }
@@ -106,7 +107,7 @@ namespace WebApi.Controllers.v1
         [HttpPost("ExportGetSysUserList")]
         [ActionDescription("导出预览值班排期表")]
         [SkipAuthority]
-        public IActionResult ExportGetSysUserList([FromBody] dtoPageData<dtoUser> dtoPage)
+        public IActionResult ExportGetSysUserList([FromBody] dtoPagePar<dtoUserPar> dtoPage)
         {
             var keyValuePairs = new Dictionary<string, string>
             {

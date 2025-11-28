@@ -8,6 +8,9 @@ export const getPositionPageData = (params) => {
 export const getPositionTree = () => {
   return http.get('/api/Position/GetPositionTree');
 };
+export const GetALLList = () => {
+  return http.get('/api/Position/GetALLList');
+};
 
 export const addEditPosition = (data) => {
   return http.post('/api/Position/AddEdit', data);

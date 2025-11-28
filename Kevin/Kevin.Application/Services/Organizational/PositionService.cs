@@ -2,6 +2,7 @@
 using kevin.Application.Services;
 using kevin.Domain.Entities;
 using kevin.Domain.Entities.Organizational;
+using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IRepositories.Organizational;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.Organizational;
@@ -17,9 +18,12 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
     public class PositionService : BaseService, IPositionService
     {
         public IPositionRp positionRp { get; set; }
-        public PositionService(IHttpContextAccessor _httpContextAccessor, IPositionRp _positionRp) : base(_httpContextAccessor)
+
+        public IUserBindPositionRp userBindPositionRp { get; set; }
+        public PositionService(IHttpContextAccessor _httpContextAccessor, IPositionRp _positionRp, IUserBindPositionRp _userBindPositionRp) : base(_httpContextAccessor)
         {
             positionRp = _positionRp;
+            this.userBindPositionRp = _userBindPositionRp;
         }
 
         public async Task<dtoPageData<PositionDto>> GetPageData(dtoPagePar<string> par)
@@ -42,6 +46,12 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
             return dataPage;
         }
 
+        public async Task<List<PositionDto>> GetALLList()
+        {
+            return (await positionRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId).OrderByDescending(x => x.Sort)
+                 .ToListAsync()).MapToList<TPosition, PositionDto>();
+        }
+
 
         public Task<PositionDto> GetPositionTree()
         {
@@ -53,6 +63,23 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
                 dataPage = GetChildListData(data.Id, allList, data);
             }
             return Task.FromResult(dataPage);
+        }
+
+        /// <summary>
+        /// 获取某个岗位下面的所有岗位ids
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public List<long> GetChildIdList(long id)
+        {
+            var position = new PositionDto();
+            var allList = positionRp.Query().Where(t => t.IsDelete == false && t.Status == OrganizationalStatus.Active && t.TenantId == CurrentUser.TenantId).ToList().MapToList<TPosition, PositionDto>();
+            var data = allList.FirstOrDefault(t => t.Id == id);
+            if (data != default)
+            {
+                position = GetChildListData(data.Id, allList, data);
+            }
+            return GetChildListIdData(position, new List<long>());
         }
 
         /// <summary>
@@ -73,6 +100,19 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
 
             }
             return reslut;
+        }
+
+        private List<long> GetChildListIdData(PositionDto positionDto, List<long> ids)
+        {
+            ids.Add(positionDto.Id);
+            if (positionDto.Children.Count > 0)
+            {
+                foreach (var item in positionDto.Children)
+                {
+                    ids.AddRange(GetChildListIdData(item, ids));
+                }
+            }
+            return ids;
         }
 
         public async Task<bool> AddEdit(PositionDto data)
@@ -134,6 +174,35 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
             else
             {
                 throw new UserFriendlyException("数据不存在或已删除");
+            }
+            return true;
+        }
+
+
+        public async Task<bool> AddEditUserBindPosition(long userId, List<long> positionIds)
+        {
+            var deleteRoleData = userBindPositionRp.Query().Where(t => t.UserId == userId && t.IsDelete == false).ToList();
+            foreach (var item in deleteRoleData)
+            {
+                item.IsDelete = true;
+                item.DeleteTime = DateTime.Now;
+                item.UserId = CurrentUser.UserId;
+            }
+            await userBindPositionRp.SaveChangesAsync();
+            if (positionIds.Count > 0)
+            {
+                foreach (var id in positionIds)
+                {
+                    var userBindRole = new TUserBindPosition();
+                    userBindRole.Id = SnowflakeIdService.GetNextId();
+                    userBindRole.UserId = userId;
+                    userBindRole.PositionId = id;
+                    userBindRole.IsDelete = false;
+                    userBindRole.CreateUserId = CurrentUser.UserId;
+                    userBindRole.CreateTime = DateTime.Now;
+                    userBindPositionRp.Add(userBindRole);
+                }
+               await userBindPositionRp.SaveChangesAsync();
             }
             return true;
         }
