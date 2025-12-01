@@ -55,34 +55,35 @@
 }
 
 .cards-container {
-  padding: 20px 0;
+  padding: 20px;
 }
 
 .agent-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
   color: white;
   height: 100%;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .agent-card:hover {
-  background: rgba(102, 126, 234, 0.15);
-  border-color: rgba(102, 126, 234, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(145deg, rgba(102, 126, 234, 0.2), rgba(102, 126, 234, 0.1));
+  border-color: rgba(102, 126, 234, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
 :deep(.agent-card .ant-card-head) {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   background: transparent;
-  padding: 0 12px;
-  min-height: 40px;
+  padding: 0 16px;
+  min-height: 50px;
 }
 
 :deep(.agent-card .ant-card-head-title) {
-  padding: 8px 0;
+  padding: 12px 0;
 }
 
 .card-title {
@@ -92,11 +93,12 @@
 }
 
 .agent-name {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 16px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #ffffff;
 }
 
 :deep(.agent-card .ant-card-extra) {
@@ -104,60 +106,59 @@
 }
 
 :deep(.agent-card .ant-card-body) {
-  padding: 12px;
+  padding: 16px;
   background: transparent;
 }
 
 .card-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  align-items: center;
 }
 
 .agent-icon {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 60px;
-}
-
-.icon-element {
-  font-size: 32px;
+  font-size: 36px;
   color: #667eea;
+  margin: 8px 0;
+  text-align: center;
 }
 
 .agent-info {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  gap: 12px;
+  width: 100%;
 }
 
 .info-item.horizontal {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   align-items: flex-start;
 }
 
 .info-label {
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.9);
   white-space: nowrap;
   text-align: left;
-  min-width: 50px;
+  min-width: 60px;
+  font-size: 14px;
 }
 
 .info-value {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.85);
   flex: 1;
   word-break: break-all;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.progress-wrapper {
+  flex: 1;
   text-align: left;
 }
 
@@ -174,11 +175,6 @@
   font-size: 12px;
 }
 
-.progress-wrapper {
-  flex: 1;
-  text-align: left;
-}
-
 .slider-container {
   display: flex;
   flex-direction: column;
@@ -191,8 +187,136 @@
   color: rgba(255, 255, 255, 0.75);
 }
 
+.pagination-container {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+:deep(.ant-pagination) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:deep(.ant-pagination-item) {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+:deep(.ant-pagination-item a) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:deep(.ant-pagination-item-active) {
+  background: #667eea;
+  border-color: #667eea;
+}
+
+:deep(.ant-pagination-next),
+:deep(.ant-pagination-prev) {
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+:deep(.ant-empty) {
+  color: rgba(255, 255, 255, 0.5);
+  margin: 40px 0;
+}
+
+.search-input {
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+:deep(.search-input .ant-input) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+:deep(.search-input .ant-input::placeholder) {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+:deep(.search-input .ant-input:focus) {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+:deep(.search-input .ant-input-search-button) {
+  background: rgba(102, 126, 234, 0.8);
+  border-color: rgba(102, 126, 234, 0.8);
+}
+
+:deep(.ant-modal-content) {
+  background: #1a1a2e;
+  color: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+:deep(.ant-modal-header) {
+  background: rgba(102, 126, 234, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px 24px;
+}
+
+:deep(.ant-modal-title) {
+  color: white;
+}
+
+:deep(.ant-modal-close) {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+:deep(.ant-modal-close:hover) {
+  color: white;
+}
+
+:deep(.ant-form-item-label > label) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:deep(.ant-input) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+:deep(.ant-input:focus) {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+}
+
+:deep(.ant-textarea) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  resize: none;
+}
+
+:deep(.ant-textarea:focus) {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+}
+
+:deep(.ant-input-number) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  width: 100%;
+}
+
+:deep(.ant-input-number:focus) {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+}
+
+:deep(.ant-input-number-input) {
+  background: transparent;
+  color: white;
+}
+
 :deep(.ant-slider) {
-  margin: 8px 6px;
+  margin: 8px 0;
 }
 
 :deep(.ant-slider-track) {
@@ -201,6 +325,10 @@
 
 :deep(.ant-slider-handle) {
   border: solid 2px #667eea;
+}
+
+:deep(.ant-slider-handle:hover) {
+  border-color: #5a6fd8;
 }
 
 @media (max-width: 768px) {
@@ -214,15 +342,31 @@
   }
   
   .cards-container {
-    padding: 12px 0;
+    padding: 12px;
   }
   
   .pagination-container {
     justify-content: center;
   }
   
-  :deep(.ant-modal) {
-    width: 90% !important;
-    max-width: 90%;
+  .agent-card {
+    border-radius: 10px;
+  }
+  
+  :deep(.agent-card .ant-card-head) {
+    padding: 0 12px;
+  }
+  
+  :deep(.agent-card .ant-card-body) {
+    padding: 12px;
+  }
+  
+  .info-item.horizontal {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .info-label {
+    min-width: auto;
   }
 }

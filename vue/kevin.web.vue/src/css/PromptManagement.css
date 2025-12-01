@@ -55,34 +55,35 @@
 }
 
 .cards-container {
-  padding: 20px 0;
+  padding: 20px;
 }
 
 .prompt-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
   color: white;
   height: 100%;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .prompt-card:hover {
-  background: rgba(102, 126, 234, 0.15);
-  border-color: rgba(102, 126, 234, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(145deg, rgba(102, 126, 234, 0.2), rgba(102, 126, 234, 0.1));
+  border-color: rgba(102, 126, 234, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
 :deep(.prompt-card .ant-card-head) {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   background: transparent;
-  padding: 0 12px;
-  min-height: 40px;
+  padding: 0 16px;
+  min-height: 50px;
 }
 
 :deep(.prompt-card .ant-card-head-title) {
-  padding: 8px 0;
+  padding: 12px 0;
 }
 
 .card-title {
@@ -92,11 +93,12 @@
 }
 
 .prompt-name {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 16px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #ffffff;
 }
 
 :deep(.prompt-card .ant-card-extra) {
@@ -104,60 +106,45 @@
 }
 
 :deep(.prompt-card .ant-card-body) {
-  padding: 12px;
+  padding: 16px;
   background: transparent;
 }
 
 .card-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .prompt-info {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.prompt-section {
-  margin: 0 0 6px 0;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.85);
+  gap: 12px;
 }
 
 .prompt-section.horizontal {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   align-items: flex-start;
 }
 
 .section-label {
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.9);
   white-space: nowrap;
   text-align: left;
-  min-width: 40px;
+  min-width: 50px;
+  font-size: 14px;
 }
 
 .section-content {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.85);
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: left;
-}
-
-.prompt-text {
-  margin: 0;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.75);
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .pagination-container {
@@ -282,10 +269,22 @@
   }
   
   .cards-container {
-    padding: 12px 0;
+    padding: 12px;
   }
   
   .pagination-container {
     justify-content: center;
+  }
+  
+  .prompt-card {
+    border-radius: 10px;
+  }
+  
+  :deep(.prompt-card .ant-card-head) {
+    padding: 0 12px;
+  }
+  
+  :deep(.prompt-card .ant-card-body) {
+    padding: 12px;
   }
 }

@@ -55,34 +55,35 @@
 }
 
 .cards-container {
-  padding: 20px 0;
+  padding: 20px;
 }
 
 .model-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
   color: white;
   height: 100%;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .model-card:hover {
-  background: rgba(102, 126, 234, 0.15);
-  border-color: rgba(102, 126, 234, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(145deg, rgba(102, 126, 234, 0.2), rgba(102, 126, 234, 0.1));
+  border-color: rgba(102, 126, 234, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
 :deep(.model-card .ant-card-head) {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   background: transparent;
-  padding: 0 12px;
-  min-height: 40px;
+  padding: 0 16px;
+  min-height: 50px;
 }
 
 :deep(.model-card .ant-card-head-title) {
-  padding: 8px 0;
+  padding: 12px 0;
 }
 
 .card-title {
@@ -92,11 +93,12 @@
 }
 
 .model-name {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 16px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #ffffff;
 }
 
 :deep(.model-card .ant-card-extra) {
@@ -104,52 +106,51 @@
 }
 
 :deep(.model-card .ant-card-body) {
-  padding: 12px;
+  padding: 16px;
   background: transparent;
 }
 
 .card-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .model-info {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.info-item {
-  display: flex;
-  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .info-item.horizontal {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   align-items: flex-start;
 }
 
 .info-label {
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.9);
   white-space: nowrap;
   text-align: left;
-  min-width: 70px;
+  min-width: 80px;
+  font-size: 14px;
 }
 
 .info-value {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.85);
   flex: 1;
   word-break: break-all;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: left;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .url-value {
-  font-size: 12px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .pagination-container {
@@ -240,9 +241,7 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
-
 :deep(.ant-select) {
-  background: rgba(255, 255, 255, 0.1);
   color: white;
 }
 
@@ -273,6 +272,28 @@
   background: rgba(102, 126, 234, 0.3);
 }
 
+:deep(.ant-input) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+:deep(.ant-input:focus) {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+}
+
+:deep(.ant-input-password) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+:deep(.ant-input-password:focus) {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+}
+
 @media (max-width: 768px) {
   .card-header {
     flex-direction: column;
@@ -284,14 +305,26 @@
   }
   
   .cards-container {
-    padding: 12px 0;
+    padding: 12px;
   }
   
   .pagination-container {
     justify-content: center;
   }
   
-  .info-item {
+  .model-card {
+    border-radius: 10px;
+  }
+  
+  :deep(.model-card .ant-card-head) {
+    padding: 0 12px;
+  }
+  
+  :deep(.model-card .ant-card-body) {
+    padding: 12px;
+  }
+  
+  .info-item.horizontal {
     flex-direction: column;
     gap: 4px;
   }
