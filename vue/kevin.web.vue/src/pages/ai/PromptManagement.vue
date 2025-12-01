@@ -89,10 +89,10 @@
     </a-card>
 
     <!-- 添加/编辑提示词模态框 -->
-    <a-modal
-      v-model:open="promptModalVisible"
-      :title="promptModalTitle"
-      @ok="handlePromptModalOk"
+    <a-modal 
+      v-model:open="promptModalVisible" 
+      :title="promptModalTitle" 
+      @ok="handlePromptModalOk" 
       @cancel="handlePromptModalCancel"
       :confirm-loading="confirmLoading"
       width="600px"
@@ -102,18 +102,18 @@
           <a-input v-model:value="promptForm.name" placeholder="请输入提示词名称" />
         </a-form-item>
         <a-form-item label="入参提示词" v-bind="validateInfos.inputPrompt">
-          <a-textarea
-            v-model:value="promptForm.inputPrompt"
-            :rows="4"
+          <a-textarea 
+            v-model:value="promptForm.inputPrompt" 
+            :rows="4" 
             placeholder="请输入入参提示词"
             :maxlength="1500"
             show-count
           />
         </a-form-item>
         <a-form-item label="返回提示词" v-bind="validateInfos.outputPrompt">
-          <a-textarea
-            v-model:value="promptForm.outputPrompt"
-            :rows="4"
+          <a-textarea 
+            v-model:value="promptForm.outputPrompt" 
+            :rows="4" 
             placeholder="请输入返回提示词"
             :maxlength="1500"
             show-count
@@ -184,7 +184,7 @@ const promptRules = reactive({
 });
 
 // 表单验证
-const { validate: validatePromptForm, validateInfos, resetFields } = useForm(
+const { validate: validatePromptForm, validateInfos } = useForm(
   promptForm,
   promptRules
 );
@@ -232,23 +232,20 @@ const showAddPromptModal = () => {
     name: "",
     inputPrompt: "",
     outputPrompt: "",
-  });
-  resetFields();
+  }); 
   promptModalVisible.value = true;
 };
 
 // 显示编辑提示词模态框
 const showEditPromptModal = (record) => {
-  promptModalTitle.value = "编辑提示词";
-  currentPrompt.value = record;
+  promptForm.name="我是测试";
+  promptModalTitle.value = '编辑提示词';
+  currentPrompt.value = record; 
   // 填充表单数据
-  Object.assign(promptForm, {
-    id: record.id,
-    name: record.name,
-    inputPrompt: record.inputPrompt,
-    outputPrompt: record.outputPrompt,
-  });
-  resetFields();
+  promptForm.id = record.id || '';
+  promptForm.name = record.name || '';
+  promptForm.inputPrompt = record.inputPrompt || '';
+  promptForm.outputPrompt = record.outputPrompt || ''; 
   promptModalVisible.value = true;
 };
 
@@ -322,8 +319,7 @@ const handlePromptModalCancel = () => {
 };
 
 // 组件挂载时的初始化
-onMounted(() => {
-  console.log("提示词管理页面已加载");
+onMounted(() => { 
   loadPromptData();
 });
 </script>

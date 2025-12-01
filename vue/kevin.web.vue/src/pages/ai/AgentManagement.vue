@@ -327,7 +327,7 @@ const agentRules = reactive({
 });
 
 // 表单验证
-const { validate: validateAgentForm, validateInfos, resetFields } = useForm(agentForm, agentRules);
+const { validate: validateAgentForm, validateInfos } = useForm(agentForm, agentRules);
 
 // 搜索关键字
 const searchKeyword = ref('');
@@ -398,8 +398,7 @@ const showAddAgentModal = () => {
     maxMatchesCount: 3,
     rerankCount: 20,
     aiPromptID: 0
-  });
-  resetFields();
+  }); 
   agentModalVisible.value = true;
 };
 
@@ -408,25 +407,22 @@ const showEditAgentModal = (record) => {
   agentModalTitle.value = '编辑智能体';
   currentAgent.value = record;
   // 填充表单数据
-  Object.assign(agentForm, {
-    id: record.id,
-    name: record.name,
-    describe: record.describe,
-    icon: record.icon,
-    type: record.type,
-    chatModelID: record.chatModelID,
-    embeddingModelID: record.embeddingModelID,
-    rerankModelID: record.rerankModelID,
-    imageModelID: record.imageModelID,
-    temperature: record.temperature,
-    relevance: record.relevance,
-    maxAskPromptSize: record.maxAskPromptSize,
-    answerTokens: record.answerTokens,
-    maxMatchesCount: record.maxMatchesCount,
-    rerankCount: record.rerankCount,
-    aiPromptID: record.aiPromptID
-  });
-  resetFields();
+  agentForm.id = record.id || '';
+  agentForm.name = record.name || '';
+  agentForm.describe = record.describe || '';
+  agentForm.icon = record.icon || 'windows';
+  agentForm.type = record.type || '';
+  agentForm.chatModelID = record.chatModelID || '';
+  agentForm.embeddingModelID = record.embeddingModelID || '';
+  agentForm.rerankModelID = record.rerankModelID || '';
+  agentForm.imageModelID = record.imageModelID || '';
+  agentForm.temperature = record.temperature !== undefined ? record.temperature : 70;
+  agentForm.relevance = record.relevance !== undefined ? record.relevance : 60;
+  agentForm.maxAskPromptSize = record.maxAskPromptSize !== undefined ? record.maxAskPromptSize : 2048;
+  agentForm.answerTokens = record.answerTokens !== undefined ? record.answerTokens : 2048;
+  agentForm.maxMatchesCount = record.maxMatchesCount !== undefined ? record.maxMatchesCount : 3;
+  agentForm.rerankCount = record.rerankCount !== undefined ? record.rerankCount : 20;
+  agentForm.aiPromptID = record.aiPromptID !== undefined ? record.aiPromptID : 0; 
   agentModalVisible.value = true;
 };
 

@@ -208,7 +208,7 @@ const modelRules = reactive({
 });
 
 // 表单验证
-const { validate: validateModelForm, validateInfos, resetFields } = useForm(modelForm, modelRules);
+const { validate: validateModelForm, validateInfos } = useForm(modelForm, modelRules);
 
 // 搜索关键字
 const searchKeyword = ref('');
@@ -274,8 +274,7 @@ const showAddModelModal = () => {
     modelName: '',
     modelKey: '',
     modelDescription: ''
-  });
-  resetFields();
+  }); 
   modelModalVisible.value = true;
 };
 
@@ -283,17 +282,14 @@ const showAddModelModal = () => {
 const showEditModelModal = (record) => {
   modelModalTitle.value = '编辑模型配置';
   currentModel.value = record;
-  // 填充表单数据
-  Object.assign(modelForm, {
-    id: record.id,
-    aiType: record.aiType,
-    aiModelType: record.aiModelType,
-    endPoint: record.endPoint,
-    modelName: record.modelName,
-    modelKey: record.modelKey,
-    modelDescription: record.modelDescription
-  });
-  resetFields();
+  // 填充表单数据，确保数字类型正确转换
+  modelForm.id = record.id || '';
+  modelForm.aiType = record.aiType !== undefined ? record.aiType : undefined;
+  modelForm.aiModelType = record.aiModelType !== undefined ? record.aiModelType : undefined;
+  modelForm.endPoint = record.endPoint || '';
+  modelForm.modelName = record.modelName || '';
+  modelForm.modelKey = record.modelKey || '';
+  modelForm.modelDescription = record.modelDescription || ''; 
   modelModalVisible.value = true;
 };
 
