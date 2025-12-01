@@ -85,11 +85,13 @@ namespace kevin.Application.Services.AI
             {
                 var msg = aIPromptsRp.Query().Where(t => t.IsDelete == false && t.Id == par.Id).FirstOrDefault();
                 if (msg != default)
-                {
-                    msg = par.MapTo<TAIPrompts>();
+                { 
                     msg.UpdateTime = DateTime.Now;
                     msg.UpdateUserId = CurrentUser.UserId;
                     msg.TenantId = CurrentUser.TenantId;
+                    msg.Name = par.Name;
+                    msg.InputPrompt = par.InputPrompt;
+                    msg.OutputPrompt = par.OutputPrompt;
                 }
                 else
                 {

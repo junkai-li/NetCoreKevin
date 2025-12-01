@@ -78,11 +78,17 @@ namespace kevin.Application.Services.AI
             {
                 var msg = aIModelsRp.Query().Where(t => t.IsDelete == false && t.Id == par.Id).FirstOrDefault();
                 if (msg != default)
-                {
-                    msg = par.MapTo<TAIModels>();
+                { 
                     msg.UpdateTime = DateTime.Now;
                     msg.UpdateUserId = CurrentUser.UserId;
-                    msg.TenantId = CurrentUser.TenantId;
+                    msg.TenantId = CurrentUser.TenantId; 
+                    msg.AIType= par.AIType;
+                    msg.AIModelType = par.AIModelType;
+                    msg.EndPoint = par.EndPoint;
+                    msg.ModelName = par.ModelName;
+                    msg.ModelKey = par.ModelKey;
+                    msg.ModelDescription = par.ModelDescription; 
+
                 }
                 else
                 {

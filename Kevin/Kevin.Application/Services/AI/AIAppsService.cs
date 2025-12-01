@@ -65,11 +65,27 @@ namespace kevin.Application.Services.AI
             {
                 var msg = aIAppsRp.Query().Where(t => t.IsDelete == false && t.Id == par.Id).FirstOrDefault();
                 if (msg != default)
-                {
-                    msg= par.MapTo<TAIApps>();
+                { 
                     msg.UpdateTime = DateTime.Now;
                     msg.UpdateUserId = CurrentUser.UserId;        
                     msg.TenantId = CurrentUser.TenantId; 
+                    msg.Name = par.Name;
+                    msg.Describe = par.Describe;
+                    msg.Icon = par.Icon;
+                    msg.Type = par.Type;
+                    msg.ChatModelID = par.ChatModelID;
+                    msg.EmbeddingModelID = par.EmbeddingModelID;
+                    msg.RerankModelID = par.RerankModelID;
+                    msg.ImageModelID = par.ImageModelID;
+                    msg.Temperature = par.Temperature;
+                    msg.KmsIdList = par.KmsIdList;
+                    msg.SecretKey = par.SecretKey;
+                    msg.Relevance = par.Relevance;
+                    msg.MaxAskPromptSize = par.MaxAskPromptSize;
+                    msg.MaxMatchesCount = par.MaxMatchesCount;
+                    msg.RerankCount = par.RerankCount;
+                    msg.AnswerTokens = par.AnswerTokens;
+                    msg.AIPromptID = par.AIPromptID; 
                 }
                 else
                 {
