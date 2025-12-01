@@ -1,9 +1,14 @@
 ﻿using kevin.Domain.BaseDatas;
 using kevin.Domain.Configuration;
 using kevin.Domain.Entities;
+using kevin.Domain.Entities.Organizational;
 using kevin.Domain.EventBus;
 using kevin.Domain.Events;
+using kevin.Domain.Interfaces.IRepositories.Organizational;
+using kevin.Domain.Share.Dtos;
+using kevin.Domain.Share.Dtos.Organizational;
 using kevin.Domain.Share.Enums;
+using kevin.Share.Dtos;
 using Repository.Database;
 using Web.Global.Exceptions;
 
@@ -26,9 +31,30 @@ namespace kevin.Application
             this.userBindRoleRp = _userBindRoleRp;
             this.permissionService = permissionService;
         }
-
+        public async Task<dtoPageData<dtoTenant>> GetPageData(dtoPagePar<string> par)
+        {
+            if (!CurrentUser.IsSuperAdmin)
+            {
+                throw new UserFriendlyException("非超级管理员无权限操作");
+            }
+            var dataPage = new dtoPageData<dtoTenant>();
+            int skip = par.GetSkip();
+            var data = tenantRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
+            if (!string.IsNullOrEmpty(par.searchKey))
+            {
+                data = data.Where(t => (t.Name ?? "").Contains(par.searchKey));
+            }
+            dataPage.total = await data.CountAsync();
+            var dbdata = await data.Skip(skip).Take(par.pageSize).ToListAsync();
+            dataPage.data = dbdata.MapToList<TTenant, dtoTenant>();
+            return dataPage;
+        }
         public async Task<bool> Inactive(long id, CancellationToken cancellationToken)
         {
+            if (!CurrentUser.IsSuperAdmin)
+            {
+                throw new UserFriendlyException("非超级管理员无权限操作");
+            }
             var tenant = tenantRp.Query().FirstOrDefault(t => t.Id == id);
             if (tenant != default)
             {
@@ -44,6 +70,10 @@ namespace kevin.Application
         }
         public async Task<bool> Active(long id, CancellationToken cancellationToken)
         {
+            if (!CurrentUser.IsSuperAdmin)
+            {
+                throw new UserFriendlyException("非超级管理员无权限操作");
+            }
             var tenant = tenantRp.Query().FirstOrDefault(t => t.Id == id);
             if (tenant != default)
             {
@@ -60,7 +90,11 @@ namespace kevin.Application
 
         public async Task<bool> EidtAsync(dtoTenant tenant, CancellationToken cancellationToken)
         {
-            var tenantcode = tenantRp.Query().FirstOrDefault(t => t.Id !=  tenant.Id.ToTryInt64() && t.Code == tenant.Code);
+            if (!CurrentUser.IsSuperAdmin)
+            {
+                throw new UserFriendlyException("非超级管理员无权限操作");
+            }
+            var tenantcode = tenantRp.Query().FirstOrDefault(t => t.Id != tenant.Id.ToTryInt64() && t.Code == tenant.Code);
             if (tenantcode != default)
             {
                 throw new UserFriendlyException(tenantcode.Code + "租户Code已存在");
@@ -82,6 +116,10 @@ namespace kevin.Application
 
         public Task<bool> CreateAsync(dtoTenant tenant, CancellationToken cancellationToken)
         {
+            if (!CurrentUser.IsSuperAdmin)
+            {
+                throw new UserFriendlyException("非超级管理员无权限操作");
+            }
             var tenantcode = tenantRp.Query().FirstOrDefault(t => t.Code == tenant.Code);
             if (tenantcode != default)
             {
@@ -96,6 +134,10 @@ namespace kevin.Application
 
         public async Task<bool> DeleteAsync(long id, CancellationToken cancellationToken)
         {
+            if (!CurrentUser.IsSuperAdmin)
+            {
+                throw new UserFriendlyException("非超级管理员无权限操作");
+            }
             if (TTenantBaseData.TTenants.Where(t => t.Id == id).FirstOrDefault() != default)
             {
                 throw new UserFriendlyException("种子数据不能删除");
@@ -187,11 +229,56 @@ namespace kevin.Application
             }
             #endregion
 
+            #region 初始化部门和岗位
+
+            var addDepartments = new List<TDepartment>();
+            foreach (var item in TDepartmentBaseDatas.Data)
+            {
+                item.Id = SnowflakeIdService.GetNextId();
+                item.CreateTime = DateTime.Now;
+                item.TenantId = tenant.Code;
+                item.CreateUserId = addusers.FirstOrDefault().Id;
+                addDepartments.Add(item);
+            }
+
+            var addPositions = new List<TPosition>();
+            foreach (var item in TPositionBaseDatas.Data)
+            {
+                item.Id = SnowflakeIdService.GetNextId();
+                item.CreateTime = DateTime.Now;
+                item.TenantId = tenant.Code;
+                item.CreateUserId = addusers.FirstOrDefault().Id;
+                addPositions.Add(item);
+            }
+
+            #endregion
+
+            #region 初始用户信息
+
+            var addUserInfos = new List<TUserInfo>();
+            foreach (var item in TUserInfoBaseDatas.GetData())
+            {
+                item.Id = SnowflakeIdService.GetNextId();
+                item.CreateTime = DateTime.Now;
+                item.TenantId = tenant.Code;
+                item.CreateUserId = addusers.FirstOrDefault().Id;
+                item.DepartmentId = addDepartments.FirstOrDefault().Id;
+                item.UserId = addusers.FirstOrDefault().Id;
+                addUserInfos.Add(item);
+            }
+
+            #endregion
+
             db.Set<TUser>().AddRange(addusers);
             db.Set<TRole>().AddRange(addroles);
             db.SaveChanges();
             db.Set<TUserBindRole>().AddRange(addUserBindRoles);
-            db.Set<TDictionary>().AddRange(addDicts); 
+            db.Set<TDictionary>().AddRange(addDicts);
+            db.SaveChanges();
+            db.Set<TDepartment>().AddRange(addDepartments);
+            db.Set<TPosition>().AddRange(addPositions);
+            db.SaveChanges();
+            db.Set<TUserInfo>().AddRange(addUserInfos);
             db.SaveChanges();
             return Task.FromResult(true);
         }

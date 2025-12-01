@@ -4,6 +4,121 @@
         <name>kevin.Domain.Share</name>
     </assembly>
     <members>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.Name">
+            <summary>
+            名称
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.Describe">
+            <summary>
+            描述
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.Icon">
+            <summary>
+            图标
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.Type">
+            <summary>
+            类型
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.ChatModelID">
+            <summary>
+            会话模型ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.EmbeddingModelID">
+            <summary>
+            Embedding 模型Id
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.Temperature">
+            <summary>
+            温度
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.KmsIdList">
+            <summary>
+            知识库ID列表
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.SecretKey">
+            <summary>
+            API调用秘钥
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.Relevance">
+            <summary>
+            相似度
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.MaxAskPromptSize">
+            <summary>
+            提问最大token数
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.MaxMatchesCount">
+            <summary>
+            向量匹配数
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.AnswerTokens">
+            <summary>
+            回答最大token数
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.AIPromptID">
+            <summary>
+            提示词绑定
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIModelsDto.AIType">
+            <summary>
+            AI类型
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIModelsDto.AIModelType">
+            <summary>
+            模型类型
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIModelsDto.EndPoint">
+            <summary>
+            模型地址
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIModelsDto.ModelName">
+            <summary>
+            模型名称
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIModelsDto.ModelKey">
+            <summary>
+            模型秘钥
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIModelsDto.ModelDescription">
+            <summary>
+            部署名，azure需要使用
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIPromptsDto.Name">
+            <summary>
+            名称
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIPromptsDto.InputPrompt">
+            <summary>
+            入参提示词
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIPromptsDto.OutputPrompt">
+            <summary>
+            返回提示词
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.Bases.CD_Dto">
             <summary>
             创建，删除

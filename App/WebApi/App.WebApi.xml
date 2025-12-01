@@ -443,6 +443,84 @@
             <param data="keyValue">id租户</param>
             <returns></returns>
         </member>
+        <member name="T:App.WebApi.Controllers.v1.AI.AIAppsController">
+            <summary>
+            AI应用管理
+            </summary>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIAppsController.GetPageData(kevin.Domain.Share.Dtos.dtoPagePar{System.String})">
+            <summary>
+            获取AI应用列表
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIAppsController.AddEdit(kevin.Domain.Share.Dtos.AI.AIAppsDto)">
+            <summary>
+            新增或编辑AI应用
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIAppsController.Delete(System.Int64)">
+            <summary>
+            删除AI应用
+            </summary>
+            <param name="Id"></param>
+            <returns></returns>
+        </member>
+        <member name="T:App.WebApi.Controllers.v1.AI.AIModelsController">
+            <summary>
+            AI模型管理
+            </summary>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIModelsController.GetPageData(kevin.Domain.Share.Dtos.dtoPagePar{System.String})">
+            <summary>
+            获取AI模型
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIModelsController.AddEdit(kevin.Domain.Share.Dtos.AI.AIModelsDto)">
+            <summary>
+            新增或编辑AI模型
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIModelsController.Delete(System.Int64)">
+            <summary>
+            删除AI模型
+            </summary>
+            <param name="Id"></param>
+            <returns></returns>
+        </member>
+        <member name="T:App.WebApi.Controllers.v1.AI.AIPromptsController">
+            <summary>
+            AI提示词管理
+            </summary>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIPromptsController.GetPageData(kevin.Domain.Share.Dtos.dtoPagePar{System.String})">
+            <summary>
+            获取提示词列表
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIPromptsController.AddEdit(kevin.Domain.Share.Dtos.AI.AIPromptsDto)">
+            <summary>
+            新增或编辑提示词
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIPromptsController.Delete(System.Int64)">
+            <summary>
+            删除提示词
+            </summary>
+            <param name="Id"></param>
+            <returns></returns>
+        </member>
         <member name="T:App.WebApi.Controllers.v1.DictionaryController">
             <summary>
             字典管理

@@ -5,7 +5,7 @@ using Kevin.EntityFrameworkCore._.Data;
 
 namespace kevin.Domain.Interfaces.IRepositories
 { 
-    public class AIPromptsRp : Repository<TAIKmss, long>, IAIKmssRp
+    public class AIPromptsRp : Repository<TAIPrompts, long>, IAIPromptsRp
     {
         public AIPromptsRp(IServiceProvider serviceProvider) : base(serviceProvider)
         {

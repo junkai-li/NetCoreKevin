@@ -1,6 +1,7 @@
 ﻿using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Share.Attributes;
 using kevin.Domain.Share.Dtos;
+using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Dtos.System;
 using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
@@ -25,6 +26,14 @@ namespace App.WebApi.Controllers
         [IocProperty]
         public ITenantService _ITenantService { get; set; }
 
+        [HttpPost("GetPageData")]
+        [ActionDescription("获取租户列表")]
+        [HttpLog("租户管理", "获取租户列表")]
+        public async Task<dtoPageData<dtoTenant>> GetPageData([FromBody] dtoPagePar<string> par)
+        {
+            var result = await _ITenantService.GetPageData(par);
+            return result;
+        }
         /// <summary>
         /// 设置无效租户
         /// </summary>

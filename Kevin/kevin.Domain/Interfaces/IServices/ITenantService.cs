@@ -1,10 +1,19 @@
-﻿using kevin.Domain.Share.Dtos.System;
+﻿using kevin.Domain.Share.Dtos;
+using kevin.Domain.Share.Dtos.System;
 using kevin.Domain.Share.Interfaces;
+using kevin.Share.Dtos;
 
 namespace kevin.Domain.Interfaces.IServices
 {
-    public interface ITenantService:IService
+    public interface ITenantService : IService
     {
+
+        /// <summary>
+        /// 租户列表
+        /// </summary>
+        /// <param name="par"></param>
+        /// <returns></returns>
+        Task<dtoPageData<dtoTenant>> GetPageData(dtoPagePar<string> par);
         /// <summary>
         /// 设置无效租户
         /// </summary>
@@ -29,11 +38,11 @@ namespace kevin.Domain.Interfaces.IServices
         /// <param name="tenant"></param>
         /// <returns></returns>
         Task<bool> CreateAsync(dtoTenant tenant, CancellationToken cancellationToken);
-       /// <summary>
-       /// 删除租户
-       /// </summary>
-       /// <param name="id"></param>
-       /// <returns></returns>
+        /// <summary>
+        /// 删除租户
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         Task<bool> DeleteAsync(long id, CancellationToken cancellationToken);
 
         /// <summary>
