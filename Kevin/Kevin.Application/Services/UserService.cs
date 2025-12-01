@@ -418,7 +418,7 @@ namespace kevin.Application
                 data.Name = user.Name;
                 data.Phone = user.Phone;
                 data.IsDelete = false;
-                data.IsSystem = true;
+                data.IsSystem = true; 
                 data.Email = user.Email;
                 data.UpdateTime = DateTime.Now;
                 data.Status = true;
@@ -522,11 +522,7 @@ namespace kevin.Application
             if (CurrentUser.UserId == Id)
             {
                 throw new UserFriendlyException("你不能删除你自己");
-            }
-            if (CurrentUser.IsSuperAdmin)
-            {
-                throw new UserFriendlyException("超级管理员不能删除");
-            }
+            } 
             if (TUserBaseData.TUsers.Where(t => t.Id == Id).FirstOrDefault() != default)
             {
                 throw new UserFriendlyException("种子数据不能删除");
@@ -534,6 +530,10 @@ namespace kevin.Application
             var data = userRp.Query().Where(x => x.Id == Id && x.IsDelete == false && x.TenantId == CurrentUser.TenantId).FirstOrDefault();
             if (data != default)
             {
+                if (data.IsSuperAdmin)
+                {
+                    throw new UserFriendlyException("超级管理员不能删除");
+                }
                 //编辑
                 data.IsDelete = true;
                 data.DeleteTime = DateTime.Now;
