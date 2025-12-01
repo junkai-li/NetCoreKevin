@@ -252,10 +252,10 @@ const fetchData = async () => {
     
     const response = await getAnnouncementPageData(params)
     console.log('获取公告数据成功:', response)
-    if (response && response.status == 200 && response.data.data.data) {
+    if (response && response.code == 200 && response.data.data) {
       // 处理返回的数据
-      dataSource.value = response.data.data.data;
-   pagination.total = response.data.data.total
+      dataSource.value = response.data.data;
+   pagination.total = response.data.total
     }
     else {
       message.error(response.data.msg || '获取数据失败')
@@ -318,7 +318,7 @@ const handleModalOk = async () => {
     }
     
     const response = await addEditMessage(params)
-    if (response.data.code === 200) {
+    if (response.code === 200) {
       message.success(`${isEdit.value ? '编辑' : '新增'}公告成功`)
       modalVisible.value = false
       fetchData()
@@ -346,7 +346,7 @@ const showDetail = (record) => {
 const handleDelete = async (id) => {
   try {
     const response = await deleteMessage(id)
-    if (response.data.code === 200) {
+    if (response.code === 200) {
       message.success('删除公告成功')
       fetchData()
     } else {

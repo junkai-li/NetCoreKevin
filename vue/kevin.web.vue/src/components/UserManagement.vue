@@ -381,9 +381,9 @@ const fetchUserList = async () => {
     };
     
     const response = await getUserList(params);
-    if (response && response.status == 200 && response.data && response.data.data) {
+    if (response && response.code == 200 && response.data && response.data) {
       // 处理返回的数据
-      dataSource.value = response.data.data.data.map((user) => ({
+      dataSource.value = response.data.data.map((user) => ({
         key: user.id,
         id: user.id,
         name: user.name,
@@ -399,10 +399,10 @@ const fetchUserList = async () => {
         avatar: hedeImage,
       }));
 
-      pagination.value.total = response.data.data.total;
+      pagination.value.total = response.data.total;
       
       // 触发加载成功事件
-      emit('load-success', response.data.data);
+      emit('load-success', response.data);
     } else {
       throw new Error("数据格式不正确");
     }

@@ -16,10 +16,10 @@ import SystemAnnouncement from '@/pages/SystemAnnouncement.vue';
 import MyMessages from '@/pages/MyMessages.vue';
 import DicConfig from '@/pages/DicMg.vue';
 // AI管理相关页面
-// import AiAppsMg from '@/pages/AiAppsMg.vue';
-// import AiPromptsMg from '@/pages/AiPromptsMg.vue';
+import AiAppsMg from '@/pages/ai/AgentManagement.vue';
+import AiPromptsMg from '@/pages/ai/PromptManagement.vue';
 // import AiKmssMg from '@/pages/AiKmssMg.vue';
-// import AiModelMg from '@/pages/AiModelMg.vue';
+import AiModelMg from '@/pages/ai/ModelManagement.vue';
 //组织架构相关页面
 import PositionManagement from '@/pages/organizational/PositionManagement.vue';
 import DepartmentManagement from '@/pages/organizational/DepartmentManagement.vue';
@@ -102,12 +102,12 @@ const routes = [
         {
         path: 'aimanagement/aiappsmg',
         name: 'aiappsmg',
-        component: UnderDevelopment
+        component: AiAppsMg
       },
         {
         path: 'aimanagement/aipromptsmg',
         name: 'aipromptsmg',
-        component: UnderDevelopment
+        component: AiPromptsMg
       },
         {
         path: 'aimanagement/aikmssmg',
@@ -117,7 +117,7 @@ const routes = [
         {
         path: 'aimanagement/aimodelmg',
         name: 'aimodelmg',
-        component: UnderDevelopment
+        component: AiModelMg
       },{
         path: 'position/management',
         name: 'positionManagement',
@@ -138,16 +138,17 @@ const router = createRouter({
 
 // 添加路由守卫
 router.beforeEach((to, from, next) => {
+  console.log("路由守卫");
   // 检查是否需要认证
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const isAuthenticated = localStorage.getItem('token'); 
   if (isAuthenticated) {
    getTokenUser().then((response) => 
         {
-          if(response.status==200){ 
-            if (response.data.code == 200) {
-               localStorage.setItem('user',JSON.stringify(response.data.data));
-               console.warn(response.data.data);
+          if(response.code==200){ 
+            if (response.code == 200) {
+               localStorage.setItem('user',JSON.stringify(response.data));
+               console.warn(response.data);
             }
           }else{
             message.warning("登录失败");
@@ -159,11 +160,14 @@ router.beforeEach((to, from, next) => {
   }
    
   if (requiresAuth && !isAuthenticated) {
+     console.log("login");
     next('/login');
   } else if (to.path === '/login' && isAuthenticated) {
     next('/home');
+     console.log("home");
   } else {
     next();
+     console.log("next");
   }
 });
 

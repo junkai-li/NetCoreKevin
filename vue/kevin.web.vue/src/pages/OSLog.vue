@@ -170,12 +170,12 @@ const loadPermData = async () => {
     loading.value = true;
     const response = await GetOSLogPageData(params);
     loading.value = false;
-    if (response && response.data.data) {
-      dataSource.value = response.data.data.data.map((item) => ({
+    if (response && response.data) {
+      dataSource.value = response.data.data.map((item) => ({
         ...item,
         key: item.id,
       }));
-      pagination.value.total = response.data.data.total;
+      pagination.value.total = response.data.total;
     }
   } catch (error) {
     loading.value = false;

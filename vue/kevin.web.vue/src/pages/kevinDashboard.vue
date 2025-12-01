@@ -82,8 +82,8 @@ const handleUserModalCancel = () => {
 const fetchUserCount = async () => {
   try {
     const response = await getAllUserCount()
-    if (response.data.code === 200) {
-      userCount.value = response.data.data
+    if (response.code === 200) {
+      userCount.value = response.data
     }
   } catch (error) {
     console.error('获取用户数量失败:', error)
@@ -93,8 +93,8 @@ const fetchUserCount = async () => {
 const MyNoReadCount = async () => {
   try {
     const response = await GetMyNoReadCount()
-    if (response.data.code === 200) {
-      myNoReadCount.value = response.data.data
+    if (response.code === 200) {
+      myNoReadCount.value = response.data
     }
   } catch (error) {
     console.error('获取未读数量失败:', error)

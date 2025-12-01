@@ -252,33 +252,31 @@ const handlePasswordLogin = (values) => {
   try{ 
     login(values.username, values.password, values.tenantId).then((response) => {
     console.log(response); 
-  if(response.status==200){ 
-   if (response.data.code == 200) {
-      if(response.data.isSuccess){
+  if(response.code==200){  
+      if(response.isSuccess){
         console.log(response);
-        localStorage.setItem('token',response.data.data);
+        localStorage.setItem('token',response.data);
         getTokenUser().then((response) => 
         {
-            if (response.data.code == 200) {
-               localStorage.setItem('user',JSON.stringify(response.data.data));
-               console.warn(response.data.data);
+            if (response.code == 200) {
+               localStorage.setItem('user',JSON.stringify(response.data));
+               console.warn(response.data);
             }
         });
          getUserPermissions().then((response) => 
         {
-            if (response.data.code == 200) {
-               localStorage.setItem('UserPermissions',JSON.stringify(response.data.data));
-               console.warn(response.data.data);
+            if (response.code == 200) {
+               localStorage.setItem('UserPermissions',JSON.stringify(response.data));
+               console.warn(response.data);
             }
         });
       }
       setTimeout(() => {
-          loading.value = false; 
+          loading.value = false;  
            message.success("登录成功！");
            //跳转登录页
            router.push('/home');
-      }, 1000); 
-    }  
+      }, 1000);  
   }else{ 
      setTimeout(() => {
         loading.value = false;

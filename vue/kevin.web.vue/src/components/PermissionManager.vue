@@ -170,7 +170,7 @@ const save = async () => {
     }
     
     const response = await editAllAreaPermissions(params)
-    if (response.data.code === 200) {
+    if (response.code === 200) {
       message.success('权限配置保存成功')
       emit('save-success')
     } else {
@@ -187,9 +187,9 @@ const loadPermissions = async () => {
   try {
     loading.value = true
     const response = await getAllAreaPermissions(props.roleId)
-    if (response.data.code === 200) {
+    if (response.code === 200) {
       // 转换数据结构为树形结构
-      const convertedData = convertToTreeData(response.data.data)
+      const convertedData = convertToTreeData(response.data)
       treeData.value = convertedData.tree
       
       // 获取已选中的权限ID

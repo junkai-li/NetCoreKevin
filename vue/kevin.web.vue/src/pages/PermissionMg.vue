@@ -368,12 +368,12 @@ const loadPermData = async () => {
     loading.value = true;
     const response = await GetPageData(params);
     loading.value = false;
-    if (response && response.data.data) {
-      dataSource.value = response.data.data.data.map((item) => ({
+    if (response && response.data) {
+      dataSource.value = response.data.data.map((item) => ({
         ...item,
         key: item.id,
       }));
-      pagination.value.total = response.data.data.total;
+      pagination.value.total = response.data.total;
     }
   } catch (error) {
     loading.value = false;
@@ -413,22 +413,22 @@ const showEditPermModal = async (record) => {
     // 获取详细信息
     const response = await getDetails(record.id);
     console.log(response);
-    if (response && response.data && response.data?.code == 200) {
-      currentPerm.value = response.data.data;
+    if (response && response.data && response.code == 200) {
+      currentPerm.value = response.data;
       // 填充表单数据
       Object.assign(permForm, {
-        id: response.data.data.id,
-        name: response.data.data.fullName,
-        areaName: response.data.data.areaName,
-        moduleName: response.data.data.moduleName,
-        actionName: response.data.data.actionName,
-         area: response.data.data.area,
-        module: response.data.data.module,
-        action: response.data.data.action,
-        httpMethod: response.data.data.httpMethod,
-        permissionType: response.data.data.permissionType,
-        isManual: response.data.data.isManual,
-        remarks: response.data.data.remarks,
+        id: response.data.id,
+        name: response.data.fullName,
+        areaName: response.data.areaName,
+        moduleName: response.data.moduleName,
+        actionName: response.data.actionName,
+         area: response.data.area,
+        module: response.data.module,
+        action: response.data.action,
+        httpMethod: response.data.httpMethod,
+        permissionType: response.data.permissionType,
+        isManual: response.data.isManual,
+        remarks: response.data.remarks,
       });
       permModalVisible.value = true;
     } else {
@@ -443,7 +443,7 @@ const showEditPermModal = async (record) => {
 const handleDelete = async (id) => {
   try {
     const response = await Delete(id);
-    if (response && response.data && response.data.code === 200) {
+    if (response && response.data && response.code === 200) {
       message.success("权限删除成功");
       loadPermData(); // 重新加载数据
     } else {
@@ -487,7 +487,7 @@ const handlePermModalOk = () => {
           // 编辑权限
           response = await addEidt(params);
           console.log(response);
-          if (response && response.data && response.data.code === 200) {
+          if (response && response.data && response.code === 200) {
             message.success("权限信息更新成功");
           } else {
             message.error("权限信息更新失败: " + (response?.data?.data?.errMsg || "未知错误"));
@@ -496,7 +496,7 @@ const handlePermModalOk = () => {
         } else {
           // 新增权限
           response = await addEidt(params);
-          if (response && response.data && response.data?.code === 200) {
+          if (response && response.data && response.code === 200) {
             message.success("权限信息添加成功");
           } else {
             message.error("权限信息添加失败: " + (response?.data?.data?.errMsg || "未知错误"));

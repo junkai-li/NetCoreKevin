@@ -262,8 +262,8 @@ const loadRoleList = async () => {
   roleLoading.value = true;
   try {
     const response = await getUserRoleList();
-    if (response && response.status === 200 && response.data) {
-      roleList.value = response.data.data.map((role) => ({
+    if (response && response.code === 200 && response.data) {
+      roleList.value = response.data.map((role) => ({
         id: role.key,
         name: role.value,
         value: role.key,
@@ -280,8 +280,8 @@ const loadPositionList = async () => {
   roleLoading.value = true;
   try {
     const response = await getPositionALLList();
-    if (response && response.status === 200 && response.data&&response.data.code==200) {
-      positionList.value = response.data.data.map((role) => ({
+    if (response && response.code === 200 && response.data&&response.code==200) {
+      positionList.value = response.data.map((role) => ({
         id: role.id,
         name: role.name+'-'+role.code,
         value: role.id,
@@ -298,8 +298,8 @@ const loadDepartmentList = async () => {
   roleLoading.value = true;
   try {
     const response = await getDepartmentALLList();
-    if (response && response.status === 200 && response.data&&response.data.code==200) {
-      departmentList.value = response.data.data.map((role) => ({
+    if (response && response.code === 200 && response.data&&response.code==200) {
+      departmentList.value = response.data.map((role) => ({
         id: role.id,
         name: role.name+'-'+role.code,
         value: role.id,
@@ -359,7 +359,7 @@ const handleOk = () => {
           result = await updateUser(userData);
         }
 
-        if (result && result.status == 200) {
+        if (result && result.code == 200) {
           message.success(props.user ? "用户信息更新成功" : "用户添加成功");
           emit('ok', userData);
         } else {

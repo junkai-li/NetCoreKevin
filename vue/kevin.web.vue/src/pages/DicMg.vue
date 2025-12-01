@@ -263,9 +263,9 @@ const formatDate = (dateString) => {
 const loadTypeList = async () => {
   try {
     const response = await GetTypeList();
-    if (response && response.status === 200 && response.data) {
+    if (response && response.code === 200 && response.data) {
       // 将返回的数据转换为Select选项格式
-      typeOptions.value = response.data.data.map(item => ({
+      typeOptions.value = response.data.map(item => ({
         label: item,
         value: item
       }));
@@ -301,12 +301,12 @@ const loadDicData = async () => {
     };
     
     const response = await GetPageData(params); 
-    if (response && response.status == 200 && response.data.data.data) {
-      dataSource.value = response.data.data.data.map(item => ({
+    if (response && response.code == 200 && response.data.data) {
+      dataSource.value = response.data.data.map(item => ({
         ...item,
         isSystem: item.isSystem ? '是' : '否'
       }));
-      pagination.value.total = response.data.data.total; 
+      pagination.value.total = response.data.total; 
     } 
   } catch (error) {
     console.error('加载字典数据失败:', error);

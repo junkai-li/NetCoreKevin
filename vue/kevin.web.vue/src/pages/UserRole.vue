@@ -207,12 +207,12 @@ const loadRoleData = async () => {
     };
     
     const response = await getRolePage(params); 
-    if (response && response.status == 200 && response.data.data.data) {
-   dataSource.value = response.data.data.data.map(item => ({
+    if (response && response.code == 200 && response.data.data) {
+   dataSource.value = response.data.data.map(item => ({
       ...item,
       key: item.id
     }));
-        pagination.value.total = response.data.data.total; 
+        pagination.value.total = response.data.total; 
     } 
 
   } catch (error) {

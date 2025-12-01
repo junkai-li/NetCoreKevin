@@ -246,7 +246,7 @@ const showEditPositionModalById = (id) => {
 const loadParentPositions = async () => {
   try {
     const response = await getPositionTree();
-    if (response && response.data.code == 200 && response.data.data) {
+    if (response && response.code == 200 && response.data) {
       // 转换数据格式以适应TreeSelect组件
       const convertToTreeData = (data) => {
         if (!data) return [];
@@ -283,7 +283,7 @@ const loadParentPositions = async () => {
         return result;
       };
       
-      parentPositions.value = convertToTreeData(response.data.data);
+      parentPositions.value = convertToTreeData(response.data);
     }
   } catch (error) {
     console.error('加载上级岗位数据失败:', error);
@@ -323,14 +323,14 @@ const loadPositionData = async () => {
   try {
     loading.value = true;
     const response = await getPositionTree();
-    if (response && response.data.code == 200 && response.data) {   
-      dataSource.value=[response.data.data];
+    if (response && response.code == 200 && response.data) {   
+      dataSource.value=[response.data];
       // 转换为组织架构树数据
-      orgTreeData.value = convertToOrgTreeData(response.data.data);
+      orgTreeData.value = convertToOrgTreeData(response.data);
       
       // 默认展开根节点
-      if (response.data && response.data.data.id) {
-        expandedKeys.value = [response.data.data.id];
+      if (response.data && response.data.id) {
+        expandedKeys.value = [response.data.id];
       }
     }
   } catch (error) {

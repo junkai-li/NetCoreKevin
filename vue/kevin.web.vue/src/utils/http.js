@@ -62,13 +62,13 @@ myAxios.interceptors.response.use(
         message.error(data.errMsg) 
         return Promise.reject(new Error(data.errMsg)) 
       }
-      return response
+      return response.data;
     } catch (error) { 
       if(error.status==400){
         message.error(error.response.data.err_msg) 
         return Promise.reject(new Error(error.response.data.err_msg)) 
       } 
-       if (error.status === 401) {
+     if (error.status === 401) {
         // 清理 localStorage 中的用户相关信息
         localStorage.removeItem('user');
         localStorage.removeItem('UserPermissions');

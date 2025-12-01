@@ -189,11 +189,11 @@ const fetchPrivateSystemData = async () => {
     }
     
     const response = await getPrivateUserSystemPageData(params)
-    if (response.data.code === 200) {
-      privateSystemData.value = response.data.data.data
-      privateSystemPagination.total = response.data.data.total
-      privateSystemPagination.current = response.data.data.pageNum
-      privateSystemPagination.pageSize = response.data.data.pageSize
+    if (response.code === 200) {
+      privateSystemData.value = response.data.data
+      privateSystemPagination.total = response.data.total
+      privateSystemPagination.current = response.data.pageNum
+      privateSystemPagination.pageSize = response.data.pageSize
     } else {
       message.error(response.data.msg || '获取系统私信数据失败')
     }
@@ -218,11 +218,11 @@ const fetchPrivateUserData = async () => {
     }
     
     const response = await getPrivateUserPageData(params)
-    if (response.data.code === 200) {
-      privateUserData.value = response.data.data.data
-      privateUserPagination.total = response.data.data.total
-      privateUserPagination.current = response.data.data.pageNum
-      privateUserPagination.pageSize = response.data.data.pageSize
+    if (response.code === 200) {
+      privateUserData.value = response.data.data
+      privateUserPagination.total = response.data.total
+      privateUserPagination.current = response.data.pageNum
+      privateUserPagination.pageSize = response.data.pageSize
     } else {
       message.error(response.data.msg || '获取私人私信数据失败')
     }
@@ -247,11 +247,11 @@ const fetchAnnouncementData = async () => {
     }
     
     const response = await getAnnouncementPageData(params)
-    if (response.data.code === 200) {
-      announcementData.value = response.data.data.data
-      announcementPagination.total = response.data.data.total
-      announcementPagination.current = response.data.data.pageNum
-      announcementPagination.pageSize = response.data.data.pageSize
+    if (response.code === 200) {
+      announcementData.value = response.data.data
+      announcementPagination.total = response.data.total
+      announcementPagination.current = response.data.pageNum
+      announcementPagination.pageSize = response.data.pageSize
     } else {
       message.error(response.data.msg || '获取公司公告数据失败')
     }
@@ -276,11 +276,11 @@ const fetchSystemData = async () => {
     }
     
     const response = await getSystemPageData(params)
-    if (response.data.code === 200) {
-      systemData.value = response.data.data.data
-      systemPagination.total = response.data.data.total
-      systemPagination.current = response.data.data.pageNum
-      systemPagination.pageSize = response.data.data.pageSize
+    if (response.code === 200) {
+      systemData.value = response.data.data
+      systemPagination.total = response.data.total
+      systemPagination.current = response.data.pageNum
+      systemPagination.pageSize = response.data.pageSize
     } else {
       message.error(response.data.msg || '获取系统消息数据失败')
     }

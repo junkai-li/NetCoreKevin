@@ -1,0 +1,309 @@
+.management-container {
+  color: white;
+  height: 100%;
+}
+
+.management-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+:deep(.management-card .ant-card-head) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0 20px;
+  background: transparent;
+}
+
+:deep(.management-card .ant-card-head-title) {
+  color: white;
+  padding: 16px 0;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.title-icon {
+  margin-right: 8px;
+  color: #667eea;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.cards-container {
+  padding: 20px 0;
+}
+
+.model-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: white;
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.model-card:hover {
+  background: rgba(102, 126, 234, 0.15);
+  border-color: rgba(102, 126, 234, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+:deep(.model-card .ant-card-head) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  padding: 0 12px;
+  min-height: 40px;
+}
+
+:deep(.model-card .ant-card-head-title) {
+  padding: 8px 0;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.model-name {
+  font-weight: 500;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:deep(.model-card .ant-card-extra) {
+  padding: 0;
+}
+
+:deep(.model-card .ant-card-body) {
+  padding: 12px;
+  background: transparent;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.model-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-item {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.info-label {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  min-width: 80px;
+  margin-right: 8px;
+}
+
+.info-value {
+  color: rgba(255, 255, 255, 0.75);
+  flex: 1;
+  word-break: break-all;
+}
+
+.url-value {
+  font-size: 12px;
+}
+
+.pagination-container {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+:deep(.ant-pagination) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:deep(.ant-pagination-item) {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+:deep(.ant-pagination-item a) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:deep(.ant-pagination-item-active) {
+  background: #667eea;
+  border-color: #667eea;
+}
+
+:deep(.ant-pagination-next),
+:deep(.ant-pagination-prev) {
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+:deep(.ant-empty) {
+  color: rgba(255, 255, 255, 0.5);
+  margin: 40px 0;
+}
+
+.search-input {
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+:deep(.search-input .ant-input) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+:deep(.search-input .ant-input::placeholder) {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+:deep(.search-input .ant-input:focus) {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+:deep(.search-input .ant-input-search-button) {
+  background: rgba(102, 126, 234, 0.8);
+  border-color: rgba(102, 126, 234, 0.8);
+}
+
+:deep(.ant-modal-content) {
+  background: #1a1a2e;
+  color: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+:deep(.ant-modal-header) {
+  background: rgba(102, 126, 234, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px 24px;
+}
+
+:deep(.ant-modal-title) {
+  color: white;
+}
+
+:deep(.ant-modal-close) {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+:deep(.ant-modal-close:hover) {
+  color: white;
+}
+
+:deep(.ant-form-item-label > label) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:deep(.ant-input) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+:deep(.ant-input:focus) {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+}
+
+:deep(.ant-input-password) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+:deep(.ant-select) {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+:deep(.ant-select-selector) {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+:deep(.ant-select-arrow) {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+:deep(.ant-select-dropdown) {
+  background: #1a1a2e !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+:deep(.ant-select-item) {
+  color: white !important;
+}
+
+:deep(.ant-select-item-option-active) {
+  background: rgba(102, 126, 234, 0.2) !important;
+}
+
+:deep(.ant-select-item-option-selected) {
+  background: rgba(102, 126, 234, 0.3) !important;
+}
+
+@media (max-width: 768px) {
+  .card-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .header-actions {
+    justify-content: space-between;
+  }
+  
+  .cards-container {
+    padding: 12px 0;
+  }
+  
+  .pagination-container {
+    justify-content: center;
+  }
+  
+  .info-item {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .info-label {
+    min-width: auto;
+  }
+}
