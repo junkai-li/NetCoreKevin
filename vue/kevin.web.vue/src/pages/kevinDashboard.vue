@@ -31,22 +31,53 @@
       </a-card>
       
       <a-card class="info-card" title="快捷操作">
-        <a-button type="primary" ghost>添加用户</a-button>
-        <a-button type="primary" ghost style="margin-left: 10px;">系统设置</a-button>
+        <a-button type="primary" @click="showAddUserModal" ghost>添加用户</a-button>
+        <!-- <a-button type="primary" ghost style="margin-left: 10px;">系统设置</a-button> -->
       </a-card>
     </div>
+      <!-- 用户管理模态框 -->
+    <UserAddEdit
+      :visible="userModalVisible"
+      :title="userModalTitle"
+      :user="currentUser"
+      @ok="handleUserModalOk"
+      @cancel="handleUserModalCancel"
+    />
   </div>
 </template>
 
 <script setup>
+/* eslint-disable no-undef */
 import { ref, onMounted } from 'vue'
 import { getAllUserCount } from '@/api/userapi.js'
-import { GetMyNoReadCount } from '@/api/message.js'
+import { GetMyNoReadCount } from '@/api/message.js' 
+import UserAddEdit from '@/components/UserAddEdit.vue'
 // 用户数量
 const userCount = ref(128)
 // not数量
 const myNoReadCount = ref(247)
+// 模态框状态
+const userModalVisible = ref(false);
+const userModalTitle = ref("添加用户");
+// 当前编辑的用户
+const currentUser = ref(null);
+// 显示添加用户模态框
+const showAddUserModal = () => {
+  userModalTitle.value = "添加用户";    
+  userModalVisible.value = true;
+};
+// Emit事件
+const emit = defineEmits(['user-added', 'user-updated', 'user-deleted', 'user-exported', 'load-success', 'load-error']);
 
+// 用户模态框确认
+const handleUserModalOk = async (userData) => {
+  userModalVisible.value = false; 
+    emit('user-added', userData); 
+};
+// 用户模态框取消
+const handleUserModalCancel = () => {
+  userModalVisible.value = false;
+};
 // 获取用户总数
 const fetchUserCount = async () => {
   try {
