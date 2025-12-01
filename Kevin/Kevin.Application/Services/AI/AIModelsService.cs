@@ -1,4 +1,5 @@
 ﻿using kevin.Domain.Entities.AI;
+using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
@@ -34,6 +35,18 @@ namespace kevin.Application.Services.AI
             return result;
         }
 
+        /// <summary>
+        /// 获取ai模型列表
+        /// </summary>
+        /// <param name="dtoPage"></param> 
+        /// <returns></returns> 
+        public async Task<List<AIModelsDto>> GetALLList()
+        {
+            var result = new List<AIModelsDto>();
+            var data = aIModelsRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
+            result = (await data.OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIModels, AIModelsDto>();
+            return result;
+        }
         /// <summary>
         /// 编辑或添加ai模型
         /// </summary>

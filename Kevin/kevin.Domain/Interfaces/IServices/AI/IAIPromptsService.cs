@@ -9,5 +9,7 @@ namespace kevin.Domain.Interfaces.IServices.AI
         Task<dtoPageData<AIPromptsDto>> GetPageData(dtoPagePar<string> dtoPage);
         Task<bool> AddEdit(AIPromptsDto par);
         Task<bool> Delete(long id);
+
+        Task<List<AIPromptsDto>> GetALLList();
     }
 }

@@ -2,6 +2,7 @@
 using kevin.Domain.Share.Attributes;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
+using kevin.Domain.Share.Dtos.Organizational;
 using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Web.Filters;
 
 namespace App.WebApi.Controllers.v1.AI
 {
@@ -39,6 +41,16 @@ namespace App.WebApi.Controllers.v1.AI
         public async Task<dtoPageData<AIPromptsDto>> GetPageData([FromBody] dtoPagePar<string> par)
         {
             var result = await _service.GetPageData(par);
+            return result;
+        }
+
+        [HttpGet("GetALLList")]
+        [ActionDescription("获取提示词列表")]
+        [HttpLog("提示词管理", "获取提示词列表")]
+        [CacheDataFilter<List<AIPromptsDto>>(TTL = 60, UseToken = false)]
+        public async Task<List<AIPromptsDto>> GetALLList()
+        {
+            var result = await _service.GetALLList();
             return result;
         }
         /// <summary>

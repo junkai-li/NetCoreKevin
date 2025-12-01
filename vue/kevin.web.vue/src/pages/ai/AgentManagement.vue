@@ -50,7 +50,7 @@
                   </template>
                 </a-dropdown>
               </template>
-              <div class="card-content">
+              <div @click="showEditAgentModal(agent)" class="card-content">
                 <div class="agent-icon">
                   <component :is="agent.icon" class="icon-element" />
                 </div>

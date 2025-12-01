@@ -50,7 +50,7 @@
                   </template>
                 </a-dropdown>
               </template>
-              <div class="card-content">
+              <div @click="showEditPromptModal(prompt)" class="card-content">
                 <div class="prompt-info">
                   <div class="prompt-section horizontal">
                     <div class="section-label">入参:</div>

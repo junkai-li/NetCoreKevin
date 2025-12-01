@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Web.Filters;
 
 namespace App.WebApi.Controllers.v1.AI
 {
@@ -39,6 +40,16 @@ namespace App.WebApi.Controllers.v1.AI
         public async Task<dtoPageData<AIModelsDto>> GetPageData([FromBody] dtoPagePar<string> par)
         {
             var result = await _service.GetPageData(par);
+            return result;
+        }
+
+        [HttpGet("GetALLList")]
+        [ActionDescription("获取AI模型列表")]
+        [HttpLog("AI模型管理", "获取AI模型列表")]
+        [CacheDataFilter<List<AIModelsDto>>(TTL = 60, UseToken = false)]
+        public async Task<List<AIModelsDto>> GetALLList()
+        {
+            var result = await _service.GetALLList();
             return result;
         }
         /// <summary>

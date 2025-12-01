@@ -42,6 +42,19 @@ namespace kevin.Application.Services.AI
         }
 
         /// <summary>
+        /// 获取ai提示词列表
+        /// </summary>
+        /// <param name="dtoPage"></param> 
+        /// <returns></returns> 
+        public async Task<List<AIPromptsDto>> GetALLList()
+        {
+            var result = new List<AIPromptsDto>(); 
+            var data = aIPromptsRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId); 
+            result= (await data.OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIPrompts, AIPromptsDto>();
+            return result;
+        }
+
+        /// <summary>
         /// 编辑或添加ai提示词
         /// </summary>
         /// <param name="message"></param>

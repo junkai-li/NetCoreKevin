@@ -50,7 +50,7 @@
                   </template>
                 </a-dropdown>
               </template>
-              <div class="card-content">
+              <div @click="showEditModelModal(model)" class="card-content">
                 <div class="model-info horizontal-layout">
                   <div class="info-item horizontal">
                     <span class="info-label">AI类型:</span>
@@ -101,25 +101,25 @@
       :confirm-loading="confirmLoading"
       width="600px"
     >
-      <a-form :model="modelForm" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
-        <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item label="AI类型" v-bind="validateInfos.aiType">
-              <a-select v-model:value="modelForm.aiType" placeholder="请选择AI类型">
-                <a-select-option :value="1">OpenAI</a-select-option>
-                <a-select-option :value="2">Azure</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item label="模型类型" v-bind="validateInfos.aiModelType">
+      <a-form :model="modelForm" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }"> 
+       <a-form-item label="模型类型" v-bind="validateInfos.aiModelType">
               <a-select v-model:value="modelForm.aiModelType" placeholder="请选择模型类型">
                 <a-select-option :value="1">Chat</a-select-option>
                 <a-select-option :value="2">Embedding</a-select-option>
               </a-select>
             </a-form-item>
-          </a-col>
-        </a-row>
+              <a-form-item label="AI类型" v-bind="validateInfos.aiType">
+              <a-select v-model:value="modelForm.aiType" placeholder="请选择AI类型">
+                <a-select-option :value="1">OpenAI</a-select-option>
+                <a-select-option :value="2">Azure</a-select-option>
+              </a-select>
+            </a-form-item>
+         <a-form-item label="模型地址" v-bind="validateInfos.aiType">
+          <a-input v-model:value="modelForm.endPoint" placeholder="请选择AI类型" />
+        </a-form-item>
+         <a-form-item label="模型地址" v-bind="validateInfos.endPoint">
+          <a-input v-model:value="modelForm.endPoint" placeholder="请输入模型地址" />
+        </a-form-item>
         <a-form-item label="模型地址" v-bind="validateInfos.endPoint">
           <a-input v-model:value="modelForm.endPoint" placeholder="请输入模型地址" />
         </a-form-item>
