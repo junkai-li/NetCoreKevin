@@ -99,6 +99,6 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary>
         public long AIPromptID { get; set; }
 
-        public virtual string AIPromptName { get; set; }
+        public virtual string? AIPromptName { get; set; }
     }
 }

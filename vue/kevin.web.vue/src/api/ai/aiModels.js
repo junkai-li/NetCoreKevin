@@ -9,3 +9,6 @@ export const addEditAIModel = (data) => {
 export const deleteAIModel = (id) => {
   return http.delete('/api/AIModels/Delete?Id='+id);
 };
+export const getAIModelsALLList = () => {
+  return http.get('/api/AIModels/GetALLList');
+};

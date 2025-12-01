@@ -9,3 +9,6 @@ export const addEditAIPrompts = (data) => {
 export const deleteAIPrompts = (id) => {
   return http.delete('/api/AIPrompts/Delete?Id='+id);
 };
+export const getAIPromptsALLList = () => {
+  return http.get('/api/AIPrompts/GetALLList');
+};
