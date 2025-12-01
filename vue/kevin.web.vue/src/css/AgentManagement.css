@@ -138,16 +138,27 @@
   gap: 4px;
 }
 
+.info-item.horizontal {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
 .info-label {
   font-weight: 500;
   color: rgba(255, 255, 255, 0.85);
-  font-size: 13px;
+  white-space: nowrap;
+  text-align: left;
+  min-width: 50px;
 }
 
 .info-value {
   color: rgba(255, 255, 255, 0.75);
-  font-size: 13px;
+  flex: 1;
   word-break: break-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
 }
 
 :deep(.ant-progress-inner) {
@@ -163,132 +174,9 @@
   font-size: 12px;
 }
 
-.pagination-container {
-  margin-top: 24px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-:deep(.ant-pagination) {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-:deep(.ant-pagination-item) {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-:deep(.ant-pagination-item a) {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-:deep(.ant-pagination-item-active) {
-  background: #667eea;
-  border-color: #667eea;
-}
-
-:deep(.ant-pagination-next),
-:deep(.ant-pagination-prev) {
-  color: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-:deep(.ant-empty) {
-  color: rgba(255, 255, 255, 0.5);
-  margin: 40px 0;
-}
-
-.search-input {
-  border-radius: 20px;
-  overflow: hidden;
-}
-
-:deep(.search-input .ant-input) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: white;
-}
-
-:deep(.search-input .ant-input::placeholder) {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-:deep(.search-input .ant-input:focus) {
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-}
-
-:deep(.search-input .ant-input-search-button) {
-  background: rgba(102, 126, 234, 0.8);
-  border-color: rgba(102, 126, 234, 0.8);
-}
-
-:deep(.ant-modal-content) {
-  background: #1a1a2e;
-  color: white;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-:deep(.ant-modal-header) {
-  background: rgba(102, 126, 234, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 16px 24px;
-}
-
-:deep(.ant-modal-title) {
-  color: white;
-}
-
-:deep(.ant-modal-close) {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-:deep(.ant-modal-close:hover) {
-  color: white;
-}
-
-:deep(.ant-form-item-label > label) {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-:deep(.ant-input) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: white;
-}
-
-:deep(.ant-input:focus) {
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-  border-color: #667eea;
-}
-
-:deep(.ant-input-number) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  width: 100%;
-}
-
-:deep(.ant-input-number-input) {
-  background: transparent;
-  color: white;
-}
-
-:deep(.ant-input-number:focus) {
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-  border-color: #667eea;
-}
-
-:deep(.ant-textarea) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  resize: none;
-}
-
-:deep(.ant-textarea:focus) {
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-  border-color: #667eea;
+.progress-wrapper {
+  flex: 1;
+  text-align: left;
 }
 
 .slider-container {

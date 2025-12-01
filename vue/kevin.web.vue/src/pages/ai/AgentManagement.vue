@@ -55,31 +55,35 @@
                   <component :is="agent.icon" class="icon-element" />
                 </div>
                 <div class="agent-info">
-                  <div class="info-item">
+                  <div class="info-item horizontal">
                     <span class="info-label">描述:</span>
                     <span class="info-value">{{ agent.describe }}</span>
                   </div>
-                  <div class="info-item">
+                  <div class="info-item horizontal">
                     <span class="info-label">类型:</span>
                     <span class="info-value">{{ agent.type }}</span>
                   </div>
-                  <div class="info-item">
+                  <div class="info-item horizontal">
                     <span class="info-label">温度:</span>
-                    <a-progress 
-                      :percent="agent.temperature" 
-                      :format="percent => `${percent}°`" 
-                      size="small" 
-                      :stroke-color="getTemperatureColor(agent.temperature)"
-                    />
+                    <div class="progress-wrapper">
+                      <a-progress 
+                        :percent="agent.temperature" 
+                        :format="percent => `${percent}°`" 
+                        size="small" 
+                        :stroke-color="getTemperatureColor(agent.temperature)"
+                      />
+                    </div>
                   </div>
-                  <div class="info-item">
+                  <div class="info-item horizontal">
                     <span class="info-label">相似度:</span>
-                    <a-progress 
-                      :percent="agent.relevance" 
-                      :format="percent => `${percent}%`" 
-                      size="small" 
-                      :stroke-color="getRelevanceColor(agent.relevance)"
-                    />
+                    <div class="progress-wrapper">
+                      <a-progress 
+                        :percent="agent.relevance" 
+                        :format="percent => `${percent}%`" 
+                        size="small" 
+                        :stroke-color="getRelevanceColor(agent.relevance)"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

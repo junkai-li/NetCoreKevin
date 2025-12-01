@@ -117,7 +117,7 @@
 .model-info {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .info-item {
@@ -125,17 +125,27 @@
   flex-wrap: wrap;
 }
 
+.info-item.horizontal {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
 .info-label {
   font-weight: 500;
   color: rgba(255, 255, 255, 0.85);
-  min-width: 80px;
-  margin-right: 8px;
+  white-space: nowrap;
+  text-align: left;
+  min-width: 70px;
 }
 
 .info-value {
   color: rgba(255, 255, 255, 0.75);
   flex: 1;
   word-break: break-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
 }
 
 .url-value {
@@ -230,22 +240,6 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
-:deep(.ant-input) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: white;
-}
-
-:deep(.ant-input:focus) {
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-  border-color: #667eea;
-}
-
-:deep(.ant-input-password) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: white;
-}
 
 :deep(.ant-select) {
   background: rgba(255, 255, 255, 0.1);
@@ -255,29 +249,28 @@
 :deep(.ant-select-selector) {
   background: rgba(255, 255, 255, 0.1) !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
-  color: white !important;
 }
 
-:deep(.ant-select-arrow) {
-  color: rgba(255, 255, 255, 0.6) !important;
+:deep(.ant-select-focused .ant-select-selector) {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
+  border-color: #667eea !important;
 }
 
 :deep(.ant-select-dropdown) {
-  background: #1a1a2e !important;
-  color: white !important;
+  background: #1a1a2e;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 :deep(.ant-select-item) {
-  color: white !important;
+  color: white;
 }
 
 :deep(.ant-select-item-option-active) {
-  background: rgba(102, 126, 234, 0.2) !important;
+  background: rgba(102, 126, 234, 0.2);
 }
 
 :deep(.ant-select-item-option-selected) {
-  background: rgba(102, 126, 234, 0.3) !important;
+  background: rgba(102, 126, 234, 0.3);
 }
 
 @media (max-width: 768px) {

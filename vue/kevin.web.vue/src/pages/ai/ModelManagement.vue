@@ -51,20 +51,22 @@
                 </a-dropdown>
               </template>
               <div class="card-content">
-                <div class="model-info">
-                  <div class="info-item">
+                <div class="model-info horizontal-layout">
+                  <div class="info-item horizontal">
                     <span class="info-label">AI类型:</span>
                     <span class="info-value">{{ getAITypeName(model.aiType) }}</span>
                   </div>
-                  <div class="info-item">
+                  <div class="info-item horizontal">
                     <span class="info-label">模型类型:</span>
                     <span class="info-value">{{ getModelTypeName(model.aiModelType) }}</span>
                   </div>
-                  <div class="info-item">
+                </div>
+                <div class="model-info horizontal-layout">
+                  <div class="info-item horizontal">
                     <span class="info-label">模型地址:</span>
                     <span class="info-value url-value">{{ model.endPoint }}</span>
                   </div>
-                  <div class="info-item">
+                  <div class="info-item horizontal">
                     <span class="info-label">部署名:</span>
                     <span class="info-value">{{ model.modelDescription }}</span>
                   </div>

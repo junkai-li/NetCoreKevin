@@ -26,15 +26,7 @@
 
       <div class="cards-container">
         <a-row :gutter="[24, 24]">
-          <a-col
-            :xs="24"
-            :sm="12"
-            :md="12"
-            :lg="8"
-            :xl="6"
-            v-for="prompt in promptList"
-            :key="prompt.id"
-          >
+          <a-col :xs="24" :sm="12" :md="12" :lg="8" :xl="6" v-for="prompt in promptList" :key="prompt.id">
             <a-card class="prompt-card" hoverable>
               <template #title>
                 <div class="card-title">
@@ -59,21 +51,23 @@
                 </a-dropdown>
               </template>
               <div class="card-content">
-                <div class="prompt-section">
-                  <h4>入参提示词:</h4>
-                  <p class="prompt-text">{{ prompt.inputPrompt }}</p>
-                </div>
-                <div class="prompt-section">
-                  <h4>返回提示词:</h4>
-                  <p class="prompt-text">{{ prompt.outputPrompt }}</p>
+                <div class="prompt-info">
+                  <div class="prompt-section horizontal">
+                    <div class="section-label">入参:</div>
+                    <div class="section-content">{{ prompt.inputPrompt }}</div>
+                  </div>
+                  <div class="prompt-section horizontal">
+                    <div class="section-label">返回:</div>
+                    <div class="section-content">{{ prompt.outputPrompt }}</div>
+                  </div>
                 </div>
               </div>
             </a-card>
           </a-col>
         </a-row>
-
+        
         <a-empty v-if="promptList.length === 0" description="暂无提示词数据" />
-
+        
         <div class="pagination-container" v-if="promptList.length > 0">
           <a-pagination
             v-model:current="pagination.current"
