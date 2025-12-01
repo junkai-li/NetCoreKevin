@@ -129,13 +129,13 @@
             </a-form-item>
           </a-col>
         </a-row>
-        <a-form-item label="描述" v-bind="validateInfos.describe">
-          <a-textarea v-model:value="agentForm.describe" :rows="2" placeholder="请输入描述" />
-        </a-form-item>
         <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item label="图标" v-bind="validateInfos.icon">
-              <a-input v-model:value="agentForm.icon" placeholder="请输入图标" />
+         
+        </a-row>
+        <a-row :gutter="16">
+        <a-col :span="12">
+            <a-form-item label="描述" v-bind="validateInfos.describe">
+              <a-textarea v-model:value="agentForm.describe"  :rows="2" placeholder="请输入描述" />
             </a-form-item>
           </a-col>
           <a-col :span="12">
@@ -315,10 +315,7 @@ const agentRules = reactive({
   ],
   describe: [
     { required: true, message: '请输入描述' }
-  ],
-  icon: [
-    { required: true, message: '请输入图标' }
-  ],
+  ], 
   type: [
     { required: true, message: '请输入类型' }
   ],
