@@ -252,7 +252,7 @@ import { GetSnowflakeId } from "../../api/baseapi";
 const handleAgentModalOk = async (params) => {
   confirmLoading.value = true;
   try {
-    if(!agentModalType.value === 'edit'){
+    if(!(agentModalType.value === 'edit')){
     params.id= await GetSnowflakeId().data;
     } 
     await addEditAIApp(params);
