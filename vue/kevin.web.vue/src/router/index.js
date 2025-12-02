@@ -20,6 +20,7 @@ import AiAppsMg from '@/pages/ai/AgentManagement.vue';
 import AiPromptsMg from '@/pages/ai/PromptManagement.vue';
 // import AiKmssMg from '@/pages/AiKmssMg.vue';
 import AiModelMg from '@/pages/ai/ModelManagement.vue';
+import MyAIChat from '@/pages/ai/MyAIChat.vue'; // 添加AI对话界面组件
 //组织架构相关页面
 import PositionManagement from '@/pages/organizational/PositionManagement.vue';
 import DepartmentManagement from '@/pages/organizational/DepartmentManagement.vue';
@@ -88,6 +89,11 @@ const routes = [
         path: 'my/message',
         name: 'MyMessages',
         component: MyMessages
+      },
+        {
+        path: 'my/ai-chat',
+        name: 'MyAIChat',
+        component: MyAIChat
       },
       {
         path: 'underdevelopment',

@@ -1,4 +1,5 @@
 ﻿using kevin.Domain.Entities.AI;
+using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
@@ -31,6 +32,19 @@ namespace kevin.Application.Services.AI
             }
             result.total = await data.CountAsync();
             result.data = (await data.Skip(skip).Take(dtoPage.pageSize).OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIApps, AIAppsDto>();
+            return result;
+        }
+
+        /// <summary>
+        /// 获取ai应用列表
+        /// </summary>
+        /// <param name="dtoPage"></param> 
+        /// <returns></returns> 
+        public async Task<List<AIAppsDto>> GetALLList()
+        {
+            var result = new List<AIAppsDto>();
+            var data = aIAppsRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
+            result = (await data.OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIApps, AIAppsDto>();
             return result;
         }
 

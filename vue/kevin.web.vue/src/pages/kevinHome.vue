@@ -48,6 +48,7 @@
           </template>
           <template #title>我的</template>
           <a-menu-item key="my-message">我的消息</a-menu-item>
+          <a-menu-item key="my-ai-chat">我的AI对话</a-menu-item>
         </a-sub-menu>
         <a-sub-menu key="aimanagement">
           <template #icon>
@@ -276,6 +277,7 @@ const currentRouteTitle = computed(() => {
     "ai-kmssmg": "知识库管理",
     "ai-modelmg": "模型配置管理",
     "my-message": "我的消息",
+    "my-ai-chat": "我的AI对话",
     "organizational-position": "岗位管理",
     "organizational-department": "部门管理",
   };
@@ -311,6 +313,9 @@ const handleMenuClick = ({ key }) => {
       break;
     case "my-message":
       router.push("/home/my/message");
+      break;
+    case "my-ai-chat":
+      router.push("/home/my/ai-chat");
       break;
     case "log-management":
       router.push("/home/system/log");
