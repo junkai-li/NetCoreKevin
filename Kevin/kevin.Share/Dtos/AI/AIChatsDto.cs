@@ -1,46 +1,44 @@
-﻿using kevin.Domain.Kevin;
+﻿using kevin.Domain.Share.Dtos.Bases;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kevin.Domain.Entities.AI
+namespace kevin.Domain.Share.Dtos.AI
 {
     /// <summary>
-    /// AI对话
+    /// 对话
     /// </summary>
-    [Table("TAIChats")]
-    [Description("AI对话记录")]
-    public class TAIChats : CUD_User
+    public class AIChatsDto : CUD_User_Dto
     {
         /// <summary>
-        /// 主题
+        /// 主题--如果为空则取第一条记录当作聊天主题
         /// </summary>
         [MaxLength(500)]
-        public string Name { get; set; } 
+        public string Name { get; set; }
 
         /// <summary>
         /// 聊天用户di
         /// </summary>
         [Description("聊天用户Id")]
         public long UserId { get; set; }
-
-        [ForeignKey("UserId")]
-        public virtual TUser? User { get; set; }
+        public virtual string? User { get; set; }
 
         /// <summary>
         /// 应用ID
         /// </summary>
         [Description("应用ID")]
+        [Required(ErrorMessage = "应用ID不能为空")]
         public long AppId { get; set; }
-
-        [ForeignKey("AppId")]
-        public virtual TAIApps? App { get; set; }
+        public virtual string? App { get; set; }
 
         /// <summary>
         /// 对话下的所有聊天记录
         /// </summary>
-        public virtual List<TAIChatHistorys>? TAIChatHistorys { get; set; }
+        public virtual List<AIChatHistorysDto>? AIChatHistorysList { get; set; }
     }
 }
