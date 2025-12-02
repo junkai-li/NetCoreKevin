@@ -319,6 +319,8 @@ const loadDepartmentData = async () => {
       // 默认展开根节点
       if (response.data && response.data.id) {
         expandedKeys.value = [response.data.id];
+        onExpand(expandedKeys.value);
+        onSelect(expandedKeys.value);
       }
     }
   } catch (error) {
@@ -434,7 +436,7 @@ const filterTreeNode = (inputValue, treeNode) => {
 // 组件挂载时的初始化
 onMounted(() => {
   loadDepartmentData();
-  loadParentDepartments();
+  loadParentDepartments();  
 });
 </script> 
 <style scoped>  
