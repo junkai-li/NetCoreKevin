@@ -12,17 +12,15 @@ namespace kevin.Domain.Share.Dtos.AI
         public string Name { get; set; }
 
         /// <summary>
-        /// 入参提示词
+        /// 提示词
         /// </summary>
         [Required]
         [StringLength(1500)]
-        public string InputPrompt { get; set; }
-
+        public string Prompt { get; set; }
         /// <summary>
-        /// 返回提示词
+        /// 描述
         /// </summary>
-        [Required]
-        [StringLength(1500)]
-        public string OutputPrompt { get; set; }
+        [StringLength(500)]
+        public string? Description { get; set; }
     }
 }

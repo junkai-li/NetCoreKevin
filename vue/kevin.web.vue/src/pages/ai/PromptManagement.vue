@@ -53,12 +53,12 @@
               <div @click="showEditPromptModal(prompt)" class="card-content">
                 <div class="prompt-info">
                   <div class="prompt-section horizontal">
-                    <div class="section-label">入参:</div>
-                    <div class="section-content">{{ prompt.inputPrompt }}</div>
+                    <div class="section-label">提示词:</div>
+                    <div class="section-content">{{ prompt.prompt }}</div>
                   </div>
                   <div class="prompt-section horizontal">
-                    <div class="section-label">返回:</div>
-                    <div class="section-content">{{ prompt.outputPrompt }}</div>
+                    <div class="section-label">描述:</div>
+                    <div class="section-content">{{ prompt.description }}</div>
                   </div>
                 </div>
               </div>
@@ -95,20 +95,20 @@
         <a-form-item label="名称" v-bind="validateInfos.name">
           <a-input v-model:value="promptForm.name" placeholder="请输入提示词名称" />
         </a-form-item>
-        <a-form-item label="入参提示词" v-bind="validateInfos.inputPrompt">
+        <a-form-item label="提示词" v-bind="validateInfos.prompt">
           <a-textarea 
-            v-model:value="promptForm.inputPrompt" 
-            :rows="4" 
-            placeholder="请输入入参提示词"
+            v-model:value="promptForm.prompt" 
+            :rows="20" 
+            placeholder="参提示词"
             :maxlength="1500"
             show-count
           />
         </a-form-item>
-        <a-form-item label="返回提示词" v-bind="validateInfos.outputPrompt">
+        <a-form-item label="描述" v-bind="validateInfos.description">
           <a-textarea 
-            v-model:value="promptForm.outputPrompt" 
+            v-model:value="promptForm.description" 
             :rows="4" 
-            placeholder="请输入返回提示词"
+            placeholder="请输入描述"
             :maxlength="1500"
             show-count
           />
@@ -160,20 +160,20 @@ const currentPrompt = ref(null);
 const promptForm = reactive({
   id: "",
   name: "",
-  inputPrompt: "",
-  outputPrompt: "",
+  prompt: "",
+  description: "",
 });
 
 // 表单验证规则
 const promptRules = reactive({
   name: [{ required: true, message: "请输入提示词名称" }],
-  inputPrompt: [
+  prompt: [
     { required: true, message: "请输入入参提示词" },
     { max: 1500, message: "入参提示词不能超过1500个字符" },
   ],
-  outputPrompt: [
-    { required: true, message: "请输入返回提示词" },
-    { max: 1500, message: "返回提示词不能超过1500个字符" },
+  description: [
+    { required: true, message: "请输入描述" },
+    { max: 1500, message: "描述不能超过1500个字符" },
   ],
 });
 
@@ -224,8 +224,8 @@ const showAddPromptModal = () => {
   Object.assign(promptForm, {
     id: "",
     name: "",
-    inputPrompt: "",
-    outputPrompt: "",
+    prompt: "",
+    description: "",
   }); 
   promptModalVisible.value = true;
 };
@@ -238,8 +238,8 @@ const showEditPromptModal = (record) => {
   // 填充表单数据
   promptForm.id = record.id || '';
   promptForm.name = record.name || '';
-  promptForm.inputPrompt = record.inputPrompt || '';
-  promptForm.outputPrompt = record.outputPrompt || ''; 
+  promptForm.prompt = record.prompt || '';
+  promptForm.description = record.description || ''; 
   promptModalVisible.value = true;
 };
 
@@ -282,12 +282,12 @@ const handlePromptModalOk = () => {
         await addEditAIPrompts(currentPrompt.value? {
               id: promptForm.id,
               name: promptForm.name,
-              inputPrompt: promptForm.inputPrompt,
-              outputPrompt: promptForm.outputPrompt,
+              prompt: promptForm.prompt,
+              description: promptForm.description,
             }:{
               name: promptForm.name,
-              inputPrompt: promptForm.inputPrompt,
-              outputPrompt: promptForm.outputPrompt,
+              prompt: promptForm.prompt,
+              description: promptForm.description,
             }); 
         message.success(
           currentPrompt.value ? "提示词信息更新成功" : "提示词信息添加成功"

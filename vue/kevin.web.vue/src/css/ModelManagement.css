@@ -113,19 +113,20 @@
 .card-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 16px; 
 }
 
 .model-info {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 12px; 
+    width: calc(100% - 16px);
 }
 
 .info-item.horizontal {
   display: flex;
   gap: 12px;
-  align-items: flex-start;
+  align-items: flex-start;   
 }
 
 .info-label {
@@ -146,6 +147,14 @@
   text-align: left;
   font-size: 14px;
   line-height: 1.5;
+    display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  word-break: break-word;
+  /* 确保内容完全靠左对齐 */
+  margin: 0;
+  padding: 0;
 }
 
 .url-value {

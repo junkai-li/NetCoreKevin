@@ -116,13 +116,7 @@
             </a-form-item>
          <a-form-item label="模型地址" v-bind="validateInfos.aiType">
           <a-input v-model:value="modelForm.endPoint" placeholder="请选择AI类型" />
-        </a-form-item>
-         <a-form-item label="模型地址" v-bind="validateInfos.endPoint">
-          <a-input v-model:value="modelForm.endPoint" placeholder="请输入模型地址" />
-        </a-form-item>
-        <a-form-item label="模型地址" v-bind="validateInfos.endPoint">
-          <a-input v-model:value="modelForm.endPoint" placeholder="请输入模型地址" />
-        </a-form-item>
+        </a-form-item> 
         <a-form-item label="模型名称" v-bind="validateInfos.modelName">
           <a-input v-model:value="modelForm.modelName" placeholder="请输入模型名称" />
         </a-form-item>

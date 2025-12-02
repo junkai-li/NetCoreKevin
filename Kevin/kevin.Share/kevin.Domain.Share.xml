@@ -109,14 +109,14 @@
             名称
             </summary>
         </member>
-        <member name="P:kevin.Domain.Share.Dtos.AI.AIPromptsDto.InputPrompt">
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIPromptsDto.Prompt">
             <summary>
-            入参提示词
+            提示词
             </summary>
         </member>
-        <member name="P:kevin.Domain.Share.Dtos.AI.AIPromptsDto.OutputPrompt">
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIPromptsDto.Description">
             <summary>
-            返回提示词
+            描述
             </summary>
         </member>
         <member name="T:kevin.Domain.Share.Dtos.Bases.CD_Dto">

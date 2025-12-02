@@ -145,6 +145,14 @@
   text-align: left;
   font-size: 14px;
   line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  word-break: break-word;
+  /* 确保内容完全靠左 */
+  margin: 0;
+  padding: 0;
 }
 
 .pagination-container {

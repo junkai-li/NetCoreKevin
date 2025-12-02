@@ -90,8 +90,8 @@ namespace kevin.Application.Services.AI
                     msg.UpdateUserId = CurrentUser.UserId;
                     msg.TenantId = CurrentUser.TenantId;
                     msg.Name = par.Name;
-                    msg.InputPrompt = par.InputPrompt;
-                    msg.OutputPrompt = par.OutputPrompt;
+                    msg.Prompt = par.Prompt; 
+                    msg.Description = par.Description;
                 }
                 else
                 {
