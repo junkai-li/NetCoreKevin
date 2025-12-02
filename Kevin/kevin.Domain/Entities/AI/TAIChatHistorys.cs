@@ -15,23 +15,10 @@ namespace kevin.Domain.Entities.AI
     public class TAIChatHistorys : CD_User
     {
         /// <summary>
-        /// 聊天用户di
+        /// 对话id
         /// </summary>
-        [Description("聊天用户Id")]
-        public long UserId { get; set; }
-
-        [ForeignKey("UserId")]
-        public virtual TUser? User { get; set; }
-
-        /// <summary>
-        /// 应用ID
-        /// </summary>
-        [Description("应用ID")]
-        public long AppId { get; set; }
-
-        [ForeignKey("UserId")]
-        public virtual TAIApps? App { get; set; }
-
+        public long AIChatsId { get; set; } 
+        public virtual TAIChats? AIChats { get; set; }  
         /// <summary>
         /// 消息内容
         /// </summary> 

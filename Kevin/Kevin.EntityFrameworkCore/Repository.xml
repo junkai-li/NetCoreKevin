@@ -40,6 +40,18 @@
         <member name="M:Kevin.EntityFrameworkCore.Migrations.新增相关注释.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:Kevin.EntityFrameworkCore.Migrations.初始化AI对话聊天记录表">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化AI对话聊天记录表.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化AI对话聊天记录表.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化AI对话聊天记录表.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="T:Kevin.EntityFrameworkCore._.Data.Repository`2">
             <summary>
             仓储类与类型Id

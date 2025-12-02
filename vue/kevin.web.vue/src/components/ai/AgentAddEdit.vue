@@ -5,7 +5,7 @@
     @ok="handleOk"
     @cancel="handleCancel"
     :confirm-loading="confirmLoading"
-    width="700px"
+    width="800px"
   >
     <a-form :model="form" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
       <a-row :gutter="16">
@@ -27,7 +27,7 @@
       </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item label="提示词绑定" v-bind="validateInfos.aiPromptID">
+          <a-form-item label="提示词" v-bind="validateInfos.aiPromptID">
             <a-select 
               v-model:value="form.aiPromptID" 
               placeholder="请选择提示词"
@@ -49,7 +49,7 @@
       </a-row>
       <a-row :gutter="16">
         <a-col :span="12">
-          <a-form-item label="会话模型ID" v-bind="validateInfos.chatModelID">
+          <a-form-item label="模型" v-bind="validateInfos.chatModelID">
             <a-select 
               v-model:value="form.chatModelID" 
               placeholder="请选择会话模型"
@@ -69,23 +69,11 @@
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item label="Embedding模型ID" v-bind="validateInfos.embeddingModelID">
-            <a-input v-model:value="form.embeddingModelID" placeholder="请输入Embedding模型ID" />
+          <a-form-item label="知识库">
+          <tag>{{ form.embeddingModelID}}</tag> 
           </a-form-item>
         </a-col>
-      </a-row>
-      <a-row :gutter="16">
-        <a-col :span="12">
-          <a-form-item label="Rerank模型ID" v-bind="validateInfos.rerankModelID">
-            <a-input v-model:value="form.rerankModelID" placeholder="请输入Rerank模型ID" />
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label="图像模型ID" v-bind="validateInfos.imageModelID">
-            <a-input v-model:value="form.imageModelID" placeholder="请输入图像模型ID" />
-          </a-form-item>
-        </a-col>
-      </a-row>
+      </a-row> 
       <a-row :gutter="16">
         <a-col :span="12">
           <a-form-item label="温度" v-bind="validateInfos.temperature">
@@ -116,7 +104,7 @@
       </a-row>
       <a-row :gutter="16">
         <a-col :span="12">
-          <a-form-item label="提问最大Token" v-bind="validateInfos.maxAskPromptSize">
+          <a-form-item label="提问Token" v-bind="validateInfos.maxAskPromptSize">
             <a-input-number 
               v-model:value="form.maxAskPromptSize" 
               :min="0" 
@@ -126,7 +114,7 @@
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item label="回答最大Token" v-bind="validateInfos.answerTokens">
+          <a-form-item label="回答Token" v-bind="validateInfos.answerTokens">
             <a-input-number 
               v-model:value="form.answerTokens" 
               :min="0" 
@@ -146,17 +134,7 @@
               placeholder="请输入匹配数量"
             />
           </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label="Rerank数量" v-bind="validateInfos.rerankCount">
-            <a-input-number 
-              v-model:value="form.rerankCount" 
-              :min="0" 
-              style="width: 100%"
-              placeholder="请输入Rerank数量"
-            />
-          </a-form-item>
-        </a-col>
+        </a-col> 
       </a-row>
     </a-form>
   </a-modal>
@@ -226,10 +204,7 @@ const rules = reactive({
   ],
   chatModelID: [
     { required: true, message: '请选择会话模型' }
-  ],
-  embeddingModelID: [
-    { required: true, message: '请输入Embedding模型ID' }
-  ]
+  ] 
 });
 
 // 表单验证
