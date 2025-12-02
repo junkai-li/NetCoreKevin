@@ -47,10 +47,8 @@ namespace kevin.Domain.Entities.AI
         public string ModelKey { get; set; } = "";
         /// <summary>
         /// 部署名，azure需要使用
-        /// </summary>
-
-        [Required]
+        /// </summary> 
         [Description("部署名，azure需要使用")]
-        public string ModelDescription { get; set; }
+        public string? ModelDescription { get; set; }
     }
 }

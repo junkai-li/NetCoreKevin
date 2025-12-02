@@ -113,6 +113,6 @@ namespace kevin.Domain.Entities.AI
         [Description("提示词Id")]
         public long AIPromptID { get; set; }
 
-        public virtual TAIPrompts AIPrompt { get; set; }
+        public virtual TAIPrompts? AIPrompt { get; set; }
     }
 }

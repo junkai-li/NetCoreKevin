@@ -19,7 +19,7 @@ namespace kevin.Domain.Entities.AI
         [Required]
         [Description("名称")]
         [StringLength(100)]
-        public String Name { get; set; }
+        public String Name { get; set; } = "";
 
         /// <summary>
         /// 提示词
@@ -27,7 +27,7 @@ namespace kevin.Domain.Entities.AI
         [Description("提示词")]
         [Required]
         [StringLength(1500)]
-        public String Prompt { get; set; }
+        public String Prompt { get; set; } = "";
         /// <summary>
         /// 描述
         /// </summary>

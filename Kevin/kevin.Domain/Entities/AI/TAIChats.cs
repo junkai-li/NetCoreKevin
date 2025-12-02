@@ -18,7 +18,12 @@ namespace kevin.Domain.Entities.AI
         /// 主题
         /// </summary>
         [MaxLength(500)]
-        public string Name { get; set; } 
+        public String? Name { get; set; }
+
+        /// <summary>
+        /// 最后一条聊天记录
+        /// </summary>
+        public String? LastMessage { get; set; }
 
         /// <summary>
         /// 聊天用户di
@@ -41,6 +46,6 @@ namespace kevin.Domain.Entities.AI
         /// <summary>
         /// 对话下的所有聊天记录
         /// </summary>
-        public virtual List<TAIChatHistorys>? TAIChatHistorys { get; set; }
+        public virtual List<TAIChatHistorys>? TAIChatHistorys { get; set; } 
     }
 }

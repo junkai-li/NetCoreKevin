@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.Database;
 
@@ -11,9 +12,11 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(KevinDbContext))]
-    partial class KevinDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251202090845_LastMessage")]
+    partial class LastMessage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -347,11 +350,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasComment("是否删除");
 
                     b.Property<string>("LastMessage")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("last_message")
                         .HasComment("last_message");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)")
                         .HasColumnName("name")
@@ -729,6 +734,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasComment("是否删除");
 
                     b.Property<string>("ModelDescription")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("model_description")
                         .HasComment("部署名，azure需要使用");

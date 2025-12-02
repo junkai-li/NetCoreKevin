@@ -5,7 +5,12 @@
       <div class="chat-sidebar">
         <div class="sidebar-header">
           <h3>我的对话</h3>
-          <a-button type="primary" @click="showAgentSelectionModal" size="small" class="add-button">
+          <a-button
+            type="primary"
+            @click="showAgentSelectionModal"
+            size="small"
+            class="add-button"
+          >
             <template #icon>
               <PlusOutlined />
             </template>
@@ -25,13 +30,24 @@
                 @click="selectConversation(item)"
               >
                 <div class="conversation-content">
-                  <div class="conversation-title">{{ item.title || '新对话' }}</div>
+                  <div class="conversation-title">{{ item.title || "新对话" }}</div>
                   <div class="conversation-preview">
-                    {{ item.lastMessage || '开始新的对话...' }}
+                    {{ item.lastMessage || "开始新的对话..." }}
                   </div>
                   <div class="conversation-time">
                     {{ formatDate(item.updatedAt) }}
                   </div>
+                </div>
+                <div class="conversation-actions" @click.stop>
+                  <a-button
+                    type="text"
+                    class="delete-btn"
+                    @click="(event) => deleteConversation(item.id, event)"
+                  >
+                    <template #icon>
+                      <DeleteOutlined />
+                    </template>
+                  </a-button>
                 </div>
               </a-list-item>
             </template>
@@ -47,10 +63,10 @@
       <!-- 右侧聊天区域 -->
       <div class="chat-main">
         <div class="chat-header" v-if="activeConversation">
-          <h2>{{ activeConversation.title || '新对话' }}</h2>
-          <div class="agent-info" v-if="activeConversation.aiAppId">
+          <h2>{{ activeConversation.title || "新对话" }}</h2>
+          <div class="agent-info" v-if="activeConversation.appId">
             <RobotOutlined />
-            <span>{{ getAiAppName(activeConversation.aiAppId) }}</span>
+            <span>{{ getAiAppName(activeConversation.appId) }}</span>
           </div>
         </div>
 
@@ -59,7 +75,10 @@
             v-for="message in messages"
             :key="message.id"
             class="message-item"
-            :class="{ 'user-message': message.role === 'user', 'ai-message': message.role === 'assistant' }"
+            :class="{
+              'user-message': message.role === 'user',
+              'ai-message': message.role === 'assistant',
+            }"
           >
             <div class="message-avatar">
               <UserOutlined v-if="message.role === 'user'" />
@@ -70,7 +89,7 @@
               <div class="message-time">{{ formatTime(message.createdAt) }}</div>
             </div>
           </div>
-          
+
           <div v-if="isSending" class="message-item ai-message">
             <div class="message-avatar">
               <RobotOutlined />
@@ -126,23 +145,25 @@
 </template>
 
 <script setup>
-/* eslint-disable */ 
-import { ref, onMounted, nextTick, watch, h } from 'vue';
+/* eslint-disable */
+import { ref, onMounted, nextTick, watch, h } from "vue";
 import {
   PlusOutlined,
   UserOutlined,
   RobotOutlined,
-  MessageOutlined
-} from '@ant-design/icons-vue';
-import { message, Modal, Select } from 'ant-design-vue';
-import { getAIAppsALLList } from '../../api/ai/aiapps.js';
+  MessageOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons-vue";
+import { message, Modal, Select } from "ant-design-vue";
+import { getAIAppsALLList } from "../../api/ai/aiapps.js";
+import { getAIChatsMyPageData, addAIChats, deleteAIChats } from "../../api/ai/aichats.js";
 
 // 模拟数据
 const conversations = ref([]);
 const activeConversationId = ref(null);
 const activeConversation = ref(null);
 const messages = ref([]);
-const newMessage = ref('');
+const newMessage = ref("");
 const loadingConversations = ref(false);
 const isSending = ref(false);
 const messagesContainer = ref(null);
@@ -155,36 +176,35 @@ const selectedAiApp = ref(null); // 存储选中的智能体
 const loadConversations = async () => {
   loadingConversations.value = true;
   try {
-    // 模拟API调用
-    setTimeout(() => {
-      conversations.value = [
-        {
-          id: 1,
-          title: '如何学习Vue.js?',
-          lastMessage: 'Vue.js是一套构建用户界面的渐进式框架...',
-          createdAt: '2023-05-15T10:30:00Z',
-          updatedAt: '2023-05-15T10:30:00Z'
-        },
-        {
-          id: 2,
-          title: 'JavaScript闭包详解',
-          lastMessage: '闭包是指有权访问另一个函数作用域中变量的函数...',
-          createdAt: '2023-05-14T14:20:00Z',
-          updatedAt: '2023-05-14T14:20:00Z'
-        },
-        {
-          id: 3,
-          title: 'CSS Grid布局指南',
-          lastMessage: 'Grid布局是CSS中最强大的布局系统之一...',
-          createdAt: '2023-05-12T09:15:00Z',
-          updatedAt: '2023-05-12T09:15:00Z'
-        }
-      ];
-      loadingConversations.value = false;
-    }, 500);
+    // 调用真实API获取对话列表
+    const response = await getAIChatsMyPageData({
+      pageNum: 1,
+      pageSize: 100, // 获取足够多的对话记录
+    });
+
+    if (response && response.code === 200 && response.data) {
+      if(response.data.data.length>0){
+      conversations.value = response.data.data.map((item) => ({
+        id: item.id,
+        title: item.title,
+        lastMessage: item.lastMessage,
+        createdAt: item.createTime,
+        updatedAt: item.updateTime,
+        appId: item.appId,
+      }));
+      selectConversation(conversations.value[0])
+      }else{
+        conversations.value = [];
+      }
+    
+    } else {
+      throw new Error(response?.msg || "获取对话列表失败");
+    } 
+    loadingConversations.value = false;
+
   } catch (error) {
-    console.error('加载对话列表失败:', error);
-    message.error('加载对话列表失败');
+    console.error("加载对话列表失败:", error);
+    message.error("加载对话列表失败: " + (error.message || error));
     loadingConversations.value = false;
   }
 };
@@ -193,16 +213,16 @@ const loadConversations = async () => {
 const loadAIApps = async () => {
   try {
     const response = await getAIAppsALLList();
-    if  (response && response.code === 200 && response.data) { 
-       // 格式化数据以适应Select组件
-    aiApps.value = response.data.map(app => ({
-      label: app.name,
-      value: app.id
-    }));
-    } 
+    if (response && response.code === 200 && response.data) {
+      // 格式化数据以适应Select组件
+      aiApps.value = response.data.map((app) => ({
+        label: app.name,
+        value: app.id,
+      }));
+    }
   } catch (error) {
-    console.error('加载智能体列表失败:', error);
-    message.error('加载智能体列表失败');
+    console.error("加载智能体列表失败:", error);
+    message.error("加载智能体列表失败");
   }
 };
 
@@ -210,72 +230,79 @@ const loadAIApps = async () => {
 const showAgentSelectionModal = () => {
   // 重置选中的智能体
   selectedAiApp.value = null;
-  
+
   // 创建模态框
   Modal.confirm({
-    title: '选择智能体',
-    content: () => h('div', { class: 'agent-selection-modal' }, [
-      h(Select, {
-        placeholder: '请选择智能体',
-        options: aiApps.value,
-        value: selectedAiApp.value,
-        'onUpdate:value': (value) => {
-          selectedAiApp.value = value;
-        },
-        style: { width: '100%' }
-      })
-    ]),
-    okText: '确认',
-    cancelText: '取消',
+    title: "选择智能体",
+    content: () =>
+      h("div", { class: "agent-selection-modal" }, [
+        h(Select, {
+          placeholder: "请选择智能体",
+          options: aiApps.value,
+          value: selectedAiApp.value,
+          "onUpdate:value": (value) => {
+            selectedAiApp.value = value;
+          },
+          style: { width: "100%" },
+        }),
+      ]),
+    okText: "确认",
+    cancelText: "取消",
     onOk: () => {
       if (!selectedAiApp.value) {
-        message.warning('请选择智能体');
+        message.warning("请选择智能体");
         return Promise.reject();
       }
-      
+
       // 创建新对话
       createNewConversation(selectedAiApp.value);
       return Promise.resolve();
-    }
+    },
   });
 };
 
 // 创建新对话
-const createNewConversation = (aiAppId) => {
-  const newConversation = {
-    id: Date.now(),
-    title: '',
-    lastMessage: '',
-    updatedAt: new Date().toISOString(),
-    aiAppId: aiAppId // 保存选中的智能体ID
-  };
-  
-  conversations.value.unshift(newConversation);
-  selectConversation(newConversation);
+const createNewConversation = async (appId) => {
+  try {
+    const response = await addAIChats({
+      appId: appId,
+      name: "新对话",
+      lastMessage: "",
+    });
+
+    if (response && response.code === 200 && response.data) {
+      await loadConversations();
+    } else {
+      throw new Error(response?.msg || "创建对话失败");
+    }
+  } catch (error) {
+    console.error("创建对话失败:", error);
+    message.error("创建对话失败: " + (error.message || error));
+  }
 };
 
 // 获取智能体名称
-const getAiAppName = (aiAppId) => {
-  if (!aiAppId) return '';
-  const aiApp = aiApps.value.find(app => app.value === aiAppId);
-  return aiApp ? aiApp.label : '';
+const getAiAppName = (appId) => {
+  if (!appId) return "";
+  const aiApp = aiApps.value.find((app) => app.value === appId);
+  return aiApp ? aiApp.label : "";
 };
 
 // 选择对话
 const selectConversation = (conversation) => {
   activeConversationId.value = conversation.id;
   activeConversation.value = conversation;
-  
+
   // 模拟加载消息
   messages.value = [
     {
       id: 1,
-      sender: 'user',
-      content: conversation.lastMessage || '你好',
-      timestamp: conversation.createdAt
-    }
+      sender: "user",
+      content: conversation.lastMessage || "你好",
+      timestamp: conversation.createdAt,
+    },
   ];
-  
+
   scrollToBottom();
 };
 
@@ -285,7 +312,7 @@ const handlePressEnter = (e) => {
   if (e.shiftKey) {
     return; // 继续执行默认的换行行为
   }
-  
+
   // 阻止默认行为（换行）
   e.preventDefault();
   // 调用发送消息方法
@@ -295,59 +322,63 @@ const handlePressEnter = (e) => {
 // 发送消息
 const sendMessage = async () => {
   if (!newMessage.value.trim() || isSending.value) return;
-  
+
   const messageToSend = newMessage.value.trim();
-  newMessage.value = '';
+  newMessage.value = "";
   isSending.value = true;
-  
+
   try {
     // 添加用户消息到列表
     const userMessage = {
       id: Date.now(),
       conversationId: activeConversationId.value,
-      role: 'user',
+      role: "user",
       content: messageToSend,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
-    
+
     messages.value.push(userMessage);
     scrollToBottom();
-    
+
     // 更新对话列表中的预览
-    const conversation = conversations.value.find(c => c.id === activeConversationId.value);
+    const conversation = conversations.value.find(
+      (c) => c.id === activeConversationId.value
+    );
     if (conversation) {
       conversation.lastMessage = messageToSend;
       conversation.updatedAt = new Date().toISOString();
       if (!conversation.title) {
-        conversation.title = messageToSend.substring(0, 20) + (messageToSend.length > 20 ? '...' : '');
+        conversation.title =
+          messageToSend.substring(0, 20) + (messageToSend.length > 20 ? "..." : "");
       }
     }
-    
+
     // 模拟AI回复
     setTimeout(() => {
       const aiResponse = {
         id: Date.now() + 1,
         conversationId: activeConversationId.value,
-        role: 'assistant',
+        role: "assistant",
         content: getMockAIResponse(messageToSend),
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
-      
+
       messages.value.push(aiResponse);
       isSending.value = false;
-      
+
       // 更新对话列表中的预览
       if (conversation) {
-        conversation.lastMessage = aiResponse.content.substring(0, 30) + (aiResponse.content.length > 30 ? '...' : '');
+        conversation.lastMessage =
+          aiResponse.content.substring(0, 30) +
+          (aiResponse.content.length > 30 ? "..." : "");
         conversation.updatedAt = new Date().toISOString();
       }
-      
+
       scrollToBottom();
     }, 1000);
-    
   } catch (error) {
-    console.error('发送消息失败:', error);
-    message.error('发送消息失败');
+    console.error("发送消息失败:", error);
+    message.error("发送消息失败");
     isSending.value = false;
   }
 };
@@ -368,36 +399,36 @@ const getMockAIResponse = (userMessage) => {
     `针对您的问题"${userMessage}"，我的看法是这样的...`,
     `感谢您的提问"${userMessage}"。根据我的知识库，我可以告诉您...`,
     `"${userMessage}"确实是一个值得探讨的话题。让我来详细解释一下...`,
-    `对于"${userMessage}"这个问题，我建议您可以从以下几个方面考虑...`
+    `对于"${userMessage}"这个问题，我建议您可以从以下几个方面考虑...`,
   ];
-  
+
   return responses[Math.floor(Math.random() * responses.length)];
 };
 
 // 格式化日期
 const formatDate = (dateString) => {
-  if (!dateString) return '';
+  if (!dateString) return "";
   const date = new Date(dateString);
   const now = new Date();
   const diffTime = Math.abs(now - date);
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
+
   if (diffDays === 1) {
-    return '今天';
+    return "今天";
   } else if (diffDays === 2) {
-    return '昨天';
+    return "昨天";
   } else if (diffDays <= 7) {
     return `${diffDays - 1}天前`;
   } else {
-    return date.toLocaleDateString('zh-CN');
+    return date.toLocaleDateString("zh-CN");
   }
 };
 
 // 格式化时间
 const formatTime = (dateString) => {
-  if (!dateString) return '';
+  if (!dateString) return "";
   const date = new Date(dateString);
-  return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+  return date.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
 };
 
 // 监听消息变化，自动滚动到底部
@@ -412,6 +443,32 @@ onMounted(async () => {
   scrollToBottom();
 });
 
+// 删除对话
+const deleteConversation = async (conversationId, event) => {
+  event.stopPropagation(); // 阻止事件冒泡，避免触发选择对话
+
+  try {
+    await Modal.confirm({
+      title: "确认删除",
+      content: "确定要删除这个对话吗？此操作不可恢复。",
+      okText: "确认",
+      cancelText: "取消",
+      onOk: async function () {
+        const response = await deleteAIChats(conversationId); 
+        if (response.code === 200) { 
+           loadConversations(); // 重新加载对话列表
+            message.success("删除成功");
+        }
+       
+      },
+    });
+  } catch (error) {
+    if (error?.message !== "取消") {
+      console.error("删除对话失败:", error);
+      message.error("删除对话失败: " + (error.message || error));
+    }
+  }
+};
 </script>
 
 <style scoped>
@@ -499,49 +556,76 @@ onMounted(async () => {
 }
 
 .conversation-item {
-  padding: 15px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1); 
+  margin-bottom: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: transparent;
-  white-space: nowrap; /* 防止换行 */
-  overflow: hidden; /* 隐藏溢出内容 */
+  padding: 15px;
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.conversation-item:hover {
+  background: rgba(102, 126, 234, 0.2);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.conversation-item.active {
+  background: rgba(102, 126, 234, 0.3);
+  border: 1px solid rgba(102, 126, 234, 0.5);
 }
 
 .conversation-content {
   display: flex;
   flex-direction: column;
-  text-align: left;
+  flex: 1;
+    text-align: left;
   overflow: hidden; /* 防止内容溢出 */
 }
 
 .conversation-title {
-  font-weight: 500;
-  color: white;
+  font-weight: bold;
   margin-bottom: 5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-align: left; /* 标题靠左对齐 */
 }
 
 .conversation-preview {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.75);
+  font-size: 12px;
   margin-bottom: 5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-align: left; /* 预览内容靠左对齐 */
 }
 
 .conversation-time {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
-  text-align: left;
+  font-size: 10px;
+  opacity: 0.7;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.conversation-actions {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  margin-left: 10px;
+}
+
+.conversation-item:hover .conversation-actions {
+  opacity: 1;
+}
+
+.delete-btn {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.delete-btn:hover {
+  color: #ff4d4f;
 }
 
 .empty-conversations {
@@ -708,7 +792,8 @@ onMounted(async () => {
 }
 
 @keyframes typing {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -798,7 +883,7 @@ onMounted(async () => {
   .chat-layout {
     flex-direction: column;
   }
-  
+
   .chat-sidebar {
     width: 100%;
     border-right: none;

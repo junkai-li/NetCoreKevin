@@ -37,6 +37,11 @@ namespace kevin.Domain.Share.Dtos.AI
         public virtual string? App { get; set; }
 
         /// <summary>
+        /// 最后一条聊天记录
+        /// </summary>
+        public String LastMessage { get; set; }
+
+        /// <summary>
         /// 对话下的所有聊天记录
         /// </summary>
         public virtual List<AIChatHistorysDto>? AIChatHistorysList { get; set; }
