@@ -17,6 +17,7 @@ namespace kevin.Domain.Entities.AI
         /// <summary>
         /// 聊天用户di
         /// </summary>
+        [Description("聊天用户Id")]
         public long UserId { get; set; }
 
         [ForeignKey("UserId")]
@@ -25,6 +26,7 @@ namespace kevin.Domain.Entities.AI
         /// <summary>
         /// 应用ID
         /// </summary>
+        [Description("应用ID")]
         public long AppId { get; set; }
 
         [ForeignKey("UserId")]
@@ -33,16 +35,19 @@ namespace kevin.Domain.Entities.AI
         /// <summary>
         /// 消息内容
         /// </summary> 
-        public string Context { get; set; } = "";
+        [Description("消息内容")]
+        public String Context { get; set; } = "";
 
         /// <summary>
         /// 发送是true  接收是false
         /// </summary>
-        public bool IsSend { get; set; } = false;
+        [Description("发送是true  接收是false")]
+        public Boolean IsSend { get; set; } = false;
 
         /// <summary>
         /// 文件名
         /// </summary>
-        public string? FileName { get; set; }
+        [Description("文件名")]
+        public String? FileName { get; set; }
     }
 }
