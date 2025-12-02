@@ -35,6 +35,8 @@ namespace kevin.Domain.Share.Dtos.User
 
         public List<dtoRole>? Roles { get; set; }
 
+        public string? ExportRoles { get; set; }
+
         /// <summary>
         /// 密码
         /// </summary>
@@ -76,11 +78,14 @@ namespace kevin.Domain.Share.Dtos.User
         /// 岗位信息
         /// </summary>
         public List<PositionDto>? Positions { get; set; }
+        public string? ExportPositions { get; set; }
 
         /// <summary>
         /// 用户额外信息
         /// </summary>
         public dtoUserInfo? dtoUserInfo { get; set; }
+
+        public string? ExportUserInfo { get; set; }
 
     }
 }

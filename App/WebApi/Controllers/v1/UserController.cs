@@ -10,6 +10,7 @@ using Kevin.Web.Filters.TransactionScope.Attribute;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Web.Filters;
@@ -105,19 +106,22 @@ namespace WebApi.Controllers.v1
         /// </summary> 
         /// <returns></returns>
         [HttpPost("ExportGetSysUserList")]
-        [ActionDescription("导出预览值班排期表")]
+        [ActionDescription("导出获取系统用户列表信息")]
         [SkipAuthority]
         public async Task<IActionResult> ExportGetSysUserList([FromBody] dtoPagePar<dtoUserPar> dtoPage)
         {
             var keyValuePairs = new Dictionary<string, string>
             {
-                { "用户名", "Name" },
-                { "昵称", "NickName" },
-                    { "手机号", "Phone" },
-                       { "邮箱", "Email" },
-                          { "创建时间", "CreateTimeStr" },
-                             { "状态", "StatusStr" },
-                                { "最近登陆时间", "RecentLoginTimeStr" }
+               { "用户名", "Name" },
+               { "昵称", "NickName" },
+               { "角色", "ExportRoles" },
+               { "岗位", "ExportPositions" },
+               { "部门", "ExportUserInfo" },
+               { "手机号", "Phone" },
+               { "邮箱", "Email" },
+               { "创建时间", "CreateTimeStr" },
+               { "状态", "StatusStr" },
+               { "最近登陆时间", "RecentLoginTimeStr" }
             };
             var data = await _userService.GetSysUserList(dtoPage);
             foreach (var item in data.data)
@@ -125,8 +129,11 @@ namespace WebApi.Controllers.v1
                 item.CreateTimeStr = item.CreateTime.Date.ToString("yyyy-MM-dd");
                 item.RecentLoginTimeStr = item.RecentLoginTime != default ? item.RecentLoginTime.Value.Date.ToString("yyyy-MM-dd") : "";
                 item.StatusStr = item.Status ? "启用" : "禁用";
+                item.ExportRoles = string.Join(",", item.Roles?.Select(t => t.Name).ToList());
+                item.ExportPositions = string.Join(",", item.Positions?.Select(t => t.Name).ToList());
+                item.ExportUserInfo = item.dtoUserInfo?.DepartmentName;
             }
-            return new NPOIHelper().ExportExcelFileStream("值班排期表.xlsx", data.data, keyValuePairs: keyValuePairs);
+            return new NPOIHelper().ExportExcelFileStream("系统用户列表信息.xlsx", data.data, keyValuePairs: keyValuePairs);
         }
         /// <summary>
         /// 后台管理通过 UserId 获取用户信息 
