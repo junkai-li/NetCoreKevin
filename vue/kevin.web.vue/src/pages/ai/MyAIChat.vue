@@ -5,7 +5,7 @@
       <div class="chat-sidebar">
         <div class="sidebar-header">
           <h3>我的对话</h3>
-          <a-button type="primary" @click="createNewChat" size="small" class="add-button">
+          <a-button type="primary" @click="showAgentSelectionModal" size="small" class="add-button">
             <template #icon>
               <PlusOutlined />
             </template>
@@ -48,6 +48,10 @@
       <div class="chat-main">
         <div class="chat-header" v-if="activeConversation">
           <h2>{{ activeConversation.title || '新对话' }}</h2>
+          <div class="agent-info" v-if="activeConversation.aiAppId">
+            <RobotOutlined />
+            <span>{{ getAiAppName(activeConversation.aiAppId) }}</span>
+          </div>
         </div>
 
         <div class="chat-messages" ref="messagesContainer" v-if="activeConversation">
@@ -122,14 +126,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, watch } from 'vue';
+/* eslint-disable */ 
+import { ref, onMounted, nextTick, watch, h } from 'vue';
 import {
   PlusOutlined,
   UserOutlined,
   RobotOutlined,
   MessageOutlined
 } from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
+import { message, Modal, Select } from 'ant-design-vue';
+import { getAIAppsALLList } from '../../api/ai/aiapps.js';
 
 // 模拟数据
 const conversations = ref([]);
@@ -140,6 +146,10 @@ const newMessage = ref('');
 const loadingConversations = ref(false);
 const isSending = ref(false);
 const messagesContainer = ref(null);
+
+// 智能体相关
+const aiApps = ref([]); // 存储智能体列表
+const selectedAiApp = ref(null); // 存储选中的智能体
 
 // 获取对话列表
 const loadConversations = async () => {
@@ -179,18 +189,76 @@ const loadConversations = async () => {
   }
 };
 
+// 加载智能体列表
+const loadAIApps = async () => {
+  try {
+    const response = await getAIAppsALLList();
+    if  (response && response.code === 200 && response.data) { 
+       // 格式化数据以适应Select组件
+    aiApps.value = response.data.map(app => ({
+      label: app.name,
+      value: app.id
+    }));
+    } 
+  } catch (error) {
+    console.error('加载智能体列表失败:', error);
+    message.error('加载智能体列表失败');
+  }
+};
+
+// 显示智能体选择模态框
+const showAgentSelectionModal = () => {
+  // 重置选中的智能体
+  selectedAiApp.value = null;
+  
+  // 创建模态框
+  Modal.confirm({
+    title: '选择智能体',
+    content: () => h('div', { class: 'agent-selection-modal' }, [
+      h(Select, {
+        placeholder: '请选择智能体',
+        options: aiApps.value,
+        value: selectedAiApp.value,
+        'onUpdate:value': (value) => {
+          selectedAiApp.value = value;
+        },
+        style: { width: '100%' }
+      })
+    ]),
+    okText: '确认',
+    cancelText: '取消',
+    onOk: () => {
+      if (!selectedAiApp.value) {
+        message.warning('请选择智能体');
+        return Promise.reject();
+      }
+      
+      // 创建新对话
+      createNewConversation(selectedAiApp.value);
+      return Promise.resolve();
+    }
+  });
+};
+
 // 创建新对话
-const createNewChat = () => {
+const createNewConversation = (aiAppId) => {
   const newConversation = {
     id: Date.now(),
     title: '',
     lastMessage: '',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
+    aiAppId: aiAppId // 保存选中的智能体ID
   };
   
   conversations.value.unshift(newConversation);
   selectConversation(newConversation);
+};
+
+// 获取智能体名称
+const getAiAppName = (aiAppId) => {
+  if (!aiAppId) return '';
+  const aiApp = aiApps.value.find(app => app.value === aiAppId);
+  return aiApp ? aiApp.label : '';
 };
 
 // 选择对话
@@ -199,72 +267,18 @@ const selectConversation = (conversation) => {
   activeConversation.value = conversation;
   
   // 模拟加载消息
-  loadMessages(conversation.id);
+  messages.value = [
+    {
+      id: 1,
+      sender: 'user',
+      content: conversation.lastMessage || '你好',
+      timestamp: conversation.createdAt
+    }
+  ];
+  
+  scrollToBottom();
 };
 
-// 加载消息
-const loadMessages = (conversationId) => {
-  // 模拟API调用
-  setTimeout(() => {
-    if (conversationId === 1) {
-      messages.value = [
-        {
-          id: 1,
-          conversationId: 1,
-          role: 'user',
-          content: '如何学习Vue.js?',
-          createdAt: '2023-05-15T10:30:00Z'
-        },
-        {
-          id: 2,
-          conversationId: 1,
-          role: 'assistant',
-          content: '学习Vue.js可以从以下几个方面入手：\n\n1. 官方文档：Vue.js官网提供了详细的教程和API文档\n2. 基础概念：掌握响应式数据、指令、组件等核心概念\n3. 实践项目：通过实际项目加深理解\n4. 生态工具：学习Vue Router、Vuex等配套工具',
-          createdAt: '2023-05-15T10:31:00Z'
-        }
-      ];
-    } else if (conversationId === 2) {
-      messages.value = [
-        {
-          id: 3,
-          conversationId: 2,
-          role: 'user',
-          content: '什么是JavaScript闭包？',
-          createdAt: '2023-05-14T14:20:00Z'
-        },
-        {
-          id: 4,
-          conversationId: 2,
-          role: 'assistant',
-          content: '闭包是指有权访问另一个函数作用域中变量的函数，即使在外部函数返回后仍然可以访问这些变量。它是JavaScript中的一个重要概念，常用于创建私有变量和模块模式。',
-          createdAt: '2023-05-14T14:22:00Z'
-        }
-      ];
-    } else if (conversationId === 3) {
-      messages.value = [
-        {
-          id: 5,
-          conversationId: 3,
-          role: 'user',
-          content: 'CSS Grid有哪些优势？',
-          createdAt: '2023-05-12T09:15:00Z'
-        },
-        {
-          id: 6,
-          conversationId: 3,
-          role: 'assistant',
-          content: 'CSS Grid的优势包括：\n\n1. 二维布局系统：可以同时控制行和列\n2. 灵活的网格定义：可以轻松创建复杂的网格结构\n3. 强大的对齐能力：提供了多种对齐选项\n4. 响应式友好：可以轻松适应不同屏幕尺寸',
-          createdAt: '2023-05-12T09:17:00Z'
-        }
-      ];
-    } else {
-      messages.value = [];
-    }
-    
-    scrollToBottom();
-  }, 300);
-};
-/* eslint-disable */ 
 // 处理回车键按下
 const handlePressEnter = (e) => {
   // 如果按下了 Shift+Enter，则允许换行
@@ -392,9 +406,12 @@ watch(messages, () => {
 });
 
 // 组件挂载时加载对话列表
-onMounted(() => {
-  loadConversations();
+onMounted(async () => {
+  await loadConversations();
+  await loadAIApps(); // 加载智能体列表
+  scrollToBottom();
 });
+
 </script>
 
 <style scoped>
@@ -555,6 +572,20 @@ onMounted(() => {
   color: white;
   font-size: 18px;
   font-weight: 500;
+}
+
+.agent-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* 智能体选择模态框样式 */
+.agent-selection-modal {
+  padding: 20px 0;
 }
 
 .chat-messages {

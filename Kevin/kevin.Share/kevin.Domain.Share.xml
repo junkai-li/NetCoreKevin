@@ -74,6 +74,56 @@
             提示词绑定
             </summary>
         </member>
+        <member name="T:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto">
+            <summary>
+            聊天记录
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.AIChatsId">
+            <summary>
+            对话id
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.Context">
+            <summary>
+            消息内容
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.IsSend">
+            <summary>
+            发送是true  接收是false
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.FileName">
+            <summary>
+            文件名
+            </summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.AI.AIChatsDto">
+            <summary>
+            对话
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatsDto.Name">
+            <summary>
+            主题--如果为空则取第一条记录当作聊天主题
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatsDto.UserId">
+            <summary>
+            聊天用户di
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatsDto.AppId">
+            <summary>
+            应用ID
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatsDto.AIChatHistorysList">
+            <summary>
+            对话下的所有聊天记录
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIModelsDto.AIType">
             <summary>
             AI类型

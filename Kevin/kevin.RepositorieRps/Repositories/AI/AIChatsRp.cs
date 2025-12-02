@@ -1,4 +1,5 @@
 ﻿using kevin.Domain.Entities.AI;
+using kevin.Domain.Interfaces.IRepositories.AI;
 using Kevin.EntityFrameworkCore._.Data;
 
 namespace kevin.RepositorieRps.Repositories.AI

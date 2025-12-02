@@ -469,6 +469,58 @@
             <param name="Id"></param>
             <returns></returns>
         </member>
+        <member name="T:App.WebApi.Controllers.v1.AI.AIChatHistorysController">
+            <summary>
+            AI对话记录
+            </summary>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIChatHistorysController.GetPageData(kevin.Domain.Share.Dtos.dtoPagePar{System.String})">
+            <summary>
+            获取AI对话聊天记录
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIChatHistorysController.Add(kevin.Domain.Share.Dtos.AI.AIChatHistorysDto)">
+            <summary>
+            新增AI对话聊天记录
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIChatHistorysController.Delete(System.Int64)">
+            <summary>
+            删除AI对话聊天记录
+            </summary>
+            <param name="Id"></param>
+            <returns></returns>
+        </member>
+        <member name="T:App.WebApi.Controllers.v1.AI.AIChatsController">
+            <summary>
+            AI对话
+            </summary>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIChatsController.GetMyPageData(kevin.Domain.Share.Dtos.dtoPagePar{System.String})">
+            <summary>
+            获取我的AI对话列表
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIChatsController.Add(kevin.Domain.Share.Dtos.AI.AIChatsDto)">
+            <summary>
+            新增AI对话
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIChatsController.Delete(System.Int64)">
+            <summary>
+            删除AI对话
+            </summary>
+            <param name="Id"></param>
+            <returns></returns>
+        </member>
         <member name="T:App.WebApi.Controllers.v1.AI.AIModelsController">
             <summary>
             AI模型管理
