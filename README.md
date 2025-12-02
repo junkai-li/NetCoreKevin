@@ -1,10 +1,14 @@
 # NetCoreKevin介绍
-![输入图片说明](Doc/fe381882-f0d6-457f-8b87-974a6e6a8f21.png)
-![输入图片说明](Doc/4344f17d-26d4-41ea-a235-1b9d67a633ce.png)
-![输入图片说明](Doc/3482bece-3f43-4ace-9337-283eb8a42903.png)
-![输入图片说明](Doc/bd2a60ce-2f32-46df-8bd6-9ffa5da515b4.png)
-![输入图片说明](Doc/3e146090-58a6-44bf-8cff-2b6b6323ef11.png)
-![输入图片说明](Doc/39c1ee78-3814-4e27-a158-2934317a2666.png)
+|  ![输入图片说明](Doc/fe381882-f0d6-457f-8b87-974a6e6a8f21.png) | ![输入图片说明](Doc/4344f17d-26d4-41ea-a235-1b9d67a633ce.png)  | ![输入图片说明](Doc/3482bece-3f43-4ace-9337-283eb8a42903.png)  |
+|---|---|---|
+| ![输入图片说明](Doc/bd2a60ce-2f32-46df-8bd6-9ffa5da515b4.png)  |  ![输入图片说明](Doc/3e146090-58a6-44bf-8cff-2b6b6323ef11.png) |  ![输入图片说明](Doc/39c1ee78-3814-4e27-a158-2934317a2666.png) |
+
+
+
+
+
+
+
 
 # NetCoreKevin前言
 基于NET8搭建DDD-AI智能体-现代化Saas企业级WebAPI前后端分离架构：前端Vue3、IDS4单点登录、多级缓存、自动任务、分布式、AI智能体、一库多租户、日志、授权和鉴权、CAP事件、SignalR、领域事件、MCP协议服务、IOC模块化注入、Cors、Quartz自动任务、多短信、AI、AgentFramework、SemanticKernel集成、RAG检索增强+Qdrant矢量数据库、OCR识别、API多版本、单元测试、RabbitMQ
