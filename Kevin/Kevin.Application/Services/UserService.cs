@@ -116,17 +116,7 @@ namespace kevin.Application
             {
                 userId = CurrentUser.UserId;
             }
-            var roleData = userBindRoleRp.Query().Where(t => t.UserId == userId && t.IsDelete == false).Include(u => u.Role).ToList();
-            return userRp.Query().Where(t => t.Id == userId && t.IsDelete == false).Select(t => new dtoUser
-            {
-                Name = t.Name,
-                Id = t.Id,
-                NickName = t.NickName,
-                Phone = t.Phone,
-                Email = t.Email,
-                CreateTime = t.CreateTime,
-                Roles = roleData.Select(r => new dtoRole { Id = r.Role.Id, Name = r.Role.Name ?? "", Remarks = r.Role.Remarks ?? "", CreateTime = r.Role.CreateTime }).ToList(),
-            }).FirstOrDefault() ?? new();
+            return GetSysUserWhereId(userId);
         }
 
         /// <summary>
@@ -362,6 +352,10 @@ namespace kevin.Application
 
             var userInfoData = userInfoRp.Query().Where(t => Id == t.UserId && t.IsDelete == false).ToList().MapToList<TUserInfo, dtoUserInfo>().ToList();
             user.dtoUserInfo = userInfoData.FirstOrDefault(t => t.UserId == user.Id);
+            if (userInfoData.Select(t => t.DepartmentId).ToList().Count > 0)
+            {
+                user.dtoUserInfo.DepartmentName = departmentService.GetALLList(userInfoData.Select(t => t.DepartmentId).ToList()).Result.FirstOrDefault()?.Name;
+            }
             return user ?? new dtoUser();
         }
 
@@ -418,7 +412,7 @@ namespace kevin.Application
                 data.Name = user.Name;
                 data.Phone = user.Phone;
                 data.IsDelete = false;
-                data.IsSystem = true; 
+                data.IsSystem = true;
                 data.Email = user.Email;
                 data.UpdateTime = DateTime.Now;
                 data.Status = true;
@@ -476,7 +470,7 @@ namespace kevin.Application
         private void EditUserInfo(dtoUser user)
         {
             if (user.dtoUserInfo != default)
-            { 
+            {
                 if (user.dtoUserInfo.Id != default)
                 {
                     var data = userInfoRp.Query().Where(t => t.Id == user.dtoUserInfo.Id && t.IsDelete == false).FirstOrDefault();
@@ -495,7 +489,7 @@ namespace kevin.Application
                     var addinfo = new TUserInfo();
                     addinfo.Id = SnowflakeIdService.GetNextId();
                     addinfo.CreateTime = DateTime.Now;
-                    addinfo.CreateUserId= CurrentUser.UserId;
+                    addinfo.CreateUserId = CurrentUser.UserId;
                     addinfo.UserId = user.Id;
                     addinfo.Sex = user.dtoUserInfo.Sex;
                     addinfo.EmployeeStatus = user.dtoUserInfo.EmployeeStatus;
@@ -522,7 +516,7 @@ namespace kevin.Application
             if (CurrentUser.UserId == Id)
             {
                 throw new UserFriendlyException("你不能删除你自己");
-            } 
+            }
             if (TUserBaseData.TUsers.Where(t => t.Id == Id).FirstOrDefault() != default)
             {
                 throw new UserFriendlyException("种子数据不能删除");
