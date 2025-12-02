@@ -16,7 +16,7 @@
 ![输入图片说明](Doc/task.png)
 
 # NetCoreKevin前言
-基于NET8搭建DDD-AI智能体-现代化Saas企业级WebAPI前后端分离架构：前端Vue3、IDS4单点登录、多级缓存、自动任务、分布式、AI智能体、一库多租户、日志、授权和鉴权、CAP事件、SignalR、领域事件、MCP协议服务、IOC模块化注入、Cors、Quartz自动任务、多短信、AI、AgentFramework、SemanticKernel集成、RAG检索增强+Qdrant矢量数据库、OCR识别、API多版本、单元测试、RabbitMQ
+基于NET8搭建DDD-AI智能体-现代化Saas企业级前后端分离架构：前端Vue3、IDS4单点登录、多级缓存、自动任务、分布式、AI智能体、一库多租户、日志、授权和鉴权、CAP事件、SignalR、领域事件、MCP协议服务、IOC模块化注入、Cors、Quartz自动任务、多短信、AI、AgentFramework、SemanticKernel集成、RAG检索增强+Qdrant矢量数据库、OCR识别、API多版本、单元测试、RabbitMQ
 解耦设计都可以单独引用项目启动时注意相关Redis、db链接配置、RabbitMQ、生成数据库可见下面说明文件 命令生成即可 
 
 # DDD思想    
