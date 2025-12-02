@@ -271,7 +271,7 @@ const currentRouteTitle = computed(() => {
     "system-announcement": "系统公告",
     "log-management": "日志管理",
     oslog: "关键数据变动日志",
-    handleUserInfo: "通知中心",
+    handleUserInfo: "个人中心",
     "ai-appsmg": "智能体管理",
     "ai-promptsmg": "提示词管理",
     "ai-kmssmg": "知识库管理",

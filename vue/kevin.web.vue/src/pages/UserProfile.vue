@@ -27,9 +27,12 @@
 
           <!-- 用户信息部分 -->
           <a-col :span="16" class="info-section">
-            <a-descriptions :column="1" bordered>
+            <a-descriptions :column="2" bordered>
               <a-descriptions-item label="用户名">
                 {{ user.name }}
+              </a-descriptions-item>
+               <a-descriptions-item label="工号">
+                {{ user.dtoUserInfo.employeeNo }}
               </a-descriptions-item>
               <a-descriptions-item label="昵称">
                 {{ user.nickName }}
@@ -48,39 +51,26 @@
                   {{ role.name }}
                 </a-tag>
               </a-descriptions-item>
-            </a-descriptions>
-
-            <div class="action-buttons">
-              <a-button type="primary" v-if="false" @click="editProfile">
-                编辑资料
-              </a-button>
-              <a-button @click="changePasswordAction" style="margin-left: 12px;">
-                修改密码
-              </a-button>
-            </div>
+                <a-descriptions-item label="岗位">
+                <a-tag v-for="role in user.positions" :key="role.id" color="blue">
+                  {{ role.name }}
+                </a-tag>
+              </a-descriptions-item>
+                <a-descriptions-item label="部门">
+                <a-tag color="blue">
+                 {{ user.dtoUserInfo.departmentName}}
+                </a-tag>
+              </a-descriptions-item>
+                <a-descriptions-item  label="密码">
+                <a-tag @click="changePasswordAction" color="red">
+                  修改密码
+                </a-tag>
+              </a-descriptions-item>
+            </a-descriptions> 
           </a-col>
         </a-row>
       </div>
-    </a-card>
-
-    <!-- 编辑资料模态框 -->
-    <a-modal v-model:open="editProfileVisible" title="编辑资料" @ok="handleEditProfile" @cancel="cancelEditProfile"
-      :confirm-loading="editProfileLoading">
-      <a-form :model="editProfileForm" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
-        <a-form-item label="用户名" name="name">
-          <a-input v-model:value="editProfileForm.name" disabled />
-        </a-form-item>
-        <a-form-item label="昵称" name="nickName" :rules="[{ required: true, message: '请输入昵称' }]">
-          <a-input v-model:value="editProfileForm.nickName" />
-        </a-form-item>
-        <a-form-item label="手机号" name="phone" :rules="[{ required: true, message: '请输入手机号' }]">
-          <a-input v-model:value="editProfileForm.phone" />
-        </a-form-item>
-        <a-form-item label="邮箱" name="email" :rules="[{ required: true, message: '请输入邮箱' }]">
-          <a-input v-model:value="editProfileForm.email" />
-        </a-form-item>
-      </a-form>
-    </a-modal>
+    </a-card> 
 
     <!-- 修改密码模态框 -->
     <a-modal v-model:open="changePasswordVisible" title="修改密码" @ok="handleChangePassword"
@@ -105,7 +95,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { UserOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
-import { updateUser, changePassword } from '@/api/userapi';
+import { changePassword } from '@/api/userapi';
 
 // 定义用户数据
 const user = ref({
@@ -116,21 +106,14 @@ const user = ref({
   email: '',
   roles: [],
   createTime: '',
-  headImgs: []
+  headImgs: [],
+  dtoUserInfo:{},
+  positions:[],
+
 });
 
 const defaultAvatar = '/img/hede.4f50e202.png';
-
-// 编辑资料相关
-const editProfileVisible = ref(false);
-const editProfileLoading = ref(false);
-const editProfileForm = reactive({
-  id: '',
-  name: '',
-  nickName: '',
-  phone: '',
-  email: ''
-});
+   
 
 // 修改密码相关
 const changePasswordVisible = ref(false);
@@ -150,48 +133,9 @@ const fetchUserProfile = async () => {
   } catch (error) {
     console.error('获取用户信息失败:', error);
   }
-};
-
-// 编辑资料
-const editProfile = () => {
-  // 初始化表单数据
-  editProfileForm.id = user.value.id;
-  editProfileForm.name = user.value.name;
-  editProfileForm.nickName = user.value.nickName;
-  editProfileForm.phone = user.value.phone;
-  editProfileForm.email = user.value.email;
-  editProfileVisible.value = true;
-};
-
-// 处理编辑资料
-const handleEditProfile = async () => {
-  try {
-    editProfileLoading.value = true;
-    // 调用API更新用户信息
-    const response = await updateUser(editProfileForm);
-    console.log('更新用户信息:', response);
-    
-    // 更新本地存储的用户信息
-    const updatedUser = { ...user.value, ...editProfileForm };
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-    
-    // 更新当前用户信息
-    user.value = updatedUser;
-    
-    message.success('资料更新成功');
-    editProfileVisible.value = false;
-  } catch (error) {
-    console.error('更新用户信息失败:', error);
-    message.error('更新失败: ' + (error.message || '未知错误'));
-  } finally {
-    editProfileLoading.value = false;
-  }
-};
-
-// 取消编辑资料
-const cancelEditProfile = () => {
-  editProfileVisible.value = false;
-};
+}; 
+ 
+ 
 
 // 修改密码
 const changePasswordAction = () => {
