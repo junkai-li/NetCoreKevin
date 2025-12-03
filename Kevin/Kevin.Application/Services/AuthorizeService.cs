@@ -55,7 +55,7 @@ namespace kevin.Application.Services
                     throw new UserFriendlyException("租户已失效");
                 }
             }
-            var user = _IUserService.LoginUser(login.Name, login.PassWord, login.TenantId, login.PasswordHash);
+            var user = _IUserService.LoginUser(login.Name, login.PassWord, login.TenantId, login.PasswordHash ?? "");
             var clinet = new HttpClient();
             var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["JwtOptions:Authority"]);
             if (disco.IsError)
@@ -63,23 +63,26 @@ namespace kevin.Application.Services
                 throw new UserFriendlyException("登录异常");
             }
             //var par = new Parameters();
-            //par.Add("TenantId", login.TenantId.ToString());
+            //par.Add("TenantId", login.TenantId.ToString()); 
             var tokenResponse = await clinet.RequestPasswordTokenAsync(new PasswordTokenRequest
             {
                 Address = disco.TokenEndpoint,
-                ClientId = Configuration["IdentityServerInfo:ClientId"],
+                ClientId = Configuration["IdentityServerInfo:ClientId"] ?? "",
                 ClientSecret = Configuration["IdentityServerInfo:ClientSecret"],
                 Scope = Configuration["IdentityServerInfo:Scope"],
                 UserName = user.Id.ToString(),
-                Password = user.Id.ToString(),
+                Password = user.PassWord?.ToString(),
             });
             if (tokenResponse.IsError)
             {
                 throw new UserFriendlyException(tokenResponse.ErrorDescription);
             }
             //保存刷新令牌
-            _CacheService.SetString(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
-            return tokenResponse.AccessToken;
+            if (!string.IsNullOrEmpty(tokenResponse.AccessToken) && !string.IsNullOrEmpty(tokenResponse.RefreshToken))
+            {
+                _CacheService.SetString(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
+            }
+            return tokenResponse.AccessToken ?? "获取AccessToken失败";
         }
 
         /// <summary>
@@ -93,23 +96,15 @@ namespace kevin.Application.Services
         {
             using KevinDbContext db = new KevinDbContext();
             var weixinkeyid = keyValue.Key.ToTryInt64();
-            string code = keyValue.Value.ToString();
-
-            var weixinkey = db.Set<TWeiXinKey>().Where(t => t.Id == weixinkeyid).FirstOrDefault();
-
-            var weiXinHelper = new Web.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey.WxAppId, weixinkey.WxAppSecret);
-
-
-            var wxinfo = weiXinHelper.GetOpenIdAndSessionKey(code);
-
+            string code = keyValue.Value.ToString() ?? ""; 
+            var weixinkey = db.Set<TWeiXinKey>().Where(t => t.Id == weixinkeyid).FirstOrDefault(); 
+            var weiXinHelper = new Web.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey?.WxAppId, weixinkey?.WxAppSecret);  
+            var wxinfo = weiXinHelper.GetOpenIdAndSessionKey(code); 
             string openid = wxinfo.openid;
-            string sessionkey = wxinfo.sessionkey;
-
-            var user = db.Set<TUserBindWeixin>().Where(t => t.WeiXinOpenId == openid).Select(t => t.User).FirstOrDefault();
-
+            string sessionkey = wxinfo.sessionkey; 
+            var user = db.Set<TUserBindWeixin>().Where(t => t.WeiXinOpenId == openid).Select(t => t.User).FirstOrDefault(); 
             if (user == null)
-            {
-
+            { 
                 bool isAction = false;
                 while (isAction == false)
                 {
@@ -123,8 +118,7 @@ namespace kevin.Application.Services
                             if (user == null)
                             {
                                 //注册一个只有基本信息的账户出来
-                                user = new TUser();
-
+                                user = new TUser(); 
                                 user.Id = SnowflakeIdService.GetNextId();
                                 user.IsDelete = false;
                                 user.CreateTime = DateTime.Now;
@@ -132,20 +126,16 @@ namespace kevin.Application.Services
                                 user.NickName = user.Name;
                                 user.ChangePassword(Guid.NewGuid().ToString());
                                 user.IsSystem = false;
-                                db.Set<TUser>().Add(user);
-
-                                db.SaveChanges();
-
+                                db.Set<TUser>().Add(user); 
+                                db.SaveChanges(); 
                                 TUserBindWeixin userBind = new();
                                 userBind.Id = SnowflakeIdService.GetNextId();
                                 userBind.IsDelete = false;
                                 userBind.CreateTime = DateTime.Now;
                                 userBind.UserId = user.Id;
                                 userBind.WeiXinKeyId = weixinkeyid;
-                                userBind.WeiXinOpenId = openid;
-
-                                db.Set<TUserBindWeixin>().Add(userBind);
-
+                                userBind.WeiXinOpenId = openid; 
+                                db.Set<TUserBindWeixin>().Add(userBind); 
                                 db.SaveChanges();
                             }
                         }
@@ -162,12 +152,11 @@ namespace kevin.Application.Services
             if (disco.IsError)
             {
                 throw new UserFriendlyException("登录异常");
-            }
-
+            } 
             var tokenResponse = await clinet.RequestPasswordTokenAsync(new PasswordTokenRequest
             {
                 Address = disco.TokenEndpoint,
-                ClientId = Configuration["UMIdentityServerInfo:ClientId"],
+                ClientId = Configuration["UMIdentityServerInfo:ClientId"] ?? "",
                 ClientSecret = Configuration["UMIdentityServerInfo:ClientSecret"],
                 Scope = Configuration["UMIdentityServerInfo:Scope"],
                 UserName = user.Id.ToString(),
@@ -176,10 +165,13 @@ namespace kevin.Application.Services
             if (tokenResponse.IsError)
             {
                 throw new UserFriendlyException(tokenResponse.ErrorDescription);
-            }
+            } 
             //保存刷新令牌
-            _CacheService.SetString(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
-            return tokenResponse.AccessToken;
+            if (!string.IsNullOrEmpty(tokenResponse.AccessToken) && !string.IsNullOrEmpty(tokenResponse.RefreshToken))
+            {
+                _CacheService.SetString(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
+            }
+            return tokenResponse.AccessToken ?? "获取AccessToken失败";
         }
 
 
@@ -200,10 +192,8 @@ namespace kevin.Application.Services
 
                 if (user == null)
                 {
-                    //注册一个只有基本信息的账户出来
-
+                    //注册一个只有基本信息的账户出来 
                     user = new TUser();
-
                     user.Id = SnowflakeIdService.GetNextId();
                     user.IsDelete = false;
                     user.CreateTime = DateTime.Now;
@@ -211,13 +201,10 @@ namespace kevin.Application.Services
                     user.NickName = user.Name;
                     user.IsSystem = false;
                     user.ChangePassword(phone);
-
                     db.Set<TUser>().Add(user);
-
                     db.SaveChanges();
                 }
-
-                return await GetToken(new dtoLogin { Name = user.Name, PassWord = user.PasswordHash });
+                return await GetToken(new dtoLogin { Name = user.Name ?? "", PassWord = user.PasswordHash ?? "" });
             }
             else
             {
@@ -236,40 +223,24 @@ namespace kevin.Application.Services
         [HttpPost("SendSmsVerifyPhone")]
         public bool SendSmsVerifyPhone(dtoKeyValue keyValue)
         {
-
             string phone = keyValue.Key.ToString() ?? "";
-
             string key = "VerifyPhone_" + phone;
-
             if (String.IsNullOrEmpty(_CacheService.GetString(key)))
             {
-
                 Random ran = new();
                 string code = ran.Next(100000, 999999).ToString();
-
                 var jsonCode = new
                 {
                     code = code
                 };
                 var smsStatus = _ISMS.SendSMS(phone, "短信模板编号", "短信签名", Common.Json.JsonHelper.ObjectToJSON(jsonCode));
-
                 if (smsStatus)
                 {
                     _CacheService.SetString(key, code, new TimeSpan(0, 0, 5, 0));
-
                     return true;
-                }
-                else
-                {
-                    return false;
-                }
-
+                }  
             }
-            else
-            {
-                return false;
-            }
-
+            return false; 
         }
 
 
@@ -282,10 +253,10 @@ namespace kevin.Application.Services
         public async Task<string> GetTokenByWeiXinAppCode(dtoKeyValue keyValue)
         {
             using KevinDbContext db = new KevinDbContext();
-            var weixinkeyid =  keyValue.Key.ToTryInt64();
-            string code = keyValue.Value.ToString();
+            var weixinkeyid = keyValue.Key.ToTryInt64();
+            string code = keyValue.Value.ToString() ?? "";
             var wxInfo = db.Set<TWeiXinKey>().Where(t => t.Id == weixinkeyid).FirstOrDefault();
-            var weiXinHelper = new Web.Libraries.WeiXin.App.WeiXinHelper(wxInfo.WxAppId, wxInfo.WxAppSecret);
+            var weiXinHelper = new Web.Libraries.WeiXin.App.WeiXinHelper(wxInfo?.WxAppId, wxInfo?.WxAppSecret);
             var accseetoken = weiXinHelper.GetAccessToken(code).accessToken;
             var openid = weiXinHelper.GetAccessToken(code).openId;
             var userInfo = weiXinHelper.GetUserInfo(accseetoken, openid);
@@ -302,23 +273,19 @@ namespace kevin.Application.Services
                 user.PasswordHash = new HashHelper().SHA256Hash(Guid.NewGuid().ToString());
                 user.IsSystem = false;
                 db.Set<TUser>().Add(user);
-                db.SaveChanges();
-
+                db.SaveChanges(); 
                 var bind = new TUserBindWeixin();
                 bind.Id = SnowflakeIdService.GetNextId();
                 bind.IsDelete = false;
-                bind.CreateTime = DateTime.Now;
-
+                bind.CreateTime = DateTime.Now; 
                 bind.WeiXinKeyId = weixinkeyid;
                 bind.UserId = user.Id;
-                bind.WeiXinOpenId = openid;
-
-                db.Set<TUserBindWeixin>().Add(bind);
-
+                bind.WeiXinOpenId = openid; 
+                db.Set<TUserBindWeixin>().Add(bind); 
                 db.SaveChanges();
             }
 
-            return await GetToken(new dtoLogin { Name = user.Name, PassWord = user.PasswordHash });
+            return await GetToken(new dtoLogin { Name = user.Name ?? "", PassWord = user.PasswordHash ?? "" });
 
         }
     }
