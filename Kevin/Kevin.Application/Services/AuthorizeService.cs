@@ -71,7 +71,7 @@ namespace kevin.Application.Services
                 ClientSecret = Configuration["IdentityServerInfo:ClientSecret"],
                 Scope = Configuration["IdentityServerInfo:Scope"],
                 UserName = user.Id.ToString(),
-                Password = user.PassWord?.ToString(),
+                Password = new HashHelper().SHA256Hash(user.PassWord),
             });
             if (tokenResponse.IsError)
             {
@@ -83,98 +83,7 @@ namespace kevin.Application.Services
                 _CacheService.SetString(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
             }
             return tokenResponse.AccessToken ?? "获取AccessToken失败";
-        }
-
-        /// <summary>
-        /// 通过微信小程序Code获取Token认证信息
-        /// </summary>
-        /// <param name="keyValue">key 为weixinkeyid, value 为 code</param>
-        /// <returns></returns>
-        [HttpPost("GetTokenByWeiXinMiniAppCode")]
-        [HttpLog("登录", "GetTokenByWeiXinMiniAppCode通过微信小程序Code获取Token认证信息")]
-        public async Task<string> GetTokenByWeiXinMiniAppCode([FromBody] dtoKeyValue keyValue)
-        {
-            using KevinDbContext db = new KevinDbContext();
-            var weixinkeyid = keyValue.Key.ToTryInt64();
-            string code = keyValue.Value.ToString() ?? "";
-            var weixinkey = db.Set<TWeiXinKey>().Where(t => t.Id == weixinkeyid).FirstOrDefault();
-            var weiXinHelper = new Web.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey?.WxAppId, weixinkey?.WxAppSecret);
-            var wxinfo = weiXinHelper.GetOpenIdAndSessionKey(code);
-            string openid = wxinfo.openid;
-            string sessionkey = wxinfo.sessionkey;
-            var user = db.Set<TUserBindWeixin>().Where(t => t.WeiXinOpenId == openid).Select(t => t.User).FirstOrDefault();
-            if (user == null)
-            {
-                bool isAction = false;
-                while (isAction == false)
-                {
-                    var lock1 = distLock.AcquireLock("GetTokenByWeiXinMiniAppCode" + openid, TimeSpan.FromSeconds(5));
-                    if (lock1 != null)
-                    {
-                        using (lock1)
-                        {
-                            isAction = true;
-                            user = db.Set<TUserBindWeixin>().Where(t => t.WeiXinOpenId == openid).Select(t => t.User).FirstOrDefault();
-                            if (user == null)
-                            {
-                                //注册一个只有基本信息的账户出来
-                                user = new TUser();
-                                user.Id = SnowflakeIdService.GetNextId();
-                                user.IsDelete = false;
-                                user.CreateTime = DateTime.Now;
-                                user.Name = DateTime.Now.ToString() + "微信小程序新用户";
-                                user.NickName = user.Name;
-                                user.ChangePassword(Guid.NewGuid().ToString());
-                                user.IsSystem = false;
-                                db.Set<TUser>().Add(user);
-                                db.SaveChanges();
-                                TUserBindWeixin userBind = new();
-                                userBind.Id = SnowflakeIdService.GetNextId();
-                                userBind.IsDelete = false;
-                                userBind.CreateTime = DateTime.Now;
-                                userBind.UserId = user.Id;
-                                userBind.WeiXinKeyId = weixinkeyid;
-                                userBind.WeiXinOpenId = openid;
-                                db.Set<TUserBindWeixin>().Add(userBind);
-                                db.SaveChanges();
-                            }
-                        }
-
-                    }
-                    else
-                    {
-                        Thread.Sleep(500);
-                    }
-                }
-            }
-            var clinet = new HttpClient();
-            var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["JwtOptions:Authority"]);
-            if (disco.IsError)
-            {
-                throw new UserFriendlyException("登录异常：" + disco.Error);
-            }
-            var tokenResponse = await clinet.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = disco.TokenEndpoint,
-                ClientId = Configuration["UMIdentityServerInfo:ClientId"] ?? "",
-                ClientSecret = Configuration["UMIdentityServerInfo:ClientSecret"],
-                Scope = Configuration["UMIdentityServerInfo:Scope"],
-                UserName = user.Id.ToString(),
-                Password = user.Id.ToString(),
-            });
-            if (tokenResponse.IsError)
-            {
-                throw new UserFriendlyException(tokenResponse.ErrorDescription);
-            }
-            //保存刷新令牌
-            if (!string.IsNullOrEmpty(tokenResponse.AccessToken) && !string.IsNullOrEmpty(tokenResponse.RefreshToken))
-            {
-                _CacheService.SetString(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
-            }
-            return tokenResponse.AccessToken ?? "获取AccessToken失败";
-        }
-
-
+        } 
         /// <summary>
         /// 利用手机号和短信验证码获取Token认证信息
         /// </summary>
@@ -211,10 +120,7 @@ namespace kevin.Application.Services
                 throw new UserFriendlyException("Authorize.GetTokenBySms.'New password is not allowed to be empty");
             }
 
-        }
-
-
-
+        } 
         /// <summary>
         /// 发送短信验证手机号码所有权
         /// </summary>
@@ -241,52 +147,6 @@ namespace kevin.Application.Services
                 }
             }
             return false;
-        }
-
-
-        /// <summary>
-        /// 通过微信APP Code获取Token认证信息
-        /// </summary>
-        /// <param name="keyValue">key 为weixinkeyid, value 为 code</param>
-        /// <returns></returns>
-        [HttpPost("GetTokenByWeiXinAppCode")]
-        public async Task<string> GetTokenByWeiXinAppCode(dtoKeyValue keyValue)
-        {
-            using KevinDbContext db = new KevinDbContext();
-            var weixinkeyid = keyValue.Key.ToTryInt64();
-            string code = keyValue.Value.ToString() ?? "";
-            var wxInfo = db.Set<TWeiXinKey>().Where(t => t.Id == weixinkeyid).FirstOrDefault();
-            var weiXinHelper = new Web.Libraries.WeiXin.App.WeiXinHelper(wxInfo?.WxAppId, wxInfo?.WxAppSecret);
-            var accseetoken = weiXinHelper.GetAccessToken(code).accessToken;
-            var openid = weiXinHelper.GetAccessToken(code).openId;
-            var userInfo = weiXinHelper.GetUserInfo(accseetoken, openid);
-            var user = db.Set<TUserBindWeixin>().Where(t => t.IsDelete == false && t.WeiXinKeyId == weixinkeyid && t.WeiXinOpenId == userInfo.openid).Select(t => t.User).FirstOrDefault();
-
-            if (user == null)
-            {
-                user = new TUser();
-                user.Id = SnowflakeIdService.GetNextId();
-                user.IsDelete = false;
-                user.CreateTime = DateTime.Now;
-                user.Name = userInfo.nickname;
-                user.NickName = user.Name;
-                user.PasswordHash = new HashHelper().SHA256Hash(Guid.NewGuid().ToString());
-                user.IsSystem = false;
-                db.Set<TUser>().Add(user);
-                db.SaveChanges();
-                var bind = new TUserBindWeixin();
-                bind.Id = SnowflakeIdService.GetNextId();
-                bind.IsDelete = false;
-                bind.CreateTime = DateTime.Now;
-                bind.WeiXinKeyId = weixinkeyid;
-                bind.UserId = user.Id;
-                bind.WeiXinOpenId = openid;
-                db.Set<TUserBindWeixin>().Add(bind);
-                db.SaveChanges();
-            }
-
-            return await GetToken(new dtoLogin { Name = user.Name ?? "", PassWord = user.PasswordHash ?? "" });
-
-        }
+        } 
     }
 }

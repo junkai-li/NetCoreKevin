@@ -35,22 +35,7 @@ namespace WebApi.Controllers
         public async Task<string> GetToken([FromBody] dtoLogin login)
         {
             return await _IAuthorizeService.GetToken(login); 
-        }
-
-        /// <summary>
-        /// 通过微信小程序Code获取Token认证信息
-        /// </summary>
-        /// <param name="keyValue">key 为weixinkeyid, value 为 code</param>
-        /// <returns></returns>
-        [HttpPost("GetTokenByWeiXinMiniAppCode")]
-        [HttpLog("登录", "GetTokenByWeiXinMiniAppCode通过微信小程序Code获取Token认证信息")]
-        public async Task<string> GetTokenByWeiXinMiniAppCode([FromBody] dtoKeyValue keyValue)
-        {
-
-            return await _IAuthorizeService.GetTokenByWeiXinMiniAppCode(keyValue);
-        }
-
-
+        } 
         /// <summary>
         /// 利用手机号和短信验证码获取Token认证信息
         /// </summary>
@@ -62,10 +47,7 @@ namespace WebApi.Controllers
         {
             return await _IAuthorizeService.GetTokenBySms(keyValue);
 
-        }
-
-
-
+        } 
         /// <summary>
         /// 发送短信验证手机号码所有权
         /// </summary>
@@ -76,19 +58,6 @@ namespace WebApi.Controllers
         { 
             return   _IAuthorizeService.SendSmsVerifyPhone(keyValue);
 
-        }
-
-
-        /// <summary>
-        /// 通过微信APP Code获取Token认证信息
-        /// </summary>
-        /// <param name="keyValue">key 为weixinkeyid, value 为 code</param>
-        /// <returns></returns>
-        [HttpPost("GetTokenByWeiXinAppCode")]
-        public async Task<string> GetTokenByWeiXinAppCode(dtoKeyValue keyValue)
-        {
-            return await _IAuthorizeService.GetTokenByWeiXinAppCode(keyValue); 
-        }
-
+        }  
     }
 }

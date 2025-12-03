@@ -9,13 +9,6 @@
             系统访问授权模块
             </summary>
         </member>
-        <member name="M:WebApi.Controllers.AuthorizeController.GetTokenByWeiXinMiniAppCode(kevin.Share.Dtos.dtoKeyValue)">
-            <summary>
-            通过微信小程序Code获取Token认证信息
-            </summary>
-            <param name="keyValue">key 为weixinkeyid, value 为 code</param>
-            <returns></returns>
-        </member>
         <member name="M:WebApi.Controllers.AuthorizeController.GetTokenBySms(kevin.Share.Dtos.dtoKeyValue)">
             <summary>
             利用手机号和短信验证码获取Token认证信息
@@ -28,13 +21,6 @@
             发送短信验证手机号码所有权
             </summary>
             <param name="keyValue">key 为手机号，value 可为空</param>
-            <returns></returns>
-        </member>
-        <member name="M:WebApi.Controllers.AuthorizeController.GetTokenByWeiXinAppCode(kevin.Share.Dtos.dtoKeyValue)">
-            <summary>
-            通过微信APP Code获取Token认证信息
-            </summary>
-            <param name="keyValue">key 为weixinkeyid, value 为 code</param>
             <returns></returns>
         </member>
         <member name="T:WebApi.Controllers.BaseController">
@@ -50,15 +36,6 @@
             <param name="code">微信临时code</param>
             <returns>openid,userid</returns>
             <remarks>传入租户ID和微信临时 code 获取 openid，如果 openid 在系统有中对应用户，则一并返回用户的ID值，否则用户ID值为空</remarks>
-        </member>
-        <member name="M:WebApi.Controllers.BaseController.GetWeiXinMiniAppPhone(System.String,System.String,System.String,System.Int64)">
-            <summary>
-            获取微信小程序手机号
-            </summary>
-            <param name="iv">加密算法的初始向量</param>
-            <param name="encryptedData">包括敏感数据在内的完整用户信息的加密数据</param>
-            <param name="code">微信临时code</param>
-            <param name="weixinkeyid">微信配置密钥ID</param>
         </member>
         <member name="M:WebApi.Controllers.BaseController.GetRegion(System.Int32,System.Int32)">
             <summary>

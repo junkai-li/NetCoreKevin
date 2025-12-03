@@ -35,22 +35,8 @@ namespace WebApi.Controllers
         public string GetWeiXinMiniAppOpenId(long weixinkeyid, string code)
         {
             return _userService.GetWeiXinMiniAppOpenId(weixinkeyid, code);
-        }
-
-        /// <summary>
-        /// 获取微信小程序手机号
-        /// </summary>
-        /// <param name="iv">加密算法的初始向量</param>
-        /// <param name="encryptedData">包括敏感数据在内的完整用户信息的加密数据</param>
-        /// <param name="code">微信临时code</param>
-        /// <param name="weixinkeyid">微信配置密钥ID</param>
-        [HttpGet("GetWeiXinMiniAppPhone")]
-        public string GetWeiXinMiniAppPhone(string iv, string encryptedData, string code, long weixinkeyid)
-        {
-
-
-            return _userService.GetWeiXinMiniAppPhone(iv, encryptedData, code, weixinkeyid);
-        }
+        } 
+        
         /// <summary>
         /// 获取省市级联地址数据
         /// </summary>
@@ -61,25 +47,19 @@ namespace WebApi.Controllers
         [HttpGet("GetRegion")]
         public List<dtoKeyValue> GetRegion(int provinceId, int cityId)
         {
-            var list = new List<dtoKeyValue>();
-
-
-
+            var list = new List<dtoKeyValue>(); 
             if (provinceId == 0 && cityId == 0)
             {
                 list = db.Set<TRegionProvince>().Select(t => new dtoKeyValue { Key = t.Id, Value = t.Province }).ToList();
-            }
-
+            } 
             if (provinceId != 0)
             {
                 list = db.Set<TRegionCity>().Where(t => t.ProvinceId == provinceId).Select(t => new dtoKeyValue { Key = t.Id, Value = t.City }).ToList();
-            }
-
+            } 
             if (cityId != 0)
             {
                 list = db.Set<TRegionArea>().Where(t => t.CityId == cityId).Select(t => new dtoKeyValue { Key = t.Id, Value = t.Area }).ToList();
-            }
-
+            } 
             return list;
         }
 

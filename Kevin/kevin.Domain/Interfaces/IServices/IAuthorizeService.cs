@@ -15,13 +15,7 @@ namespace kevin.Domain.Interfaces.IServices
         ///// </summary>
         ///// <param name="login">登录信息集合</param>
         ///// <returns></returns>
-        Task<string> GetToken([FromBody] dtoLogin login);
-        /// <summary>
-        /// 通过微信小程序Code获取Token认证信息
-        /// </summary>
-        /// <param name="keyValue">key 为weixinkeyid, value 为 code</param>
-        /// <returns></returns>     
-        Task<string> GetTokenByWeiXinMiniAppCode([FromBody] dtoKeyValue keyValue);
+        Task<string> GetToken([FromBody] dtoLogin login); 
 
         /// <summary>
         /// 利用手机号和短信验证码获取Token认证信息
@@ -34,13 +28,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// </summary>
         /// <param name="keyValue">key 为手机号，value 可为空</param>
         /// <returns></returns>
-        bool SendSmsVerifyPhone(dtoKeyValue keyValue);
-        /// <summary>
-        /// 通过微信APP Code获取Token认证信息
-        /// </summary>
-        /// <param name="keyValue">key 为weixinkeyid, value 为 code</param>
-        /// <returns></returns>
-        Task<string> GetTokenByWeiXinAppCode(dtoKeyValue keyValue);
+        bool SendSmsVerifyPhone(dtoKeyValue keyValue); 
 
 
     }

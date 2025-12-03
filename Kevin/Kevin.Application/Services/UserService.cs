@@ -21,9 +21,7 @@ namespace kevin.Application
         public IWeiXinKeyRp weiXinKeyRp { get; set; }
         public IFileRp fileRp { get; set; }
 
-        public IRoleRp roleRp { get; set; }
-
-        public IUserBindWeixinRp userBindWeixinRp { get; set; }
+        public IRoleRp roleRp { get; set; } 
 
         public IUserBindRoleRp userBindRoleRp { get; set; }
 
@@ -35,14 +33,13 @@ namespace kevin.Application
 
         public IUserBindPositionRp userBindPositionRp { get; set; }
         public UserService(IHttpContextAccessor _httpContextAccessor, IUserRp _userRp, IWeiXinKeyRp _weiXinKeyRp, IFileRp _IFileRp, IRoleRp _IRoleRp,
-            IUserBindWeixinRp _IUserBindWeixinRp, IUserBindRoleRp userBindRoleRp, IPositionService _positionService,
+            IUserBindRoleRp userBindRoleRp, IPositionService _positionService,
             IUserBindPositionRp _userBindPositionRp, IDepartmentService _departmentService, IUserInfoRp _userInfoRp) : base(_httpContextAccessor)
         {
             userRp = _userRp;
             weiXinKeyRp = _weiXinKeyRp;
             fileRp = _IFileRp;
-            roleRp = _IRoleRp;
-            userBindWeixinRp = _IUserBindWeixinRp;
+            roleRp = _IRoleRp; 
             this.userBindRoleRp = userBindRoleRp;
             this.positionService = _positionService;
             this.userBindPositionRp = _userBindPositionRp;
@@ -687,40 +684,7 @@ namespace kevin.Application
                 Value = x.Name ?? "",
             }).ToList();
             return data;
-        }
-
-        /// <summary>
-        /// 获取微信小程序手机号
-        /// </summary>
-        /// <param name="iv">加密算法的初始向量</param>
-        /// <param name="encryptedData">包括敏感数据在内的完整用户信息的加密数据</param>
-        /// <param name="code">微信临时code</param>
-        /// <param name="weixinkeyid">微信配置密钥ID</param> 
-        public string GetWeiXinMiniAppPhone(string iv, string encryptedData, string code, long weixinkeyid)
-        {
-            var weixinkey = weiXinKeyRp.Query().Where(t => t.Id == weixinkeyid).FirstOrDefault();
-            if (weixinkey != default)
-            {
-                var weiXinHelper = new Web.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey.WxAppId, weixinkey.WxAppSecret);
-                var wxinfo = weiXinHelper.GetOpenIdAndSessionKey(code);
-
-                string openid = wxinfo.openid;
-                string sessionkey = wxinfo.sessionkey;
-
-                var strJson = Web.Libraries.WeiXin.MiniApp.WeiXinHelper.DecryptionData(encryptedData, sessionkey, iv);
-
-                var user = userBindWeixinRp.Query().Where(t => t.WeiXinOpenId == openid & t.WeiXinKeyId == weixinkeyid).Select(t => t.User).FirstOrDefault();
-                if (user != default)
-                {
-                    user.Phone = Common.Json.JsonHelper.GetValueByKey(strJson, "phoneNumber");
-                    userBindWeixinRp.SaveChanges();
-                    return user.Phone;
-                }
-            }
-
-            return "";
-        }
-
+        }  
         public Task<bool> ChangePasswordTokenUser(string oldPwd, string newPwd, CancellationToken cancellationToken)
         {
             var user = userRp.Query().Where(t => t.Id == CurrentUser.UserId && t.IsDelete == false).FirstOrDefault();
