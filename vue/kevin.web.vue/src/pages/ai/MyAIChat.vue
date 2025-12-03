@@ -340,7 +340,7 @@ const loadChatHistory = async (chatId, page) => {
 
       // 如果是第一页，直接替换消息列表，否则添加到列表开头（历史消息在前）
       if (page === 1) {
-        messages.value = historyMessages;
+        messages.value = historyMessages.reverse();
       } else {
         // 保存当前滚动位置
         const container = messagesContainer.value;
@@ -348,7 +348,7 @@ const loadChatHistory = async (chatId, page) => {
         const beforeScrollTop = container.scrollTop;
         
         // 将新消息添加到列表开头
-        messages.value = [...historyMessages, ...messages.value];
+        messages.value = [...historyMessages.reverse(), ...messages.value];
         
         // 保持滚动位置不变
         nextTick(() => {

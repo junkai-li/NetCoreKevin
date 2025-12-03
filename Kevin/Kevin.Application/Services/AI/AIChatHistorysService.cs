@@ -41,7 +41,7 @@ namespace kevin.Application.Services.AI
                 throw new UserFriendlyException("必须传入聊天Id");
             }
             result.total = await data.CountAsync();
-            result.data = (await data.Skip(skip).Take(dtoPage.pageSize).OrderBy(x => x.CreateTime).ToListAsync()).MapToList<TAIChatHistorys, AIChatHistorysDto>();
+            result.data = (await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPage.pageSize).ToListAsync()).MapToList<TAIChatHistorys, AIChatHistorysDto>();
             return result;
         }
 
