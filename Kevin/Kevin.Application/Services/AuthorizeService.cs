@@ -60,7 +60,7 @@ namespace kevin.Application.Services
             var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["JwtOptions:Authority"]);
             if (disco.IsError)
             {
-                throw new UserFriendlyException("登录异常");
+                throw new UserFriendlyException("登录异常：" + disco.Error);
             }
             //var par = new Parameters();
             //par.Add("TenantId", login.TenantId.ToString()); 
@@ -96,15 +96,15 @@ namespace kevin.Application.Services
         {
             using KevinDbContext db = new KevinDbContext();
             var weixinkeyid = keyValue.Key.ToTryInt64();
-            string code = keyValue.Value.ToString() ?? ""; 
-            var weixinkey = db.Set<TWeiXinKey>().Where(t => t.Id == weixinkeyid).FirstOrDefault(); 
-            var weiXinHelper = new Web.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey?.WxAppId, weixinkey?.WxAppSecret);  
-            var wxinfo = weiXinHelper.GetOpenIdAndSessionKey(code); 
+            string code = keyValue.Value.ToString() ?? "";
+            var weixinkey = db.Set<TWeiXinKey>().Where(t => t.Id == weixinkeyid).FirstOrDefault();
+            var weiXinHelper = new Web.Libraries.WeiXin.MiniApp.WeiXinHelper(weixinkey?.WxAppId, weixinkey?.WxAppSecret);
+            var wxinfo = weiXinHelper.GetOpenIdAndSessionKey(code);
             string openid = wxinfo.openid;
-            string sessionkey = wxinfo.sessionkey; 
-            var user = db.Set<TUserBindWeixin>().Where(t => t.WeiXinOpenId == openid).Select(t => t.User).FirstOrDefault(); 
+            string sessionkey = wxinfo.sessionkey;
+            var user = db.Set<TUserBindWeixin>().Where(t => t.WeiXinOpenId == openid).Select(t => t.User).FirstOrDefault();
             if (user == null)
-            { 
+            {
                 bool isAction = false;
                 while (isAction == false)
                 {
@@ -118,7 +118,7 @@ namespace kevin.Application.Services
                             if (user == null)
                             {
                                 //注册一个只有基本信息的账户出来
-                                user = new TUser(); 
+                                user = new TUser();
                                 user.Id = SnowflakeIdService.GetNextId();
                                 user.IsDelete = false;
                                 user.CreateTime = DateTime.Now;
@@ -126,16 +126,16 @@ namespace kevin.Application.Services
                                 user.NickName = user.Name;
                                 user.ChangePassword(Guid.NewGuid().ToString());
                                 user.IsSystem = false;
-                                db.Set<TUser>().Add(user); 
-                                db.SaveChanges(); 
+                                db.Set<TUser>().Add(user);
+                                db.SaveChanges();
                                 TUserBindWeixin userBind = new();
                                 userBind.Id = SnowflakeIdService.GetNextId();
                                 userBind.IsDelete = false;
                                 userBind.CreateTime = DateTime.Now;
                                 userBind.UserId = user.Id;
                                 userBind.WeiXinKeyId = weixinkeyid;
-                                userBind.WeiXinOpenId = openid; 
-                                db.Set<TUserBindWeixin>().Add(userBind); 
+                                userBind.WeiXinOpenId = openid;
+                                db.Set<TUserBindWeixin>().Add(userBind);
                                 db.SaveChanges();
                             }
                         }
@@ -151,8 +151,8 @@ namespace kevin.Application.Services
             var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["JwtOptions:Authority"]);
             if (disco.IsError)
             {
-                throw new UserFriendlyException("登录异常");
-            } 
+                throw new UserFriendlyException("登录异常：" + disco.Error);
+            }
             var tokenResponse = await clinet.RequestPasswordTokenAsync(new PasswordTokenRequest
             {
                 Address = disco.TokenEndpoint,
@@ -165,7 +165,7 @@ namespace kevin.Application.Services
             if (tokenResponse.IsError)
             {
                 throw new UserFriendlyException(tokenResponse.ErrorDescription);
-            } 
+            }
             //保存刷新令牌
             if (!string.IsNullOrEmpty(tokenResponse.AccessToken) && !string.IsNullOrEmpty(tokenResponse.RefreshToken))
             {
@@ -238,9 +238,9 @@ namespace kevin.Application.Services
                 {
                     _CacheService.SetString(key, code, new TimeSpan(0, 0, 5, 0));
                     return true;
-                }  
+                }
             }
-            return false; 
+            return false;
         }
 
 
@@ -273,15 +273,15 @@ namespace kevin.Application.Services
                 user.PasswordHash = new HashHelper().SHA256Hash(Guid.NewGuid().ToString());
                 user.IsSystem = false;
                 db.Set<TUser>().Add(user);
-                db.SaveChanges(); 
+                db.SaveChanges();
                 var bind = new TUserBindWeixin();
                 bind.Id = SnowflakeIdService.GetNextId();
                 bind.IsDelete = false;
-                bind.CreateTime = DateTime.Now; 
+                bind.CreateTime = DateTime.Now;
                 bind.WeiXinKeyId = weixinkeyid;
                 bind.UserId = user.Id;
-                bind.WeiXinOpenId = openid; 
-                db.Set<TUserBindWeixin>().Add(bind); 
+                bind.WeiXinOpenId = openid;
+                db.Set<TUserBindWeixin>().Add(bind);
                 db.SaveChanges();
             }
 
