@@ -71,7 +71,7 @@ namespace kevin.Application.Services
                 ClientSecret = Configuration["IdentityServerInfo:ClientSecret"],
                 Scope = Configuration["IdentityServerInfo:Scope"],
                 UserName = user.Id.ToString(),
-                Password = new HashHelper().SHA256Hash(user.PassWord),
+                Password = login.PasswordHash ??  new HashHelper().SHA256Hash(login.PassWord),
             });
             if (tokenResponse.IsError)
             {
