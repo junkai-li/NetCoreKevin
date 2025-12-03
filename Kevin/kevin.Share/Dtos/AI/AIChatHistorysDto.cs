@@ -22,7 +22,7 @@ namespace kevin.Domain.Share.Dtos.AI
         /// 消息内容
         /// </summary> 
         [Description("消息内容")]
-        public String Context { get; set; } = "";
+        public String Content { get; set; } = "";
 
         /// <summary>
         /// 发送是true  接收是false

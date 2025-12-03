@@ -41,7 +41,7 @@ namespace kevin.Application.Services.AI
                 throw new UserFriendlyException("必须传入聊天Id");
             }
             result.total = await data.CountAsync();
-            result.data = (await data.Skip(skip).Take(dtoPage.pageSize).OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIChatHistorys, AIChatHistorysDto>();
+            result.data = (await data.Skip(skip).Take(dtoPage.pageSize).OrderBy(x => x.CreateTime).ToListAsync()).MapToList<TAIChatHistorys, AIChatHistorysDto>();
             return result;
         }
 
@@ -52,18 +52,30 @@ namespace kevin.Application.Services.AI
         /// <param name="message"></param>
         /// <returns></returns>
         /// <exception cref="UserFriendlyException"></exception>
-        public async Task<bool> Add(AIChatHistorysDto par)
+        public async Task<AIChatHistorysDto> Add(AIChatHistorysDto par)
         {
             var add = par.MapTo<TAIChatHistorys>();
             add.Id = par.Id == default ? SnowflakeIdService.GetNextId() : par.Id;
             add.IsDelete = false;
             add.CreateTime = DateTime.Now;
             add.CreateUserId = CurrentUser.UserId;
-            add.TenantId = CurrentUser.TenantId; 
+            add.TenantId = CurrentUser.TenantId;
             add.IsSend = true;
             aIChatHistorysRp.Add(add);
             await aIChatHistorysRp.SaveChangesAsync();
-            return true;
+            //模拟AI回复消息
+            var addAi = new TAIChatHistorys();
+            addAi.Id = SnowflakeIdService.GetNextId();
+            addAi.IsDelete = false;
+            addAi.CreateTime = DateTime.Now;
+            addAi.CreateUserId = CurrentUser.UserId;
+            addAi.TenantId = CurrentUser.TenantId;
+            addAi.IsSend = false;
+            addAi.AIChatsId = par.AIChatsId;
+            addAi.Content = $"关于{par.Content}，这是一个很好的问题。我可以为您提供相关信息...";
+            aIChatHistorysRp.Add(addAi);
+            await aIChatHistorysRp.SaveChangesAsync();
+            return addAi.MapTo<AIChatHistorysDto>();
         }
 
         /// <summary>

@@ -84,7 +84,7 @@
             对话id
             </summary>
         </member>
-        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.Context">
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.Content">
             <summary>
             消息内容
             </summary> 

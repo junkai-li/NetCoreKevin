@@ -51,7 +51,7 @@ namespace App.WebApi.Controllers.v1.AI
         [HttpPost("Add")]
         [ActionDescription("新增AI对话聊天记录")]
         [HttpLog("AI对话聊天记录管理", "新增AI对话聊天记录")]
-        public async Task<bool> Add([FromBody] AIChatHistorysDto par)
+        public async Task<AIChatHistorysDto> Add([FromBody] AIChatHistorysDto par)
         {
             var result = await _service.Add(par);
             return result;

@@ -76,12 +76,12 @@
             :key="message.id"
             class="message-item"
             :class="{
-              'user-message': message.role === 'user',
-              'ai-message': message.role === 'assistant',
+              'user-message': message.isSend===true,
+              'ai-message': message.isSend===false,
             }"
           >
             <div class="message-avatar">
-              <UserOutlined v-if="message.role === 'user'" />
+              <UserOutlined v-if="message.isSend===true" />
               <RobotOutlined v-else />
             </div>
             <div class="message-content">
@@ -146,7 +146,7 @@
 
 <script setup>
 /* eslint-disable */
-import { ref, onMounted, nextTick, watch, h } from "vue";
+import { ref, onMounted, nextTick, watch, h, onUnmounted } from "vue";
 import {
   PlusOutlined,
   UserOutlined,
@@ -157,6 +157,7 @@ import {
 import { message, Modal, Select } from "ant-design-vue";
 import { getAIAppsALLList } from "../../api/ai/aiapps.js";
 import { getAIChatsMyPageData, addAIChats, deleteAIChats } from "../../api/ai/aichats.js";
+import { getAIChatHistorysPageData, addAIChatHistorys, deleteAIChatHistorys } from "../../api/ai/aichathistorys.js";
 
 // 模拟数据
 const conversations = ref([]);
@@ -167,6 +168,12 @@ const newMessage = ref("");
 const loadingConversations = ref(false);
 const isSending = ref(false);
 const messagesContainer = ref(null);
+
+// 分页相关变量
+const currentPage = ref(1);
+const hasMoreMessages = ref(true);
+const loadingMessages = ref(false);
+const pageSize = ref(20); // 每页消息数量
 
 // 智能体相关
 const aiApps = ref([]); // 存储智能体列表
@@ -186,7 +193,7 @@ const loadConversations = async () => {
       if(response.data.data.length>0){
       conversations.value = response.data.data.map((item) => ({
         id: item.id,
-        title: item.title,
+        title: item.name,
         lastMessage: item.lastMessage,
         createdAt: item.createTime,
         updatedAt: item.updateTime,
@@ -289,21 +296,104 @@ const getAiAppName = (appId) => {
 };
 
 // 选择对话
-const selectConversation = (conversation) => {
+const selectConversation = async (conversation) => {
   activeConversationId.value = conversation.id;
   activeConversation.value = conversation;
 
-  // 模拟加载消息
-  messages.value = [
-    {
-      id: 1,
-      sender: "user",
-      content: conversation.lastMessage || "你好",
-      timestamp: conversation.createdAt,
-    },
-  ];
+  // 重置分页参数
+  currentPage.value = 1;
+  hasMoreMessages.value = true;
+  messages.value = [];
 
-  scrollToBottom();
+  // 加载聊天记录
+  await loadChatHistory(conversation.id, 1);
+  
+  // 等待DOM更新后滚动到底部
+  nextTick(() => {
+    scrollToBottom();
+  });
+};
+
+// 加载聊天记录
+const loadChatHistory = async (chatId, page) => {
+  if (loadingMessages.value || !hasMoreMessages.value) return;
+  
+  loadingMessages.value = true;
+  try {
+    const response = await getAIChatHistorysPageData({
+      whereId: chatId,
+      pageNum: page,
+      pageSize: pageSize.value
+    });
+
+    if (response && response.code === 200 && response.data) {
+      const historyData = response.data.data || [];
+      
+      // 处理消息格式
+      const historyMessages = historyData.map(item => ({
+        id: item.id,
+        conversationId: item.aIChatsId,
+        isSend: item.isSend,
+        content: item.content,
+        createdAt: item.creationTime || new Date().toISOString()
+      }));
+
+      // 如果是第一页，直接替换消息列表，否则添加到列表开头（历史消息在前）
+      if (page === 1) {
+        messages.value = historyMessages;
+      } else {
+        // 保存当前滚动位置
+        const container = messagesContainer.value;
+        const beforeScrollHeight = container.scrollHeight;
+        const beforeScrollTop = container.scrollTop;
+        
+        // 将新消息添加到列表开头
+        messages.value = [...historyMessages, ...messages.value];
+        
+        // 保持滚动位置不变
+        nextTick(() => {
+          container.scrollTop = beforeScrollTop + (container.scrollHeight - beforeScrollHeight);
+        });
+      }
+
+      // 判断是否还有更多数据
+      if (historyData.length < pageSize.value) {
+        hasMoreMessages.value = false;
+      }
+
+      // 更新当前页
+      if (page === 1) {
+        currentPage.value = 1;
+      } else {
+        currentPage.value = page;
+      }
+    } else {
+      throw new Error(response?.msg || "获取聊天记录失败");
+    }
+  } catch (error) {
+    console.error("加载聊天记录失败:", error);
+    message.error("加载聊天记录失败: " + (error.message || error));
+  } finally {
+    loadingMessages.value = false;
+  }
+};
+
+// 处理滚动事件，实现无限滚动加载
+const handleScroll = () => {
+  if (!messagesContainer.value || loadingMessages.value || !hasMoreMessages.value) return;
+  
+  const { scrollTop } = messagesContainer.value;
+  // 当滚动到顶部附近时加载更多
+  if (scrollTop < 50) {
+    loadMoreMessages();
+  }
+};
+
+// 加载更多消息
+const loadMoreMessages = () => {
+  if (hasMoreMessages.value && activeConversationId.value) {
+    loadChatHistory(activeConversationId.value, currentPage.value + 1);
+  }
 };
 
 // 处理回车键按下
@@ -327,16 +417,22 @@ const sendMessage = async () => {
   newMessage.value = "";
   isSending.value = true;
 
-  try {
+  try {  
     // 添加用户消息到列表
     const userMessage = {
       id: Date.now(),
       conversationId: activeConversationId.value,
-      role: "user",
+      isSend: true,
       content: messageToSend,
       createdAt: new Date().toISOString(),
     };
-
+    var reulst= await addAIChatHistorys({
+      aIChatsId: activeConversationId.value, 
+      content: messageToSend,
+    });
+    if(reulst&&reulst.code!=200){
+      message.error("发送失败"); 
+    }
     messages.value.push(userMessage);
     scrollToBottom();
 
@@ -356,24 +452,21 @@ const sendMessage = async () => {
     // 模拟AI回复
     setTimeout(() => {
       const aiResponse = {
-        id: Date.now() + 1,
+        id:reulst.data.id,
         conversationId: activeConversationId.value,
-        role: "assistant",
-        content: getMockAIResponse(messageToSend),
-        createdAt: new Date().toISOString(),
-      };
-
+        isSend: reulst.data.isSend,
+        content:reulst.data.content,
+        createdAt:reulst.data.createTime,
+      }; 
       messages.value.push(aiResponse);
-      isSending.value = false;
-
+      isSending.value = false; 
       // 更新对话列表中的预览
       if (conversation) {
         conversation.lastMessage =
           aiResponse.content.substring(0, 30) +
           (aiResponse.content.length > 30 ? "..." : "");
         conversation.updatedAt = new Date().toISOString();
-      }
-
+      } 
       scrollToBottom();
     }, 1000);
   } catch (error) {
@@ -390,20 +483,7 @@ const scrollToBottom = () => {
       messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
     }
   });
-};
-
-// 获取模拟AI回复
-const getMockAIResponse = (userMessage) => {
-  const responses = [
-    `关于"${userMessage}"，这是一个很好的问题。我可以为您提供相关信息...`,
-    `针对您的问题"${userMessage}"，我的看法是这样的...`,
-    `感谢您的提问"${userMessage}"。根据我的知识库，我可以告诉您...`,
-    `"${userMessage}"确实是一个值得探讨的话题。让我来详细解释一下...`,
-    `对于"${userMessage}"这个问题，我建议您可以从以下几个方面考虑...`,
-  ];
-
-  return responses[Math.floor(Math.random() * responses.length)];
-};
+}; 
 
 // 格式化日期
 const formatDate = (dateString) => {
@@ -440,7 +520,18 @@ watch(messages, () => {
 onMounted(async () => {
   await loadConversations();
   await loadAIApps(); // 加载智能体列表
-  scrollToBottom();
+  
+  // 添加滚动事件监听器
+  if (messagesContainer.value) {
+    messagesContainer.value.addEventListener('scroll', handleScroll);
+  }
+});
+
+// 组件卸载时移除滚动事件监听器
+onUnmounted(() => {
+  if (messagesContainer.value) {
+    messagesContainer.value.removeEventListener('scroll', handleScroll);
+  }
 });
 
 // 删除对话
@@ -468,8 +559,7 @@ const deleteConversation = async (conversationId, event) => {
       message.error("删除对话失败: " + (error.message || error));
     }
   }
-};
-</script>
+};</script>
 
 <style scoped>
 .ai-chat-container {
