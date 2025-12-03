@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Kevin.AI.Dto;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,6 @@ namespace Kevin.AI
         /// <param name="model">使用模型：</param>
         /// <param name="systemMsg">系统内容：你是一个聊天机器人，请根据用户输入的内容进行回复</param>
         /// <returns></returns>
-        Dto.AIReslutDto SendMsg(string msg, string model = "", string systemMsg = "");
+        AIReslutDto SendMsg(string msg, string url = "", string keySecret = "", string model = "", string systemMsg = "");
     }
 }

@@ -34,7 +34,20 @@ namespace kevin.Application.Services.AI
             result.data = (await data.Skip(skip).Take(dtoPage.pageSize).OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIModels, AIModelsDto>();
             return result;
         }
-
+        /// <summary>
+        /// 获取ai模型
+        /// </summary>
+        /// <param name="id"></param> 
+        /// <returns></returns> 
+        public async Task<AIModelsDto> GetDetails(long id)
+        {
+            var data = (await aIModelsRp.Query().FirstOrDefaultAsync(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId && t.Id == id)).MapTo<AIModelsDto>();
+            if (data == default)
+            {
+                throw new UserFriendlyException("ai模型数据不存在或已删除");
+            }
+            return data;
+        }
         /// <summary>
         /// 获取ai模型列表
         /// </summary>

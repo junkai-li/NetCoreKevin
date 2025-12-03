@@ -42,6 +42,20 @@ namespace kevin.Application.Services.AI
         }
 
         /// <summary>
+        /// 获取ai提示词
+        /// </summary>
+        /// <param name="id"></param> 
+        /// <returns></returns> 
+        public async Task<AIPromptsDto> GetDetails(long id)
+        {
+            var data = (await aIPromptsRp.Query().FirstOrDefaultAsync(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId && t.Id == id)).MapTo<AIPromptsDto>();
+            if (data == default)
+            {
+                throw new UserFriendlyException("ai提示词数据不存在或已删除");
+            }
+            return data;
+        }
+        /// <summary>
         /// 获取ai提示词列表
         /// </summary>
         /// <param name="dtoPage"></param> 

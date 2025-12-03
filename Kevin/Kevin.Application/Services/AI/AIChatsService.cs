@@ -1,15 +1,12 @@
-﻿using kevin.Domain.Entities.AI;
+﻿using kevin.AI.AgentFramework;
+using kevin.Domain.Entities.AI;
+using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
-using kevin.RepositorieRps.Repositories.AI;
 using kevin.Share.Dtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Kevin.AI;
 using Web.Global.Exceptions;
 
 namespace kevin.Application.Services.AI
@@ -17,9 +14,29 @@ namespace kevin.Application.Services.AI
     public class AIChatsService : BaseService, IAIChatsService
     {
         public IAIChatsRp aIChatsRp { get; set; }
-        public AIChatsService(IHttpContextAccessor _httpContextAccessor, IAIChatsRp _aIChatsRp) : base(_httpContextAccessor)
+
+        public IAIAppsService aIAppsService { get; set; }
+        public IAIChatHistorysRp aIChatHistorysRp { get; set; }
+        public IAIAgentService aIAgentService { get; set; }
+        /// public IAIClient aIClient { get; set; }
+        public IAIModelsService aIModelsService { get; set; }
+
+        public IAIPromptsService aIPromptsService { get; set; }
+
+        public AIChatsService(IHttpContextAccessor _httpContextAccessor, IAIChatsRp _aIChatsRp,
+            IAIAgentService _aIAgentService,
+            IAIChatHistorysRp _aIChatHistorysRp, IAIAppsService _aIAppsService,
+            IAIModelsService _aIModelsService, IAIPromptsService aIPromptsService
+           // IAIClient _aIClient
+            ) : base(_httpContextAccessor)
         {
             this.aIChatsRp = _aIChatsRp;
+             this.aIAgentService = _aIAgentService;
+            this.aIChatHistorysRp = _aIChatHistorysRp;
+            this.aIAppsService = _aIAppsService;
+            this.aIModelsService = _aIModelsService;
+            this.aIPromptsService = aIPromptsService;
+           // this.aIClient = _aIClient;
         }
 
         /// <summary>
@@ -48,8 +65,11 @@ namespace kevin.Application.Services.AI
         /// <param name="message"></param>
         /// <returns></returns>
         /// <exception cref="UserFriendlyException"></exception>
-        public async Task<bool> Add(AIChatsDto par)
+        public async Task<AIChatHistorysDto> Add(AIChatsDto par)
         {
+            var aiapp = await aIAppsService.GetDetails(par.AppId);
+            var aIModels = await aIModelsService.GetDetails(aiapp.ChatModelID.ToTryInt64());
+            var aIPrompts = await aIPromptsService.GetDetails(aiapp.AIPromptID);
             var add = par.MapTo<TAIChats>();
             add.Id = par.Id == default ? SnowflakeIdService.GetNextId() : par.Id;
             add.IsDelete = false;
@@ -59,7 +79,60 @@ namespace kevin.Application.Services.AI
             add.UserId = CurrentUser.UserId;
             aIChatsRp.Add(add);
             await aIChatsRp.SaveChangesAsync();
-            return true;
+
+            var addHist = new TAIChatHistorys();
+            addHist.Id = SnowflakeIdService.GetNextId();
+            addHist.IsDelete = false;
+            addHist.CreateTime = DateTime.Now;
+            addHist.CreateUserId = CurrentUser.UserId;
+            addHist.TenantId = CurrentUser.TenantId;
+            addHist.IsSend = false;
+            addHist.AIChatsId = add.Id;
+            switch (aIModels.AIType)
+            {
+                case Domain.Share.Enums.AIType.OpenAI:
+                    addHist.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG("请开始你的自我介绍", aiapp.Name, aIPrompts.Prompt, aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答", aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey)).Item2.Text;
+                    //addHist.Content = aIClient.SendMsg("请开始你的自我介绍", aIModels.EndPoint, aIModels.ModelKey, aIModels.ModelName, aIPrompts.Prompt + (aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答")).choices.FirstOrDefault().message.content;
+                    break;
+                case Domain.Share.Enums.AIType.AzureOpenAI:
+                    break;
+                case Domain.Share.Enums.AIType.SparkDesk:
+                    break;
+                case Domain.Share.Enums.AIType.DashScope:
+                    break;
+                case Domain.Share.Enums.AIType.LLamaFactory:
+                    break;
+                case Domain.Share.Enums.AIType.BgeEmbedding:
+                    break;
+                case Domain.Share.Enums.AIType.BgeRerank:
+                    break;
+                case Domain.Share.Enums.AIType.Ollama:
+                    break;
+                case Domain.Share.Enums.AIType.OllamaEmbedding:
+                    break;
+                case Domain.Share.Enums.AIType.Mock:
+                    break;
+                default:
+                    break;
+            }
+            aIChatHistorysRp.Add(addHist);
+            await aIChatHistorysRp.SaveChangesAsync();
+            return addHist.MapTo<AIChatHistorysDto>();
+        }
+
+        /// <summary>
+        /// 获取ai聊天对话
+        /// </summary>
+        /// <param name="id"></param> 
+        /// <returns></returns> 
+        public async Task<AIChatsDto> GetDetails(long id)
+        {
+            var data = (await aIChatsRp.Query().FirstOrDefaultAsync(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId && t.Id == id)).MapTo<AIChatsDto>();
+            if (data == default)
+            {
+                throw new UserFriendlyException("获取ai聊天对话不存在或已删除");
+            }
+            return data;
         }
 
         /// <summary>

@@ -28,11 +28,19 @@ namespace Kevin.AI
             AIDefaultModel = config.CurrentValue.AIDefaultModel;
         }
 
-        public AIReslutDto SendMsg(string msg, string model = "", string systemMsg = "")
+        public AIReslutDto SendMsg(string msg, string url = "", string keySecret = "", string model = "", string systemMsg = "")
         {
             if (String.IsNullOrEmpty(model))
             {
                 model = AIDefaultModel;
+            }
+            if (String.IsNullOrEmpty(url))
+            {
+                url = AIUrl;
+            }
+            if (String.IsNullOrEmpty(keySecret))
+            {
+                keySecret = AIKeySecret;
             }
             var datajson = new AISendDto
             {
@@ -47,7 +55,7 @@ namespace Kevin.AI
             {
                 datajson.messages.Add(new MessagesItem { role = "user", content = msg });
             }
-            var json = HttpHelper.Post(AIUrl, datajson.ToJson(), "json",headers: new Dictionary<string, string> {  {"Authorization",AIKeySecret },}, isSkipSslVerification: true);
+            var json = HttpHelper.Post(url, datajson.ToJson(), "json", headers: new Dictionary<string, string> { { "Authorization", keySecret }, }, isSkipSslVerification: true);
             var result = JsonExtension.ToObject<AIReslutDto>(json);
             return result;
         }

@@ -4,6 +4,7 @@ using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Share.Dtos;
+using System;
 using Web.Global.Exceptions;
 
 namespace kevin.Application.Services.AI
@@ -35,6 +36,21 @@ namespace kevin.Application.Services.AI
             return result;
         }
 
+
+        /// <summary>
+        /// 获取ai应用
+        /// </summary>
+        /// <param name="id"></param> 
+        /// <returns></returns> 
+        public async Task<AIAppsDto> GetDetails(long id)
+        {
+            var data = (await aIAppsRp.Query().FirstOrDefaultAsync(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId && t.Id == id)).MapTo<AIAppsDto>();
+            if (data == default)
+            {
+                throw new UserFriendlyException("ai应用数据不存在或已删除");
+            }
+            return data;
+        }
         /// <summary>
         /// 获取ai应用列表
         /// </summary>
@@ -79,10 +95,10 @@ namespace kevin.Application.Services.AI
             {
                 var msg = aIAppsRp.Query().Where(t => t.IsDelete == false && t.Id == par.Id).FirstOrDefault();
                 if (msg != default)
-                { 
+                {
                     msg.UpdateTime = DateTime.Now;
-                    msg.UpdateUserId = CurrentUser.UserId;        
-                    msg.TenantId = CurrentUser.TenantId; 
+                    msg.UpdateUserId = CurrentUser.UserId;
+                    msg.TenantId = CurrentUser.TenantId;
                     msg.Name = par.Name;
                     msg.Describe = par.Describe;
                     msg.Icon = par.Icon;
@@ -99,7 +115,7 @@ namespace kevin.Application.Services.AI
                     msg.MaxMatchesCount = par.MaxMatchesCount;
                     msg.RerankCount = par.RerankCount;
                     msg.AnswerTokens = par.AnswerTokens;
-                    msg.AIPromptID = par.AIPromptID; 
+                    msg.AIPromptID = par.AIPromptID;
                 }
                 else
                 {

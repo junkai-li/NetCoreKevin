@@ -1,4 +1,5 @@
-﻿using kevin.Domain.Entities.AI;
+﻿using kevin.AI.AgentFramework;
+using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos;
@@ -17,9 +18,23 @@ namespace kevin.Application.Services.AI
     public class AIChatHistorysService : BaseService, IAIChatHistorysService
     {
         public IAIChatHistorysRp aIChatHistorysRp { get; set; }
-        public AIChatHistorysService(IHttpContextAccessor _httpContextAccessor, IAIChatHistorysRp _aIChatHistorysRp) : base(_httpContextAccessor)
+        public IAIAgentService aIAgentService { get; set; }
+        public IAIModelsService aIModelsService { get; set; }
+
+        public IAIPromptsService aIPromptsService { get; set; }
+        public IAIChatsService aIChatsService { get; set; }
+        public IAIAppsService aIAppsService { get; set; }
+        public AIChatHistorysService(IHttpContextAccessor _httpContextAccessor, IAIChatHistorysRp _aIChatHistorysRp,
+            IAIAgentService _aIAgentService, IAIModelsService _aIModelsService, IAIPromptsService _aIPromptsService,
+            IAIChatsService _aIChatsService, IAIAppsService _aIAppsService) : base(_httpContextAccessor)
         {
             this.aIChatHistorysRp = _aIChatHistorysRp;
+            this.aIChatsService = _aIChatsService;
+            this.aIAgentService = _aIAgentService;
+            this.aIModelsService = _aIModelsService;
+            this.aIPromptsService = _aIPromptsService;
+            this.aIAppsService = _aIAppsService;
+
         }
 
         /// <summary>
@@ -54,6 +69,10 @@ namespace kevin.Application.Services.AI
         /// <exception cref="UserFriendlyException"></exception>
         public async Task<AIChatHistorysDto> Add(AIChatHistorysDto par)
         {
+            var aichas = await aIChatsService.GetDetails(par.AIChatsId);
+            var aiapp = await aIAppsService.GetDetails(aichas.AppId);
+            var aIModels = await aIModelsService.GetDetails(aiapp.ChatModelID.ToTryInt64());
+            var aIPrompts = await aIPromptsService.GetDetails(aiapp.AIPromptID);
             var add = par.MapTo<TAIChatHistorys>();
             add.Id = par.Id == default ? SnowflakeIdService.GetNextId() : par.Id;
             add.IsDelete = false;
@@ -63,7 +82,7 @@ namespace kevin.Application.Services.AI
             add.IsSend = true;
             aIChatHistorysRp.Add(add);
             await aIChatHistorysRp.SaveChangesAsync();
-            //模拟AI回复消息
+            //回复消息
             var addAi = new TAIChatHistorys();
             addAi.Id = SnowflakeIdService.GetNextId();
             addAi.IsDelete = false;
@@ -72,7 +91,32 @@ namespace kevin.Application.Services.AI
             addAi.TenantId = CurrentUser.TenantId;
             addAi.IsSend = false;
             addAi.AIChatsId = par.AIChatsId;
-            addAi.Content = $"关于{par.Content}，这是一个很好的问题。我可以为您提供相关信息...";
+            switch (aIModels.AIType)
+            {
+                case Domain.Share.Enums.AIType.OpenAI:
+                    addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(add.Content, aiapp.Name, aIPrompts.Prompt, aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答", aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey)).Item2.Text; 
+                    break;
+                case Domain.Share.Enums.AIType.AzureOpenAI:
+                    break;
+                case Domain.Share.Enums.AIType.SparkDesk:
+                    break;
+                case Domain.Share.Enums.AIType.DashScope:
+                    break;
+                case Domain.Share.Enums.AIType.LLamaFactory:
+                    break;
+                case Domain.Share.Enums.AIType.BgeEmbedding:
+                    break;
+                case Domain.Share.Enums.AIType.BgeRerank:
+                    break;
+                case Domain.Share.Enums.AIType.Ollama:
+                    break;
+                case Domain.Share.Enums.AIType.OllamaEmbedding:
+                    break;
+                case Domain.Share.Enums.AIType.Mock:
+                    break;
+                default:
+                    break;
+            }
             aIChatHistorysRp.Add(addAi);
             await aIChatHistorysRp.SaveChangesAsync();
             return addAi.MapTo<AIChatHistorysDto>();

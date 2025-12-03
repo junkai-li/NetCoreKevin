@@ -8,18 +8,18 @@
   </PropertyGroup>
 
   <ItemGroup> 
-      <PackageReference Include="Azure.AI.OpenAI" Version="2.5.0-beta.1" />
-      <PackageReference Include="Microsoft.Agents.AI" Version="1.0.0-preview.251009.1" />
-      <PackageReference Include="Microsoft.Agents.AI.Abstractions" Version="1.0.0-preview.251009.1" />
-      <PackageReference Include="Microsoft.Agents.AI.AzureAI" Version="1.0.0-preview.251009.1" />
-      <PackageReference Include="Microsoft.Agents.AI.Hosting" Version="1.0.0-preview.251009.1" />
-      <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.0.0-preview.251009.1" />
-      <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.0.0-preview.251009.1" />
-      <PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.66.0-preview" />
-      <PackageReference Include="ModelContextProtocol" Version="0.4.0-preview.2" />
-      <PackageReference Include="OpenTelemetry" Version="1.13.1" />
-      <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.13.1" />
-      <PackageReference Include="System.Linq.Async" Version="7.0.0-preview.1.g24680b5469" />
+      <PackageReference Include="Azure.AI.OpenAI" Version="2.7.0-beta.2" />
+      <PackageReference Include="Microsoft.Agents.AI" Version="1.0.0-preview.251125.1" />
+      <PackageReference Include="Microsoft.Agents.AI.Abstractions" Version="1.0.0-preview.251125.1" />
+      <PackageReference Include="Microsoft.Agents.AI.AzureAI" Version="1.0.0-preview.251125.1" />
+      <PackageReference Include="Microsoft.Agents.AI.Hosting" Version="1.0.0-preview.251125.1" />
+      <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.0.0-preview.251125.1" />
+      <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.0.0-preview.251125.1" />
+      <PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.67.1-preview" />
+      <PackageReference Include="ModelContextProtocol" Version="0.4.1-preview.1" />
+      <PackageReference Include="OpenTelemetry" Version="1.14.0" />
+      <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.14.0" />
+      <PackageReference Include="System.Linq.Async" Version="7.0.0" />
   </ItemGroup>
 
 </Project>

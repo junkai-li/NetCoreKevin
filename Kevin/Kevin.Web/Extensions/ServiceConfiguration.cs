@@ -6,6 +6,8 @@ using kevin.Ioc;
 using kevin.Ioc.TieredServiceRegistration;
 using kevin.Permission;
 using kevin.RabbitMQ;
+using Kevin.AI;
+using Kevin.AI.Dto;
 using Kevin.Api.Versioning;
 using Kevin.Common.App.Global;
 using Kevin.Common.App.IO;
@@ -16,6 +18,8 @@ using Kevin.Email;
 using Kevin.SignalR;
 using Kevin.SignalR.Models;
 using Kevin.SMS;
+using Kevin.SnowflakeId;
+using Kevin.SnowflakeId.Models;
 using Kevin.Web.Filters;
 using Kevin.Web.Filters.TransactionScope;
 using Microsoft.AspNetCore.Builder;
@@ -30,8 +34,6 @@ using System;
 using System.Linq;
 using System.Text.Encodings.Web;
 using Web.Filters;
-using Kevin.SnowflakeId;
-using Kevin.SnowflakeId.Models;
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -95,7 +97,7 @@ namespace Web.Extension
                 option.JsonSerializerOptions.Converters.Add(new Common.Json.LongConverter());
                 option.JsonSerializerOptions.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;// 或者使用其他适当的编码器
                 option.JsonSerializerOptions.WriteIndented = true; // 可选，美化输出 
-                option.JsonSerializerOptions.MaxDepth= 128; // 可选，设置最大深度
+                option.JsonSerializerOptions.MaxDepth = 128; // 可选，设置最大深度
             });
 
             services.AddControllers().AddControllersAsServices(); //控制器当做实例创建 
@@ -204,6 +206,18 @@ namespace Web.Extension
                 var settings = Configuration.GetRequiredSection("SnowflakeIdSetting").Get<SnowflakeIdSetting>()!;
                 options.MachineId = settings.MachineId;
                 options.DataCenterId = settings.DataCenterId;
+            });
+            #endregion
+
+            #region AI相关注入
+
+            //services.AddAIClient();
+            services.AddAIAgentClient(options =>
+            {
+                var settings = Configuration.GetRequiredSection("AISetting").Get<AISetting>()!;
+                options.AIUrl = settings.AIUrl;
+                options.AIKeySecret = settings.AIKeySecret;
+                options.AIDefaultModel = settings.AIDefaultModel;
             });
             #endregion
 

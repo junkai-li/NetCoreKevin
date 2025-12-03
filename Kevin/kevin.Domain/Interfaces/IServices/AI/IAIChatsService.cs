@@ -12,7 +12,8 @@ namespace kevin.Domain.Interfaces.IServices.AI
     public interface IAIChatsService
     {
         Task<dtoPageData<AIChatsDto>> GetMyPageData(dtoPagePar<string> dtoPage);
-        Task<bool> Add(AIChatsDto par);
+        Task<AIChatsDto> GetDetails(long id);
+        Task<AIChatHistorysDto> Add(AIChatsDto par);
         Task<bool> Delete(long id);
     }
 }

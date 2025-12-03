@@ -10,6 +10,7 @@ namespace kevin.Domain.Interfaces.IServices.AI
         Task<bool> AddEdit(AIModelsDto par);
         Task<bool> Delete(long id);
 
+        Task<AIModelsDto> GetDetails(long id);
         Task<List<AIModelsDto>> GetALLList();
     }
 }
