@@ -241,7 +241,7 @@ const showAgentSelectionModal = () => {
   selectedAiApp.value = null;
 
   // 创建模态框
-  Modal.confirm({
+  const modal = Modal.confirm({
     title: "选择智能体",
     content: () =>
       h("div", { class: "agent-selection-modal" }, [
@@ -257,15 +257,44 @@ const showAgentSelectionModal = () => {
       ]),
     okText: "确认",
     cancelText: "取消",
-    onOk: () => () => {
+    onOk: async () => {
       if (!selectedAiApp.value) {
         message.warning("请选择智能体");
         return Promise.reject();
       }
 
       // 创建新对话
-       createNewConversation(selectedAiApp.value);
-      return Promise.resolve();
+      try {
+        // 禁用取消按钮和确认按钮，防止重复点击
+        modal.update({
+          cancelButtonProps: { disabled: true },
+          okButtonProps: { disabled: true }
+        });
+        
+        // 显示加载提示
+        const loadingMsg = message.loading('正在创建对话...', 0);
+        
+        // 执行创建对话操作
+        await createNewConversation(selectedAiApp.value);
+        
+        // 关闭加载提示
+        loadingMsg();
+        
+        // 成功后关闭模态框
+        return Promise.resolve();
+      } catch (error) {
+        // 关闭加载提示
+        message.destroy();
+        
+        // 重新启用按钮
+        modal.update({
+          cancelButtonProps: { disabled: false },
+          okButtonProps: { disabled: false }
+        });
+        
+        message.error("创建对话失败: " + (error.message || error));
+        return Promise.reject();
+      }
     },
   });
 };

@@ -1,5 +1,6 @@
 ﻿using kevin.AI.AgentFramework;
 using kevin.Domain.Entities.AI;
+using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos;
@@ -69,6 +70,7 @@ namespace kevin.Application.Services.AI
         /// <exception cref="UserFriendlyException"></exception>
         public async Task<AIChatHistorysDto> Add(AIChatHistorysDto par)
         {
+            var count = aIChatHistorysRp.Query().Where(t => t.IsDelete == false && t.AIChatsId == par.AIChatsId).Count();
             var aichas = await aIChatsService.GetDetails(par.AIChatsId);
             var aiapp = await aIAppsService.GetDetails(aichas.AppId);
             var aIModels = await aIModelsService.GetDetails(aiapp.ChatModelID.ToTryInt64());
@@ -94,7 +96,7 @@ namespace kevin.Application.Services.AI
             switch (aIModels.AIType)
             {
                 case Domain.Share.Enums.AIType.OpenAI:
-                    addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(add.Content, aiapp.Name, aIPrompts.Prompt, aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答", aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey)).Item2.Text; 
+                    addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(add.Content, aiapp.Name, aIPrompts.Prompt, aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答", aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey)).Item2.Text;
                     break;
                 case Domain.Share.Enums.AIType.AzureOpenAI:
                     break;
@@ -119,6 +121,7 @@ namespace kevin.Application.Services.AI
             }
             aIChatHistorysRp.Add(addAi);
             await aIChatHistorysRp.SaveChangesAsync();
+            await aIChatsService.UpdateNameAndMsg(par.AIChatsId, count == 1 ? par.Content : "", addAi.Content);
             return addAi.MapTo<AIChatHistorysDto>();
         }
 

@@ -15,5 +15,7 @@ namespace kevin.Domain.Interfaces.IServices.AI
         Task<AIChatsDto> GetDetails(long id);
         Task<AIChatHistorysDto> Add(AIChatsDto par);
         Task<bool> Delete(long id);
+
+        Task<bool> UpdateNameAndMsg(long Id, string Name, string LastMessage);
     }
 }

@@ -27,16 +27,16 @@ namespace kevin.Application.Services.AI
             IAIAgentService _aIAgentService,
             IAIChatHistorysRp _aIChatHistorysRp, IAIAppsService _aIAppsService,
             IAIModelsService _aIModelsService, IAIPromptsService aIPromptsService
-           // IAIClient _aIClient
+            // IAIClient _aIClient
             ) : base(_httpContextAccessor)
         {
             this.aIChatsRp = _aIChatsRp;
-             this.aIAgentService = _aIAgentService;
+            this.aIAgentService = _aIAgentService;
             this.aIChatHistorysRp = _aIChatHistorysRp;
             this.aIAppsService = _aIAppsService;
             this.aIModelsService = _aIModelsService;
             this.aIPromptsService = aIPromptsService;
-           // this.aIClient = _aIClient;
+            // this.aIClient = _aIClient;
         }
 
         /// <summary>
@@ -118,6 +118,33 @@ namespace kevin.Application.Services.AI
             aIChatHistorysRp.Add(addHist);
             await aIChatHistorysRp.SaveChangesAsync();
             return addHist.MapTo<AIChatHistorysDto>();
+        }
+
+        /// <summary>
+        /// 修改对话的主题和最后一条消息
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <param name="Name"></param>
+        /// <param name="LastMessage"></param>
+        /// <returns></returns>
+        public async Task<bool> UpdateNameAndMsg(long Id, string Name = "", string LastMessage = "")
+        {
+            var ai = await aIChatsRp.Query().Where(t => t.IsDelete == false && t.Id == Id).FirstOrDefaultAsync();
+            if (ai != null)
+            {
+                if (!string.IsNullOrEmpty(Name))
+                {
+                    ai.Name = Name;
+                }
+                if (!string.IsNullOrEmpty(LastMessage))
+                {
+                    ai.LastMessage = LastMessage;
+                } 
+                ai.UpdateTime = DateTime.Now;
+                ai.UpdateUserId = CurrentUser.UserId;
+                await aIChatsRp.SaveChangesAsync();
+            }
+            return true;
         }
 
         /// <summary>
