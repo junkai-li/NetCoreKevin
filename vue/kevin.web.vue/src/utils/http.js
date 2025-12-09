@@ -83,6 +83,10 @@ myAxios.interceptors.response.use(
           window.location.href = `/login?redirect=${window.location.href}`
         }
       }
+      if(error.status==403){
+      message.error('接口无权限访问')  
+      return Promise.reject(new Error(error.response.data.err_msg)) 
+    }  
       return error; 
     }
   },
@@ -92,6 +96,10 @@ myAxios.interceptors.response.use(
     console.log(error)
     if(error.status==400||error.status==500){
       message.error(error.response.data.err_msg)  
+      return Promise.reject(new Error(error.response.data.err_msg)) 
+    }  
+    if(error.status==403){
+      message.error('接口无权限访问')  
       return Promise.reject(new Error(error.response.data.err_msg)) 
     }  
     if (error.status === 401) {

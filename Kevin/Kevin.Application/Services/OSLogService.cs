@@ -17,13 +17,13 @@ namespace kevin.Application.Services
         public async Task<dtoPageData<OSLogDto>> GetPageData(dtoPageData<OSLogDto> dtoPage)
         {
             int skip = (dtoPage.pageNum - 1) * dtoPage.pageSize;
-            var data = osLogRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
+            var data = osLogRp.Query().Where(t => t.IsDelete == false);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
                 data = data.Where(t => (t.Content ?? "").Contains(dtoPage.searchKey) || (t.Sign ?? "").Contains(dtoPage.searchKey) || (t.Table ?? "").Contains(dtoPage.searchKey) || (t.TableId.ToString() ?? "").Contains(dtoPage.searchKey));
             }
             dtoPage.total = await data.CountAsync();
-            var list = (await data.Skip(skip).Take(dtoPage.pageSize).OrderByDescending(x => x.CreateTime).Include(t => t.ActionUser).ToListAsync());
+            var list = (await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPage.pageSize).Include(t => t.ActionUser).ToListAsync());
             dtoPage.data = list.MapToList<TOSLog, OSLogDto>();
             foreach (var item in dtoPage.data)
             {

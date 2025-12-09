@@ -81,7 +81,7 @@ namespace kevin.Application
             {
                 return false;
             }
-            return pers[permissionId];
+            return pers[CurrentUser.TenantId + "/" + permissionId];
         }
     }
 }

@@ -6,7 +6,7 @@ namespace kevin.Domain.Interface
 {
     public interface IRepository<T, TId>: IBaseRepository
     {
-        IQueryable<T> Query(); 
+        IQueryable<T> Query(bool isTenantId = true); 
         bool Any(Expression<Func<T, bool>> predicate);
         void Add(T entity);
 

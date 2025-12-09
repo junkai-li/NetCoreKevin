@@ -243,7 +243,7 @@ namespace kevin.Application
                 Id = t.Id,
                 Name = t.Name,
                 Phone = t.Phone,
-                HeadImgs = fileRp.Query().Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id.ToString()).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
+                HeadImgs = fileRp.Query(true).Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id.ToString()).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
                 {
                     Key = f.Id,
                     Value = f.Url
@@ -290,7 +290,7 @@ namespace kevin.Application
                 NickName = t.NickName,
                 Status = t.Status,
                 RecentLoginTime = t.RecentLoginTime,
-                HeadImgs = fileRp.Query().Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id.ToString()).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
+                HeadImgs = fileRp.Query(true).Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id.ToString()).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
                 {
                     Key = f.Id,
                     Value = f.Url

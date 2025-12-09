@@ -485,6 +485,14 @@ namespace Repository.Database
 
             KevinDbContext db = this;
 
+            #region 发布领域事件
+
+            if (Mediator != default)
+            {
+                MediatorEventBus(db.ChangeTracker.Entries<IDomainEvents>().Where(x => x.Entity.GetAllDomainEvents().Any()).ToList());
+            } 
+            #endregion
+
             var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
             foreach (var item in list)
             {

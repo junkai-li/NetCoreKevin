@@ -100,13 +100,17 @@ namespace Kevin.EntityFrameworkCore._.Data
         }
 
         /// <summary>
-        /// 自带租户过滤的查询
+        /// 默认租户过滤的查询
         /// </summary>
         /// <returns></returns>
-        public IQueryable<T> Query()
+        public IQueryable<T> Query(bool isTenantId = true)
         {
             try
             {
+                if (!isTenantId)
+                {
+                    return DbSet;
+                }
                 if (CurrentUser != default && CurrentUser.TenantId > 0)
                 {
                     return DbSet.Where(e => EF.Property<Int32>(e, "TenantId") == CurrentUser.TenantId);
