@@ -64,7 +64,7 @@ myAxios.interceptors.response.use(
       }
       return response.data;
     } catch (error) { 
-      if(error.status==400){
+      if(error.status==400||error.status==500){
         message.error(error.response.data.err_msg) 
         return Promise.reject(new Error(error.response.data.err_msg)) 
       } 
@@ -90,7 +90,7 @@ myAxios.interceptors.response.use(
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error  
     console.log(error)
-    if(error.status==400){
+    if(error.status==400||error.status==500){
       message.error(error.response.data.err_msg)  
       return Promise.reject(new Error(error.response.data.err_msg)) 
     }  
