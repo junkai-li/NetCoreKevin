@@ -37,9 +37,10 @@ namespace kevin.Application
             {
                 throw new UserFriendlyException("非超级管理员无权限操作");
             }
+            using var db = new KevinDbContext();
             var dataPage = new dtoPageData<dtoTenant>();
             int skip = par.GetSkip();
-            var data = tenantRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
+            var data = db.Set<TTenant>().Where(t => t.IsDelete == false);
             if (!string.IsNullOrEmpty(par.searchKey))
             {
                 data = data.Where(t => (t.Name ?? "").Contains(par.searchKey));
@@ -55,12 +56,13 @@ namespace kevin.Application
             {
                 throw new UserFriendlyException("非超级管理员无权限操作");
             }
-            var tenant = tenantRp.Query().FirstOrDefault(t => t.Id == id);
+            using var db = new KevinDbContext();
+            var tenant = db.Set<TTenant>().FirstOrDefault(t => t.Id == id);
             if (tenant != default)
             {
                 tenant.Status = TenantStatusEnums.Inactive;
                 tenant.UpdateTime = DateTime.Now;
-                tenantRp.SaveChangesWithSaveLog();
+                await db.SaveChangesAsync(false);
                 return true;
             }
             else
@@ -74,12 +76,13 @@ namespace kevin.Application
             {
                 throw new UserFriendlyException("非超级管理员无权限操作");
             }
-            var tenant = tenantRp.Query().FirstOrDefault(t => t.Id == id);
+            using var db = new KevinDbContext();
+            var tenant = db.Set<TTenant>().FirstOrDefault(t => t.Id == id);
             if (tenant != default)
             {
                 tenant.Status = TenantStatusEnums.Active;
                 tenant.UpdateTime = DateTime.Now;
-                tenantRp.SaveChangesWithSaveLog();
+                await db.SaveChangesAsync(false);
                 return true;
             }
             else
@@ -94,18 +97,19 @@ namespace kevin.Application
             {
                 throw new UserFriendlyException("非超级管理员无权限操作");
             }
-            var tenantcode = tenantRp.Query().FirstOrDefault(t => t.Id != tenant.Id.ToTryInt64() && t.Code == tenant.Code);
+            using var db = new KevinDbContext();
+            var tenantcode = db.Set<TTenant>().FirstOrDefault(t => t.Id != tenant.Id.ToTryInt64() && t.Code == tenant.Code);
             if (tenantcode != default)
             {
                 throw new UserFriendlyException(tenantcode.Code + "租户Code已存在");
             }
-            var tenantdata = tenantRp.Query().FirstOrDefault(t => t.Id == tenant.Id.ToTryInt64());
+            var tenantdata = db.Set<TTenant>().FirstOrDefault(t => t.Id == tenant.Id.ToTryInt64());
             if (tenantdata != default)
             {
                 tenantdata.Name = tenant.Name;
                 tenantdata.Code = tenant.Code;
                 tenantdata.UpdateTime = DateTime.Now;
-                tenantRp.SaveChangesWithSaveLog();
+                await db.SaveChangesAsync(false);
                 return true;
             }
             else
@@ -114,22 +118,23 @@ namespace kevin.Application
             }
         }
 
-        public Task<bool> CreateAsync(dtoTenant tenant, CancellationToken cancellationToken)
+        public async Task<bool> CreateAsync(dtoTenant tenant, CancellationToken cancellationToken)
         {
             if (!CurrentUser.IsSuperAdmin)
             {
                 throw new UserFriendlyException("非超级管理员无权限操作");
             }
-            var tenantcode = tenantRp.Query().FirstOrDefault(t => t.Code == tenant.Code);
+            using var db = new KevinDbContext();
+            var tenantcode = db.Set<TTenant>().FirstOrDefault(t => t.Code == tenant.Code);
             if (tenantcode != default)
             {
                 throw new UserFriendlyException(tenantcode.Code + "租户Code已存在");
             }
             var addtenant = new TTenant(tenant.Code, tenant.Name, DateTime.Now);
             addtenant.AddDomainEvent(new TTenantCreatedEvent(addtenant), EventBusEnums.Add);
-            tenantRp.Add(addtenant);
-            tenantRp.SaveChanges();
-            return Task.FromResult(true);
+            db.Set<TTenant>().Add(addtenant);
+            await db.SaveChangesAsync(false);
+            return  true;
         }
 
         public async Task<bool> DeleteAsync(long id, CancellationToken cancellationToken)
@@ -142,12 +147,13 @@ namespace kevin.Application
             {
                 throw new UserFriendlyException("种子数据不能删除");
             }
-            var tenant = tenantRp.Query().FirstOrDefault(t => t.Id == id);
+            using var db = new KevinDbContext();
+            var tenant = db.Set<TTenant>().FirstOrDefault(t => t.Id == id);
             if (tenant != default)
             {
                 tenant.IsDelete = true;
                 tenant.DeleteTime = DateTime.Now;
-                tenantRp.SaveChangesWithSaveLog();
+                await db.SaveChangesAsync(false);
                 return true;
             }
             else
@@ -190,7 +196,7 @@ namespace kevin.Application
                 user.NickName = "admin";
                 user.Phone = "admin";
                 user.ChangePassword("admin123");
-                user.IsSuperAdmin = true;
+                user.IsSuperAdmin = false;
                 user.CreateTime = DateTime.Now;
                 user.TenantId = tenant.Code;
                 user.Email = "admin";

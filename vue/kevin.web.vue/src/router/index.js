@@ -24,6 +24,9 @@ import MyAIChat from '@/pages/ai/MyAIChat.vue'; // 添加AI对话界面组件
 //组织架构相关页面
 import PositionManagement from '@/pages/organizational/PositionManagement.vue';
 import DepartmentManagement from '@/pages/organizational/DepartmentManagement.vue';
+// 租户管理页面
+import TenantManagement from '@/pages/TenantManagement.vue';
+
 const routes = [
   {
     path: '/',
@@ -84,6 +87,11 @@ const routes = [
         path: 'system/announcement',
         name: 'SystemAnnouncement',
         component: SystemAnnouncement
+      },
+      {
+        path: 'system/tenant',
+        name: 'TenantManagement',
+        component: TenantManagement
       },
       {
         path: 'my/message',

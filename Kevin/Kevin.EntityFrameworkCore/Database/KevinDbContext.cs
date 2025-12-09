@@ -497,7 +497,15 @@ namespace Repository.Database
                 var newEntity = item.CurrentValues.ToObject();
                 var entityId = oldEntity.GetType().GetProperty("Id")?.GetValue(oldEntity)?.ToString();
                 object[] parameters = { oldEntity, newEntity };
-                var result = new KevinDbContext().GetType().GetMethod("ComparisonEntity").MakeGenericMethod(type).Invoke(new KevinDbContext(), parameters);
+                object result;
+                try
+                {
+                      result = new KevinDbContext().GetType().GetMethod("ComparisonEntity").MakeGenericMethod(type).Invoke(new KevinDbContext(), parameters);
+                }
+                catch (Exception ex)
+                {
+                    result = ex.Message; 
+                } 
                 var osLog = new TOSLog();
                 osLog.Id = SnowflakeIdService.GetNextId();
                 osLog.CreateTime = DateTime.Now;

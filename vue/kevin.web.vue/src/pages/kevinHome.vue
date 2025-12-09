@@ -85,6 +85,7 @@
           <template #title>系统管理</template>
           <a-menu-item key="system-announcement">系统公告</a-menu-item>
           <a-menu-item key="system-dic">系统配置</a-menu-item>
+               <a-menu-item key="system-tenant">租户管理</a-menu-item>
           <a-menu-item key="log-management">日志管理</a-menu-item>
           <a-menu-item key="oslog">关键数据变动日志</a-menu-item>
         </a-sub-menu>
@@ -280,8 +281,9 @@ const currentRouteTitle = computed(() => {
     "my-ai-chat": "我的AI对话",
     "organizational-position": "岗位管理",
     "organizational-department": "部门管理",
+    "system-tenant": "租户管理",
   };
-  return titles[selectedKeys.value[0]] || "首页";
+  return titles[selectedKeys.value[0]] || "系统页面";
 });
 
 // 切换主题
@@ -343,6 +345,9 @@ const handleMenuClick = ({ key }) => {
       break;
     case "organizational-department":
       router.push("/home/department/management");
+      break;
+      case "system-tenant":
+      router.push("/home/system/tenant");
       break;
     default:
       router.push("/home");
