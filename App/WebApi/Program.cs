@@ -46,16 +46,7 @@ namespace WebApi
 
                 //builder.Services.AddKevinRedisCap(builder.Configuration.GetConnectionString("redisConnection"), builder.Configuration.GetConnectionString("dbConnection")); cap
                 Path._hostingEnvironment= builder.Environment;
-                builder.Services.ConfigServies(builder.Configuration);
-                 
-               
-                #region 腾讯MiniLive
-                ////腾讯MiniLive服务注册
-                //MiniLive.AppId = "wxf164719d9baf8d83";
-                //MiniLive.AppSecret = "****************";//微信小程序密钥 
-                //TencentService.Helper.RedisHelper.ConnectionString = builder.Configuration.GetConnectionString("redisConnection");
-                //builder.Services.AddSingleton<IMiniLive, MiniLive>();
-                #endregion
+                builder.Services.ConfigServies(builder.Configuration); 
 
                 #region IDSERVER授权服务器
                 //IDSERVER 使用授权服务器 用于单点登录

@@ -30,13 +30,21 @@ namespace kevin.DistributedLock
 
         public static void AddKevinDistributedLockRedis(this IServiceCollection services, string redisConnection)
         {
-            var redisDatabase = ConnectionMultiplexer.Connect(redisConnection).GetDatabase(); 
-            //分布式
-            services.AddSingleton<IDistributedLockProvider>(new RedisDistributedSynchronizationProvider(redisDatabase));
-            //信号锁
-            services.AddSingleton<IDistributedSemaphoreProvider>(new RedisDistributedSynchronizationProvider(redisDatabase));
-            //读写锁
-            services.AddSingleton<IDistributedReaderWriterLockProvider>(new RedisDistributedSynchronizationProvider(redisDatabase));
+            try
+            {
+                var redisDatabase = ConnectionMultiplexer.Connect(redisConnection).GetDatabase();
+                //分布式
+                services.AddSingleton<IDistributedLockProvider>(new RedisDistributedSynchronizationProvider(redisDatabase));
+                //信号锁
+                services.AddSingleton<IDistributedSemaphoreProvider>(new RedisDistributedSynchronizationProvider(redisDatabase));
+                //读写锁
+                services.AddSingleton<IDistributedReaderWriterLockProvider>(new RedisDistributedSynchronizationProvider(redisDatabase));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("分布式锁注入失败请检查Redis连接：" + ex.Message);
+            }
+         
         }
     }
 }
