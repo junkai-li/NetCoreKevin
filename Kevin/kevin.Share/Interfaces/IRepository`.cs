@@ -4,7 +4,7 @@ using Web.Global.User;
 
 namespace kevin.Domain.Interface
 {
-    public interface IRepository<T, TId>: IBaseRepository
+    public partial interface IRepository<T, TId>: IBaseRepository
     {
         IQueryable<T> Query(bool isTenantId = true); 
         bool Any(Expression<Func<T, bool>> predicate);

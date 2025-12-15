@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Web.Global.User;
 
 namespace kevin.Application;
-public class BaseService : IBaseService
+public partial class BaseService : IBaseService
 {
     public IServiceProvider? _serviceProvider { get; set; }
     public required ICurrentUser CurrentUser { get; set; }

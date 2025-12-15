@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace kevin.Domain.Share.Interfaces
 {
-    public interface   IBaseRepository
+    public partial interface   IBaseRepository
     {
     }
 }

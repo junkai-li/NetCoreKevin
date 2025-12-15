@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace kevin.FileStorage.AliCloud
 {
-    public class AliCloudStorage : IFileStorage
+    public partial class AliCloudStorage : IFileStorage
     {
 
         private readonly Models.FileStorageSetting fileStorageSetting;

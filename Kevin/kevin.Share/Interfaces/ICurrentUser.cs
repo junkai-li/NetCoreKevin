@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Web.Global.User
 {
-    public interface ICurrentUser
+    public partial interface ICurrentUser
     {
         /// <summary>
         /// 当前登录用户Id

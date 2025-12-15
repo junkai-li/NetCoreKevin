@@ -4,7 +4,7 @@ using Web.Global.User;
 
 namespace kevin.Application
 {
-    public class CurrentUser : ICurrentUser
+    public partial class CurrentUser : ICurrentUser
     {
         public IHttpContextAccessor _httpContextAccessor { get; set; }
         public CurrentUser(IHttpContextAccessor httpContextAccessor)

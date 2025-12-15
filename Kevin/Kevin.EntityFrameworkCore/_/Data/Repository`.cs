@@ -20,7 +20,7 @@ namespace Kevin.EntityFrameworkCore._.Data
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TId"></typeparam>
-    public class Repository<T, TId> : IRepository<T, TId> where T : class
+    public partial class Repository<T, TId> : IRepository<T, TId> where T : class
     {
         public Repository(IServiceProvider serviceProvider)
         {

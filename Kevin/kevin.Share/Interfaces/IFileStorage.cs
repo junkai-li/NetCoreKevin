@@ -1,6 +1,6 @@
 ﻿namespace kevin.FileStorage
 {
-    public interface IFileStorage
+    public partial interface IFileStorage
     {
         /// <summary>
         /// 上传文件

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace kevin.Domain.Share.Interfaces
 {
-    public interface IService
+    public partial interface IService
     {
     }
 }

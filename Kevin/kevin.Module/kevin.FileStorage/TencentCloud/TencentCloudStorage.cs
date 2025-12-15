@@ -11,7 +11,7 @@ using System.Web;
 
 namespace kevin.FileStorage.TencentCloud
 {
-    public class TencentCloudStorage : IFileStorage
+    public partial class TencentCloudStorage : IFileStorage
     {
         private readonly CosXml cosXml;
 
