@@ -1,5 +1,6 @@
 ﻿using kevin.AI.AgentFramework;
 using kevin.AI.AgentFramework.Agent;
+using kevin.AI.AgentFramework.Interfaces;
 using Kevin.AI.Dto;
 using Microsoft.Extensions.DependencyInjection;
 namespace Kevin.AI

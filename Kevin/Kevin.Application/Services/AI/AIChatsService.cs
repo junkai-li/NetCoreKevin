@@ -1,4 +1,5 @@
-﻿using kevin.AI.AgentFramework;
+﻿using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
+using kevin.AI.AgentFramework.Interfaces;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IRepositories.AI;
@@ -7,6 +8,8 @@ using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Share.Dtos;
 using Kevin.AI;
+using Microsoft.Agents.AI;
+using System;
 using Web.Global.Exceptions;
 
 namespace kevin.Application.Services.AI
@@ -23,10 +26,12 @@ namespace kevin.Application.Services.AI
 
         public IAIPromptsService aIPromptsService { get; set; }
 
+        public IKevinAIChatMessageStore kevinAIChatMessageStore { get; set; }
+
         public AIChatsService(IHttpContextAccessor _httpContextAccessor, IAIChatsRp _aIChatsRp,
             IAIAgentService _aIAgentService,
             IAIChatHistorysRp _aIChatHistorysRp, IAIAppsService _aIAppsService,
-            IAIModelsService _aIModelsService, IAIPromptsService aIPromptsService
+            IAIModelsService _aIModelsService, IAIPromptsService aIPromptsService, IKevinAIChatMessageStore _kevinAIChatMessageStore
             // IAIClient _aIClient
             ) : base(_httpContextAccessor)
         {
@@ -36,6 +41,7 @@ namespace kevin.Application.Services.AI
             this.aIAppsService = _aIAppsService;
             this.aIModelsService = _aIModelsService;
             this.aIPromptsService = aIPromptsService;
+            this.kevinAIChatMessageStore = _kevinAIChatMessageStore;
             // this.aIClient = _aIClient;
         }
 
@@ -91,7 +97,21 @@ namespace kevin.Application.Services.AI
             switch (aIModels.AIType)
             {
                 case Domain.Share.Enums.AIType.OpenAI:
-                    addHist.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG("请开始你的自我介绍", aiapp.Name, aIPrompts.Prompt, aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答", aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey)).Item2.Text;
+                    addHist.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG("请开始你的自我介绍", aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
+                    {
+                        Name = aiapp.Name,
+                        Instructions = aIPrompts.Prompt,
+                        Description = aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答",
+                        ChatMessageStoreFactory = ctx =>
+                        {
+                            // Create a new chat message store for this agent that stores the messages in a vector store.
+                            return new KevinChatMessageStore(
+                               kevinAIChatMessageStore,
+                               ctx.SerializedState,
+                              add.Id.ToString(),
+                               ctx.JsonSerializerOptions);
+                        }
+                    })).Item2.Text;
                     //addHist.Content = aIClient.SendMsg("请开始你的自我介绍", aIModels.EndPoint, aIModels.ModelKey, aIModels.ModelName, aIPrompts.Prompt + (aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答")).choices.FirstOrDefault().message.content;
                     break;
                 case Domain.Share.Enums.AIType.AzureOpenAI:

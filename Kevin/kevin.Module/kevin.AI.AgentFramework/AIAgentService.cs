@@ -1,4 +1,5 @@
-﻿using Microsoft.Agents.AI;
+﻿using kevin.AI.AgentFramework.Interfaces;
+using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -19,9 +20,10 @@ namespace kevin.AI.AgentFramework
     public class AIAgentService : IAIAgentService
     {
         public AIAgentService()
-        { 
+        {
         }
-        public async Task<AIAgent> CreateOpenAIAgent(string name, string prompt, string description, string url, string model, string keySecret, IList<AITool>? tools = null, ChatResponseFormat? chatResponseFormat = null, Func<IChatClient, IChatClient>? clientFactory = null, ILoggerFactory? loggerFactory = null, IServiceProvider? services = null)
+        public async Task<AIAgent> CreateOpenAIAgent(string name, string prompt, string description, string url, string model, string keySecret,
+            IList<AITool>? tools = null, ChatResponseFormat? chatResponseFormat = null, Func<IChatClient, IChatClient>? clientFactory = null, ILoggerFactory? loggerFactory = null, IServiceProvider? services = null)
         {
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
             openAIClientOptions.Endpoint = new Uri(url);
@@ -42,6 +44,15 @@ namespace kevin.AI.AgentFramework
             }
             return ai.GetChatClient(model).CreateAIAgent(instructions: prompt, name: name, prompt, tools, clientFactory, loggerFactory, services);
         }
+
+        public async Task<AIAgent> CreateOpenAIAgent(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions)
+        {
+            OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
+            openAIClientOptions.Endpoint = new Uri(url);
+            var ai = new OpenAIClient(new ApiKeyCredential(keySecret), openAIClientOptions); 
+            return ai.GetChatClient(model).CreateAIAgent(chatClientAgentOptions);
+        }
+
 
         /// <summary>
         /// 智能体转换为McpServerTool
@@ -66,7 +77,8 @@ namespace kevin.AI.AgentFramework
             return ai.GetChatClient(keySecret).AsIChatClient();
         }
 
-        public async Task<(AIAgent, AgentRunResponse)> CreateOpenAIAgentAndSendMSG(string msg, string name, string prompt, string description, string url, string model, string keySecret, IList<AITool>? tools = null, ChatResponseFormat? chatResponseFormat = null, Func<IChatClient, IChatClient>? clientFactory = null, ILoggerFactory? loggerFactory = null, IServiceProvider? services = null)
+        public async Task<(AIAgent, AgentRunResponse)> CreateOpenAIAgentAndSendMSG(string msg, string name, string prompt, string description, string url, string model, string keySecret,
+            IList<AITool>? tools = null, ChatResponseFormat? chatResponseFormat = null, Func<IChatClient, IChatClient>? clientFactory = null, ILoggerFactory? loggerFactory = null, IServiceProvider? services = null)
         {
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
             openAIClientOptions.Endpoint = new Uri(url);
@@ -86,6 +98,16 @@ namespace kevin.AI.AgentFramework
                     Description = description
                 });
             }
+            var reslut = await aiAgent.RunAsync(msg);
+            return (aiAgent, reslut);
+        }
+
+        public async Task<(AIAgent, AgentRunResponse)> CreateOpenAIAgentAndSendMSG(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions)
+        {
+            OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
+            openAIClientOptions.Endpoint = new Uri(url);
+            var ai = new OpenAIClient(new ApiKeyCredential(keySecret), openAIClientOptions); 
+            var aiAgent = ai.GetChatClient(model).CreateAIAgent(chatClientAgentOptions); 
             var reslut = await aiAgent.RunAsync(msg);
             return (aiAgent, reslut);
         }

@@ -1,4 +1,5 @@
-﻿using kevin.AI.AgentFramework;
+﻿using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
+using kevin.AI.AgentFramework.Interfaces;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IRepositories.AI;
@@ -6,6 +7,8 @@ using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Share.Dtos;
+using Microsoft.Agents.AI;
+using Microsoft.SemanticKernel.Connectors.InMemory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,9 +28,11 @@ namespace kevin.Application.Services.AI
         public IAIPromptsService aIPromptsService { get; set; }
         public IAIChatsService aIChatsService { get; set; }
         public IAIAppsService aIAppsService { get; set; }
+
+        public IKevinAIChatMessageStore kevinAIChatMessageStore { get; set; }
         public AIChatHistorysService(IHttpContextAccessor _httpContextAccessor, IAIChatHistorysRp _aIChatHistorysRp,
             IAIAgentService _aIAgentService, IAIModelsService _aIModelsService, IAIPromptsService _aIPromptsService,
-            IAIChatsService _aIChatsService, IAIAppsService _aIAppsService) : base(_httpContextAccessor)
+            IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore) : base(_httpContextAccessor)
         {
             this.aIChatHistorysRp = _aIChatHistorysRp;
             this.aIChatsService = _aIChatsService;
@@ -35,7 +40,7 @@ namespace kevin.Application.Services.AI
             this.aIModelsService = _aIModelsService;
             this.aIPromptsService = _aIPromptsService;
             this.aIAppsService = _aIAppsService;
-
+            this.kevinAIChatMessageStore = _kevinAIChatMessageStore;
         }
 
         /// <summary>
@@ -95,8 +100,22 @@ namespace kevin.Application.Services.AI
             addAi.AIChatsId = par.AIChatsId;
             switch (aIModels.AIType)
             {
-                case Domain.Share.Enums.AIType.OpenAI:
-                    addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(add.Content, aiapp.Name, aIPrompts.Prompt, aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答", aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey)).Item2.Text;
+                case Domain.Share.Enums.AIType.OpenAI: 
+                    addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey,new ChatClientAgentOptions
+                    {
+                        Name= aiapp.Name, 
+                        Instructions = aIPrompts.Prompt,
+                        Description = aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答",
+                        ChatMessageStoreFactory = ctx =>
+                        {
+                            // Create a new chat message store for this agent that stores the messages in a vector store.
+                            return new KevinChatMessageStore(
+                               kevinAIChatMessageStore,
+                               ctx.SerializedState,
+                              par.AIChatsId.ToString(),
+                               ctx.JsonSerializerOptions);
+                        }
+                    })).Item2.Text;
                     break;
                 case Domain.Share.Enums.AIType.AzureOpenAI:
                     break;

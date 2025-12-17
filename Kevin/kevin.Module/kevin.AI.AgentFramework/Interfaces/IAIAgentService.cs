@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kevin.AI.AgentFramework
+namespace kevin.AI.AgentFramework.Interfaces
 {
     public interface IAIAgentService
     {
@@ -26,11 +26,12 @@ namespace kevin.AI.AgentFramework
         /// <returns></returns>
         Task<AIAgent> CreateOpenAIAgent(string name, string prompt, string description, string url, string model, string keySecret,
                IList<AITool>? tools = null,
-                Microsoft.Extensions.AI.ChatResponseFormat? chatResponseFormat = default,
+                ChatResponseFormat? chatResponseFormat = default,
                 Func<IChatClient, IChatClient>? clientFactory = null,
                ILoggerFactory? loggerFactory = null,
                     IServiceProvider? services = null
             );
+        Task<AIAgent> CreateOpenAIAgent(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions);
         /// <summary>
         /// 创建智能体并发送消息
         /// </summary>
@@ -46,7 +47,9 @@ namespace kevin.AI.AgentFramework
         /// <param name="loggerFactory"></param>
         /// <param name="services"></param>
         /// <returns></returns>
-        Task<(AIAgent, AgentRunResponse)> CreateOpenAIAgentAndSendMSG(string msg, string name, string prompt, string description, string url, string model, string keySecret, IList<AITool>? tools = null, ChatResponseFormat? chatResponseFormat = null, Func<IChatClient, IChatClient>? clientFactory = null, ILoggerFactory? loggerFactory = null, IServiceProvider? services = null);
+        Task<(AIAgent, AgentRunResponse)> CreateOpenAIAgentAndSendMSG(string msg, string name, string prompt, string description, string url, string model, string keySecret, 
+            IList<AITool>? tools = null, ChatResponseFormat? chatResponseFormat = null, Func<IChatClient, IChatClient>? clientFactory = null, ILoggerFactory? loggerFactory = null, IServiceProvider? services = null);
+        Task<(AIAgent, AgentRunResponse)> CreateOpenAIAgentAndSendMSG(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions);
         /// <summary>
         /// 智能体转换为McpServerTool
         /// </summary>
