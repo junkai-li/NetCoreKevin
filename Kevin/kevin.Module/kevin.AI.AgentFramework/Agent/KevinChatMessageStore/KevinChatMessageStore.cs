@@ -38,18 +38,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
                 Role = x.Role.Value,
                 SerializedMessage = JsonSerializer.Serialize(x),
                 MessageText = x.Text
-            }).ToList(), cancellationToken);
-            // 设置前景色为红色
-            // 保存原始颜色，以便之后恢复
-            ConsoleColor originalColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("聊天消息记录:", Color.Red);
-            messages.Select(x => x.Text).ToList().ForEach(t => Console.WriteLine(t));
-            // 设置前景色为红色
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("聊天消息记录添加完成", Color.Red);
-            // 恢复原始颜色
-            Console.ForegroundColor = originalColor;
+            }).ToList(), cancellationToken); 
         }
 
         public override async Task<IEnumerable<ChatMessage>> GetMessagesAsync(
@@ -57,14 +46,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         {
             var data = await _chatMessageStore.GetMessagesAsync(this.ThreadDbKey, cancellationToken);
             var messages = data.ConvertAll(x => JsonSerializer.Deserialize<ChatMessage>(x.SerializedMessage!)!);
-            messages.Reverse();
-            ConsoleColor originalColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("所有聊天消息记录开始:", Color.Red);
-            messages.Select(x => x.Text).ToList().ForEach(t => Console.WriteLine(t));
-            Console.WriteLine("所有聊天消息记录结束:", Color.Red);
-            // 恢复原始颜色
-            Console.ForegroundColor = originalColor;
+            messages.Reverse(); 
             return messages;
         }
 
