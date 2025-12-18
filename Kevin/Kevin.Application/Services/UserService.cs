@@ -336,6 +336,8 @@ namespace kevin.Application
             {
                 Id = t.Id,
                 Name = t.Name,
+                NickName = t.NickName,
+                Email = t.Email,  
                 Phone = t.Phone,
                 PassWord = t.PasswordHash,
                 CreateTime = t.CreateTime,
