@@ -1,7 +1,10 @@
 ﻿using kevin.Permission.Interfaces;
 using kevin.Permission.Permission;
+using kevin.Permission.Permission.Enums;
 using kevin.Permission.Permisson;
+using kevin.RepositorieRps.Repositories;
 using kevin.Share.Dtos;
+using System.Threading.Tasks;
 using Web.Global.Exceptions;
 namespace kevin.Application
 {
@@ -27,7 +30,7 @@ namespace kevin.Application
         /// 初始化权限
         /// </summary> 
         /// <returns></returns>
-        public bool Reload(int TenantId = default)
+        public async Task<bool> Reload(int TenantId = default)
         {
             var userId = default(long?);
             if (TenantId == default)
@@ -42,10 +45,59 @@ namespace kevin.Application
                 r.PermissionType = 4;
                 r.FullName = $"{r.AreaName}/{r.ModuleName}/{r.ActionName}";
             });
-            var areas = all.Select(x => x.Area).ToList();
-            var allExist = permissionRp.Query().Where(r => r.IsManual == false && areas.Any(x => x == r.Area)).ToList();
-            var allExistIds = allExist.Select(r => r.Id).ToList();
+            await InDtoAddPermission(all, TenantId, userId, 4);
+            await ReloadDataPermission(TenantId);
+            return true;
+        }
 
+        /// <summary>
+        /// 初始化数据权限
+        /// </summary>
+        /// <param name="TenantId"></param>
+        /// <returns></returns>
+        public async Task<bool> ReloadDataPermission(int TenantId = default)
+        {
+            var userId = default(long?);
+            if (TenantId == default)
+            {
+                TenantId = CurrentUser.TenantId;
+                userId = CurrentUser.UserId;
+            }
+            var all = (new GlobalData()).AllModules.GroupBy(t => t.Area + t.Module).Select(t => t.FirstOrDefault()).ToList();
+            var permissionList = new List<PermissionDto>();
+            foreach (var r in all)
+            {
+                foreach (var action in DataPermissionActionConst.DataPermissionActionConsts)
+                {
+                    var add = r.MapTo<PermissionDto>();
+                    add.Id = $"{TenantId}/{r.Area}/{r.Module}/{action.Key}";
+                    add.PermissionType = 3;
+                    add.FullName = $"{r.AreaName}/{r.ModuleName}/{action.Value}";
+                    add.Action = action.Key;
+                    add.ActionName = action.Value;
+                    permissionList.Add(add);
+                }
+            } 
+
+            return await InDtoAddPermission(permissionList, TenantId, userId, 3);
+        }
+
+        /// <summary>
+        /// 不同类型权限列表添加
+        /// </summary>
+        /// <param name="all"></param>
+        /// <param name="TenantId"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<bool> InDtoAddPermission(List<PermissionDto> all, int TenantId, long? userId, int PermissionType)
+        {
+            if (all == default)
+            {
+                return false;
+            }
+            var areas = all.Select(x => x.Area).ToList();
+            var allExist = permissionRp.Query().Where(r => r.IsManual == false && r.PermissionType == PermissionType && areas.Any(x => x == r.Area)).ToList();
+            var allExistIds = allExist.Select(r => r.Id).ToList();
             var preAdd = all.Where(r => !allExistIds.Contains(r.Id)).ToList();
             var preDelete = allExist.Where(r => !all.Any(p => p.Id == r.Id));
             var preDeleteIds = preDelete.Select(r => r.Id).ToList();
@@ -72,7 +124,6 @@ namespace kevin.Application
             permissionRp.RemoveRange(preDelete.ToArray());
             rolePermissionRp.RemoveRange(preDeleteRoleP.ToArray());
             return permissionRp.SaveChanges() > 0 && rolePermissionRp.SaveChanges() > 0;
-
         }
 
 
@@ -337,7 +388,7 @@ namespace kevin.Application
             {
                 var roleper = new TRolePermission();
                 roleper.PermissionId = item;
-                roleper.RoleId =  dto.roleId.ToTryInt64();
+                roleper.RoleId = dto.roleId.ToTryInt64();
                 roleper.Id = SnowflakeIdService.GetNextId();
                 roleper.TenantId = CurrentUser.TenantId;
                 roleper.CreateTime = DateTime.Now;
@@ -362,7 +413,7 @@ namespace kevin.Application
                         item.IsDelete = true;
                         item.DeleteTime = DateTime.Now;
                         item.DeleteUserId = CurrentUser.UserId;
-                    } 
+                    }
                 }
                 rolePermissionRp.SaveChanges();
             }

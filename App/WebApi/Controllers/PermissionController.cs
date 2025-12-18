@@ -38,9 +38,9 @@ namespace AdminApi.Controllers
         [ActionDescription("初始化")]
         [SkipAuthority]
         [HttpLog("权限管理", "初始化")]
-        public bool Reload()
+        public async Task<bool> Reload()
         {
-            return _permissionService.Reload();
+            return await _permissionService.Reload();
         }
 
         /// <summary>

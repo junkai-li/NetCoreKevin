@@ -15,7 +15,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// 初始化权限
         /// </summary> 
         /// <returns></returns>
-        bool Reload(int tenantId = default);
+        Task<bool> Reload(int tenantId = default);
 
         /// <summary>
         /// 获取单个 
