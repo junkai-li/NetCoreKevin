@@ -21,7 +21,7 @@ namespace kevin.Application
         public IWeiXinKeyRp weiXinKeyRp { get; set; }
         public IFileRp fileRp { get; set; }
 
-        public IRoleRp roleRp { get; set; } 
+        public IRoleRp roleRp { get; set; }
 
         public IUserBindRoleRp userBindRoleRp { get; set; }
 
@@ -39,7 +39,7 @@ namespace kevin.Application
             userRp = _userRp;
             weiXinKeyRp = _weiXinKeyRp;
             fileRp = _IFileRp;
-            roleRp = _IRoleRp; 
+            roleRp = _IRoleRp;
             this.userBindRoleRp = userBindRoleRp;
             this.positionService = _positionService;
             this.userBindPositionRp = _userBindPositionRp;
@@ -407,6 +407,7 @@ namespace kevin.Application
                 data = new TUser();
                 data.Id = user.Id == default ? SnowflakeIdService.GetNextId() : user.Id;
                 data.Name = user.Name;
+                data.NickName = user.NickName;
                 data.Phone = user.Phone;
                 data.IsDelete = false;
                 data.IsSystem = true;
@@ -417,6 +418,10 @@ namespace kevin.Application
                 if (!string.IsNullOrEmpty(user.PassWord))
                 {
                     data.ChangePassword(user.PassWord);
+                }
+                else
+                {
+                    throw new UserFriendlyException("密码不能为空");
                 }
                 user.Id = data.Id;
                 userRp.Add(data);
@@ -684,7 +689,7 @@ namespace kevin.Application
                 Value = x.Name ?? "",
             }).ToList();
             return data;
-        }  
+        }
         public Task<bool> ChangePasswordTokenUser(string oldPwd, string newPwd, CancellationToken cancellationToken)
         {
             var user = userRp.Query().Where(t => t.Id == CurrentUser.UserId && t.IsDelete == false).FirstOrDefault();

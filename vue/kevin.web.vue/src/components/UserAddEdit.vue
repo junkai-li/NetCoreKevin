@@ -345,8 +345,8 @@ const handleOk = () => {
         // 如果是新增用户，获取新ID
         if (!props.user?.id) {
           var dataid = await GetSnowflakeId();
-          if (dataid && dataid.status == 200 && dataid.data.data) {
-            var id = dataid.data.data;
+          if (dataid && dataid.code == 200 && dataid.data) {
+            var id = dataid.data;
             userData.id = id;
             result = await createUser(userData);
           } else {
