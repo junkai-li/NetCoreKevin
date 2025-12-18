@@ -32,7 +32,7 @@
         <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.EmbeddingModelID">
             <summary>
             Embedding 模型Id
-            </summary>
+            </summary> 
         </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.Temperature">
             <summary>
@@ -854,6 +854,21 @@
             Organizational Status 
             </summary>
         </member>
+        <member name="T:kevin.Domain.Interface.IRepository`2">
+            <summary>
+            Repository Interface
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="TId"></typeparam>
+        </member>
+        <member name="M:kevin.Domain.Interface.IRepository`2.Query(System.Boolean,System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="isTenant"></param>
+            <param name="isDataPer">默认为false，如果为true，则只查询当前用户的数据权限 指定才需要 不然有些地方没指定会造成循环调用死循环bug</param>
+            <returns></returns>
+        </member>
         <member name="T:kevin.Share.Dtos.DtoFileInfo">
             <summary>
             文件信息
@@ -1253,6 +1268,16 @@
         <member name="P:Web.Global.User.ICurrentUser.IsSuperAdmin">
             <summary>
             超级管理员
+            </summary>
+        </member>
+        <member name="P:Web.Global.User.ICurrentUser.UserInfo">
+            <summary>
+            其他信息
+            </summary>
+        </member>
+        <member name="M:Web.Global.User.ICurrentUser.GetModuleDataPermissionsUserIds">
+            <summary>
+            获取请求接口模块登录用户可查看数据访问的所有用户Id集合
             </summary>
         </member>
         <member name="T:Models.JwtBearer.JwtSettings">

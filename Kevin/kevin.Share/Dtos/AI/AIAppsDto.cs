@@ -43,8 +43,7 @@ namespace kevin.Domain.Share.Dtos.AI
 
         /// <summary>
         /// Embedding 模型Id
-        /// </summary>
-        [Required]
+        /// </summary> 
         public string? EmbeddingModelID { get; set; }
 
         public string? RerankModelID { get; set; }

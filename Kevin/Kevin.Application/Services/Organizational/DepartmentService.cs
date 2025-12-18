@@ -89,10 +89,20 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
         /// </summary>
         /// <param name="ids"></param>
         /// <returns></returns>
-        public List<long> GetChildUserIds(long id)
+        public List<long> GetDepartmentChildUserIds(long id)
         {
             var dataPids = GetChildIdList(id);
-            return userInfoRp.Query().Where(t => t.IsDelete == false && dataPids.Contains(t.DepartmentId.Value)).Select(t => t.UserId).ToList();
+            return userInfoRp.Query(true, false).Where(t => t.IsDelete == false && dataPids.Contains(t.DepartmentId.Value)).Select(t => t.UserId).ToList();
+        }
+
+        /// <summary>
+        /// 获取某个部门的用户ids
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<List<long>> GetDepartmentUserIds(long id)
+        {
+            return await userInfoRp.Query(true, false).Where(t => t.IsDelete == false && t.DepartmentId.Value == id).Select(t => t.UserId).ToListAsync();
         }
 
         /// <summary>
@@ -182,7 +192,7 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
             if (data != null)
             {
                 //查询是否还有绑定岗位的用户
-                var userIds = GetChildUserIds(id);
+                var userIds = GetDepartmentChildUserIds(id);
                 if (userIds.Count > 0)
                 {
                     throw new UserFriendlyException($"此部门下有{userIds.Count}位用户，请先解绑{userIds.Count}位用户");

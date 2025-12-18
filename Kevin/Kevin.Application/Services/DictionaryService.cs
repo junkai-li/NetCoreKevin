@@ -39,7 +39,7 @@ namespace kevin.Application.Services
         {
             int skip = dtoPage.GetSkip();
             var result = new dtoPageData<DictionaryDto>();
-            var data = dictionaryRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
+            var data = dictionaryRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
                 data = data.Where(t => (t.Key ?? "").Contains(dtoPage.searchKey) || (t.Value ?? "").Contains(dtoPage.searchKey) || (t.Remarks ?? "").Contains(dtoPage.searchKey));
@@ -124,7 +124,7 @@ namespace kevin.Application.Services
         /// <exception cref="UserFriendlyException"></exception>
         public async Task<bool> Delete(long id)
         {
-            var like = await dictionaryRp.Query().Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
+            var like = await dictionaryRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
 
             if (like != null)
             {

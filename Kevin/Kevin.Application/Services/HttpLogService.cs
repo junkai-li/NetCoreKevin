@@ -20,7 +20,7 @@ namespace kevin.Application.Services
         public async Task<dtoPageData<HttpLogDto>> GetPageData(dtoPageData<HttpLogDto> dtoPage)
         {
             int skip = (dtoPage.pageNum - 1) * dtoPage.pageSize;
-            var data = httpLogRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
+            var data = httpLogRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
                 data = data.Where(t => (t.OperateRemark ?? "").Contains(dtoPage.searchKey) || (t.OperateType ?? "").Contains(dtoPage.searchKey) || (t.UserName ?? "").Contains(dtoPage.searchKey));

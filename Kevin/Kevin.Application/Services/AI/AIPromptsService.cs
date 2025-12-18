@@ -31,7 +31,7 @@ namespace kevin.Application.Services.AI
         {
             var result = new dtoPageData<AIPromptsDto>();
             int skip = dtoPage.GetSkip();
-            var data = aIPromptsRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
+            var data = aIPromptsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
                 data = data.Where(t => (t.Name ?? "").Contains(dtoPage.searchKey));
@@ -48,7 +48,7 @@ namespace kevin.Application.Services.AI
         /// <returns></returns> 
         public async Task<AIPromptsDto> GetDetails(long id)
         {
-            var data = (await aIPromptsRp.Query().FirstOrDefaultAsync(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId && t.Id == id)).MapTo<AIPromptsDto>();
+            var data = (await aIPromptsRp.Query(isDataPer: true).FirstOrDefaultAsync(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId && t.Id == id)).MapTo<AIPromptsDto>();
             if (data == default)
             {
                 throw new UserFriendlyException("ai提示词数据不存在或已删除");
@@ -63,7 +63,7 @@ namespace kevin.Application.Services.AI
         public async Task<List<AIPromptsDto>> GetALLList()
         {
             var result = new List<AIPromptsDto>(); 
-            var data = aIPromptsRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId); 
+            var data = aIPromptsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId); 
             result= (await data.OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIPrompts, AIPromptsDto>();
             return result;
         }
@@ -97,7 +97,7 @@ namespace kevin.Application.Services.AI
             }
             else
             {
-                var msg = aIPromptsRp.Query().Where(t => t.IsDelete == false && t.Id == par.Id).FirstOrDefault();
+                var msg = aIPromptsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == par.Id).FirstOrDefault();
                 if (msg != default)
                 { 
                     msg.UpdateTime = DateTime.Now;
@@ -126,7 +126,7 @@ namespace kevin.Application.Services.AI
         /// <exception cref="UserFriendlyException"></exception>
         public async Task<bool> Delete(long id)
         {
-            var like = await aIPromptsRp.Query().Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
+            var like = await aIPromptsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
 
             if (like != null)
             {

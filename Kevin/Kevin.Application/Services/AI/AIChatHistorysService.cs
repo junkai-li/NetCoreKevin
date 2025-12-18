@@ -52,7 +52,7 @@ namespace kevin.Application.Services.AI
         {
             var result = new dtoPageData<AIChatHistorysDto>();
             int skip = dtoPage.GetSkip();
-            var data = aIChatHistorysRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
+            var data = aIChatHistorysRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
             if (dtoPage.whereId > 0)
             {
                 data = data.Where(t => t.AIChatsId == dtoPage.whereId);
@@ -152,7 +152,7 @@ namespace kevin.Application.Services.AI
         /// <exception cref="UserFriendlyException"></exception>
         public async Task<bool> Delete(long id)
         {
-            var like = await aIChatHistorysRp.Query().Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
+            var like = await aIChatHistorysRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
 
             if (like != null)
             {

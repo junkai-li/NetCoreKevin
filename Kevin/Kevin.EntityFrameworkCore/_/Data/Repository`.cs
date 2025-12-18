@@ -1,10 +1,13 @@
 ﻿using kevin.Domain.Bases;
 using kevin.Domain.Interface;
 using Kevin.Common.App;
+using Kevin.Common.Extension;
 using Kevin.SnowflakeId.Service;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using NPOI.SS.Formula.Functions;
 using Repository.Database;
 using System;
 using System.Linq;
@@ -61,13 +64,67 @@ namespace Kevin.EntityFrameworkCore._.Data
         {
             DbSet.Update(entity);
         }
-
-        public T FirstOrDefault(Expression<Func<T, bool>> predicate)
+        private Expression<Func<T, bool>> GetTenantDataPerExp(bool isTenant = true, bool isDataPer = true)
         {
+            try
+            {
+                Expression<Func<T, bool>> t_d_p_predicate = t => 1 == 1;
+                Type t = typeof(T);
+                if (isTenant)
+                {
+                    var fieldInfo = t.GetProperty("TenantId");
+                    if (fieldInfo != default)
+                    {
+                        if (CurrentUser != default && CurrentUser.TenantId > 0)
+                        {
+                            t_d_p_predicate = t_d_p_predicate.And(e => EF.Property<Int32>(e, "TenantId") == CurrentUser.TenantId);
+                        }
+                        else
+                        {
+                            t_d_p_predicate = t_d_p_predicate.And(e => EF.Property<Int32>(e, "TenantId") == TenantHelper.GetSettingsTenantId().ToTryInt32());
+                        }
+                    }
+
+                }
+                if (isDataPer)
+                {
+                    if (CurrentUser != default && CurrentUser.UserId > 0)
+                    {
+                        var fieldInfo_t_create_userId = t.GetProperty("CreateUserId");
+                        if (fieldInfo_t_create_userId != default)
+                        {
+                            var userIds = CurrentUser.GetModuleDataPermissionsUserIds().Result;
+                            if (userIds.Count > 0)
+                            { 
+                                t_d_p_predicate = t_d_p_predicate.And(e => userIds.Contains(EF.Property<long>(e, "CreateUserId")));
+                            }
+                        }
+                    }
+                }
+                return t_d_p_predicate;
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"默认租户过滤和数据权限查询失败！", ex);
+            }
+        }
+        public T FirstOrDefault(Expression<Func<T, bool>> predicate, bool isTenant = true, bool isDataPer = true)
+        {
+            var exp = GetTenantDataPerExp(isTenant, isDataPer);
+            if (exp != default)
+            {
+                predicate.And(exp);
+            }
             return DbSet.FirstOrDefault(predicate);
         }
-        public bool Any(Expression<Func<T, bool>> predicate)
+        public bool Any(Expression<Func<T, bool>> predicate, bool isTenant = true, bool isDataPer = true)
         {
+            var exp = GetTenantDataPerExp(isTenant, isDataPer);
+            if (exp != default)
+            {
+                predicate.And(exp);
+            }
             return DbSet.Any(predicate);
         }
         public void UpdateRange(params T[] entities)
@@ -100,37 +157,17 @@ namespace Kevin.EntityFrameworkCore._.Data
         }
 
         /// <summary>
-        /// 默认租户过滤的查询
+        /// 默认租户过滤的查询和数据权限过滤
         /// </summary>
         /// <returns></returns>
-        public IQueryable<T> Query(bool isTenantId = true)
+        public IQueryable<T> Query(bool isTenant = true, bool DataPer = true)
         {
-            try
+            var exp = GetTenantDataPerExp(isTenant, DataPer);
+            if (exp != default)
             {
-                if (!isTenantId)
-                {
-                    return DbSet;
-                }
-                if (CurrentUser != default && CurrentUser.TenantId > 0)
-                {
-                    return DbSet.Where(e => EF.Property<Int32>(e, "TenantId") == CurrentUser.TenantId);
-                }
-                Type t = typeof(T);
-                FieldInfo fieldInfo = t.GetType().GetField("TenantId");
-                if (fieldInfo != null)
-                {
-                    return DbSet.Where(e => EF.Property<string>(e, "TenantId") == TenantHelper.GetSettingsTenantId());
-                }
-                else
-                {
-                    return DbSet;
-                }
+                return DbSet.Where(exp);
             }
-            catch (Exception)
-            {
-
-                return DbSet;
-            }
+            return DbSet;
         }
 
         public void Remove(T entity)

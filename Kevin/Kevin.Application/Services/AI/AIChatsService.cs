@@ -190,7 +190,7 @@ namespace kevin.Application.Services.AI
         /// <exception cref="UserFriendlyException"></exception>
         public async Task<bool> Delete(long id)
         {
-            var like = await aIChatsRp.Query().Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
+            var like = await aIChatsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
 
             if (like != null)
             {

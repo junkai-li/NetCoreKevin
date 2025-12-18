@@ -173,5 +173,57 @@ namespace kevin.Permission.Permission.Action
 
             return "";
         }
+
+
+        /// <summary>
+        /// 获取权限区域和模块
+        /// </summary>
+        /// <param name="HttpContext"></param>
+        /// <returns></returns>
+        public static string GetAuthorizationAreaModule(HttpContext httpContext)
+        {
+            var ad = httpContext.Features.Get<IEndpointFeature>()?.Endpoint?.Metadata?.FirstOrDefault(u => u is ControllerActionDescriptor) as ControllerActionDescriptor;
+            var isSkip = ad.MethodInfo.IsDefined(typeof(SkipAuthorityAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(SkipAuthorityAttribute), false);
+            var isPublic = ad.MethodInfo.IsDefined(typeof(AllowAnonymousAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(AllowAnonymousAttribute), false);
+            if (isSkip == true || isPublic == true)
+            {
+                return "";
+            }
+          
+            var area = "";
+            try
+            {
+                var myarea = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyAreaAttribute)).ToList();
+                if (myarea.Count > 0)
+                {
+                    area = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyAreaAttribute)).ToList().LastOrDefault()?.ConstructorArguments[1].Value?.ToString();
+                }
+                else
+                {
+                    area = ad.ControllerName;
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            var module = "";
+            try
+            {
+                var mymodule = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList();
+                if (mymodule.Count > 0 && ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList().LastOrDefault().ConstructorArguments.Count > 1)
+                {
+                    module = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList().LastOrDefault().ConstructorArguments[1].Value.ToString();
+                }
+                else
+                {
+                    module = ad.ControllerName;
+                }
+            }
+            catch (Exception)
+            { 
+            }
+            return $"{area}/{module}";
+        }  
     }
 }

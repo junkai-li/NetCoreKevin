@@ -17,7 +17,7 @@ namespace kevin.Application.Services
         public async Task<dtoPageData<OSLogDto>> GetPageData(dtoPageData<OSLogDto> dtoPage)
         {
             int skip = (dtoPage.pageNum - 1) * dtoPage.pageSize;
-            var data = osLogRp.Query().Where(t => t.IsDelete == false);
+            var data = osLogRp.Query(isDataPer: true).Where(t => t.IsDelete == false);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
                 data = data.Where(t => (t.Content ?? "").Contains(dtoPage.searchKey) || (t.Sign ?? "").Contains(dtoPage.searchKey) || (t.Table ?? "").Contains(dtoPage.searchKey) || (t.TableId.ToString() ?? "").Contains(dtoPage.searchKey));

@@ -5,7 +5,7 @@ using kevin.Share.Dtos.System;
 
 namespace kevin.Domain.Interfaces.IServices
 {
-    public interface IUserService: IBaseService
+    public interface IUserService : IBaseService
     {
         /// <summary>
         /// 通过 UserId 获取用户信息 
@@ -21,7 +21,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// <param name="pwd"></param>
         /// <param name="tenantId">租户id</param>
         /// <returns></returns>
-          dtoUser LoginUser(string name, string pwd, Int32 tenantId,string passwordHash);
+        dtoUser LoginUser(string name, string pwd, Int32 tenantId, string passwordHash);
 
         /// <summary>
         /// 修改当前用户密码
@@ -30,7 +30,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// <param name="newPwd">新密码</param>
         /// <param name="tenantId">租户id</param>
         /// <returns></returns>
-        Task<bool> ChangePasswordTokenUser(string oldPwd,string newPwd,CancellationToken cancellationToken);
+        Task<bool> ChangePasswordTokenUser(string oldPwd, string newPwd, CancellationToken cancellationToken);
 
         /// <summary>
         /// 通过短信验证码修改账户手机号
@@ -47,7 +47,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// <returns>openid,userid</returns>
         /// <remarks>传入租户ID和微信临时 code 获取 openid，如果 openid 在系统有中对应用户，则一并返回用户的ID值，否则用户ID值为空</remarks>
         string GetWeiXinMiniAppOpenId(long weixinkeyid, string code);
-         
+
 
         /// <summary>
         /// 通过短信验证码修改账户密码</summary>
@@ -67,7 +67,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// </summary>
         /// <param name="dtoPage"></param> 
         /// <returns></returns> 
-        Task<dtoPageData<dtoUser>>  GetSysUserList(dtoPagePar<dtoUserPar> dtoPage);
+        Task<dtoPageData<dtoUser>> GetSysUserList(dtoPagePar<dtoUserPar> dtoPage);
 
         /// <summary>
         /// 后台管理通过 UserId 获取用户信息 
@@ -144,5 +144,19 @@ namespace kevin.Domain.Interfaces.IServices
         /// <param name="userId">用户ID</param>
         /// <returns></returns>
         Task<int> GetAllUserCount();
+
+        /// <summary>
+        /// 获取用户模块数据权限对应的用户ID列表
+        /// </summary>
+        /// <param name="PermissionsKey">权限Key--去除后缀 只需要区域和模块</param>
+        /// <returns></returns>
+        public Task<List<long>> GetModuleDataPermissionsUserIds(string PermissionsKey);
+
+        /// <summary>
+        /// 获取用户其他信息
+        /// </summary>
+        /// <param name="UserId"></param>
+        /// <returns></returns>
+        dtoUserInfo GetUserInfo(long UserId);
     }
 }

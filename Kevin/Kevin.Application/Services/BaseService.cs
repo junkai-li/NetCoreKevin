@@ -27,7 +27,7 @@ public partial class BaseService : IBaseService
         if (_httpContextAccessor.HttpContext != default)
         {
             _serviceProvider = _httpContextAccessor.HttpContext.RequestServices;
-            CurrentUser = _serviceProvider.GetService<ICurrentUser>() ?? new CurrentUser(_httpContextAccessor);
+            CurrentUser = _serviceProvider.GetService<ICurrentUser>() ?? new CurrentUser(_httpContextAccessor, _serviceProvider);
             SnowflakeIdService = _serviceProvider.GetService<ISnowflakeIdService>();
         }
     }

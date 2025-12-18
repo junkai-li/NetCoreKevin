@@ -26,7 +26,7 @@ namespace kevin.Application.Services.AI
         {
             var result = new dtoPageData<AIAppsDto>();
             int skip = dtoPage.GetSkip();
-            var data = aIAppsRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
+            var data = aIAppsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
                 data = data.Where(t => (t.Name ?? "").Contains(dtoPage.searchKey));
@@ -44,7 +44,7 @@ namespace kevin.Application.Services.AI
         /// <returns></returns> 
         public async Task<AIAppsDto> GetDetails(long id)
         {
-            var data = (await aIAppsRp.Query().FirstOrDefaultAsync(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId && t.Id == id)).MapTo<AIAppsDto>();
+            var data = (await aIAppsRp.Query(isDataPer: true).FirstOrDefaultAsync(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId && t.Id == id)).MapTo<AIAppsDto>();
             if (data == default)
             {
                 throw new UserFriendlyException("ai应用数据不存在或已删除");
@@ -59,7 +59,7 @@ namespace kevin.Application.Services.AI
         public async Task<List<AIAppsDto>> GetALLList()
         {
             var result = new List<AIAppsDto>();
-            var data = aIAppsRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
+            var data = aIAppsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
             result = (await data.OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIApps, AIAppsDto>();
             return result;
         }
@@ -93,7 +93,7 @@ namespace kevin.Application.Services.AI
             }
             else
             {
-                var msg = aIAppsRp.Query().Where(t => t.IsDelete == false && t.Id == par.Id).FirstOrDefault();
+                var msg = aIAppsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == par.Id).FirstOrDefault();
                 if (msg != default)
                 {
                     msg.UpdateTime = DateTime.Now;
@@ -136,7 +136,7 @@ namespace kevin.Application.Services.AI
         /// <exception cref="UserFriendlyException"></exception>
         public async Task<bool> Delete(long id)
         {
-            var like = await aIAppsRp.Query().Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
+            var like = await aIAppsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
 
             if (like != null)
             {

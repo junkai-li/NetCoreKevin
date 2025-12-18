@@ -21,7 +21,7 @@ namespace kevin.Application
         public int GetSignCount(string table, string tableId, string sign)
         {
 
-            var count = signRp.Query().Where(t => t.IsDelete == false && t.Table == table && t.TableId == tableId && t.Sign == sign).Count();
+            var count = signRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Table == table && t.TableId == tableId && t.Sign == sign).Count();
 
             return count;
         }
@@ -59,7 +59,7 @@ namespace kevin.Application
         /// <returns></returns> 
         public bool DeleteSign(dtoSign deleteSign)
         {
-            var like = signRp.Query().Where(t => t.IsDelete == false && t.CreateUserId == CurrentUser.UserId && t.Table == deleteSign.Table && t.TableId == deleteSign.TableId && t.Sign == deleteSign.Sign).FirstOrDefault();
+            var like = signRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.CreateUserId == CurrentUser.UserId && t.Table == deleteSign.Table && t.TableId == deleteSign.TableId && t.Sign == deleteSign.Sign).FirstOrDefault();
 
             if (like != null)
             {

@@ -5,6 +5,8 @@ using kevin.Domain.Interfaces.IServices.Organizational;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.Organizational;
 using kevin.Domain.Share.Dtos.User;
+using kevin.Permission.Interfaces;
+using kevin.Permission.Permission.Enums;
 using kevin.Share.Dtos;
 using kevin.Share.Dtos.System;
 using Kevin.Common.Helper;
@@ -32,9 +34,11 @@ namespace kevin.Application
         public IUserInfoRp userInfoRp { get; set; }
 
         public IUserBindPositionRp userBindPositionRp { get; set; }
+
+        public IKevinPermissionService permissionService { get; set; }
         public UserService(IHttpContextAccessor _httpContextAccessor, IUserRp _userRp, IWeiXinKeyRp _weiXinKeyRp, IFileRp _IFileRp, IRoleRp _IRoleRp,
             IUserBindRoleRp userBindRoleRp, IPositionService _positionService,
-            IUserBindPositionRp _userBindPositionRp, IDepartmentService _departmentService, IUserInfoRp _userInfoRp) : base(_httpContextAccessor)
+            IUserBindPositionRp _userBindPositionRp, IDepartmentService _departmentService, IUserInfoRp _userInfoRp, IKevinPermissionService _permissionService) : base(_httpContextAccessor)
         {
             userRp = _userRp;
             weiXinKeyRp = _weiXinKeyRp;
@@ -45,6 +49,7 @@ namespace kevin.Application
             this.userBindPositionRp = _userBindPositionRp;
             this.departmentService = _departmentService;
             this.userInfoRp = _userInfoRp;
+            this.permissionService = _permissionService;
         }
 
 
@@ -243,7 +248,7 @@ namespace kevin.Application
                 Id = t.Id,
                 Name = t.Name,
                 Phone = t.Phone,
-                HeadImgs = fileRp.Query(true).Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id.ToString()).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
+                HeadImgs = fileRp.Query(true, false).Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id.ToString()).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
                 {
                     Key = f.Id,
                     Value = f.Url
@@ -277,7 +282,7 @@ namespace kevin.Application
             if (par.Parameter?.DepartmentId > 0)
             {
                 //获取当前岗位下所有USERID
-                var ids = departmentService.GetChildUserIds(par.Parameter.DepartmentId);
+                var ids = departmentService.GetDepartmentChildUserIds(par.Parameter.DepartmentId);
                 data = data.Where(t => ids.Contains(t.Id));
             }
             dtoPage.total = data.Count();
@@ -290,7 +295,7 @@ namespace kevin.Application
                 NickName = t.NickName,
                 Status = t.Status,
                 RecentLoginTime = t.RecentLoginTime,
-                HeadImgs = fileRp.Query(true).Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id.ToString()).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
+                HeadImgs = fileRp.Query(true, false).Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id.ToString()).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
                 {
                     Key = f.Id,
                     Value = f.Url
@@ -337,7 +342,7 @@ namespace kevin.Application
                 Id = t.Id,
                 Name = t.Name,
                 NickName = t.NickName,
-                Email = t.Email,  
+                Email = t.Email,
                 Phone = t.Phone,
                 PassWord = t.PasswordHash,
                 CreateTime = t.CreateTime,
@@ -596,6 +601,17 @@ namespace kevin.Application
         }
 
         /// <summary>
+        /// 通过id获取角色信息 
+        /// </summary>
+        /// <param name="Id">ID</param>
+        /// <returns></returns> 
+        public dtoUserInfo GetUserInfo(long UserId)
+        {
+            var user = userInfoRp.FirstOrDefault(t => t.UserId == UserId && t.IsDelete == false, false, false).MapTo<dtoUserInfo>();
+            return user ?? new dtoUserInfo();
+        }
+
+        /// <summary>
         /// 新增编辑用户角色信息 
         /// </summary>
         /// <param name="role">user</param>
@@ -734,6 +750,73 @@ namespace kevin.Application
         public async Task<int> GetAllUserCount()
         {
             return await userRp.Query().Where(t => t.IsDelete == false).CountAsync();
+        }
+        /// <summary>
+        /// 获取我的部门用户ID
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<long>> GetMyDepartmentUserIds()
+        {
+            if (CurrentUser.UserInfo == default)
+            {
+                return new List<long>();
+            }
+            return await departmentService.GetDepartmentUserIds(CurrentUser.UserInfo.DepartmentId);
+        }
+
+        /// <summary>
+        /// 获取我的部门及子部门用户ID以及所有下级Id
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<long>> GetMyAndChildrenDepartmentUserIds()
+        {
+            if (CurrentUser.UserInfo == default)
+            {
+                return new List<long>();
+            }
+            return departmentService.GetDepartmentChildUserIds(CurrentUser.UserInfo.DepartmentId);
+        }
+
+        public async Task<List<long>> GetModuleDataPermissionsUserIds(string PermissionsKey)
+        {
+            var pers = new Dictionary<string, bool>();
+            pers = permissionService.GetUserPermissions(CurrentUser.UserId.ToString());
+            var userIds = new List<long>();
+            var isPer = false; //是否有配置权限
+            foreach (var item in DataPermissionActionConst.DataPermissionActionConsts)
+            {
+                if (pers.ContainsKey(PermissionsKey + "/" + item.Key))
+                {
+                    if (pers[PermissionsKey + "/" + item.Key])
+                    {
+                        isPer = true;
+                        switch (item.Key)
+                        {
+                            case DataPermissionActionConst.My:
+                                userIds.Add(CurrentUser.UserId);
+                                break;
+                            case DataPermissionActionConst.ALL:
+                                userIds = new List<long>();
+                                return userIds; 
+                            case DataPermissionActionConst.MyDepartment:
+                                userIds.AddRange(await GetMyDepartmentUserIds());
+                                break;
+                            case DataPermissionActionConst.MyAndChildrenDepartment:
+                                userIds.AddRange(await GetMyAndChildrenDepartmentUserIds());
+                                break; 
+                            default:
+                                userIds.Add(CurrentUser.UserId);
+                                break;
+                        }
+                    }
+
+                }
+            }
+            if (!isPer)
+            {
+                userIds.Add(CurrentUser.UserId);
+            }
+            return userIds;
         }
     }
 }

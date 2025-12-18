@@ -131,9 +131,9 @@
             <typeparam name="T"></typeparam>
             <typeparam name="TId"></typeparam>
         </member>
-        <member name="M:Kevin.EntityFrameworkCore._.Data.Repository`2.Query(System.Boolean)">
+        <member name="M:Kevin.EntityFrameworkCore._.Data.Repository`2.Query(System.Boolean,System.Boolean)">
             <summary>
-            默认租户过滤的查询
+            默认租户过滤的查询和数据权限过滤
             </summary>
             <returns></returns>
         </member>

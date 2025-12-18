@@ -96,7 +96,7 @@ const convertToTreeData = (data) => {
     permissionTypeGroup.dtos.forEach(area => {
       const areaNode = {
         title: area.areaName,
-        key: `area-${area.area}`,
+        key: typeNode.key+`area-${area.area}`,
         permissionType: permissionType,
         children: []
       }
@@ -105,7 +105,7 @@ const convertToTreeData = (data) => {
       area.modules.forEach(module => {
         const moduleNode = {
           title: module.moduleName,
-          key: `module-${area.area}-${module.module}`,
+          key: typeNode.key+`module-${area.area}-${module.module}`,
           permissionType: permissionType,
           children: []
         }
