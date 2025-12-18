@@ -2,6 +2,7 @@
 using kevin.Cache.Service;
 using Kevin.Common.App.Global;
 using Kevin.Common.Extension;
+using Kevin.log4Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,8 +47,9 @@ namespace Web.Filters
                     } 
                 }
             }
-            catch
+            catch(Exception ex)
             {
+                LogHelper<CacheDataFilter<T>>.logger.Error($"缓存模块异常, Exception detail: {ex.ToJson()}"); 
                 Console.WriteLine("缓存模块异常");
             }
         }
@@ -62,8 +64,9 @@ namespace Web.Filters
                 key = "CacheData_" + Common.CryptoHelper.GetMd5(key);
                 context.HttpContext.RequestServices.GetService<ICacheService>().SetObject(key, context.Result, TimeSpan.FromSeconds(TTL));
             }
-            catch
+            catch (Exception ex)
             {
+                LogHelper<CacheDataFilter<T>>.logger.Error($"缓存模块异常, Exception detail: {ex.ToJson()}");
                 Console.WriteLine("缓存模块异常");
             }
 
