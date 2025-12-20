@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -13,11 +13,6 @@
     <Folder Include="Consts\" />
     <Folder Include="Dtos\v1\" />
     <Folder Include="Enums\" />
-  </ItemGroup>
-  
-
-  <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.17.1" />
   </ItemGroup>
   
 
