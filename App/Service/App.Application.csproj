@@ -18,8 +18,4 @@
     <ProjectReference Include="..\Repositories\App.RepositorieRps.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Services\v1\" />
-  </ItemGroup>
-
 </Project>

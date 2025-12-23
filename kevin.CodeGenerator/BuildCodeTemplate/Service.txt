@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace kevin.CodeGenerator.BuildCodeTemplate
+﻿namespace %namespacePath%
 {
-    class Service
+    public class %entityName%Service : BaseService, I%entityName%Service
     {
+        public I%entityName%Rp %entityName%Rp { get; set; }
+        public %entityName%Service(IHttpContextAccessor _httpContextAccessor, I%entityName%Rp _%entityName%Rp) : base(_httpContextAccessor)
+        {
+            this.%entityName%Rp = _%entityName%Rp;
+        }
     }
 }

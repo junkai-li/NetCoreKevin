@@ -1,1 +1,6 @@
-﻿
+﻿namespace %namespacePath%
+{
+    public interface I%entityName%Service : IBaseService
+    {
+    }
+}
