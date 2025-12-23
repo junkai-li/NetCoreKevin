@@ -11,4 +11,19 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.11" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="BuildCodeTemplate\IRp.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="BuildCodeTemplate\IService.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="BuildCodeTemplate\Rp.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="BuildCodeTemplate\Service.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

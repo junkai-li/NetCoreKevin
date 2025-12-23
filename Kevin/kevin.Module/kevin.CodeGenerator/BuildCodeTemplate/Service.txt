@@ -1,5 +1,8 @@
 ﻿namespace %namespacePath%
 {
+    /// <summary>
+    /// %entityName%服务接口
+    /// </summary>
     public class %entityName%Service : BaseService, I%entityName%Service
     {
         public I%entityName%Rp %entityName%Rp { get; set; }

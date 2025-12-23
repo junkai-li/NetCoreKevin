@@ -1,5 +1,8 @@
 namespace %namespacePath%
 {
+    /// <summary>
+    /// 服务接口
+    /// </summary>
     public interface I%entityName%Service : IBaseService
     {
     }

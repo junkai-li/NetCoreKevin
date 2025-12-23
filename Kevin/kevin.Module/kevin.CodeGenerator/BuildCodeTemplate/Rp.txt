@@ -1,5 +1,8 @@
 namespace %namespacePath%
 {
+    /// <summary>
+    /// %entityName%仓储服务接口
+    /// </summary>
 
     public class %entityName%Rp : Repository<T%entityName%, long>, I%entityName%Rp
     {

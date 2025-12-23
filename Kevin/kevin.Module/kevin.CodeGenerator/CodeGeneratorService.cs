@@ -95,8 +95,8 @@ namespace kevin.CodeGenerator
         {
             //获取对应的模板文件
             var iRpTemplate = GetBuildCodeTemplate("IRp");
-            var rpTemplate = GetBuildCodeTemplate("IService");
-            var iServiceTemplate = GetBuildCodeTemplate("Rp");
+            var rpTemplate = GetBuildCodeTemplate("Rp");
+            var iServiceTemplate = GetBuildCodeTemplate("IService");
             var service = GetBuildCodeTemplate("Service");
             foreach (var item in entityItems)
             {
@@ -110,22 +110,22 @@ namespace kevin.CodeGenerator
                     WriteCode(new Dictionary<string, string>
                     {
                         {  "%entityName%",item.EntityName},
-                        {  "%namespacePath",area.IRpBulidPath}
+                        {  "%namespacePath%",area.IRpBulidPath}
                     }, iRpTemplate, $"../../{area.IRpBulidPath.Trim().Replace(".", "\\")}/I{item.EntityName}Rp.cs");
                     WriteCode(new Dictionary<string, string>
                     {
                         {  "%entityName%",item.EntityName},
-                        {  "%namespacePath",area.RpBulidPath}
+                        {  "%namespacePath%",area.RpBulidPath}
                     }, rpTemplate, $"../../{area.RpBulidPath.Trim().Replace(".", "\\")}/{item.EntityName}Rp.cs");
                     WriteCode(new Dictionary<string, string>
                     {
                         {  "%entityName%",item.EntityName},
-                        {  "%namespacePath",area.IServiceBulidPath}
+                        {  "%namespacePath%",area.IServiceBulidPath}
                     }, iServiceTemplate, $"../../{area.IServiceBulidPath.Trim().Replace(".", "\\")}/I{item.EntityName}Service.cs");
                     WriteCode(new Dictionary<string, string>
                     {
                         {  "%entityName%",item.EntityName},
-                        {  "%namespacePath",area.ServiceBulidPath}
+                        {  "%namespacePath%",area.ServiceBulidPath}
                     }, service, $"../../{area.ServiceBulidPath.Trim().Replace(".", "\\")}/{item.EntityName}Service.cs");
                 }
 
@@ -140,7 +140,7 @@ namespace kevin.CodeGenerator
         /// <returns></returns>
         private string GetBuildCodeTemplate(string name)
         {
-            return File.ReadAllText("..\\..\\" + "Kevin\\kevin.Module\\kevin.CodeGenerator\\BuildCodeTemplate\\" + name + ".txt");
+            return File.ReadAllText("..\\..\\" + "Kevin\\kevin.Module\\kevin.CodeGenerator\\BuildCodeTemplate\\" + name + ".txt",encoding: Encoding.UTF8);
         }
         /// <summary>
         /// 生成文件和代码
@@ -161,10 +161,10 @@ namespace kevin.CodeGenerator
             }
             else
             {
-                if (File.Exists(savePath))
-                {
-                    throw new ArgumentException($"{savePath}已存在，生成失败");
-                } 
+                //if (File.Exists(savePath))
+                //{
+                //    throw new ArgumentException($"{savePath}已存在，生成失败");
+                //} 
             }
             File.WriteAllText(savePath, content, Encoding.UTF8);
         }
