@@ -45,5 +45,15 @@ namespace App.WebApi.Controllers
         {
             return await _codeGeneratorService.GetAreaNameEntityItems(name);
         }
+
+        /// <summary>
+        /// 生成仓储和服务基础代码
+        /// </summary> 
+        /// <returns></returns>
+        [HttpPost("BulidCode")]
+        public async Task<bool> BulidCode([FromBody] List<EntityItemDto> data)
+        {
+            return await _codeGeneratorService.BulidCode(data);
+        }
     }
 }

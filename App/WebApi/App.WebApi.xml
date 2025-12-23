@@ -322,6 +322,12 @@
             </summary> 
             <returns></returns>
         </member>
+        <member name="M:App.WebApi.Controllers.CodeGeneratorController.BulidCode(System.Collections.Generic.List{kevin.CodeGenerator.Dto.EntityItemDto})">
+            <summary>
+            生成仓储和服务基础代码
+            </summary> 
+            <returns></returns>
+        </member>
         <member name="T:App.WebApi.Controllers.TenantController">
             <summary>
             租户管理

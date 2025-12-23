@@ -24,8 +24,8 @@ namespace kevin.CodeGenerator
         /// <summary>
         /// 生成代码
         /// </summary>
-        /// <param name="entityItemDto"></param>
+        /// <param name="entityItems"></param>
         /// <returns></returns>
-        Task<bool> BulidCode(EntityItemDto entityItemDto);
+        Task<bool> BulidCode(List<EntityItemDto> entityItems);
     }
 }
