@@ -1,1 +1,1 @@
-﻿
+﻿global using Kevin.EntityFrameworkCore._.Data;

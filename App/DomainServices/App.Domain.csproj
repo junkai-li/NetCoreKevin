@@ -11,6 +11,7 @@
     <Folder Include="EventHandlers\" />
     <Folder Include="Events\" />
     <Folder Include="Interfaces\Repositorie\v1\" />
+    <Folder Include="Interfaces\Services\v1\" />
   </ItemGroup>
 
   <ItemGroup>

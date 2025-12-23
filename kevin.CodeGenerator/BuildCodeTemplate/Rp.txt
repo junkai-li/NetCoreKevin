@@ -1,0 +1,10 @@
+﻿namespace %namespacePath%
+{
+
+    public class %entityName%Rp : Repository<T%entityName%, long>, I%entityName%Rp
+    {
+        public %entityName%Rp(IServiceProvider serviceProvider) : base(serviceProvider)
+        {
+        }
+    }
+}
