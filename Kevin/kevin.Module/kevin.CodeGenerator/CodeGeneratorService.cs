@@ -140,7 +140,7 @@ namespace kevin.CodeGenerator
         /// <returns></returns>
         private string GetBuildCodeTemplate(string name)
         {
-            return File.ReadAllText("..\\..\\" + "Kevin\\kevin.Module\\kevin.CodeGenerator\\BuildCodeTemplate\\" + name + ".txt",encoding: Encoding.UTF8);
+            return File.ReadAllText("..\\..\\" + "Kevin\\kevin.Module\\kevin.CodeGenerator\\BuildCodeTemplate\\" + name + ".txt", encoding: Encoding.UTF8);
         }
         /// <summary>
         /// 生成文件和代码
@@ -158,15 +158,16 @@ namespace kevin.CodeGenerator
             if (!Directory.Exists(dir))
             {
                 Directory.CreateDirectory(dir);
+            } 
+            if (File.Exists(savePath))
+            {
+                Console.WriteLine($"文件{savePath}已存在，跳过生成！");
             }
             else
             {
-                //if (File.Exists(savePath))
-                //{
-                //    throw new ArgumentException($"{savePath}已存在，生成失败");
-                //} 
+                File.WriteAllText(savePath, content, Encoding.UTF8);
             }
-            File.WriteAllText(savePath, content, Encoding.UTF8);
+
         }
     }
 }
