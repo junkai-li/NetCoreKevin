@@ -161,7 +161,10 @@ namespace kevin.CodeGenerator
             }
             else
             {
-                throw new ArgumentException($"{dir}已存在，生成失败");
+                if (File.Exists(savePath))
+                {
+                    throw new ArgumentException($"{savePath}已存在，生成失败");
+                } 
             }
             File.WriteAllText(savePath, content, Encoding.UTF8);
         }

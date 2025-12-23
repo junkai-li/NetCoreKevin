@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\App.Domain.csproj" />
-    <ProjectReference Include="..\Repositories\App.RepositorieRps.csproj" />
+    <ProjectReference Include="..\RepositorieRps\App.RepositorieRps.csproj" />
   </ItemGroup>
 
 </Project>
