@@ -5,7 +5,7 @@
         /// <summary>
         /// 配置文件相关信息
         /// </summary>
-        public List<CodeGeneratorItem> CodeGeneratorItems { get; set; }
+        public List<CodeGeneratorItem> CodeGeneratorItems { get; set; } = new();
     }
 
     public class CodeGeneratorItem

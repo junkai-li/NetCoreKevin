@@ -1,4 +1,4 @@
-﻿namespace %namespacePath%
+namespace %namespacePath%
 {
 
     public class %entityName%Rp : Repository<T%entityName%, long>, I%entityName%Rp

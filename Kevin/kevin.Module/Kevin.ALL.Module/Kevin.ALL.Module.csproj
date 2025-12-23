@@ -90,6 +90,7 @@ Kevin.AI 系列
     <ProjectReference Include="..\kevin.AI.AgentFramework\kevin.AI.AgentFramework.csproj" />
     <ProjectReference Include="..\kevin.Cache\kevin.Cache.csproj" />
     <ProjectReference Include="..\kevin.Cap\kevin.Cap.csproj" />
+    <ProjectReference Include="..\kevin.CodeGenerator\kevin.CodeGenerator.csproj" />
     <ProjectReference Include="..\Kevin.Common\Kevin.Common.csproj" />
     <ProjectReference Include="..\kevin.Consul\kevin.Consul.csproj" />
     <ProjectReference Include="..\Kevin.Cors\Kevin.Cors.csproj" />

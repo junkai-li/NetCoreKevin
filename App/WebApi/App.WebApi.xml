@@ -305,80 +305,22 @@
             </summary> 
             <returns></returns>
         </member>
-        <member name="T:AdminApi.Controllers.PermissionController">
+        <member name="T:App.WebApi.Controllers.CodeGeneratorController">
             <summary>
-            权限管理
+            代码生成器
             </summary>
         </member>
-        <member name="M:AdminApi.Controllers.PermissionController.Reload">
+        <member name="M:App.WebApi.Controllers.CodeGeneratorController.GetAreaNames">
             <summary>
-            初始化权限
+            获取区域列表
             </summary> 
             <returns></returns>
         </member>
-        <member name="M:AdminApi.Controllers.PermissionController.GetPageData(kevin.Share.Dtos.dtoPageData{kevin.Permission.Permisson.PermissionDto})">
+        <member name="M:App.WebApi.Controllers.CodeGeneratorController.GetAreaNameEntityItems(System.String)">
             <summary>
-             获取权限分页列表
-            </summary>
-            <param name="input"></param>
-            <returns></returns>
-        </member>
-        <member name="M:AdminApi.Controllers.PermissionController.GetDetails(System.String)">
-            <summary>
-            获取单个 
-            </summary>
-            <param name="Id"></param>
-            <returns></returns>
-        </member>
-        <member name="M:AdminApi.Controllers.PermissionController.Del(System.String)">
-            <summary>
-            删除
-            </summary>
-            <param name="id"></param>
-            <returns></returns>
-        </member>
-        <member name="M:AdminApi.Controllers.PermissionController.Edit(kevin.Permission.Permisson.PermissionDto)">
-            <summary>
-            编辑
-            </summary>
-            <param name="entity"></param>
-            <returns></returns>
-        </member>
-        <member name="M:AdminApi.Controllers.PermissionController.Add(kevin.Permission.Permisson.PermissionDto)">
-            <summary>
-            新增
-            </summary>
-            <param name="entity"></param>
-            <returns></returns>
-        </member>
-        <member name="M:AdminApi.Controllers.PermissionController.GetAllPermissions">
-            <summary>
-            获取所有权限列表
+            获取区域下的实体列表
             </summary> 
             <returns></returns>
-        </member>
-        <member name="M:AdminApi.Controllers.PermissionController.GetAllPermissionIds">
-            <summary>
-            获取所有权限列表Ids
-            </summary> 
-            <returns></returns>
-        </member>
-        <member name="M:AdminApi.Controllers.PermissionController.GetAllAreaPermissions(System.Int64)">
-            <summary>
-            获取角色对应权限
-            </summary> 
-            <returns></returns>
-        </member>
-        <member name="M:AdminApi.Controllers.PermissionController.EditAllAreaPermissions(kevin.Domain.Share.Dtos.System.PermissionEditDto)">
-            <summary>
-            编辑角色对应权限
-            </summary> 
-            <returns></returns> 
-        </member>
-        <member name="M:AdminApi.Controllers.PermissionController.GetUserPermissions">
-            <summary>
-            获取登录用户权限
-            </summary>
         </member>
         <member name="T:App.WebApi.Controllers.TenantController">
             <summary>
@@ -608,6 +550,81 @@
             我是版本
             </summary> 
             <returns></returns>
+        </member>
+        <member name="T:AdminApi.Controllers.PermissionController">
+            <summary>
+            权限管理
+            </summary>
+        </member>
+        <member name="M:AdminApi.Controllers.PermissionController.Reload">
+            <summary>
+            初始化权限
+            </summary> 
+            <returns></returns>
+        </member>
+        <member name="M:AdminApi.Controllers.PermissionController.GetPageData(kevin.Share.Dtos.dtoPageData{kevin.Permission.Permisson.PermissionDto})">
+            <summary>
+             获取权限分页列表
+            </summary>
+            <param name="input"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AdminApi.Controllers.PermissionController.GetDetails(System.String)">
+            <summary>
+            获取单个 
+            </summary>
+            <param name="Id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AdminApi.Controllers.PermissionController.Del(System.String)">
+            <summary>
+            删除
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AdminApi.Controllers.PermissionController.Edit(kevin.Permission.Permisson.PermissionDto)">
+            <summary>
+            编辑
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AdminApi.Controllers.PermissionController.Add(kevin.Permission.Permisson.PermissionDto)">
+            <summary>
+            新增
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AdminApi.Controllers.PermissionController.GetAllPermissions">
+            <summary>
+            获取所有权限列表
+            </summary> 
+            <returns></returns>
+        </member>
+        <member name="M:AdminApi.Controllers.PermissionController.GetAllPermissionIds">
+            <summary>
+            获取所有权限列表Ids
+            </summary> 
+            <returns></returns>
+        </member>
+        <member name="M:AdminApi.Controllers.PermissionController.GetAllAreaPermissions(System.Int64)">
+            <summary>
+            获取角色对应权限
+            </summary> 
+            <returns></returns>
+        </member>
+        <member name="M:AdminApi.Controllers.PermissionController.EditAllAreaPermissions(kevin.Domain.Share.Dtos.System.PermissionEditDto)">
+            <summary>
+            编辑角色对应权限
+            </summary> 
+            <returns></returns> 
+        </member>
+        <member name="M:AdminApi.Controllers.PermissionController.GetUserPermissions">
+            <summary>
+            获取登录用户权限
+            </summary>
         </member>
     </members>
 </doc>

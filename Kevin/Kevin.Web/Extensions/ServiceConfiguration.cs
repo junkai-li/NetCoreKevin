@@ -34,6 +34,8 @@ using System;
 using System.Linq;
 using System.Text.Encodings.Web;
 using Web.Filters;
+using kevin.CodeGenerator;
+using kevin.CodeGenerator.Dto;
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -219,6 +221,17 @@ namespace Web.Extension
                 options.AIKeySecret = settings.AIKeySecret;
                 options.AIDefaultModel = settings.AIDefaultModel;
             });
+            #endregion
+
+            #region 代码生成器
+
+            services.AddKevinCodeGenerator(options =>
+            {
+                var settings = Configuration.GetRequiredSection("CodeGeneratorSetting").Get<CodeGeneratorSetting>()!;
+                options.CodeGeneratorItems = settings.CodeGeneratorItems;
+            
+            });
+
             #endregion
 
             return services;
