@@ -1,11 +1,4 @@
-﻿using kevin.Domain.Share.Dtos;
-using kevin.Domain.Share.Dtos.AI;
-using kevin.Share.Dtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using kevin.Domain.Share.Dtos.AI;
 
 namespace kevin.Domain.Interfaces.IServices.AI
 {

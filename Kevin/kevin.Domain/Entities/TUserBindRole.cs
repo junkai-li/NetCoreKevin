@@ -1,11 +1,4 @@
-﻿using kevin.Domain.Kevin;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace kevin.Domain.Entities
+﻿namespace kevin.Domain.Entities
 {
     [Table("TUserBindRole")]
     [Description("用户绑定角色表")]

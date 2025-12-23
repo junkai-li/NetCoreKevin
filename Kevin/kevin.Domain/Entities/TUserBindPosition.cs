@@ -1,10 +1,4 @@
 ﻿using kevin.Domain.Entities.Organizational;
-using kevin.Domain.Kevin;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Domain.Entities
 {

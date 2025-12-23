@@ -1,17 +1,7 @@
-﻿using kevin.Domain.Entities;
-using kevin.Domain.Interfaces.IRepositories;
-using kevin.Domain.Kevin;
-using Kevin.Common.App;
+﻿using Kevin.Common.App;
 using Kevin.EntityFrameworkCore._.Data;
-using Kevin.SnowflakeId.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.RepositorieRps.Repositories
 {

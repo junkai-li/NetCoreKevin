@@ -1,12 +1,4 @@
 ﻿using Kevin.Common.App;
-using kevin.Domain.Kevin;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using kevin.Domain.Entities;
-using kevin.Domain.Share.Enums;
 
 namespace kevin.Domain.BaseDatas
 {

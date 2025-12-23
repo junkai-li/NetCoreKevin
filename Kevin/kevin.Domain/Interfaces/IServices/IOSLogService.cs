@@ -1,10 +1,4 @@
 ﻿using kevin.Domain.Share.Dtos.System;
-using kevin.Share.Dtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Domain.Interfaces.IServices
 {

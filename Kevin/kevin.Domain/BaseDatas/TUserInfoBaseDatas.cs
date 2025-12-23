@@ -1,14 +1,6 @@
 ﻿using kevin.Domain.Configuration;
-using kevin.Domain.Entities;
-using kevin.Domain.Entities.Organizational;
-using kevin.Domain.Kevin;
 using kevin.Domain.Share.Enums;
 using Kevin.Common.App;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Domain.BaseDatas
 { 

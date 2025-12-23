@@ -1,6 +1,4 @@
-﻿using kevin.Domain.Share.Dtos;
-using kevin.Domain.Share.Dtos.Organizational;
-using kevin.Share.Dtos;
+﻿using kevin.Domain.Share.Dtos.Organizational;
 
 namespace kevin.Domain.Interfaces.IServices.Organizational
 {

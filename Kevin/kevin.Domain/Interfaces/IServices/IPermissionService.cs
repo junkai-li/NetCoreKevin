@@ -1,11 +1,6 @@
-﻿using Aop.Api.Domain;
-using kevin.Domain.Kevin;
-using kevin.Domain.Share.Dtos.System;
+﻿using kevin.Domain.Share.Dtos.System;
 using kevin.Domain.Share.Interfaces;
-using kevin.Permission.Permission;
 using kevin.Permission.Permisson;
-using kevin.Share.Dtos;
-using StackExchange.Redis;
 
 namespace kevin.Domain.Interfaces.IServices
 {

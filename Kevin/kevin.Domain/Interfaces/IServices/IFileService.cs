@@ -1,7 +1,5 @@
 ﻿using kevin.Domain.Share.Dtos.System;
-using kevin.Share.Dtos;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 
 namespace kevin.Domain.Interfaces.IServices
 {

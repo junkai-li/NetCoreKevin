@@ -1,0 +1,13 @@
+﻿using kevin.Domain.Interface;
+using kevin.Domain.Entities;
+
+namespace %namespacePath%
+{
+    /// <summary>
+    /// 仓储接口
+    /// </summary>
+    public interface I%entityName%Rp : IRepository<T%entityName%, long>
+    {
+        
+    }
+}

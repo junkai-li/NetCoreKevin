@@ -1,6 +1,6 @@
 ﻿using kevin.Domain.Events;
 
-namespace kevin.Domain.Kevin
+namespace kevin.Domain.Entities
 {
 
     /// <summary>

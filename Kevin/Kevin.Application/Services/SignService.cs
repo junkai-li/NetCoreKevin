@@ -1,4 +1,5 @@
-﻿using kevin.Domain.Share.Dtos.Sign;
+﻿using kevin.Domain.Entities;
+using kevin.Domain.Share.Dtos.Sign;
 
 namespace kevin.Application
 {

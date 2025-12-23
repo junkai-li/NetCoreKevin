@@ -1,10 +1,4 @@
-﻿using kevin.Domain.Entities;
-using kevin.Domain.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using kevin.Domain.Interface;
 
 namespace kevin.Domain.Interfaces.IRepositories
 { 

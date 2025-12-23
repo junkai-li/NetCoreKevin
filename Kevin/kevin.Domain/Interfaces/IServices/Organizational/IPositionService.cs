@@ -1,11 +1,4 @@
-﻿using kevin.Domain.Share.Dtos;
-using kevin.Domain.Share.Dtos.Organizational;
-using kevin.Share.Dtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using kevin.Domain.Share.Dtos.Organizational;
 
 namespace kevin.Domain.Interfaces.IServices.Organizational
 {

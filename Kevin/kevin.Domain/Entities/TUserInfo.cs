@@ -1,7 +1,7 @@
-﻿using kevin.Domain.Share.Enums;
-using TencentCloud.Aca.V20210323.Models;
+﻿using kevin.Domain.Entities;
+using kevin.Domain.Share.Enums;
 
-namespace kevin.Domain.Kevin
+namespace kevin.Domain.Entities
 {
     /// <summary>
     /// 用户详细信息表

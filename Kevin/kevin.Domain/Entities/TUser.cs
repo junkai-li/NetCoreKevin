@@ -1,6 +1,6 @@
 ﻿using Kevin.Common.Helper;
 
-namespace kevin.Domain.Kevin
+namespace kevin.Domain.Entities
 {
 
     /// <summary>

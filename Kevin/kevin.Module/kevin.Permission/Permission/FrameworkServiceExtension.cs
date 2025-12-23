@@ -1,7 +1,5 @@
-﻿using kevin.Domain.Kevin;
-using kevin.Permission.Permission.Attributes;
+﻿using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
-using kevin.Permission.Permisson.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyModel;

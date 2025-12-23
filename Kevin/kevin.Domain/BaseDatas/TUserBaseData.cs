@@ -1,12 +1,6 @@
-﻿using kevin.Domain.BaseDatas;
-using kevin.Domain.Kevin;
+﻿using kevin.Domain.Entities;
 using Kevin.Common.App;
 using Kevin.Common.Helper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Domain.Configuration
 {

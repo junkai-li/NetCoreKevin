@@ -1,11 +1,4 @@
-﻿using Aop.Api.Domain;
-using kevin.Share.Dtos;
-using kevin.Share.Dtos.System;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using kevin.Share.Dtos.System;
 
 namespace kevin.Domain.Interfaces.IServices
 {

@@ -1,4 +1,4 @@
-﻿using kevin.Domain.Kevin;
+﻿using kevin.Domain.Entities;
 using Kevin.EntityFrameworkCore._.Data;
 
 namespace kevin.RepositorieRps.Repositories

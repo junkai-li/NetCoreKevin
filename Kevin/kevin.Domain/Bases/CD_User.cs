@@ -1,5 +1,4 @@
-﻿using kevin.Domain.Bases;
-using kevin.Domain.Kevin;
+﻿using kevin.Domain.Entities;
 
 namespace kevin.Domain.Bases
 {

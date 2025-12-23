@@ -1,4 +1,4 @@
-﻿namespace kevin.Domain.Kevin
+﻿namespace kevin.Domain.Entities
 {
     [Table("TRolePermission")]
     [Description("角色权限表")]

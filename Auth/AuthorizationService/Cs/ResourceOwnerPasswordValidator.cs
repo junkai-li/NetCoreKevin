@@ -1,12 +1,8 @@
-﻿
-using Common;
-using Common.Json;
+﻿using Common.Json;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Validation;
 using kevin.Cache.Service;
-using kevin.Domain.Interfaces.IServices;
-using kevin.Domain.Kevin;
-using kevin.Domain.Share.Interfaces;
+using kevin.Domain.Entities;
 using Kevin.Common.App.Global;
 using Kevin.Models.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;

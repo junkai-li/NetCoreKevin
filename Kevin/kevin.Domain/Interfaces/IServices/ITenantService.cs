@@ -1,7 +1,5 @@
-﻿using kevin.Domain.Share.Dtos;
-using kevin.Domain.Share.Dtos.System;
+﻿using kevin.Domain.Share.Dtos.System;
 using kevin.Domain.Share.Interfaces;
-using kevin.Share.Dtos;
 
 namespace kevin.Domain.Interfaces.IServices
 {

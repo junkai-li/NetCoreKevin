@@ -5,3 +5,7 @@ global using kevin.Domain.Bases;
 global using System.ComponentModel.DataAnnotations;
 global using System.ComponentModel.DataAnnotations.Schema;
 global using kevin.Domain.Share;
+global using kevin.Domain.Entities;
+global using kevin.Domain.Interface;
+global using kevin.Domain.Share.Dtos;
+global using kevin.Share.Dtos;

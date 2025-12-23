@@ -1,4 +1,4 @@
-﻿namespace kevin.Domain.Kevin
+﻿namespace kevin.Domain.Entities
 {
     [Table("TRegionTown")]
     [Description("街道信息表")]

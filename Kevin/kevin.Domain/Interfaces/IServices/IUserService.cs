@@ -1,6 +1,4 @@
-﻿using kevin.Domain.Share.Dtos;
-using kevin.Domain.Share.Dtos.User;
-using kevin.Share.Dtos;
+﻿using kevin.Domain.Share.Dtos.User;
 using kevin.Share.Dtos.System;
 
 namespace kevin.Domain.Interfaces.IServices

@@ -1,10 +1,4 @@
-﻿using kevin.Domain.Kevin;
-using kevin.Domain.Share.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using kevin.Domain.Share.Enums;
 
 namespace kevin.Domain.Entities.Organizational
 {

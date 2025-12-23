@@ -1,5 +1,5 @@
-﻿using kevin.Domain.Interface;
-using kevin.Domain.Kevin;
+﻿using kevin.Domain.Entities;
+using kevin.Domain.Interface;
 
 namespace kevin.Domain.Interfaces.IRepositories
 {

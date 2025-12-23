@@ -1,4 +1,5 @@
-﻿using kevin.Permission.Interfaces;
+﻿using kevin.Domain.Entities;
+using kevin.Permission.Interfaces;
 using kevin.Permission.Permission;
 using kevin.Permission.Permission.Enums;
 using kevin.Permission.Permisson;

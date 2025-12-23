@@ -1,8 +1,10 @@
 ﻿using Common;
+using kevin.Domain.Entities;
 using kevin.Domain.EventBus;
-using kevin.Domain.Kevin;
+using Kevin.Common.App;
 using Kevin.Common.Helper;
 using Kevin.EntityFrameworkCore.Configuration;
+using Kevin.SnowflakeId.Service;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -12,13 +14,9 @@ using Repository.Interceptors;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using Web.Global.User;
-using Kevin.Common.App;
-using Kevin.SnowflakeId.Service;
 namespace Repository.Database
 {
     public class KevinDbContext : DbContext

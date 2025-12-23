@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace kevin.Domain.Kevin
+namespace kevin.Domain.Entities
 {
 
 

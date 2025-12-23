@@ -1,6 +1,6 @@
 ﻿using Common;
+using kevin.Domain.Entities;
 using kevin.Domain.Interfaces.IServices;
-using kevin.Domain.Kevin;
 using Kevin.SnowflakeId.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

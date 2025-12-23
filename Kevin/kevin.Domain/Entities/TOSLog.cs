@@ -1,4 +1,4 @@
-﻿namespace kevin.Domain.Kevin
+﻿namespace kevin.Domain.Entities
 {
     /// <summary>
     /// 操作标记

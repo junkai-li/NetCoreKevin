@@ -3,7 +3,7 @@ using Kevin.Common.App;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Policy;
 
-namespace kevin.Domain.Kevin
+namespace kevin.Domain.Entities
 {
     /// <summary>
     /// 系统权限表
