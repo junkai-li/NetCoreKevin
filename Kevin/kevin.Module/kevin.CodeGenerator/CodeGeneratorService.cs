@@ -115,13 +115,17 @@ namespace kevin.CodeGenerator
                     item.ServiceBulidPath = area.ServiceBulidPath;
                     item.IServiceBulidPath = area.IServiceBulidPath;
                     //判断是有子文件夹
-                    var childFlie = item.Description.Replace(path, "").Replace(item.EntityName + ".cs", "").Replace("\\", "");
+                    var childFlie = item.Description.Replace(path, "").Replace(item.EntityName + ".cs", "").Replace("\\", "."); 
                     if (!string.IsNullOrEmpty(childFlie))
                     {
-                        item.RpBulidPath += "." + childFlie;
-                        item.IRpBulidPath += "." + childFlie;
-                        item.ServiceBulidPath += "." + childFlie;
-                        item.IServiceBulidPath += "." + childFlie;
+                        if (childFlie.EndsWith(".", StringComparison.OrdinalIgnoreCase))
+                        {
+                            childFlie= childFlie.Substring(0, childFlie.Length - 1);
+                        }
+                        item.RpBulidPath += childFlie;
+                        item.IRpBulidPath += childFlie;
+                        item.ServiceBulidPath += childFlie;
+                        item.IServiceBulidPath += childFlie;
                     }
 
                 }
