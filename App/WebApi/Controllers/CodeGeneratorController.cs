@@ -20,7 +20,8 @@ namespace App.WebApi.Controllers
     [ApiController]
     [MyArea("系统管理", "System")]
     [MyModule("代码生成器", "CodeGenerator")]
-    [Authorize] 
+    [Authorize]
+    [ApiVersionNeutral]
     public class CodeGeneratorController : ApiControllerBase
     {
         private ICodeGeneratorService _codeGeneratorService;
