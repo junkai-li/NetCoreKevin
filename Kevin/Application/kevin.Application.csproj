@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\kevin.Module\Kevin.ALL.Module\Kevin.ALL.Module.csproj" />
-    <ProjectReference Include="..\kevin.RepositorieRps\kevin.RepositorieRps.csproj" />
+    <ProjectReference Include="..\RepositorieRps\kevin.RepositorieRps.csproj" />
   </ItemGroup>
 
 </Project>
