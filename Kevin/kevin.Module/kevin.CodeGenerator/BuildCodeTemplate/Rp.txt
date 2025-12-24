@@ -1,3 +1,5 @@
+using %entityNamespace%;
+using  %iRpBulidNamespace%;
 namespace %namespacePath%
 {
     /// <summary>

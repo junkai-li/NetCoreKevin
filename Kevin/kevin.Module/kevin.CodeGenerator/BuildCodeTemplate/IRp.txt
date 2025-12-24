@@ -1,4 +1,5 @@
-﻿namespace %namespacePath%
+﻿using %entityNamespace%;
+namespace %namespacePath%
 {
     /// <summary>
     /// 仓储接口

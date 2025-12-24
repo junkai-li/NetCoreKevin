@@ -1,25 +1,25 @@
-﻿using %entityNamespace%;
-using %iRpBulidNamespace%;
-using %iServiceBulidNamespace%;
+﻿using App.Domain.Entities.AppInfoTest;
+using App.Domain.Interfaces.Repositorie.v1.AppInfoTest;
+using App.Domain.Interfaces.Services.v1.AppInfoTest;
 
-namespace %namespacePath%
+namespace App.Application.Services.v1.AppInfoTest
 {
     /// <summary>
-    /// %entityName%服务接口
+    /// AppInfoTest服务接口
     /// </summary>
-    public class %entityName%Service : BaseService, I%entityName%Service
+    public class AppInfoTestService : BaseService, IAppInfoTestService
     {
-        public I%entityName%Rp %entityName%Rp { get; set; }
-        public %entityName%Service(IHttpContextAccessor _httpContextAccessor, I%entityName%Rp _%entityName%Rp) : base(_httpContextAccessor)
+        public IAppInfoTestRp AppInfoTestRp { get; set; }
+        public AppInfoTestService(IHttpContextAccessor _httpContextAccessor, IAppInfoTestRp _AppInfoTestRp) : base(_httpContextAccessor)
         {
-            this.%entityName%Rp = _%entityName%Rp;
+            this.AppInfoTestRp = _AppInfoTestRp;
         }
 
-        public async Task<dtoPageData<T%entityName%>> GetPageData(dtoPagePar<string> dtoPagePar)
+        public async Task<dtoPageData<TAppInfoTest>> GetPageData(dtoPagePar<string> dtoPagePar)
         {
             int skip = dtoPagePar.GetSkip();
-            var result = new dtoPageData<T%entityName%>();
-            var data = %entityName%Rp.Query(isDataPer: true).Where(t => t.IsDelete == false);
+            var result = new dtoPageData<TAppInfoTest>();
+            var data = AppInfoTestRp.Query(isDataPer: true).Where(t => t.IsDelete == false);
             result.total = await data.CountAsync();
             result.data = await data.Skip(skip).Take(dtoPagePar.pageSize).OrderByDescending(x => x.CreateTime).ToListAsync();
             result.pageSize = dtoPagePar.pageSize;
@@ -27,12 +27,12 @@ namespace %namespacePath%
             return result;
         }
 
-        public async Task<bool> AddEdit(T%entityName% data)
+        public async Task<bool> AddEdit(TAppInfoTest data)
         {
             var isAdd = data.Id == default;
             if (!isAdd)
             {
-                var msg = %entityName%Rp.Query().Where(t => t.IsDelete == false && t.Id == data.Id).FirstOrDefault();
+                var msg = AppInfoTestRp.Query().Where(t => t.IsDelete == false && t.Id == data.Id).FirstOrDefault();
                 if (msg == default)
                 {
                     isAdd = true;
@@ -40,42 +40,42 @@ namespace %namespacePath%
             }
             if (isAdd)
             {
-                var add = data.MapTo<T%entityName%>();
+                var add = data.MapTo<TAppInfoTest>();
                 add.Id = data.Id == default ? SnowflakeIdService.GetNextId() : data.Id;
-                add.IsDelete = false; 
+                add.IsDelete = false;
                 add.CreateTime = DateTime.Now;
                 add.CreateUserId = CurrentUser.UserId;
                 add.TenantId = CurrentUser.TenantId;
-                %entityName%Rp.Add(add);
+                AppInfoTestRp.Add(add);
             }
             else
             {
-                var upData = %entityName%Rp.Query().Where(t => t.IsDelete == false && t.Id == data.Id).FirstOrDefault();
+                var upData = AppInfoTestRp.Query().Where(t => t.IsDelete == false && t.Id == data.Id).FirstOrDefault();
                 if (upData != default)
                 {
-                    upData= data.MapTo(upData);
+                    upData = data.MapTo(upData);
                     upData.UpdateTime = DateTime.Now;
                     upData.UpdateUserId = CurrentUser.UserId;
-                    upData.TenantId = CurrentUser.TenantId; 
+                    upData.TenantId = CurrentUser.TenantId;
                 }
                 else
                 {
                     throw new UserFriendlyException("数据不存在或已删除");
-                } 
+                }
             }
-            await %entityName%Rp.SaveChangesAsync(); 
+            await AppInfoTestRp.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> Delete(long id)
         {
-            var data = await %entityName%Rp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync(); 
+            var data = await AppInfoTestRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
             if (data != default)
             {
-                
+
                 data.IsDelete = true;
                 data.DeleteTime = DateTime.Now;
-                %entityName%Rp.SaveChangesWithSaveLog();
+                AppInfoTestRp.SaveChangesWithSaveLog();
             }
             else
             {

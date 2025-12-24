@@ -77,7 +77,7 @@ namespace kevin.CodeGenerator
                                 {
                                     AreaName = area.AreaName,
                                     EntityName = classDeclaration.Identifier.Text,
-                                    Description = $"{file}: {description}"
+                                    Description = $"{file}"
                                 });
 
                             }
@@ -91,45 +91,96 @@ namespace kevin.CodeGenerator
             return new List<EntityItemDto>();
         }
 
+        /// <summary>
+        /// 处理路径
+        /// </summary>
+        /// <param name="entityItems"></param>
+        /// <returns></returns>
+        private void ProcessingPath(ref List<EntityItemDto> entityItems)
+        {
+            if (entityItems.Count > 0)
+            {
+                var areaName = entityItems.FirstOrDefault().AreaName;
+                var area = _config.CodeGeneratorItems.FirstOrDefault(t => t.AreaName == areaName);
+                if (area == default)
+                {
+                    throw new ArgumentException($"CodeGeneratorSetting配置:{areaName}{area.AreaPath}不存在");
+                }
+                var path = "..\\..\\" + area.AreaPath.Trim().Replace(".", "\\");
+                var csFiles = Directory.GetFiles(path, "*.cs", SearchOption.AllDirectories);
+                foreach (var item in entityItems)
+                {
+                    item.RpBulidPath = area.RpBulidPath;
+                    item.IRpBulidPath = area.IRpBulidPath;
+                    item.ServiceBulidPath = area.ServiceBulidPath;
+                    item.IServiceBulidPath = area.IServiceBulidPath;
+                    //判断是有子文件夹
+                    var childFlie = item.Description.Replace(path, "").Replace(item.EntityName + ".cs", "").Replace("\\", "");
+                    if (!string.IsNullOrEmpty(childFlie))
+                    {
+                        item.RpBulidPath += "." + childFlie;
+                        item.IRpBulidPath += "." + childFlie;
+                        item.ServiceBulidPath += "." + childFlie;
+                        item.IServiceBulidPath += "." + childFlie;
+                    }
+
+                }
+
+            }
+
+        }
+
         public async Task<bool> BulidCode(List<EntityItemDto> entityItems)
         {
-            //获取对应的模板文件
-            var iRpTemplate = GetBuildCodeTemplate("IRp");
-            var rpTemplate = GetBuildCodeTemplate("Rp");
-            var iServiceTemplate = GetBuildCodeTemplate("IService");
-            var service = GetBuildCodeTemplate("Service");
-            foreach (var item in entityItems)
+            if (entityItems.Count > 0)
             {
-                var area = _config.CodeGeneratorItems.FirstOrDefault(t => t.AreaName == item.AreaName);
-                if (area != default)
+                ProcessingPath(ref entityItems);
+                //获取对应的模板文件
+                var iRpTemplate = GetBuildCodeTemplate("IRp");
+                var rpTemplate = GetBuildCodeTemplate("Rp");
+                var iServiceTemplate = GetBuildCodeTemplate("IService");
+                var service = GetBuildCodeTemplate("Service");
+
+                foreach (var item in entityItems)
                 {
+                    var tEntityName = item.EntityName;
                     if (item.EntityName.StartsWith("T", StringComparison.OrdinalIgnoreCase))
                     {
                         item.EntityName = item.EntityName.Substring(1);
                     }
+                    var entityNamespace = item.Description.Replace("..\\..\\", "").Replace("\\" + tEntityName + ".cs", "").Replace("\\", ".");
                     WriteCode(new Dictionary<string, string>
                     {
-                        {  "%entityName%",item.EntityName},
-                        {  "%namespacePath%",area.IRpBulidPath}
-                    }, iRpTemplate, $"../../{area.IRpBulidPath.Trim().Replace(".", "\\")}/I{item.EntityName}Rp.cs");
+                        {"%entityName%",item.EntityName},
+                        {"%entityNamespace%", entityNamespace},
+                        {"%namespacePath%",item.IRpBulidPath}
+                    }, iRpTemplate, $"../../{item.IRpBulidPath.Trim().Replace(".", "\\")}\\I{item.EntityName}Rp.cs");
                     WriteCode(new Dictionary<string, string>
                     {
-                        {  "%entityName%",item.EntityName},
-                        {  "%namespacePath%",area.RpBulidPath}
-                    }, rpTemplate, $"../../{area.RpBulidPath.Trim().Replace(".", "\\")}/{item.EntityName}Rp.cs");
+                        {"%entityName%",item.EntityName},
+                        {"%entityNamespace%", entityNamespace},
+                        {"%iRpBulidNamespace%", item.IRpBulidPath},
+                        {"%namespacePath%",item.RpBulidPath}
+                    }, rpTemplate, $"../../{item.RpBulidPath.Trim().Replace(".", "\\")}\\{item.EntityName}Rp.cs");
                     WriteCode(new Dictionary<string, string>
                     {
-                        {  "%entityName%",item.EntityName},
-                        {  "%namespacePath%",area.IServiceBulidPath}
-                    }, iServiceTemplate, $"../../{area.IServiceBulidPath.Trim().Replace(".", "\\")}/I{item.EntityName}Service.cs");
+                        {"%entityName%",item.EntityName},
+                        {"%entityNamespace%", entityNamespace},
+                        {"%namespacePath%",item.IServiceBulidPath}
+                    }, iServiceTemplate, $"../../{item.IServiceBulidPath.Trim().Replace(".", "\\")}\\I{item.EntityName}Service.cs");
                     WriteCode(new Dictionary<string, string>
                     {
-                        {  "%entityName%",item.EntityName},
-                        {  "%namespacePath%",area.ServiceBulidPath}
-                    }, service, $"../../{area.ServiceBulidPath.Trim().Replace(".", "\\")}/{item.EntityName}Service.cs");
-                }
+                        {"%entityName%",item.EntityName},
+                        {"%entityNamespace%", entityNamespace},
+                        {"%iRpBulidNamespace%", item.IRpBulidPath},
+                        {"%iServiceBulidNamespace%", item.IServiceBulidPath},
+                        {"%namespacePath%",item.ServiceBulidPath}
+                    }, service, $"../../{item.ServiceBulidPath.Trim().Replace(".", "\\")}\\{item.EntityName}Service.cs");
 
+
+                }
             }
+
             return true;
         }
 

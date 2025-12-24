@@ -1,27 +1,27 @@
-using %entityNamespace%;
-namespace %namespacePath%
+ï»¿using App.Domain.Entities.AppInfoTest;
+namespace App.Domain.Interfaces.Services.v1.AppInfoTest
 {
     /// <summary>
-    /// ·þÎñ½Ó¿Ú
+    /// ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½
     /// </summary>
-    public interface I%entityName%Service : IBaseService
+    public interface IAppInfoTestService : IBaseService
     {
          /// <summary>
-        /// »ñÈ¡·ÖÒ³Êý¾Ý
+        /// ï¿½ï¿½È¡ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         /// <param name="dtoPagePar"></param>
         /// <returns></returns>
-        Task<dtoPageData<T%entityName%>> GetPageData(dtoPagePar<string> dtoPagePar);
+        Task<dtoPageData<TAppInfoTest>> GetPageData(dtoPagePar<string> dtoPagePar);
 
         /// <summary>
-        /// ÐÂÔö»ò±à¼­
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½à¼­
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        Task<bool> AddEdit(T%entityName% data);
+        Task<bool> AddEdit(TAppInfoTest data);
 
         /// <summary>
-        /// É¾³ý
+        /// É¾ï¿½ï¿½
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
