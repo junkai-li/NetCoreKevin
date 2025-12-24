@@ -15,6 +15,8 @@ import OSLogMG from '@/pages/OSLog.vue';
 import SystemAnnouncement from '@/pages/SystemAnnouncement.vue';
 import MyMessages from '@/pages/MyMessages.vue';
 import DicConfig from '@/pages/DicMg.vue';
+// 代码生成器页面
+import CodeGenerator from '@/pages/CodeGenerator.vue';
 // AI管理相关页面
 import AiAppsMg from '@/pages/ai/AgentManagement.vue';
 import AiPromptsMg from '@/pages/ai/PromptManagement.vue';
@@ -92,6 +94,11 @@ const routes = [
         path: 'system/tenant',
         name: 'TenantManagement',
         component: TenantManagement
+      },
+      {
+        path: 'system/code-generator',
+        name: 'CodeGenerator',
+        component: CodeGenerator
       },
       {
         path: 'my/message',

@@ -85,7 +85,8 @@
           <template #title>系统管理</template>
           <a-menu-item key="system-announcement">系统公告</a-menu-item>
           <a-menu-item key="system-dic">系统配置</a-menu-item>
-               <a-menu-item key="system-tenant">租户管理</a-menu-item>
+          <a-menu-item key="system-tenant">租户管理</a-menu-item>
+          <a-menu-item key="system-code-generator">代码生成器</a-menu-item>
           <a-menu-item key="log-management">日志管理</a-menu-item>
           <a-menu-item key="oslog">关键数据变动日志</a-menu-item>
         </a-sub-menu>
@@ -282,6 +283,7 @@ const currentRouteTitle = computed(() => {
     "organizational-position": "岗位管理",
     "organizational-department": "部门管理",
     "system-tenant": "租户管理",
+    "system-code-generator": "代码生成器",
   };
   return titles[selectedKeys.value[0]] || "系统页面";
 });
@@ -348,6 +350,9 @@ const handleMenuClick = ({ key }) => {
       break;
       case "system-tenant":
       router.push("/home/system/tenant");
+      break;
+    case "system-code-generator":
+      router.push("/home/system/code-generator");
       break;
     default:
       router.push("/home");
