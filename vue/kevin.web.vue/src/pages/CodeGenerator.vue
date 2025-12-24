@@ -296,8 +296,38 @@ onMounted(() => {
   color: rgba(255, 255, 255, 0.7);
 }
 
-:deep(.ant-table-tbody > tr:hover > td) {
-  background: rgba(102, 126, 234, 0.15);
+/* 覆盖MyTable.css中的悬停样式，确保使用灰色 */
+:deep(.ant-table-tbody > tr:hover > td),
+:deep(.ant-table-tbody > tr:hover.ant-table-row-selected > td) {
+  background: rgba(128, 128, 128, 0.15) !important;
+  color: white !important;
+}
+
+/* 选中行的灰色样式 */
+:deep(.ant-table-tbody > tr.ant-table-row-selected > td),
+:deep(.ant-table-tbody > tr.ant-table-row-selected td) {
+  background: rgba(128, 128, 128, 0.2) !important;
+  color: white !important;
+}
+
+:deep(.ant-table-tbody > tr.ant-table-row-selected:hover > td),
+:deep(.ant-table-tbody > tr.ant-table-row-selected:hover td) {
+  background: rgba(128, 128, 128, 0.3) !important;
+  color: white !important;
+}
+
+/* 覆盖MyTable.css中的其他悬停相关样式 */
+:deep(.my-table .ant-table-tbody>tr:hover>td),
+:deep(.my-table .ant-table-tbody>tr.ant-table-row:hover>td) {
+  background: rgba(128, 128, 128, 0.15) !important;
+  color: white !important;
+}
+
+/* 额外确保表格行背景为透明，避免默认白色背景 */
+:deep(.ant-table-tbody > tr > td),
+:deep(.ant-table-tbody > tr.ant-table-row > td) {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.7) !important;
 }
 
 :deep(.ant-btn-primary) {
