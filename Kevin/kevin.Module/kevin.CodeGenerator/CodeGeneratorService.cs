@@ -158,8 +158,18 @@ namespace kevin.CodeGenerator
             if (!Directory.Exists(dir))
             {
                 Directory.CreateDirectory(dir);
-            } 
-            if (File.Exists(savePath))
+            }
+            //判断是否存在相同文件
+            var csFiles = Directory.GetFiles(dir, "*.cs", SearchOption.AllDirectories);
+            bool fileExists = false;
+            foreach (var file in csFiles)
+            {
+                if (Path.GetFileName(file) == Path.GetFileName(savePath))
+                {
+                    fileExists = true;
+                }
+            }
+            if (fileExists)
             {
                 Console.WriteLine($"文件{savePath}已存在，跳过生成！");
             }
