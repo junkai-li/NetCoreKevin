@@ -1,4 +1,12 @@
 ﻿global using App.Domain.Interfaces.Repositorie.v1;
 global using App.Domain.Interfaces.Services.v1;
 global using kevin.Application;
+global using kevin.Domain.Share.Dtos;
+global using kevin.Share.Dtos;
 global using Microsoft.AspNetCore.Http;
+global using Microsoft.EntityFrameworkCore;
+global using System.Linq;
+global using System.Threading.Tasks;
+global using App.Domain.Entities;
+global using System;
+global using Web.Global.Exceptions;
