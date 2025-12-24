@@ -33,7 +33,7 @@
 	
   
   <ItemGroup>
-    <ProjectReference Include="..\kevin.Domain\kevin.Domain.csproj" />
+    <ProjectReference Include="..\Domain\kevin.Domain.csproj" />
     <ProjectReference Include="..\kevin.Module\Kevin.SnowflakeId\Kevin.SnowflakeId.csproj" />
   </ItemGroup>
   
