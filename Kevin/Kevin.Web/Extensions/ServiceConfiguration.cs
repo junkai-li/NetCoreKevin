@@ -304,9 +304,7 @@ namespace Web.Extension
             //  AddTransient的生命周期：
 
             //请求获取 -（GC回收 - 主动释放） 每一次获取的对象都不是同一个
-            //为各数据库注入连接字符串
-            Repository.Database.KevinDbContext.ConnectionString = Configuration.GetConnectionString("dbConnection");
-            Repository.Database.KevinDbContext.DBDefaultHasIndexFields = Configuration.GetRequiredSection("DBDefaultHasIndexFields").Get<string>().Split(",").ToList();
+            //为各数据库注入连接字符串 
             services.AddDbContextPool<Repository.Database.KevinDbContext>(options => { }, 100);
             services.AddScoped<KevinDbContext, KevinDbContext>();
         }

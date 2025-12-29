@@ -10,7 +10,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Configuration;
 using Repository.Interceptors;
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
@@ -50,7 +52,7 @@ namespace Repository.Database
         public IHttpContextAccessor HttpContextAccessor { get; set; }
 
 
-        public KevinDbContext(DbContextOptions<KevinDbContext> _ = default, IMediator mediator = default, ICurrentUser service = default, ISnowflakeIdService snowflakeIdService = default, IHttpContextAccessor httpContextAccessor = null) : base(GetDbContextOptions())
+        public KevinDbContext(DbContextOptions<KevinDbContext> _ = default, IMediator mediator = default, ICurrentUser service = default, ISnowflakeIdService snowflakeIdService = default, IHttpContextAccessor httpContextAccessor = null, IConfiguration Configuration = default) : base(GetDbContextOptions(Configuration))
         {
             if (mediator != default)
             {
@@ -68,12 +70,17 @@ namespace Repository.Database
             }
             if (snowflakeIdService != default)
             {
-                this.SnowflakeIdService= snowflakeIdService;
+                this.SnowflakeIdService = snowflakeIdService;
+            }
+            if (Configuration != default)
+            {
+                ConnectionString = Configuration.GetConnectionString("dbConnection"); 
+                DBDefaultHasIndexFields = Configuration.GetRequiredSection("DBDefaultHasIndexFields").Get<string>().Split(",").ToList();
             }
         }
 
 
-        private static DbContextOptions<KevinDbContext> GetDbContextOptions()
+        private static DbContextOptions<KevinDbContext> GetDbContextOptions(IConfiguration Configuration)
         {
 
             var optionsBuilder = new DbContextOptionsBuilder<KevinDbContext>();
@@ -85,6 +92,11 @@ namespace Repository.Database
             //PostgreSQL:"Host=127.0.0.1;Database=webcore;Username=postgres;Password=123456;Maximum Pool Size=100"
             if (!optionsBuilder.IsConfigured)
             {
+                if (string.IsNullOrEmpty(ConnectionString))
+                {
+                    ConnectionString = Configuration.GetConnectionString("dbConnection");
+                    DBDefaultHasIndexFields = Configuration.GetRequiredSection("DBDefaultHasIndexFields").Get<string>().Split(",").ToList();
+                }
                 //optionsBuilder.UseSqlServer(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory"));
                 //optionsBuilder.UseMySQL(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory"));
                 optionsBuilder.UseMySql(ConnectionString, new MySqlServerVersion(new Version(8, 0, 22)), o => o.MigrationsHistoryTable("__efmigrationshistory"));
@@ -488,7 +500,7 @@ namespace Repository.Database
             if (Mediator != default)
             {
                 MediatorEventBus(db.ChangeTracker.Entries<IDomainEvents>().Where(x => x.Entity.GetAllDomainEvents().Any()).ToList());
-            } 
+            }
             #endregion
 
             var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
@@ -506,12 +518,12 @@ namespace Repository.Database
                 object result;
                 try
                 {
-                      result = new KevinDbContext().GetType().GetMethod("ComparisonEntity").MakeGenericMethod(type).Invoke(new KevinDbContext(), parameters);
+                    result = new KevinDbContext().GetType().GetMethod("ComparisonEntity").MakeGenericMethod(type).Invoke(new KevinDbContext(), parameters);
                 }
                 catch (Exception ex)
                 {
-                    result = ex.Message; 
-                } 
+                    result = ex.Message;
+                }
                 var osLog = new TOSLog();
                 osLog.Id = SnowflakeIdService.GetNextId();
                 osLog.CreateTime = DateTime.Now;
