@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     /// <inheritdoc />
-    public partial class 初始化数据库 : Migration
+    public partial class _20251229初始化数据库 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -249,6 +249,61 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "t_a_i_chat_message_store",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false, comment: "主键标识ID")
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    key = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "key")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    thread_id = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "thread_id")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    timestamp = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: true, comment: "消息时间stamp"),
+                    role = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false, comment: "role")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    serialized_message = table.Column<string>(type: "longtext", nullable: false, comment: "serialized_message")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    message_text = table.Column<string>(type: "longtext", nullable: true, comment: "message_text")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    message_id = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "消息id")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    create_time = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
+                    is_delete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
+                    delete_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
+                    row_version = table.Column<Guid>(type: "char(36)", nullable: true, comment: "行版本标记", collation: "ascii_general_ci"),
+                    xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "行版本标记"),
+                    tenant_id = table.Column<int>(type: "int", nullable: false, comment: "租户ID_Code"),
+                    update_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "更新时间"),
+                    create_user_id = table.Column<long>(type: "bigint", nullable: false, comment: "创建人ID"),
+                    update_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "编辑人ID"),
+                    delete_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "删除人ID")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_a_i_chat_message_store", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_t_a_i_chat_message_store_t_user_create_user_id",
+                        column: x => x.create_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_a_i_chat_message_store_t_user_delete_user_id",
+                        column: x => x.delete_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_a_i_chat_message_store_t_user_update_user_id",
+                        column: x => x.update_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                },
+                comment: "专门用于存储AI聊天记录的表")
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "t_a_i_kmss",
                 columns: table => new
                 {
@@ -318,7 +373,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     model_key = table.Column<string>(type: "longtext", nullable: false, comment: "模型秘钥")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    model_description = table.Column<string>(type: "longtext", nullable: false, comment: "部署名，azure需要使用")
+                    model_description = table.Column<string>(type: "longtext", nullable: true, comment: "部署名，azure需要使用")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     create_time = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
                     is_delete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
@@ -362,11 +417,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 {
                     id = table.Column<long>(type: "bigint", nullable: false, comment: "主键标识ID")
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    name = table.Column<string>(type: "longtext", nullable: false, comment: "name")
+                    name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false, comment: "名称")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    input_prompt = table.Column<string>(type: "varchar(1500)", maxLength: 1500, nullable: false, comment: "input_prompt")
+                    prompt = table.Column<string>(type: "varchar(1500)", maxLength: 1500, nullable: false, comment: "提示词")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    output_prompt = table.Column<string>(type: "varchar(1500)", maxLength: 1500, nullable: false, comment: "output_prompt")
+                    description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true, comment: "描述")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     create_time = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
                     is_delete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
@@ -402,6 +457,142 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         onDelete: ReferentialAction.Restrict);
                 },
                 comment: "AI提示词配置")
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "t_app_code_test",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false, comment: "主键标识ID")
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    demo_name = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "DemoName")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    create_time = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
+                    is_delete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
+                    delete_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
+                    row_version = table.Column<Guid>(type: "char(36)", nullable: true, comment: "行版本标记", collation: "ascii_general_ci"),
+                    xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "行版本标记"),
+                    tenant_id = table.Column<int>(type: "int", nullable: false, comment: "租户ID_Code"),
+                    update_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "更新时间"),
+                    create_user_id = table.Column<long>(type: "bigint", nullable: false, comment: "创建人ID"),
+                    update_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "编辑人ID"),
+                    delete_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "删除人ID")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_app_code_test", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_t_app_code_test_t_user_create_user_id",
+                        column: x => x.create_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_app_code_test_t_user_delete_user_id",
+                        column: x => x.delete_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_app_code_test_t_user_update_user_id",
+                        column: x => x.update_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                },
+                comment: "App测试代码生成器")
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "t_app_demo",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false, comment: "主键标识ID")
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    demo_name = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "DemoName")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    create_time = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
+                    is_delete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
+                    delete_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
+                    row_version = table.Column<Guid>(type: "char(36)", nullable: true, comment: "行版本标记", collation: "ascii_general_ci"),
+                    xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "行版本标记"),
+                    tenant_id = table.Column<int>(type: "int", nullable: false, comment: "租户ID_Code"),
+                    update_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "更新时间"),
+                    create_user_id = table.Column<long>(type: "bigint", nullable: false, comment: "创建人ID"),
+                    update_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "编辑人ID"),
+                    delete_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "删除人ID")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_app_demo", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_t_app_demo_t_user_create_user_id",
+                        column: x => x.create_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_app_demo_t_user_delete_user_id",
+                        column: x => x.delete_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_app_demo_t_user_update_user_id",
+                        column: x => x.update_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                },
+                comment: "App演示")
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "t_app_info_test",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false, comment: "主键标识ID")
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    name = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "Name")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    app_name = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "AppName")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    test = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false, comment: "Test")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    create_time = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
+                    is_delete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
+                    delete_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
+                    row_version = table.Column<Guid>(type: "char(36)", nullable: true, comment: "行版本标记", collation: "ascii_general_ci"),
+                    xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "行版本标记"),
+                    tenant_id = table.Column<int>(type: "int", nullable: false, comment: "租户ID_Code"),
+                    update_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "更新时间"),
+                    create_user_id = table.Column<long>(type: "bigint", nullable: false, comment: "创建人ID"),
+                    update_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "编辑人ID"),
+                    delete_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "删除人ID")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_app_info_test", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_t_app_info_test_t_user_create_user_id",
+                        column: x => x.create_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_app_info_test_t_user_delete_user_id",
+                        column: x => x.delete_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_app_info_test_t_user_update_user_id",
+                        column: x => x.update_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                },
+                comment: "TAppInfo")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
@@ -945,42 +1136,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "t_user_bind_weixin",
-                columns: table => new
-                {
-                    id = table.Column<long>(type: "bigint", nullable: false, comment: "主键标识ID")
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    user_id = table.Column<long>(type: "bigint", nullable: false, comment: "用户ID"),
-                    wei_xin_key_id = table.Column<long>(type: "bigint", nullable: false, comment: "关联微信账户"),
-                    wei_xin_open_id = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "微信OpenId")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    create_time = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
-                    is_delete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    delete_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    row_version = table.Column<Guid>(type: "char(36)", nullable: true, comment: "行版本标记", collation: "ascii_general_ci"),
-                    xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "行版本标记"),
-                    tenant_id = table.Column<int>(type: "int", nullable: false, comment: "租户ID_Code")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_t_user_bind_weixin", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_t_user_bind_weixin_t_user_user_id",
-                        column: x => x.user_id,
-                        principalTable: "t_user",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_t_user_bind_weixin_t_wei_xin_key_wei_xin_key_id",
-                        column: x => x.wei_xin_key_id,
-                        principalTable: "t_wei_xin_key",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                },
-                comment: "用户和微信绑定关系表")
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "t_region_area",
                 columns: table => new
                 {
@@ -1081,25 +1236,25 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     type = table.Column<string>(type: "longtext", nullable: false, comment: "type")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    chat_model_i_d = table.Column<string>(type: "longtext", nullable: false, comment: "chat_model_i_d")
+                    chat_model_i_d = table.Column<string>(type: "longtext", nullable: false, comment: "会话模型ID")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    embedding_model_i_d = table.Column<string>(type: "longtext", nullable: false, comment: "embedding_model_i_d")
+                    embedding_model_i_d = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "Embedding 模型Id")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    rerank_model_i_d = table.Column<string>(type: "longtext", nullable: true, comment: "rerank_model_i_d")
+                    rerank_model_i_d = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "rerank_model_i_d")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    image_model_i_d = table.Column<string>(type: "longtext", nullable: true, comment: "image_model_i_d")
+                    image_model_i_d = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "image_model_i_d")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    temperature = table.Column<double>(type: "double", nullable: false, defaultValue: 70.0, comment: "temperature"),
-                    kms_id_list = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: true, comment: "kms_id_list")
+                    temperature = table.Column<double>(type: "double", nullable: false, defaultValue: 70.0, comment: "温度"),
+                    kms_id_list = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: true, comment: "知识库ID列表")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    secret_key = table.Column<string>(type: "longtext", nullable: true, comment: "secret_key")
+                    secret_key = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "API调用秘钥")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    relevance = table.Column<double>(type: "double", nullable: false, defaultValue: 60.0, comment: "relevance"),
-                    max_ask_prompt_size = table.Column<int>(type: "int", nullable: false, defaultValue: 2048, comment: "max_ask_prompt_size"),
-                    max_matches_count = table.Column<int>(type: "int", nullable: false, defaultValue: 3, comment: "max_matches_count"),
-                    rerank_count = table.Column<int>(type: "int", nullable: false, defaultValue: 20, comment: "rerank_count"),
-                    answer_tokens = table.Column<int>(type: "int", nullable: false, defaultValue: 2048, comment: "answer_tokens"),
-                    a_i_prompt_i_d = table.Column<long>(type: "bigint", nullable: false, comment: "a_i_prompt_i_d"),
+                    relevance = table.Column<double>(type: "double", nullable: false, defaultValue: 60.0, comment: "相似度"),
+                    max_ask_prompt_size = table.Column<int>(type: "int", nullable: false, defaultValue: 2048, comment: "提问最大token数"),
+                    max_matches_count = table.Column<int>(type: "int", nullable: false, defaultValue: 3, comment: "向量匹配数"),
+                    rerank_count = table.Column<int>(type: "int", nullable: false, defaultValue: 20, comment: "RerankCount"),
+                    answer_tokens = table.Column<int>(type: "int", nullable: false, defaultValue: 2048, comment: "回答最大token数"),
+                    a_i_prompt_i_d = table.Column<long>(type: "bigint", nullable: false, comment: "提示词Id"),
                     create_time = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
                     is_delete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
                     delete_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
@@ -1317,17 +1472,76 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "t_a_i_chats",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false, comment: "主键标识ID")
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    name = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true, comment: "name")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    last_message = table.Column<string>(type: "longtext", nullable: true, comment: "last_message")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    user_id = table.Column<long>(type: "bigint", nullable: false, comment: "聊天用户Id"),
+                    app_id = table.Column<long>(type: "bigint", nullable: false, comment: "应用ID"),
+                    create_time = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
+                    is_delete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
+                    delete_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
+                    row_version = table.Column<Guid>(type: "char(36)", nullable: true, comment: "行版本标记", collation: "ascii_general_ci"),
+                    xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "行版本标记"),
+                    tenant_id = table.Column<int>(type: "int", nullable: false, comment: "租户ID_Code"),
+                    update_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "更新时间"),
+                    create_user_id = table.Column<long>(type: "bigint", nullable: false, comment: "创建人ID"),
+                    update_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "编辑人ID"),
+                    delete_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "删除人ID")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_a_i_chats", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_t_a_i_chats_t_a_i_apps_app_id",
+                        column: x => x.app_id,
+                        principalTable: "t_a_i_apps",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_a_i_chats_t_user_create_user_id",
+                        column: x => x.create_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_a_i_chats_t_user_delete_user_id",
+                        column: x => x.delete_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_a_i_chats_t_user_update_user_id",
+                        column: x => x.update_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_a_i_chats_t_user_user_id",
+                        column: x => x.user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                },
+                comment: "AI对话记录")
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "t_a_i_chat_historys",
                 columns: table => new
                 {
                     id = table.Column<long>(type: "bigint", nullable: false, comment: "主键标识ID")
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    user_id = table.Column<long>(type: "bigint", nullable: false, comment: "user_id"),
-                    app_id = table.Column<long>(type: "bigint", nullable: false, comment: "app_id"),
-                    context = table.Column<string>(type: "longtext", nullable: false, comment: "context")
+                    a_i_chats_id = table.Column<long>(type: "bigint", nullable: false, comment: "a_i_chats_id"),
+                    content = table.Column<string>(type: "longtext", nullable: false, comment: "消息内容")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    is_send = table.Column<ulong>(type: "bit", nullable: false, comment: "is_send"),
-                    file_name = table.Column<string>(type: "longtext", nullable: true, comment: "file_name")
+                    is_send = table.Column<ulong>(type: "bit", nullable: false, comment: "发送是true  接收是false"),
+                    file_name = table.Column<string>(type: "longtext", nullable: true, comment: "文件名")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     create_time = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
                     is_delete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
@@ -1342,9 +1556,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 {
                     table.PrimaryKey("PK_t_a_i_chat_historys", x => x.id);
                     table.ForeignKey(
-                        name: "FK_t_a_i_chat_historys_t_a_i_apps_user_id",
-                        column: x => x.user_id,
-                        principalTable: "t_a_i_apps",
+                        name: "FK_t_a_i_chat_historys_t_a_i_chats_a_i_chats_id",
+                        column: x => x.a_i_chats_id,
+                        principalTable: "t_a_i_chats",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -1356,12 +1570,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     table.ForeignKey(
                         name: "FK_t_a_i_chat_historys_t_user_delete_user_id",
                         column: x => x.delete_user_id,
-                        principalTable: "t_user",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_t_a_i_chat_historys_t_user_user_id",
-                        column: x => x.user_id,
                         principalTable: "t_user",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
@@ -1490,6 +1698,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 column: "update_user_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chat_historys_a_i_chats_id",
+                table: "t_a_i_chat_historys",
+                column: "a_i_chats_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_t_a_i_chat_historys_create_time",
                 table: "t_a_i_chat_historys",
                 column: "create_time");
@@ -1515,8 +1728,103 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 column: "tenant_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_t_a_i_chat_historys_user_id",
-                table: "t_a_i_chat_historys",
+                name: "IX_t_a_i_chat_message_store_create_time",
+                table: "t_a_i_chat_message_store",
+                column: "create_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chat_message_store_create_user_id",
+                table: "t_a_i_chat_message_store",
+                column: "create_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chat_message_store_delete_time",
+                table: "t_a_i_chat_message_store",
+                column: "delete_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chat_message_store_delete_user_id",
+                table: "t_a_i_chat_message_store",
+                column: "delete_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chat_message_store_key",
+                table: "t_a_i_chat_message_store",
+                column: "key");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chat_message_store_message_id",
+                table: "t_a_i_chat_message_store",
+                column: "message_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chat_message_store_role",
+                table: "t_a_i_chat_message_store",
+                column: "role");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chat_message_store_tenant_id",
+                table: "t_a_i_chat_message_store",
+                column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chat_message_store_thread_id",
+                table: "t_a_i_chat_message_store",
+                column: "thread_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chat_message_store_update_time",
+                table: "t_a_i_chat_message_store",
+                column: "update_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chat_message_store_update_user_id",
+                table: "t_a_i_chat_message_store",
+                column: "update_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chats_app_id",
+                table: "t_a_i_chats",
+                column: "app_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chats_create_time",
+                table: "t_a_i_chats",
+                column: "create_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chats_create_user_id",
+                table: "t_a_i_chats",
+                column: "create_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chats_delete_time",
+                table: "t_a_i_chats",
+                column: "delete_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chats_delete_user_id",
+                table: "t_a_i_chats",
+                column: "delete_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chats_tenant_id",
+                table: "t_a_i_chats",
+                column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chats_update_time",
+                table: "t_a_i_chats",
+                column: "update_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chats_update_user_id",
+                table: "t_a_i_chats",
+                column: "update_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_chats_user_id",
+                table: "t_a_i_chats",
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
@@ -1662,6 +1970,111 @@ namespace Kevin.EntityFrameworkCore.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_t_a_i_prompts_update_user_id",
                 table: "t_a_i_prompts",
+                column: "update_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_code_test_create_time",
+                table: "t_app_code_test",
+                column: "create_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_code_test_create_user_id",
+                table: "t_app_code_test",
+                column: "create_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_code_test_delete_time",
+                table: "t_app_code_test",
+                column: "delete_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_code_test_delete_user_id",
+                table: "t_app_code_test",
+                column: "delete_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_code_test_tenant_id",
+                table: "t_app_code_test",
+                column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_code_test_update_time",
+                table: "t_app_code_test",
+                column: "update_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_code_test_update_user_id",
+                table: "t_app_code_test",
+                column: "update_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_demo_create_time",
+                table: "t_app_demo",
+                column: "create_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_demo_create_user_id",
+                table: "t_app_demo",
+                column: "create_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_demo_delete_time",
+                table: "t_app_demo",
+                column: "delete_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_demo_delete_user_id",
+                table: "t_app_demo",
+                column: "delete_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_demo_tenant_id",
+                table: "t_app_demo",
+                column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_demo_update_time",
+                table: "t_app_demo",
+                column: "update_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_demo_update_user_id",
+                table: "t_app_demo",
+                column: "update_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_info_test_create_time",
+                table: "t_app_info_test",
+                column: "create_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_info_test_create_user_id",
+                table: "t_app_info_test",
+                column: "create_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_info_test_delete_time",
+                table: "t_app_info_test",
+                column: "delete_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_info_test_delete_user_id",
+                table: "t_app_info_test",
+                column: "delete_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_info_test_tenant_id",
+                table: "t_app_info_test",
+                column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_info_test_update_time",
+                table: "t_app_info_test",
+                column: "update_time");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_app_info_test_update_user_id",
+                table: "t_app_info_test",
                 column: "update_user_id");
 
             migrationBuilder.CreateIndex(
@@ -2260,31 +2673,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_t_user_bind_weixin_create_time",
-                table: "t_user_bind_weixin",
-                column: "create_time");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_t_user_bind_weixin_delete_time",
-                table: "t_user_bind_weixin",
-                column: "delete_time");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_t_user_bind_weixin_tenant_id",
-                table: "t_user_bind_weixin",
-                column: "tenant_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_t_user_bind_weixin_user_id",
-                table: "t_user_bind_weixin",
-                column: "user_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_t_user_bind_weixin_wei_xin_key_id",
-                table: "t_user_bind_weixin",
-                column: "wei_xin_key_id");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_t_user_info_create_time",
                 table: "t_user_info",
                 column: "create_time");
@@ -2347,10 +2735,22 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 name: "t_a_i_chat_historys");
 
             migrationBuilder.DropTable(
+                name: "t_a_i_chat_message_store");
+
+            migrationBuilder.DropTable(
                 name: "t_a_i_kms_details");
 
             migrationBuilder.DropTable(
                 name: "t_a_i_models");
+
+            migrationBuilder.DropTable(
+                name: "t_app_code_test");
+
+            migrationBuilder.DropTable(
+                name: "t_app_demo");
+
+            migrationBuilder.DropTable(
+                name: "t_app_info_test");
 
             migrationBuilder.DropTable(
                 name: "t_department");
@@ -2392,13 +2792,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 name: "t_user_bind_role");
 
             migrationBuilder.DropTable(
-                name: "t_user_bind_weixin");
-
-            migrationBuilder.DropTable(
                 name: "t_user_info");
 
             migrationBuilder.DropTable(
-                name: "t_a_i_apps");
+                name: "t_wei_xin_key");
+
+            migrationBuilder.DropTable(
+                name: "t_a_i_chats");
 
             migrationBuilder.DropTable(
                 name: "t_a_i_kmss");
@@ -2419,19 +2819,19 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 name: "t_role");
 
             migrationBuilder.DropTable(
-                name: "t_wei_xin_key");
-
-            migrationBuilder.DropTable(
-                name: "t_a_i_prompts");
+                name: "t_a_i_apps");
 
             migrationBuilder.DropTable(
                 name: "t_region_city");
 
             migrationBuilder.DropTable(
-                name: "t_user");
+                name: "t_a_i_prompts");
 
             migrationBuilder.DropTable(
                 name: "t_region_province");
+
+            migrationBuilder.DropTable(
+                name: "t_user");
         }
     }
 }

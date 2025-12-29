@@ -12,18 +12,302 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(KevinDbContext))]
-    [Migration("20251217062457_AI存储聊天记录表2")]
-    partial class AI存储聊天记录表2
+    [Migration("20251229034900_20251229初始化数据库")]
+    partial class _20251229初始化数据库
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.16")
+                .HasAnnotation("ProductVersion", "9.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+
+            modelBuilder.Entity("App.Domain.Entities.AppInfoTest.TAppInfoTest", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AppName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("app_name")
+                        .HasComment("AppName");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_user_id")
+                        .HasComment("创建人ID");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("delete_user_id")
+                        .HasComment("删除人ID");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("name")
+                        .HasComment("Name");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<string>("Test")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("test")
+                        .HasComment("Test");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("update_time")
+                        .HasComment("更新时间");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_user_id")
+                        .HasComment("编辑人ID");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("CreateUserId");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UpdateTime");
+
+                    b.HasIndex("UpdateUserId");
+
+                    b.ToTable("t_app_info_test", null, t =>
+                        {
+                            t.HasComment("TAppInfo");
+                        });
+                });
+
+            modelBuilder.Entity("App.Domain.Entities.TAppCodeTest", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_user_id")
+                        .HasComment("创建人ID");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("delete_user_id")
+                        .HasComment("删除人ID");
+
+                    b.Property<string>("DemoName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("demo_name")
+                        .HasComment("DemoName");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("update_time")
+                        .HasComment("更新时间");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_user_id")
+                        .HasComment("编辑人ID");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("CreateUserId");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UpdateTime");
+
+                    b.HasIndex("UpdateUserId");
+
+                    b.ToTable("t_app_code_test", null, t =>
+                        {
+                            t.HasComment("App测试代码生成器");
+                        });
+                });
+
+            modelBuilder.Entity("App.Domain.Entities.TAppDemo", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_user_id")
+                        .HasComment("创建人ID");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("delete_user_id")
+                        .HasComment("删除人ID");
+
+                    b.Property<string>("DemoName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("demo_name")
+                        .HasComment("DemoName");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("update_time")
+                        .HasComment("更新时间");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_user_id")
+                        .HasComment("编辑人ID");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("CreateUserId");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UpdateTime");
+
+                    b.HasIndex("UpdateUserId");
+
+                    b.ToTable("t_app_demo", null, t =>
+                        {
+                            t.HasComment("App演示");
+                        });
+                });
 
             modelBuilder.Entity("kevin.Domain.Entities.AI.TAIApps", b =>
                 {
@@ -1486,6 +1770,254 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         });
                 });
 
+            modelBuilder.Entity("kevin.Domain.Entities.TDictionary", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_user_id")
+                        .HasComment("创建人ID");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("delete_user_id")
+                        .HasComment("删除人ID");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<ulong>("IsSystem")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_system")
+                        .HasComment("is_system");
+
+                    b.Property<string>("Key")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("key")
+                        .HasComment("键");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("remarks")
+                        .HasComment("备注信息");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<int>("Sort")
+                        .HasColumnType("int")
+                        .HasColumnName("sort")
+                        .HasComment("排序");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<string>("Type")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("type")
+                        .HasComment("类型");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("update_time")
+                        .HasComment("更新时间");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_user_id")
+                        .HasComment("编辑人ID");
+
+                    b.Property<string>("Value")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("value")
+                        .HasComment("值");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("CreateUserId");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UpdateTime");
+
+                    b.HasIndex("UpdateUserId");
+
+                    b.ToTable("t_dictionary", null, t =>
+                        {
+                            t.HasComment("字典信息表");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 4514140354257227771L,
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            IsDelete = 0ul,
+                            IsSystem = 1ul,
+                            Key = "上传文件限制50MB",
+                            Sort = 0,
+                            TenantId = 1000,
+                            Type = "UploadFileLimit",
+                            Value = "50",
+                            xmin = 0u
+                        });
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TFile", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_user_id")
+                        .HasComment("创建人ID");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("delete_user_id")
+                        .HasComment("删除人ID");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("name")
+                        .HasComment("文件名称");
+
+                    b.Property<string>("Path")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("path")
+                        .HasComment("保存路径");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<string>("Sign")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("sign")
+                        .HasComment("标记");
+
+                    b.Property<int>("Sort")
+                        .HasColumnType("int")
+                        .HasColumnName("sort")
+                        .HasComment("排序");
+
+                    b.Property<string>("Table")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("table")
+                        .HasComment("外链表名");
+
+                    b.Property<string>("TableId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("table_id")
+                        .HasComment("外链表ID");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("url")
+                        .HasComment("Url");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("CreateUserId");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("Table");
+
+                    b.HasIndex("TableId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("t_file", null, t =>
+                        {
+                            t.HasComment("文件表");
+                        });
+                });
+
             modelBuilder.Entity("kevin.Domain.Entities.THttpLog", b =>
                 {
                     b.Property<long>("Id")
@@ -1596,6 +2128,81 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.ToTable("t_http_log", null, t =>
                         {
                             t.HasComment("请求日志表");
+                        });
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("content")
+                        .HasComment("内容");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<string>("Sign")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("sign")
+                        .HasComment("标记");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("type")
+                        .HasComment("类型");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("t_log", null, t =>
+                        {
+                            t.HasComment("日志表");
                         });
                 });
 
@@ -1814,6 +2421,750 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         });
                 });
 
+            modelBuilder.Entity("kevin.Domain.Entities.TOSLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("ActionUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("action_user_id")
+                        .HasComment("操作人信息");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("longtext")
+                        .HasColumnName("content")
+                        .HasComment("变动内容");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<string>("DeviceMark")
+                        .HasColumnType("longtext")
+                        .HasColumnName("device_mark")
+                        .HasComment("设备标记");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("ip_address")
+                        .HasComment("Ip地址");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("longtext")
+                        .HasColumnName("remarks")
+                        .HasComment("备注");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<string>("Sign")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("sign")
+                        .HasComment("标记");
+
+                    b.Property<string>("Table")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("table")
+                        .HasComment("外链表名");
+
+                    b.Property<string>("TableId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("table_id")
+                        .HasComment("外链表ID");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActionUserId");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("TableId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("t_o_s_log", null, t =>
+                        {
+                            t.HasComment("操作标记");
+                        });
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TPermission", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    b.Property<string>("Action")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("action")
+                        .HasComment("Action");
+
+                    b.Property<string>("ActionName")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("action_name")
+                        .HasComment("动作名");
+
+                    b.Property<string>("Area")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("area")
+                        .HasComment("区域名称");
+
+                    b.Property<string>("AreaName")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("area_name")
+                        .HasComment("区域");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<long?>("CreateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_user_id")
+                        .HasComment("创建人ID");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("delete_user_id")
+                        .HasComment("删除人ID");
+
+                    b.Property<string>("FullName")
+                        .HasMaxLength(512)
+                        .HasColumnType("varchar(512)")
+                        .HasColumnName("full_name")
+                        .HasComment("模块全名");
+
+                    b.Property<string>("HttpMethod")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("http_method")
+                        .HasComment("Method");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("icon")
+                        .HasComment("图标");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<ulong>("IsManual")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_manual")
+                        .HasComment("手动添加");
+
+                    b.Property<string>("Module")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("module")
+                        .HasComment("Module");
+
+                    b.Property<string>("ModuleName")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("module_name")
+                        .HasComment("系统权限表");
+
+                    b.Property<int>("PermissionType")
+                        .HasColumnType("int")
+                        .HasColumnName("permission_type")
+                        .HasComment("permission_type");
+
+                    b.Property<int?>("Seq")
+                        .HasColumnType("int")
+                        .HasColumnName("seq")
+                        .HasComment("序号");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户id");
+
+                    b.Property<long?>("UpdateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_user_id")
+                        .HasComment("编辑人ID");
+
+                    b.Property<DateTime?>("UpdatedTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_time")
+                        .HasComment("更新时间");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("CreateUserId");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UpdateUserId");
+
+                    b.ToTable("t_permission", null, t =>
+                        {
+                            t.HasComment("系统权限表");
+                        });
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TRegionArea", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    b.Property<string>("Area")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("area")
+                        .HasComment("区域名称");
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("int")
+                        .HasColumnName("city_id")
+                        .HasComment("所属城市ID");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CityId");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("t_region_area", null, t =>
+                        {
+                            t.HasComment("区域信息表");
+                        });
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TRegionCity", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("city")
+                        .HasComment("城市名称");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<int>("ProvinceId")
+                        .HasColumnType("int")
+                        .HasColumnName("province_id")
+                        .HasComment("所属省份ID");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("ProvinceId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("t_region_city", null, t =>
+                        {
+                            t.HasComment("城市信息表");
+                        });
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TRegionProvince", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<string>("Province")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("province")
+                        .HasComment("省份");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("t_region_province", null, t =>
+                        {
+                            t.HasComment("省份信息表");
+                        });
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TRegionTown", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    b.Property<int>("AreaId")
+                        .HasColumnType("int")
+                        .HasColumnName("area_id")
+                        .HasComment("所属区域ID");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<string>("Town")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("town")
+                        .HasComment("街道名称");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AreaId");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("t_region_town", null, t =>
+                        {
+                            t.HasComment("街道信息表");
+                        });
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TRole", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("name")
+                        .HasComment("角色名称");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("remarks")
+                        .HasComment("备注信息");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("t_role", null, t =>
+                        {
+                            t.HasComment("角色信息表");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 4514140354257222771L,
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            IsDelete = 0ul,
+                            Name = "admin",
+                            Remarks = "admin",
+                            TenantId = 1000,
+                            xmin = 0u
+                        });
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TRolePermission", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_user_id")
+                        .HasComment("创建人ID");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("delete_user_id")
+                        .HasComment("删除人ID");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<string>("PermissionId")
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("permission_id")
+                        .HasComment("权限编号");
+
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("role_id")
+                        .HasComment("角色编号");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("CreateUserId");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("t_role_permission", null, t =>
+                        {
+                            t.HasComment("角色权限表");
+                        });
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TSign", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<long>("CreateUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_user_id")
+                        .HasComment("创建人ID");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<long?>("DeleteUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("delete_user_id")
+                        .HasComment("删除人ID");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<string>("Sign")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("sign")
+                        .HasComment("自定义标记");
+
+                    b.Property<string>("Table")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("table")
+                        .HasComment("外链表名称");
+
+                    b.Property<string>("TableId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("table_id")
+                        .HasComment("外链记录ID");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("CreateUserId");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("TableId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("t_sign", null, t =>
+                        {
+                            t.HasComment("点赞或标记喜欢记录表");
+                        });
+                });
+
             modelBuilder.Entity("kevin.Domain.Entities.TTenant", b =>
                 {
                     b.Property<long>("Id")
@@ -1901,6 +3252,131 @@ namespace Kevin.EntityFrameworkCore.Migrations
                             Name = "admin",
                             Status = 1,
                             TenantId = 0,
+                            xmin = 0u
+                        });
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TUser", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("longtext")
+                        .HasColumnName("email")
+                        .HasComment("邮箱");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<ulong>("IsSuperAdmin")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_super_admin")
+                        .HasComment("是否超级管理员");
+
+                    b.Property<ulong>("IsSystem")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_system")
+                        .HasComment("is_system");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext")
+                        .HasColumnName("name")
+                        .HasComment("用户名");
+
+                    b.Property<string>("NickName")
+                        .HasColumnType("longtext")
+                        .HasColumnName("nick_name")
+                        .HasComment("昵称");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("longtext")
+                        .HasColumnName("password_hash")
+                        .HasComment("密码Hash");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("longtext")
+                        .HasColumnName("phone")
+                        .HasComment("手机号");
+
+                    b.Property<DateTime?>("RecentLoginTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("recent_login_time")
+                        .HasComment("最近登陆时间");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<ulong>("Status")
+                        .HasColumnType("bit")
+                        .HasColumnName("status")
+                        .HasComment("状态");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("update_time")
+                        .HasComment("更新时间");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UpdateTime");
+
+                    b.ToTable("t_user", null, t =>
+                        {
+                            t.HasComment("用户表");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 4514140314251222771L,
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            Email = "admin",
+                            IsDelete = 0ul,
+                            IsSuperAdmin = 1ul,
+                            IsSystem = 1ul,
+                            Name = "admin",
+                            NickName = "admin",
+                            PasswordHash = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+                            Phone = "admin",
+                            Status = 1ul,
+                            TenantId = 1000,
                             xmin = 0u
                         });
                 });
@@ -2112,1199 +3588,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         });
                 });
 
-            modelBuilder.Entity("kevin.Domain.Kevin.TDictionary", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("create_time")
-                        .HasComment("创建时间");
-
-                    b.Property<long>("CreateUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("create_user_id")
-                        .HasComment("创建人ID");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("delete_time")
-                        .HasComment("删除时间");
-
-                    b.Property<long?>("DeleteUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("delete_user_id")
-                        .HasComment("删除人ID");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_delete")
-                        .HasComment("是否删除");
-
-                    b.Property<ulong>("IsSystem")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_system")
-                        .HasComment("is_system");
-
-                    b.Property<string>("Key")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("key")
-                        .HasComment("键");
-
-                    b.Property<string>("Remarks")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("remarks")
-                        .HasComment("备注信息");
-
-                    b.Property<Guid?>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("row_version")
-                        .HasComment("行版本标记");
-
-                    b.Property<int>("Sort")
-                        .HasColumnType("int")
-                        .HasColumnName("sort")
-                        .HasComment("排序");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
-                        .HasColumnName("tenant_id")
-                        .HasComment("租户ID_Code");
-
-                    b.Property<string>("Type")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("type")
-                        .HasComment("类型");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("update_time")
-                        .HasComment("更新时间");
-
-                    b.Property<long?>("UpdateUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("update_user_id")
-                        .HasComment("编辑人ID");
-
-                    b.Property<string>("Value")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("value")
-                        .HasComment("值");
-
-                    b.Property<uint>("xmin")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("xmin")
-                        .HasComment("行版本标记");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
-
-                    b.HasIndex("UpdateUserId");
-
-                    b.ToTable("t_dictionary", null, t =>
-                        {
-                            t.HasComment("字典信息表");
-                        });
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 4514140354257227771L,
-                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            CreateUserId = 4514140314251222771L,
-                            IsDelete = 0ul,
-                            IsSystem = 1ul,
-                            Key = "上传文件限制50MB",
-                            Sort = 0,
-                            TenantId = 1000,
-                            Type = "UploadFileLimit",
-                            Value = "50",
-                            xmin = 0u
-                        });
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TFile", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("create_time")
-                        .HasComment("创建时间");
-
-                    b.Property<long>("CreateUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("create_user_id")
-                        .HasComment("创建人ID");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("delete_time")
-                        .HasComment("删除时间");
-
-                    b.Property<long?>("DeleteUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("delete_user_id")
-                        .HasComment("删除人ID");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_delete")
-                        .HasComment("是否删除");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("name")
-                        .HasComment("文件名称");
-
-                    b.Property<string>("Path")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("path")
-                        .HasComment("保存路径");
-
-                    b.Property<Guid?>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("row_version")
-                        .HasComment("行版本标记");
-
-                    b.Property<string>("Sign")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("sign")
-                        .HasComment("标记");
-
-                    b.Property<int>("Sort")
-                        .HasColumnType("int")
-                        .HasColumnName("sort")
-                        .HasComment("排序");
-
-                    b.Property<string>("Table")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("table")
-                        .HasComment("外链表名");
-
-                    b.Property<string>("TableId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("table_id")
-                        .HasComment("外链表ID");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
-                        .HasColumnName("tenant_id")
-                        .HasComment("租户ID_Code");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("url")
-                        .HasComment("Url");
-
-                    b.Property<uint>("xmin")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("xmin")
-                        .HasComment("行版本标记");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("Table");
-
-                    b.HasIndex("TableId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("t_file", null, t =>
-                        {
-                            t.HasComment("文件表");
-                        });
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TLog", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("content")
-                        .HasComment("内容");
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("create_time")
-                        .HasComment("创建时间");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("delete_time")
-                        .HasComment("删除时间");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_delete")
-                        .HasComment("是否删除");
-
-                    b.Property<Guid?>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("row_version")
-                        .HasComment("行版本标记");
-
-                    b.Property<string>("Sign")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("sign")
-                        .HasComment("标记");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
-                        .HasColumnName("tenant_id")
-                        .HasComment("租户ID_Code");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("type")
-                        .HasComment("类型");
-
-                    b.Property<uint>("xmin")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("xmin")
-                        .HasComment("行版本标记");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("t_log", null, t =>
-                        {
-                            t.HasComment("日志表");
-                        });
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TOSLog", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long?>("ActionUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("action_user_id")
-                        .HasComment("操作人信息");
-
-                    b.Property<string>("Content")
-                        .HasColumnType("longtext")
-                        .HasColumnName("content")
-                        .HasComment("变动内容");
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("create_time")
-                        .HasComment("创建时间");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("delete_time")
-                        .HasComment("删除时间");
-
-                    b.Property<string>("DeviceMark")
-                        .HasColumnType("longtext")
-                        .HasColumnName("device_mark")
-                        .HasComment("设备标记");
-
-                    b.Property<string>("IpAddress")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("ip_address")
-                        .HasComment("Ip地址");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_delete")
-                        .HasComment("是否删除");
-
-                    b.Property<string>("Remarks")
-                        .HasColumnType("longtext")
-                        .HasColumnName("remarks")
-                        .HasComment("备注");
-
-                    b.Property<Guid?>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("row_version")
-                        .HasComment("行版本标记");
-
-                    b.Property<string>("Sign")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("sign")
-                        .HasComment("标记");
-
-                    b.Property<string>("Table")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("table")
-                        .HasComment("外链表名");
-
-                    b.Property<string>("TableId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("table_id")
-                        .HasComment("外链表ID");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
-                        .HasColumnName("tenant_id")
-                        .HasComment("租户ID_Code");
-
-                    b.Property<uint>("xmin")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("xmin")
-                        .HasComment("行版本标记");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ActionUserId");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TableId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("t_o_s_log", null, t =>
-                        {
-                            t.HasComment("操作标记");
-                        });
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TPermission", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    b.Property<string>("Action")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("action")
-                        .HasComment("Action");
-
-                    b.Property<string>("ActionName")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("action_name")
-                        .HasComment("动作名");
-
-                    b.Property<string>("Area")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("area")
-                        .HasComment("区域名称");
-
-                    b.Property<string>("AreaName")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("area_name")
-                        .HasComment("区域");
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("create_time")
-                        .HasComment("创建时间");
-
-                    b.Property<long?>("CreateUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("create_user_id")
-                        .HasComment("创建人ID");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("delete_time")
-                        .HasComment("删除时间");
-
-                    b.Property<long?>("DeleteUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("delete_user_id")
-                        .HasComment("删除人ID");
-
-                    b.Property<string>("FullName")
-                        .HasMaxLength(512)
-                        .HasColumnType("varchar(512)")
-                        .HasColumnName("full_name")
-                        .HasComment("模块全名");
-
-                    b.Property<string>("HttpMethod")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("http_method")
-                        .HasComment("Method");
-
-                    b.Property<string>("Icon")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("icon")
-                        .HasComment("图标");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_delete")
-                        .HasComment("是否删除");
-
-                    b.Property<ulong>("IsManual")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_manual")
-                        .HasComment("手动添加");
-
-                    b.Property<string>("Module")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("module")
-                        .HasComment("Module");
-
-                    b.Property<string>("ModuleName")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("module_name")
-                        .HasComment("系统权限表");
-
-                    b.Property<int>("PermissionType")
-                        .HasColumnType("int")
-                        .HasColumnName("permission_type")
-                        .HasComment("permission_type");
-
-                    b.Property<int?>("Seq")
-                        .HasColumnType("int")
-                        .HasColumnName("seq")
-                        .HasComment("序号");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
-                        .HasColumnName("tenant_id")
-                        .HasComment("租户id");
-
-                    b.Property<long?>("UpdateUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("update_user_id")
-                        .HasComment("编辑人ID");
-
-                    b.Property<DateTime?>("UpdatedTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_time")
-                        .HasComment("更新时间");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateUserId");
-
-                    b.ToTable("t_permission", null, t =>
-                        {
-                            t.HasComment("系统权限表");
-                        });
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TRegionArea", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int")
-                        .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    b.Property<string>("Area")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("area")
-                        .HasComment("区域名称");
-
-                    b.Property<int>("CityId")
-                        .HasColumnType("int")
-                        .HasColumnName("city_id")
-                        .HasComment("所属城市ID");
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("create_time")
-                        .HasComment("创建时间");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("delete_time")
-                        .HasComment("删除时间");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_delete")
-                        .HasComment("是否删除");
-
-                    b.Property<Guid?>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("row_version")
-                        .HasComment("行版本标记");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
-                        .HasColumnName("tenant_id")
-                        .HasComment("租户ID_Code");
-
-                    b.Property<uint>("xmin")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("xmin")
-                        .HasComment("行版本标记");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CityId");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("t_region_area", null, t =>
-                        {
-                            t.HasComment("区域信息表");
-                        });
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TRegionCity", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int")
-                        .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    b.Property<string>("City")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("city")
-                        .HasComment("城市名称");
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("create_time")
-                        .HasComment("创建时间");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("delete_time")
-                        .HasComment("删除时间");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_delete")
-                        .HasComment("是否删除");
-
-                    b.Property<int>("ProvinceId")
-                        .HasColumnType("int")
-                        .HasColumnName("province_id")
-                        .HasComment("所属省份ID");
-
-                    b.Property<Guid?>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("row_version")
-                        .HasComment("行版本标记");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
-                        .HasColumnName("tenant_id")
-                        .HasComment("租户ID_Code");
-
-                    b.Property<uint>("xmin")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("xmin")
-                        .HasComment("行版本标记");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("ProvinceId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("t_region_city", null, t =>
-                        {
-                            t.HasComment("城市信息表");
-                        });
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TRegionProvince", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int")
-                        .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("create_time")
-                        .HasComment("创建时间");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("delete_time")
-                        .HasComment("删除时间");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_delete")
-                        .HasComment("是否删除");
-
-                    b.Property<string>("Province")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("province")
-                        .HasComment("省份");
-
-                    b.Property<Guid?>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("row_version")
-                        .HasComment("行版本标记");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
-                        .HasColumnName("tenant_id")
-                        .HasComment("租户ID_Code");
-
-                    b.Property<uint>("xmin")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("xmin")
-                        .HasComment("行版本标记");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("t_region_province", null, t =>
-                        {
-                            t.HasComment("省份信息表");
-                        });
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TRegionTown", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int")
-                        .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    b.Property<int>("AreaId")
-                        .HasColumnType("int")
-                        .HasColumnName("area_id")
-                        .HasComment("所属区域ID");
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("create_time")
-                        .HasComment("创建时间");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("delete_time")
-                        .HasComment("删除时间");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_delete")
-                        .HasComment("是否删除");
-
-                    b.Property<Guid?>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("row_version")
-                        .HasComment("行版本标记");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
-                        .HasColumnName("tenant_id")
-                        .HasComment("租户ID_Code");
-
-                    b.Property<string>("Town")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("town")
-                        .HasComment("街道名称");
-
-                    b.Property<uint>("xmin")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("xmin")
-                        .HasComment("行版本标记");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AreaId");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("t_region_town", null, t =>
-                        {
-                            t.HasComment("街道信息表");
-                        });
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TRole", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("create_time")
-                        .HasComment("创建时间");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("delete_time")
-                        .HasComment("删除时间");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_delete")
-                        .HasComment("是否删除");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("name")
-                        .HasComment("角色名称");
-
-                    b.Property<string>("Remarks")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("remarks")
-                        .HasComment("备注信息");
-
-                    b.Property<Guid?>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("row_version")
-                        .HasComment("行版本标记");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
-                        .HasColumnName("tenant_id")
-                        .HasComment("租户ID_Code");
-
-                    b.Property<uint>("xmin")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("xmin")
-                        .HasComment("行版本标记");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("t_role", null, t =>
-                        {
-                            t.HasComment("角色信息表");
-                        });
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 4514140354257222771L,
-                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            IsDelete = 0ul,
-                            Name = "admin",
-                            Remarks = "admin",
-                            TenantId = 1000,
-                            xmin = 0u
-                        });
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TRolePermission", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("create_time")
-                        .HasComment("创建时间");
-
-                    b.Property<long>("CreateUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("create_user_id")
-                        .HasComment("创建人ID");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("delete_time")
-                        .HasComment("删除时间");
-
-                    b.Property<long?>("DeleteUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("delete_user_id")
-                        .HasComment("删除人ID");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_delete")
-                        .HasComment("是否删除");
-
-                    b.Property<string>("PermissionId")
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("permission_id")
-                        .HasComment("权限编号");
-
-                    b.Property<long>("RoleId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("role_id")
-                        .HasComment("角色编号");
-
-                    b.Property<Guid?>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("row_version")
-                        .HasComment("行版本标记");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
-                        .HasColumnName("tenant_id")
-                        .HasComment("租户ID_Code");
-
-                    b.Property<uint>("xmin")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("xmin")
-                        .HasComment("行版本标记");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("PermissionId");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("t_role_permission", null, t =>
-                        {
-                            t.HasComment("角色权限表");
-                        });
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TSign", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("create_time")
-                        .HasComment("创建时间");
-
-                    b.Property<long>("CreateUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("create_user_id")
-                        .HasComment("创建人ID");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("delete_time")
-                        .HasComment("删除时间");
-
-                    b.Property<long?>("DeleteUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("delete_user_id")
-                        .HasComment("删除人ID");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_delete")
-                        .HasComment("是否删除");
-
-                    b.Property<Guid?>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("row_version")
-                        .HasComment("行版本标记");
-
-                    b.Property<string>("Sign")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("sign")
-                        .HasComment("自定义标记");
-
-                    b.Property<string>("Table")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("table")
-                        .HasComment("外链表名称");
-
-                    b.Property<string>("TableId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("table_id")
-                        .HasComment("外链记录ID");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
-                        .HasColumnName("tenant_id")
-                        .HasComment("租户ID_Code");
-
-                    b.Property<uint>("xmin")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("xmin")
-                        .HasComment("行版本标记");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TableId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("t_sign", null, t =>
-                        {
-                            t.HasComment("点赞或标记喜欢记录表");
-                        });
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TUser", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id")
-                        .HasComment("主键标识ID");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("create_time")
-                        .HasComment("创建时间");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("delete_time")
-                        .HasComment("删除时间");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("longtext")
-                        .HasColumnName("email")
-                        .HasComment("邮箱");
-
-                    b.Property<ulong>("IsDelete")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_delete")
-                        .HasComment("是否删除");
-
-                    b.Property<ulong>("IsSuperAdmin")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_super_admin")
-                        .HasComment("是否超级管理员");
-
-                    b.Property<ulong>("IsSystem")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_system")
-                        .HasComment("is_system");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("longtext")
-                        .HasColumnName("name")
-                        .HasComment("用户名");
-
-                    b.Property<string>("NickName")
-                        .HasColumnType("longtext")
-                        .HasColumnName("nick_name")
-                        .HasComment("昵称");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("longtext")
-                        .HasColumnName("password_hash")
-                        .HasComment("密码Hash");
-
-                    b.Property<string>("Phone")
-                        .HasColumnType("longtext")
-                        .HasColumnName("phone")
-                        .HasComment("手机号");
-
-                    b.Property<DateTime?>("RecentLoginTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("recent_login_time")
-                        .HasComment("最近登陆时间");
-
-                    b.Property<Guid?>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("char(36)")
-                        .HasColumnName("row_version")
-                        .HasComment("行版本标记");
-
-                    b.Property<ulong>("Status")
-                        .HasColumnType("bit")
-                        .HasColumnName("status")
-                        .HasComment("状态");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int")
-                        .HasColumnName("tenant_id")
-                        .HasComment("租户ID_Code");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("update_time")
-                        .HasComment("更新时间");
-
-                    b.Property<uint>("xmin")
-                        .HasColumnType("int unsigned")
-                        .HasColumnName("xmin")
-                        .HasComment("行版本标记");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
-
-                    b.ToTable("t_user", null, t =>
-                        {
-                            t.HasComment("用户表");
-                        });
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 4514140314251222771L,
-                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
-                            Email = "admin",
-                            IsDelete = 0ul,
-                            IsSuperAdmin = 1ul,
-                            IsSystem = 1ul,
-                            Name = "admin",
-                            NickName = "admin",
-                            PasswordHash = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
-                            Phone = "admin",
-                            Status = 1ul,
-                            TenantId = 1000,
-                            xmin = 0u
-                        });
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TUserInfo", b =>
+            modelBuilder.Entity("kevin.Domain.Entities.TUserInfo", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -3461,7 +3745,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         });
                 });
 
-            modelBuilder.Entity("kevin.Domain.Kevin.TWeiXinKey", b =>
+            modelBuilder.Entity("kevin.Domain.Entities.TWeiXinKey", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -3556,6 +3840,81 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         });
                 });
 
+            modelBuilder.Entity("App.Domain.Entities.AppInfoTest.TAppInfoTest", b =>
+                {
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("DeleteUser");
+
+                    b.Navigation("UpdateUser");
+                });
+
+            modelBuilder.Entity("App.Domain.Entities.TAppCodeTest", b =>
+                {
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("DeleteUser");
+
+                    b.Navigation("UpdateUser");
+                });
+
+            modelBuilder.Entity("App.Domain.Entities.TAppDemo", b =>
+                {
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("DeleteUser");
+
+                    b.Navigation("UpdateUser");
+                });
+
             modelBuilder.Entity("kevin.Domain.Entities.AI.TAIApps", b =>
                 {
                     b.HasOne("kevin.Domain.Entities.AI.TAIPrompts", "AIPrompt")
@@ -3564,18 +3923,18 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3597,13 +3956,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3617,18 +3976,18 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Entities.AI.TAIChatMessageStore", b =>
                 {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3648,23 +4007,23 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "User")
+                    b.HasOne("kevin.Domain.Entities.TUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -3683,13 +4042,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Entities.AI.TAIKmsDetails", b =>
                 {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3700,7 +4059,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3716,18 +4075,18 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Entities.AI.TAIKmss", b =>
                 {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3741,18 +4100,18 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Entities.AI.TAIModels", b =>
                 {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3766,18 +4125,18 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Entities.AI.TAIPrompts", b =>
                 {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3791,13 +4150,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Entities.Organizational.TDepartment", b =>
                 {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3807,12 +4166,12 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "User")
+                    b.HasOne("kevin.Domain.Entities.TUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3830,13 +4189,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Entities.Organizational.TPosition", b =>
                 {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3846,7 +4205,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3860,20 +4219,63 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Navigation("UpdateUser");
                 });
 
-            modelBuilder.Entity("kevin.Domain.Entities.TMessage", b =>
+            modelBuilder.Entity("kevin.Domain.Entities.TDictionary", b =>
                 {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("DeleteUser");
+
+                    b.Navigation("UpdateUser");
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TFile", b =>
+                {
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("DeleteUser");
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TMessage", b =>
+                {
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3887,13 +4289,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Entities.TMessageRead", b =>
                 {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3911,15 +4313,133 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Navigation("Message");
                 });
 
-            modelBuilder.Entity("kevin.Domain.Entities.TUserBindPosition", b =>
+            modelBuilder.Entity("kevin.Domain.Entities.TOSLog", b =>
                 {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "ActionUser")
+                        .WithMany()
+                        .HasForeignKey("ActionUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ActionUser");
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TPermission", b =>
+                {
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("DeleteUser");
+
+                    b.Navigation("UpdateUser");
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TRegionArea", b =>
+                {
+                    b.HasOne("kevin.Domain.Entities.TRegionCity", "City")
+                        .WithMany("TRegionArea")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("City");
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TRegionCity", b =>
+                {
+                    b.HasOne("kevin.Domain.Entities.TRegionProvince", "Province")
+                        .WithMany("TRegionCity")
+                        .HasForeignKey("ProvinceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Province");
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TRegionTown", b =>
+                {
+                    b.HasOne("kevin.Domain.Entities.TRegionArea", "Area")
+                        .WithMany("TRegionTown")
+                        .HasForeignKey("AreaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Area");
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TRolePermission", b =>
+                {
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("kevin.Domain.Entities.TPermission", "Permission")
+                        .WithMany()
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("kevin.Domain.Entities.TRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("DeleteUser");
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TSign", b =>
+                {
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
+                        .WithMany()
+                        .HasForeignKey("DeleteUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("DeleteUser");
+                });
+
+            modelBuilder.Entity("kevin.Domain.Entities.TUserBindPosition", b =>
+                {
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3930,12 +4450,12 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "User")
+                    b.HasOne("kevin.Domain.Entities.TUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -3954,29 +4474,29 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("kevin.Domain.Entities.TUserBindRole", b =>
                 {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("kevin.Domain.Kevin.TRole", "Role")
+                    b.HasOne("kevin.Domain.Entities.TRole", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "User")
+                    b.HasOne("kevin.Domain.Entities.TUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -3993,186 +4513,25 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("kevin.Domain.Kevin.TDictionary", b =>
+            modelBuilder.Entity("kevin.Domain.Entities.TUserInfo", b =>
                 {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "DeleteUser")
                         .WithMany()
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
+                    b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("CreateUser");
-
-                    b.Navigation("DeleteUser");
-
-                    b.Navigation("UpdateUser");
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TFile", b =>
-                {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
-                        .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
-                        .WithMany()
-                        .HasForeignKey("DeleteUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("CreateUser");
-
-                    b.Navigation("DeleteUser");
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TOSLog", b =>
-                {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "ActionUser")
-                        .WithMany()
-                        .HasForeignKey("ActionUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ActionUser");
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TPermission", b =>
-                {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
-                        .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
-                        .WithMany()
-                        .HasForeignKey("DeleteUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
-                        .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("CreateUser");
-
-                    b.Navigation("DeleteUser");
-
-                    b.Navigation("UpdateUser");
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TRegionArea", b =>
-                {
-                    b.HasOne("kevin.Domain.Kevin.TRegionCity", "City")
-                        .WithMany("TRegionArea")
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("City");
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TRegionCity", b =>
-                {
-                    b.HasOne("kevin.Domain.Kevin.TRegionProvince", "Province")
-                        .WithMany("TRegionCity")
-                        .HasForeignKey("ProvinceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Province");
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TRegionTown", b =>
-                {
-                    b.HasOne("kevin.Domain.Kevin.TRegionArea", "Area")
-                        .WithMany("TRegionTown")
-                        .HasForeignKey("AreaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Area");
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TRolePermission", b =>
-                {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
-                        .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
-                        .WithMany()
-                        .HasForeignKey("DeleteUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("kevin.Domain.Kevin.TPermission", "Permission")
-                        .WithMany()
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("kevin.Domain.Kevin.TRole", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("CreateUser");
-
-                    b.Navigation("DeleteUser");
-
-                    b.Navigation("Permission");
-
-                    b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TSign", b =>
-                {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
-                        .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
-                        .WithMany()
-                        .HasForeignKey("DeleteUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("CreateUser");
-
-                    b.Navigation("DeleteUser");
-                });
-
-            modelBuilder.Entity("kevin.Domain.Kevin.TUserInfo", b =>
-                {
-                    b.HasOne("kevin.Domain.Kevin.TUser", "CreateUser")
-                        .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("kevin.Domain.Kevin.TUser", "DeleteUser")
-                        .WithMany()
-                        .HasForeignKey("DeleteUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("kevin.Domain.Kevin.TUser", "UpdateUser")
-                        .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("kevin.Domain.Kevin.TUser", "User")
+                    b.HasOne("kevin.Domain.Entities.TUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -4192,17 +4551,17 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Navigation("TAIChatHistorys");
                 });
 
-            modelBuilder.Entity("kevin.Domain.Kevin.TRegionArea", b =>
+            modelBuilder.Entity("kevin.Domain.Entities.TRegionArea", b =>
                 {
                     b.Navigation("TRegionTown");
                 });
 
-            modelBuilder.Entity("kevin.Domain.Kevin.TRegionCity", b =>
+            modelBuilder.Entity("kevin.Domain.Entities.TRegionCity", b =>
                 {
                     b.Navigation("TRegionArea");
                 });
 
-            modelBuilder.Entity("kevin.Domain.Kevin.TRegionProvince", b =>
+            modelBuilder.Entity("kevin.Domain.Entities.TRegionProvince", b =>
                 {
                     b.Navigation("TRegionCity");
                 });
