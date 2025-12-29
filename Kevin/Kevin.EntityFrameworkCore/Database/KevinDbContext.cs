@@ -75,7 +75,7 @@ namespace Repository.Database
             if (Configuration != default)
             {
                 ConnectionString = Configuration.GetConnectionString("dbConnection");
-                DBDefaultHasIndexFields = Configuration.GetRequiredSection("DBDefaultHasIndexFields").Get<string>().Split(",").ToList();
+                DBDefaultHasIndexFields = Configuration.GetSection("DBDefaultHasIndexFields")?.Get<string>()?.Split(",")?.ToList();
             }
         }
 
@@ -97,7 +97,7 @@ namespace Repository.Database
                     if (Configuration != default)
                     {
                         ConnectionString = Configuration.GetConnectionString("dbConnection");
-                        DBDefaultHasIndexFields = Configuration.GetRequiredSection("DBDefaultHasIndexFields").Get<string>().Split(",").ToList();
+                        DBDefaultHasIndexFields = Configuration.GetSection("DBDefaultHasIndexFields")?.Get<string>()?.Split(",")?.ToList();
                     } 
                 }
                 //optionsBuilder.UseSqlServer(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory"));

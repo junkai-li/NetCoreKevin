@@ -29,7 +29,7 @@ namespace AuthorizationService
         public void ConfigureServices(IServiceCollection services)
         {
             Repository.Database.KevinDbContext.ConnectionString = Configuration.GetConnectionString("dbConnection");
-            Repository.Database.KevinDbContext.DBDefaultHasIndexFields = Configuration.GetRequiredSection("DBDefaultHasIndexFields").Get<string>().Split(",").ToList();
+            Repository.Database.KevinDbContext.DBDefaultHasIndexFields = Configuration.GetSection("DBDefaultHasIndexFields")?.Get<string>()?.Split(",")?.ToList();
             services.AddDbContextPool<Repository.Database.KevinDbContext>(options => { }, 100); 
             //×¢ÈëIdentityServer·þÎñ
             services.AddIdentityServer(options =>
