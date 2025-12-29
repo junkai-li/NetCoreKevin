@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.Database;
 
@@ -11,9 +12,11 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(KevinDbContext))]
-    partial class KevinDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251229032003_测试字段更新")]
+    partial class 测试字段更新
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,13 +85,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("tenant_id")
                         .HasComment("租户ID_Code");
 
-                    b.Property<string>("Test")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("test")
-                        .HasComment("Test");
-
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("update_time")
@@ -106,17 +102,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
 
-                    b.HasIndex("DeleteTime");
-
                     b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -196,17 +184,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
 
-                    b.HasIndex("DeleteTime");
-
                     b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -286,17 +266,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
 
-                    b.HasIndex("DeleteTime");
-
                     b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -478,17 +450,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("AIPromptID");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
 
-                    b.HasIndex("DeleteTime");
-
                     b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -574,15 +538,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("AIChatsId");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
 
-                    b.HasIndex("DeleteTime");
-
                     b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("t_a_i_chat_historys", null, t =>
                         {
@@ -696,11 +654,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteTime");
 
                     b.HasIndex("DeleteUserId");
 
@@ -710,11 +664,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("Role");
 
-                    b.HasIndex("TenantId");
-
                     b.HasIndex("ThreadId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -810,17 +760,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("AppId");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
 
-                    b.HasIndex("DeleteTime");
-
                     b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -934,19 +876,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteTime");
 
                     b.HasIndex("DeleteUserId");
 
                     b.HasIndex("KmsId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -1075,17 +1009,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
 
-                    b.HasIndex("DeleteTime");
-
                     b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -1191,17 +1117,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
 
-                    b.HasIndex("DeleteTime");
-
                     b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -1294,17 +1212,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
 
-                    b.HasIndex("DeleteTime");
-
                     b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -1420,19 +1330,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteTime");
 
                     b.HasIndex("DeleteUserId");
 
                     b.HasIndex("ParentId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -1639,19 +1541,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteTime");
 
                     b.HasIndex("DeleteUserId");
 
                     b.HasIndex("ParentId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -1864,17 +1758,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
 
-                    b.HasIndex("DeleteTime");
-
                     b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -1995,19 +1881,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteTime");
 
                     b.HasIndex("DeleteUserId");
 
                     b.HasIndex("Table");
 
                     b.HasIndex("TableId");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("t_file", null, t =>
                         {
@@ -2114,14 +1994,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TenantId");
-
                     b.ToTable("t_http_log", null, t =>
                         {
                             t.HasComment("请求日志表");
@@ -2190,12 +2062,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasComment("行版本标记");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("t_log", null, t =>
                         {
@@ -2322,17 +2188,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
 
-                    b.HasIndex("DeleteTime");
-
                     b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -2400,17 +2258,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteTime");
 
                     b.HasIndex("DeleteUserId");
 
                     b.HasIndex("MessageId");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("t_message_read", null, t =>
                         {
@@ -2489,7 +2341,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.Property<string>("TableId")
                         .IsRequired()
-                        .HasColumnType("varchar(255)")
+                        .HasColumnType("longtext")
                         .HasColumnName("table_id")
                         .HasComment("外链表ID");
 
@@ -2506,14 +2358,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ActionUserId");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TableId");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("t_o_s_log", null, t =>
                         {
@@ -2640,15 +2484,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
 
-                    b.HasIndex("DeleteTime");
-
                     b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TenantId");
 
                     b.HasIndex("UpdateUserId");
 
@@ -2711,12 +2549,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("CityId");
 
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TenantId");
-
                     b.ToTable("t_region_area", null, t =>
                         {
                             t.HasComment("区域信息表");
@@ -2774,13 +2606,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
                     b.HasIndex("ProvinceId");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("t_region_city", null, t =>
                         {
@@ -2833,12 +2659,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasComment("行版本标记");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("t_region_province", null, t =>
                         {
@@ -2898,12 +2718,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AreaId");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("t_region_town", null, t =>
                         {
@@ -2965,12 +2779,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasComment("行版本标记");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("t_role", null, t =>
                         {
@@ -3053,19 +2861,13 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteTime");
 
                     b.HasIndex("DeleteUserId");
 
                     b.HasIndex("PermissionId");
 
                     b.HasIndex("RoleId");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("t_role_permission", null, t =>
                         {
@@ -3128,7 +2930,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.Property<string>("TableId")
                         .IsRequired()
-                        .HasColumnType("varchar(255)")
+                        .HasColumnType("longtext")
                         .HasColumnName("table_id")
                         .HasComment("外链记录ID");
 
@@ -3144,17 +2946,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
 
-                    b.HasIndex("DeleteTime");
-
                     b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TableId");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("t_sign", null, t =>
                         {
@@ -3225,14 +3019,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasComment("行版本标记");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.ToTable("t_tenant", null, t =>
                         {
@@ -3346,14 +3132,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
-
                     b.ToTable("t_user", null, t =>
                         {
                             t.HasComment("用户表");
@@ -3451,19 +3229,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteTime");
 
                     b.HasIndex("DeleteUserId");
 
                     b.HasIndex("PositionId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -3548,19 +3318,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
-
-                    b.HasIndex("DeleteTime");
 
                     b.HasIndex("DeleteUserId");
 
                     b.HasIndex("RoleId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -3702,17 +3464,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateTime");
-
                     b.HasIndex("CreateUserId");
 
-                    b.HasIndex("DeleteTime");
-
                     b.HasIndex("DeleteUserId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
 
@@ -3824,12 +3578,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasComment("行版本标记");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreateTime");
-
-                    b.HasIndex("DeleteTime");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("t_wei_xin_key", null, t =>
                         {

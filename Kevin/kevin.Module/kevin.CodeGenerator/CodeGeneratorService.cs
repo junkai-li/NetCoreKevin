@@ -1,15 +1,8 @@
 ﻿using kevin.CodeGenerator.Dto;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection.Metadata;
+using System.Reflection;
 using System.Text;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
+using System.Text.RegularExpressions;
 
 
 namespace kevin.CodeGenerator
@@ -43,54 +36,36 @@ namespace kevin.CodeGenerator
                 {
                     var csFiles = Directory.GetFiles(path, "*.cs", SearchOption.AllDirectories);
                     foreach (var file in csFiles)
-                    {
-                        // 读取文件内容
-                        var code = File.ReadAllText(file);
-                        var tree = CSharpSyntaxTree.ParseText(code);
-                        var root = (CompilationUnitSyntax)tree.GetRoot();
-
-                        // 查找所有类声明
-                        var classDeclarations = root.DescendantNodes().OfType<ClassDeclarationSyntax>();
-                        foreach (var classDeclaration in classDeclarations)
+                    { 
+                        var cus= GetTableAttributes(file);
+                        entityItems.Add(new EntityItemDto
                         {
-                            // 检查类是否有 Table 特性
-                            if (classDeclaration.AttributeLists.Any(list =>
-                                list.Attributes.Any(attr =>
-                                    attr.Name.ToString() == "Table")))
-                            {
-                                string description = "";
-                                // 检查类是否有 Description 特性
-                                var descriptionAttr = classDeclaration.AttributeLists
-                                    .SelectMany(list => list.Attributes)
-                                    .FirstOrDefault(attr => attr.Name.ToString() == "Description");
-
-                                if (descriptionAttr != null)
-                                {
-                                    // 获取特性参数值
-                                    var arg = descriptionAttr.ArgumentList?.Arguments.FirstOrDefault();
-                                    if (arg?.Expression is LiteralExpressionSyntax literal)
-                                    {
-                                        description = literal.Token.ValueText;
-                                    }
-                                }
-                                entityItems.Add(new EntityItemDto
-                                {
-                                    AreaName = area.AreaName,
-                                    EntityName = classDeclaration.Identifier.Text,
-                                    Description = $"{file}"
-                                });
-
-                            }
-                        }
-                    }
-
+                            AreaName = area.AreaName,
+                            EntityName = cus.FirstOrDefault().TableName,
+                            Description = $"{file}"
+                        }); 
+                    } 
                     return entityItems;
                 }
 
             }
             return new List<EntityItemDto>();
         }
-
+        static List<(string ClassName, string TableName)> GetTableAttributes(string filePath)
+        {
+            var results = new List<(string ClassName, string TableName)>();
+            var sourceCode = File.ReadAllText(filePath); 
+            // 正则表达式匹配类声明和Table特性 
+            string pattern = @"\[Table\(""([^""]*)""\)\]\s*(?:\[[^\]]*\]\s*)*public.*?class\s+(\w+)";
+            var matches = Regex.Matches(sourceCode, pattern, RegexOptions.Singleline); 
+            foreach (Match match in matches)
+            {
+                string className = match.Groups[1].Value;
+                string tableName = match.Groups[2].Value;
+                results.Add((className, tableName));
+            } 
+            return results;
+        }
         /// <summary>
         /// 处理路径
         /// </summary>
@@ -115,12 +90,12 @@ namespace kevin.CodeGenerator
                     item.ServiceBulidPath = area.ServiceBulidPath;
                     item.IServiceBulidPath = area.IServiceBulidPath;
                     //判断是有子文件夹
-                    var childFlie = item.Description.Replace(path, "").Replace(item.EntityName + ".cs", "").Replace("\\", "."); 
+                    var childFlie = item.Description.Replace(path, "").Replace(item.EntityName + ".cs", "").Replace("\\", ".");
                     if (!string.IsNullOrEmpty(childFlie))
                     {
                         if (childFlie.EndsWith(".", StringComparison.OrdinalIgnoreCase))
                         {
-                            childFlie= childFlie.Substring(0, childFlie.Length - 1);
+                            childFlie = childFlie.Substring(0, childFlie.Length - 1);
                         }
                         item.RpBulidPath += childFlie;
                         item.IRpBulidPath += childFlie;

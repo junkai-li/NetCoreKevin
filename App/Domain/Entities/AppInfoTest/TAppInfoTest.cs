@@ -18,5 +18,19 @@ namespace App.Domain.Entities.AppInfoTest
         [StringLength(200)]
         [Description("Name")]
         public string Name { get; set; } = "";
+
+        /// <summary>
+        /// AppName
+        /// </summary>
+        [StringLength(200)]
+        [Description("AppName")]
+        public string AppName { get; set; } = "";
+
+        /// <summary>
+        /// Test
+        /// </summary>
+        [StringLength(200)]
+        [Description("Test")]
+        public string Test { get; set; } = "";
     }
 }

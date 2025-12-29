@@ -27,7 +27,9 @@ namespace AuthorizationService
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        { 
+        {
+            Repository.Database.KevinDbContext.ConnectionString = Configuration.GetConnectionString("dbConnection");
+            Repository.Database.KevinDbContext.DBDefaultHasIndexFields = Configuration.GetRequiredSection("DBDefaultHasIndexFields").Get<string>().Split(",").ToList();
             services.AddDbContextPool<Repository.Database.KevinDbContext>(options => { }, 100); 
             //×¢ÈëIdentityServer·þÎñ
             services.AddIdentityServer(options =>
