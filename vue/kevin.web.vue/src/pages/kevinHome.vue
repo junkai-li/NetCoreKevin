@@ -28,69 +28,71 @@
         <span v-if="!collapsed" class="logo-text">NetCoreKevin后台管理系统</span>
       </div>
 
-      <a-menu
-        v-model:selectedKeys="selectedKeys"
-        v-model:openKeys="openKeys"
-        theme="dark"
-        mode="inline"
-        @click="handleMenuClick"
-      >
-        <a-sub-menu key="dashboard">
-          <template #icon>
-            <DashboardOutlined />
-          </template>
-          <template #title>首页</template>
-          <a-menu-item key="">首页</a-menu-item>
-        </a-sub-menu>
-        <a-sub-menu key="my">
-          <template #icon>
-            <RobotOutlined />
-          </template>
-          <template #title>我的</template>
-          <a-menu-item key="my-message">我的消息</a-menu-item>
-          <a-menu-item key="my-ai-chat">我的AI对话</a-menu-item>
-        </a-sub-menu>
-        <a-sub-menu key="aimanagement">
-          <template #icon>
-            <GitlabOutlined />
-          </template>
-          <template #title>AI管理</template>
-          <a-menu-item key="ai-appsmg">智能体管理</a-menu-item>
-          <a-menu-item key="ai-promptsmg">提示词管理</a-menu-item>
-          <a-menu-item key="ai-kmssmg">知识库管理</a-menu-item>
-          <a-menu-item key="ai-modelmg">模型配置管理</a-menu-item>
-        </a-sub-menu>
-        <a-sub-menu key="organizational-management">
-          <template #icon>
-            <UserOutlined />
-          </template>
-          <template #title>组织架构</template>
-          <a-menu-item key="organizational-position">岗位管理</a-menu-item>
-          <a-menu-item key="organizational-department">部门管理</a-menu-item>
-        </a-sub-menu>
-        <a-sub-menu key="user-management">
-          <template #icon>
-            <UserOutlined />
-          </template>
-          <template #title>用户管理</template>
-          <a-menu-item key="user-list">用户管理</a-menu-item>
-          <a-menu-item key="user-role">角色管理</a-menu-item>
-          <a-menu-item key="user-permission">权限管理</a-menu-item>
-        </a-sub-menu>
+      <div class="menu-wrapper">
+        <a-menu
+          v-model:selectedKeys="selectedKeys"
+          v-model:openKeys="openKeys"
+          theme="dark"
+          mode="inline"
+          @click="handleMenuClick"
+        >
+          <a-sub-menu key="dashboard">
+            <template #icon>
+              <DashboardOutlined />
+            </template>
+            <template #title>首页</template>
+            <a-menu-item key="">首页</a-menu-item>
+          </a-sub-menu>
+          <a-sub-menu key="my">
+            <template #icon>
+              <RobotOutlined />
+            </template>
+            <template #title>我的</template>
+            <a-menu-item key="my-message">我的消息</a-menu-item>
+            <a-menu-item key="my-ai-chat">我的AI对话</a-menu-item>
+          </a-sub-menu>
+          <a-sub-menu key="aimanagement">
+            <template #icon>
+              <GitlabOutlined />
+            </template>
+            <template #title>AI管理</template>
+            <a-menu-item key="ai-appsmg">智能体管理</a-menu-item>
+            <a-menu-item key="ai-promptsmg">提示词管理</a-menu-item>
+            <a-menu-item key="ai-kmssmg">知识库管理</a-menu-item>
+            <a-menu-item key="ai-modelmg">模型配置管理</a-menu-item>
+          </a-sub-menu>
+          <a-sub-menu key="organizational-management">
+            <template #icon>
+              <UserOutlined />
+            </template>
+            <template #title>组织架构</template>
+            <a-menu-item key="organizational-position">岗位管理</a-menu-item>
+            <a-menu-item key="organizational-department">部门管理</a-menu-item>
+          </a-sub-menu>
+          <a-sub-menu key="user-management">
+            <template #icon>
+              <UserOutlined />
+            </template>
+            <template #title>用户管理</template>
+            <a-menu-item key="user-list">用户管理</a-menu-item>
+            <a-menu-item key="user-role">角色管理</a-menu-item>
+            <a-menu-item key="user-permission">权限管理</a-menu-item>
+          </a-sub-menu>
 
-        <a-sub-menu key="system-settings">
-          <template #icon>
-            <SettingOutlined />
-          </template>
-          <template #title>系统管理</template>
-          <a-menu-item key="system-announcement">系统公告</a-menu-item>
-          <a-menu-item key="system-dic">系统配置</a-menu-item>
-          <a-menu-item key="system-tenant">租户管理</a-menu-item>
-          <a-menu-item key="system-code-generator">代码生成器</a-menu-item>
-          <a-menu-item key="log-management">日志管理</a-menu-item>
-          <a-menu-item key="oslog">关键数据变动日志</a-menu-item>
-        </a-sub-menu>
-      </a-menu>
+          <a-sub-menu key="system-settings">
+            <template #icon>
+              <SettingOutlined />
+            </template>
+            <template #title>系统管理</template>
+            <a-menu-item key="system-announcement">系统公告</a-menu-item>
+            <a-menu-item key="system-dic">系统配置</a-menu-item>
+            <a-menu-item key="system-tenant">租户管理</a-menu-item>
+            <a-menu-item key="system-code-generator">代码生成器</a-menu-item>
+            <a-menu-item key="log-management">日志管理</a-menu-item>
+            <a-menu-item key="oslog">关键数据变动日志</a-menu-item>
+          </a-sub-menu>
+        </a-menu>
+      </div>
     </a-layout-sider>
 
     <!-- 右侧内容区域 -->
@@ -580,6 +582,9 @@ const initParticles = () => {
   -webkit-backdrop-filter: blur(12px);
   border-right: 1px solid rgba(255, 255, 255, 0.18);
   transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* 防止整个侧边栏出现滚动条 */
 }
 
 .logo {
@@ -589,6 +594,7 @@ const initParticles = () => {
   padding: 0 24px;
   background: rgba(255, 255, 255, 0.02);
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .logo-wrapper {
@@ -881,6 +887,27 @@ const initParticles = () => {
 :deep(.user-menu .ant-menu-item:hover) {
   background: rgba(102, 126, 234, 0.2);
   color: white;
+}
+
+/* 为菜单容器添加滚动 */
+.menu-wrapper {
+  flex: 1;
+  height: calc(100% - 64px); /* 减去logo的高度 */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.menu-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.menu-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.menu-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* 响应式设计 - 移动端适配 */
