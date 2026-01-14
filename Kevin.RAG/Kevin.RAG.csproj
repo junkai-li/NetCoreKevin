@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml" Version="3.3.0" />  
+    <PackageReference Include="Microsoft.KernelMemory" Version="0.98.250508.3" />  
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />  
+    <PackageReference Include="Qdrant.Client" Version="1.16.1" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.57.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kevin\kevin.Module\Kevin.SnowflakeId\Kevin.SnowflakeId.csproj" />
+  </ItemGroup>
+
+</Project>

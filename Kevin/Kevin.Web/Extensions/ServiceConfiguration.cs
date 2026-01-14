@@ -1,4 +1,6 @@
 ﻿using kevin.Cache;
+using kevin.CodeGenerator;
+using kevin.CodeGenerator.Dto;
 using kevin.DistributedLock;
 using kevin.Domain.EventBus;
 using kevin.FileStorage;
@@ -15,6 +17,9 @@ using Kevin.Common.Helper;
 using Kevin.Cors;
 using Kevin.Cors.Models;
 using Kevin.Email;
+using Kevin.RAG;
+using Kevin.RAG.Ollama.Models;
+using Kevin.RAG.Qdrant.Models;
 using Kevin.SignalR;
 using Kevin.SignalR.Models;
 using Kevin.SMS;
@@ -34,8 +39,6 @@ using System;
 using System.Linq;
 using System.Text.Encodings.Web;
 using Web.Filters;
-using kevin.CodeGenerator;
-using kevin.CodeGenerator.Dto;
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -221,6 +224,19 @@ namespace Web.Extension
                 options.AIKeySecret = settings.AIKeySecret;
                 options.AIDefaultModel = settings.AIDefaultModel;
             });
+
+            services.AddRAGQdrantAndOllama(options =>
+            {
+                var settings = Configuration.GetRequiredSection("OllamaApiSetting").Get<OllamaApiSetting>()!;
+                options.Url = settings.Url;
+                options.DefaultModel = settings.DefaultModel; 
+            }, options2 =>
+            {
+               var settings = Configuration.GetRequiredSection("QdrantClientSetting").Get<QdrantClientSetting>()!;
+                options2.Url = settings.Url;
+                options2.ApiKey = settings.ApiKey;
+                options2.CertificateThumbprint= settings.CertificateThumbprint;
+            });
             #endregion
 
             #region 代码生成器
@@ -229,7 +245,7 @@ namespace Web.Extension
             {
                 var settings = Configuration.GetRequiredSection("CodeGeneratorSetting").Get<CodeGeneratorSetting>()!;
                 options.CodeGeneratorItems = settings.CodeGeneratorItems;
-            
+
             });
 
             #endregion
