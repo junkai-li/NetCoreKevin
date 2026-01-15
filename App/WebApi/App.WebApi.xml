@@ -446,6 +446,11 @@
             <param name="Id"></param>
             <returns></returns>
         </member>
+        <member name="T:App.WebApi.Controllers.v1.AI.AIKmssController">
+            <summary>
+            AI知识库管理
+            </summary>
+        </member>
         <member name="M:App.WebApi.Controllers.v1.AI.AIKmssController.GetPageData(kevin.Domain.Share.Dtos.dtoPagePar{System.String})">
             <summary>
             获取AI知识库分页列表
