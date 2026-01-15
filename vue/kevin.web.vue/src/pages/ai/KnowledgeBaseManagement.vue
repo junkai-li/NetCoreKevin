@@ -375,6 +375,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  width: 100%;
 }
 
 .kb-section {
@@ -404,8 +405,7 @@ onMounted(() => {
   text-align: left;
   font-size: 14px;
   line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
+  display: -webkit-box; 
   -webkit-box-orient: vertical;
   white-space: normal;
   word-break: break-word;
@@ -413,7 +413,11 @@ onMounted(() => {
   margin: 0;
   padding: 0;
 }
-
+.card-content{
+    display: flex;
+  flex-direction: column;
+  gap: 16px; 
+}
 .pagination-container {
 margin-top: 24px;
   display: flex;
