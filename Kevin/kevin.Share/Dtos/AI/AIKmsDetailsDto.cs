@@ -11,13 +11,12 @@ namespace kevin.Domain.Share.Dtos.AI
 {
     public class AIKmsDetailsDto : CUD_User_Dto
     {
-        public long KmsId { get; set; } 
+        public long KmsId { get; set; }
 
         /// <summary>
         /// 文件名称
         /// </summary> 
         public long? FileId { get; set; } 
-        public FileDto? File { get; set; }
         /// <summary>
         /// 数据类型 Text/Word/PDF/Markdown/Html
         /// </summary>
@@ -26,6 +25,10 @@ namespace kevin.Domain.Share.Dtos.AI
         /// 内容
         /// </summary>
         public string Content { get; set; } = "";
+        /// <summary>
+        /// 内容
+        /// </summary>
+        public string ContentName { get; set; } = "";
         /// <summary>
         /// 远程地址
         /// </summary>

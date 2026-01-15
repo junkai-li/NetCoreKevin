@@ -144,6 +144,11 @@
             内容
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIKmsDetailsDto.ContentName">
+            <summary>
+            内容
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIKmsDetailsDto.Url">
             <summary>
             远程地址

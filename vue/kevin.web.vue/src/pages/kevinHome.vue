@@ -339,7 +339,7 @@ const handleMenuClick = ({ key }) => {
       router.push("/home/aimanagement/aipromptsmg");
       break;
     case "ai-kmssmg":
-      router.push("/home/aimanagement/aikmssmg");
+      router.push("/home/aimanagement/aikmssmg"); // 添加知识库管理路由
       break;
     case "ai-modelmg":
       router.push("/home/aimanagement/aimodelmg");

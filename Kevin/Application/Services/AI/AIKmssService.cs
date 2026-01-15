@@ -155,10 +155,7 @@ namespace kevin.Application.Services.AI
             }
             await AIKmssRp.SaveChangesAsync();
             await AIKmsDetailsRp.SaveChangesAsync();
-            Task.Run(() =>
-            {
-                ProcessKmssVectorData(id);
-            }).Start();
+            await ProcessKmssVectorData(id);
             return true;
         }
         /// <summary>

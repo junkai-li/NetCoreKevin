@@ -20,7 +20,7 @@ import CodeGenerator from '@/pages/CodeGenerator.vue';
 // AI管理相关页面
 import AiAppsMg from '@/pages/ai/AgentManagement.vue';
 import AiPromptsMg from '@/pages/ai/PromptManagement.vue';
-// import AiKmssMg from '@/pages/AiKmssMg.vue';
+import AiKmssMg from '@/pages/ai/KnowledgeBaseManagement.vue'; // 添加知识库管理页面组件
 import AiModelMg from '@/pages/ai/ModelManagement.vue';
 import MyAIChat from '@/pages/ai/MyAIChat.vue'; // 添加AI对话界面组件
 //组织架构相关页面
@@ -133,7 +133,7 @@ const routes = [
         {
         path: 'aimanagement/aikmssmg',
         name: 'aikmssmg',
-        component: UnderDevelopment
+        component: AiKmssMg // 替换为实际的知识库管理页面
       },
         {
         path: 'aimanagement/aimodelmg',
