@@ -54,10 +54,7 @@
                       </a-menu-item>
                       <a-menu-item @click="handleDelete(kb)">
                         <DeleteOutlined /> 删除
-                      </a-menu-item>
-                      <a-menu-item @click="handleImportData(kb)">
-                        <UploadOutlined /> 导入数据
-                      </a-menu-item>
+                      </a-menu-item> 
                     </a-menu>
                   </template>
                 </a-dropdown>
@@ -119,31 +116,7 @@
       @ok="handleModalOk"
       @cancel="handleModalCancel"
     />
-
-    <!-- 文档导入模态框 -->
-    <a-modal
-      v-model:open="importModalVisible"
-      title="导入知识库文档"
-      @ok="handleImportConfirm"
-      @cancel="handleImportCancel"
-      width="600px"
-    >
-      <a-form :model="importForm">
-        <a-form-item label="选择文档">
-          <a-upload
-            v-model:file-list="importFileList"
-            :multiple="true"
-            :before-upload="beforeUpload"
-            :remove="handleRemoveFile"
-          >
-            <a-button>
-              <upload-outlined></upload-outlined>
-              选择文件
-            </a-button>
-          </a-upload>
-        </a-form-item>
-      </a-form>
-    </a-modal>
+ 
   </div>
 </template>
 
@@ -154,8 +127,7 @@ import {
   PlusOutlined, 
   EditOutlined,
   DeleteOutlined,
-  EllipsisOutlined,
-  UploadOutlined
+  EllipsisOutlined, 
 } from '@ant-design/icons-vue';
 import { message, Modal } from 'ant-design-vue';
 import {  
@@ -184,11 +156,9 @@ const loading = ref(false);
 const knowledgeBaseList = ref([]);
 
 // 模态框相关
-const modalVisible = ref(false);
-const importModalVisible = ref(false);
+const modalVisible = ref(false); 
 const modalType = ref('add'); // 'add' 或 'edit'
-const currentRecord = ref({});
-const importFileList = ref([]);
+const currentRecord = ref({}); 
 
 // 获取知识库列表
 const loadKnowledgeBaseList = async () => {
@@ -265,26 +235,8 @@ const deleteKnowledgeBase = async (id, name) => {
     message.error('删除知识库失败: ' + (error.message || '未知错误'));
   }
 };
-
-// 导入数据
-const handleImportData = (record) => {
-  currentRecord.value = record;
-  importModalVisible.value = true;
-};
-
-// 上传文件前的处理
-const beforeUpload = () => {
-  // 这里可以添加文件类型验证等逻辑
-  return false; // 返回false以阻止自动上传
-};
-
-// 删除上传文件
-const handleRemoveFile = (file) => {
-  const index = importFileList.value.indexOf(file);
-  const newFileList = importFileList.value.slice();
-  newFileList.splice(index, 1);
-  importFileList.value = newFileList;
-};
+ 
+ 
 
 // 处理模态框确定
 const handleModalOk = async (data) => {
@@ -309,22 +261,8 @@ const handleModalOk = async (data) => {
 const handleModalCancel = () => {
   modalVisible.value = false;
 };
-
-// 处理导入确认
-const handleImportConfirm = () => {
-  // 这里应该处理文档导入逻辑
-  console.log('导入文件:', importFileList.value);
-  message.success('文档导入功能开发中...');
-  importModalVisible.value = false;
-  importFileList.value = [];
-};
-
-// 处理导入取消
-const handleImportCancel = () => {
-  importModalVisible.value = false;
-  importFileList.value = [];
-};
-
+ 
+ 
 // 获取状态颜色
 const getStatusColor = (status) => {
   switch(status) {
@@ -445,30 +383,41 @@ onMounted(() => {
 
 .kb-section.horizontal {
   display: flex;
-  justify-content: space-between;
+  gap: 12px;
   align-items: flex-start;
 }
 
 .section-label {
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.65);
-  margin-right: 8px;
-  flex-shrink: 0;
-  width: 120px;
+   font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
   text-align: left;
+  min-width: 50px;
+  font-size: 14px;
 }
 
 .section-content {
-  flex: 1;
-  text-align: right;
   color: rgba(255, 255, 255, 0.85);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
   word-break: break-word;
-  word-wrap: break-word;
+  /* 确保内容完全靠左 */
+  margin: 0;
+  padding: 0;
 }
 
 .pagination-container {
-  margin-top: 24px;
-  text-align: center;
+margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 :deep(.ant-input),
