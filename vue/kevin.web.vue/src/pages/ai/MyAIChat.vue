@@ -131,7 +131,7 @@
           <div class="placeholder-content">
             <MessageOutlined class="placeholder-icon" />
             <p>选择一个对话或创建新对话开始聊天</p>
-            <a-button type="primary" @click="createNewChat" class="add-button-large">
+            <a-button type="primary"  @click="showAgentSelectionModal" class="add-button-large">
               <template #icon>
                 <PlusOutlined />
               </template>

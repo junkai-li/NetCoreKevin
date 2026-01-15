@@ -106,7 +106,7 @@ namespace kevin.Application.Services.AI
                         ChatOptions = new Microsoft.Extensions.AI.ChatOptions
                         {
                             MaxOutputTokens = aiapp.MaxAskPromptSize,
-                            Temperature = (float)aiapp.Temperature,
+                            Temperature = (float)(aiapp.Temperature/100),
                             ResponseFormat = ChatResponseFormat.Text,
                         },
                         ChatMessageStoreFactory = ctx =>
