@@ -16,7 +16,15 @@
         </a-col>
         <a-col :span="12">
           <a-form-item label="类型" v-bind="validateInfos.type">
-            <a-input v-model:value="form.type" placeholder="请输入类型" />
+            <a-select 
+              v-model:value="form.type" 
+              placeholder="请选择类型"
+              allow-clear
+              show-search
+            >
+              <a-select-option :value="'OpenAI'">Open AI</a-select-option>
+              <a-select-option :value="'AzureOpenAI'">Azure Open AI</a-select-option> 
+            </a-select>
           </a-form-item>
         </a-col>
       </a-row> 
@@ -70,7 +78,22 @@
         </a-col>
         <a-col :span="12">
           <a-form-item label="知识库">
-          <tag>{{ form.embeddingModelID}}</tag> 
+            <a-select 
+              v-model:value="form.kmsIdList" 
+              placeholder="请选择知识库"
+              :options="kmsModelOptions"
+              allow-clear
+              show-search
+              optionFilterProp="label"
+            >
+              <a-select-option 
+                v-for="model in kmsList" 
+                :key="model.id" 
+                :value="model.id"
+              >
+                {{ model.modelName }}
+              </a-select-option>
+            </a-select>
           </a-form-item>
         </a-col>
       </a-row> 
@@ -174,9 +197,9 @@ const form = reactive({
   name: '',
   describe: '',
   icon: 'windows',
-  type: '',
+  type: undefined, // 改为undefined作为初始值
   chatModelID: undefined,
-  embeddingModelID: '',
+  embeddingModelID: undefined,
   rerankModelID: '',
   imageModelID: '',
   temperature: 70,
@@ -200,7 +223,7 @@ const rules = reactive({
     { required: true, message: '请输入图标' }
   ],
   type: [
-    { required: true, message: '请输入类型' }
+    { required: true, message: '请选择类型' }
   ],
   chatModelID: [
     { required: true, message: '请选择会话模型' }
@@ -213,10 +236,19 @@ const { validate, validateInfos, resetFields } = useForm(form, rules);
 // 模型列表
 const modelList = ref([]);
 const promptList = ref([]);
+const kmsList = ref([]);
 
 // 模型选项
 const modelOptions = computed(() => {
   return modelList.value.map(model => ({
+    label: model.modelName,
+    value: model.id
+  }));
+});
+
+// kmsList模型选项
+const kmsModelOptions = computed(() => {
+  return kmsList.value.map(model => ({
     label: model.modelName,
     value: model.id
   }));
@@ -256,9 +288,9 @@ watch(() => props.open, (newVal) => {
         name: '',
         describe: '',
         icon: 'windows',
-        type: '',
+        type: undefined,
         chatModelID: undefined,
-        embeddingModelID: '',
+        embeddingModelID: undefined,
         rerankModelID: '',
         imageModelID: '',
         temperature: 70,
@@ -327,6 +359,10 @@ const loadModelList = async () => {
     const response = await getAIModelsALLList();
     if (response && response.code === 200 && response.data) {
       modelList.value = response.data;
+      // 筛选出embedding模型
+      kmsList.value = response.data.filter(model => 
+        model.type === 7 || model.type === 8 || model.type === 11 // BgeEmbedding, BgeRerank, OllamaEmbedding
+      );
     }
   } catch (error) {
     console.error('加载模型列表失败:', error);
