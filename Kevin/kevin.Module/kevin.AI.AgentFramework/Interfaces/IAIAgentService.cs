@@ -26,7 +26,7 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <returns></returns>
         Task<AIAgent> CreateOpenAIAgent(string name, string prompt, string description, string url, string model, string keySecret,
                IList<AITool>? tools = null,
-                ChatResponseFormat? chatResponseFormat = default,
+                ChatOptions? chatOptions = default,
                 Func<IChatClient, IChatClient>? clientFactory = null,
                ILoggerFactory? loggerFactory = null,
                     IServiceProvider? services = null

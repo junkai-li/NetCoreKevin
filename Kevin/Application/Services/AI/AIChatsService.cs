@@ -9,6 +9,7 @@ using kevin.Domain.Share.Dtos.AI;
 using kevin.Share.Dtos;
 using Kevin.AI;
 using Microsoft.Agents.AI;
+using Microsoft.Extensions.AI;
 using System;
 using Web.Global.Exceptions;
 
@@ -102,6 +103,12 @@ namespace kevin.Application.Services.AI
                         Name = aiapp.Name,
                         Instructions = aIPrompts.Prompt,
                         Description = aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答",
+                        ChatOptions = new Microsoft.Extensions.AI.ChatOptions
+                        {
+                            MaxOutputTokens = aiapp.MaxAskPromptSize,
+                            Temperature = (float)aiapp.Temperature,
+                            ResponseFormat = ChatResponseFormat.Text,
+                        },
                         ChatMessageStoreFactory = ctx =>
                         {
                             // Create a new chat message store for this agent that stores the messages in a vector store.

@@ -8,6 +8,7 @@ using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Share.Dtos;
 using Microsoft.Agents.AI;
+using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel.Connectors.InMemory;
 using System;
 using System.Collections.Generic;
@@ -100,12 +101,18 @@ namespace kevin.Application.Services.AI
             addAi.AIChatsId = par.AIChatsId;
             switch (aIModels.AIType)
             {
-                case Domain.Share.Enums.AIType.OpenAI: 
-                    addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey,new ChatClientAgentOptions
+                case Domain.Share.Enums.AIType.OpenAI:
+                    addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
                     {
-                        Name= aiapp.Name, 
+                        Name = aiapp.Name,
                         Instructions = aIPrompts.Prompt,
                         Description = aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答",
+                        ChatOptions = new Microsoft.Extensions.AI.ChatOptions
+                        {
+                            MaxOutputTokens = aiapp.MaxAskPromptSize,
+                            Temperature = (float)aiapp.Temperature,
+                            ResponseFormat= ChatResponseFormat.Text,
+                        },
                         ChatMessageStoreFactory = ctx =>
                         {
                             // Create a new chat message store for this agent that stores the messages in a vector store.

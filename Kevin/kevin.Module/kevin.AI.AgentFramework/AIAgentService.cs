@@ -23,17 +23,13 @@ namespace kevin.AI.AgentFramework
         {
         }
         public async Task<AIAgent> CreateOpenAIAgent(string name, string prompt, string description, string url, string model, string keySecret,
-            IList<AITool>? tools = null, ChatResponseFormat? chatResponseFormat = null, Func<IChatClient, IChatClient>? clientFactory = null, ILoggerFactory? loggerFactory = null, IServiceProvider? services = null)
+            IList<AITool>? tools = null, ChatOptions? chatOptions = null, Func<IChatClient, IChatClient>? clientFactory = null, ILoggerFactory? loggerFactory = null, IServiceProvider? services = null)
         {
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
             openAIClientOptions.Endpoint = new Uri(url);
             var ai = new OpenAIClient(new ApiKeyCredential(keySecret), openAIClientOptions);
-            if (chatResponseFormat != default)
-            {
-                ChatOptions chatOptions = new()
-                {
-                    ResponseFormat = chatResponseFormat
-                };
+            if (chatOptions != default)
+            { 
                 return ai.GetChatClient(model).CreateAIAgent(new ChatClientAgentOptions()
                 {
                     Name = name,

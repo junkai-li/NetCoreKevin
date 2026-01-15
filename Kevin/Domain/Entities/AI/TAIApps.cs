@@ -56,7 +56,7 @@ namespace kevin.Domain.Entities.AI
         [MaxLength(200)]
         public String? ImageModelID { get; set; }
         /// <summary>
-        /// 温度
+        /// 温度 温度越低0.1-2.0，答案越确定；温度越高，答案越随机
         /// </summary> 
         [DefaultValue(70)]
         [Description("温度")]
