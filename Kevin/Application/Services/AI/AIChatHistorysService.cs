@@ -7,6 +7,7 @@ using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Share.Dtos;
+using Kevin.RAG;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel.Connectors.InMemory;
@@ -29,11 +30,13 @@ namespace kevin.Application.Services.AI
         public IAIPromptsService aIPromptsService { get; set; }
         public IAIChatsService aIChatsService { get; set; }
         public IAIAppsService aIAppsService { get; set; }
-
+        private IRAGService rAGServicevice { get; set; }
         public IKevinAIChatMessageStore kevinAIChatMessageStore { get; set; }
+
+        public IAIKmssService aIKmssService { get; set; }
         public AIChatHistorysService(IHttpContextAccessor _httpContextAccessor, IAIChatHistorysRp _aIChatHistorysRp,
             IAIAgentService _aIAgentService, IAIModelsService _aIModelsService, IAIPromptsService _aIPromptsService,
-            IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore) : base(_httpContextAccessor)
+            IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore, IRAGService _rAGService, IAIKmssService _aIKmssService) : base(_httpContextAccessor)
         {
             this.aIChatHistorysRp = _aIChatHistorysRp;
             this.aIChatsService = _aIChatsService;
@@ -42,6 +45,8 @@ namespace kevin.Application.Services.AI
             this.aIPromptsService = _aIPromptsService;
             this.aIAppsService = _aIAppsService;
             this.kevinAIChatMessageStore = _kevinAIChatMessageStore;
+            this.rAGServicevice = _rAGService;
+            this.aIKmssService = _aIKmssService;
         }
 
         /// <summary>
@@ -99,19 +104,33 @@ namespace kevin.Application.Services.AI
             addAi.TenantId = CurrentUser.TenantId;
             addAi.IsSend = false;
             addAi.AIChatsId = par.AIChatsId;
+            string systemPrompt = "";
+            if (aiapp.KmsId != default)
+            {
+                var kms = aIKmssService.GetDetails(aiapp.KmsId.Value);
+                if (kms != default)
+                {
+                   var systemPromptData = await rAGServicevice.GetSystemPrompt("AIKmss-" + kms.Id.ToString(), add.Content, aiapp.MaxMatchesCount, (aiapp.Relevance / 100));
+                    if (systemPromptData.Item1)
+                    {
+                        systemPrompt = systemPromptData.Item2;
+                    }
+                }
+
+            }
             switch (aIModels.AIType)
             {
                 case Domain.Share.Enums.AIType.OpenAI:
                     addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
                     {
                         Name = aiapp.Name,
-                        Instructions = aIPrompts.Prompt,
-                        Description = aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答",
+                        Instructions = aIPrompts.Prompt + systemPrompt,
+                        Description = (aIPrompts.Description + systemPrompt) ?? "你是一个智能体,请根据你的提示词进行相关回答",
                         ChatOptions = new Microsoft.Extensions.AI.ChatOptions
                         {
                             MaxOutputTokens = aiapp.MaxAskPromptSize,
-                            Temperature = (float)(aiapp.Temperature/100),
-                            ResponseFormat= ChatResponseFormat.Text,
+                            Temperature = (float)(aiapp.Temperature / 100),
+                            ResponseFormat = ChatResponseFormat.Text,
                         },
                         ChatMessageStoreFactory = ctx =>
                         {

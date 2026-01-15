@@ -39,10 +39,10 @@
             温度
             </summary> 
         </member>
-        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.KmsIdList">
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.KmsId">
             <summary>
-            知识库ID列表
-            </summary>
+            知识库ID
+            </summary> 
         </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.SecretKey">
             <summary>
@@ -127,6 +127,66 @@
         <member name="P:kevin.Domain.Share.Dtos.AI.AIChatsDto.AIChatHistorysList">
             <summary>
             对话下的所有聊天记录
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIKmsDetailsDto.FileId">
+            <summary>
+            文件名称
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIKmsDetailsDto.FileType">
+            <summary>
+            数据类型 Text/Word/PDF/Markdown/Html
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIKmsDetailsDto.Content">
+            <summary>
+            内容
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIKmsDetailsDto.Url">
+            <summary>
+            远程地址
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIKmsDetailsDto.DataCount">
+            <summary>
+            数据数量
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIKmsDetailsDto.Status">
+            <summary>
+            状态
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIKmsDetailsDto.ErrorMessage">
+            <summary>
+            异常消息
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIKmssDto.Name">
+            <summary>
+            名称
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIKmssDto.MaxTokensPerParagraph">
+            <summary>
+            每个段落的最大标记数。
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIKmssDto.MaxTokensPerLine">
+            <summary>
+            每行，也就是每句话的最大标记数
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIKmssDto.OverlappingTokens">
+            <summary>
+            段落之间重叠标记的数量。
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIKmssDto.AIKmssDetailsList">
+            <summary>
+            详情列表
             </summary>
         </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIModelsDto.AIType">

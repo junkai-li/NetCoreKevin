@@ -15,21 +15,29 @@ namespace kevin.Domain.Entities.AI
 
         /// <summary>
         /// 文件名称
-        /// </summary>
-        public string FileName { get; set; } = ""; 
-        public long FileId { get; set; }
+        /// </summary> 
+        public long? FileId { get; set; }
+        public virtual TFile? File { get; set; }
         /// <summary>
-        /// 地址
+        /// 数据类型 Text/Word/PDF/Markdown/Html
+        /// </summary>
+        public string? FileType { get; set; }  
+        /// <summary>
+        /// 内容
+        /// </summary>
+        public string Content { get; set; } = "";
+        /// <summary>
+        /// 内容
+        /// </summary>
+        public string ContentName { get; set; } = "";
+        /// <summary>
+        /// 远程地址
         /// </summary>
         public string Url { get; set; } = ""; 
         /// <summary>
         /// 数据数量
         /// </summary>
-        public int? DataCount { get; set; }  
-        /// <summary>
-        /// 创建时间
-        /// </summary>
-        public DateTime CreateTime { get; set; }
+        public int? DataCount { get; set; }   
         /// <summary>
         /// 状态
         /// </summary>

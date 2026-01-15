@@ -108,7 +108,7 @@ namespace kevin.Application.Services.AI
                     msg.RerankModelID = par.RerankModelID;
                     msg.ImageModelID = par.ImageModelID;
                     msg.Temperature = par.Temperature;
-                    msg.KmsIdList = par.KmsIdList;
+                    msg.KmsId = par.KmsId;
                     msg.SecretKey = par.SecretKey;
                     msg.Relevance = par.Relevance;
                     msg.MaxAskPromptSize = par.MaxAskPromptSize;

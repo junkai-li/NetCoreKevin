@@ -57,10 +57,9 @@ namespace kevin.Domain.Share.Dtos.AI
         public double Temperature { get; set; } = 70f;
 
         /// <summary>
-        /// 知识库ID列表
-        /// </summary>
-        [MaxLength(1000)]
-        public string? KmsIdList { get; set; }
+        /// 知识库ID
+        /// </summary> 
+        public long? KmsId { get; set; }
 
         /// <summary>
         /// API调用秘钥

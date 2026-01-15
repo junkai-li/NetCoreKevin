@@ -446,6 +446,41 @@
             <param name="Id"></param>
             <returns></returns>
         </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIKmssController.GetPageData(kevin.Domain.Share.Dtos.dtoPagePar{System.String})">
+            <summary>
+            获取AI知识库分页列表
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIKmssController.GetList(kevin.Domain.Share.Dtos.dtoPagePar{System.String})">
+            <summary>
+            获取AI知识库列表
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIKmssController.GetDetails(System.Int64)">
+            <summary>
+            获取AI知识库详情
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIKmssController.AddEdit(kevin.Domain.Share.Dtos.AI.AIKmssDto)">
+            <summary>
+            新增编辑AI知识库
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.v1.AI.AIKmssController.Delete(System.Int64)">
+            <summary>
+            删除AI知识库
+            </summary>
+            <param name="Id"></param>
+            <returns></returns>
+        </member>
         <member name="T:App.WebApi.Controllers.v1.AI.AIModelsController">
             <summary>
             AI模型管理

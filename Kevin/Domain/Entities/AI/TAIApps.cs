@@ -63,12 +63,11 @@ namespace kevin.Domain.Entities.AI
         public Double Temperature { get; set; } = 70f; 
 
         /// <summary>
-        /// 知识库ID列表
-        /// </summary>
-        [MaxLength(1000)]
-        [Description("知识库ID列表")]
-        public string? KmsIdList { get; set; }
-
+        /// 知识库ID
+        /// </summary> 
+        [Description("知识库ID")]
+        public long? KmsId { get; set; }
+        public TAIKmss? Kms { get; set; }
         /// <summary>
         /// API调用秘钥
         /// </summary>
