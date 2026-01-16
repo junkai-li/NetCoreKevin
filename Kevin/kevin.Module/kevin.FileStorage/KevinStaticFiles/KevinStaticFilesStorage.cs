@@ -1,18 +1,69 @@
-﻿using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Kevin.Common.App;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
+using System.Text.RegularExpressions;
 
 namespace kevin.FileStorage.KevinStaticFiles
 {
     public class KevinStaticFilesStorage : IFileStorage
-    {
+    { 
         private readonly Models.FileStorageSetting fileStorageSetting;
-        public KevinStaticFilesStorage(IOptionsMonitor<Models.FileStorageSetting> config)
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        // <summary>
+        /// 提取URL中第一个'/'之前的部分（协议+主机+端口）
+        /// </summary>
+        /// <param name="url">完整URL字符串</param>
+        /// <returns>协议+主机+端口部分</returns>
+        private static string ExtractProtocolAndHost(string url)
         {
-            fileStorageSetting = config.CurrentValue;
+            if (string.IsNullOrEmpty(url))
+                throw new ArgumentException("URL不能为空");
+
+            try
+            {
+                // 方法1: 使用Uri类解析（推荐）
+                Uri uri = new Uri(url);
+                string protocol = uri.Scheme;
+                string host = uri.Host;
+                int port = uri.Port;
+
+                // 构造结果字符串
+                if (port == 80 && protocol == "http" || port == 443 && protocol == "https")
+                {
+                    // 默认端口不显示
+                    return $"{protocol}://{host}";
+                }
+                else
+                {
+                    // 显示指定端口
+                    return $"{protocol}://{host}:{port}";
+                }
+            }
+            catch (UriFormatException)
+            {
+                // 方法2: 使用正则表达式作为备选方案
+                string pattern = @"^(https?://[^/]+)";
+                Match match = Regex.Match(url, pattern);
+                if (match.Success)
+                {
+                    return match.Groups[1].Value;
+                }
+                else
+                {
+                    throw new ArgumentException("无效的URL格式");
+                }
+            }
+        }
+        public KevinStaticFilesStorage(IOptionsMonitor<Models.FileStorageSetting> config, IHttpContextAccessor _httpContextAccessor)
+        {
+            fileStorageSetting = config.CurrentValue; 
+            if (string.IsNullOrEmpty(fileStorageSetting.Url))
+            {
+                fileStorageSetting.Url = $"{ExtractProtocolAndHost(_httpContextAccessor.GetUrl())}/"+ fileStorageSetting.RequestPath;
+            }
+
         }
         public bool FileDelete(string remotePath)
         {

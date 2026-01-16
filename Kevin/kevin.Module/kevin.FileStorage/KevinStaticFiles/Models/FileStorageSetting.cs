@@ -14,8 +14,13 @@ namespace kevin.FileStorage.KevinStaticFiles.Models
         public required string Endpoint { get; set; }
 
         /// <summary>
-        /// 访问前缀
+        /// 对象路由前缀 例如KevinFlies
         /// </summary>
-        public required string Url { get; set; } = "http://localhost:9901/KevinFlies";
+        public required string RequestPath { get; set; } = "KevinFlies";
+
+        /// <summary>
+        /// 访问前缀 为空则使用当前IP站点地址  
+        /// </summary>
+        public required string? Url { get; set; }
     }
 }

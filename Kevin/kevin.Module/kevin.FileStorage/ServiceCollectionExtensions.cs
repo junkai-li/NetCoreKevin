@@ -21,8 +21,8 @@ namespace kevin.FileStorage
 
         public static void AddKevinStaticFilesStorage(this IServiceCollection services, Action<kevin.FileStorage.KevinStaticFiles.Models.FileStorageSetting> action)
         {
-            services.Configure(action);
-            services.AddTransient<IFileStorage, KevinStaticFilesStorage>();
+            services.Configure(action); 
+            services.AddTransient<IFileStorage, KevinStaticFilesStorage>();  
         }
     }
 }

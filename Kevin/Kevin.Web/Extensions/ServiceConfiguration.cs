@@ -40,6 +40,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text.Encodings.Web;
+using TencentCloud.Tione.V20211111.Models;
 using Web.Filters;
 namespace Web.Extension
 {
@@ -160,8 +161,7 @@ namespace Web.Extension
             //注册文件服务 需要和静态文件中间件配合使用 配置保持一致
             services.AddKevinStaticFilesStorage(options =>
             { 
-                options.Endpoint = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "KevinFlies");
-                options.Url = "http://localhost:9901/KevinFlies";
+                options.Endpoint = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "KevinFlies"); 
             });
             #endregion
 
@@ -268,11 +268,12 @@ namespace Web.Extension
             app.UseKevinCors();
             //强制重定向到Https
             app.UseHttpsRedirection();
-
-            //静态文件中间件 (UseStaticFiles) 返回静态文件，并简化进一步请求处理。
+            //静态文件中间件 (UseStaticFiles) 返回静态文件，并简化进一步请求处理。 
+            string staticFilePath= System.IO.Path.Combine(Directory.GetCurrentDirectory(), "KevinFlies");
+            Directory.CreateDirectory(staticFilePath);
             app.UseStaticFiles(new StaticFileOptions
             {
-                FileProvider = new PhysicalFileProvider(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "KevinFlies")), // 自定义文件夹路径
+                FileProvider = new PhysicalFileProvider(staticFilePath), // 自定义文件夹路径
                 RequestPath = new PathString("/KevinFlies") // 自定义 URL 前缀路径
             });
 

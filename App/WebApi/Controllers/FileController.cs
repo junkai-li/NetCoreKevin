@@ -1,5 +1,6 @@
 ﻿using kevin.Domain.Entities;
 using kevin.Domain.Interfaces.IServices;
+using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -24,8 +25,12 @@ namespace WebApi.Controllers
     [SkipAuthority]
     public class FileController : ApiControllerBase
     {
-        [IocProperty]
-        public IFileService _fileService { get; set; }
+        private IFileService _fileService { get; set; }
+
+        public FileController(IFileService service)
+        {
+            this._fileService = service;
+        } 
 
         /// <summary>
         /// 远程单文件上传接口

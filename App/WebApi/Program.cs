@@ -19,7 +19,7 @@ using Kevin.Common.App.IO;
 using Microsoft.AspNetCore.Authorization;
 using System.Runtime.CompilerServices;
 using kevin.Application;
-
+using Kevin.log4Net;
 namespace WebApi
 {
     public class Program
@@ -31,7 +31,7 @@ namespace WebApi
 
                 Common.EnvironmentHelper.InitTestServer();
                 var builder = WebApplication.CreateBuilder(args); 
-                //builder.Logging.UseKevinLog4Net();日志
+                builder.Logging.UseKevinLog4Net();//日志
                 #region Kestrel Https并绑定证书
                 //启用 Kestrel Https 并绑定证书
                 //builder.WebHost.UseKestrel(options =>
