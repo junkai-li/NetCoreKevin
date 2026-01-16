@@ -5,6 +5,7 @@ using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using kevin.FileStorage;
+using kevin.RepositorieRps.Repositories;
 using Kevin.RAG.Dto;
 using Kevin.RAG.Qdrant;
 using Kevin.RAG.Tools;
@@ -26,6 +27,7 @@ namespace kevin.Application.Services.AI
         public IFileStorage FileStorage { get; set; }
 
         private IQdrantClientService QdrantClientService { get; set; }
+
         public AIKmssService(IHttpContextAccessor _httpContextAccessor, IAIKmssRp _AIKmssRp, IAIKmsDetailsRp _AIKmsDetailsRp, IFileRp _FileRp, IFileStorage _FileStorage, IQdrantClientService _qdrantClientService) : base(_httpContextAccessor)
         {
             this.AIKmssRp = _AIKmssRp;
@@ -47,9 +49,23 @@ namespace kevin.Application.Services.AI
             result.total = await data.CountAsync();
             result.data = (await data.Skip(skip).Take(dtoPagePar.pageSize).OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIKmss, AIKmssDto>();
             var aikmsData = await AIKmsDetailsRp.Query().Where(t => t.IsDelete == false && result.data.Select(t => t.Id).ToList().Contains(t.KmsId)).ToListAsync();
+            var flieData = FileRp.Query().Where(t => t.IsDelete == false && aikmsData.Select(a => a.FileId.ToTryInt64()).ToList().Contains(t.Id)).ToList().MapToList<TFile, FileDto>().ToList();
             foreach (var item in result.data)
             {
                 item.AIKmssDetailsList = aikmsData.Where(t => t.KmsId == item.Id).MapToList<TAIKmsDetails, AIKmsDetailsDto>();
+                foreach (var itemDetails in item.AIKmssDetailsList)
+                {
+                    if (itemDetails.FileId != default)
+                    {
+                        var file = flieData.Where(t => t.Id == itemDetails.FileId.ToTryInt64()).FirstOrDefault();
+                        if (file != default)
+                        {
+                            itemDetails.Url = file.Url;
+                            itemDetails.ContentName = file.Name;
+                        }
+                    }
+
+                }
             }
             result.pageSize = dtoPagePar.pageSize;
             result.pageNum = dtoPagePar.pageNum;
@@ -117,7 +133,7 @@ namespace kevin.Application.Services.AI
                 var upData = AIKmssRp.Query().Where(t => t.IsDelete == false && t.Id == data.Id).FirstOrDefault();
                 if (upData != default)
                 {
-                    id = upData.Id; 
+                    id = upData.Id;
                     upData.UpdateTime = DateTime.Now;
                     upData.UpdateUserId = CurrentUser.UserId;
                     upData.TenantId = CurrentUser.TenantId;
@@ -175,7 +191,7 @@ namespace kevin.Application.Services.AI
                     if (addTAIKmsDetailss.Count > 0)
                     {
                         AIKmsDetailsRp.AddRange(addTAIKmsDetailss);
-                    } 
+                    }
                 }
                 else
                 {

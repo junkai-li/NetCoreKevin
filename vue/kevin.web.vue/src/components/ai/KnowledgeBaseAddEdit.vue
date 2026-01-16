@@ -63,18 +63,20 @@
       <a-row :gutter="16">
         <a-col :span="12">
           <a-form-item label="知识库文档">
-            <a-upload
-              v-model:file-list="fileList"
-              name="file"
-              :multiple="true"
-              :before-upload="beforeUpload"
-              :remove="handleRemoveFile"
-            >
-              <a-button>
-                <UploadOutlined></UploadOutlined>
-                上传文档
-              </a-button>
-            </a-upload>
+             
+                      <FileUpload
+        business="AIKmss"
+        :keyValue=form.id
+        sign="AIKmssDetailFlies"
+        :accept="'.txt,.word,.pdf,.md,.html,.docx,.doc'"
+        :multiple="true"
+        :max-count="5"
+        @upload-success="beforeUpload"
+        @upload-error="handleUploadError"
+        @delete-success="handleRemoveFile"
+        @file-ids-change="handleFileIdsChange"
+      />
+               
           </a-form-item>
         </a-col>
           <a-col :span="12">  </a-col>
@@ -104,12 +106,9 @@
       >
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'fileName'">
-            <template v-if="record.file">
-              {{ record.file.fileName }}
-            </template>
-            <template v-else-if="record.url">
-              {{ record.url }}
-            </template>
+            <template   v-if="record.contentName" > 
+             <a   @click="getFileById(record.fileId)" >{{ record.contentName }}</a> 
+            </template> 
             <template v-else>
               {{ record.content.substring(0, 30) + '...' }}
             </template>
@@ -203,9 +202,10 @@
 /* eslint-disable no-undef */
 import { ref, reactive, computed, watch, h } from 'vue';
 import { Form, message, Modal } from 'ant-design-vue';
-import { UploadOutlined, EditOutlined, LinkOutlined } from '@ant-design/icons-vue';
+import { EditOutlined, LinkOutlined } from '@ant-design/icons-vue';
 import { GetSnowflakeId } from '../../api/baseapi';
-
+import FileUpload from '@/components/FileUpload.vue';
+import {getFileById} from '../../api/file';
 const emit = defineEmits(['ok', 'cancel']);
 
 const props = defineProps({
@@ -226,8 +226,7 @@ const props = defineProps({
 const useForm = Form.useForm;
 
 const visible = ref(false);
-const confirmLoading = ref(false);
-const fileList = ref([]);
+const confirmLoading = ref(false); 
 
 // 表单数据
 const form = reactive({
@@ -370,18 +369,19 @@ const handleCancel = () => {
   visible.value = false;
 };
 
-// 上传文件前的处理
+// 上传文件成功
 const beforeUpload = (file) => {
+  console.log('上传文件:', file);
   // 创建知识库详情对象
   const detailItem = {
     id: Date.now(),
     kmsId: form.id || 0,
-    fileId: null,
+    fileId: file.fileId.data,
     file: {
-      fileName: file.name,
-      size: file.size
+      fileName: file.fileName,
+      size: file.fileSize
     },
-    fileType: getFileType(file.name),
+    fileType: getFileType(file.fileName),
     content: "",
     url: "",
     dataCount: null,
