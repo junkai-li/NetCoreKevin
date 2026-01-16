@@ -123,6 +123,7 @@
             </a-tag>
           </template>
           <template v-else-if="column.key === 'action'">
+            <a-button type="link" @click="viewDetail(record)">查看</a-button>
             <a-popconfirm 
               v-if="form.kmsDetailsList.length > 1" 
               title="确定要删除这条记录吗?" 
@@ -200,8 +201,8 @@
 
 <script setup>
 /* eslint-disable no-undef */
-import { ref, reactive, computed, watch } from 'vue';
-import { Form, message } from 'ant-design-vue';
+import { ref, reactive, computed, watch, h } from 'vue';
+import { Form, message, Modal } from 'ant-design-vue';
 import { UploadOutlined, EditOutlined, LinkOutlined } from '@ant-design/icons-vue';
 import { GetSnowflakeId } from '../../api/baseapi';
 
@@ -482,6 +483,56 @@ const handleCancelUrl = () => {
 // 删除详情
 const onDeleteDetail = (index) => {
   form.kmsDetailsList.splice(index, 1);
+};
+
+// 查看详情
+const viewDetail = (record) => {
+  let content;
+  
+  if (record.file) {
+    // 如果是文件类型
+    content = h('div', null, [
+      h('p', null, ['文件名: ', h('strong', null, record.file.fileName)]),
+      h('p', null, ['文件大小: ', h('strong', null, formatFileSize(record.file.size))]),
+      h('p', null, ['文件类型: ', h('strong', null, record.fileType)]),
+      h('p', null, ['状态: ', h('strong', null, getStatusText(record.status))])
+    ]);
+  } else if (record.url) {
+    // 如果是URL类型
+    content = h('div', null, [
+      h('p', null, ['URL地址: ', h('strong', null, record.url)]),
+      h('p', null, ['内容类型: ', h('strong', null, record.fileType)]),
+      h('p', null, ['状态: ', h('strong', null, getStatusText(record.status))])
+    ]);
+  } else {
+    // 如果是文本内容
+    content = h('div', null, [
+      h('p', null, ['内容标题: ', h('strong', null, record.contentName || '未设置')]),
+      h('p', null, ['内容类型: ', h('strong', null, record.fileType)]),
+      h('p', null, ['状态: ', h('strong', null, getStatusText(record.status))]),
+      h('h4', null, '内容预览:'),
+      h('div', { 
+        style: 'max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; white-space: pre-wrap;', 
+        innerHTML: record.content
+      })
+    ]);
+  }
+  
+  Modal.info({
+    title: '详情信息',
+    width: 600,
+    content: content,
+    okText: '关闭'
+  });
+};
+
+// 格式化文件大小
+const formatFileSize = (bytes) => {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
 // 获取文件类型
