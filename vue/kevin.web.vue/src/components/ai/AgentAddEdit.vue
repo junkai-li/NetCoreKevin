@@ -69,8 +69,23 @@
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item label="知识库">
-          <tag>{{ form.embeddingModelID}}</tag> 
+          <a-form-item label="知识库" v-bind="validateInfos.kmsId">
+            <a-select 
+              v-model:value="form.kmsId" 
+              placeholder="请选择知识库"
+              :options="kmsOptions"
+              allow-clear
+              show-search
+              optionFilterProp="label"
+            >
+              <a-select-option 
+                v-for="kms in kmsList" 
+                :key="kms.id" 
+                :value="kms.id"
+              >
+                {{ kms.name }}
+              </a-select-option>
+            </a-select>
           </a-form-item>
         </a-col>
       </a-row> 
@@ -146,6 +161,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { Form } from 'ant-design-vue';
 import { getAIModelsALLList } from '@/api/ai/aiModels';
 import { getAIPromptsALLList } from '@/api/ai/aiPrompts';
+import { getAIKmssList } from '@/api/ai/aikmss';
 const emit = defineEmits(['ok', 'cancel']);
 
 const props = defineProps({
@@ -176,7 +192,8 @@ const form = reactive({
   icon: 'windows',
   type: '',
   chatModelID: undefined,
-  embeddingModelID: '',
+  kmsId: undefined, // 知识库ID
+   embeddingModelID: undefined,
   rerankModelID: '',
   imageModelID: '',
   temperature: 70,
@@ -204,7 +221,10 @@ const rules = reactive({
   ],
   chatModelID: [
     { required: true, message: '请选择会话模型' }
-  ] 
+  ],
+  kmsId: [
+    { required: true, message: '请选择知识库' }
+  ]
 });
 
 // 表单验证
@@ -213,12 +233,24 @@ const { validate, validateInfos, resetFields } = useForm(form, rules);
 // 模型列表
 const modelList = ref([]);
 const promptList = ref([]);
+const kmsList = ref([]); // 知识库列表
 
 // 模型选项
 const modelOptions = computed(() => {
   return modelList.value.map(model => ({
     label: model.modelName,
     value: model.id
+  }));
+});
+
+// 知识库选项
+const kmsOptions = computed(() => {
+  if(!kmsList.value || !Array.isArray(kmsList.value)) {
+    return [];
+  }
+  return kmsList.value.map(kms => ({
+    label: kms.name,
+    value: kms.id
   }));
 });
 
@@ -258,7 +290,8 @@ watch(() => props.open, (newVal) => {
         icon: 'windows',
         type: '',
         chatModelID: undefined,
-        embeddingModelID: '',
+        embeddingModelID: undefined,
+         kmsId: undefined, // 知识库ID
         rerankModelID: '',
         imageModelID: '',
         temperature: 70,
@@ -293,7 +326,8 @@ const handleOk = () => {
         icon: form.icon,
         type: form.type,
         chatModelID: form.chatModelID,
-        embeddingModelID: form.embeddingModelID,
+        kmsId: form.kmsId, // 知识库ID
+         embeddingModelID: form.embeddingModelID,
         rerankModelID: form.rerankModelID,
         imageModelID: form.imageModelID,
         temperature: form.temperature,
@@ -345,10 +379,37 @@ const loadPromptList = async () => {
   }
 };
 
+// 加载知识库列表
+const loadKmsList = async () => {
+  try {
+    const response = await getAIKmssList({});
+    if (response && response.code === 200) {
+      // 根据API响应调整数据结构，通常POST类型的列表接口会将数据放在data.result或类似属性下
+      if(response.data && Array.isArray(response.data)) {
+        kmsList.value = response.data;
+      } else if(response.data && response.data.list && Array.isArray(response.data.list)) {
+        kmsList.value = response.data.list;
+      } else if(Array.isArray(response)) {
+        kmsList.value = response;
+      } else {
+        console.warn('Unexpected response format for getAIKmssList:', response);
+        kmsList.value = [];
+      }
+    } else {
+      console.error('Failed to load knowledge base list:', response?.message || 'Unknown error');
+      kmsList.value = [];
+    }
+  } catch (error) {
+    console.error('加载知识库列表失败:', error);
+    kmsList.value = [];
+  }
+};
+
 // 组件挂载时加载数据
 onMounted(() => {
   loadModelList();
   loadPromptList();
+  loadKmsList();
 });
 
 // 暴露方法给父组件

@@ -107,7 +107,7 @@ namespace kevin.Application.Services.AI
             string systemPrompt = "";
             if (aiapp.KmsId != default)
             {
-                var kms = aIKmssService.GetDetails(aiapp.KmsId.Value);
+                var kms = await aIKmssService.GetDetails(aiapp.KmsId.Value);
                 if (kms != default)
                 {
                    var systemPromptData = await rAGServicevice.GetSystemPrompt("AIKmss-" + kms.Id.ToString(), add.Content, aiapp.MaxMatchesCount, (aiapp.Relevance / 100));
