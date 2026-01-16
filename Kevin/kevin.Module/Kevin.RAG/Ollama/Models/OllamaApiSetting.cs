@@ -10,6 +10,7 @@ namespace Kevin.RAG.Ollama.Models
     {
         public string Url { get; set; } = "http://****/v1";
 
+        public string? ApiKey { get; set; }
         public string DefaultModel { get; set; } = "modelscope.cn/Qwen/Qwen3-Embedding-0.6B-GGUF:latest";
     }
 }

@@ -230,6 +230,7 @@ namespace Web.Extension
                 var settings = Configuration.GetRequiredSection("OllamaApiSetting").Get<OllamaApiSetting>()!;
                 options.Url = settings.Url;
                 options.DefaultModel = settings.DefaultModel; 
+                options.ApiKey= settings.ApiKey;
             }, options2 =>
             {
                var settings = Configuration.GetRequiredSection("QdrantClientSetting").Get<QdrantClientSetting>()!;
