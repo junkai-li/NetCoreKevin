@@ -4,6 +4,7 @@ using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
+using Kevin.Web.Filters.TransactionScope.Attribute;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -53,6 +54,7 @@ namespace App.WebApi.Controllers.v1.AI
         [HttpPost("Add")]
         [ActionDescription("新增AI对话")]
         [HttpLog("AI对话管理", "新增AI对话")]
+        [Transactional]
         public async Task<AIChatHistorysDto> Add([FromBody] AIChatsDto par)
         {
             var result = await _service.Add(par);
@@ -66,6 +68,7 @@ namespace App.WebApi.Controllers.v1.AI
         [ActionDescription("删除AI对话")]
         [HttpLog("AI对话管理", "删除AI对话")]
         [HttpDelete("Delete")]
+        [Transactional]
         public async Task<bool> Delete([FromQuery][Required] long Id)
         {
             var result = await _service.Delete(Id);
