@@ -1,4 +1,5 @@
 ﻿using kevin.Domain.Share.Dtos.Bases;
+using kevin.Domain.Share.Enums;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -6,6 +7,8 @@ namespace kevin.Domain.Share.Dtos.AI
 {
     public class AIKmssDto : CUD_User_Dto
     {
+        private int documentCount;
+
         /// <summary>
         /// 名称
         /// </summary>
@@ -28,6 +31,24 @@ namespace kevin.Domain.Share.Dtos.AI
         [DefaultValue(49)]
         public int OverlappingTokens { get; set; } = 49;
 
+        public int DocumentCount { get => this.AIKmssDetailsList.Count; }
+        /// <summary>
+        ///  case 0: return 'orange'; // 待处理 case 1: return 'blue'; // 处理中  case 2: return 'green'; // 已完成 case 3: return 'red'; // 失败
+        /// </summary>
+        public int Status { get => GetStatus(); }
+
+        public int GetStatus()
+        {
+            if (AIKmssDetailsList.FirstOrDefault(t => t.Status == ImportKmsStatus.Fail) != default)
+            {
+                return 3;
+            }
+            if (AIKmssDetailsList.FirstOrDefault(t => t.Status == ImportKmsStatus.Loadding) != default)
+            {
+                return 1;
+            }
+            return 2;
+        }
         /// <summary>
         /// 详情列表
         /// </summary>

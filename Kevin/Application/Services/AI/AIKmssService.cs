@@ -46,6 +46,11 @@ namespace kevin.Application.Services.AI
             var data = AIKmssRp.Query(isDataPer: true).Where(t => t.IsDelete == false);
             result.total = await data.CountAsync();
             result.data = (await data.Skip(skip).Take(dtoPagePar.pageSize).OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIKmss, AIKmssDto>();
+            var aikmsData = await AIKmsDetailsRp.Query().Where(t => t.IsDelete == false && result.data.Select(t => t.Id).ToList().Contains(t.KmsId)).ToListAsync();
+            foreach (var item in result.data)
+            {
+                item.AIKmssDetailsList = aikmsData.Where(t => t.KmsId == item.Id).MapToList<TAIKmsDetails, AIKmsDetailsDto>();
+            }
             result.pageSize = dtoPagePar.pageSize;
             result.pageNum = dtoPagePar.pageNum;
             return result;
@@ -57,7 +62,7 @@ namespace kevin.Application.Services.AI
             {
                 throw new UserFriendlyException("不存在或已删除");
             }
-            data.AIKmssDetailsList = (await AIKmsDetailsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.KmsId == id).ToListAsync()).MapToList<TAIKmsDetails, AIKmsDetailsDto>();
+            data.AIKmssDetailsList = (await AIKmsDetailsRp.Query().Where(t => t.IsDelete == false && t.KmsId == id).ToListAsync()).MapToList<TAIKmsDetails, AIKmsDetailsDto>();
             return data;
         }
         public async Task<bool> AddEdit(AIKmssDto data)
@@ -74,24 +79,34 @@ namespace kevin.Application.Services.AI
             }
             if (isAdd)
             {
-                var add = data.MapTo<TAIKmss>();
+                var add = new TAIKmss();
                 add.Id = data.Id == default ? SnowflakeIdService.GetNextId() : data.Id;
                 id = add.Id;
                 add.IsDelete = false;
                 add.CreateTime = DateTime.Now;
                 add.CreateUserId = CurrentUser.UserId;
                 add.TenantId = CurrentUser.TenantId;
+                add.Name = data.Name;
+                add.MaxTokensPerParagraph = data.MaxTokensPerParagraph;
+                add.MaxTokensPerLine = data.MaxTokensPerLine;
+                add.OverlappingTokens = data.OverlappingTokens;
                 AIKmssRp.Add(add);
                 var addTAIKmsDetailss = new List<TAIKmsDetails>();
                 foreach (var item in data.AIKmssDetailsList)
                 {
-                    var additem = item.MapTo<TAIKmsDetails>();
+                    var additem = new TAIKmsDetails();
                     additem.Id = additem.Id == default ? SnowflakeIdService.GetNextId() : additem.Id;
                     additem.IsDelete = false;
                     additem.CreateTime = DateTime.Now;
                     additem.CreateUserId = CurrentUser.UserId;
                     additem.Status = ImportKmsStatus.Loadding;
                     additem.TenantId = CurrentUser.TenantId;
+                    additem.FileId = item.FileId;
+                    additem.FileType = item.FileType;
+                    additem.Content = item.Content;
+                    additem.ContentName = item.ContentName;
+                    additem.Url = item.Url;
+                    additem.DataCount = item.DataCount;
                     additem.KmsId = add.Id;
                     addTAIKmsDetailss.Add(additem);
                 }
@@ -102,51 +117,65 @@ namespace kevin.Application.Services.AI
                 var upData = AIKmssRp.Query().Where(t => t.IsDelete == false && t.Id == data.Id).FirstOrDefault();
                 if (upData != default)
                 {
-                    id = upData.Id;
-                    upData = data.MapTo(upData);
+                    id = upData.Id; 
                     upData.UpdateTime = DateTime.Now;
                     upData.UpdateUserId = CurrentUser.UserId;
                     upData.TenantId = CurrentUser.TenantId;
+                    upData.Name = data.Name;
+                    upData.MaxTokensPerParagraph = data.MaxTokensPerParagraph;
+                    upData.MaxTokensPerLine = data.MaxTokensPerLine;
+                    upData.OverlappingTokens = data.OverlappingTokens;
                     var UpAIKmsDetails = await AIKmsDetailsRp.Query().Where(t => t.IsDelete == false && t.KmsId == data.Id).ToListAsync();
-                    bool isUpAIKmsDetail = false;//是否需要更新
+                    var addTAIKmsDetailss = new List<TAIKmsDetails>();
                     UpAIKmsDetails.ForEach(t =>
                     {
                         if (!data.AIKmssDetailsList.Select(t => t.Id).ToList().Contains(t.Id))
                         {
-                            isUpAIKmsDetail = true;
+                            t.IsDelete = true;
+                            t.DeleteTime = DateTime.Now;
+                            t.DeleteUserId = CurrentUser.UserId;
+                        }
+                        else
+                        {
+                            var updateItem = data.AIKmssDetailsList.Where(d => d.Id == t.Id).FirstOrDefault();
+                            if (updateItem != default)
+                            {
+                                t.FileId = updateItem.FileId;
+                                t.FileType = updateItem.FileType;
+                                t.Content = updateItem.Content;
+                                t.ContentName = updateItem.ContentName;
+                                t.Url = updateItem.Url;
+                                t.DataCount = updateItem.DataCount;
+                                t.UpdateTime = DateTime.Now;
+                                t.UpdateUserId = CurrentUser.UserId;
+                            }
                         }
                     });
-                    if (UpAIKmsDetails.Count != data.AIKmssDetailsList.Count)
+                    data.AIKmssDetailsList.ForEach(item =>
                     {
-                        isUpAIKmsDetail = true;
-                    }
-                    if (isUpAIKmsDetail)
-                    {
-                        if (UpAIKmsDetails.Count > 0)
+                        if (!UpAIKmsDetails.Select(t => t.Id).ToList().Contains(item.Id))
                         {
-                            foreach (var item in UpAIKmsDetails)
-                            {
-                                item.IsDelete = true;
-                                item.DeleteTime = DateTime.Now;
-                                item.DeleteUserId = CurrentUser.UserId;
-                            }
-                            AIKmsDetailsRp.UpdateRange(UpAIKmsDetails.ToArray());
-                        }
-                        var addTAIKmsDetailss = new List<TAIKmsDetails>();
-                        foreach (var item in data.AIKmssDetailsList)
-                        {
-                            var additem = item.MapTo<TAIKmsDetails>();
+                            var additem = new TAIKmsDetails();
                             additem.Id = additem.Id == default ? SnowflakeIdService.GetNextId() : additem.Id;
                             additem.IsDelete = false;
                             additem.CreateTime = DateTime.Now;
                             additem.CreateUserId = CurrentUser.UserId;
                             additem.Status = ImportKmsStatus.Loadding;
                             additem.TenantId = CurrentUser.TenantId;
+                            additem.FileId = item.FileId;
+                            additem.FileType = item.FileType;
+                            additem.Content = item.Content;
+                            additem.ContentName = item.ContentName;
+                            additem.Url = item.Url;
+                            additem.DataCount = item.DataCount;
                             additem.KmsId = upData.Id;
                             addTAIKmsDetailss.Add(additem);
                         }
+                    });
+                    if (addTAIKmsDetailss.Count > 0)
+                    {
                         AIKmsDetailsRp.AddRange(addTAIKmsDetailss);
-                    }
+                    } 
                 }
                 else
                 {
@@ -237,10 +266,10 @@ namespace kevin.Application.Services.AI
                 }
                 await AIKmsDetailsRp.SaveChangesAsync();
             }
-     
+
             return true;
         }
-           
+
         public async Task<bool> Delete(long id)
         {
             var data = await AIKmssRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();

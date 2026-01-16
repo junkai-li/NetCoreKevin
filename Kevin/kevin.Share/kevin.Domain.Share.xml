@@ -189,6 +189,11 @@
             段落之间重叠标记的数量。
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIKmssDto.Status">
+            <summary>
+             case 0: return 'orange'; // 待处理 case 1: return 'blue'; // 处理中  case 2: return 'green'; // 已完成 case 3: return 'red'; // 失败
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIKmssDto.AIKmssDetailsList">
             <summary>
             详情列表

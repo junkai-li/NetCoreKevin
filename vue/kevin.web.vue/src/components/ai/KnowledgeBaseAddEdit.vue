@@ -297,19 +297,17 @@ watch(() => props.open, async (newVal) => {
   visible.value = newVal;
   if (newVal) {
     // 重置表单
-    resetFields();
-    
+    resetFields(); 
     // 如果是编辑模式，填充表单数据
     if (props.modalType === 'edit' && props.knowledgeBaseData) {
       Object.keys(form).forEach(key => {
         if (props.knowledgeBaseData[key] !== undefined) {
           form[key] = props.knowledgeBaseData[key];
         }
-      });
-      
+      }); 
       // 处理详情列表
-      if(props.knowledgeBaseData.aIKmssDetailsList) {
-        form.kmsDetailsList = [...props.knowledgeBaseData.aIKmssDetailsList];
+      if(props.knowledgeBaseData.aiKmssDetailsList) { 
+        form.kmsDetailsList = [...props.knowledgeBaseData.aiKmssDetailsList];
       }
     } else {
       // 添加模式，设置默认值
@@ -500,10 +498,9 @@ const getFileType = (fileName) => {
 // 获取状态颜色
 const getStatusColor = (status) => {
   switch(status) {
-    case 0: return 'orange'; // 待处理
-    case 1: return 'blue'; // 处理中
-    case 2: return 'green'; // 已完成
-    case 3: return 'red'; // 失败
+    case 0: return 'orange'; // 待处理 
+    case 1: return 'green'; // 已完成
+    case 2: return 'red'; // 失败
     default: return 'default';
   }
 };
@@ -511,10 +508,9 @@ const getStatusColor = (status) => {
 // 获取状态文本
 const getStatusText = (status) => {
   switch(status) {
-    case 0: return '待处理';
-    case 1: return '处理中';
-    case 2: return '已完成';
-    case 3: return '失败';
+    case 0: return '待处理'; 
+    case 1: return '已完成';
+    case 2: return '失败';
     default: return '未知';
   }
 };
