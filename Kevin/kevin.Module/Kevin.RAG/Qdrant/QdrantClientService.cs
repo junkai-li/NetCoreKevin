@@ -52,7 +52,7 @@ namespace Kevin.RAG.Qdrant
         {
             if (QdrantClient == default)
             {
-                throw new ArgumentException($"请检查OllamaApi配置是否正确");
+                throw new ArgumentException($"请检查QdrantClient配置是否正确");
             }
             if (QdrantClient != null)
             {
@@ -90,7 +90,7 @@ namespace Kevin.RAG.Qdrant
         {
             if (QdrantClient == default)
             {
-                throw new ArgumentException($"请检查OllamaApi配置是否正确");
+                throw new ArgumentException($"请检查OllamaApiQdrantClientQdrantClient配置是否正确");
             }
             try
             {
@@ -110,7 +110,7 @@ namespace Kevin.RAG.Qdrant
         {
             if (QdrantClient == default)
             {
-                throw new ArgumentException($"请检查OllamaApi配置是否正确");
+                throw new ArgumentException($"请检查QdrantClient配置是否正确");
             }
             var data = await QdrantClient.SearchAsync(collectionName, (await OllamaApiService.GetEmbedding(query)).Vector, limit: limit);
             var relust = data.Select(i =>

@@ -221,9 +221,6 @@ const rules = reactive({
   ],
   chatModelID: [
     { required: true, message: '请选择会话模型' }
-  ],
-  kmsId: [
-    { required: true, message: '请选择知识库' }
   ]
 });
 

@@ -124,7 +124,7 @@
           <template v-else-if="column.key === 'action'">
             <a-button type="link" @click="viewDetail(record)">查看</a-button>
             <a-popconfirm 
-              v-if="form.kmsDetailsList.length > 1" 
+              
               title="确定要删除这条记录吗?" 
               @confirm="onDeleteDetail(index)"
             >

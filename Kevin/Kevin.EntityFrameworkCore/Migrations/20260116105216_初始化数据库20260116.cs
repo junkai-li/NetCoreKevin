@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     /// <inheritdoc />
-    public partial class _20251229初始化数据库 : Migration
+    public partial class 初始化数据库20260116 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -309,20 +309,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 {
                     id = table.Column<long>(type: "bigint", nullable: false, comment: "主键标识ID")
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    icon = table.Column<string>(type: "longtext", nullable: false, comment: "icon")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
                     name = table.Column<string>(type: "longtext", nullable: false, comment: "name")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    describe = table.Column<string>(type: "longtext", nullable: false, comment: "describe")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    chat_model_i_d = table.Column<string>(type: "longtext", nullable: false, comment: "chat_model_i_d")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    embedding_model_i_d = table.Column<string>(type: "longtext", nullable: false, comment: "embedding_model_i_d")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     max_tokens_per_paragraph = table.Column<int>(type: "int", nullable: false, defaultValue: 299, comment: "max_tokens_per_paragraph"),
                     max_tokens_per_line = table.Column<int>(type: "int", nullable: false, defaultValue: 99, comment: "max_tokens_per_line"),
                     overlapping_tokens = table.Column<int>(type: "int", nullable: false, defaultValue: 49, comment: "overlapping_tokens"),
-                    is_o_c_r = table.Column<ulong>(type: "bit", nullable: false, comment: "is_o_c_r"),
                     create_time = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
                     is_delete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
                     delete_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
@@ -722,7 +713,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     path = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "保存路径")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    url = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false, comment: "Url")
+                    url = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true, comment: "Url")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     table = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "外链表名")
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -1164,65 +1155,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "t_a_i_kms_details",
-                columns: table => new
-                {
-                    id = table.Column<long>(type: "bigint", nullable: false, comment: "主键标识ID")
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    kms_id = table.Column<long>(type: "bigint", nullable: false, comment: "kms_id"),
-                    file_name = table.Column<string>(type: "longtext", nullable: false, comment: "file_name")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    file_guid_name = table.Column<string>(type: "longtext", nullable: false, comment: "file_guid_name")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    url = table.Column<string>(type: "longtext", nullable: false, comment: "url")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    type = table.Column<string>(type: "longtext", nullable: false, comment: "type")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    data_count = table.Column<int>(type: "int", nullable: true, comment: "data_count"),
-                    create_time = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "create_time"),
-                    status = table.Column<int>(type: "int", nullable: true, comment: "status"),
-                    is_delete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
-                    delete_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
-                    row_version = table.Column<Guid>(type: "char(36)", nullable: true, comment: "行版本标记", collation: "ascii_general_ci"),
-                    xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "行版本标记"),
-                    tenant_id = table.Column<int>(type: "int", nullable: false, comment: "租户ID_Code"),
-                    update_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "更新时间"),
-                    create_user_id = table.Column<long>(type: "bigint", nullable: false, comment: "创建人ID"),
-                    update_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "编辑人ID"),
-                    delete_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "删除人ID")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_t_a_i_kms_details", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_t_a_i_kms_details_t_a_i_kmss_kms_id",
-                        column: x => x.kms_id,
-                        principalTable: "t_a_i_kmss",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_t_a_i_kms_details_t_user_create_user_id",
-                        column: x => x.create_user_id,
-                        principalTable: "t_user",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_t_a_i_kms_details_t_user_delete_user_id",
-                        column: x => x.delete_user_id,
-                        principalTable: "t_user",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_t_a_i_kms_details_t_user_update_user_id",
-                        column: x => x.update_user_id,
-                        principalTable: "t_user",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                },
-                comment: "TAIKmsDetails")
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "t_a_i_apps",
                 columns: table => new
                 {
@@ -1245,8 +1177,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     image_model_i_d = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true, comment: "image_model_i_d")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     temperature = table.Column<double>(type: "double", nullable: false, defaultValue: 70.0, comment: "温度"),
-                    kms_id_list = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: true, comment: "知识库ID列表")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    kms_id = table.Column<long>(type: "bigint", nullable: true, comment: "知识库ID"),
                     secret_key = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true, comment: "API调用秘钥")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     relevance = table.Column<double>(type: "double", nullable: false, defaultValue: 60.0, comment: "相似度"),
@@ -1269,6 +1200,12 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_t_a_i_apps", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_t_a_i_apps_t_a_i_kmss_kms_id",
+                        column: x => x.kms_id,
+                        principalTable: "t_a_i_kmss",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_t_a_i_apps_t_a_i_prompts_a_i_prompt_i_d",
                         column: x => x.a_i_prompt_i_d,
@@ -1295,6 +1232,74 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         onDelete: ReferentialAction.Restrict);
                 },
                 comment: "AIAPP")
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "t_a_i_kms_details",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false, comment: "主键标识ID")
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    kms_id = table.Column<long>(type: "bigint", nullable: false, comment: "kms_id"),
+                    file_id = table.Column<long>(type: "bigint", nullable: true, comment: "file_id"),
+                    file_type = table.Column<string>(type: "longtext", nullable: true, comment: "file_type")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    content = table.Column<string>(type: "longtext", nullable: false, comment: "content")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    content_name = table.Column<string>(type: "longtext", nullable: false, comment: "content_name")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    url = table.Column<string>(type: "longtext", nullable: false, comment: "url")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    data_count = table.Column<int>(type: "int", nullable: true, comment: "data_count"),
+                    status = table.Column<int>(type: "int", nullable: true, comment: "status"),
+                    error_message = table.Column<string>(type: "longtext", nullable: true, comment: "error_message")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    create_time = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "创建时间"),
+                    is_delete = table.Column<ulong>(type: "bit", nullable: false, comment: "是否删除"),
+                    delete_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "删除时间"),
+                    row_version = table.Column<Guid>(type: "char(36)", nullable: true, comment: "行版本标记", collation: "ascii_general_ci"),
+                    xmin = table.Column<uint>(type: "int unsigned", nullable: false, comment: "行版本标记"),
+                    tenant_id = table.Column<int>(type: "int", nullable: false, comment: "租户ID_Code"),
+                    update_time = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "更新时间"),
+                    create_user_id = table.Column<long>(type: "bigint", nullable: false, comment: "创建人ID"),
+                    update_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "编辑人ID"),
+                    delete_user_id = table.Column<long>(type: "bigint", nullable: true, comment: "删除人ID")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_t_a_i_kms_details", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_t_a_i_kms_details_t_a_i_kmss_kms_id",
+                        column: x => x.kms_id,
+                        principalTable: "t_a_i_kmss",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_a_i_kms_details_t_file_file_id",
+                        column: x => x.file_id,
+                        principalTable: "t_file",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_a_i_kms_details_t_user_create_user_id",
+                        column: x => x.create_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_a_i_kms_details_t_user_delete_user_id",
+                        column: x => x.delete_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_t_a_i_kms_details_t_user_update_user_id",
+                        column: x => x.update_user_id,
+                        principalTable: "t_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                },
+                comment: "TAIKmsDetails")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
@@ -1683,6 +1688,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 column: "delete_user_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_apps_kms_id",
+                table: "t_a_i_apps",
+                column: "kms_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_t_a_i_apps_tenant_id",
                 table: "t_a_i_apps",
                 column: "tenant_id");
@@ -1846,6 +1856,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 name: "IX_t_a_i_kms_details_delete_user_id",
                 table: "t_a_i_kms_details",
                 column: "delete_user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_t_a_i_kms_details_file_id",
+                table: "t_a_i_kms_details",
+                column: "file_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_t_a_i_kms_details_kms_id",
@@ -2759,9 +2774,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 name: "t_dictionary");
 
             migrationBuilder.DropTable(
-                name: "t_file");
-
-            migrationBuilder.DropTable(
                 name: "t_http_log");
 
             migrationBuilder.DropTable(
@@ -2801,7 +2813,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                 name: "t_a_i_chats");
 
             migrationBuilder.DropTable(
-                name: "t_a_i_kmss");
+                name: "t_file");
 
             migrationBuilder.DropTable(
                 name: "t_message");
@@ -2823,6 +2835,9 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
             migrationBuilder.DropTable(
                 name: "t_region_city");
+
+            migrationBuilder.DropTable(
+                name: "t_a_i_kmss");
 
             migrationBuilder.DropTable(
                 name: "t_a_i_prompts");

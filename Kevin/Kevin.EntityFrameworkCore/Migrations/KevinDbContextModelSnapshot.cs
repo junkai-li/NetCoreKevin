@@ -1965,7 +1965,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasComment("租户ID_Code");
 
                     b.Property<string>("Url")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)")
                         .HasColumnName("url")

@@ -12,8 +12,8 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(KevinDbContext))]
-    [Migration("20251229034900_20251229初始化数据库")]
-    partial class _20251229初始化数据库
+    [Migration("20260116105216_初始化数据库20260116")]
+    partial class 初始化数据库20260116
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -386,11 +386,10 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("is_delete")
                         .HasComment("是否删除");
 
-                    b.Property<string>("KmsIdList")
-                        .HasMaxLength(1000)
-                        .HasColumnType("varchar(1000)")
-                        .HasColumnName("kms_id_list")
-                        .HasComment("知识库ID列表");
+                    b.Property<long?>("KmsId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("kms_id")
+                        .HasComment("知识库ID");
 
                     b.Property<int>("MaxAskPromptSize")
                         .ValueGeneratedOnAdd()
@@ -488,6 +487,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.HasIndex("DeleteTime");
 
                     b.HasIndex("DeleteUserId");
+
+                    b.HasIndex("KmsId");
 
                     b.HasIndex("TenantId");
 
@@ -845,10 +846,22 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("content")
+                        .HasComment("content");
+
+                    b.Property<string>("ContentName")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("content_name")
+                        .HasComment("content_name");
+
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("create_time")
-                        .HasComment("create_time");
+                        .HasComment("创建时间");
 
                     b.Property<long>("CreateUserId")
                         .HasColumnType("bigint")
@@ -870,17 +883,20 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
-                    b.Property<string>("FileGuidName")
-                        .IsRequired()
+                    b.Property<string>("ErrorMessage")
                         .HasColumnType("longtext")
-                        .HasColumnName("file_guid_name")
-                        .HasComment("file_guid_name");
+                        .HasColumnName("error_message")
+                        .HasComment("error_message");
 
-                    b.Property<string>("FileName")
-                        .IsRequired()
+                    b.Property<long?>("FileId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("file_id")
+                        .HasComment("file_id");
+
+                    b.Property<string>("FileType")
                         .HasColumnType("longtext")
-                        .HasColumnName("file_name")
-                        .HasComment("file_name");
+                        .HasColumnName("file_type")
+                        .HasComment("file_type");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
@@ -907,12 +923,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnType("int")
                         .HasColumnName("tenant_id")
                         .HasComment("租户ID_Code");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("type")
-                        .HasComment("type");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime(6)")
@@ -945,6 +955,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     b.HasIndex("DeleteUserId");
 
+                    b.HasIndex("FileId");
+
                     b.HasIndex("KmsId");
 
                     b.HasIndex("TenantId");
@@ -969,12 +981,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("ChatModelID")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("chat_model_i_d")
-                        .HasComment("chat_model_i_d");
-
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("create_time")
@@ -995,33 +1001,10 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
-                    b.Property<string>("Describe")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("describe")
-                        .HasComment("describe");
-
-                    b.Property<string>("EmbeddingModelID")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("embedding_model_i_d")
-                        .HasComment("embedding_model_i_d");
-
-                    b.Property<string>("Icon")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("icon")
-                        .HasComment("icon");
-
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("is_delete")
                         .HasComment("是否删除");
-
-                    b.Property<ulong>("IsOCR")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_o_c_r")
-                        .HasComment("is_o_c_r");
 
                     b.Property<int>("MaxTokensPerLine")
                         .ValueGeneratedOnAdd()
@@ -1985,7 +1968,6 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasComment("租户ID_Code");
 
                     b.Property<string>("Url")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)")
                         .HasColumnName("url")
@@ -3934,6 +3916,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("kevin.Domain.Entities.AI.TAIKmss", "Kms")
+                        .WithMany()
+                        .HasForeignKey("KmsId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("kevin.Domain.Entities.TUser", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateUserId")
@@ -3944,6 +3931,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Navigation("CreateUser");
 
                     b.Navigation("DeleteUser");
+
+                    b.Navigation("Kms");
 
                     b.Navigation("UpdateUser");
                 });
@@ -4053,6 +4042,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasForeignKey("DeleteUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("kevin.Domain.Entities.TFile", "File")
+                        .WithMany()
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("kevin.Domain.Entities.AI.TAIKmss", "Kms")
                         .WithMany()
                         .HasForeignKey("KmsId")
@@ -4067,6 +4061,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.Navigation("CreateUser");
 
                     b.Navigation("DeleteUser");
+
+                    b.Navigation("File");
 
                     b.Navigation("Kms");
 

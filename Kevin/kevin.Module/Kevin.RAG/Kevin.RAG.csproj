@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Kevin\kevin.Module\Kevin.SnowflakeId\Kevin.SnowflakeId.csproj" />
+    <ProjectReference Include="..\Kevin.SnowflakeId\Kevin.SnowflakeId.csproj" />
   </ItemGroup>
 
 </Project>
