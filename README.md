@@ -4,8 +4,11 @@
 | ![输入图片说明](Doc/bd2a60ce-2f32-46df-8bd6-9ffa5da515b4.png)  |  ![输入图片说明](Doc/3482bece-3f43-4ace-9337-283eb8a42903.png)|  ![输入图片说明](Doc/39c1ee78-3814-4e27-a158-2934317a2666.png) |
 
 # 🌐知识库AI智能体效果图 
-![输入图片说明](Doc/aixg1.png)
-![输入图片说明](Doc/aixg2.png)![输入图片说明](Doc/aixg3.png)
+|  ![输入图片说明](Doc/aixg1.png) | ![输入图片说明](Doc/aixg2.png)  | ![输入图片说明](Doc/aixg3.png)  |
+|---|---|---|
+
+
+
 # 🌐后台管理系统效果图（基于VUE3-AntDesign） 
 
 | ![输入图片说明](Doc/cf218b0549ca43120dca3d1ea0cd11eb.png)  |  ![输入图片说明](Doc/6271341ceebc25c93a2ae361008937f6.png) | ![输入图片说明](Doc/xg3.png)   |  ![输入图片说明](Doc/xg4.png) |
