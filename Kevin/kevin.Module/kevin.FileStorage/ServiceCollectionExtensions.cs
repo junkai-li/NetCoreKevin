@@ -1,4 +1,5 @@
 ﻿using kevin.FileStorage.AliCloud;
+using kevin.FileStorage.KevinStaticFiles;
 using kevin.FileStorage.TencentCloud;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +17,12 @@ namespace kevin.FileStorage
         {
             services.Configure(action);
             services.AddTransient<IFileStorage, TencentCloudStorage>();
+        }
+
+        public static void AddKevinStaticFilesStorage(this IServiceCollection services, Action<kevin.FileStorage.KevinStaticFiles.Models.FileStorageSetting> action)
+        {
+            services.Configure(action);
+            services.AddTransient<IFileStorage, KevinStaticFilesStorage>();
         }
     }
 }

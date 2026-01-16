@@ -339,3 +339,5 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 /Auth/AuthorizationService/keys/is-signing-key-06460EA514AFF0186053E6B019063554.json
+KevinFlies
+/App/WebApi/Files

@@ -34,8 +34,10 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Repository.Database;
 using System;
+using System.IO;
 using System.Linq;
 using System.Text.Encodings.Web;
 using Web.Filters;
@@ -155,13 +157,11 @@ namespace Web.Extension
             #endregion
 
             #region 注册文件服务 
-            services.AddAliCloudStorage(options =>
-            {
-                var settings = Configuration.GetRequiredSection("AliCloudFileStorage").Get<kevin.FileStorage.AliCloud.Models.FileStorageSetting>()!;
-                options.Endpoint = settings.Endpoint;
-                options.AccessKeyId = settings.AccessKeyId;
-                options.AccessKeySecret = settings.AccessKeySecret;
-                options.BucketName = settings.BucketName;
+            //注册文件服务 需要和静态文件中间件配合使用 配置保持一致
+            services.AddKevinStaticFilesStorage(options =>
+            { 
+                options.Endpoint = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "KevinFlies");
+                options.Url = "http://localhost:9901/KevinFlies";
             });
             #endregion
 
@@ -270,7 +270,11 @@ namespace Web.Extension
             app.UseHttpsRedirection();
 
             //静态文件中间件 (UseStaticFiles) 返回静态文件，并简化进一步请求处理。
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "KevinFlies")), // 自定义文件夹路径
+                RequestPath = new PathString("/KevinFlies") // 自定义 URL 前缀路径
+            });
 
             app.UseKevinUseSwagger();
 

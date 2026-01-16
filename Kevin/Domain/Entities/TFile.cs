@@ -35,7 +35,7 @@ namespace kevin.Domain.Entities
         /// </summary>
         [StringLength(500)]
         [Description("Url")]
-        public string Url { get; set; }
+        public string? Url { get; set; }
 
         /// <summary>
         /// 外链表名

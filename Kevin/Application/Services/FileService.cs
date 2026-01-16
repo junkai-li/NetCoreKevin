@@ -63,19 +63,19 @@ namespace kevin.Application.Services
             if (file != default)
             {
                 string path = Kevin.Common.App.IO.Path.ContentRootPath() + file.Path;
-
+                if (!string.IsNullOrEmpty(file.Url))
+                {
+                    //下载文件
+                    fileStorage.FileDownload(file.Url, path);
+                } 
                 //读取文件入流
                 var stream = System.IO.File.OpenRead(path);
-
                 //获取文件后缀
                 string fileExt = Path.GetExtension(path);
-
                 //获取系统常规全部mime类型
                 var provider = new FileExtensionContentTypeProvider();
-
                 //通过文件后缀寻找对呀的mime类型
                 var memi = provider.Mappings.ContainsKey(fileExt) ? provider.Mappings[fileExt] : provider.Mappings[".zip"];
-
                 return Task.FromResult<(FileStream?, string?, string?)>((stream, memi, file.Name));
             }
             throw new UserFriendlyException("通过指定的文件ID未找到任何文件");
@@ -167,6 +167,7 @@ namespace kevin.Application.Services
             var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
             var fullFileName = string.Format("{0}{1}", fileName, fileExtension);
             string path = "";
+            string url = "";
             var isSuccess = false;
             if (file != null && file.Length > 0)
             {
@@ -178,12 +179,13 @@ namespace kevin.Application.Services
                 }
                 if (fileStorage != default)
                 {
-                    var upload = fileStorage.FileUpload(path, "Files/" + DateTime.Now.ToString("yyyy/MM/dd"), file.FileName);
+                    var upload = fileStorage.FileUpload(path, "/Files/" + DateTime.Now.ToString("yyyy/MM/dd"), fullFileName);
                     if (upload)
                     {
                         Common.IO.IOHelper.DeleteFile(path);
                         path = "/Files/" + DateTime.Now.ToString("yyyy/MM/dd") + "/" + fullFileName;
                         isSuccess = true;
+                        url = await fileStorage.GetUrl() + path;
                     }
                 }
                 else
@@ -205,6 +207,7 @@ namespace kevin.Application.Services
                     f.Table = table;
                     f.TableId = tableid;
                     f.Sign = sign;
+                    f.Url = url;
                     f.CreateUserId = CurrentUser.UserId;
                     f.CreateTime = DateTime.Now;
                     f.TenantId = CurrentUser.TenantId;
