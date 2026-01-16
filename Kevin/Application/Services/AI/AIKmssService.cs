@@ -1,16 +1,12 @@
 ﻿using kevin.Domain.Entities.AI;
-using kevin.Domain.Interfaces.IRepositories;
-using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using kevin.FileStorage;
-using kevin.RepositorieRps.Repositories;
+using Kevin.RAG;
 using Kevin.RAG.Dto;
 using Kevin.RAG.Qdrant;
 using Kevin.RAG.Tools;
-using Kevin.SnowflakeId.Service;
-using System;
 
 namespace kevin.Application.Services.AI
 {
@@ -28,13 +24,17 @@ namespace kevin.Application.Services.AI
 
         private IQdrantClientService QdrantClientService { get; set; }
 
-        public AIKmssService(IHttpContextAccessor _httpContextAccessor, IAIKmssRp _AIKmssRp, IAIKmsDetailsRp _AIKmsDetailsRp, IFileRp _FileRp, IFileStorage _FileStorage, IQdrantClientService _qdrantClientService) : base(_httpContextAccessor)
+        private IFileService FileService { get; set; }
+
+
+        public AIKmssService(IHttpContextAccessor _httpContextAccessor, IAIKmssRp _AIKmssRp, IAIKmsDetailsRp _AIKmsDetailsRp, IFileRp _FileRp, IFileStorage _FileStorage, IQdrantClientService _qdrantClientService, IFileService fileService) : base(_httpContextAccessor)
         {
             this.AIKmssRp = _AIKmssRp;
             this.AIKmsDetailsRp = _AIKmsDetailsRp;
             this.FileRp = _FileRp;
             this.FileStorage = _FileStorage;
             this.QdrantClientService = _qdrantClientService;
+            FileService = fileService;
         }
         public async Task<dtoPageList<AIKmssDto>> GetList(dtoPagePar<string> dtoPagePar)
         {
@@ -229,6 +229,35 @@ namespace kevin.Application.Services.AI
                             {
                                 #region 文件处理
                                 var file = await FileRp.Query().Where(t => t.IsDelete == false && t.Id == item.FileId).FirstOrDefaultAsync();
+                                if (file != default)
+                                {
+                                    FileName = file.Name;
+                                    var fileData = await FileService.GetFile(file.Id);
+
+                                    if (fileData.Item1 != default)
+                                    {
+                                        switch (item.FileType)
+                                        {
+                                            case "Text":
+                                                content = TextStreamReader.ReadTextFromStream(fileData.Item1);
+                                                break;
+                                            case "Markdown":
+                                                content = TextStreamReader.ReadMarkdownFromStream(fileData.Item1).RawContent;
+                                                break;
+                                            case "PDF":
+                                                content = PDFReader.ReadPdfToMarkdown(fileData.Item1);
+                                                break;
+                                            case "Word": 
+                                                content = WordReader.ReadParagraphs(fileData.Item1);
+                                                break;
+                                            default:
+                                                content = TextStreamReader.ReadTextFromStream(fileData.Item1);
+                                                break;
+                                        }
+                                    }
+                                }
+
+
                                 #endregion
 
                             }

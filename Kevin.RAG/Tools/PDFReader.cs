@@ -5,7 +5,7 @@ using UglyToad.PdfPig.Actions;
 using UglyToad.PdfPig.Annotations;
 using UglyToad.PdfPig.Content;
 
-namespace Kevin.AI;
+namespace Kevin.RAG;
 /// <summary>
 /// PDF文件读取类，提供将PDF内容转换为Markdown的功能
 /// </summary>

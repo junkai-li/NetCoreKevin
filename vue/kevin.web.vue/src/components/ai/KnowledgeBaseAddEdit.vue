@@ -68,7 +68,7 @@
         business="AIKmss"
         :keyValue=form.id
         sign="AIKmssDetailFlies"
-        :accept="'.txt,.word,.pdf,.md,.html,.docx,.doc'"
+        :accept="'.txt,.pdf,.md,.html,.docx'"
         :multiple="true"
         :max-count="5"
         @upload-success="beforeUpload"

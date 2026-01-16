@@ -40,7 +40,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// </summary>
         /// <param name="fileid">文件ID</param>
         /// <returns></returns>
-        Task<(FileStream, string, string)> GetFile(long fileid, CancellationToken cancellationToken);
+        Task<(FileStream, string, string)> GetFile(long fileid, CancellationToken? cancellationToken=default);
 
 
         /// <summary>

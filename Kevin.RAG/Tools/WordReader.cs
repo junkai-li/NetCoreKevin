@@ -2,13 +2,23 @@
 using System.Xml;
 using DocumentFormat.OpenXml.Packaging;
 
-namespace Kevin.AI;
+namespace Kevin.RAG;
 
 public class WordReader
 {
     public static string ReadParagraphs(Stream documentContents)
     {
         // Open the document.
+        if(documentContents == null || !documentContents.CanRead)
+            throw new ArgumentException("文件流无效");
+
+        // ✅ 关键步骤1：确保流可定位且支持 Seek
+        if (!documentContents.CanSeek)
+            throw new InvalidOperationException("流不支持定位，无法用于 OpenXML");
+
+        // ✅ 关键步骤2：重置流至起始位置（修复90%的异常）
+        long originalPosition = documentContents.Position;
+        documentContents.Position = 0;
         using WordprocessingDocument wordDoc = WordprocessingDocument.Open(documentContents, false);
         if (wordDoc.MainDocumentPart == null)
         {
