@@ -7,6 +7,7 @@ namespace kevin.HttpApiClients
 
         public static void AddKevinHttpApiClients(this IServiceCollection service)
         {
+            service.AddHttpClient();
             #region 基本
             service.AddHttpClient("", options =>
             {

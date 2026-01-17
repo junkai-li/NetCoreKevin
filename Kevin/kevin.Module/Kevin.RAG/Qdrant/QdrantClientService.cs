@@ -77,7 +77,7 @@ namespace Kevin.RAG.Qdrant
                 }).ToList();  
                 if (!(await IsValidateCollectionExists(collectionName)))
                 {
-                    await QdrantClient.CreateCollectionAsync(collectionName, new VectorParams { Size = 1024, Distance = Distance.Cosine });
+                    await QdrantClient.CreateCollectionAsync(collectionName, new VectorParams { Size = 2048, Distance = Distance.Cosine });
                 } 
                 var result = await QdrantClient.UpsertAsync(collectionName, points);
                 return true;
