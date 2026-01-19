@@ -239,7 +239,7 @@ const deleteKnowledgeBase = async (id, name) => {
  
 
 // 处理模态框确定
-const handleModalOk = async (data) => {
+const handleModalOk = async (data, closeLoadingCallback) => {
   try {
     const result = await addEditAIKmss(data);
     if (result) {
@@ -254,6 +254,11 @@ const handleModalOk = async (data) => {
   } catch (error) {
     console.error('保存知识库失败:', error);
     message.error('保存知识库失败: ' + (error.message || '未知错误'));
+  } finally {
+    // 确保无论成功还是失败都调用回调函数来关闭加载状态
+    if (typeof closeLoadingCallback === 'function') {
+      closeLoadingCallback();
+    }
   }
 };
 

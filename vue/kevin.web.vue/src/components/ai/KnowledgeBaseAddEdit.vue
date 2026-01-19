@@ -377,30 +377,31 @@ const loadModelList = async () => {
 };
 loadModelList();
 // 处理确认
-const handleOk = () => {
-  validate().then(async () => {
+const handleOk = async () => {
+  try {
+    await validate();
+    
     confirmLoading.value = true;
-    try {
-      // 构造参数
-      const params = {
-        id: form.id,
-        name: form.name,
-        maxTokensPerParagraph: form.maxTokensPerParagraph,
-        maxTokensPerLine: form.maxTokensPerLine,
-         aIModelsId: form.aIModelsId,
-        overlappingTokens: form.overlappingTokens,
-        aIKmssDetailsList: form.kmsDetailsList
-      };
-      
-      emit('ok', params);
-    } catch (error) {
-      console.error('保存知识库失败:', error);
-    } finally {
+    
+    // 构造参数
+    const params = {
+      id: form.id,
+      name: form.name,
+      maxTokensPerParagraph: form.maxTokensPerParagraph,
+      maxTokensPerLine: form.maxTokensPerLine,
+      aIModelsId: form.aIModelsId,
+      overlappingTokens: form.overlappingTokens,
+      aIKmssDetailsList: form.kmsDetailsList
+    };
+    
+    // 发送事件并等待父组件处理完成
+    emit('ok', params, () => {
+      // 回调函数：父组件完成操作后调用
       confirmLoading.value = false;
-    }
-  }).catch(err => {
-    console.log('表单验证失败:', err);
-  });
+    });
+  } catch (error) {
+    console.log('表单验证失败:', error);
+  }
 };
 
 // 处理取消
