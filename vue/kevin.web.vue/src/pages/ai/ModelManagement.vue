@@ -125,7 +125,7 @@
         <a-form-item label="模型名称" v-bind="validateInfos.modelName">
           <a-input v-model:value="modelForm.modelName" placeholder="请输入模型名称" />
         </a-form-item>
-        <a-form-item label="模型秘钥" v-bind="validateInfos.modelKey">
+        <a-form-item label="模型秘钥">
           <a-input-password v-model:value="modelForm.modelKey" placeholder="请输入模型秘钥" />
         </a-form-item>
         <a-form-item label="部署名" v-bind="validateInfos.modelDescription">
@@ -199,10 +199,7 @@ const modelRules = reactive({
   ],
   modelName: [
     { required: true, message: '请输入模型名称' }
-  ],
-  modelKey: [
-    { required: true, message: '请输入模型秘钥' }
-  ],
+  ], 
   modelDescription: [
     { required: true, message: '请输入部署名' }
   ]

@@ -39,8 +39,7 @@ namespace kevin.Domain.Share.Dtos.AI
         public string ModelName { get; set; } = "";
         /// <summary>
         /// 模型秘钥
-        /// </summary>
-        [Required]
+        /// </summary> 
         [Description("模型秘钥")]
         public string ModelKey { get; set; } = "";
         /// <summary>
