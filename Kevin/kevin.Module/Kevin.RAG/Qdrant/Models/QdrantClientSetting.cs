@@ -19,6 +19,6 @@ namespace Kevin.RAG.Qdrant.Models
         /// API 密钥认证
         /// </summary>
         public string ApiKey { get; set; } = string.Empty;
-        public string CertificateThumbprint { get; set; } = string.Empty;
+        public string CertificateThumbprint { get; set; } = string.Empty; 
     }
 }

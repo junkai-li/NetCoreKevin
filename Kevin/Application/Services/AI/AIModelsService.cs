@@ -3,6 +3,7 @@ using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
+using kevin.Domain.Share.Enums;
 using kevin.Share.Dtos;
 using Web.Global.Exceptions;
 
@@ -53,10 +54,10 @@ namespace kevin.Application.Services.AI
         /// </summary>
         /// <param name="dtoPage"></param> 
         /// <returns></returns> 
-        public async Task<List<AIModelsDto>> GetALLList()
+        public async Task<List<AIModelsDto>> GetALLList(int Type = 1)
         {
             var result = new List<AIModelsDto>();
-            var data = aIModelsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
+            var data = aIModelsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.AIModelType == (AIModelType)Type);
             result = (await data.OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIModels, AIModelsDto>();
             return result;
         }
@@ -84,23 +85,24 @@ namespace kevin.Application.Services.AI
                 add.IsDelete = false;
                 add.CreateTime = DateTime.Now;
                 add.CreateUserId = CurrentUser.UserId;
-                add.TenantId = CurrentUser.TenantId;
+                add.TenantId = CurrentUser.TenantId; 
                 aIModelsRp.Add(add);
             }
             else
             {
                 var msg = aIModelsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == par.Id).FirstOrDefault();
                 if (msg != default)
-                { 
+                {
                     msg.UpdateTime = DateTime.Now;
                     msg.UpdateUserId = CurrentUser.UserId;
-                    msg.TenantId = CurrentUser.TenantId; 
-                    msg.AIType= par.AIType;
+                    msg.TenantId = CurrentUser.TenantId;
+                    msg.AIType = par.AIType;
                     msg.AIModelType = par.AIModelType;
                     msg.EndPoint = par.EndPoint;
                     msg.ModelName = par.ModelName;
                     msg.ModelKey = par.ModelKey;
-                    msg.ModelDescription = par.ModelDescription; 
+                    msg.ModelDescription = par.ModelDescription;
+                    msg.EmbeddingValueSize=par.EmbeddingValueSize;
 
                 }
                 else

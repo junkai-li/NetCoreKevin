@@ -1,5 +1,6 @@
 ﻿using Kevin.RAG.Ollama;
 using Kevin.RAG.Qdrant;
+using Microsoft.Extensions.AI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace Kevin.RAG
         {
             QdrantClientService = qdrantClientService;
         }
-        public async Task<(bool, string)> GetSystemPrompt(string collectionName, string question, int topK = 3, double? Score = null)
+        public async Task<(bool, string)> GetSystemPrompt(string collectionName, Embedding<float> question, int topK = 3, double? Score = null)
         {
             Console.WriteLine($"\n问题：{question}");
             Console.WriteLine("正在检索相关文档...");
@@ -27,7 +28,7 @@ namespace Kevin.RAG
             Console.WriteLine($"找到 {documents.Count} 个相关文档");
             // 3. 构建上下文
             var context = string.Join("\n\n---\n\n", documents.Select((doc, index) =>
-                $"文档 {index + 1}（来源：{doc.SourceFile}）：\n{doc.Content}"));
+                $"文档 {doc.Title +"-"+ index + 1}（来源：{doc.SourceFile}）：\n{doc.Content}"));
             // 4. 构建提示词
             var systemPrompt = @" 
                                 重要规则：

@@ -68,7 +68,7 @@
         business="AIKmss"
         :keyValue=form.id
         sign="AIKmssDetailFlies"
-        :accept="'.txt,.pdf,.md,.html,.docx'"
+        :accept="'.txt,.pdf,.md,.docx'"
         :multiple="true"
         :max-count="5"
         @upload-success="beforeUpload"
@@ -79,7 +79,25 @@
                
           </a-form-item>
         </a-col>
-          <a-col :span="12">  </a-col>
+          <a-col :span="12">       
+          <a-form-item label="模型" >
+            <a-select 
+              v-model:value="form.aIModelsId" 
+              placeholder="请选择会话模型"
+              :options="modelOptions"
+              allow-clear
+              show-search
+              optionFilterProp="label"
+            >
+              <a-select-option 
+                v-for="model in modelList" 
+                :key="model.id" 
+                :value="model.id"
+              >
+                {{ model.modelName }}
+              </a-select-option>
+            </a-select>
+          </a-form-item> </a-col>
       </a-row>
       
       <a-row :gutter="16">
@@ -206,6 +224,7 @@ import { EditOutlined, LinkOutlined } from '@ant-design/icons-vue';
 import { GetSnowflakeId } from '../../api/baseapi';
 import FileUpload from '@/components/FileUpload.vue';
 import {getFileById} from '../../api/file';
+import { getAIModelsALLList } from '@/api/ai/aiModels';
 const emit = defineEmits(['ok', 'cancel']);
 
 const props = defineProps({
@@ -235,7 +254,8 @@ const form = reactive({
   maxTokensPerParagraph: 299,
   maxTokensPerLine: 99,
   overlappingTokens: 49,
-  kmsDetailsList: []
+  kmsDetailsList: [],
+  aIModelsId:undefined,
 });
 
 // 内容添加相关
@@ -262,7 +282,14 @@ const rules = reactive({
 
 // 表单验证
 const { validate, validateInfos, resetFields } = useForm(form, rules);
-
+const modelList = ref([]);
+// 模型选项
+const modelOptions = computed(() => {
+  return modelList.value.map(model => ({
+    label: model.modelName,
+    value: model.id
+  }));
+});
 // 详情表格列
 const detailColumns = [
   {
@@ -337,7 +364,18 @@ watch(visible, (newVal) => {
     emit('cancel');
   }
 });
-
+// 加载模型列表
+const loadModelList = async () => {
+  try {
+    const response = await getAIModelsALLList(2);
+    if (response && response.code === 200 && response.data) {
+      modelList.value = response.data;
+    }
+  } catch (error) {
+    console.error('加载模型列表失败:', error);
+  }
+};
+loadModelList();
 // 处理确认
 const handleOk = () => {
   validate().then(async () => {
@@ -349,6 +387,7 @@ const handleOk = () => {
         name: form.name,
         maxTokensPerParagraph: form.maxTokensPerParagraph,
         maxTokensPerLine: form.maxTokensPerLine,
+         aIModelsId: form.aIModelsId,
         overlappingTokens: form.overlappingTokens,
         aIKmssDetailsList: form.kmsDetailsList
       };
@@ -554,8 +593,7 @@ const getStatusColor = (status) => {
     case 2: return 'red'; // 失败
     default: return 'default';
   }
-};
-
+}; 
 // 获取状态文本
 const getStatusText = (status) => {
   switch(status) {
@@ -576,6 +614,16 @@ const handleRemoveFile = (file) => {
   }
 };
 
+// 处理文件ID变更
+const handleFileIdsChange = (fileIds) => {
+  console.log('File IDs changed:', fileIds);
+  // 这里可以根据需要处理文件ID变更，如果需要的话
+  // 对于知识库管理，我们可能不需要特殊处理，因为文件信息已在其他地方处理
+};
+// 处理文件异常
+const handleUploadError = (data) => {
+  console.log(data); 
+};
 // 暴露方法给父组件
 defineExpose({
   resetFields

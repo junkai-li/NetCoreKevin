@@ -538,17 +538,6 @@
             <param name="Id"></param>
             <returns></returns>
         </member>
-        <member name="T:App.WebApi.Controllers.v1.AI.RAGController">
-            <summary>
-            AI检索增强生成（RAG）控制器    
-            </summary>
-        </member>
-        <member name="M:App.WebApi.Controllers.v1.AI.RAGController.TestRag">
-            <summary>
-            测试
-            </summary> 
-            <returns></returns>
-        </member>
         <member name="T:App.WebApi.Controllers.v1.DictionaryController">
             <summary>
             字典管理

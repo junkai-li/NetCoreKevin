@@ -29,11 +29,6 @@
             会话模型ID
             </summary>
         </member>
-        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.EmbeddingModelID">
-            <summary>
-            Embedding 模型Id
-            </summary> 
-        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.Temperature">
             <summary>
             温度
@@ -189,6 +184,11 @@
             段落之间重叠标记的数量。
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIKmssDto.aIModelsId">
+            <summary>
+            矢量化模型Id
+            </summary> 
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIKmssDto.Status">
             <summary>
              case 0: return 'orange'; // 待处理 case 1: return 'blue'; // 处理中  case 2: return 'green'; // 已完成 case 3: return 'red'; // 失败
@@ -228,6 +228,11 @@
             <summary>
             部署名，azure需要使用
             </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIModelsDto.EmbeddingValueSize">
+            <summary>
+            矢量值大小
+            </summary> 
         </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIPromptsDto.Name">
             <summary>

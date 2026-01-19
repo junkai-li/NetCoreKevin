@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Kevin.RAG.Ollama
 {
-    public interface IOllamaApiService
+    public interface IOllamaApiService:IDisposable
     {
         /// <summary>
         /// 返回矢量数据

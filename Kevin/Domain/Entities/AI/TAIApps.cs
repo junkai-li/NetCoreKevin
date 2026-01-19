@@ -42,19 +42,9 @@ namespace kevin.Domain.Entities.AI
         /// </summary>
         [Required]
         [Description("会话模型ID")]
-        public String? ChatModelID { get; set; }
-
-        /// <summary>
-        /// Embedding 模型Id
-        /// </summary> 
+        public String? ChatModelID { get; set; } 
         [MaxLength(200)]
-        [Description("Embedding 模型Id")]
-        public String? EmbeddingModelID { get; set; }
-        [MaxLength(200)]
-        public String? RerankModelID { get; set; }
-
-        [MaxLength(200)]
-        public String? ImageModelID { get; set; }
+        public String? RerankModelID { get; set; } 
         /// <summary>
         /// 温度 温度越低0.1-2.0，答案越确定；温度越高，答案越随机
         /// </summary> 

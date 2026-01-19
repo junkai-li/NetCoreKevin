@@ -50,5 +50,11 @@ namespace kevin.Domain.Share.Dtos.AI
         [Required]
         [Description("部署名，azure需要使用")]
         public string ModelDescription { get; set; }
+
+        /// <summary>
+        /// 矢量值大小
+        /// </summary> 
+        [Description("矢量值大小")]
+        public int EmbeddingValueSize { get; set; } = 2048;
     }
 }

@@ -2,6 +2,7 @@
 using kevin.Domain.Share.Attributes;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
+using kevin.Domain.Share.Enums;
 using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
@@ -47,9 +48,9 @@ namespace App.WebApi.Controllers.v1.AI
         [ActionDescription("获取AI模型列表")]
         [HttpLog("AI模型管理", "获取AI模型列表")]
         [CacheDataFilter<List<AIModelsDto>>(TTL = 60, UseToken = false)]
-        public async Task<List<AIModelsDto>> GetALLList()
+        public async Task<List<AIModelsDto>> GetALLList([FromQuery] int Type = 1)
         {
-            var result = await _service.GetALLList();
+            var result = await _service.GetALLList(Type);
             return result;
         }
         /// <summary>

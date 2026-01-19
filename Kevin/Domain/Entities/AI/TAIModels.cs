@@ -40,9 +40,8 @@ namespace kevin.Domain.Entities.AI
         [Description("模型名称")]
         public string ModelName { get; set; } = "";
         /// <summary>
-        /// 模型秘钥
-        /// </summary>
-        [Required]
+        /// 模型秘钥 原生直连不需要Key
+        /// </summary> 
         [Description("模型秘钥")]
         public string ModelKey { get; set; } = "";
         /// <summary>
@@ -50,5 +49,11 @@ namespace kevin.Domain.Entities.AI
         /// </summary> 
         [Description("部署名，azure需要使用")]
         public string? ModelDescription { get; set; }
+
+        /// <summary>
+        /// 矢量值大小
+        /// </summary> 
+        [Description("矢量值大小")]
+        public int EmbeddingValueSize { get; set; } = 2048;
     }
 }

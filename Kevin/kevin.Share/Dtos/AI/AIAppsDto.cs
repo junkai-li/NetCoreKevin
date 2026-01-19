@@ -40,16 +40,10 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary>
         [Required]
         public string? ChatModelID { get; set; }
-
-        /// <summary>
-        /// Embedding 模型Id
-        /// </summary> 
-        public string? EmbeddingModelID { get; set; }
+ 
 
         public string? RerankModelID { get; set; }
-
-
-        public string? ImageModelID { get; set; }
+         
         /// <summary>
         /// 温度
         /// </summary> 

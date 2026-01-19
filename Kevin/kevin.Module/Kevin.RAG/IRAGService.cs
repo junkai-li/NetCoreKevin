@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.AI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,6 @@ namespace Kevin.RAG
         /// <param name="question"></param>
         /// <param name="topK"></param>
         /// <returns></returns>
-        Task<(bool, string)> GetSystemPrompt(string collectionName, string question, int topK = 3, double? Score = null);
+        Task<(bool, string)> GetSystemPrompt(string collectionName, Embedding<float> question, int topK = 3, double? Score = null);
     }
 }

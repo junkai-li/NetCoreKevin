@@ -1,10 +1,12 @@
 ﻿using kevin.Domain.Entities.AI;
+using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using kevin.FileStorage;
 using Kevin.RAG;
 using Kevin.RAG.Dto;
+using Kevin.RAG.Ollama;
 using Kevin.RAG.Qdrant;
 using Kevin.RAG.Tools;
 
@@ -20,14 +22,18 @@ namespace kevin.Application.Services.AI
 
         public IFileRp FileRp { get; set; }
 
+        public IAIModelsRp AIModelsRp { get; set; }
+
         public IFileStorage FileStorage { get; set; }
 
         private IQdrantClientService QdrantClientService { get; set; }
 
         private IFileService FileService { get; set; }
 
+        private IOllamaApiService OllamaApiService { get; set; }
 
-        public AIKmssService(IHttpContextAccessor _httpContextAccessor, IAIKmssRp _AIKmssRp, IAIKmsDetailsRp _AIKmsDetailsRp, IFileRp _FileRp, IFileStorage _FileStorage, IQdrantClientService _qdrantClientService, IFileService fileService) : base(_httpContextAccessor)
+
+        public AIKmssService(IHttpContextAccessor _httpContextAccessor, IAIKmssRp _AIKmssRp, IAIKmsDetailsRp _AIKmsDetailsRp, IFileRp _FileRp, IFileStorage _FileStorage, IQdrantClientService _qdrantClientService, IFileService fileService, IOllamaApiService ollamaApiService, IAIModelsRp aIModelsRp) : base(_httpContextAccessor)
         {
             this.AIKmssRp = _AIKmssRp;
             this.AIKmsDetailsRp = _AIKmsDetailsRp;
@@ -35,6 +41,8 @@ namespace kevin.Application.Services.AI
             this.FileStorage = _FileStorage;
             this.QdrantClientService = _qdrantClientService;
             FileService = fileService;
+            OllamaApiService = ollamaApiService;
+            AIModelsRp = aIModelsRp;
         }
         public async Task<dtoPageList<AIKmssDto>> GetList(dtoPagePar<string> dtoPagePar)
         {
@@ -106,6 +114,7 @@ namespace kevin.Application.Services.AI
                 add.MaxTokensPerParagraph = data.MaxTokensPerParagraph;
                 add.MaxTokensPerLine = data.MaxTokensPerLine;
                 add.OverlappingTokens = data.OverlappingTokens;
+                add.aIModelsId = data.aIModelsId;
                 AIKmssRp.Add(add);
                 var addTAIKmsDetailss = new List<TAIKmsDetails>();
                 foreach (var item in data.AIKmssDetailsList)
@@ -140,6 +149,7 @@ namespace kevin.Application.Services.AI
                     upData.Name = data.Name;
                     upData.MaxTokensPerParagraph = data.MaxTokensPerParagraph;
                     upData.MaxTokensPerLine = data.MaxTokensPerLine;
+                    upData.aIModelsId = data.aIModelsId;
                     upData.OverlappingTokens = data.OverlappingTokens;
                     var UpAIKmsDetails = await AIKmsDetailsRp.Query().Where(t => t.IsDelete == false && t.KmsId == data.Id).ToListAsync();
                     var addTAIKmsDetailss = new List<TAIKmsDetails>();
@@ -247,7 +257,7 @@ namespace kevin.Application.Services.AI
                                             case "PDF":
                                                 content = PDFReader.ReadPdfToMarkdown(fileData.Item1);
                                                 break;
-                                            case "Word": 
+                                            case "Word":
                                                 content = WordReader.ReadParagraphs(fileData.Item1);
                                                 break;
                                             default:
@@ -288,9 +298,24 @@ namespace kevin.Application.Services.AI
                                     ChunkIndex = i
                                 });
                             }
+                            ulong embeddingValueSize = 2048;
+                            if (kmss.aIModelsId != default)
+                            {
+                                var aimode = AIModelsRp.Query().Where(t => t.IsDelete == false && t.Id == kmss.aIModelsId).FirstOrDefault();
+                                if (aimode?.AIModelType == AIModelType.Embedding)
+                                {
+                                    OllamaApiService = new OllamaApiService(aimode.EndPoint, aimode.ModelName, aimode.ModelKey);
+                                    embeddingValueSize = (ulong)aimode.EmbeddingValueSize;
+                                }
+                            }
+                            // 生成嵌入向量
+                            foreach (var chunk in allChunks)
+                            {
+                                chunk.ContentVector = await OllamaApiService.GetEmbedding(chunk.Content);
+                            }
                             Console.WriteLine($"\n正在上传 {allChunks.Count} 个文档块到向量数据库...");
                             // 上传到向量数据库
-                            var isaddok = await QdrantClientService.AddData("AIKmss-" + kmss.Id, allChunks);
+                            var isaddok = await QdrantClientService.AddData("AIKmss-" + kmss.Id, allChunks, embeddingValueSize);
                             if (isaddok)
                             {
                                 item.Status = ImportKmsStatus.Success;

@@ -355,7 +355,7 @@ const handleCancel = () => {
 // 加载模型列表
 const loadModelList = async () => {
   try {
-    const response = await getAIModelsALLList();
+    const response = await getAIModelsALLList(1);
     if (response && response.code === 200 && response.data) {
       modelList.value = response.data;
     }

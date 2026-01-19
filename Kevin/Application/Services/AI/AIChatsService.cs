@@ -98,6 +98,9 @@ namespace kevin.Application.Services.AI
             switch (aIModels.AIType)
             {
                 case Domain.Share.Enums.AIType.OpenAI:
+                case Domain.Share.Enums.AIType.ZhiPuAI:
+                case Domain.Share.Enums.AIType.AzureOpenAI:
+                default:
                     addHist.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG("请开始你的自我介绍", aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
                     {
                         Name = aiapp.Name,
@@ -120,27 +123,7 @@ namespace kevin.Application.Services.AI
                         }
                     })).Item2.Text;
                     //addHist.Content = aIClient.SendMsg("请开始你的自我介绍", aIModels.EndPoint, aIModels.ModelKey, aIModels.ModelName, aIPrompts.Prompt + (aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答")).choices.FirstOrDefault().message.content;
-                    break;
-                case Domain.Share.Enums.AIType.AzureOpenAI:
-                    break;
-                case Domain.Share.Enums.AIType.SparkDesk:
-                    break;
-                case Domain.Share.Enums.AIType.DashScope:
-                    break;
-                case Domain.Share.Enums.AIType.LLamaFactory:
-                    break;
-                case Domain.Share.Enums.AIType.BgeEmbedding:
-                    break;
-                case Domain.Share.Enums.AIType.BgeRerank:
-                    break;
-                case Domain.Share.Enums.AIType.Ollama:
-                    break;
-                case Domain.Share.Enums.AIType.OllamaEmbedding:
-                    break;
-                case Domain.Share.Enums.AIType.Mock:
-                    break;
-                default:
-                    break;
+                    break; 
             }
             aIChatHistorysRp.Add(addHist);
             await aIChatHistorysRp.SaveChangesAsync();

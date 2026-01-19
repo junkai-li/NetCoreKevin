@@ -33,6 +33,13 @@ namespace kevin.Domain.Entities.AI
         /// 段落之间重叠标记的数量。
         /// </summary>
         [DefaultValue(49)]
-        public int OverlappingTokens { get; set; } = 49; 
+        public int OverlappingTokens { get; set; } = 49;
+
+        /// <summary>
+        /// 矢量化模型Id
+        /// </summary> 
+        [Description("矢量化模型Id")]
+        public long? aIModelsId { get; set; }
+        public TAIModels? aIModels { get; set; }
     }
 }

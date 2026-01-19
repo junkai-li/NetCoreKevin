@@ -12,8 +12,8 @@ using Repository.Database;
 namespace Kevin.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(KevinDbContext))]
-    [Migration("20260116105216_初始化数据库20260116")]
-    partial class 初始化数据库20260116
+    [Migration("20260119061503_调整ai模型表结构-初始化数据库")]
+    partial class 调整ai模型表结构初始化数据库
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -363,23 +363,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("describe")
                         .HasComment("describe");
 
-                    b.Property<string>("EmbeddingModelID")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("embedding_model_i_d")
-                        .HasComment("Embedding 模型Id");
-
                     b.Property<string>("Icon")
                         .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("icon")
                         .HasComment("icon");
-
-                    b.Property<string>("ImageModelID")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("image_model_i_d")
-                        .HasComment("image_model_i_d");
 
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
@@ -1054,6 +1042,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("update_user_id")
                         .HasComment("编辑人ID");
 
+                    b.Property<long?>("aIModelsId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("a_i_models_id")
+                        .HasComment("矢量化模型Id");
+
                     b.Property<uint>("xmin")
                         .HasColumnType("int unsigned")
                         .HasColumnName("xmin")
@@ -1074,6 +1067,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                     b.HasIndex("UpdateTime");
 
                     b.HasIndex("UpdateUserId");
+
+                    b.HasIndex("aIModelsId");
 
                     b.ToTable("t_a_i_kmss", null, t =>
                         {
@@ -4087,11 +4082,18 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasForeignKey("UpdateUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("kevin.Domain.Entities.AI.TAIModels", "aIModels")
+                        .WithMany()
+                        .HasForeignKey("aIModelsId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("CreateUser");
 
                     b.Navigation("DeleteUser");
 
                     b.Navigation("UpdateUser");
+
+                    b.Navigation("aIModels");
                 });
 
             modelBuilder.Entity("kevin.Domain.Entities.AI.TAIModels", b =>

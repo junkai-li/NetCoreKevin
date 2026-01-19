@@ -1,4 +1,5 @@
 ﻿using kevin.Domain.Share.Dtos.AI;
+using kevin.Domain.Share.Enums;
 
 namespace kevin.Domain.Interfaces.IServices.AI
 {
@@ -9,6 +10,6 @@ namespace kevin.Domain.Interfaces.IServices.AI
         Task<bool> Delete(long id);
 
         Task<AIModelsDto> GetDetails(long id);
-        Task<List<AIModelsDto>> GetALLList();
+        Task<List<AIModelsDto>> GetALLList(int Type = 1);
     }
 }

@@ -18,7 +18,7 @@ namespace Kevin.RAG.Qdrant
         /// <param name="collectionName"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        Task<bool> AddData(string collectionName, List<DocumentChunkDto> data);
+        Task<bool> AddData(string collectionName, List<DocumentChunkDto> data, ulong embeddingValueSize = 2048);
 
         /// <summary>
         ///  搜索向量数据 向量搜索：根据查询向量找到最相关的文档
@@ -29,7 +29,7 @@ namespace Kevin.RAG.Qdrant
         /// <param name="Score">相似度</param> 
         /// <returns></returns>
         Task<List<DocumentChunkDto>> Search(string collectionName,
-            String query, ulong limit = 10, double? Score = null); 
+            Embedding<float> query, ulong limit = 10, double? Score = null);
 
     }
 }

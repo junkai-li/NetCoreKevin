@@ -6,8 +6,10 @@ using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
+using kevin.Domain.Share.Enums;
 using kevin.Share.Dtos;
 using Kevin.RAG;
+using Kevin.RAG.Ollama;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel.Connectors.InMemory;
@@ -34,9 +36,12 @@ namespace kevin.Application.Services.AI
         public IKevinAIChatMessageStore kevinAIChatMessageStore { get; set; }
 
         public IAIKmssService aIKmssService { get; set; }
+
+        private IOllamaApiService ollamaApiService;
         public AIChatHistorysService(IHttpContextAccessor _httpContextAccessor, IAIChatHistorysRp _aIChatHistorysRp,
             IAIAgentService _aIAgentService, IAIModelsService _aIModelsService, IAIPromptsService _aIPromptsService,
-            IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore, IRAGService _rAGService, IAIKmssService _aIKmssService) : base(_httpContextAccessor)
+            IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore, 
+            IRAGService _rAGService, IAIKmssService _aIKmssService, IOllamaApiService _ollamaApiService) : base(_httpContextAccessor)
         {
             this.aIChatHistorysRp = _aIChatHistorysRp;
             this.aIChatsService = _aIChatsService;
@@ -47,6 +52,7 @@ namespace kevin.Application.Services.AI
             this.kevinAIChatMessageStore = _kevinAIChatMessageStore;
             this.rAGServicevice = _rAGService;
             this.aIKmssService = _aIKmssService;
+            this.ollamaApiService= _ollamaApiService;
         }
 
         /// <summary>
@@ -107,10 +113,18 @@ namespace kevin.Application.Services.AI
             string systemPrompt = "";
             if (aiapp.KmsId != default)
             {
-                var kms = await aIKmssService.GetDetails(aiapp.KmsId.Value);
-                if (kms != default)
+                var kmss = await aIKmssService.GetDetails(aiapp.KmsId.Value);
+                if (kmss != default)
                 {
-                   var systemPromptData = await rAGServicevice.GetSystemPrompt("AIKmss-" + kms.Id.ToString(), add.Content, aiapp.MaxMatchesCount, (aiapp.Relevance / 100));
+                    if (kmss.aIModelsId != default)
+                    {
+                       var aimode= await aIModelsService.GetDetails(kmss.aIModelsId.Value); 
+                        if (aimode?.AIModelType == AIModelType.Embedding)
+                        {
+                            ollamaApiService = new OllamaApiService(aimode.EndPoint, aimode.ModelName, aimode.ModelKey); 
+                        }
+                    } 
+                   var systemPromptData = await rAGServicevice.GetSystemPrompt("AIKmss-" + kmss.Id.ToString(), await ollamaApiService.GetEmbedding(add.Content), aiapp.MaxMatchesCount, (aiapp.Relevance / 100));
                     if (systemPromptData.Item1)
                     {
                         systemPrompt = systemPromptData.Item2;
@@ -121,6 +135,9 @@ namespace kevin.Application.Services.AI
             switch (aIModels.AIType)
             {
                 case Domain.Share.Enums.AIType.OpenAI:
+                case Domain.Share.Enums.AIType.ZhiPuAI: 
+                case Domain.Share.Enums.AIType.AzureOpenAI:
+                default:
                     addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
                     {
                         Name = aiapp.Name,
@@ -141,27 +158,7 @@ namespace kevin.Application.Services.AI
                               par.AIChatsId.ToString(),
                                ctx.JsonSerializerOptions);
                         }
-                    })).Item2.Text;
-                    break;
-                case Domain.Share.Enums.AIType.AzureOpenAI:
-                    break;
-                case Domain.Share.Enums.AIType.SparkDesk:
-                    break;
-                case Domain.Share.Enums.AIType.DashScope:
-                    break;
-                case Domain.Share.Enums.AIType.LLamaFactory:
-                    break;
-                case Domain.Share.Enums.AIType.BgeEmbedding:
-                    break;
-                case Domain.Share.Enums.AIType.BgeRerank:
-                    break;
-                case Domain.Share.Enums.AIType.Ollama:
-                    break;
-                case Domain.Share.Enums.AIType.OllamaEmbedding:
-                    break;
-                case Domain.Share.Enums.AIType.Mock:
-                    break;
-                default:
+                    })).Item2.Text; 
                     break;
             }
             aIChatHistorysRp.Add(addAi);

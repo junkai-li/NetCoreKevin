@@ -16,8 +16,35 @@ namespace Kevin.RAG.Ollama
         private readonly string Url;
         private readonly string DefaultModel;
         private readonly string Key;
-        private readonly OllamaApiClient ollamaApiClient;
+        private readonly OllamaApiClient? ollamaApiClient;
+        private readonly HttpClientDisHelper? httpClientDisHelper;
+        public OllamaApiService(string _Url, string _DefaultModel, string _Key)
+        {
+            try
+            {
+                Url = _Url;
+                DefaultModel = _DefaultModel;
+                Key = _Key;
+                if (!string.IsNullOrEmpty(Url) && !string.IsNullOrEmpty(DefaultModel))
+                {
+                    ollamaApiClient = new OllamaApiClient(new Uri(Url), DefaultModel);
 
+                }
+                if (!string.IsNullOrEmpty(Key))
+                {
+                    // 注意：原生Ollama通常不需要ApiKey，这里展示如何通过HttpClient添加认证头
+                    ollamaApiClient?.DefaultRequestHeaders.Add("Authorization", "Bearer " + Key);
+                    httpClientDisHelper = new HttpClientDisHelper();
+                    httpClientDisHelper.AddHeader("Authorization", "Bearer " + Key);
+                }
+            }
+            catch (Exception)
+            {
+
+                Console.WriteLine("Kevin.RAG请检查OllamaApi配置是否正确");
+            }
+
+        }
         public OllamaApiService(IOptionsMonitor<OllamaApiSetting> config)
         {
             try
@@ -52,13 +79,17 @@ namespace Kevin.RAG.Ollama
             }
             if (!string.IsNullOrEmpty(Key))
             {
-                using HttpClientDisHelper httpClientDisHelper = new HttpClientDisHelper();
-                httpClientDisHelper.AddHeader("Authorization", "Bearer " + Key);
                 EmbeddingDto data = (await httpClientDisHelper.PostAsync(Url, new { model = DefaultModel, input = text }.ToJson())).ToObject<EmbeddingDto>();
-               return new Embedding<float>(data.data.First().embedding.ToArray().AsMemory());
+                return new Embedding<float>(data.data.First().embedding.ToArray().AsMemory());
             }
             return await Microsoft.Extensions.AI.EmbeddingGeneratorExtensions.GenerateAsync<string, Embedding<float>>(ollamaApiClient, text, options: null, cancellationToken: default).ConfigureAwait(false);
 
+        }
+
+        public void Dispose()
+        {
+            ollamaApiClient?.Dispose();
+            httpClientDisHelper?.Dispose();
         }
     }
 }

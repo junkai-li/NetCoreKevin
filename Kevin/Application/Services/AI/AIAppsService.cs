@@ -103,10 +103,8 @@ namespace kevin.Application.Services.AI
                     msg.Describe = par.Describe;
                     msg.Icon = par.Icon;
                     msg.Type = par.Type;
-                    msg.ChatModelID = par.ChatModelID;
-                    msg.EmbeddingModelID = par.EmbeddingModelID;
-                    msg.RerankModelID = par.RerankModelID;
-                    msg.ImageModelID = par.ImageModelID;
+                    msg.ChatModelID = par.ChatModelID; 
+                    msg.RerankModelID = par.RerankModelID; 
                     msg.Temperature = par.Temperature;
                     msg.KmsId = par.KmsId;
                     msg.SecretKey = par.SecretKey;

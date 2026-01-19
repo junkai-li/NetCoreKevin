@@ -112,10 +112,15 @@
               <a-select v-model:value="modelForm.aiType" placeholder="请选择AI类型">
                 <a-select-option :value="1">OpenAI</a-select-option>
                 <a-select-option :value="2">Azure</a-select-option>
+                <a-select-option :value="3">智谱AI</a-select-option>
+                <a-select-option :value="7">Bge Embedding</a-select-option>
+                <a-select-option :value="8">Bge Rerank</a-select-option>
+                <a-select-option :value="10">Ollama</a-select-option>
+                <a-select-option :value="11">OllamaEmbedding</a-select-option> 
               </a-select>
             </a-form-item>
          <a-form-item label="模型地址" v-bind="validateInfos.aiType">
-          <a-input v-model:value="modelForm.endPoint" placeholder="请选择AI类型" />
+          <a-input v-model:value="modelForm.endPoint" placeholder="请输入模型地址" />
         </a-form-item> 
         <a-form-item label="模型名称" v-bind="validateInfos.modelName">
           <a-input v-model:value="modelForm.modelName" placeholder="请输入模型名称" />
@@ -213,7 +218,12 @@ const searchKeyword = ref('');
 const getAITypeName = (type) => {
   const types = {
     1: 'OpenAI',
-    2: 'Azure'
+    2: 'Azure',
+    3:'智谱AI',
+    7:'Bge Embedding',
+    8:'Bge Rerank',
+    10:'Ollama',
+    11:'OllamaEmbedding'
   };
   return types[type] || '未知';
 };
@@ -222,7 +232,8 @@ const getAITypeName = (type) => {
 const getModelTypeName = (type) => {
   const types = {
     1: 'Chat',
-    2: 'Embedding'
+    2: 'Embedding',
+    4:'Rerank'
   };
   return types[type] || '未知';
 };

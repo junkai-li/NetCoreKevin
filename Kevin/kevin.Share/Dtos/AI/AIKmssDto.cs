@@ -31,6 +31,12 @@ namespace kevin.Domain.Share.Dtos.AI
         [DefaultValue(49)]
         public int OverlappingTokens { get; set; } = 49;
 
+        /// <summary>
+        /// 矢量化模型Id
+        /// </summary> 
+        [Description("矢量化模型Id")]
+        public long? aIModelsId { get; set; } 
+
         public int DocumentCount { get => this.AIKmssDetailsList.Count; }
         /// <summary>
         ///  case 0: return 'orange'; // 待处理 case 1: return 'blue'; // 处理中  case 2: return 'green'; // 已完成 case 3: return 'red'; // 失败
