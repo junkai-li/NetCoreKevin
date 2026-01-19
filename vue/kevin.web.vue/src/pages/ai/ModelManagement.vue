@@ -110,13 +110,13 @@
             </a-form-item>
               <a-form-item label="AI类型" v-bind="validateInfos.aiType">
               <a-select v-model:value="modelForm.aiType" placeholder="请选择AI类型">
-                <a-select-option :value="1">OpenAI</a-select-option>
-                <a-select-option :value="2">Azure</a-select-option>
-                <a-select-option :value="3">智谱AI</a-select-option>
-                <a-select-option :value="7">Bge Embedding</a-select-option>
-                <a-select-option :value="8">Bge Rerank</a-select-option>
-                <a-select-option :value="10">Ollama</a-select-option>
-                <a-select-option :value="11">OllamaEmbedding</a-select-option> 
+                <a-select-option v-if="modelForm.aiModelType===1" :value="1">OpenAI</a-select-option>
+                <a-select-option  v-if="modelForm.aiModelType===1" :value="2">Azure</a-select-option>
+                <a-select-option  v-if="modelForm.aiModelType===1 || modelForm.aiModelType==2" :value="3">智谱AI</a-select-option>
+                <a-select-option v-if="modelForm.aiModelType===2"  :value="7">Bge Embedding</a-select-option>
+                <a-select-option v-if="modelForm.aiModelType===2"  :value="8">Bge Rerank</a-select-option>
+                <a-select-option v-if="modelForm.aiModelType===2"  :value="10">Ollama</a-select-option>
+                <a-select-option v-if="modelForm.aiModelType===2"  :value="11">OllamaEmbedding</a-select-option> 
               </a-select>
             </a-form-item>
          <a-form-item label="模型地址" v-bind="validateInfos.aiType">
