@@ -515,9 +515,9 @@ const scrollToBottom = () => {
     }
   });
 };
-const connectionServer=null;
+var connectionServer=null;
 const getAiMySignalRHubMsg=(id)=>{
- const connectionServer=new signalR.HubConnectionBuilder().withUrl(`${process.env.VUE_APP_API_BASE_URL}/api/MySignalRHub?IdentityId=${id}&Authorization=${localStorage.getItem('token')}`,{
+   connectionServer=new signalR.HubConnectionBuilder().withUrl(`${process.env.VUE_APP_API_BASE_URL}/api/MySignalRHub?IdentityId=${id}&Authorization=${localStorage.getItem('token')}`,{
  
     headers: {
       "Authorization": `Bearer ${localStorage.getItem('token')}`

@@ -134,6 +134,7 @@ namespace Kevin.SignalR
                             tenantData.Connections.RemoveAll(t => t.IdentityId == identityId);
                         }
                     }
+                    _cacheService.SetObject(_config.cacheMySignalRKeyName, data);
                 }
                 Console.WriteLine(identityId + "断开链接MySignalRHub");
             }
