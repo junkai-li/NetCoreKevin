@@ -1,6 +1,10 @@
-﻿using Kevin.SignalR.Models;
+﻿using kevin.Cache;
+using kevin.Cache.Service;
+using Kevin.SignalR.Models;
+using Kevin.SignalR.Service;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 namespace Kevin.SignalR
 {
@@ -27,6 +31,12 @@ namespace Kevin.SignalR
                 op.Configuration.ConnectRetry = 3;
                 op.Configuration.SyncTimeout = 3000;
             });
+            services.TryAddScoped<ISignalRMsgService, SignalRMsgService>();
+            services.AddKevineRedisCache(op =>
+            {
+                op.Configuration = $"{signalrSetting.hostname}:{signalrSetting.port},DefaultDatabase={signalrSetting.defaultDatabase},Password={signalrSetting.password}";
+                op.InstanceName = "cache";
+            }); 
         }
     }
 }

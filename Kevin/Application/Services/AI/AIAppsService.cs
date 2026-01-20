@@ -109,11 +109,12 @@ namespace kevin.Application.Services.AI
                     msg.KmsId = par.KmsId;
                     msg.SecretKey = par.SecretKey;
                     msg.Relevance = par.Relevance;
+                    msg.MsgType = par.MsgType;
                     msg.MaxAskPromptSize = par.MaxAskPromptSize;
                     msg.MaxMatchesCount = par.MaxMatchesCount;
                     msg.RerankCount = par.RerankCount;
                     msg.AnswerTokens = par.AnswerTokens;
-                    msg.AIPromptID = par.AIPromptID;
+                    msg.AIPromptID = par.AIPromptID; 
                 }
                 else
                 {

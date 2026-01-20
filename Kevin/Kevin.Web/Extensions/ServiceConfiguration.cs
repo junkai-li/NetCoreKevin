@@ -116,7 +116,6 @@ namespace Web.Extension
             #region 缓存服务模式
             //注册缓存服务 内存模式
             services.AddKevinMemoryCache();
-
             #endregion
 
             #region 分布式锁服务注册 
@@ -160,8 +159,8 @@ namespace Web.Extension
             #region 注册文件服务 
             //注册文件服务 需要和静态文件中间件配合使用 配置保持一致
             services.AddKevinStaticFilesStorage(options =>
-            { 
-                options.Endpoint = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "KevinFlies"); 
+            {
+                options.Endpoint = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "KevinFlies");
             });
             #endregion
 
@@ -229,14 +228,14 @@ namespace Web.Extension
             {
                 var settings = Configuration.GetRequiredSection("OllamaApiSetting").Get<OllamaApiSetting>()!;
                 options.Url = settings.Url;
-                options.DefaultModel = settings.DefaultModel; 
-                options.ApiKey= settings.ApiKey;
+                options.DefaultModel = settings.DefaultModel;
+                options.ApiKey = settings.ApiKey;
             }, options2 =>
             {
-               var settings = Configuration.GetRequiredSection("QdrantClientSetting").Get<QdrantClientSetting>()!;
+                var settings = Configuration.GetRequiredSection("QdrantClientSetting").Get<QdrantClientSetting>()!;
                 options2.Url = settings.Url;
                 options2.ApiKey = settings.ApiKey;
-                options2.CertificateThumbprint= settings.CertificateThumbprint;
+                options2.CertificateThumbprint = settings.CertificateThumbprint;
             });
             #endregion
 
@@ -270,7 +269,7 @@ namespace Web.Extension
             //强制重定向到Https
             app.UseHttpsRedirection();
             //静态文件中间件 (UseStaticFiles) 返回静态文件，并简化进一步请求处理。 
-            string staticFilePath= System.IO.Path.Combine(Directory.GetCurrentDirectory(), "KevinFlies");
+            string staticFilePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "KevinFlies");
             Directory.CreateDirectory(staticFilePath);
             app.UseStaticFiles(new StaticFileOptions
             {

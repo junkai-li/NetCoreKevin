@@ -16,7 +16,7 @@ namespace Kevin.SignalR.Service
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        Task SendPublicMsg(string msg);
+        Task SendPublicMsg(string method, string msg);
 
         /// <summary>
         /// 私发信息
@@ -24,19 +24,26 @@ namespace Kevin.SignalR.Service
         /// <param name="connId"></param>
         /// <param name="msg"></param>
         /// <returns></returns>
-        Task SendUserMsg(string connId, string msg);
+        Task SendConnIdMsg(string method, string connId, string msg);
 
         /// <summary>
-        /// 获取用户链接id
+        /// 获取身份链接id
         /// </summary>
         /// <returns></returns>
-        string GetUserConnId(string userId);
+        string GetIdentityConnId(string identityId);
 
         /// <summary>
-        /// 获取用户组链接id
+        /// 获取租户链接id
         /// </summary>
         /// <returns></returns>
         List<string> GetTenantConnIds(int TenantId);
+
+        /// <summary>
+        /// 获取租户所有身份ids
+        /// </summary>
+        /// <param name="TenantId"></param>
+        /// <returns></returns>
+        List<string> GetTenantIdentityIds(int TenantId);
 
         /// <summary>
         /// 发送多个人
@@ -44,6 +51,24 @@ namespace Kevin.SignalR.Service
         /// <param name="connIds"></param>
         /// <param name="msg"></param>
         /// <returns></returns>
-        Task SendUsersMsg(List<string> connIds, string msg);
+        Task SendConnIdsMsg(string method,List<string> connIds, string msg);
+
+        /// <summary>
+        ///指定身份发送消息
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="identityId"></param>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        Task SendIdentityIdMsg(string method, string identityId, string msg);
+
+        /// <summary>
+        ///指定多身份发送消息
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="identityIds"></param>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        Task SendIdentityIdsMsg(string method, List<string> identityIds, string msg);
     }
 }

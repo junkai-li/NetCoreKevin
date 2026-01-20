@@ -1,6 +1,8 @@
 ﻿using kevin.Cache.Service;
 using Kevin.SignalR.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Web.Global.User;
 
@@ -8,17 +10,52 @@ namespace Kevin.SignalR
 {
     public class MySignalRHub : Hub
     {
+        public IServiceProvider serviceProvider { get; set; }
+
         public ICurrentUser _currentUser { get; set; }
+
+        public string identityId { get; set; }
 
         public ICacheService _cacheService { get; set; }
 
+        public IHttpContextAccessor _httpContextAccessor { get; set; }
+
         private readonly SignalrRdisSetting _config;
 
-        public MySignalRHub(ICurrentUser currentUser, IOptionsMonitor<SignalrRdisSetting> config, ICacheService cacheService)
+        public MySignalRHub(IOptionsMonitor<SignalrRdisSetting> config, IHttpContextAccessor httpContextAccessor, IServiceProvider serviceProvider)
         {
-            _currentUser = currentUser;
-            _cacheService = cacheService;
+            if (serviceProvider != default)
+            {
+                _currentUser = serviceProvider.GetService<ICurrentUser>();
+                _cacheService = serviceProvider.GetService<ICacheService>();
+            }
             _config = config.CurrentValue;
+            if (httpContextAccessor != default)
+            {
+                _httpContextAccessor = httpContextAccessor;
+            }
+            identityId = GetIdentityId();
+        }
+
+        private string GetIdentityId()
+        {
+            if (_httpContextAccessor != default && _httpContextAccessor.HttpContext != default)
+            {
+                _httpContextAccessor = _httpContextAccessor;
+                if (_httpContextAccessor.HttpContext.Request.Headers.ContainsKey("IdentityId"))
+                {
+                    return _httpContextAccessor.HttpContext.Request.Headers["IdentityId"].FirstOrDefault() ?? "";
+                }
+                if (_httpContextAccessor.HttpContext.Request.Query["IdentityId"].FirstOrDefault() != default)
+                {
+                    return _httpContextAccessor.HttpContext.Request.Query["IdentityId"].FirstOrDefault() ?? "";
+                }
+                return _currentUser.UserId.ToString();
+            }
+            else
+            {
+                return _currentUser.UserId.ToString();
+            }
         }
 
         /// <summary>
@@ -31,36 +68,50 @@ namespace Kevin.SignalR
             {
                 throw new Exception($"用户不存在");
             }
-            if (_currentUser.UserId != default && _currentUser.TenantId != default)
+            if (identityId != default && _currentUser.TenantId != default)
             {
-                var data = _cacheService.GetObject<SignalRCacheDto>(_config.cacheMySignalRKeyName);
-                var tenantData = data.Items.FirstOrDefault(t => t.TenantId == _currentUser.TenantId);
-                if (tenantData != default)
+                var data = new SignalRCacheDto();
+                var json = _cacheService.GetString(_config.cacheMySignalRKeyName);
+                if (!string.IsNullOrEmpty(json))
                 {
-                    if (tenantData.UserConnections.FirstOrDefault(t => t.UserId == _currentUser.UserId.ToString()) != default)
+                    data = _cacheService.GetObject<SignalRCacheDto>(_config.cacheMySignalRKeyName);
+                    var tenantData = data.Items.FirstOrDefault(t => t.TenantId == _currentUser.TenantId);
+                    if (tenantData != default)
                     {
-                        tenantData.UserConnections.RemoveAll(t => t.UserId == _currentUser.UserId.ToString());
+                        if (tenantData.Connections.FirstOrDefault(t => t.IdentityId == identityId) != default)
+                        {
+                            tenantData.Connections.RemoveAll(t => t.IdentityId == identityId);
+                        }
+                        tenantData.Connections?.Add(new IdentityConnectionDto
+                        {
+                            IdentityId = identityId,
+                            ConnectionId = Context.ConnectionId
+                        });
                     }
-                    ;
-                    tenantData.UserConnections?.Add(new UserConnectionDto
+                    else
                     {
-                        UserId = _currentUser.UserId.ToString(),
-                        ConnectionId = Context.ConnectionId
-                    });
-                    _cacheService.SetObject(_config.cacheMySignalRKeyName, data);
+                        data.Items.Add(new SignalRRedisItemDto
+                        {
+                            TenantId = _currentUser.TenantId,
+                            Connections = new List<IdentityConnectionDto> {
+                                                          new IdentityConnectionDto{ ConnectionId=Context.ConnectionId, IdentityId=identityId}
+                                                            }
+                        });
+                    }
                 }
                 else
                 {
                     data.Items.Add(new SignalRRedisItemDto
                     {
                         TenantId = _currentUser.TenantId,
-                        UserConnections = new List<UserConnectionDto> {
-                                                          new UserConnectionDto{ ConnectionId=Context.ConnectionId, UserId=_currentUser.UserId.ToString() }
+                        Connections = new List<IdentityConnectionDto> {
+                                                          new IdentityConnectionDto{ ConnectionId=Context.ConnectionId, IdentityId=identityId}
                                                             }
                     });
                 }
+                _cacheService.SetObject(_config.cacheMySignalRKeyName, data);
             }
-            // Console.WriteLine(_currentUser.UserId + "链接");
+            Console.WriteLine(identityId + "-链接MySignalRHub");
             await base.OnConnectedAsync();
         }
         /// <summary>
@@ -72,19 +123,19 @@ namespace Kevin.SignalR
         {
             try
             {
-                if (_currentUser.UserId != default && _currentUser.TenantId != default)
+                if (identityId != default && _currentUser.TenantId != default)
                 {
                     var data = _cacheService.GetObject<SignalRCacheDto>(_config.cacheMySignalRKeyName);
                     var tenantData = data.Items.FirstOrDefault(t => t.TenantId == _currentUser.TenantId);
                     if (tenantData != default)
                     {
-                        if (tenantData.UserConnections.FirstOrDefault(t => t.UserId == _currentUser.UserId.ToString()) != default)
+                        if (tenantData.Connections.FirstOrDefault(t => t.IdentityId == identityId) != default)
                         {
-                            tenantData.UserConnections.RemoveAll(t => t.UserId == _currentUser.UserId.ToString());
+                            tenantData.Connections.RemoveAll(t => t.IdentityId == identityId);
                         }
                     }
-                } 
-                // Console.WriteLine(Context.ConnectionId + "断开");
+                }
+                Console.WriteLine(identityId + "断开链接MySignalRHub");
             }
             finally
             {
@@ -101,26 +152,6 @@ namespace Kevin.SignalR
         {
             _cacheService.Remove(_config.cacheMySignalRKeyName);
             base.Dispose(); ;
-        }
-        /// <summary>
-        /// 发送公告消息
-        /// </summary>
-        /// <param name="msg"></param>
-        /// <returns></returns>
-        public Task SendPublicMsg(string msg)
-        {
-            return this.Clients.All.SendAsync("AllMsg", msg);
-        }
-        /// <summary>
-        /// 私发信息
-        /// </summary>
-        /// <param name="connId"></param>
-        /// <param name="msg"></param>
-        /// <returns></returns>
-        public Task SendUserMsg(string connId, string msg)
-        {
-            string newmsg = $"{connId}{DateTime.Now}:{msg}";
-            return this.Clients.Client(connId).SendAsync("ReceptionUserMsg", newmsg);
         }
     }
 }

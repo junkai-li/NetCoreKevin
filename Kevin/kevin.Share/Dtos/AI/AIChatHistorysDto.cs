@@ -36,5 +36,11 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary>
         [Description("文件名")]
         public String? FileName { get; set; }
+
+        /// <summary>
+        /// 1非流式 2.流式
+        /// </summary>
+        [Description("发送是true  接收是false")]
+        public int MsgType { get; set; } = 1;
     }
 }

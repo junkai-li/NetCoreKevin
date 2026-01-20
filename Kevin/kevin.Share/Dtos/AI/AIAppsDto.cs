@@ -92,5 +92,11 @@ namespace kevin.Domain.Share.Dtos.AI
         public long AIPromptID { get; set; }
 
         public virtual string? AIPromptName { get; set; }
+
+        /// <summary>
+        /// 输出消息类型 1.非流式文本 2.流式文本 3.图片 4.音频 5.视频 6.文件 7.链接 8.卡片 
+        /// </summary>
+        [Required]
+        public int MsgType { get; set; } = 1;
     }
 }

@@ -328,6 +328,41 @@
             </summary> 
             <returns></returns>
         </member>
+        <member name="T:App.WebApi.Controllers.SignalRController">
+            <summary>
+            SignalR相关API服务
+            </summary>
+        </member>
+        <member name="M:App.WebApi.Controllers.SignalRController.SendPublicMsg(System.String,System.String)">
+            <summary>
+            发送公告消息
+            </summary> 
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.SignalRController.SendConnIdMsg(System.String,System.String,System.String)">
+            <summary>
+            私发信息
+            </summary> 
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.SignalRController.GetTenantIdentityIds">
+            <summary>
+            获取租户所有身份id
+            </summary> 
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.SignalRController.SendIdentityIdMsg(System.String,System.String,System.String)">
+            <summary>
+            私发信息
+            </summary> 
+            <returns></returns>
+        </member>
+        <member name="M:App.WebApi.Controllers.SignalRController.SendIdentityIdsMsg(System.String,System.String,System.Collections.Generic.List{System.String})">
+            <summary>
+            批量私发信息
+            </summary> 
+            <returns></returns>
+        </member>
         <member name="T:App.WebApi.Controllers.TenantController">
             <summary>
             租户管理

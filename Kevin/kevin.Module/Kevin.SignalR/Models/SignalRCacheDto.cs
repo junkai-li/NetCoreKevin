@@ -22,13 +22,13 @@ namespace Kevin.SignalR.Models
         public int TenantId { get; set; } = 1000;
 
         /// <summary>
-        /// 用户链接ids
+        /// 链接ids
         /// </summary>
-        public List<UserConnectionDto> UserConnections { get; set; } = new List<UserConnectionDto>();
+        public List<IdentityConnectionDto> Connections { get; set; } = new List<IdentityConnectionDto>();
     }
-    public class UserConnectionDto
+    public class IdentityConnectionDto
     {
-        public string UserId { get; set; } = "";
+        public string IdentityId { get; set; } = "";
         public string ConnectionId { get; set; } = "";
 
     }

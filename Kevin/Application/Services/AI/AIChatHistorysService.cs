@@ -10,6 +10,7 @@ using kevin.Domain.Share.Enums;
 using kevin.Share.Dtos;
 using Kevin.RAG;
 using Kevin.RAG.Ollama;
+using Kevin.SignalR.Service;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel.Connectors.InMemory;
@@ -34,14 +35,15 @@ namespace kevin.Application.Services.AI
         public IAIAppsService aIAppsService { get; set; }
         private IRAGService rAGServicevice { get; set; }
         public IKevinAIChatMessageStore kevinAIChatMessageStore { get; set; }
+        public ISignalRMsgService signalRMsgService { get; set; }
 
         public IAIKmssService aIKmssService { get; set; }
 
         private IOllamaApiService ollamaApiService;
         public AIChatHistorysService(IHttpContextAccessor _httpContextAccessor, IAIChatHistorysRp _aIChatHistorysRp,
             IAIAgentService _aIAgentService, IAIModelsService _aIModelsService, IAIPromptsService _aIPromptsService,
-            IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore, 
-            IRAGService _rAGService, IAIKmssService _aIKmssService, IOllamaApiService _ollamaApiService) : base(_httpContextAccessor)
+            IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore,
+            IRAGService _rAGService, IAIKmssService _aIKmssService, IOllamaApiService _ollamaApiService, ISignalRMsgService _signalRMsgService) : base(_httpContextAccessor)
         {
             this.aIChatHistorysRp = _aIChatHistorysRp;
             this.aIChatsService = _aIChatsService;
@@ -52,7 +54,8 @@ namespace kevin.Application.Services.AI
             this.kevinAIChatMessageStore = _kevinAIChatMessageStore;
             this.rAGServicevice = _rAGService;
             this.aIKmssService = _aIKmssService;
-            this.ollamaApiService= _ollamaApiService;
+            this.ollamaApiService = _ollamaApiService;
+            this.signalRMsgService = _signalRMsgService;
         }
 
         /// <summary>
@@ -113,21 +116,24 @@ namespace kevin.Application.Services.AI
             string systemPrompt = "";
             if (aiapp.KmsId != default)
             {
+                await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在查询知识库....");
                 var kmss = await aIKmssService.GetDetails(aiapp.KmsId.Value);
                 if (kmss != default)
                 {
                     if (kmss.aIModelsId != default)
                     {
-                       var aimode= await aIModelsService.GetDetails(kmss.aIModelsId.Value); 
+                        var aimode = await aIModelsService.GetDetails(kmss.aIModelsId.Value);
                         if (aimode?.AIModelType == AIModelType.Embedding)
                         {
-                            ollamaApiService = new OllamaApiService(aimode.EndPoint, aimode.ModelName, aimode.ModelKey); 
+                            ollamaApiService = new OllamaApiService(aimode.EndPoint, aimode.ModelName, aimode.ModelKey);
                         }
-                    } 
-                   var systemPromptData = await rAGServicevice.GetSystemPrompt("AIKmss-" + kmss.Id.ToString(), await ollamaApiService.GetEmbedding(add.Content), aiapp.MaxMatchesCount, (aiapp.Relevance / 100));
+                    }
+                    await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在检索相关文档...");
+                    var systemPromptData = await rAGServicevice.GetSystemPrompt("AIKmss-" + kmss.Id.ToString(), await ollamaApiService.GetEmbedding(add.Content), aiapp.MaxMatchesCount, (aiapp.Relevance / 100));
                     if (systemPromptData.Item1)
                     {
                         systemPrompt = systemPromptData.Item2;
+                        await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"找到 {systemPromptData.Item3.Count} 个相关文档");
                     }
                 }
 
@@ -135,9 +141,10 @@ namespace kevin.Application.Services.AI
             switch (aIModels.AIType)
             {
                 case Domain.Share.Enums.AIType.OpenAI:
-                case Domain.Share.Enums.AIType.ZhiPuAI: 
+                case Domain.Share.Enums.AIType.ZhiPuAI:
                 case Domain.Share.Enums.AIType.AzureOpenAI:
                 default:
+                    await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在结合文章思考....");
                     addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
                     {
                         Name = aiapp.Name,
@@ -158,7 +165,10 @@ namespace kevin.Application.Services.AI
                               par.AIChatsId.ToString(),
                                ctx.JsonSerializerOptions);
                         }
-                    })).Item2.Text; 
+                    }, isStreame: aiapp.MsgType == 2, streameCallback: async (msg) =>
+                    {
+                        await  signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
+                    })).Item2;
                     break;
             }
             aIChatHistorysRp.Add(addAi);

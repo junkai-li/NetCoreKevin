@@ -23,6 +23,10 @@ namespace Kevin.Common.App
             try
             {
                 var Authorization = httpContext.Current().Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                if (string.IsNullOrEmpty(Authorization))
+                {
+                    Authorization = httpContext.Current().Request.Query["Authorization"].ToString().Replace("Bearer ", "");
+                }
 
                 var securityToken = new JwtSecurityToken(Authorization);
 

@@ -69,6 +69,11 @@
             提示词绑定
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.MsgType">
+            <summary>
+            输出消息类型 1.非流式文本 2.流式文本 3.图片 4.音频 5.视频 6.文件 7.链接 8.卡片 
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto">
             <summary>
             聊天记录
@@ -92,6 +97,11 @@
         <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.FileName">
             <summary>
             文件名
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.MsgType">
+            <summary>
+            1非流式 2.流式
             </summary>
         </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIChatsDto">

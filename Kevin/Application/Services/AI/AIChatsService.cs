@@ -8,6 +8,7 @@ using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Share.Dtos;
 using Kevin.AI;
+using Kevin.SignalR.Service;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using System;
@@ -26,13 +27,13 @@ namespace kevin.Application.Services.AI
         public IAIModelsService aIModelsService { get; set; }
 
         public IAIPromptsService aIPromptsService { get; set; }
-
+        public ISignalRMsgService signalRMsgService { get; set; }
         public IKevinAIChatMessageStore kevinAIChatMessageStore { get; set; }
 
         public AIChatsService(IHttpContextAccessor _httpContextAccessor, IAIChatsRp _aIChatsRp,
             IAIAgentService _aIAgentService,
             IAIChatHistorysRp _aIChatHistorysRp, IAIAppsService _aIAppsService,
-            IAIModelsService _aIModelsService, IAIPromptsService aIPromptsService, IKevinAIChatMessageStore _kevinAIChatMessageStore
+            IAIModelsService _aIModelsService, IAIPromptsService aIPromptsService, IKevinAIChatMessageStore _kevinAIChatMessageStore, ISignalRMsgService _signalRMsgService
             // IAIClient _aIClient
             ) : base(_httpContextAccessor)
         {
@@ -43,6 +44,7 @@ namespace kevin.Application.Services.AI
             this.aIModelsService = _aIModelsService;
             this.aIPromptsService = aIPromptsService;
             this.kevinAIChatMessageStore = _kevinAIChatMessageStore;
+            this.signalRMsgService = _signalRMsgService;
             // this.aIClient = _aIClient;
         }
 
@@ -121,7 +123,10 @@ namespace kevin.Application.Services.AI
                               add.Id.ToString(),
                                ctx.JsonSerializerOptions);
                         }
-                    })).Item2.Text;
+                    },isStreame: aiapp.MsgType == 2, streameCallback: async (msg) =>
+                    {
+                        await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
+                    })).Item2;
                     //addHist.Content = aIClient.SendMsg("请开始你的自我介绍", aIModels.EndPoint, aIModels.ModelKey, aIModels.ModelName, aIPrompts.Prompt + (aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答")).choices.FirstOrDefault().message.content;
                     break; 
             }

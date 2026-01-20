@@ -150,6 +150,14 @@
             />
           </a-form-item>
         </a-col> 
+          <a-col :span="12">
+          <a-form-item label="消息输出类型" v-bind="validateInfos.msgType">
+            <a-select v-model:value="form.msgType" placeholder="消息输出类型">
+                <a-select-option   :value="1">非流式文本</a-select-option>
+                <a-select-option  :value="2">流式文本</a-select-option> 
+              </a-select>
+          </a-form-item>
+        </a-col> 
       </a-row>
     </a-form>
   </a-modal>
@@ -202,7 +210,8 @@ const form = reactive({
   answerTokens: 2048,
   maxMatchesCount: 3,
   rerankCount: 20,
-  aiPromptID: undefined
+  aiPromptID: undefined,
+  msgType:1
 });
 
 // 表单验证规则
@@ -221,6 +230,8 @@ const rules = reactive({
   ],
   chatModelID: [
     { required: true, message: '请选择会话模型' }
+  ] , msgType: [
+    { required: true, message: '请选择消息输出类型' }
   ]
 });
 
@@ -297,7 +308,8 @@ watch(() => props.open, (newVal) => {
         answerTokens: 2048,
         maxMatchesCount: 3,
         rerankCount: 20,
-        aiPromptID: undefined
+        aiPromptID: undefined,
+        msgType:1
       });
     }
   }
@@ -333,7 +345,8 @@ const handleOk = () => {
         answerTokens: form.answerTokens,
         maxMatchesCount: form.maxMatchesCount,
         rerankCount: form.rerankCount,
-        aiPromptID: form.aiPromptID
+        aiPromptID: form.aiPromptID,
+        msgType: form.msgType
       };
       
       emit('ok', params);

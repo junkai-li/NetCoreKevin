@@ -93,13 +93,15 @@
           <div v-if="isSending" class="message-item ai-message">
             <div class="message-avatar">
               <RobotOutlined />
-            </div>
+            </div> 
             <div class="message-content">
               <div class="typing-indicator">
                 <span></span>
                 <span></span>
-                <span></span>
+                <span></span> 
               </div>
+             <div class="message-text">{{ aimessage2 }}</div>
+              <div class="message-time">  {{ aimessage}}</div> 
             </div>
           </div>
         </div>
@@ -159,10 +161,10 @@ import { getAIAppsALLList } from "../../api/ai/aiapps.js";
 import { getAIChatsMyPageData, addAIChats, deleteAIChats } from "../../api/ai/aichats.js";
 import {
   getAIChatHistorysPageData,
-  addAIChatHistorys,
-  deleteAIChatHistorys,
+  addAIChatHistorys, 
 } from "../../api/ai/aichathistorys.js";
-
+import * as signalR from '@microsoft/signalr';
+import { GetSnowflakeId } from '../../api/baseapi';
 // 模拟数据
 const conversations = ref([]);
 const activeConversationId = ref(null);
@@ -172,7 +174,8 @@ const newMessage = ref("");
 const loadingConversations = ref(false);
 const isSending = ref(false);
 const messagesContainer = ref(null);
-
+const aimessage=ref("");//提示消息  
+const aimessage2=ref("");//提示消息  
 // 分页相关变量
 const currentPage = ref(1);
 const hasMoreMessages = ref(true);
@@ -190,7 +193,7 @@ const loadConversations = async () => {
     // 调用真实API获取对话列表
     const response = await getAIChatsMyPageData({
       pageNum: 1,
-      pageSize: 100, // 获取足够多的对话记录
+      pageSize: 10000, // 获取足够多的对话记录
     });
 
     if (response && response.code === 200 && response.data) {
@@ -309,7 +312,7 @@ const createNewConversation = async (appId) => {
     });
 
     if (response && response.code === 200 && response.data) {
-      await loadConversations();
+      await loadConversations(); 
     } else {
       throw new Error(response?.msg || "创建对话失败");
     }
@@ -447,6 +450,9 @@ const sendMessage = async () => {
   const messageToSend = newMessage.value.trim();
   newMessage.value = "";
   isSending.value = true; 
+  aimessage.value='正在思考....'
+  aimessage2.value='';
+ const snowflakeId = (await GetSnowflakeId()).data;
   try {
     // 添加用户消息到列表
     const userMessage = {
@@ -456,13 +462,19 @@ const sendMessage = async () => {
       content: messageToSend,
       createdAt: new Date().toISOString(),
     };
-    messages.value.push(userMessage);
+    messages.value.push(userMessage); 
+     // 滚动到底部以显示最新内容
+        scrollToBottom();
+         //监听流式输出
+    getAiMySignalRHubMsg(snowflakeId); 
     var reulst = await addAIChatHistorys({
       aIChatsId: activeConversationId.value,
+      id:snowflakeId,
       content: messageToSend,
     });
     if (reulst && reulst.code != 200) {
       message.error("发送失败");
+      stopAiMySignalRHubMsg(snowflakeId);
     }
     scrollToBottom();
     // 更新对话列表中的预览
@@ -476,25 +488,19 @@ const sendMessage = async () => {
         conversation.title =
           messageToSend.substring(0, 20) + (messageToSend.length > 20 ? "..." : "");
       }
-    } 
-    const aiResponse = {
+    }   
+     messages.value.push({
       id: reulst.data.id,
       conversationId: activeConversationId.value,
       isSend: reulst.data.isSend,
       content: reulst.data.content,
       createdAt: reulst.data.createTime,
-    };
-    messages.value.push(aiResponse);
-    isSending.value = false;
-    // 更新对话列表中的预览
-    if (conversation) {
-      conversation.lastMessage =
-        aiResponse.content.substring(0, 30) +
-        (aiResponse.content.length > 30 ? "..." : "");
-      conversation.updatedAt = new Date().toISOString();
-    }
+    }); 
+      stopAiMySignalRHubMsg(snowflakeId);
+        isSending.value = false;  
     scrollToBottom();
   } catch (error) {
+    stopAiMySignalRHubMsg(snowflakeId);
     console.error("发送消息失败:", error);
     message.error("发送消息失败");
     isSending.value = false;
@@ -509,6 +515,46 @@ const scrollToBottom = () => {
     }
   });
 };
+const connectionServer=null;
+const getAiMySignalRHubMsg=(id)=>{
+ const connectionServer=new signalR.HubConnectionBuilder().withUrl(`${process.env.VUE_APP_API_BASE_URL}/api/MySignalRHub?IdentityId=${id}&Authorization=${localStorage.getItem('token')}`,{
+ 
+    headers: {
+      "Authorization": `Bearer ${localStorage.getItem('token')}`
+    }
+  }) 
+  .withAutomaticReconnect()
+  .build()
+connectionServer.start().then(() => {})
+connectionServer.onreconnecting(() => {})
+connectionServer.onreconnected(() => { })
+connectionServer.onclose(() => {})
+// 客户端保持连接请求到服务端时间间隔
+connectionServer.keepAliveIntervalInMilliseconds = 12e4
+// 服务端保持连接请求到客户端时间间隔
+connectionServer.serverTimeoutInMilliseconds = 24e4
+// 接收AI消息
+connectionServer.on('aimsg', (msg) => {
+  // 使用nextTick确保DOM更新
+  nextTick(() => {
+    // 实现逐字显示效果
+    aimessage2.value+=msg;
+     // 滚动到底部以显示最新内容
+        scrollToBottom();
+  });
+}) 
+// 接收AI消息
+connectionServer.on('processmsg', (msg) => {    
+    aimessage.value=msg 
+}) 
+}
+
+const stopAiMySignalRHubMsg=(id)=>{
+  aimessage.value='';
+  aimessage2.value='';
+connectionServer?.stop();
+}
+   
 
 // 格式化日期
 const formatDate = (dateString) => {

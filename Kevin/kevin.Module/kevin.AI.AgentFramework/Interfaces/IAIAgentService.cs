@@ -49,7 +49,7 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <returns></returns>
         Task<(AIAgent, AgentRunResponse)> CreateOpenAIAgentAndSendMSG(string msg, string name, string prompt, string description, string url, string model, string keySecret, 
             IList<AITool>? tools = null, ChatResponseFormat? chatResponseFormat = null, Func<IChatClient, IChatClient>? clientFactory = null, ILoggerFactory? loggerFactory = null, IServiceProvider? services = null);
-        Task<(AIAgent, AgentRunResponse)> CreateOpenAIAgentAndSendMSG(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions);
+        Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, bool isStreame = false, Action<string> streameCallback = default);
         /// <summary>
         /// 智能体转换为McpServerTool
         /// </summary>

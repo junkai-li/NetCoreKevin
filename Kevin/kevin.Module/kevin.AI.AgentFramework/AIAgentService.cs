@@ -1,4 +1,5 @@
-﻿using kevin.AI.AgentFramework.Interfaces;
+﻿using kevin.AI.AgentFramework.Agent;
+using kevin.AI.AgentFramework.Interfaces;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
@@ -29,7 +30,7 @@ namespace kevin.AI.AgentFramework
             openAIClientOptions.Endpoint = new Uri(url);
             var ai = new OpenAIClient(new ApiKeyCredential(keySecret), openAIClientOptions);
             if (chatOptions != default)
-            { 
+            {
                 return ai.GetChatClient(model).CreateAIAgent(new ChatClientAgentOptions()
                 {
                     Name = name,
@@ -45,7 +46,7 @@ namespace kevin.AI.AgentFramework
         {
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
             openAIClientOptions.Endpoint = new Uri(url);
-            var ai = new OpenAIClient(new ApiKeyCredential(keySecret), openAIClientOptions); 
+            var ai = new OpenAIClient(new ApiKeyCredential(keySecret), openAIClientOptions);
             return ai.GetChatClient(model).CreateAIAgent(chatClientAgentOptions);
         }
 
@@ -98,14 +99,34 @@ namespace kevin.AI.AgentFramework
             return (aiAgent, reslut);
         }
 
-        public async Task<(AIAgent, AgentRunResponse)> CreateOpenAIAgentAndSendMSG(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions)
+        public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, bool isStreame = false, Action<string> streameCallback = default)
         {
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
             openAIClientOptions.Endpoint = new Uri(url);
-            var ai = new OpenAIClient(new ApiKeyCredential(keySecret), openAIClientOptions); 
-            var aiAgent = ai.GetChatClient(model).CreateAIAgent(chatClientAgentOptions); 
-            var reslut = await aiAgent.RunAsync(msg);
-            return (aiAgent, reslut);
+            var ai = new OpenAIClient(new ApiKeyCredential(keySecret), openAIClientOptions);
+            var aiAgent = ai.GetChatClient(model).CreateAIAgent(chatClientAgentOptions);
+            var reslut = new AgentRunResponse();
+            var resultText = string.Empty;
+            if (isStreame)
+            {
+                if (streameCallback != default)
+                {
+                    await foreach(AgentRunResponseUpdate update in aiAgent.RunStreamingAsync(msg))
+                    {
+                        if (!string.IsNullOrEmpty(update.Text))
+                        {
+                            streameCallback.Invoke(update.Text);
+                            resultText += update.Text;
+                        } 
+                    }
+                } 
+            }
+            else
+            {
+                reslut = await aiAgent.RunAsync(msg);
+                resultText = reslut.Text;
+            }
+            return (aiAgent, resultText);
         }
     }
 }

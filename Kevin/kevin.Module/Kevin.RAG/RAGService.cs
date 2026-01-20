@@ -1,4 +1,5 @@
-﻿using Kevin.RAG.Ollama;
+﻿using Kevin.RAG.Dto;
+using Kevin.RAG.Ollama;
 using Kevin.RAG.Qdrant;
 using Microsoft.Extensions.AI;
 using System;
@@ -16,14 +17,14 @@ namespace Kevin.RAG
         {
             QdrantClientService = qdrantClientService;
         }
-        public async Task<(bool, string)> GetSystemPrompt(string collectionName, Embedding<float> question, int topK = 3, double? Score = null)
+        public async Task<(bool, string, List<DocumentChunkDto>)> GetSystemPrompt(string collectionName, Embedding<float> question, int topK = 3, double? Score = null)
         {
             Console.WriteLine($"\n问题：{question}");
             Console.WriteLine("正在检索相关文档...");
             var documents = await QdrantClientService.Search(collectionName, question, (ulong)topK);
             if (documents.Count == 0)
             {
-                return (false, "抱歉，我没有找到相关的文档来回答您的问题。");
+                return (false, "抱歉，我没有找到相关的文档来回答您的问题。",new List<DocumentChunkDto>());
             }
             Console.WriteLine($"找到 {documents.Count} 个相关文档");
             // 3. 构建上下文
@@ -43,7 +44,7 @@ namespace Kevin.RAG
                                 用户问题：
                                 {question} 
                                 请基于以上文档内容回答问题。"; 
-            return (true, systemPrompt + "\n" + userPrompt);
+            return (true, systemPrompt + "\n" + userPrompt, documents);
         }
     }
 }

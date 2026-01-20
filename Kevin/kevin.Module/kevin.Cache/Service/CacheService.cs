@@ -142,7 +142,7 @@ namespace kevin.Cache.Service
         {
             var valueStr = Cache.GetString(key);
 
-            var value = JsonConvert.DeserializeObject<T>(key.Replace("undefined", "null"));
+            var value = JsonConvert.DeserializeObject<T>(valueStr.Replace("undefined", "null"));
 
             return value;
         }
