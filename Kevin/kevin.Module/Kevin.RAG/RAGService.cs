@@ -21,15 +21,7 @@ namespace Kevin.RAG
         {
             Console.WriteLine($"\n问题：{question}");
             Console.WriteLine("正在检索相关文档...");
-            var documents = await QdrantClientService.Search(collectionName, question, (ulong)topK);
-            if (documents.Count == 0)
-            {
-                return (false, "抱歉，我没有找到相关的文档来回答您的问题。",new List<DocumentChunkDto>());
-            }
-            Console.WriteLine($"找到 {documents.Count} 个相关文档");
-            // 3. 构建上下文
-            var context = string.Join("\n\n---\n\n", documents.Select((doc, index) =>
-                $"文档 {doc.Title +"-"+ index + 1}（来源：{doc.SourceFile}）：\n{doc.Content}"));
+            var documents = await QdrantClientService.Search(collectionName, question, (ulong)topK, Score);
             // 4. 构建提示词
             var systemPrompt = @" 
                                 重要规则：
@@ -37,7 +29,16 @@ namespace Kevin.RAG
                                 2. 如果文档中没有相关信息，请明确告知用户
                                 3. 不要编造或推测文档中没有的信息
                                 4. 回答要清晰、准确、有条理
-                                5. 可以引用文档来源";
+                                5. 可以引用文档来源 引用时必须选择相似度最高的文档";
+            if (documents.Count == 0)
+            {
+                return (false, systemPrompt+"\n" +"抱歉，我没有找到相关的文档来回答您的问题。",new List<DocumentChunkDto>());
+            }
+            Console.WriteLine($"找到 {documents.Count} 个相关文档");
+            // 3. 构建上下文
+            var context = string.Join("\n\n---\n\n", documents.Select((doc, index) =>
+                $"文档 {doc.Title +"-"+ index + 1}（来源：{doc.SourceFile}）（相似度：{doc.Score}）：\n{doc.Content}"));
+            Console.WriteLine(context);
 
             var userPrompt = $@"文档内容：
                                 {context} 

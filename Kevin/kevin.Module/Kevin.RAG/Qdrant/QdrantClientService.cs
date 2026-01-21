@@ -14,15 +14,15 @@ namespace Kevin.RAG.Qdrant
     {
         private readonly string Url;
         private readonly string ApiKey;
-        private readonly string CertificateThumbprint; 
-        private readonly QdrantClient QdrantClient; 
+        private readonly string CertificateThumbprint;
+        private readonly QdrantClient QdrantClient;
         public QdrantClientService(IOptionsMonitor<QdrantClientSetting> config)
         {
             try
             {
                 Url = config.CurrentValue.Url;
                 ApiKey = config.CurrentValue.ApiKey;
-                CertificateThumbprint = config.CurrentValue.CertificateThumbprint;  
+                CertificateThumbprint = config.CurrentValue.CertificateThumbprint;
                 if (!string.IsNullOrEmpty(Url))
                 {
                     if (!string.IsNullOrEmpty(ApiKey))
@@ -47,15 +47,15 @@ namespace Kevin.RAG.Qdrant
             }
 
         }
-         
-        public async Task<bool> AddData(string collectionName, List<DocumentChunkDto> data, ulong embeddingValueSize=2048)
+
+        public async Task<bool> AddData(string collectionName, List<DocumentChunkDto> data, ulong embeddingValueSize = 2048)
         {
             if (QdrantClient == default)
             {
                 throw new ArgumentException($"请检查QdrantClient配置是否正确");
             }
             if (QdrantClient != null)
-            { 
+            {
                 var points = data.Select(i => new PointStruct
                 {
                     Id = (ulong)i.Id,
@@ -128,7 +128,7 @@ namespace Kevin.RAG.Qdrant
             {
                 relust = relust.Where(i => i.Score >= Score).ToList();
             }
-            return relust;
+            return relust.OrderByDescending(t => t.Score).ToList();
         }
 
         public void Dispose()
