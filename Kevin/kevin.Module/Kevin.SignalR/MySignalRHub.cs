@@ -75,29 +75,33 @@ namespace Kevin.SignalR
                 if (!string.IsNullOrEmpty(json))
                 {
                     data = _cacheService.GetObject<SignalRCacheDto>(_config.cacheMySignalRKeyName);
-                    var tenantData = data.Items.FirstOrDefault(t => t.TenantId == _currentUser.TenantId);
-                    if (tenantData != default)
+                    if (data != default)
                     {
-                        if (tenantData.Connections.FirstOrDefault(t => t.IdentityId == identityId) != default)
+                        var tenantData = data.Items.FirstOrDefault(t => t.TenantId == _currentUser.TenantId);
+                        if (tenantData != default)
                         {
-                            tenantData.Connections.RemoveAll(t => t.IdentityId == identityId);
+                            if (tenantData.Connections.FirstOrDefault(t => t.IdentityId == identityId) != default)
+                            {
+                                tenantData.Connections.RemoveAll(t => t.IdentityId == identityId);
+                            }
+                            tenantData.Connections?.Add(new IdentityConnectionDto
+                            {
+                                IdentityId = identityId,
+                                ConnectionId = Context.ConnectionId
+                            });
                         }
-                        tenantData.Connections?.Add(new IdentityConnectionDto
+                        else
                         {
-                            IdentityId = identityId,
-                            ConnectionId = Context.ConnectionId
-                        });
-                    }
-                    else
-                    {
-                        data.Items.Add(new SignalRRedisItemDto
-                        {
-                            TenantId = _currentUser.TenantId,
-                            Connections = new List<IdentityConnectionDto> {
+                            data.Items.Add(new SignalRRedisItemDto
+                            {
+                                TenantId = _currentUser.TenantId,
+                                Connections = new List<IdentityConnectionDto> {
                                                           new IdentityConnectionDto{ ConnectionId=Context.ConnectionId, IdentityId=identityId}
                                                             }
-                        });
+                            });
+                        }
                     }
+
                 }
                 else
                 {
@@ -126,15 +130,19 @@ namespace Kevin.SignalR
                 if (identityId != default && _currentUser.TenantId != default)
                 {
                     var data = _cacheService.GetObject<SignalRCacheDto>(_config.cacheMySignalRKeyName);
-                    var tenantData = data.Items.FirstOrDefault(t => t.TenantId == _currentUser.TenantId);
-                    if (tenantData != default)
+                    if (data != default)
                     {
-                        if (tenantData.Connections.FirstOrDefault(t => t.IdentityId == identityId) != default)
+                        var tenantData = data.Items.FirstOrDefault(t => t.TenantId == _currentUser.TenantId);
+                        if (tenantData != default)
                         {
-                            tenantData.Connections.RemoveAll(t => t.IdentityId == identityId);
+                            if (tenantData.Connections.FirstOrDefault(t => t.IdentityId == identityId) != default)
+                            {
+                                tenantData.Connections.RemoveAll(t => t.IdentityId == identityId);
+                            }
                         }
+                        _cacheService.SetObject(_config.cacheMySignalRKeyName, data);
                     }
-                    _cacheService.SetObject(_config.cacheMySignalRKeyName, data);
+                  
                 }
                 Console.WriteLine(identityId + "断开链接MySignalRHub");
             }

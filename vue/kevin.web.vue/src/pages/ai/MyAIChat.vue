@@ -447,11 +447,16 @@ const handlePressEnter = (e) => {
 // 发送消息
 const sendMessage = async () => {
   if (!newMessage.value.trim() || isSending.value) return; 
-  const messageToSend = newMessage.value.trim();
-  newMessage.value = "";
+  const messageToSend = newMessage.value.trim(); 
   isSending.value = true; 
   aimessage.value='正在思考....'
   aimessage2.value='';
+    // 使用nextTick确保DOM更新
+  nextTick(() => { 
+     newMessage.value = "";
+     // 滚动到底部以显示最新内容
+        scrollToBottom();
+  });
  const snowflakeId = (await GetSnowflakeId()).data;
   try {
     // 添加用户消息到列表
