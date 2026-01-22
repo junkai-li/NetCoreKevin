@@ -86,6 +86,17 @@
             </div>
             <div class="message-content">
               <div class="message-text">{{ message.content }}</div>
+              <div class="message-actions" v-if="!message.isSend">
+                <a-button 
+                  type="text" 
+                  size="small" 
+                  @click="copyMessageContent(message.content)"
+                  class="copy-button">
+                  <template #icon>
+                    <CopyOutlined />
+                  </template>
+                </a-button>
+              </div>
               <div class="message-time">{{ formatTime(message.createdAt) }}</div>
             </div>
           </div>
@@ -163,6 +174,7 @@ import {
   RobotOutlined,
   MessageOutlined,
   DeleteOutlined,
+  CopyOutlined,
 } from "@ant-design/icons-vue";
 import { message, Modal, Select } from "ant-design-vue";
 import { getAIAppsALLList } from "../../api/ai/aiapps.js";
@@ -195,6 +207,17 @@ const pageSize = ref(20); // 每页消息数量
 // 智能体相关
 const aiApps = ref([]); // 存储智能体列表
 const selectedAiApp = ref(null); // 存储选中的智能体
+
+// 复制功能
+const copyMessageContent = async (content) => {
+  try {
+    await navigator.clipboard.writeText(content);
+    message.success('内容已复制到剪贴板');
+  } catch (err) {
+    console.error('复制失败:', err);
+    message.error('复制失败');
+  }
+};
 
 // 获取对话列表
 const loadConversations = async () => {
@@ -908,6 +931,33 @@ const deleteConversation = async (conversationId, event) => {
 }
 
 .message-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 1;
+}
+
+.message-content:hover .message-actions {
+  opacity: 1;
+}
+
+.copy-button {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.copy-button:hover {
+  color: #fff;
+}
+
+.message-content {
   display: flex;
   flex-direction: column;
   text-align: left; /* 消息内容靠左对齐 */
@@ -1079,5 +1129,25 @@ const deleteConversation = async (conversationId, event) => {
   display: flex;
   justify-content: flex-end;
   padding-top: 8px;
+}
+
+.message-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.message-content:hover .message-actions {
+  opacity: 1;
+}
+
+.copy-button {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.copy-button:hover {
+  color: #fff;
 }
 </style>
