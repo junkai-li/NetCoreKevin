@@ -131,6 +131,7 @@ namespace kevin.AI.AgentFramework.Tool
 
             using (var http = new HttpClient(handler))
             {
+                http.Timeout = TimeSpan.FromSeconds(30); // 设置超时时间
                 // 2. 设置请求头
                 http.DefaultRequestHeaders.Clear();
                 // User-Agent 必须是最新且真实的浏览器标识
