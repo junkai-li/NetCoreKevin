@@ -15,6 +15,7 @@
       <PackageReference Include="Microsoft.Agents.AI.Hosting" Version="1.0.0-preview.251125.1" />
       <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.0.0-preview.251125.1" />
       <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.0.0-preview.251125.1" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.11" />
       <PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.67.1-preview" />
       <PackageReference Include="ModelContextProtocol" Version="0.4.1-preview.1" />
       <PackageReference Include="OpenTelemetry" Version="1.14.0" />

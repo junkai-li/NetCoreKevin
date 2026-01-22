@@ -20,6 +20,7 @@ namespace kevin.AI.AgentFramework
     /// </summary>
     public class AIAgentService : IAIAgentService
     {
+        public static string AIRulePrompt = "";
         public AIAgentService()
         {
         }

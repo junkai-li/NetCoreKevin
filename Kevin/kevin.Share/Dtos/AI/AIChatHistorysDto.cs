@@ -42,5 +42,12 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary>
         [Description("发送是true  接收是false")]
         public int MsgType { get; set; } = 1;
+
+
+        /// <summary>
+        /// 是否联网搜索
+        /// </summary>
+        [Description("是否联网搜索")]
+        public Boolean IsOnlineSearch { get; set; } = false;
     }
 }

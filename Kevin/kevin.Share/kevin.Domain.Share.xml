@@ -104,6 +104,11 @@
             1非流式 2.流式
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.IsOnlineSearch">
+            <summary>
+            是否联网搜索
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIChatsDto">
             <summary>
             对话

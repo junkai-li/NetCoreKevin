@@ -1,5 +1,7 @@
 ﻿using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
+using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
+using kevin.AI.AgentFramework.Tool;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IRepositories.AI;
@@ -39,11 +41,13 @@ namespace kevin.Application.Services.AI
 
         public IAIKmssService aIKmssService { get; set; }
 
+        public IHttpClientFactory httpClientFactory { get; set; }
+
         private IOllamaApiService ollamaApiService;
         public AIChatHistorysService(IHttpContextAccessor _httpContextAccessor, IAIChatHistorysRp _aIChatHistorysRp,
             IAIAgentService _aIAgentService, IAIModelsService _aIModelsService, IAIPromptsService _aIPromptsService,
             IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore,
-            IRAGService _rAGService, IAIKmssService _aIKmssService, IOllamaApiService _ollamaApiService, ISignalRMsgService _signalRMsgService) : base(_httpContextAccessor)
+            IRAGService _rAGService, IAIKmssService _aIKmssService, IOllamaApiService _ollamaApiService, ISignalRMsgService _signalRMsgService, IHttpClientFactory _httpClientFactory) : base(_httpContextAccessor)
         {
             this.aIChatHistorysRp = _aIChatHistorysRp;
             this.aIChatsService = _aIChatsService;
@@ -56,6 +60,7 @@ namespace kevin.Application.Services.AI
             this.aIKmssService = _aIKmssService;
             this.ollamaApiService = _ollamaApiService;
             this.signalRMsgService = _signalRMsgService;
+            this.httpClientFactory = _httpClientFactory;
         }
 
         /// <summary>
@@ -113,7 +118,7 @@ namespace kevin.Application.Services.AI
             addAi.TenantId = CurrentUser.TenantId;
             addAi.IsSend = false;
             addAi.AIChatsId = par.AIChatsId;
-            string systemPrompt = "";
+            string systemPrompt = SystemPrompt.SystemPromptText;
             if (aiapp.KmsId != default)
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在查询知识库....");
@@ -132,10 +137,17 @@ namespace kevin.Application.Services.AI
                     var systemPromptData = await rAGServicevice.GetSystemPrompt("AIKmss-" + kmss.Id.ToString(), await ollamaApiService.GetEmbedding(add.Content), aiapp.MaxMatchesCount, (aiapp.Relevance / 100));
                     if (systemPromptData.Item1)
                     {
-                        systemPrompt = systemPromptData.Item2;
+                        systemPrompt += systemPromptData.Item2;
                         await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"找到 {systemPromptData.Item3.Count} 个相关文档");
                     }
                 }
+
+            }
+            if (par.IsOnlineSearch)
+            {
+                await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在联网搜索....");
+                var http = new HttpClientFunction(httpClientFactory, aIAgentService);
+                systemPrompt += await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey);
 
             }
             switch (aIModels.AIType)
@@ -144,7 +156,7 @@ namespace kevin.Application.Services.AI
                 case Domain.Share.Enums.AIType.ZhiPuAI:
                 case Domain.Share.Enums.AIType.AzureOpenAI:
                 default:
-                    await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在结合文章思考....");
+                    await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在结合相关信息思考....");
                     addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
                     {
                         Name = aiapp.Name,
@@ -167,7 +179,7 @@ namespace kevin.Application.Services.AI
                         }
                     }, isStreame: aiapp.MsgType == 2, streameCallback: async (msg) =>
                     {
-                        await  signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
+                        await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
                     })).Item2;
                     break;
             }

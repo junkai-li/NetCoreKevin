@@ -117,6 +117,14 @@
               :auto-size="{ minRows: 3, maxRows: 6 }"
               allow-clear
             />
+            <div class="input-options">
+              <a-space direction="horizontal">
+                <a-switch v-model:checked="isOnlineSearch" class="online-search-switch">
+                  <template #checkedChildren>联网搜索</template>
+                  <template #unCheckedChildren>联网搜索</template>
+                </a-switch>
+              </a-space>
+            </div>
             <a-button
               type="primary"
               @click="sendMessage"
@@ -176,6 +184,8 @@ const isSending = ref(false);
 const messagesContainer = ref(null);
 const aimessage=ref("");//提示消息  
 const aimessage2=ref("");//提示消息  
+// 添加联网搜索开关变量
+const isOnlineSearch = ref(false); // 默认为关闭状态
 // 分页相关变量
 const currentPage = ref(1);
 const hasMoreMessages = ref(true);
@@ -476,6 +486,7 @@ const sendMessage = async () => {
       aIChatsId: activeConversationId.value,
       id:snowflakeId,
       content: messageToSend,
+      isOnlineSearch: isOnlineSearch.value  // 添加联网搜索字段
     });
     if (reulst && reulst.code != 200) {
       message.error("发送失败");
@@ -1056,5 +1067,17 @@ const deleteConversation = async (conversationId, event) => {
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     max-height: 200px;
   }
+}
+
+/* 添加开关按钮样式 */
+:deep(.online-search-switch) {
+  margin-top: 10px;
+  margin-right: 10px;
+}
+
+.input-options {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
 }
 </style>
