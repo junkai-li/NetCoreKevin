@@ -143,12 +143,20 @@ namespace kevin.Application.Services.AI
                 }
 
             }
+            else
+            {
+                systemPrompt += "\n文档信息列表：\n无相关信息";
+            }
             if (par.IsOnlineSearch)
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在联网搜索....");
                 var http = new HttpClientFunction(httpClientFactory, aIAgentService);
                 systemPrompt += await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey);
 
+            }
+            else
+            {
+                systemPrompt += "\n互联网查询信息:\n无相关信息";
             }
             switch (aIModels.AIType)
             {
