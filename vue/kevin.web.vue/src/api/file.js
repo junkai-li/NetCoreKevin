@@ -56,7 +56,13 @@ export const remoteUploadFile = (business, key, sign, fileInfo, options = {}) =>
 };
 
 // 获取文件
-export const getFileById = (fileId, options = {}) => {
+export const getFileById = (fileId,filename, options = {}) => {
+    if(!fileId){
+    return Promise.reject(new Error('fileId不能为空'));
+  }
+  if (!filename) {
+    filename = 'downloaded_file';
+  }
   return http.get(`/api/File/GetFile?fileid=${fileId}`, {
     responseType: 'blob', // 返回文件流
     ...options
@@ -70,10 +76,7 @@ export const getFileById = (fileId, options = {}) => {
       };
       reader.readAsText(response);
       return Promise.reject(new Error('获取文件失败'));
-    }
-     
-    let filename = "downloaded_file"; 
-    
+    }  
     // 创建Blob对象
     const blob = new Blob([response]);
     // 创建下载链接

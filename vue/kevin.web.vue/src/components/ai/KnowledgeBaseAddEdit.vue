@@ -125,7 +125,7 @@
         <template #bodyCell="{ column, record, index }">
           <template v-if="column.key === 'fileName'">
             <template   v-if="record.contentName" > 
-             <a   @click="getFileById(record.fileId)" >{{ record.contentName }}</a> 
+             <a   @click="getFileById(record.fileId,record.contentName)" >{{ record.contentName }}</a> 
             </template> 
             <template v-else>
               {{ record.content.substring(0, 30) + '...' }}
