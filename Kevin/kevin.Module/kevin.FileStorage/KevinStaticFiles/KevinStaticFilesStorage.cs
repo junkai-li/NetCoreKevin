@@ -76,13 +76,24 @@ namespace kevin.FileStorage.KevinStaticFiles
         }
 
         public bool FileDownload(string remotePath, string localPath)
-        {
+        {  
             remotePath = fileStorageSetting.Endpoint + remotePath.Replace(fileStorageSetting.Url, "").Replace("\\", "/");
             if (File.Exists(remotePath))
             {
-                string localDir = localPath[..(localPath.LastIndexOf("/") + 1)];
-                Directory.CreateDirectory(localDir);
-                File.Copy(remotePath, localPath, true);
+                string localDir = Path.GetDirectoryName(localPath);  
+                if (!Directory.Exists(localDir))
+                {
+                    Directory.CreateDirectory(localDir);
+                }
+                // 2. 使用 FileStream 进行流式复制，显式指定 FileShare.ReadWrite
+                // 这样可以允许其他进程在读取时有一定的共享权限，或者至少确保当前操作正确释放句柄
+                using (FileStream sourceStream = new FileStream(remotePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    using (FileStream destStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                    {
+                        sourceStream.CopyTo(destStream);
+                    }
+                } 
             }
             return true;
         }

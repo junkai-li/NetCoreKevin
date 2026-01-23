@@ -61,6 +61,34 @@ public class TextStreamReader
             CharacterCount = content.Length
         };
     }
+
+    /// <summary>
+    /// 从text读取Markdown内容，并返回结构化信息（标题、内容、是否为有效MD）
+    /// </summary>
+    public static MarkdownContent ReadMarkdownFromText(string text)
+    {
+        var content = text;
+        var lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
+
+        // 简单判断是否为Markdown：检查是否包含至少一个标题或列表符号
+        bool isMarkdown = lines.Any(line =>
+            line.Trim().StartsWith("#") ||
+            line.Trim().StartsWith("- ") ||
+            line.Trim().StartsWith("* ") ||
+            line.Trim().StartsWith("1. ") ||
+            line.Contains("```") ||
+            line.Contains("![") ||
+            line.Contains("["));
+
+        return new MarkdownContent
+        {
+            RawContent = content,
+            IsMarkdown = isMarkdown,
+            Title = lines.FirstOrDefault(line => line.Trim().StartsWith("# "))?.Trim().Substring(2).Trim(),
+            LineCount = lines.Length,
+            CharacterCount = content.Length
+        };
+    }
 }
 
 /// <summary>

@@ -9,6 +9,7 @@ using Kevin.RAG.Dto;
 using Kevin.RAG.Ollama;
 using Kevin.RAG.Qdrant;
 using Kevin.RAG.Tools;
+using NetCore.Util;
 
 namespace kevin.Application.Services.AI
 {
@@ -237,43 +238,68 @@ namespace kevin.Application.Services.AI
                             //如果是文件
                             if (item.FileId != default || !string.IsNullOrEmpty(item.Url))
                             {
-                                #region 文件处理
+                                #region 文件处理 
                                 var file = await FileRp.Query().Where(t => t.IsDelete == false && t.Id == item.FileId).FirstOrDefaultAsync();
+                                Stream stream = default;
                                 if (file != default)
                                 {
                                     FileName = file.Name;
                                     var fileData = await FileService.GetFile(file.Id);
-
                                     if (fileData.Item1 != default)
                                     {
-                                        switch (item.FileType)
-                                        {
-                                            case "Text":
-                                                content = TextStreamReader.ReadTextFromStream(fileData.Item1);
-                                                break;
-                                            case "Markdown":
-                                                content = TextStreamReader.ReadMarkdownFromStream(fileData.Item1).RawContent;
-                                                break;
-                                            case "PDF":
-                                                content = PDFReader.ReadPdfToMarkdown(fileData.Item1);
-                                                break;
-                                            case "Word":
-                                                content = WordReader.ReadParagraphs(fileData.Item1);
-                                                break;
-                                            default:
-                                                content = TextStreamReader.ReadTextFromStream(fileData.Item1);
-                                                break;
-                                        }
+                                        stream = fileData.Item1;
                                     }
                                 }
-
+                                else
+                                {
+                                    stream = await FileHelper.GetRemoteFileStreamAsync(item.Url);
+                                    FileName = await FileHelper.GetRealFileNameFromUrlAsync(item.Url);
+                                }
+                                if (stream != default)
+                                {
+                                    switch (item.FileType.Trim().ToLower())
+                                    {
+                                        case "text":
+                                            content = TextStreamReader.ReadTextFromStream(stream);
+                                            break;
+                                        case "markdown":
+                                            content = TextStreamReader.ReadMarkdownFromStream(stream).RawContent;
+                                            break;
+                                        case "pdf":
+                                            content = PDFReader.ReadPdfToMarkdown(stream);
+                                            break;
+                                        case "word":
+                                            content = WordReader.ReadParagraphs(stream);
+                                            break;
+                                        case "html":
+                                            content = await HtmlReader.ExtractTextFromStreamAsync(stream);
+                                            break;
+                                        default:
+                                            content = TextStreamReader.ReadTextFromStream(stream);
+                                            break;
+                                    }
+                                }
 
                                 #endregion
 
                             }
                             else
                             {
-                                content = item.Content;
+                                switch (item.FileType.Trim().ToLower())
+                                {
+                                    case "text":
+                                        content = item.Content;
+                                        break;
+                                    case "markdown":
+                                        content = TextStreamReader.ReadMarkdownFromText(item.Content).RawContent;
+                                        break;  
+                                    case "html":
+                                        content = await HtmlReader.ExtractTextFromTextAsync(item.Content);
+                                        break;
+                                    default:
+                                        content = item.Content;
+                                        break;
+                                } 
                                 FileName = item.ContentName;
                             }
                             var allChunks = new List<DocumentChunkDto>();
@@ -320,6 +346,7 @@ namespace kevin.Application.Services.AI
                             {
                                 item.Status = ImportKmsStatus.Success;
                                 item.UpdateTime = DateTime.Now;
+                                item.ContentName = FileName;
                             }
                         }
                         else

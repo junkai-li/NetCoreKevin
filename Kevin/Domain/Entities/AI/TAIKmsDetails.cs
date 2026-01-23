@@ -19,7 +19,7 @@ namespace kevin.Domain.Entities.AI
         public long? FileId { get; set; }
         public virtual TFile? File { get; set; }
         /// <summary>
-        /// 数据类型 .txt,.word,.pdf,.md,.html,.docx,.doc
+        /// 数据类型Text  Markdown PDF Word Html
         /// </summary>
         public string? FileType { get; set; }  
         /// <summary>

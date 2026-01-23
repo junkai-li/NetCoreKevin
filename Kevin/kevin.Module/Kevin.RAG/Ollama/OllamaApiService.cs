@@ -75,7 +75,7 @@ namespace Kevin.RAG.Ollama
         {
             if (ollamaApiClient == default)
             {
-                throw new ArgumentException($"请检查OllamaApi配置是否正确");
+                throw new ArgumentException($"请检查OllamaApi配置是否正确"); 
             }
             if (!string.IsNullOrEmpty(Key))
             {

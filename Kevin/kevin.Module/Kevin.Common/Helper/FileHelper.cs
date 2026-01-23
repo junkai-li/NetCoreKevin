@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
 namespace NetCore.Util
 {
     /// <summary>
@@ -11,6 +12,60 @@ namespace NetCore.Util
     /// </summary>
     public class FileHelper
     {
+        // 建议将 HttpClient 声明为静态，以避免端口耗尽问题
+        private static readonly HttpClient _httpClient = new HttpClient();
+        /// <summary>
+        /// 下载远程文件并返回流
+        /// </summary>
+        /// <param name="url">远程文件 URL</param>
+        /// <returns>包含文件内容的流</returns>
+        public static async Task<Stream> GetRemoteFileStreamAsync(string url)
+        {
+            try
+            {
+                // 1. 发送 GET 请求
+                // HttpCompletionOption.ResponseHeadersRead 表示收到响应头后就返回，
+                // 此时我们可以立即获取流，而不必等待整个内容下载到内存。
+                using (HttpResponseMessage response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
+                {
+                    // 2. 检查响应是否成功
+                    response.EnsureSuccessStatusCode();
+
+                    // 3. 读取流
+                    // 注意：这里返回的是网络流，它依赖于底层的 HTTP 连接。 
+                    byte[] data = await response.Content.ReadAsByteArrayAsync();
+                    return new MemoryStream(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                // 处理异常（记录日志等）
+                throw new Exception($"下载文件失败: {ex.Message}", ex);
+            }
+        }
+
+        public async static Task<string> GetRealFileNameFromUrlAsync(string url)
+        {
+            using (var client = new HttpClient())
+            {
+                using (var response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
+                {
+                    // 尝试从 Content-Disposition 头获取文件名
+                    ContentDispositionHeaderValue contentDisposition;
+                    if (ContentDispositionHeaderValue.TryParse(response.Content.Headers.ContentDisposition?.ToString(), out contentDisposition))
+                    {
+                        if (!string.IsNullOrWhiteSpace(contentDisposition.FileName))
+                        {
+                            // 去除文件名两端的引号（如果存在）
+                            return contentDisposition.FileName.Trim('"');
+                        }
+                    }
+
+                    // 如果头部没有，回退到从 URL 提取
+                    return Path.GetFileName(new Uri(url).LocalPath);
+                }
+            }
+        }
         #region 读操作
 
         /// <summary>
