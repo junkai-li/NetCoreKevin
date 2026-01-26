@@ -184,8 +184,28 @@ NetCoreKevin 是一个非常完整的微服务架构项目，结合了 DDD、CAP
 -   第五步
 -   `在vue文件夹下面启动前端 前端运行步骤：1、安装依赖npm install 2、运行npm run dev 3、打包npm run build`
 
+![输入图片说明](Doc/server.png)
 
- ![输入图片说明](Doc/server.png)
+# 🧰AI智能体教程
+
+-   第一步
+-   `请先完成上手教程在进行AI智能体教程`
+-   第二步
+-   `下载安装Qdrant--官网有教程 安装后配置json文件QdrantClientSetting 默认是localhost不需要动的`
+-   第三步
+-   `注册AI账户 教程以智谱AI为例 去官网注册登录后获取APIKey`
+-   第四步
+-  `配置向量模型和对话模型默认如下`
+
+|![向量模型](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/7f97a2cb-3707-46f6-a8f7-bc48196ed941.png)|![对话模型](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/e0b7574a-0c47-45e7-b462-2d0e0707fe4d.png)|
+|--|--| 
+
+-   第五步
+-   `新建知识库选择向量模型-2048（默认）：最高精度，适合对准确性要求极高的场景===》配置智能体==》新建对话就OK了`
+
+|![输入图片说明](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/image.png)|![输入图片说明](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/a4f1e8c1-7380-4b3f-acca-b01c849730bb.png)| ![输入图片说明](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/image3423123.png) |
+|--|--|--|
+
         
     
 # 🌐交流群
