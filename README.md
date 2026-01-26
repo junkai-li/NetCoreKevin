@@ -65,7 +65,7 @@
 -   第二步
 -   `下载安装Qdrant--官网有教程 安装后配置json文件QdrantClientSetting 默认是localhost不需要动的`
 -   第三步
--   `注册AI账户 教程以智谱AI为例 去官网注册登录后获取APIKey`
+-   `注册AI账户 教程以智谱AI为例 去[官网](https://open.bigmodel.cn)注册登录后获取APIKey`
 -   第四步
 -  `配置向量模型和对话模型默认如下`
 
