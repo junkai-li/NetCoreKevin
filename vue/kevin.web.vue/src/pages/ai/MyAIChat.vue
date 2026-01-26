@@ -118,34 +118,36 @@
         </div>
 
         <div class="chat-input-area" v-if="activeConversation">
-          <a-input-group compact class="input-group">
+          <div class="input-group">
             <a-textarea
               v-model:value="newMessage"
               placeholder="输入消息..."
               class="message-input"
-              @pressEnter="sendMessage"
+              @pressEnter="handlePressEnter"
               :disabled="isSending"
               :auto-size="{ minRows: 3, maxRows: 6 }"
               allow-clear
             />
             <div class="input-options">
-              <a-space direction="horizontal">
-                <a-switch v-model:checked="isOnlineSearch" class="online-search-switch">
-                  <template #checkedChildren>联网搜索</template>
-                  <template #unCheckedChildren>联网搜索</template>
-                </a-switch>
-              </a-space>
+              <a-switch v-model:checked="isOnlineSearch" class="online-search-switch">
+                <template #checkedChildren>联网搜索</template>
+                <template #unCheckedChildren>联网搜索</template>
+              </a-switch>
+              <a-button
+                type="primary"
+                @click="sendMessage"
+                :loading="isSending"
+                :disabled="!newMessage.trim() || isSending"
+                :class="{ 'loading': isSending }"
+                class="send-button"
+              >
+                <template #icon v-if="isSending">
+                  <LoadingOutlined />
+                </template>
+                {{ isSending ? '发送中...' : '发送' }}
+              </a-button>
             </div>
-            <a-button
-              type="primary"
-              @click="sendMessage"
-              :loading="isSending"
-              :disabled="!newMessage.trim() || isSending"
-              class="send-button"
-            >
-              发送
-            </a-button>
-          </a-input-group>
+          </div>
         </div>
 
         <div class="chat-placeholder" v-else>
@@ -175,6 +177,7 @@ import {
   MessageOutlined,
   DeleteOutlined,
   CopyOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons-vue";
 import { message, Modal, Select } from "ant-design-vue";
 import { getAIAppsALLList } from "../../api/ai/aiapps.js";
@@ -1119,16 +1122,240 @@ const deleteConversation = async (conversationId, event) => {
   }
 }
 
-/* 添加开关按钮样式 */
-:deep(.online-search-switch) {
-  margin-top: 10px;
-  margin-right: 10px;
+/* 聊天输入区域样式 */
+.chat-input-area {
+  padding: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.message-input {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  border-radius: 12px !important;
+  padding: 14px 18px !important;
+  resize: none !important;
+  text-align: left !important;
+  min-height: 120px !important;
+  max-height: 200px !important;
+  transition: all 0.3s ease !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.message-input:hover {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
+}
+
+.message-input:focus {
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15) !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+:deep(.message-input .ant-input) {
+  background: transparent !important;
+  color: white !important;
+  resize: none !important;
+  text-align: left !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  border-radius: 12px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+:deep(.message-input .ant-input:focus) {
+  box-shadow: none !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+}
+
+:deep(.message-input .ant-input-affix-wrapper) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  border-radius: 12px !important;
+  padding: 0 !important;
+}
+
+:deep(.message-input .ant-input-affix-wrapper:focus) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+:deep(.message-input .ant-input-affix-wrapper:hover) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+:deep(.message-input .ant-input::placeholder) {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 14px;
+}
+
+:deep(.message-input .ant-input-clear-icon) {
+  color: rgba(255, 255, 255, 0.4);
+  transition: color 0.3s ease;
+}
+
+:deep(.message-input .ant-input-clear-icon:hover) {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .input-options {
   display: flex;
-  justify-content: flex-end;
-  padding-top: 8px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 8px;
+}
+
+/* 联网搜索开关样式 */
+:deep(.online-search-switch) {
+  transition: all 0.3s ease;
+}
+
+:deep(.online-search-switch .ant-switch-inner) {
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+:deep(.online-search-switch.ant-switch-checked) {
+  background: linear-gradient(45deg, #667eea, #764ba2) !important;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+:deep(.online-search-switch.ant-switch-unchecked) {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 发送按钮样式 */
+.send-button {
+  border-radius: 25px;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  border: none;
+  padding: 10px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  width: auto;
+  min-width: 100px;
+}
+
+:deep(.send-button .ant-btn) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: none;
+  background: transparent;
+  color: white;
+}
+
+:deep(.send-button .ant-btn span) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.send-button:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  transform: translateY(-2px);
+  background: linear-gradient(45deg, #768eea, #865ba2);
+}
+
+.send-button:disabled {
+  background: rgba(102, 126, 234, 0.3);
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.send-button.loading {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  }
+  100% {
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+}
+
+/* 输入区域响应式设计 */
+@media (max-width: 768px) {
+  .chat-input-area {
+    padding: 15px;
+  }
+  
+  .input-group {
+    padding: 12px;
+  }
+  
+  .message-input {
+    min-height: 100px;
+    padding: 12px 14px;
+  }
+  
+  .send-button {
+    padding: 8px 24px;
+    font-size: 13px;
+  }
+  
+  .input-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  :deep(.online-search-switch) {
+    align-self: flex-start;
+  }
 }
 
 .message-actions {
@@ -1149,5 +1376,60 @@ const deleteConversation = async (conversationId, event) => {
 
 .copy-button:hover {
   color: #fff;
+}
+.conversation-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden; /* 隐藏水平滚动条 */
+  /* 添加自定义滚动条样式 */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(102, 126, 234, 0.5) rgba(255, 255, 255, 0.1);
+  height: 0; /* 允许flex-grow填充剩余空间 */
+  padding: 10px;
+}
+
+.conversation-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.conversation-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.conversation-list::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.5);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.conversation-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.7);
+}
+.conversation-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 15px;
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-radius: 12px;
+}
+
+.conversation-item:hover {
+  background: rgba(102, 126, 234, 0.2);
+  border: 1px solid rgba(102, 126, 234, 0.4);
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.conversation-item.active {
+  background: rgba(102, 126, 234, 0.3);
+  border: 1px solid rgba(102, 126, 234, 0.5);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 </style>
