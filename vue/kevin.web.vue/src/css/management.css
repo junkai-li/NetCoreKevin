@@ -70,6 +70,71 @@
   gap: 8px;
 }
 
+/* 工具栏搜索框样式优化 */
+.toolbar .ant-input-group-wrapper {
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.toolbar .ant-input-group-wrapper:hover {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+  transform: translateY(-1px);
+}
+
+.toolbar .ant-input-wrapper {
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.toolbar .ant-input {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: 24px 0 0 24px;
+  height: 36px;
+  padding: 0 16px;
+  transition: all 0.3s ease;
+}
+
+.toolbar .ant-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.toolbar .ant-input:focus {
+  box-shadow: none;
+  border-color: #667eea;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.toolbar .ant-input-group-addon {
+  background: rgba(102, 126, 234, 0.8);
+  border-color: rgba(102, 126, 234, 0.8);
+  border-radius: 0 24px 24px 0;
+  padding: 0;
+}
+
+.toolbar .ant-input-search-button {
+  background: transparent;
+  border: none;
+  color: white;
+  height: 36px;
+  width: 40px;
+  border-radius: 0 24px 24px 0;
+  transition: all 0.3s ease;
+}
+
+.toolbar .ant-input-search-button:hover {
+  background: rgba(102, 126, 234, 1);
+  transform: scale(1.05);
+}
+
+.toolbar .ant-input-search-button .anticon {
+  color: white;
+  font-size: 16px;
+}
+
 .toolbar-button {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);

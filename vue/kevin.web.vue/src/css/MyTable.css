@@ -17,9 +17,9 @@
 
 .my-table .ant-table {
   background: transparent !important;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.85); 
 }
-
+ 
 .my-table .ant-table-thead>tr>th {
   background: rgba(102, 126, 234, 0.2);
   color: white;
@@ -38,7 +38,7 @@
   background: transparent;
   transition: background 0.3s ease;
 }
-
+ 
 .my-table .ant-table-tbody>tr:hover>td {
   background: rgba(102, 126, 234, 0.1) !important;
 }
@@ -61,7 +61,7 @@
 } 
 
 .my-table .ant-pagination {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.85); 
 }
 
 .table-container {
@@ -70,24 +70,161 @@
   overflow: hidden;
 }
 
+/* 分页项目样式 */
 .my-table .ant-pagination-item {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(18, 30, 52, 0.8);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  margin: 0 4px;
+  min-width: 36px;
+  height: 32px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.my-table .ant-pagination-item:hover {
+  background: rgba(102, 126, 234, 0.2);
+  border-color: rgba(102, 126, 234, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
 }
 
 .my-table .ant-pagination-item a {
   color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  padding: 4px 12px;
+  display: inline-block;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  line-height: 24px;
+  box-sizing: border-box;
 }
 
 .my-table .ant-pagination-item-active {
   background: #667eea;
   border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
+.my-table .ant-pagination-item-active a {
+  color: white;
+  font-weight: 500;
+}
+
+/* 分页导航按钮样式 */
 .my-table .ant-pagination-next,
 .my-table .ant-pagination-prev {
+  background: rgba(18, 30, 52, 0.8);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  margin: 0 4px;
+}
+
+.my-table .ant-pagination-next:hover,
+.my-table .ant-pagination-prev:hover {
+  background: rgba(102, 126, 234, 0.2);
+  border-color: rgba(102, 126, 234, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.my-table .ant-pagination-next .ant-pagination-item-link,
+.my-table .ant-pagination-prev .ant-pagination-item-link {
   color: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+/* 分页选择器样式 */
+.my-table .ant-pagination-options {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.my-table .ant-pagination-options-size-changer {
+  background: rgba(18, 30, 52, 0.8);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.my-table .ant-pagination-options-size-changer:hover {
+  background: rgba(102, 126, 234, 0.2);
+  border-color: rgba(102, 126, 234, 0.5);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.my-table .ant-select-selector {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 8px !important;
+}
+
+.my-table .ant-select-selection-item {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.my-table .ant-select-arrow {
+  color: rgba(102, 126, 234, 0.6);
+}
+
+/* 分页信息样式 */
+.my-table .ant-pagination-options-quick-jumper {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+}
+
+.my-table .ant-pagination-options-quick-jumper input {
+  background: rgba(18, 30, 52, 0.8);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  padding: 2px 8px;
+  margin: 0 4px;
+  transition: all 0.3s ease;
+}
+
+.my-table .ant-pagination-options-quick-jumper input:focus {
+  border-color: rgba(102, 126, 234, 0.5);
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+/* 禁用状态样式 */
+.my-table .ant-pagination-item-disabled,
+.my-table .ant-pagination-item-disabled:hover {
+  background: rgba(18, 30, 52, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.my-table .ant-pagination-item-disabled a {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.my-table .ant-pagination-next.ant-pagination-disabled,
+.my-table .ant-pagination-prev.ant-pagination-disabled {
+  background: rgba(18, 30, 52, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.my-table .ant-pagination-next.ant-pagination-disabled .ant-pagination-item-link,
+.my-table .ant-pagination-prev.ant-pagination-disabled .ant-pagination-item-link {
+  color: rgba(255, 255, 255, 0.3);
 }
 
 .my-table .ant-btn-link {
