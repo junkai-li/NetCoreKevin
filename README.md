@@ -1,4 +1,4 @@
-# NetCoreKevin介绍
+#  :dizzy: NetCoreKevin介绍
 |  ![输入图片说明](Doc/fe381882-f0d6-457f-8b87-974a6e6a8f21.png) | ![输入图片说明](Doc/4344f17d-26d4-41ea-a235-1b9d67a633ce.png)  |  ![输入图片说明](Doc/3e146090-58a6-44bf-8cff-2b6b6323ef11.png)  |
 |---|---|---|
 | ![输入图片说明](Doc/bd2a60ce-2f32-46df-8bd6-9ffa5da515b4.png)  |  ![输入图片说明](Doc/3482bece-3f43-4ace-9337-283eb8a42903.png)|  ![输入图片说明](Doc/39c1ee78-3814-4e27-a158-2934317a2666.png) |
@@ -20,9 +20,9 @@
 # 🌐后台自动任务调度系统（基于Quartz.NET）
 ![输入图片说明](Doc/task.png)
 
-# NetCoreKevin前言
-基于NET搭建-AI智能体-现代化Saas企业级前后端分离架构-开启智能应用的无限可能：前端Vue3、IDS4单点登录、多缓存、自动任务、分布式、一库多租户、日志、授权和鉴权、CAP集成事件、SignalR、领域事件、ESL、MCP协议服务、IOC模块化注入、Cors、Quartz自动任务、多短信集成、AI、AgentFramework智能体、AISemanticKernel集成、RAG检索增强、OCR验证码识别、API多版本兼容、单元集成测试、RabbitMQ
-解耦设计都可以单独引用项目启动时注意相关Redis、db链接配置、RabbitMQ、生成数据库可见下面说明文件 命令生成即可 
+#  :envelope:  NetCoreKevin前言
+基于NET搭建-AI知识库智能体-现代化Saas企业级前后端分离架构：前端Vue3、IDS4单点登录、多缓存、自动任务、分布式、一库多租户、日志、授权和鉴权、CAP集成事件、SignalR、领域事件、MCP协议服务、IOC模块化注入、代码生成器、Quartz自动任务、AI、AgentFramework智能体、AISemanticKernel集成、RAG检索增强、AI知识库、AI联网搜索
+解耦设计都可以单独引用项目启动时注意相关Redis、db链接配置等相关配置详情可见下面的上手教程
 
 
 
