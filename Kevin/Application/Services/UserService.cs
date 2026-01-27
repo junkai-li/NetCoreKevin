@@ -160,7 +160,7 @@ namespace kevin.Application
                 throw new UserFriendlyException("用户已失效");
             }
             var roleData = userBindRoleRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).Include(u => u.Role).ToList();
-            user.Roles = roleData.Where(r => r.Role != default).Select(r => new dtoRole { Id = r.RoleId, Name = r.Role?.Name ?? "", Remarks = r.Role?.Remarks ?? "", CreateTime = r.Role.CreateTime }).ToList();
+            user.Roles = roleData.Where(r => r.Role != default).Select(r => new dtoRole { Id = r.RoleId, Name = r.Role?.Name ?? "", Remarks = r.Role?.Remarks ?? "", CreateTime = r.Role?.CreateTime ?? DateTime.Now }).ToList();
             return user;
         }
 
@@ -354,7 +354,7 @@ namespace kevin.Application
                 return new dtoUser();
             }
             var roleData = userBindRoleRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).Include(u => u.Role).ToList();
-            user.Roles = roleData.Where(r => r.Role != default).Select(r => new dtoRole { Id = r.RoleId, Name = r.Role?.Name ?? "", Remarks = r.Role?.Remarks ?? "", CreateTime = r.Role.CreateTime }).ToList();
+            user.Roles = roleData.Where(r => r.Role != default).Select(r => new dtoRole { Id = r.RoleId, Name = r.Role?.Name ?? "", Remarks = r.Role?.Remarks ?? "", CreateTime = r.Role?.CreateTime ?? DateTime.Now }).ToList();
             var positionData = userBindPositionRp.Query().Where(t => Id == t.UserId && t.IsDelete == false).Include(u => u.Position).ToList();
             user.Positions = positionData.Where(t => t.UserId == user.Id).Select(t => new PositionDto { Id = t.PositionId, Name = t.Position?.Name ?? "" }).ToList();
 
@@ -362,7 +362,10 @@ namespace kevin.Application
             user.dtoUserInfo = userInfoData.FirstOrDefault(t => t.UserId == user.Id);
             if (userInfoData.Select(t => t.DepartmentId).ToList().Count > 0)
             {
-                user.dtoUserInfo.DepartmentName = departmentService.GetALLList(userInfoData.Select(t => t.DepartmentId).ToList()).Result.FirstOrDefault()?.Name;
+                if (user.dtoUserInfo != default)
+                {
+                    user.dtoUserInfo.DepartmentName = departmentService.GetALLList(userInfoData.Select(t => t.DepartmentId).ToList()).Result.FirstOrDefault()?.Name;
+                }
             }
             return user ?? new dtoUser();
         }
@@ -777,11 +780,15 @@ namespace kevin.Application
         /// <returns></returns>
         public async Task<List<long>> GetMyAndChildrenDepartmentUserIds()
         {
-            if (CurrentUser.UserInfo == default)
+           return await Task.Run(() =>
             {
-                return new List<long>();
-            }
-            return departmentService.GetDepartmentChildUserIds(CurrentUser.UserInfo.DepartmentId);
+                if (CurrentUser.UserInfo == default)
+                {
+                    return new List<long>();
+                }
+                return departmentService.GetDepartmentChildUserIds(CurrentUser.UserInfo.DepartmentId);
+            });
+
         }
 
         public async Task<List<long>> GetModuleDataPermissionsUserIds(string PermissionsKey)
@@ -804,13 +811,13 @@ namespace kevin.Application
                                 break;
                             case DataPermissionActionConst.ALL:
                                 userIds = new List<long>();
-                                return userIds; 
+                                return userIds;
                             case DataPermissionActionConst.MyDepartment:
                                 userIds.AddRange(await GetMyDepartmentUserIds());
                                 break;
                             case DataPermissionActionConst.MyAndChildrenDepartment:
                                 userIds.AddRange(await GetMyAndChildrenDepartmentUserIds());
-                                break; 
+                                break;
                             default:
                                 userIds.Add(CurrentUser.UserId);
                                 break;

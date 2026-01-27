@@ -71,14 +71,14 @@ namespace kevin.Application
                 foreach (var action in DataPermissionActionConst.DataPermissionActionConsts)
                 {
                     var add = r.MapTo<PermissionDto>();
-                    add.Id = $"{TenantId}/{r.Area}/{r.Module}/{action.Key}";
+                    add.Id = $"{TenantId}/{r?.Area}/{r?.Module}/{action.Key}";
                     add.PermissionType = 3;
-                    add.FullName = $"{r.AreaName}/{r.ModuleName}/{action.Value}";
+                    add.FullName = $"{r?.AreaName}/{r?.ModuleName}/{action.Value}";
                     add.Action = action.Key;
                     add.ActionName = action.Value;
                     permissionList.Add(add);
                 }
-            } 
+            }
 
             return await InDtoAddPermission(permissionList, TenantId, userId, 3);
         }
@@ -97,12 +97,12 @@ namespace kevin.Application
                 return false;
             }
             var areas = all.Select(x => x.Area).ToList();
-            var allExist = permissionRp.Query().Where(r => r.IsManual == false && r.PermissionType == PermissionType && areas.Any(x => x == r.Area)).ToList();
+            var allExist = await permissionRp.Query().Where(r => r.IsManual == false && r.PermissionType == PermissionType && areas.Any(x => x == r.Area)).ToListAsync();
             var allExistIds = allExist.Select(r => r.Id).ToList();
             var preAdd = all.Where(r => !allExistIds.Contains(r.Id)).ToList();
             var preDelete = allExist.Where(r => !all.Any(p => p.Id == r.Id));
             var preDeleteIds = preDelete.Select(r => r.Id).ToList();
-            var preDeleteRoleP = rolePermissionRp.Query().Where(r => preDeleteIds.Contains(r.PermissionId)).ToList();
+            var preDeleteRoleP = rolePermissionRp.Query().Where(r => preDeleteIds.Contains(r.PermissionId ?? "")).ToList();
             permissionRp.AddRange(preAdd.Select(t => new TPermission
             {
                 CreateTime = DateTime.Now,

@@ -6,10 +6,9 @@ using System.Text.RegularExpressions;
 namespace kevin.FileStorage.KevinStaticFiles
 {
     public class KevinStaticFilesStorage : IFileStorage
-    { 
+    {
         private readonly Models.FileStorageSetting fileStorageSetting;
 
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         // <summary>
         /// 提取URL中第一个'/'之前的部分（协议+主机+端口）
@@ -58,10 +57,10 @@ namespace kevin.FileStorage.KevinStaticFiles
         }
         public KevinStaticFilesStorage(IOptionsMonitor<Models.FileStorageSetting> config, IHttpContextAccessor _httpContextAccessor)
         {
-            fileStorageSetting = config.CurrentValue; 
+            fileStorageSetting = config.CurrentValue;
             if (string.IsNullOrEmpty(fileStorageSetting.Url))
             {
-                fileStorageSetting.Url = $"{ExtractProtocolAndHost(_httpContextAccessor.GetUrl())}/"+ fileStorageSetting.RequestPath;
+                fileStorageSetting.Url = $"{ExtractProtocolAndHost(_httpContextAccessor.GetUrl())}/" + fileStorageSetting.RequestPath;
             }
 
         }
@@ -76,11 +75,11 @@ namespace kevin.FileStorage.KevinStaticFiles
         }
 
         public bool FileDownload(string remotePath, string localPath)
-        {  
+        {
             remotePath = fileStorageSetting.Endpoint + remotePath.Replace(fileStorageSetting.Url, "").Replace("\\", "/");
             if (File.Exists(remotePath))
             {
-                string localDir = Path.GetDirectoryName(localPath);  
+                string localDir = Path.GetDirectoryName(localPath) ?? "";
                 if (!Directory.Exists(localDir))
                 {
                     Directory.CreateDirectory(localDir);
@@ -93,7 +92,7 @@ namespace kevin.FileStorage.KevinStaticFiles
                     {
                         sourceStream.CopyTo(destStream);
                     }
-                } 
+                }
             }
             return true;
         }
@@ -121,7 +120,7 @@ namespace kevin.FileStorage.KevinStaticFiles
 
         public async Task<string> GetUrl()
         {
-            return fileStorageSetting.Url;
+            return await Task.Run(() => fileStorageSetting.Url ?? "");
         }
     }
 }

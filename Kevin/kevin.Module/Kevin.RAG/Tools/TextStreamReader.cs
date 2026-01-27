@@ -56,7 +56,7 @@ public class TextStreamReader
         {
             RawContent = content,
             IsMarkdown = isMarkdown,
-            Title = lines.FirstOrDefault(line => line.Trim().StartsWith("# "))?.Trim().Substring(2).Trim(),
+            Title = lines.FirstOrDefault(line => line.Trim().StartsWith("# "))?.Trim().Substring(2).Trim() ?? "",
             LineCount = lines.Length,
             CharacterCount = content.Length
         };
@@ -84,7 +84,7 @@ public class TextStreamReader
         {
             RawContent = content,
             IsMarkdown = isMarkdown,
-            Title = lines.FirstOrDefault(line => line.Trim().StartsWith("# "))?.Trim().Substring(2).Trim(),
+            Title = lines.FirstOrDefault(line => line.Trim().StartsWith("# "))?.Trim().Substring(2).Trim() ?? "",
             LineCount = lines.Length,
             CharacterCount = content.Length
         };

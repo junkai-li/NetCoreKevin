@@ -6,9 +6,7 @@ using System.ComponentModel.DataAnnotations;
 namespace kevin.Domain.Share.Dtos.AI
 {
     public class AIKmssDto : CUD_User_Dto
-    {
-        private int documentCount;
-
+    {  
         /// <summary>
         /// 名称
         /// </summary>

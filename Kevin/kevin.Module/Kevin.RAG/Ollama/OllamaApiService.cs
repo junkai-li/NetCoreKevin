@@ -13,9 +13,9 @@ namespace Kevin.RAG.Ollama
 {
     public class OllamaApiService : IOllamaApiService
     {
-        private readonly string Url;
-        private readonly string DefaultModel;
-        private readonly string Key;
+        private readonly string? Url;
+        private readonly string? DefaultModel;
+        private readonly string? Key;
         private readonly OllamaApiClient? ollamaApiClient;
         private readonly HttpClientDisHelper? httpClientDisHelper;
         public OllamaApiService(string _Url, string _DefaultModel, string _Key)

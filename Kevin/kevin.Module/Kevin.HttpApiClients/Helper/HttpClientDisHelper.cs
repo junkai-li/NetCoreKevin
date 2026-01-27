@@ -20,7 +20,7 @@ namespace Kevin.HttpApiClients.Helper
         /// </summary>
         /// <param name="baseAddress">API基础地址</param>
         /// <param name="timeoutSeconds">超时时间(秒)</param>
-        public HttpClientDisHelper(string baseAddress = null, int timeoutSeconds = 30)
+        public HttpClientDisHelper(string baseAddress = "", int timeoutSeconds = 30)
         {
             _httpClient = new HttpClient(new HttpClientHandler()
             {
@@ -68,7 +68,12 @@ namespace Kevin.HttpApiClients.Helper
                 var response = await _httpClient.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<T>(content, _jsonOptions);
+                var data = JsonSerializer.Deserialize<T>(content, _jsonOptions);
+                if (data != null)
+                {
+                    return data;
+                }
+                throw new Exception($"HTTP请求失败: 数据返回null" + url);
             }
             catch (HttpRequestException ex)
             {
@@ -113,7 +118,12 @@ namespace Kevin.HttpApiClients.Helper
                 response.EnsureSuccessStatusCode();
 
                 var responseContent = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<TResponse>(responseContent, _jsonOptions);
+                var dataResponse = JsonSerializer.Deserialize<TResponse>(responseContent, _jsonOptions);
+                if (dataResponse != null)
+                {
+                    return dataResponse;
+                }
+                throw new Exception($"HTTP请求失败: 返回数据异常" + url);
             }
             catch (HttpRequestException ex)
             {
@@ -151,7 +161,12 @@ namespace Kevin.HttpApiClients.Helper
                 response.EnsureSuccessStatusCode();
 
                 var responseContent = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<TResponse>(responseContent, _jsonOptions);
+                var dataResponse = JsonSerializer.Deserialize<TResponse>(responseContent, _jsonOptions);
+                if (dataResponse != null)
+                {
+                    return dataResponse;
+                }
+                throw new Exception($"HTTP请求失败: 返回数据异常" + url);
             }
             catch (HttpRequestException ex)
             {

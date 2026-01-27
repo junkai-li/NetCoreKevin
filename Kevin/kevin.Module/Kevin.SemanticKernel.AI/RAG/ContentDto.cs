@@ -15,7 +15,7 @@ namespace Kevin.AI.Dto
     /// </summary>
     public class ContentDto
     {   
-        public List<NodeDto> Nodes { get; set; }
+        public required List<NodeDto> Nodes { get; set; }
 
         public class NodeDto
         {
@@ -32,10 +32,10 @@ namespace Kevin.AI.Dto
             /// 分块的内容
             /// </summary>   
             [VectorStoreData]
-            public string Description { get; set; }
+            public required string Description { get; set; }
 
             [VectorStoreVector(1024)]
-            public Embedding<float> DescriptionEmbedding { get; set; }
+            public   Embedding<float> DescriptionEmbedding { get; set; }
              
             public override string ToString()
             {

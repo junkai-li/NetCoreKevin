@@ -94,7 +94,7 @@ namespace NetCore.Util
                     FileStream fileStream = File.OpenRead(file);
 
                     byte[] buffer = new byte[fileStream.Length];
-                    fileStream.Read(buffer, 0, buffer.Length);
+                    fileStream.ReadExactly(buffer, 0, buffer.Length);
                     string tempFile = file.Substring(staticFile.LastIndexOf("\\") + 1);
                     ZipEntry entry = new ZipEntry(tempFile);
 

@@ -55,7 +55,7 @@ namespace kevin.Application
             {
                 throw new UserFriendlyException("非超级管理员无权限操作");
             } 
-            var tenant = tenantRp.Query(false).FirstOrDefault(t => t.Id == id);
+            var tenant = await tenantRp.Query(false).FirstOrDefaultAsync(t => t.Id == id);
             if (tenant != default)
             {
                 tenant.Status = TenantStatusEnums.Inactive;
@@ -74,7 +74,7 @@ namespace kevin.Application
             {
                 throw new UserFriendlyException("非超级管理员无权限操作");
             } 
-            var tenant = tenantRp.Query(false).FirstOrDefault(t => t.Id == id);
+            var tenant = await tenantRp.Query(false).FirstOrDefaultAsync(t => t.Id == id);
             if (tenant != default)
             {
                 tenant.Status = TenantStatusEnums.Active;
@@ -94,7 +94,7 @@ namespace kevin.Application
             {
                 throw new UserFriendlyException("非超级管理员无权限操作");
             } 
-            var tenantcode = tenantRp.Query(false).FirstOrDefault(t => t.Id != tenant.Id.ToTryInt64() && t.Code == tenant.Code);
+            var tenantcode = await tenantRp.Query(false).FirstOrDefaultAsync(t => t.Id != tenant.Id.ToTryInt64() && t.Code == tenant.Code);
             if (tenantcode != default)
             {
                 throw new UserFriendlyException(tenantcode.Code + "租户Code已存在");
@@ -120,7 +120,7 @@ namespace kevin.Application
             {
                 throw new UserFriendlyException("非超级管理员无权限操作");
             } 
-            var tenantcode = tenantRp.Query(false).FirstOrDefault(t => t.Code == tenant.Code);
+            var tenantcode = await tenantRp.Query(false).FirstOrDefaultAsync(t => t.Code == tenant.Code);
             if (tenantcode != default)
             {
                 throw new UserFriendlyException(tenantcode.Code + "租户Code已存在");
@@ -142,7 +142,7 @@ namespace kevin.Application
             {
                 throw new UserFriendlyException("种子数据不能删除");
             } 
-            var tenant = tenantRp.Query(false).FirstOrDefault(t => t.Id == id);
+            var tenant = await tenantRp.Query(false).FirstOrDefaultAsync(t => t.Id == id);
             if (tenant != default)
             {
                 tenant.IsDelete = true;
@@ -207,7 +207,7 @@ namespace kevin.Application
             {
                 var userbindrole = new TUserBindRole();
                 userbindrole.Id = SnowflakeIdService.GetNextId();
-                userbindrole.RoleId = addroles.FirstOrDefault().Id;
+                userbindrole.RoleId = addroles[0].Id;
                 userbindrole.UserId = user.Id;
                 userbindrole.CreateTime = DateTime.Now;
                 userbindrole.TenantId = tenant.Code;
@@ -225,7 +225,7 @@ namespace kevin.Application
                 item.Id = SnowflakeIdService.GetNextId();
                 item.CreateTime = DateTime.Now;
                 item.TenantId = tenant.Code;
-                item.CreateUserId = addusers.FirstOrDefault().Id;
+                item.CreateUserId = addusers[0].Id;
                 addDicts.Add(item);
             }
             #endregion
@@ -238,7 +238,7 @@ namespace kevin.Application
                 item.Id = SnowflakeIdService.GetNextId();
                 item.CreateTime = DateTime.Now;
                 item.TenantId = tenant.Code;
-                item.CreateUserId = addusers.FirstOrDefault().Id;
+                item.CreateUserId = addusers[0].Id;
                 addDepartments.Add(item);
             }
 
@@ -248,7 +248,7 @@ namespace kevin.Application
                 item.Id = SnowflakeIdService.GetNextId();
                 item.CreateTime = DateTime.Now;
                 item.TenantId = tenant.Code;
-                item.CreateUserId = addusers.FirstOrDefault().Id;
+                item.CreateUserId = addusers[0].Id;
                 addPositions.Add(item);
             }
 
@@ -262,9 +262,9 @@ namespace kevin.Application
                 item.Id = SnowflakeIdService.GetNextId();
                 item.CreateTime = DateTime.Now;
                 item.TenantId = tenant.Code;
-                item.CreateUserId = addusers.FirstOrDefault().Id;
-                item.DepartmentId = addDepartments.FirstOrDefault().Id;
-                item.UserId = addusers.FirstOrDefault().Id;
+                item.CreateUserId = addusers[0].Id;
+                item.DepartmentId = addDepartments[0].Id;
+                item.UserId = addusers[0].Id;
                 addUserInfos.Add(item);
             }
 

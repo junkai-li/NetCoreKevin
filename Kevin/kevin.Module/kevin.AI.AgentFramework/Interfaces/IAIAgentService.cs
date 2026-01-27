@@ -24,14 +24,14 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="model"></param>
         /// <param name="keySecret"></param>
         /// <returns></returns>
-        Task<AIAgent> CreateOpenAIAgent(string name, string prompt, string description, string url, string model, string keySecret,
+         AIAgent CreateOpenAIAgent(string name, string prompt, string description, string url, string model, string keySecret,
                IList<AITool>? tools = null,
                 ChatOptions? chatOptions = default,
                 Func<IChatClient, IChatClient>? clientFactory = null,
                ILoggerFactory? loggerFactory = null,
                     IServiceProvider? services = null
             );
-        Task<AIAgent> CreateOpenAIAgent(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions);
+        AIAgent CreateOpenAIAgent(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions);
         /// <summary>
         /// 创建智能体并发送消息
         /// </summary>
@@ -47,7 +47,7 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="loggerFactory"></param>
         /// <param name="services"></param>
         /// <returns></returns>
-        Task<(AIAgent, AgentRunResponse)> CreateOpenAIAgentAndSendMSG(string msg, string name, string prompt, string description, string url, string model, string keySecret, 
+         Task<(AIAgent, AgentRunResponse)> CreateOpenAIAgentAndSendMSG(string msg, string name, string prompt, string description, string url, string model, string keySecret, 
             IList<AITool>? tools = null, ChatResponseFormat? chatResponseFormat = null, Func<IChatClient, IChatClient>? clientFactory = null, ILoggerFactory? loggerFactory = null, IServiceProvider? services = null);
         Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, bool isStreame = false, Action<string> streameCallback = default);
         /// <summary>

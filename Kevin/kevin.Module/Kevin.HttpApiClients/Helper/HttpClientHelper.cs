@@ -45,7 +45,7 @@ namespace Kevin.HttpApiClients.Helper
         /// <param name="headers">自定义Header集合</param>
         /// <param name="isSkipSslVerification">是否跳过SSL验证</param>
         /// <returns></returns>
-        public static string? Get(string url, Dictionary<string, string> headers=default, bool isSkipSslVerification = false)
+        public static string? Get(string url, Dictionary<string, string> headers = null, bool isSkipSslVerification = false)
         {
             string httpClientName = isSkipSslVerification ? "SkipSsl" : "";
 
@@ -223,7 +223,7 @@ namespace Kevin.HttpApiClients.Helper
                     {
                         //上传文件
                         formDataContent.Add(new StreamContent(item.FileContent), item.Key, item.FileName);
-                    } 
+                    }
                 }
                 else
                 {

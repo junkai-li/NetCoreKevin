@@ -15,7 +15,7 @@ namespace Kevin.Common.Helper
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, int dwSize, out int lpNumberOfBytesWritten);
 
-        private readonly Process? _process;
+        private readonly Process _process;
         private readonly IntPtr _processHandle;
         private readonly IntPtr _mainModuleBase;
         private readonly bool _is64Bit;

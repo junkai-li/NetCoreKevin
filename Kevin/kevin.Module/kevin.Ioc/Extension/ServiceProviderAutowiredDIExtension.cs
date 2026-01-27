@@ -50,7 +50,7 @@ namespace kevin.Ioc.Extension
                 if (value != default)
                 {
                     property.Set(instance, value);
-                } 
+                }
             }
 
             return serviceProvider;
@@ -98,7 +98,9 @@ namespace kevin.Ioc.Extension
                 {
                     provider?.Autowired(obj);
                 }
+#pragma warning disable CS8603 // 可能返回 null 引用。
                 return obj;
+#pragma warning restore CS8603 // 可能返回 null 引用。
             };
         }
 
@@ -126,8 +128,10 @@ namespace kevin.Ioc.Extension
         /// <param name="provider">服务提供程序</param>
         /// <param name="parameters">额外构造参数</param>
         /// <returns></returns>
+#pragma warning disable CS8603 // 可能返回 null 引用。
         public static T CreateInstance<T>(this IServiceProvider provider, params object[] parameters) =>
             (T)provider.CreateInstance(typeof(T), parameters);
+#pragma warning restore CS8603 // 可能返回 null 引用。
 
         /// <summary>
         /// 从服务中获取对象或动态创建对象, 并注入字段和属性
@@ -170,15 +174,22 @@ namespace kevin.Ioc.Extension
         static Action<object, object> CreateSetter(PropertyInfo property)
         {
             var method = property.GetSetMethod(true);
-            if (method == null)
+            if (method != null)
             {
-                if (property.DeclaringType?.GetField($"<{property.Name}>k__BackingField", (BindingFlags)(-1)) is FieldInfo field)
+                if (property.ReflectedType != default)
                 {
-                    return field.SetValue;
+                    var obj = Activator.CreateInstance(typeof(Setter<,>).MakeGenericType(property.ReflectedType, property.PropertyType), method);
+                    if (obj != default)
+                    {
+                        return ((ISetter)obj).Set;
+                    }
                 }
-                return null;
             }
-            return ((ISetter)Activator.CreateInstance(typeof(Setter<,>).MakeGenericType(property.ReflectedType, property.PropertyType), method)).Set;
+            if (property.DeclaringType?.GetField($"<{property.Name}>k__BackingField", (BindingFlags)(-1)) is FieldInfo field)
+            {
+                return field.SetValue;
+            }
+            return null;
         }
 
         public static void Set(this PropertyInfo property, object instance, object value) => _setters.GetOrAdd(property, CreateSetter)?.Invoke(instance, value);

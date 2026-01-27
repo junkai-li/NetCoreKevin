@@ -45,33 +45,36 @@ namespace Kevin.RAG.Tools
 
         public static async Task<string> ExtractTextFromTextAsync(string text)
         {
-            var doc = new HtmlDocument(); 
-            // Detect encoding and load HTML  
-            doc.LoadHtml(text);
-
-            // Remove scripts and styles
-            var scripts = doc.DocumentNode.SelectNodes("//script");
-            if (scripts != null)
+            return await Task.Run(() =>
             {
-                foreach (var script in scripts)
-                {
-                    script.Remove();
-                }
-            }
+                var doc = new HtmlDocument();
+                // Detect encoding and load HTML  
+                doc.LoadHtml(text);
 
-            var styles = doc.DocumentNode.SelectNodes("//style");
-            if (styles != null)
-            {
-                foreach (var style in styles)
+                // Remove scripts and styles
+                var scripts = doc.DocumentNode.SelectNodes("//script");
+                if (scripts != null)
                 {
-                    style.Remove();
+                    foreach (var script in scripts)
+                    {
+                        script.Remove();
+                    }
                 }
-            }
 
-            // Get text with basic formatting preservation
-            var sb = new StringBuilder();
-            ProcessNode(doc.DocumentNode, sb);
-            return sb.ToString().Trim();
+                var styles = doc.DocumentNode.SelectNodes("//style");
+                if (styles != null)
+                {
+                    foreach (var style in styles)
+                    {
+                        style.Remove();
+                    }
+                }
+
+                // Get text with basic formatting preservation
+                var sb = new StringBuilder();
+                ProcessNode(doc.DocumentNode, sb);
+                return sb.ToString().Trim();
+            });
         }
 
         private static void ProcessNode(HtmlNode node, StringBuilder sb)

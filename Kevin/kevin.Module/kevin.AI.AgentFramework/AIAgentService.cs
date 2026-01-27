@@ -24,7 +24,7 @@ namespace kevin.AI.AgentFramework
         public AIAgentService()
         {
         }
-        public async Task<AIAgent> CreateOpenAIAgent(string name, string prompt, string description, string url, string model, string keySecret,
+        public   AIAgent CreateOpenAIAgent(string name, string prompt, string description, string url, string model, string keySecret,
             IList<AITool>? tools = null, ChatOptions? chatOptions = null, Func<IChatClient, IChatClient>? clientFactory = null, ILoggerFactory? loggerFactory = null, IServiceProvider? services = null)
         {
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
@@ -43,7 +43,7 @@ namespace kevin.AI.AgentFramework
             return ai.GetChatClient(model).CreateAIAgent(instructions: prompt, name: name, prompt, tools, clientFactory, loggerFactory, services);
         }
 
-        public async Task<AIAgent> CreateOpenAIAgent(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions)
+        public AIAgent CreateOpenAIAgent(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions)
         {
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
             openAIClientOptions.Endpoint = new Uri(url);
@@ -75,7 +75,7 @@ namespace kevin.AI.AgentFramework
             return ai.GetChatClient(keySecret).AsIChatClient();
         }
 
-        public async Task<(AIAgent, AgentRunResponse)> CreateOpenAIAgentAndSendMSG(string msg, string name, string prompt, string description, string url, string model, string keySecret,
+        public  async  Task<(AIAgent, AgentRunResponse)> CreateOpenAIAgentAndSendMSG(string msg, string name, string prompt, string description, string url, string model, string keySecret,
             IList<AITool>? tools = null, ChatResponseFormat? chatResponseFormat = null, Func<IChatClient, IChatClient>? clientFactory = null, ILoggerFactory? loggerFactory = null, IServiceProvider? services = null)
         {
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();

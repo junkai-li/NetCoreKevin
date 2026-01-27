@@ -30,7 +30,10 @@ namespace Kevin.AI.SemanticKernel.RAG
             var vectorStore = kernel.GetRequiredService<QdrantVectorStore>();
             var collectionName = "kProd";
             // Load the data.
-            var Products = new ContentDto();
+            var Products = new ContentDto()
+            {
+                Nodes = new List<NodeDto>()
+            };
             Products.Nodes.Add(new NodeDto
             {
                 Key = Guid.NewGuid(),

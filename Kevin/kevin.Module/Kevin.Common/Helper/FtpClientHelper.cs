@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-
+#pragma warning disable SYSLIB0014 // 禁用过时警告
 namespace Kevin.Common.Helper
 {
     /// <summary>
@@ -602,3 +602,4 @@ namespace Kevin.Common.Helper
         #endregion
     }
 }
+#pragma warning restore SYSLIB0014 // 恢复警告

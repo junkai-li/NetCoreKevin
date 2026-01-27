@@ -162,10 +162,10 @@ namespace kevin.FileStorage.TencentCloud
             }
 
 
-        } 
+        }
         public async Task<string> GetUrl()
         {
-            return fileStorageSetting.Url;
+            return await Task.Run(() => fileStorageSetting.Url ?? "");
         }
     }
 }

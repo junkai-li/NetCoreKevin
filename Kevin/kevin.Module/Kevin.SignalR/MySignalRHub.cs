@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System.ComponentModel.DataAnnotations;
 using Web.Global.User;
 
 namespace Kevin.SignalR
@@ -18,7 +19,8 @@ namespace Kevin.SignalR
 
         public ICacheService _cacheService { get; set; }
 
-        public IHttpContextAccessor _httpContextAccessor { get; set; }
+       
+        public  IHttpContextAccessor _httpContextAccessor { get; set; }
 
         private readonly SignalrRdisSetting _config;
 
@@ -26,8 +28,16 @@ namespace Kevin.SignalR
         {
             if (serviceProvider != default)
             {
-                _currentUser = serviceProvider.GetService<ICurrentUser>();
-                _cacheService = serviceProvider.GetService<ICacheService>();
+                var currentUser = serviceProvider.GetService<ICurrentUser>();
+                if (currentUser != default)
+                {
+                    _currentUser = currentUser;
+                }
+                var cacheService = serviceProvider.GetService<ICacheService>();
+                if (cacheService != default)
+                {
+                    _cacheService = cacheService;
+                }  
             }
             _config = config.CurrentValue;
             if (httpContextAccessor != default)
@@ -142,7 +152,7 @@ namespace Kevin.SignalR
                         }
                         _cacheService.SetObject(_config.cacheMySignalRKeyName, data);
                     }
-                  
+
                 }
                 Console.WriteLine(identityId + "断开链接MySignalRHub");
             }

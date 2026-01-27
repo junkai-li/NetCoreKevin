@@ -150,7 +150,7 @@ namespace kevin.Application.Services.AI
             if (par.IsOnlineSearch)
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在联网搜索....");
-                var http = new HttpClientFunction(httpClientFactory, aIAgentService);
+                var http = new HttpClientFunction(aIAgentService);
                 systemPrompt += await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey);
 
             }

@@ -13,7 +13,7 @@ namespace kevin.Domain.BaseDatas
     public class TDepartmentBaseDatas
     {
         public static List<TDepartment> Data { get; set; } = new List<TDepartment>()
-        {
+        { 
            new TDepartment() {
                Id=4514141254257227771,
                Name="NET科技有限公司",
@@ -21,7 +21,7 @@ namespace kevin.Domain.BaseDatas
                Status=OrganizationalStatus.Active,
                TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
                CreateTime = DateTime.Parse("2020-01-01 00:00:01"),
-               CreateUserId=TUserBaseData.TUsers.FirstOrDefault().Id
+               CreateUserId=TUserBaseData.TUsers[0].Id
            },
             new TDepartment() {
                Id=4514141354257227371,
@@ -31,7 +31,7 @@ namespace kevin.Domain.BaseDatas
                ParentId=4514141254257227771,
                TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
                CreateTime = DateTime.Parse("2020-01-01 00:00:01"),
-               CreateUserId=TUserBaseData.TUsers.FirstOrDefault().Id
+               CreateUserId=TUserBaseData.TUsers[0].Id
            },
             new TDepartment() {
                Id=4514141352227227371,
@@ -41,7 +41,7 @@ namespace kevin.Domain.BaseDatas
                  Status=OrganizationalStatus.Active,
                TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
                CreateTime = DateTime.Parse("2020-01-01 00:00:01"),
-               CreateUserId=TUserBaseData.TUsers.FirstOrDefault().Id
+               CreateUserId=TUserBaseData.TUsers[0].Id
            },
             new TDepartment() {
                Id=4514141324252227371,
@@ -51,7 +51,7 @@ namespace kevin.Domain.BaseDatas
                  Status=OrganizationalStatus.Active,
                TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
                CreateTime = DateTime.Parse("2020-01-01 00:00:01"),
-               CreateUserId=TUserBaseData.TUsers.FirstOrDefault().Id
+               CreateUserId=TUserBaseData.TUsers[0].Id
            },
              new TDepartment() {
                Id=4514141354257217771,
@@ -61,7 +61,7 @@ namespace kevin.Domain.BaseDatas
                  Status=OrganizationalStatus.Active,
                TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
                CreateTime = DateTime.Parse("2020-01-01 00:00:01"),
-               CreateUserId=TUserBaseData.TUsers.FirstOrDefault().Id
+               CreateUserId=TUserBaseData.TUsers[0].Id
            },
               new TDepartment() {
                Id=4514141354252217771,
@@ -71,7 +71,7 @@ namespace kevin.Domain.BaseDatas
                  Status=OrganizationalStatus.Active,
                TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
                CreateTime = DateTime.Parse("2020-01-01 00:00:01"),
-               CreateUserId=TUserBaseData.TUsers.FirstOrDefault().Id
+               CreateUserId=TUserBaseData.TUsers[0].Id
            },
                new TDepartment() {
                Id=4514141352512124771,
@@ -81,7 +81,7 @@ namespace kevin.Domain.BaseDatas
                  Status=OrganizationalStatus.Active,
                TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
                CreateTime = DateTime.Parse("2020-01-01 00:00:01"),
-               CreateUserId=TUserBaseData.TUsers.FirstOrDefault().Id
+               CreateUserId=TUserBaseData.TUsers[0].Id
            },
 
         };

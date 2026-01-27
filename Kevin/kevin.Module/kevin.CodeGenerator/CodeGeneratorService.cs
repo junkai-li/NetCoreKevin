@@ -17,53 +17,58 @@ namespace kevin.CodeGenerator
         }
         public async Task<List<string>> GetAreaNames()
         {
-            return _config.CodeGeneratorItems.Select(t => t.AreaName).ToList();
+            return await Task.Run(() => { return _config.CodeGeneratorItems.Select(t => t.AreaName).ToList(); });
+
         }
 
         public async Task<List<EntityItemDto>> GetAreaNameEntityItems(string areaName)
         {
-            var area = _config.CodeGeneratorItems.FirstOrDefault(t => t.AreaName == areaName);
-            if (area != default)
+            return await Task.Run(() =>
             {
-                var entityItems = new List<EntityItemDto>();
-                var path = "..\\..\\" + area.AreaPath.Trim().Replace(".", "\\");
-                // 遍历路径下的所有 .cs 文件 
-                if (!Directory.Exists(path))
+                var area = _config.CodeGeneratorItems.FirstOrDefault(t => t.AreaName == areaName);
+                if (area != default)
                 {
-                    throw new ArgumentException($"CodeGeneratorSetting配置:{areaName}{area.AreaPath}不存在");
-                }
-                else
-                {
-                    var csFiles = Directory.GetFiles(path, "*.cs", SearchOption.AllDirectories);
-                    foreach (var file in csFiles)
-                    { 
-                        var cus= GetTableAttributes(file);
-                        entityItems.Add(new EntityItemDto
+                    var entityItems = new List<EntityItemDto>();
+                    var path = "..\\..\\" + area.AreaPath.Trim().Replace(".", "\\");
+                    // 遍历路径下的所有 .cs 文件 
+                    if (!Directory.Exists(path))
+                    {
+                        throw new ArgumentException($"CodeGeneratorSetting配置:{areaName}{area.AreaPath}不存在");
+                    }
+                    else
+                    {
+                        var csFiles = Directory.GetFiles(path, "*.cs", SearchOption.AllDirectories);
+                        foreach (var file in csFiles)
                         {
-                            AreaName = area.AreaName,
-                            EntityName = cus.FirstOrDefault().TableName,
-                            Description = $"{file}"
-                        }); 
-                    } 
-                    return entityItems;
-                }
+                            var cus = GetTableAttributes(file);
+                            entityItems.Add(new EntityItemDto
+                            {
+                                AreaName = area.AreaName,
+                                EntityName = cus.FirstOrDefault().TableName,
+                                Description = $"{file}"
+                            });
+                        }
+                        return entityItems;
+                    }
 
-            }
-            return new List<EntityItemDto>();
+                }
+                return new List<EntityItemDto>();
+            });
+
         }
         static List<(string ClassName, string TableName)> GetTableAttributes(string filePath)
         {
             var results = new List<(string ClassName, string TableName)>();
-            var sourceCode = File.ReadAllText(filePath); 
+            var sourceCode = File.ReadAllText(filePath);
             // 正则表达式匹配类声明和Table特性 
             string pattern = @"\[Table\(""([^""]*)""\)\]\s*(?:\[[^\]]*\]\s*)*public.*?class\s+(\w+)";
-            var matches = Regex.Matches(sourceCode, pattern, RegexOptions.Singleline); 
+            var matches = Regex.Matches(sourceCode, pattern, RegexOptions.Singleline);
             foreach (Match match in matches)
             {
                 string className = match.Groups[1].Value;
                 string tableName = match.Groups[2].Value;
                 results.Add((className, tableName));
-            } 
+            }
             return results;
         }
         /// <summary>
@@ -111,43 +116,45 @@ namespace kevin.CodeGenerator
 
         public async Task<bool> BulidCode(List<EntityItemDto> entityItems)
         {
-            if (entityItems.Count > 0)
+           return await Task.Run(() =>
             {
-                ProcessingPath(ref entityItems);
-                //获取对应的模板文件
-                var iRpTemplate = GetBuildCodeTemplate("IRp");
-                var rpTemplate = GetBuildCodeTemplate("Rp");
-                var iServiceTemplate = GetBuildCodeTemplate("IService");
-                var service = GetBuildCodeTemplate("Service");
-
-                foreach (var item in entityItems)
+                if (entityItems.Count > 0)
                 {
-                    var tEntityName = item.EntityName;
-                    if (item.EntityName.StartsWith("T", StringComparison.OrdinalIgnoreCase))
+                    ProcessingPath(ref entityItems);
+                    //获取对应的模板文件
+                    var iRpTemplate = GetBuildCodeTemplate("IRp");
+                    var rpTemplate = GetBuildCodeTemplate("Rp");
+                    var iServiceTemplate = GetBuildCodeTemplate("IService");
+                    var service = GetBuildCodeTemplate("Service");
+
+                    foreach (var item in entityItems)
                     {
-                        item.EntityName = item.EntityName.Substring(1);
-                    }
-                    var entityNamespace = item.Description.Replace("..\\..\\", "").Replace("\\" + tEntityName + ".cs", "").Replace("\\", ".");
-                    WriteCode(new Dictionary<string, string>
+                        var tEntityName = item.EntityName;
+                        if (item.EntityName.StartsWith("T", StringComparison.OrdinalIgnoreCase))
+                        {
+                            item.EntityName = item.EntityName.Substring(1);
+                        }
+                        var entityNamespace = item.Description.Replace("..\\..\\", "").Replace("\\" + tEntityName + ".cs", "").Replace("\\", ".");
+                        WriteCode(new Dictionary<string, string>
                     {
                         {"%entityName%",item.EntityName},
                         {"%entityNamespace%", entityNamespace},
                         {"%namespacePath%",item.IRpBulidPath}
                     }, iRpTemplate, $"../../{item.IRpBulidPath.Trim().Replace(".", "\\")}\\I{item.EntityName}Rp.cs");
-                    WriteCode(new Dictionary<string, string>
+                        WriteCode(new Dictionary<string, string>
                     {
                         {"%entityName%",item.EntityName},
                         {"%entityNamespace%", entityNamespace},
                         {"%iRpBulidNamespace%", item.IRpBulidPath},
                         {"%namespacePath%",item.RpBulidPath}
                     }, rpTemplate, $"../../{item.RpBulidPath.Trim().Replace(".", "\\")}\\{item.EntityName}Rp.cs");
-                    WriteCode(new Dictionary<string, string>
+                        WriteCode(new Dictionary<string, string>
                     {
                         {"%entityName%",item.EntityName},
                         {"%entityNamespace%", entityNamespace},
                         {"%namespacePath%",item.IServiceBulidPath}
                     }, iServiceTemplate, $"../../{item.IServiceBulidPath.Trim().Replace(".", "\\")}\\I{item.EntityName}Service.cs");
-                    WriteCode(new Dictionary<string, string>
+                        WriteCode(new Dictionary<string, string>
                     {
                         {"%entityName%",item.EntityName},
                         {"%entityNamespace%", entityNamespace},
@@ -157,10 +164,12 @@ namespace kevin.CodeGenerator
                     }, service, $"../../{item.ServiceBulidPath.Trim().Replace(".", "\\")}\\{item.EntityName}Service.cs");
 
 
+                    }
                 }
-            }
 
-            return true;
+                return true;
+            });
+          
         }
 
         /// <summary>
@@ -184,7 +193,7 @@ namespace kevin.CodeGenerator
             {
                 content = content.Replace(item.Key, item.Value);
             }
-            var dir = Path.GetDirectoryName(savePath);
+            var dir = Path.GetDirectoryName(savePath) ?? "";
             if (!Directory.Exists(dir))
             {
                 Directory.CreateDirectory(dir);

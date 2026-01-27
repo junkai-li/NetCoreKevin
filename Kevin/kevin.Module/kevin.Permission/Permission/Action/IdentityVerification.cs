@@ -31,67 +31,69 @@ namespace kevin.Permission.Permission.Action
                 {
                     IssueNewToken(httpContext);
                     var ad = httpContext.Features.Get<IEndpointFeature>()?.Endpoint?.Metadata?.FirstOrDefault(u => u is ControllerActionDescriptor) as ControllerActionDescriptor;
-                    var isSkip = ad.MethodInfo.IsDefined(typeof(SkipAuthorityAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(SkipAuthorityAttribute), false);
-                    if (isSkip == true)
+                    if (ad != default)
                     {
-                        return true;
-                    }
-                    var area = "";
-                    try
-                    {
-                        var myarea = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyAreaAttribute)).ToList();
-                        if (myarea.Count > 0)
+                        var isSkip = ad.MethodInfo.IsDefined(typeof(SkipAuthorityAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(SkipAuthorityAttribute), false);
+                        if (isSkip == true)
                         {
-                            area = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyAreaAttribute)).ToList().LastOrDefault()?.ConstructorArguments[1].Value?.ToString();
+                            return true;
                         }
-                        else
+                        var area = "";
+                        try
                         {
-                            area = ad.ControllerName;
+                            var myarea = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyAreaAttribute)).ToList();
+                            if (myarea.Count > 0)
+                            {
+                                area = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyAreaAttribute)).ToList().LastOrDefault()?.ConstructorArguments[1].Value?.ToString();
+                            }
+                            else
+                            {
+                                area = ad.ControllerName;
+                            }
                         }
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                    var module = "";
-                    try
-                    {
-                        var mymodule = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList();
-                        if (mymodule.Count > 0 && ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList().LastOrDefault().ConstructorArguments.Count > 1)
+                        catch (Exception)
                         {
-                            module = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList().LastOrDefault().ConstructorArguments[1].Value.ToString();
+
                         }
-                        else
+                        var module = "";
+                        try
                         {
-                            module = ad.ControllerName;
+                            var mymodule = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList();
+                            if (mymodule.Count > 0 && ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList().LastOrDefault()?.ConstructorArguments.Count > 1)
+                            {
+                                module = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList().LastOrDefault()?.ConstructorArguments[1].Value?.ToString();
+                            }
+                            else
+                            {
+                                module = ad.ControllerName;
+                            }
                         }
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-
-                    var permissionKey = $"{area}/{module}/{ad.ActionName}";
-
-                    var isPublic = ad.MethodInfo.IsDefined(typeof(AllowAnonymousAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(AllowAnonymousAttribute), false);
-
-                    var isAllRights = ad.MethodInfo.IsDefined(typeof(AuthorizeAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(AuthorizeAttribute), false);
-                    if (isPublic == true)
-                    {
-                        return true;
-                    }
-                    if (isAllRights)
-                    {
-                        var ps = httpContext.RequestServices.GetService<IKevinPermissionService>();
-                        var http = httpContext.RequestServices.GetService<IHttpContextAccessor>();
-                        if (ps != default && http != default)
+                        catch (Exception)
                         {
-                            bool canAccess = ps.IsAccess(permissionKey, http);
-                            return canAccess;
-                        }
-                        return false;
-                    }
 
+                        }
+
+                        var permissionKey = $"{area}/{module}/{ad.ActionName}";
+
+                        var isPublic = ad.MethodInfo.IsDefined(typeof(AllowAnonymousAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(AllowAnonymousAttribute), false);
+
+                        var isAllRights = ad.MethodInfo.IsDefined(typeof(AuthorizeAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(AuthorizeAttribute), false);
+                        if (isPublic == true)
+                        {
+                            return true;
+                        }
+                        if (isAllRights)
+                        {
+                            var ps = httpContext.RequestServices.GetService<IKevinPermissionService>();
+                            var http = httpContext.RequestServices.GetService<IHttpContextAccessor>();
+                            if (ps != default && http != default)
+                            {
+                                bool canAccess = ps.IsAccess(permissionKey, http);
+                                return canAccess;
+                            }
+                            return false;
+                        }
+                    }
                     return false;
                 }
                 return true;
@@ -183,47 +185,51 @@ namespace kevin.Permission.Permission.Action
         public static string GetAuthorizationAreaModule(HttpContext httpContext)
         {
             var ad = httpContext.Features.Get<IEndpointFeature>()?.Endpoint?.Metadata?.FirstOrDefault(u => u is ControllerActionDescriptor) as ControllerActionDescriptor;
-            var isSkip = ad.MethodInfo.IsDefined(typeof(SkipAuthorityAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(SkipAuthorityAttribute), false);
-            var isPublic = ad.MethodInfo.IsDefined(typeof(AllowAnonymousAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(AllowAnonymousAttribute), false);
-            if (isSkip == true || isPublic == true)
+            if (ad != default)
             {
-                return "";
-            }
-          
-            var area = "";
-            try
-            {
-                var myarea = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyAreaAttribute)).ToList();
-                if (myarea.Count > 0)
+                var isSkip = ad.MethodInfo.IsDefined(typeof(SkipAuthorityAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(SkipAuthorityAttribute), false);
+                var isPublic = ad.MethodInfo.IsDefined(typeof(AllowAnonymousAttribute), false) || ad.ControllerTypeInfo.IsDefined(typeof(AllowAnonymousAttribute), false);
+                if (isSkip == true || isPublic == true)
                 {
-                    area = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyAreaAttribute)).ToList().LastOrDefault()?.ConstructorArguments[1].Value?.ToString();
+                    return "";
                 }
-                else
-                {
-                    area = ad.ControllerName;
-                }
-            }
-            catch (Exception)
-            {
 
-            }
-            var module = "";
-            try
-            {
-                var mymodule = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList();
-                if (mymodule.Count > 0 && ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList().LastOrDefault().ConstructorArguments.Count > 1)
+                var area = "";
+                try
                 {
-                    module = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList().LastOrDefault().ConstructorArguments[1].Value.ToString();
+                    var myarea = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyAreaAttribute)).ToList();
+                    if (myarea.Count > 0)
+                    {
+                        area = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyAreaAttribute)).ToList().LastOrDefault()?.ConstructorArguments[1].Value?.ToString();
+                    }
+                    else
+                    {
+                        area = ad.ControllerName;
+                    }
                 }
-                else
+                catch (Exception)
                 {
-                    module = ad.ControllerName;
+
                 }
+                var module = "";
+                try
+                {
+                    var mymodule = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList();
+                    if (mymodule.Count > 0 && ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList().LastOrDefault()?.ConstructorArguments.Count > 1)
+                    {
+                        module = ad.ControllerTypeInfo.CustomAttributes.Where(x => x.AttributeType == typeof(MyModuleAttribute)).ToList().LastOrDefault()?.ConstructorArguments[1].Value?.ToString();
+                    }
+                    else
+                    {
+                        module = ad.ControllerName;
+                    }
+                }
+                catch (Exception)
+                {
+                }
+                return $"{area}/{module}";
             }
-            catch (Exception)
-            { 
-            }
-            return $"{area}/{module}";
-        }  
+            return "";
+        }
     }
 }

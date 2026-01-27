@@ -1,6 +1,7 @@
 ﻿using Aliyun.OSS;
 using Aliyun.OSS.Util;
 using Microsoft.Extensions.Options;
+using TencentCloud.Waf.V20180125.Models;
 
 namespace kevin.FileStorage.AliCloud
 {
@@ -129,7 +130,8 @@ namespace kevin.FileStorage.AliCloud
 
         public async Task<string> GetUrl()
         {
-            return fileStorageSetting.Url;
+            return await Task.Run(() => fileStorageSetting.Url);
+
         }
     }
 }

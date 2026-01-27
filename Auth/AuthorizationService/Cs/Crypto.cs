@@ -187,7 +187,7 @@ namespace System
                 keyStr = _default_key;
             FileStream fs = File.OpenRead(filePath);
             byte[] inputByteArray = new byte[fs.Length];
-            fs.Read(inputByteArray, 0, (int)fs.Length);
+            fs.ReadExactly(inputByteArray, 0, (int)fs.Length);
             fs.Close();
             byte[] keyByteArray = Encoding.UTF8.GetBytes(keyStr);
             using SHA1 ha = SHA1.Create();
@@ -231,7 +231,7 @@ namespace System
                 keyStr = _default_key;
             FileStream fs = File.OpenRead(filePath);
             byte[] inputByteArray = new byte[fs.Length];
-            fs.Read(inputByteArray, 0, (int)fs.Length);
+            fs.ReadExactly(inputByteArray, 0, (int)fs.Length);
             fs.Close();
             byte[] keyByteArray = Encoding.UTF8.GetBytes(keyStr);
             using SHA1 ha = SHA1.Create();

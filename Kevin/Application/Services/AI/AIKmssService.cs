@@ -47,7 +47,7 @@ namespace kevin.Application.Services.AI
         }
         public async Task<dtoPageList<AIKmssDto>> GetList(dtoPagePar<string> dtoPagePar)
         {
-            var data = AIKmssRp.Query(isDataPer: true).Where(t => t.IsDelete == false).OrderByDescending(x => x.CreateTime).ToList().MapToList<TAIKmss, AIKmssDto>();
+            var data = (await AIKmssRp.Query(isDataPer: true).Where(t => t.IsDelete == false).OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIKmss, AIKmssDto>();
             return new dtoPageList<AIKmssDto>() { List = data, Total = data.Count };
         }
         public async Task<dtoPageData<AIKmssDto>> GetPageData(dtoPagePar<string> dtoPagePar)

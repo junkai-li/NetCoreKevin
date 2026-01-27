@@ -19,7 +19,7 @@ namespace kevin.Permission.Permisson
             {
                 if (!ctrl.IgnorePrivillege)
                 {
-                    ctrl.Actions.ForEach(a =>
+                    ctrl.Actions?.ForEach(a =>
                     {
                         var url = a.Url;
                         if (!a.IgnorePrivillege)
@@ -58,8 +58,8 @@ namespace kevin.Permission.Permisson
                 {
                     types.AddRange(ass.GetExportedTypes());
                 }
-                catch { } 
-                controllers.AddRange(types.Where(x => (typeof(ControllerBase).IsAssignableFrom(x)|| IsIndirectlyInheritedFromControllerBase(x)) && !x.IsAbstract).ToList());
+                catch { }
+                controllers.AddRange(types.Where(x => (typeof(ControllerBase).IsAssignableFrom(x) || IsIndirectlyInheritedFromControllerBase(x)) && !x.IsAbstract).ToList());
             }
             return controllers;
         }
@@ -124,11 +124,11 @@ namespace kevin.Permission.Permisson
                 if (attrs.Length > 0)
                 {
                     var ada = attrs[0] as MyModuleAttribute;
-                    if (!string.IsNullOrEmpty(ada.ModuleName))
+                    if (!string.IsNullOrEmpty(ada?.ModuleName))
                     {
                         model.ModuleName = ada.ModuleName;
                     }
-                    if (!string.IsNullOrEmpty(ada.Module))
+                    if (!string.IsNullOrEmpty(ada?.Module))
                     {
                         model.Module = ada.Module;
                     }
@@ -171,7 +171,7 @@ namespace kevin.Permission.Permisson
                         if (attrs2.Length > 0)
                         {
                             var ada = attrs2[0] as ActionDescriptionAttribute;
-                            action.ActionName = ada.Description;
+                            action.ActionName = ada?.Description;
                             action.Action = action.MethodName;
                         }
                         else
@@ -202,11 +202,11 @@ namespace kevin.Permission.Permisson
 
                     var postAttr = method.GetCustomAttributes(typeof(HttpPostAttribute), false);
                     //找到post的方法且没有同名的非post的方法，添加到controller的action列表里
-                    if (postAttr.Length > 0 && model.Actions.Where(x => x.MethodName.ToLower() == method.Name.ToLower()).FirstOrDefault() == null)
+                    if (postAttr.Length > 0 && model.Actions.Where(x => x.MethodName?.ToLower() == method.Name.ToLower()).FirstOrDefault() == null)
                     {
                         if (method.Name.ToLower().StartsWith("dobatch"))
                         {
-                            if (model.Actions.Where(x => "do" + x.MethodName.ToLower() == method.Name.ToLower()).FirstOrDefault() != null)
+                            if (model.Actions.Where(x => "do" + x.MethodName?.ToLower() == method.Name.ToLower()).FirstOrDefault() != null)
                             {
                                 continue;
                             }
@@ -225,7 +225,7 @@ namespace kevin.Permission.Permisson
                         if (attrs2.Length > 0)
                         {
                             var ada = attrs2[0] as ActionDescriptionAttribute;
-                            action.ActionName = ada.Description;
+                            action.ActionName = ada?.Description;
                             action.Action = action.MethodName;
                         }
                         else
@@ -240,19 +240,24 @@ namespace kevin.Permission.Permisson
                 {
                     if (areaattr.Length > 0)
                     {
-                        string areaName = (areaattr[0] as MyAreaAttribute).AreaName;
-                        if (!string.IsNullOrEmpty(areaName))
+                        var item = areaattr[0] as MyAreaAttribute;
+                        if (item != null)
                         {
-                            model.Area = new SysArea
+                            string areaName = item.AreaName;
+                            if (!string.IsNullOrEmpty(areaName))
                             {
-                                AreaName = (areaattr[0] as MyAreaAttribute).AreaName ?? model.ClassName,
-                                Prefix = (areaattr[0] as MyAreaAttribute).Area ?? model.ClassName,
-                            };
+                                model.Area = new SysArea
+                                {
+                                    AreaName = item.AreaName ?? model.ClassName,
+                                    Prefix = item.Area ?? model.ClassName,
+                                };
+                            }
+                            else
+                            {
+                                model.Area = new SysArea { AreaName = model.ClassName, Prefix = model.ClassName };
+                            }
                         }
-                        else
-                        {
-                            model.Area = new SysArea { AreaName = model.ClassName, Prefix = model.ClassName };
-                        }
+
                     }
                     else
                     {
@@ -284,10 +289,10 @@ namespace kevin.Permission.Permisson
                 var includeAll = false;
                 //获取controller上标记的ActionDescription属性的值
                 var attrs22 = ctrl.GetCustomAttributes(typeof(AllowAnonymousAttribute), false);
-                var areaAttr = ctrl.GetCustomAttribute(typeof(MyAreaAttribute), false);
+                var areaAttr = ctrl.GetCustomAttribute(typeof(MyAreaAttribute), false) as MyAreaAttribute;
                 if (areaAttr != null)
                 {
-                    area = (areaAttr as MyAreaAttribute).Area;
+                    area = areaAttr.Area;
                 }
                 if (attrs22.Length > 0)
                 {
@@ -359,8 +364,8 @@ namespace kevin.Permission.Permisson
 
         public static Assembly GetRuntimeAssembly(string name)
         {
-            var path = Assembly.GetEntryAssembly().Location;
-            var library = DependencyContext.Default.RuntimeLibraries.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
+            var path = Assembly.GetEntryAssembly()?.Location;
+            var library = DependencyContext.Default?.RuntimeLibraries.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
             if (library == null)
             {
                 return null;

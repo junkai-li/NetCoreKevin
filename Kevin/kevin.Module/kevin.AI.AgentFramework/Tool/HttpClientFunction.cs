@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 namespace kevin.AI.AgentFramework.Tool
 {
 
-    public class HttpClientFunction(IHttpClientFactory httpClientFactory, IAIAgentService aIAgentService)
+    public class HttpClientFunction(IAIAgentService aIAgentService)
     {
         private Dictionary<string, string> SeoTemplates = new Dictionary<string, string>() {
             { "https://cn.bing.com/search?q={0}","必应搜索"},
@@ -157,7 +157,7 @@ namespace kevin.AI.AgentFramework.Tool
                     Encoding encoding = null;
 
                     // 尝试从响应头的 Content-Type 获取编码 (例如: "text/html; charset=gbk")
-                    string charset = response.Content.Headers.ContentType?.CharSet;
+                    string charset = response.Content.Headers.ContentType?.CharSet ?? "";
                     if (!string.IsNullOrEmpty(charset))
                     {
                         try
@@ -207,7 +207,7 @@ namespace kevin.AI.AgentFramework.Tool
                 catch (Exception ex)
                 {
                     Console.WriteLine($"请求失败: {ex.Message}");
-                    return null;
+                    return "";
                 }
             }
         }

@@ -53,7 +53,8 @@ namespace kevin.Application.Services
                         IsDelete = false
                     };
                     RoleRp.Add(add);
-                    return RoleRp.SaveChangesWithSaveLog() > 0;
+                    await RoleRp.SaveChangesAsync();
+                    return true;
                 }
                 else
                 {
@@ -80,7 +81,7 @@ namespace kevin.Application.Services
             {
                 throw new UserFriendlyException("种子数据不能删除");
             }
-            var delete = RoleRp.FirstOrDefault(t => t.Id == roleId && t.IsDelete == false);
+            var delete = await RoleRp.Query().FirstOrDefaultAsync(t => t.Id == roleId && t.IsDelete == false);
             if (delete != default)
             {
                 delete.IsDelete = true;

@@ -117,7 +117,7 @@ namespace kevin_ESL
                     {
                         foreach (var i in Data)
                         {
-                            if (Data.TryDequeue(out string value))
+                            if (Data.TryDequeue(out string? value))
                             {
                                 if (Callbacks.Count > 0)
                                 {
@@ -281,20 +281,13 @@ namespace kevin_ESL
         /// <returns></returns>
         public static string Command(string args, string pand = "OK")
         {
-            try
+            SendData($"api {args}");
+            string Response = RecolectResponse();
+            if (Response.Contains(pand))
             {
-                SendData($"api {args}");
-                string Response = RecolectResponse();
-                if (Response.Contains(pand))
-                {
-                    return RecolectResponse();
-                }
-                return Response;
+                return RecolectResponse();
             }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            return Response;
         }
         /// <summary>
         /// 重连
@@ -400,9 +393,12 @@ namespace kevin_ESL
                     int contentLenght = int.Parse(contentLength);
                     responseValue = "";
                     responseValue += ReceiveData(contentLenght);
-                    while (!(responseValue.EndsWith("}")) && _Socket.Connected)
+                    if (_Socket != default)
                     {
-                        responseValue += ReceiveData(contentLenght - responseValue.Length);
+                        while (!(responseValue.EndsWith("}")) && _Socket.Connected)
+                        {
+                            responseValue += ReceiveData(contentLenght - responseValue.Length);
+                        }
                     }
                 }
             }

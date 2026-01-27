@@ -12,9 +12,9 @@ namespace Kevin.RAG.Qdrant
 {
     public class QdrantClientService : IQdrantClientService
     {
-        private readonly string Url;
-        private readonly string ApiKey;
-        private readonly string CertificateThumbprint;
+        private readonly string? Url;
+        private readonly string? ApiKey;
+        private readonly string? CertificateThumbprint;
         private readonly QdrantClient QdrantClient;
         public QdrantClientService(IOptionsMonitor<QdrantClientSetting> config)
         {
