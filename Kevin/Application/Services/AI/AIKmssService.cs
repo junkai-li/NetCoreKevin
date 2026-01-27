@@ -69,8 +69,8 @@ namespace kevin.Application.Services.AI
                         var file = flieData.Where(t => t.Id == itemDetails.FileId.ToTryInt64()).FirstOrDefault();
                         if (file != default)
                         {
-                            itemDetails.Url = file.Url;
-                            itemDetails.ContentName = file.Name;
+                            itemDetails.Url = file.Url ?? "";
+                            itemDetails.ContentName = file.Name ?? "";
                         }
                     }
 
@@ -240,10 +240,10 @@ namespace kevin.Application.Services.AI
                             {
                                 #region 文件处理 
                                 var file = await FileRp.Query().Where(t => t.IsDelete == false && t.Id == item.FileId).FirstOrDefaultAsync();
-                                Stream stream = default;
+                                Stream? stream = null;
                                 if (file != default)
                                 {
-                                    FileName = file.Name;
+                                    FileName = file.Name ?? "";
                                     var fileData = await FileService.GetFile(file.Id);
                                     if (fileData.Item1 != default)
                                     {
@@ -257,7 +257,7 @@ namespace kevin.Application.Services.AI
                                 }
                                 if (stream != default)
                                 {
-                                    switch (item.FileType.Trim().ToLower())
+                                    switch ((item.FileType ?? "").Trim().ToLower())
                                     {
                                         case "text":
                                             content = TextStreamReader.ReadTextFromStream(stream);
@@ -285,7 +285,7 @@ namespace kevin.Application.Services.AI
                             }
                             else
                             {
-                                switch (item.FileType.Trim().ToLower())
+                                switch ((item.FileType ?? "").Trim().ToLower())
                                 {
                                     case "text":
                                         content = item.Content;
@@ -316,10 +316,11 @@ namespace kevin.Application.Services.AI
                                 allChunks.Add(new DocumentChunkDto
                                 {
                                     Content = chunks[i],
-                                    SourceFile = FileName,
+                                    SourceFile = FileName ?? "",
                                     Id = SnowflakeIdService.GetNextId(),
                                     CreatedAt = DateTime.Now,
-                                    Title = FileName.ToLower().Replace(".txt", "").Replace(".word", "").Replace(".pdf", "").Replace(".markdown", "").Replace(".html", ""),
+                                    Title = (FileName ?? "").ToLower().Replace(".txt", "").Replace(".word", "").Replace(".pdf", "").Replace(".markdown", "").Replace(".html", ""),
+
                                     Category = kmss.Name,
                                     ChunkIndex = i
                                 });
@@ -346,7 +347,7 @@ namespace kevin.Application.Services.AI
                             {
                                 item.Status = ImportKmsStatus.Success;
                                 item.UpdateTime = DateTime.Now;
-                                item.ContentName = FileName;
+                                item.ContentName = FileName ?? "";
                             }
                         }
                         else

@@ -29,11 +29,11 @@ namespace kevin.Application.Services.AI
                 CreateUserId = CurrentUser.UserId,
                 IsDelete = false,
                 TenantId = CurrentUser.TenantId,
-                ThreadId = t.ThreadId,
+                ThreadId = t.ThreadId ?? "",
                 Timestamp = t.Timestamp,
                 Role = t.Role,
-                Key = t.Key,
-                SerializedMessage = t.SerializedMessage,
+                Key = t.Key ?? "",
+                SerializedMessage = t.SerializedMessage ?? "",
                 MessageText = t.MessageText,
                 MessageId = t.MessageId
             }).ToList();

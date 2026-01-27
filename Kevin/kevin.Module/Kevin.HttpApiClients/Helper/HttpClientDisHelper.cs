@@ -82,12 +82,16 @@ namespace Kevin.HttpApiClients.Helper
         public async Task<string> PostAsync(string url, string data)
         {
             try
-            { 
-                var content = new StringContent(data, Encoding.UTF8, "application/json");  
+            {
+                var content = new StringContent(data, Encoding.UTF8, "application/json");
                 using Stream dataStream = new MemoryStream(Encoding.UTF8.GetBytes(data));
-                using HttpContent httpContent = new StreamContent(dataStream);   
-                using var httpResponse = _httpClient?.PostAsync(url, content);
-                return httpResponse?.Result.Content.ReadAsStringAsync().Result ?? ""; 
+                using HttpContent httpContent = new StreamContent(dataStream);
+                if (_httpClient != default)
+                {
+                    using var httpResponse = await _httpClient.PostAsync(url, content);
+                    return httpResponse.Content.ReadAsStringAsync().Result ?? "";
+                }
+                return "";
             }
             catch (HttpRequestException ex)
             {

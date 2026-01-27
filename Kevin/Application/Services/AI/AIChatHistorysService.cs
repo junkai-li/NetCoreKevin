@@ -122,12 +122,12 @@ namespace kevin.Application.Services.AI
             if (aiapp.KmsId != default)
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在查询知识库....");
-                var kmss = await aIKmssService.GetDetails(aiapp.KmsId.Value);
+                var kmss = await aIKmssService.GetDetails(aiapp.KmsId.GetValueOrDefault());
                 if (kmss != default)
                 {
                     if (kmss.aIModelsId != default)
                     {
-                        var aimode = await aIModelsService.GetDetails(kmss.aIModelsId.Value);
+                        var aimode = await aIModelsService.GetDetails(kmss.aIModelsId.GetValueOrDefault());
                         if (aimode?.AIModelType == AIModelType.Embedding)
                         {
                             ollamaApiService = new OllamaApiService(aimode.EndPoint, aimode.ModelName, aimode.ModelKey);

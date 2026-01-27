@@ -92,7 +92,7 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
         public List<long> GetDepartmentChildUserIds(long id)
         {
             var dataPids = GetChildIdList(id);
-            return userInfoRp.Query(true, false).Where(t => t.IsDelete == false && dataPids.Contains(t.DepartmentId.Value)).Select(t => t.UserId).ToList();
+            return userInfoRp.Query(true, false).Where(t => t.IsDelete == false && t.DepartmentId.HasValue && dataPids.Contains(t.DepartmentId.Value)).Select(t => t.UserId).ToList();
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace kevin.Domain.Interfaces.IServices.Organizational
         /// <returns></returns>
         public async Task<List<long>> GetDepartmentUserIds(long id)
         {
-            return await userInfoRp.Query(true, false).Where(t => t.IsDelete == false && t.DepartmentId.Value == id).Select(t => t.UserId).ToListAsync();
+            return await userInfoRp.Query(true, false).Where(t => t.IsDelete == false && t.DepartmentId.HasValue && t.DepartmentId.Value == id).Select(t => t.UserId).ToListAsync();
         }
 
         /// <summary>

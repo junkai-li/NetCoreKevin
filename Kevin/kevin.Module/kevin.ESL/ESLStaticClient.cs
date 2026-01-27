@@ -345,7 +345,7 @@ namespace kevin_ESL
             {
                 if (_Socket == default)
                 {
-                    return;    
+                    return;
                 }
                 byte[] msg = Encoding.UTF8.GetBytes($"{data}\n\n");
                 socketConti();
@@ -367,7 +367,7 @@ namespace kevin_ESL
         {
             string responseValue = "";
             string dataBuffer = "";
-            while (!(dataBuffer.EndsWith("\n\n") || dataBuffer.EndsWith("\r\n") || (IsValidJson(dataBuffer))) && _Socket.Connected)
+            while (!(dataBuffer.EndsWith("\n\n") || dataBuffer.EndsWith("\r\n") || (IsValidJson(dataBuffer))) && (_Socket?.Connected ?? false))
             {
                 dataBuffer += ReceiveData();
             }

@@ -1,4 +1,4 @@
-﻿using Aop.Api.Domain;
+using Aop.Api.Domain;
 using kevin.Domain.Configuration;
 using kevin.Domain.Entities;
 using kevin.Domain.Interfaces.IServices.Organizational;
@@ -251,7 +251,7 @@ namespace kevin.Application
                 HeadImgs = fileRp.Query(true, false).Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id.ToString()).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
                 {
                     Key = f.Id,
-                    Value = f.Url
+                    Value = f.Url ?? ""
                 }).Take(1).ToList(),
                 CreateTime = t.CreateTime
             }).ToList();
@@ -298,7 +298,7 @@ namespace kevin.Application
                 HeadImgs = fileRp.Query(true, false).Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id.ToString()).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
                 {
                     Key = f.Id,
-                    Value = f.Url
+                    Value = f.Url ?? ""
                 }).Take(1).ToList(),
                 CreateTime = t.CreateTime
             }).ToList();
@@ -349,6 +349,10 @@ namespace kevin.Application
                 Status = t.Status,
                 RecentLoginTime = t.RecentLoginTime,
             }).FirstOrDefault();
+            if (user == default)
+            {
+                return new dtoUser();
+            }
             var roleData = userBindRoleRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).Include(u => u.Role).ToList();
             user.Roles = roleData.Where(r => r.Role != default).Select(r => new dtoRole { Id = r.RoleId, Name = r.Role?.Name ?? "", Remarks = r.Role?.Remarks ?? "", CreateTime = r.Role.CreateTime }).ToList();
             var positionData = userBindPositionRp.Query().Where(t => Id == t.UserId && t.IsDelete == false).Include(u => u.Position).ToList();
@@ -483,15 +487,18 @@ namespace kevin.Application
                 if (user.dtoUserInfo.Id != default)
                 {
                     var data = userInfoRp.Query().Where(t => t.Id == user.dtoUserInfo.Id && t.IsDelete == false).FirstOrDefault();
-                    data.Sex = user.dtoUserInfo.Sex;
-                    data.EmployeeStatus = user.dtoUserInfo.EmployeeStatus;
-                    data.Signature = user.dtoUserInfo.Signature;
-                    data.HireDate = user.dtoUserInfo.HireDate;
-                    data.DepartmentId = user.dtoUserInfo.DepartmentId;
-                    data.SupervisorId = user.dtoUserInfo.SupervisorId;
-                    data.EmployeeNo = user.dtoUserInfo.EmployeeNo;
-                    data.WeChat = user.dtoUserInfo.WeChat;
-                    data.QQ = user.dtoUserInfo.QQ;
+                    if (data != default)
+                    {
+                        data.Sex = user.dtoUserInfo.Sex;
+                        data.EmployeeStatus = user.dtoUserInfo.EmployeeStatus;
+                        data.Signature = user.dtoUserInfo.Signature;
+                        data.HireDate = user.dtoUserInfo.HireDate;
+                        data.DepartmentId = user.dtoUserInfo.DepartmentId;
+                        data.SupervisorId = user.dtoUserInfo.SupervisorId;
+                        data.EmployeeNo = user.dtoUserInfo.EmployeeNo;
+                        data.WeChat = user.dtoUserInfo.WeChat;
+                        data.QQ = user.dtoUserInfo.QQ;
+                    }
                 }
                 else
                 {

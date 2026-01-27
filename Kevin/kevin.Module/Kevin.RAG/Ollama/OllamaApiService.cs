@@ -75,12 +75,15 @@ namespace Kevin.RAG.Ollama
         {
             if (ollamaApiClient == default)
             {
-                throw new ArgumentException($"请检查OllamaApi配置是否正确"); 
+                throw new ArgumentException($"请检查OllamaApi配置是否正确");
             }
             if (!string.IsNullOrEmpty(Key))
             {
-                EmbeddingDto data = (await httpClientDisHelper.PostAsync(Url, new { model = DefaultModel, input = text }.ToJson())).ToObject<EmbeddingDto>();
-                return new Embedding<float>(data.data.First().embedding.ToArray().AsMemory());
+                if (httpClientDisHelper != default)
+                {
+                    EmbeddingDto data = (await httpClientDisHelper.PostAsync(Url, new { model = DefaultModel, input = text }.ToJson())).ToObject<EmbeddingDto>();
+                    return new Embedding<float>(data.data.First().embedding.ToArray().AsMemory());
+                } 
             }
             return await Microsoft.Extensions.AI.EmbeddingGeneratorExtensions.GenerateAsync<string, Embedding<float>>(ollamaApiClient, text, options: null, cancellationToken: default).ConfigureAwait(false);
 

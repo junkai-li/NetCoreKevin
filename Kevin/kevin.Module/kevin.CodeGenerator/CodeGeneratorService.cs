@@ -75,11 +75,11 @@ namespace kevin.CodeGenerator
         {
             if (entityItems.Count > 0)
             {
-                var areaName = entityItems.FirstOrDefault().AreaName;
+                var areaName = entityItems.FirstOrDefault()?.AreaName;
                 var area = _config.CodeGeneratorItems.FirstOrDefault(t => t.AreaName == areaName);
                 if (area == default)
                 {
-                    throw new ArgumentException($"CodeGeneratorSetting配置:{areaName}{area.AreaPath}不存在");
+                    throw new ArgumentException($"CodeGeneratorSetting配置:{areaName}{area?.AreaPath}不存在");
                 }
                 var path = "..\\..\\" + area.AreaPath.Trim().Replace(".", "\\");
                 var csFiles = Directory.GetFiles(path, "*.cs", SearchOption.AllDirectories);
