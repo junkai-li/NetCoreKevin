@@ -167,9 +167,9 @@ namespace kevin.Permission.Permission.Action
                     if (cache != default)
                     {
                         //保存刷新令牌
-                        cache.SetString(refreshToken.AccessToken, refreshToken.RefreshToken, TimeSpan.FromDays(2));
+                        cache.SetString(refreshToken.AccessToken ?? "", refreshToken.RefreshToken ?? "", TimeSpan.FromDays(2));
                     }
-                    return refreshToken.AccessToken;
+                    return refreshToken.AccessToken ?? "";
                 }
             }
 

@@ -26,13 +26,13 @@ namespace Kevin.Email.dto
         /// <summary>
         /// 标题
         /// </summary>
-        public string Subject { get; set; }
+        public string Subject { get; set; } = "";
 
 
         /// <summary>
         /// 内瓤
         /// </summary>
-        public string Body { get; set; }
+        public string Body { get; set; } = "";
 
 
         /// <summary>
@@ -44,6 +44,6 @@ namespace Kevin.Email.dto
         /// <summary>
         /// 附件集合 名称 url键值对
         /// </summary>
-        public Dictionary<string,string> FileList { get; set; }
+        public Dictionary<string, string> FileList { get; set; } = new Dictionary<string, string>();
     }
 }

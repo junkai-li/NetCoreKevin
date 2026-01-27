@@ -11,7 +11,7 @@ namespace kevin.CodeGenerator.Dto
         /// <summary>
         /// 区域名称
         /// </summary>
-        public string AreaName { get; set; }
+        public string AreaName { get; set; } = "";
         public string EntityName { get; set; } = "";
         public string Description { get; set; } = "";
 

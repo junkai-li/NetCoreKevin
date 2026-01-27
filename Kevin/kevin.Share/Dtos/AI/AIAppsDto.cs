@@ -21,7 +21,7 @@ namespace kevin.Domain.Share.Dtos.AI
         /// 描述
         /// </summary>
         [Required]
-        public string Describe { get; set; }
+        public string Describe { get; set; } = "";
 
         /// <summary>
         /// 图标

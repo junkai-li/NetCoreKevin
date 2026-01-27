@@ -16,7 +16,7 @@
         /// <summary>
         /// 记录ID
         /// </summary>
-        public string TableId { get; set; }
+        public string TableId { get; set; } = "";
 
 
         /// <summary>

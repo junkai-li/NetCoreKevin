@@ -20,8 +20,8 @@ namespace kevin.Domain.Share.Dtos.System
         /// 创建人ID
         /// </summary>
         [Description("创建人ID")]
-        public long CreateUserId { get; set; } 
-        public virtual string CreateUser { get; set; }
+        public long CreateUserId { get; set; }
+        public virtual string CreateUser { get; set; } = "";
 
         /// <summary>
         /// 文件名称
@@ -59,7 +59,7 @@ namespace kevin.Domain.Share.Dtos.System
         /// 外链表ID
         /// </summary>  
         [Description("外链表ID")]
-        public string TableId { get; set; }
+        public string TableId { get; set; } = "";
 
 
         /// <summary>

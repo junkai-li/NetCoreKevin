@@ -23,7 +23,7 @@ namespace kevin.Domain.Entities.AI
         /// 描述
         /// </summary>
         [Required]
-        public String Describe { get; set; }
+        public String Describe { get; set; } = "";
 
         /// <summary>
         /// 图标

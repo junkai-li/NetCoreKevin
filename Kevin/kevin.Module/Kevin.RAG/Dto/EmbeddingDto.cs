@@ -12,7 +12,7 @@ namespace Kevin.RAG.Dto
         /// <summary>
         /// 
         /// </summary>
-        public List<DataItem> data { get; set; }
+        public List<DataItem> data { get; set; } = new List<DataItem>();
         /// <summary>
         /// 
         /// </summary>
@@ -32,7 +32,7 @@ namespace Kevin.RAG.Dto
         /// <summary>
         /// 
         /// </summary>
-        public List<float> embedding { get; set; }
+        public List<float> embedding { get; set; } = new List<float>();
         /// <summary>
         /// 
         /// </summary>

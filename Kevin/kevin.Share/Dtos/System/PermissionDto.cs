@@ -5,7 +5,7 @@
         /// <summary>
         /// 主键标识ID
         /// </summary> 
-        public string Id { get; set; } 
+        public string Id { get; set; } = "";
 
         /// <summary>
         /// 创建时间

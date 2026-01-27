@@ -20,7 +20,7 @@
         /// 外链表ID
         /// </summary>
         [Description("外链表ID")]
-        public string TableId { get; set; }
+        public string TableId { get; set; } = "";
 
 
 
