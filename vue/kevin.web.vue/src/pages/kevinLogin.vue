@@ -69,7 +69,9 @@
               > 
               </a-input>
             </a-form-item>
-
+            <a-form-item
+              name="remember"
+            >
             <div class="form-options">
               <a-checkbox
                 v-model:checked="passwordForm.remember"
@@ -79,6 +81,8 @@
               >
               <a href="#" class="forgot-link">忘记密码？</a>
             </div>
+            </a-form-item>
+            
 
             <a-button
               type="primary"
@@ -259,17 +263,27 @@ const handlePasswordLogin = (values) => {
         getTokenUser().then((response) => 
         {
             if (response.code == 200) {
-               localStorage.setItem('user',JSON.stringify(response.data));
-               console.warn(response.data);
+               localStorage.setItem('user',JSON.stringify(response.data)); 
             }
         });
          getUserPermissions().then((response) => 
         {
             if (response.code == 200) {
-               localStorage.setItem('UserPermissions',JSON.stringify(response.data));
-               console.warn(response.data);
+               localStorage.setItem('UserPermissions',JSON.stringify(response.data)); 
             }
         });
+         // 保存登录信息（如果选择了记住我）
+        if (values.remember) {
+          localStorage.setItem('savedLoginInfo', JSON.stringify({
+            username: values.username,
+            password: values.password,
+            tenantId: values.tenantId,
+            remember: values.remember
+          }));
+        } else {
+          // 如果没有选择记住我，清除之前保存的信息
+          localStorage.removeItem('savedLoginInfo');
+        }
       }
       setTimeout(() => {
           loading.value = false;  
@@ -284,8 +298,6 @@ const handlePasswordLogin = (values) => {
   } 
   });
   } catch (error) {  
-    loading.value = false;
-  }finally {
     loading.value = false;
   }
   
@@ -307,8 +319,25 @@ const handleSmsLogin = (values) => {
 // 初始化背景动画
 onMounted(() => {
   initParticles();
+// 从本地存储读取保存的登录信息
+  loadSavedLoginInfo();
 });
 
+// 从本地存储加载保存的登录信息
+const loadSavedLoginInfo = () => {
+  const savedInfo = localStorage.getItem('savedLoginInfo');
+  if (savedInfo) {
+    try {
+      const info = JSON.parse(savedInfo);
+      passwordForm.username = info.username || '';
+      passwordForm.password = info.password || '';
+      passwordForm.tenantId = info.tenantId || '';
+      passwordForm.remember = info.remember || false;
+    } catch (error) {
+      console.error('Failed to parse saved login info:', error);
+    }
+  }
+};
 onBeforeUnmount(() => {
   // 清理动画
 });
