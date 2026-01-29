@@ -254,51 +254,63 @@ const getCaptcha = () => {
 const handlePasswordLogin = (values) => { 
   loading.value = true;
   try{ 
-    login(values.username, values.password, values.tenantId).then((response) => {
-    console.log(response); 
-  if(response.code==200){  
-      if(response.isSuccess){
-        console.log(response);
-        localStorage.setItem('token',response.data);
-        getTokenUser().then((response) => 
-        {
-            if (response.code == 200) {
-               localStorage.setItem('user',JSON.stringify(response.data)); 
+    login(values.username, values.password, values.tenantId)
+      .then((response) => {
+        console.log(response); 
+        if(response.code==200){  
+          if(response.isSuccess){
+            console.log(response);
+            localStorage.setItem('token',response.data);
+            getTokenUser().then((response) => 
+            {
+                if (response.code == 200) {
+                   localStorage.setItem('user',JSON.stringify(response.data)); 
+                }
+            });
+             getUserPermissions().then((response) => 
+            {
+                if (response.code == 200) {
+                   localStorage.setItem('UserPermissions',JSON.stringify(response.data)); 
+                }
+            });
+             // 保存登录信息（如果选择了记住我）
+            if (values.remember) {
+              localStorage.setItem('savedLoginInfo', JSON.stringify({
+                username: values.username,
+                password: values.password,
+                tenantId: values.tenantId,
+                remember: values.remember
+              }));
+            } else {
+              // 如果没有选择记住我，清除之前保存的信息
+              localStorage.removeItem('savedLoginInfo');
             }
-        });
-         getUserPermissions().then((response) => 
-        {
-            if (response.code == 200) {
-               localStorage.setItem('UserPermissions',JSON.stringify(response.data)); 
-            }
-        });
-         // 保存登录信息（如果选择了记住我）
-        if (values.remember) {
-          localStorage.setItem('savedLoginInfo', JSON.stringify({
-            username: values.username,
-            password: values.password,
-            tenantId: values.tenantId,
-            remember: values.remember
-          }));
-        } else {
-          // 如果没有选择记住我，清除之前保存的信息
-          localStorage.removeItem('savedLoginInfo');
-        }
-      }
-      setTimeout(() => {
-          loading.value = false;  
-           message.success("登录成功！");
-           //跳转登录页
-           router.push('/home');
-      }, 1000);  
-  }else{ 
-     setTimeout(() => {
-        loading.value = false;
-      }, 1000);
-  } 
-  });
+          }
+          setTimeout(() => {
+              loading.value = false;  
+               message.success("登录成功！");
+               //跳转登录页
+               router.push('/home');
+          }, 1000);  
+        }else{ 
+           setTimeout(() => {
+              loading.value = false;
+            }, 1000);
+        } 
+      })
+      .catch((error) => {
+        console.error('Login request failed:', error);
+        message.error('登录请求失败，请稍后重试');
+        setTimeout(() => {
+          loading.value = false;
+        }, 1000);
+      });
   } catch (error) {  
-    loading.value = false;
+    console.error('Unexpected error:', error);
+    message.error('发生意外错误，请稍后重试');
+     setTimeout(() => {
+          loading.value = false;
+        }, 1000);
   }
   
 };
