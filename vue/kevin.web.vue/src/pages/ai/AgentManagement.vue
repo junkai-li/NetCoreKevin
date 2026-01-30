@@ -120,7 +120,7 @@
 </template>
 
 <script setup> 
-import '../../css/AgentManagement.css';
+import '../../css/CardTable.css';
 import { ref, reactive, onMounted } from 'vue';
 import { 
   RobotOutlined,

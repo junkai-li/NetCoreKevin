@@ -119,7 +119,7 @@
 </template>
 
 <script setup>
-import "../../css/PromptManagement.css";
+import "../../css/CardTable.css";
 import { ref, reactive, onMounted } from "vue";
 import {
   MessageOutlined,

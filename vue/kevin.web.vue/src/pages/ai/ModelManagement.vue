@@ -138,7 +138,7 @@
 
 <script setup>
 
-import '../../css/ModelManagement.css';
+import '../../css/CardTable.css';
 import { ref, reactive, onMounted } from 'vue';
 import { 
   DatabaseOutlined,
