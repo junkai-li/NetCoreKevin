@@ -374,169 +374,284 @@
 .pagination-container {
   margin-top: 24px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
+  padding: 16px 0;
 }
 
-.pagination-container :deep(.ant-pagination) {
+.pagination-container .ant-pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   color: rgba(255, 255, 255, 0.85);
+  background: linear-gradient(135deg, rgba(18, 30, 52, 0.9), rgba(30, 41, 59, 0.9));
+  border-radius: 24px;
+  padding: 12px 24px;
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
 }
 
 /* 分页项目样式 */
-.pagination-container :deep(.ant-pagination-item) {
-  background: rgba(18, 30, 52, 0.8);
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  margin: 0 4px;
-  min-width: 36px;
-  height: 32px;
-  padding: 0 8px;
+.pagination-container .ant-pagination-item {
+  background: rgba(100, 100, 100, 0.3) !important;
+  border: 1px solid rgba(100, 100, 100, 0.5) !important;
+  border-radius: 12px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  margin: 0 !important;
+  min-width: 40px !important;
+  height: 36px !important;
+  padding: 0 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.pagination-container .ant-pagination-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.pagination-container .ant-pagination-item:hover::before {
+  left: 100%;
+}
+
+.pagination-container .ant-pagination-item:hover {
+  background: rgba(100, 100, 100, 0.5) !important;
+  border-color: rgba(102, 126, 234, 0.6) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4) !important;
+}
+
+.pagination-container .ant-pagination-item a {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.pagination-container :deep(.ant-pagination-item:hover) {
-  background: rgba(102, 126, 234, 0.2);
-  border-color: rgba(102, 126, 234, 0.5);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-}
-
-.pagination-container :deep(.ant-pagination-item a) {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 14px;
-  padding: 4px 12px;
-  display: inline-block;
-  text-align: center;
   width: 100%;
   height: 100%;
-  line-height: 24px;
-  box-sizing: border-box;
+  line-height: 1;
+  position: relative;
+  z-index: 1;
 }
 
-.pagination-container :deep(.ant-pagination-item-active) {
-  background: #667eea;
-  border-color: #667eea;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+.pagination-container .ant-pagination-item-active {
+  background: #667eea !important;
+  border-color: #667eea !important;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5) !important;
+  transform: translateY(-2px) !important;
 }
 
-.pagination-container :deep(.ant-pagination-item-active a) {
+.pagination-container .ant-pagination-item-active a {
   color: white;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 /* 分页导航按钮样式 */
-.pagination-container :deep(.ant-pagination-next),
-.pagination-container :deep(.ant-pagination-prev) {
-  background: rgba(18, 30, 52, 0.8);
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  margin: 0 4px;
+.pagination-container .ant-pagination-next,
+.pagination-container .ant-pagination-prev {
+  background: rgba(100, 100, 100, 0.3) !important;
+  border: 1px solid rgba(100, 100, 100, 0.5) !important;
+  border-radius: 12px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  margin: 0 !important;
+  position: relative !important;
+  overflow: hidden !important;
 }
 
-.pagination-container :deep(.ant-pagination-next:hover),
-.pagination-container :deep(.ant-pagination-prev:hover) {
-  background: rgba(102, 126, 234, 0.2);
-  border-color: rgba(102, 126, 234, 0.5);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+.pagination-container .ant-pagination-next::before,
+.pagination-container .ant-pagination-prev::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.pagination-container .ant-pagination-next:hover::before,
+.pagination-container .ant-pagination-prev:hover::before {
+  left: 100%;
+}
+
+.pagination-container .ant-pagination-next:hover,
+.pagination-container .ant-pagination-prev:hover {
+  background: rgba(100, 100, 100, 0.5) !important;
+  border-color: rgba(102, 126, 234, 0.6) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4) !important;
 }
 
 .pagination-container :deep(.ant-pagination-next .ant-pagination-item-link),
 .pagination-container :deep(.ant-pagination-prev .ant-pagination-item-link) {
-  color: rgba(255, 255, 255, 0.85);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
+  color: rgba(255, 255, 255, 0.85) !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 36px !important;
+  font-size: 16px !important;
+  background: transparent !important;
+  border: none !important;
+  position: relative !important;
+  z-index: 1 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.pagination-container :deep(.ant-pagination-next .ant-pagination-item-link .anticon),
+.pagination-container :deep(.ant-pagination-prev .ant-pagination-item-link .anticon) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* 分页选择器样式 */
-.pagination-container :deep(.ant-pagination-options) {
+.pagination-container .ant-pagination-options {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  margin-left: 20px;
+  padding-left: 20px;
+  border-left: 1px solid rgba(102, 126, 234, 0.3);
 }
 
-.pagination-container :deep(.ant-pagination-options-size-changer) {
-  background: rgba(18, 30, 52, 0.8);
+.pagination-container .ant-pagination-total-text {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.pagination-container .ant-pagination-options-size-changer {
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 8px;
-  transition: all 0.3s ease;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.pagination-container :deep(.ant-pagination-options-size-changer:hover) {
+.pagination-container .ant-pagination-options-size-changer:hover {
   background: rgba(102, 126, 234, 0.2);
-  border-color: rgba(102, 126, 234, 0.5);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+  border-color: rgba(102, 126, 234, 0.6);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+  transform: translateY(-1px);
 }
 
-.pagination-container :deep(.ant-select-selector) {
+.pagination-container .ant-select-selector {
   background: transparent !important;
   border: none !important;
-  border-radius: 8px !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
 }
 
-.pagination-container :deep(.ant-select-selection-item) {
+.pagination-container .ant-select-selection-item {
   color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.pagination-container :deep(.ant-select-arrow) {
-  color: rgba(102, 126, 234, 0.6);
-}
-
-/* 分页信息样式 */
-.pagination-container :deep(.ant-pagination-options-quick-jumper) {
-  color: rgba(255, 255, 255, 0.7);
+.pagination-container .ant-select-arrow {
+  color: rgba(102, 126, 234, 0.8);
   font-size: 14px;
 }
 
-.pagination-container :deep(.ant-pagination-options-quick-jumper input) {
-  background: rgba(18, 30, 52, 0.8);
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 6px;
-  color: rgba(255, 255, 255, 0.85);
-  padding: 2px 8px;
-  margin: 0 4px;
-  transition: all 0.3s ease;
+/* 分页信息样式 */
+.pagination-container .ant-pagination-options-quick-jumper {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.pagination-container :deep(.ant-pagination-options-quick-jumper input:focus) {
-  border-color: rgba(102, 126, 234, 0.5);
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+.pagination-container .ant-pagination-options-quick-jumper input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.85);
+  padding: 6px 16px;
+  margin: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 14px;
+  font-weight: 500;
+  width: 60px;
+  text-align: center;
+}
+
+.pagination-container .ant-pagination-options-quick-jumper input:focus {
+  border-color: rgba(102, 126, 234, 0.6);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  outline: none;
+  transform: translateY(-1px);
 }
 
 /* 禁用状态样式 */
-.pagination-container :deep(.ant-pagination-item-disabled),
-.pagination-container :deep(.ant-pagination-item-disabled:hover) {
-  background: rgba(18, 30, 52, 0.5);
-  border-color: rgba(255, 255, 255, 0.1);
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+.pagination-container .ant-pagination-item-disabled,
+.pagination-container .ant-pagination-item-disabled:hover {
+  background: rgba(18, 30, 52, 0.6) !important;
+  border-color: rgba(102, 126, 234, 0.2) !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
-.pagination-container :deep(.ant-pagination-item-disabled a) {
-  color: rgba(255, 255, 255, 0.3);
+.pagination-container .ant-pagination-item-disabled a {
+  color: rgba(255, 255, 255, 0.4) !important;
 }
 
-.pagination-container :deep(.ant-pagination-next.ant-pagination-disabled),
-.pagination-container :deep(.ant-pagination-prev.ant-pagination-disabled) {
-  background: rgba(18, 30, 52, 0.5);
-  border-color: rgba(255, 255, 255, 0.1);
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+.pagination-container .ant-pagination-next.ant-pagination-disabled,
+.pagination-container .ant-pagination-prev.ant-pagination-disabled {
+  background: rgba(18, 30, 52, 0.6) !important;
+  border-color: rgba(102, 126, 234, 0.2) !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
-.pagination-container :deep(.ant-pagination-next.ant-pagination-disabled .ant-pagination-item-link),
-.pagination-container :deep(.ant-pagination-prev.ant-pagination-disabled .ant-pagination-item-link) {
-  color: rgba(255, 255, 255, 0.3);
+.pagination-container .ant-pagination-next.ant-pagination-disabled .ant-pagination-item-link,
+.pagination-container .ant-pagination-prev.ant-pagination-disabled .ant-pagination-item-link {
+  color: rgba(255, 255, 255, 0.4) !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* 动画效果 */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+  }
+}
+
+.pagination-container :deep(.ant-pagination-item-active) {
+  animation: pulse 2s infinite;
 }
 
 /* 空状态样式 */
@@ -719,6 +834,63 @@
   
   .pagination-container {
     justify-content: center;
+    padding: 12px 0;
+  }
+  
+  .pagination-container :deep(.ant-pagination) {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 20px;
+  }
+  
+  .pagination-container :deep(.ant-pagination-item) {
+    min-width: 36px;
+    height: 32px;
+    padding: 0 8px;
+  }
+  
+  .pagination-container .ant-pagination-next,
+  .pagination-container .ant-pagination-prev {
+    min-width: 36px;
+  }
+  
+  .pagination-container .ant-pagination-next .ant-pagination-item-link,
+  .pagination-container .ant-pagination-prev .ant-pagination-item-link {
+    width: 36px;
+    height: 32px;
+  }
+  
+  .pagination-container .ant-pagination-options {
+    gap: 8px;
+    margin-left: 12px;
+    padding-left: 12px;
+    margin-top: 12px;
+    width: 100%;
+    justify-content: center;
+    border-left: none;
+    border-top: 1px solid rgba(102, 126, 234, 0.3);
+    padding-top: 12px;
+  }
+  
+  .pagination-container .ant-pagination-total-text {
+    font-size: 13px;
+    margin-right: 4px;
+  }
+  
+  .pagination-container .ant-pagination-options-quick-jumper {
+    font-size: 13px;
+    gap: 8px;
+  }
+  
+  .pagination-container .ant-pagination-options-quick-jumper input {
+    padding: 4px 12px;
+    font-size: 13px;
+    width: 50px;
+  }
+  
+  .pagination-container .ant-select-selection-item {
+    font-size: 13px;
   }
   
   /* 模型卡片响应式调整 */
