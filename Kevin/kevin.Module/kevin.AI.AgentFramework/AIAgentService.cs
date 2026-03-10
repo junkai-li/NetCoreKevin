@@ -24,7 +24,7 @@ namespace kevin.AI.AgentFramework
         public AIAgentService()
         {
         }
-        public   AIAgent CreateOpenAIAgent(string name, string prompt, string description, string url, string model, string keySecret,
+        public AIAgent CreateOpenAIAgent(string name, string prompt, string description, string url, string model, string keySecret,
             IList<AITool>? tools = null, ChatOptions? chatOptions = null, Func<IChatClient, IChatClient>? clientFactory = null, ILoggerFactory? loggerFactory = null, IServiceProvider? services = null)
         {
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
@@ -75,25 +75,27 @@ namespace kevin.AI.AgentFramework
             return ai.GetChatClient(keySecret).AsIChatClient();
         }
 
-        public  async  Task<(AIAgent, AgentRunResponse)> CreateOpenAIAgentAndSendMSG(string msg, string name, string prompt, string description, string url, string model, string keySecret,
+        public async Task<(AIAgent, AgentRunResponse)> CreateOpenAIAgentAndSendMSG(string msg, string name, string prompt, string description, string url, string model, string keySecret,
             IList<AITool>? tools = null, ChatResponseFormat? chatResponseFormat = null, Func<IChatClient, IChatClient>? clientFactory = null, ILoggerFactory? loggerFactory = null, IServiceProvider? services = null)
         {
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
             openAIClientOptions.Endpoint = new Uri(url);
             var ai = new OpenAIClient(new ApiKeyCredential(keySecret), openAIClientOptions);
             var aiAgent = ai.GetChatClient(model).CreateAIAgent(instructions: prompt, name: name, prompt, tools, clientFactory, loggerFactory, services);
-            if (chatResponseFormat != default)
+            if (chatResponseFormat != default || tools != null)
             {
                 ChatOptions chatOptions = new()
                 {
-                    ResponseFormat = chatResponseFormat
+                    ResponseFormat = chatResponseFormat,
+                    Tools = tools ?? new List<AITool>()
                 };
-                aiAgent = ai.GetChatClient(model).CreateAIAgent(new ChatClientAgentOptions()
+                aiAgent = ai.GetChatClient(model).AsIChatClient().CreateAIAgent(new ChatClientAgentOptions()
                 {
                     Name = name,
                     Instructions = prompt,
                     ChatOptions = chatOptions,
-                    Description = description
+                    Description = description,
+
                 });
             }
             var reslut = await aiAgent.RunAsync(msg);
@@ -105,22 +107,22 @@ namespace kevin.AI.AgentFramework
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
             openAIClientOptions.Endpoint = new Uri(url);
             var ai = new OpenAIClient(new ApiKeyCredential(keySecret), openAIClientOptions);
-            var aiAgent = ai.GetChatClient(model).CreateAIAgent(chatClientAgentOptions);
+            var aiAgent = ai.GetChatClient(model).AsIChatClient().CreateAIAgent(chatClientAgentOptions);
             var reslut = new AgentRunResponse();
             var resultText = string.Empty;
             if (isStreame)
             {
                 if (streameCallback != default)
                 {
-                    await foreach(AgentRunResponseUpdate update in aiAgent.RunStreamingAsync(msg))
+                    await foreach (AgentRunResponseUpdate update in aiAgent.RunStreamingAsync(msg))
                     {
                         if (!string.IsNullOrEmpty(update.Text))
                         {
                             streameCallback.Invoke(update.Text);
                             resultText += update.Text;
-                        } 
+                        }
                     }
-                } 
+                }
             }
             else
             {
