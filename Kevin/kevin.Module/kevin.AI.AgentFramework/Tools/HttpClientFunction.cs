@@ -13,7 +13,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace kevin.AI.AgentFramework.Tool
+namespace kevin.AI.AgentFramework.Tools
 {
 
     public class HttpClientFunction(IAIAgentService aIAgentService)

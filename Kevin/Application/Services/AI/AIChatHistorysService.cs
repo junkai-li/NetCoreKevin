@@ -1,7 +1,7 @@
 ﻿using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
-using kevin.AI.AgentFramework.Tool;
+using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IRepositories.AI;
