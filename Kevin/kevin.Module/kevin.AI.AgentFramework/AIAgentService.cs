@@ -1,5 +1,6 @@
 ﻿using kevin.AI.AgentFramework.Agent;
 using kevin.AI.AgentFramework.Interfaces;
+using kevin.AI.AgentFramework.Tools;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
@@ -12,7 +13,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace kevin.AI.AgentFramework
 {
     /// <summary>
@@ -87,7 +87,9 @@ namespace kevin.AI.AgentFramework
                 ChatOptions chatOptions = new()
                 {
                     ResponseFormat = chatResponseFormat,
-                    Tools = tools ?? new List<AITool>()
+                    Tools = tools ?? new List<AITool>() {
+                    AIFunctionFactory.Create(KevinBasicAI.GetNetCoreKevinInfo,new AIFunctionFactoryOptions{ Name = "GetNetCoreKevinInfo",Description = "获取框架或者是NetCoreKevin框架的介绍信息" })
+                    }
                 };
                 aiAgent = ai.GetChatClient(model).AsIChatClient().CreateAIAgent(new ChatClientAgentOptions()
                 {
@@ -107,6 +109,12 @@ namespace kevin.AI.AgentFramework
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
             openAIClientOptions.Endpoint = new Uri(url);
             var ai = new OpenAIClient(new ApiKeyCredential(keySecret), openAIClientOptions);
+            if (chatClientAgentOptions.ChatOptions != default && (chatClientAgentOptions.ChatOptions?.Tools == default || chatClientAgentOptions.ChatOptions?.Tools.Count == 0))
+            {
+                chatClientAgentOptions.ChatOptions.Tools = new List<AITool>() {
+                    AIFunctionFactory.Create(KevinBasicAI.GetNetCoreKevinInfo,new AIFunctionFactoryOptions{ Name = "GetNetCoreKevinInfo",Description = "获取框架或者是NetCoreKevin框架的介绍信息" })
+                    };
+            }
             var aiAgent = ai.GetChatClient(model).AsIChatClient().CreateAIAgent(chatClientAgentOptions);
             var reslut = new AgentRunResponse();
             var resultText = string.Empty;

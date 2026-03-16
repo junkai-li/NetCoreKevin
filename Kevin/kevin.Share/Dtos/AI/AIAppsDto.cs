@@ -40,10 +40,10 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary>
         [Required]
         public string? ChatModelID { get; set; }
- 
+
 
         public string? RerankModelID { get; set; }
-         
+
         /// <summary>
         /// 温度
         /// </summary> 
@@ -98,5 +98,17 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary>
         [Required]
         public int MsgType { get; set; } = 1;
+
+        public void Check()
+        {
+            if (string.IsNullOrEmpty(this.ChatModelID))
+            {
+                throw new Exception("请选择会话模型");
+            }
+            if (this.AIPromptID == default || this.AIPromptID == 0)
+            {
+                throw new Exception("提示词不能为空");
+            }
+        }
     }
 }

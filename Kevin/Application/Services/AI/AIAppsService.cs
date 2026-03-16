@@ -72,6 +72,7 @@ namespace kevin.Application.Services.AI
         /// <exception cref="UserFriendlyException"></exception>
         public async Task<bool> AddEdit(AIAppsDto par)
         {
+            par.Check();
             var isAdd = par.Id == default;
             if (!isAdd)
             {
@@ -82,7 +83,7 @@ namespace kevin.Application.Services.AI
                 }
             }
             if (isAdd)
-            {
+            { 
                 var add = par.MapTo<TAIApps>();
                 add.Id = par.Id == default ? SnowflakeIdService.GetNextId() : par.Id;
                 add.IsDelete = false;
