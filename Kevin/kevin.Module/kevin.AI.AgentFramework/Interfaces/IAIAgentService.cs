@@ -13,25 +13,7 @@ using System.Threading.Tasks;
 namespace kevin.AI.AgentFramework.Interfaces
 {
     public interface IAIAgentService
-    {
-        /// <summary>
-        /// OpenAI智能体
-        /// </summary>
-        /// <param name="msg">消息</param>
-        /// <param name="name">智能体名称</param>
-        /// <param name="prompt">提示词</param>
-        /// <param name="url"></param>
-        /// <param name="model"></param>
-        /// <param name="keySecret"></param>
-        /// <returns></returns>
-         AIAgent CreateOpenAIAgent(string name, string prompt, string description, string url, string model, string keySecret,
-               IList<AITool>? tools = null,
-                ChatOptions? chatOptions = default,
-                Func<IChatClient, IChatClient>? clientFactory = null,
-               ILoggerFactory? loggerFactory = null,
-                    IServiceProvider? services = null
-            );
-        AIAgent CreateOpenAIAgent(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions);
+    { 
         /// <summary>
         /// 创建智能体并发送消息
         /// </summary>
@@ -46,9 +28,7 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="clientFactory"></param>
         /// <param name="loggerFactory"></param>
         /// <param name="services"></param>
-        /// <returns></returns>
-         Task<(AIAgent, AgentRunResponse)> CreateOpenAIAgentAndSendMSG(string msg, string name, string prompt, string description, string url, string model, string keySecret, 
-            IList<AITool>? tools = null, ChatResponseFormat? chatResponseFormat = null, Func<IChatClient, IChatClient>? clientFactory = null, ILoggerFactory? loggerFactory = null, IServiceProvider? services = null);
+        /// <returns></returns> 
         Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, bool isStreame = false, Action<string> streameCallback = default);
         /// <summary>
         /// 智能体转换为McpServerTool
@@ -56,8 +36,7 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="aIAgent">智能体</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-         McpServerTool AIAgentAsMcpServerTool(AIAgent aIAgent);
-
+         McpServerTool AIAgentAsMcpServerTool(AIAgent aIAgent); 
         /// <summary>
         /// 获取代理
         /// </summary>
