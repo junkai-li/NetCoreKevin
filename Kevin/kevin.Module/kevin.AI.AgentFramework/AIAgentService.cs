@@ -1,10 +1,12 @@
-﻿using kevin.AI.AgentFramework.Agent;
+﻿using Azure;
+using kevin.AI.AgentFramework.Agent;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Tools;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ModelContextProtocol;
 using ModelContextProtocol.Server;
 using OpenAI;
 using System;
@@ -23,7 +25,7 @@ namespace kevin.AI.AgentFramework
         public static string AIRulePrompt = "";
         public AIAgentService()
         {
-        }  
+        }
         /// <summary>
         /// 智能体转换为McpServerTool
         /// </summary>
@@ -45,7 +47,7 @@ namespace kevin.AI.AgentFramework
             openAIClientOptions.Endpoint = new Uri(url);
             var ai = new OpenAIClient(new ApiKeyCredential(model), openAIClientOptions);
             return ai.GetChatClient(keySecret).AsIChatClient();
-        } 
+        }
         public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, bool isStreame = false, Action<string> streameCallback = default)
         {
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
@@ -54,29 +56,47 @@ namespace kevin.AI.AgentFramework
             if (chatClientAgentOptions.ChatOptions != default && (chatClientAgentOptions.ChatOptions?.Tools == default || chatClientAgentOptions.ChatOptions?.Tools.Count == 0))
             {
                 chatClientAgentOptions.ChatOptions.Tools = new List<AITool>() {
-                    AIFunctionFactory.Create(KevinBasicAI.GetNetCoreKevinInfo,new AIFunctionFactoryOptions{ Name = "GetNetCoreKevinInfo",Description = "获取框架或者是NetCoreKevin框架的介绍信息" })
+                    AIFunctionFactory.Create(KevinBasicAI.GetNetCoreKevinInfo,new AIFunctionFactoryOptions{ Name = "GetNetCoreKevinInfo",Description = "获取NetCoreKevin框架的介绍信息" })
                     };
             }
-            var aiAgent = ai.GetChatClient(model).AsIChatClient().CreateAIAgent(chatClientAgentOptions);
-            var reslut = new AgentRunResponse();
+            if (chatClientAgentOptions.AIContextProviders == default)
+            {
+#pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+                var skillsProvider = new FileAgentSkillsProvider(
+                    skillPaths: [Path.Combine(AppContext.BaseDirectory, "multi-search-engine-2.0.1"), Path.Combine(AppContext.BaseDirectory, "weather-1.0.0"),],
+                    options: new FileAgentSkillsProviderOptions
+                    {
+                        SkillsInstructionPrompt = """
+            You have skills available. Here they are:
+            {0}
+            Use the `multi-search-engine-2.0.1` function Multi search engine integration with 17 engines (8 CN + 9 Global). Supports advanced search operators, time filters, site search, privacy engines, and WolframAlpha knowledge queries. No API keys required.
+            Use the `weather-1.0.0` function Get current weather and forecasts (no API key required).
+            """
+                    });
+#pragma warning restore MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+               chatClientAgentOptions.AIContextProviders = [skillsProvider];
+            }
+
+            var aiAgent = ai.GetChatClient(model).AsIChatClient().AsAIAgent(chatClientAgentOptions);
+            var reslut = new AgentResponse();
             var resultText = string.Empty;
             if (isStreame)
             {
                 if (streameCallback != default)
-                {
-                    await foreach (AgentRunResponseUpdate update in aiAgent.RunStreamingAsync(msg))
+                { 
+                    await foreach (var update in aiAgent.RunStreamingAsync(msg))
                     {
                         if (!string.IsNullOrEmpty(update.Text))
                         {
                             streameCallback.Invoke(update.Text);
                             resultText += update.Text;
                         }
-                    }
+                    } 
                 }
             }
             else
             {
-                reslut = await aiAgent.RunAsync(msg);
+                reslut = await aiAgent.RunAsync(msg);  
                 resultText = reslut.Text;
             }
             return (aiAgent, resultText);

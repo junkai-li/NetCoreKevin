@@ -167,24 +167,15 @@ namespace kevin.Application.Services.AI
                     await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在结合相关信息思考....");
                     addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
                     {
-                        Name = aiapp.Name,
-                        Instructions = aIPrompts.Prompt + systemPrompt,
-                        Description = (aIPrompts.Description + systemPrompt) ?? "你是一个智能体,请根据你的提示词进行相关回答",
+                        Name = aiapp.Name, 
+                        Description = (aIPrompts.Prompt + aIPrompts.Description + systemPrompt) ?? "你是一个智能体,请根据你的提示词进行相关回答",
                         ChatOptions = new Microsoft.Extensions.AI.ChatOptions
                         {
                             MaxOutputTokens = aiapp.MaxAskPromptSize,
                             Temperature = (float)(aiapp.Temperature / 100),
                             ResponseFormat = ChatResponseFormat.Text,
                         },
-                        ChatMessageStoreFactory = ctx =>
-                        {
-                            // Create a new chat message store for this agent that stores the messages in a vector store.
-                            return new KevinChatMessageStore(
-                               kevinAIChatMessageStore,
-                               ctx.SerializedState,
-                              par.AIChatsId.ToString(),
-                               ctx.JsonSerializerOptions);
-                        }
+                        ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString())
                     }, isStreame: aiapp.MsgType == 2, streameCallback: async (msg) =>
                     {
                         await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);

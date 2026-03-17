@@ -106,7 +106,7 @@ namespace kevin.AI.AgentFramework.Tools
             result = (await aIAgentService.CreateOpenAIAgentAndSendMSG($"用户搜索意图问题:{value} \n 互联网搜索信息如下：" + string.Join("\n", htmls) + "\n" + " 请你根据用户搜索意图问题来进行提取总结", aiEndPoint, aiModelName, aiModelKey, new ChatClientAgentOptions
             {
                 Name = " 你是一款专业的搜索引擎助手，专门负责将HTML内容转换为结构化的Markdown格式。你的核心职责是精确提取HTML标签中的关键信息，并将其转换为清晰、规范的Markdown文档，同时保持内容的完整性和准确性。",
-                Instructions = SystemTemplate,
+               
                 Description = SystemTemplate,
                 ChatOptions = new Microsoft.Extensions.AI.ChatOptions
                 {

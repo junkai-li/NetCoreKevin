@@ -96,7 +96,10 @@ namespace kevin.Application.Services.AI
             addHist.CreateUserId = CurrentUser.UserId;
             addHist.TenantId = CurrentUser.TenantId;
             addHist.IsSend = false;
-            addHist.AIChatsId = add.Id;
+            addHist.AIChatsId = add.Id; 
+            addHist.Content = "请开始你的自我介绍";
+            aIChatHistorysRp.Add(addHist);
+            await aIChatHistorysRp.SaveChangesAsync();
             switch (aIModels.AIType)
             {
                 case Domain.Share.Enums.AIType.OpenAI:
@@ -105,8 +108,7 @@ namespace kevin.Application.Services.AI
                 default:
                     addHist.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG("请开始你的自我介绍", aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
                     {
-                        Name = aiapp.Name,
-                        Instructions = aIPrompts.Prompt,
+                        Name = aiapp.Name, 
                         Description = aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答",
                         ChatOptions = new Microsoft.Extensions.AI.ChatOptions
                         {
@@ -114,24 +116,14 @@ namespace kevin.Application.Services.AI
                             Temperature = (float)(aiapp.Temperature/100),
                             ResponseFormat = ChatResponseFormat.Text,
                         },
-                        ChatMessageStoreFactory = ctx =>
-                        {
-                            // Create a new chat message store for this agent that stores the messages in a vector store.
-                            return new KevinChatMessageStore(
-                               kevinAIChatMessageStore,
-                               ctx.SerializedState,
-                              add.Id.ToString(),
-                               ctx.JsonSerializerOptions);
-                        }
+                        ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, add.Id.ToString()) 
                     },isStreame: aiapp.MsgType == 2, streameCallback: async (msg) =>
                     {
                         await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
                     })).Item2;
                     //addHist.Content = aIClient.SendMsg("请开始你的自我介绍", aIModels.EndPoint, aIModels.ModelKey, aIModels.ModelName, aIPrompts.Prompt + (aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答")).choices.FirstOrDefault().message.content;
                     break; 
-            }
-            aIChatHistorysRp.Add(addHist);
-            await aIChatHistorysRp.SaveChangesAsync();
+            } 
             return addHist.MapTo<AIChatHistorysDto>();
         }
 

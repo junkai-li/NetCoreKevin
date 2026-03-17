@@ -4,7 +4,7 @@ namespace kevin.AI.AgentFramework.Tools
     public class KevinBasicAI
     {
 
-        [Description("获取框架或者是NetCoreKevin框架的介绍")]
+        [Description("获取NetCoreKevin框架的介绍信息")]
         public static string GetNetCoreKevinInfo()
         {
             Console.WriteLine("GetNetCoreKevinInfo工具调用");

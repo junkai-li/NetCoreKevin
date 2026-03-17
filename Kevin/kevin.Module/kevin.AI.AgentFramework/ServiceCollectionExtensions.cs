@@ -9,8 +9,7 @@ namespace Kevin.AI
     {
         public static void AddAIAgentClient(this IServiceCollection services, Action<AISetting> action)
         {
-             services.Configure(action);
-             services.AddTransient<IAgent, Agent>();
+             services.Configure(action); 
              services.AddTransient<IAIAgentService, AIAgentService>();
         }
     }
