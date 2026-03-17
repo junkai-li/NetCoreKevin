@@ -17,5 +17,7 @@
         /// 默认模型
         /// </summary>
         public string AIDefaultModel { get; set; } = "deepseek-v3";
+
+        public bool IsHttpLog { get; set; } = false;
     }
 }

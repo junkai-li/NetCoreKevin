@@ -1,7 +1,9 @@
 ﻿using Azure;
+using HttpMataki.NET.Auto;
 using kevin.AI.AgentFramework.Agent;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Tools;
+using Kevin.AI.Dto;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
@@ -23,8 +25,13 @@ namespace kevin.AI.AgentFramework
     public class AIAgentService : IAIAgentService
     {
         public static string AIRulePrompt = "";
+        public static bool IsHttpLog = false;
         public AIAgentService()
         {
+        }
+        public AIAgentService(IOptionsMonitor<AISetting> config)
+        {
+            IsHttpLog = config.CurrentValue.IsHttpLog;
         }
         /// <summary>
         /// 智能体转换为McpServerTool
@@ -50,6 +57,10 @@ namespace kevin.AI.AgentFramework
         }
         public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, bool isStreame = false, Action<string> streameCallback = default)
         {
+            if (IsHttpLog)
+            {
+                HttpClientAutoInterceptor.StartInterception();
+            }
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
             openAIClientOptions.Endpoint = new Uri(url);
             var ai = new OpenAIClient(new ApiKeyCredential(keySecret), openAIClientOptions);
@@ -74,7 +85,7 @@ namespace kevin.AI.AgentFramework
             """
                     });
 #pragma warning restore MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
-               chatClientAgentOptions.AIContextProviders = [skillsProvider];
+                chatClientAgentOptions.AIContextProviders = [skillsProvider];
             }
 
             var aiAgent = ai.GetChatClient(model).AsIChatClient().AsAIAgent(chatClientAgentOptions);
@@ -83,7 +94,7 @@ namespace kevin.AI.AgentFramework
             if (isStreame)
             {
                 if (streameCallback != default)
-                { 
+                {
                     await foreach (var update in aiAgent.RunStreamingAsync(msg))
                     {
                         if (!string.IsNullOrEmpty(update.Text))
@@ -91,13 +102,17 @@ namespace kevin.AI.AgentFramework
                             streameCallback.Invoke(update.Text);
                             resultText += update.Text;
                         }
-                    } 
+                    }
                 }
             }
             else
             {
-                reslut = await aiAgent.RunAsync(msg);  
+                reslut = await aiAgent.RunAsync(msg);
                 resultText = reslut.Text;
+            }
+            if (IsHttpLog)
+            {
+                HttpClientAutoInterceptor.StopInterception();
             }
             return (aiAgent, resultText);
         }
