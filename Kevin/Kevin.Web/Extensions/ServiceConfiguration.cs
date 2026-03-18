@@ -48,8 +48,10 @@ namespace Web.Extension
     {
         public static IServiceCollection ConfigServies(this IServiceCollection services, IConfiguration Configuration)
         {
-            ConsoleHelper.PrintFrameworkName("欢迎使用NetCoreKevin框架");
-            ConsoleHelper.PrintWithTypewriterEffect("正在初始化......");
+            Console.InputEncoding = System.Text.Encoding.UTF8;
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            ConsoleHelper.PrintFrameworkName("欢迎使用NetCoreKevin🤖 AI企业级Agent框架");
+            ConsoleHelper.PrintWithTypewriterEffect("🤖...初始化......");
             #region json配置
             //json动态响应压缩https://docs.microsoft.com/zh-cn/aspnet/core/performance/response-compression?view=aspnetcore-5.0
             services.AddResponseCompression();
