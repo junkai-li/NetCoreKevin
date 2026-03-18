@@ -7,7 +7,7 @@
 |  ![输入图片说明](Doc/aixg1.png) | ![输入图片说明](Doc/aixg2.png)  | ![输入图片说明](Doc/aixg3.png)  |
 |---|---|---|
 
-#  :tw-1f680: 知识库AI智能体技能效果图 
+#  :zap: AI智能体技能效果图 
 |  ![输入图片说明](Doc/aizhinnegti01.png) | ![输入图片说明](Doc/zhinnegti02.png) | ![输入图片说明](Doc/zhinnegti03.png) |
 |---|---|---|
 
