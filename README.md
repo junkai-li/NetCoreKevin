@@ -7,7 +7,9 @@
 |  ![输入图片说明](Doc/aixg1.png) | ![输入图片说明](Doc/aixg2.png)  | ![输入图片说明](Doc/aixg3.png)  |
 |---|---|---|
 
-
+# 🌐知识库AI智能体技能效果图 
+|  ![输入图片说明](Doc/aizhinnegti01.png) | ![输入图片说明](Doc/zhinnegti02.png) | ![输入图片说明](Doc/zhinnegti03.png) |
+|---|---|---|
 
 # 🌐后台管理系统效果图（基于VUE3-AntDesign） 
 
@@ -208,7 +210,7 @@ NetCoreKevin 是一个非常完整的微服务架构项目，结合了 DDD、CAP
     
 # 🌐交流群
 
- |  ![输入图片说明](Doc/wx.jpeg) |     ![输入图片说明](Doc/wx_jiaoliuqun.JPG)  |
+ |  ![输入图片说明](Doc/wx.jpeg) |     ![输入图片说明](Doc/wx_jiaoliuqun.JPG)  | 
 |---|---|
 
 # DDD思想    
