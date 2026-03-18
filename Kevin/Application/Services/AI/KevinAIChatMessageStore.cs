@@ -35,8 +35,9 @@ namespace kevin.Application.Services.AI
                 Key = t.Key ?? "",
                 SerializedMessage = t.SerializedMessage ?? "",
                 MessageText = t.MessageText,
-                MessageId = t.MessageId
-            }).ToList();
+                MessageId = t.MessageId ?? SnowflakeIdService.GetNextId().ToString()
+            }).ToList(); 
+
             aIChatMessageStoreRp.AddRange(adddata);
             await aIChatMessageStoreRp.SaveChangesAsync();
         }
@@ -52,7 +53,7 @@ namespace kevin.Application.Services.AI
                 MessageText = t.MessageText,
                 Role = t.Role,
                 MessageId = t.MessageId
-            }).ToListAsync();
+            }).ToListAsync(); 
         }
     }
 }

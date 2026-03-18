@@ -29,11 +29,12 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
             var data = _chatMessageStore.GetMessagesAsync(this.ThreadDbKey, cancellationToken).Result;
             var messages = data.ConvertAll(x => JsonSerializer.Deserialize<ChatMessage>(x.SerializedMessage!)!);
             messages.Reverse();
+            messages = messages.OrderBy(t => t.CreatedAt).ToList();
             //新对话
-            if (messages.Count == 0)
-            {
-                messages.Add(new ChatMessage(ChatRole.User, "请介绍一下你自己")); // 可以根据需要自定义系统消息
-            }
+            //if (messages.Count == 0)
+            //{
+            //    messages.Add(new ChatMessage(ChatRole.User, "请简单介绍一下你自己")); // 可以根据需要自定义系统消息
+            //}
             return new(messages);
         }
         protected override async ValueTask StoreChatHistoryAsync(InvokedContext context, CancellationToken cancellationToken = default)

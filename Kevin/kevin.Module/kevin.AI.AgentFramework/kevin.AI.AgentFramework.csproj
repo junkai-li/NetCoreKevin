@@ -25,32 +25,32 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="SKILLS\multi-search-engine-2.0.1\CHANGELOG.md">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="Skills\expense-report-skills\expense-report\assets\expense-report-template.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="SKILLS\multi-search-engine-2.0.1\CHANNELLOG.md">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="Skills\expense-report-skills\expense-report\references\POLICY_FAQ.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="SKILLS\multi-search-engine-2.0.1\config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="Skills\expense-report-skills\expense-report\SKILL.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="SKILLS\multi-search-engine-2.0.1\metadata.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="Skills\system-ops-skills\system-ops\assets\template.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="SKILLS\multi-search-engine-2.0.1\references\international-search.md">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="Skills\system-ops-skills\system-ops\references\troubleshooting-guide.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="SKILLS\multi-search-engine-2.0.1\SKILL.md">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="Skills\system-ops-skills\system-ops\scripts\check-disk-usage.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="SKILLS\multi-search-engine-2.0.1\_meta.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="Skills\system-ops-skills\system-ops\scripts\check-system-info.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="SKILLS\weather-1.0.0\SKILL.md">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="Skills\system-ops-skills\system-ops\scripts\check-top-processes.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="SKILLS\weather-1.0.0\_meta.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="Skills\system-ops-skills\system-ops\SKILL.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
