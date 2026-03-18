@@ -60,9 +60,7 @@ namespace kevin.AI.AgentFramework
             if (IsHttpLog)
             {
                 HttpClientAutoInterceptor.StartInterception();
-            }
-            Console.InputEncoding = System.Text.Encoding.UTF8;
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            } 
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
             openAIClientOptions.Endpoint = new Uri(url);
             var ai = new OpenAIClient(new ApiKeyCredential(keySecret), openAIClientOptions);
