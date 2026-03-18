@@ -3,11 +3,11 @@
 |---|---|---|
 | ![输入图片说明](Doc/bd2a60ce-2f32-46df-8bd6-9ffa5da515b4.png)  |  ![输入图片说明](Doc/3482bece-3f43-4ace-9337-283eb8a42903.png)|  ![输入图片说明](Doc/39c1ee78-3814-4e27-a158-2934317a2666.png) |
 
-# 🌐知识库AI智能体效果图 
+#  :barber: 知识库AI智能体效果图 
 |  ![输入图片说明](Doc/aixg1.png) | ![输入图片说明](Doc/aixg2.png)  | ![输入图片说明](Doc/aixg3.png)  |
 |---|---|---|
 
-# 🌐知识库AI智能体技能效果图 
+#  :tw-1f680: 知识库AI智能体技能效果图 
 |  ![输入图片说明](Doc/aizhinnegti01.png) | ![输入图片说明](Doc/zhinnegti02.png) | ![输入图片说明](Doc/zhinnegti03.png) |
 |---|---|---|
 
