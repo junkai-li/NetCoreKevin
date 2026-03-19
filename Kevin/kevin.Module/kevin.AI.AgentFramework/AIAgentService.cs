@@ -80,7 +80,8 @@ namespace kevin.AI.AgentFramework
                 var skillsProvider = new FileAgentSkillsProvider(
                      skillPaths: [Path.Combine(AppContext.BaseDirectory + "/Skills", "expense-report-skills"),
                         Path.Combine(AppContext.BaseDirectory + "/Skills", "system-ops-skills"),
-                        Path.Combine(AppContext.BaseDirectory + "/Skills", "python-skills")], 
+                        Path.Combine(AppContext.BaseDirectory + "/Skills", "hello-python-skills") 
+                        ], 
                      options: new FileAgentSkillsProviderOptions
                     {
                         SkillsInstructionPrompt = """

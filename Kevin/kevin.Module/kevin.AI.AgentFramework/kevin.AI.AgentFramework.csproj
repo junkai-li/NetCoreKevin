@@ -35,11 +35,14 @@
     <None Update="Skills\expense-report-skills\expense-report\SKILL.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\system-ops-skills\assets\template.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Update="Skills\hello-python-skills\hello-python\scripts\hello-python.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\system-ops-skills\references\troubleshooting-guide.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Update="Skills\hello-python-skills\hello-python\SKILL.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\hello-python-skills\scripts\hello-python.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Skills\system-ops-skills\scripts\check-disk-usage.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -48,9 +51,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Skills\system-ops-skills\scripts\check-top-processes.ps1">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\system-ops-skills\SKILL.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
