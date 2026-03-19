@@ -18,7 +18,7 @@ namespace kevin.AI.AgentFramework.Tools
                 // 创建新的进程启动信息
                 ProcessStartInfo start = new ProcessStartInfo
                 {
-                    FileName = @"C:\Users\XRH-183\PyCharmMiscProject\.venv\Scripts\python.exe", // Python解释器的路径，例如 "python" 或 "python3"
+                    FileName = @"python", // Python解释器的路径，例如 "python" 或 "python3"
                     Arguments = scriptPath, // Python脚本的路径
                     UseShellExecute = false, // 不使用Shell启动进程
                     RedirectStandardOutput = true, // 重定向输出流
