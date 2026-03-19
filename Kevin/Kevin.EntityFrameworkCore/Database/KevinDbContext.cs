@@ -4,6 +4,7 @@ using kevin.Domain.EventBus;
 using Kevin.Common.App;
 using Kevin.Common.Helper;
 using Kevin.EntityFrameworkCore.Configuration;
+using Kevin.log4Net;
 using Kevin.SnowflakeId.Service;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -144,7 +145,7 @@ namespace Repository.Database
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message); 
+                    LogHelper.logger.Error(ex); 
                 }
 
             }

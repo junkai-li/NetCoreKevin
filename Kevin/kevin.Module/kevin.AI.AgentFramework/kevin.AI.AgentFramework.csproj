@@ -35,28 +35,22 @@
     <None Update="Skills\expense-report-skills\expense-report\SKILL.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\python-skills\hello-python\scripts\hello-python.py">
+    <None Update="Skills\system-ops-skills\assets\template.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\python-skills\hello-python\SKILL.md">
+    <None Update="Skills\system-ops-skills\references\troubleshooting-guide.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\system-ops-skills\system-ops\assets\template.md">
+    <None Update="Skills\system-ops-skills\scripts\check-disk-usage.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\system-ops-skills\system-ops\references\troubleshooting-guide.md">
+    <None Update="Skills\system-ops-skills\scripts\check-system-info.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\system-ops-skills\system-ops\scripts\check-disk-usage.ps1">
+    <None Update="Skills\system-ops-skills\scripts\check-top-processes.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\system-ops-skills\system-ops\scripts\check-system-info.ps1">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\system-ops-skills\system-ops\scripts\check-top-processes.ps1">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\system-ops-skills\system-ops\SKILL.md">
+    <None Update="Skills\system-ops-skills\SKILL.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
