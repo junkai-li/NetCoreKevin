@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Runtime.CompilerServices;
 using kevin.Application;
 using Kevin.log4Net;
+using kevin.AI.AgentFramework.Tools;
 namespace WebApi
 {
     public class Program
@@ -28,7 +29,7 @@ namespace WebApi
         {
             try
             {
-
+                PythonTools.RunPythonPy(@"D:\lizishu\kevin.abp.core\kevin.abp.core\Kevin\kevin.Module\kevin.AI.AgentFramework\Skills\python-skills\hello-python\scripts\hello-python.py");
                 Common.EnvironmentHelper.InitTestServer();
                 var builder = WebApplication.CreateBuilder(args); 
                 builder.Logging.UseKevinLog4Net();//日志

@@ -98,7 +98,7 @@ namespace Repository.Database
                     {
                         ConnectionString = Configuration.GetConnectionString("dbConnection");
                         DBDefaultHasIndexFields = Configuration.GetSection("DBDefaultHasIndexFields")?.Get<string>()?.Split(",")?.ToList();
-                    } 
+                    }
                 }
                 //optionsBuilder.UseSqlServer(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory"));
                 //optionsBuilder.UseMySQL(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory"));
@@ -128,14 +128,30 @@ namespace Repository.Database
 
         public static List<Type> GetTables()
         {
+
             Assembly ser = Assembly.GetExecutingAssembly();
             var data = ser.GetTypes().Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && a.GetCustomAttributes<TableAttribute>().Any()).ToList();
             Assembly[] Assemblys = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var item in Assemblys)
             {
-                data.AddRange(item.GetTypes().Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && a.GetCustomAttributes<TableAttribute>().Any()).ToList());
+                try
+                {
+                    var tables = item.GetTypes().Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && a.GetCustomAttributes<TableAttribute>().Any()).ToList();
+                    if (tables.Count > 0)
+                    {
+                        data.AddRange(tables);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message); 
+                }
+
             }
             return data;
+
+
+
         }
 
 
