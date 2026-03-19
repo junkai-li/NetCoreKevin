@@ -29,8 +29,7 @@ namespace WebApi
         {
             try
             {
-                PythonTools.RunPythonPy(@"D:\lizishu\kevin.abp.core\kevin.abp.core\Kevin\kevin.Module\kevin.AI.AgentFramework\Skills\python-skills\hello-python\scripts\hello-python.py");
-                Common.EnvironmentHelper.InitTestServer();
+                 Common.EnvironmentHelper.InitTestServer();
                 var builder = WebApplication.CreateBuilder(args); 
                 builder.Logging.UseKevinLog4Net();//日志
                 #region Kestrel Https并绑定证书
