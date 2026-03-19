@@ -8,7 +8,7 @@
 |---|---|---|
 
 #  :zap: AI智能体技能效果图 
-|  ![输入图片说明](Doc/aizhinnegti01.png) | ![输入图片说明](Doc/zhinnegti02.png) | ![输入图片说明](Doc/zhinnegti03.png) |
+|  ![输入图片说明](Doc/aizhinnegti01.png) | ![输入图片说明](Doc/aijineng04.png) | ![输入图片说明](Doc/zhinnegti03.png) |
 |---|---|---|
 
 # 🌐后台管理系统效果图（基于VUE3-AntDesign） 
