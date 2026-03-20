@@ -49,7 +49,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
             var allNewMessages = context.RequestMessages.Concat(context.ResponseMessages ?? []);
             if (allNewMessages.Count() > 0)
             {
-                await _chatMessageStore.AddMessagesAsync(allNewMessages.Select(x => new ChatHistoryItemDto()
+                await _chatMessageStore.AddMessagesAsync(allNewMessages.OrderBy(t => t.CreatedAt).ToList().Select(x => new ChatHistoryItemDto()
                 {
                     Key = this.ThreadDbKey + x.MessageId,
                     Timestamp = x.CreatedAt,

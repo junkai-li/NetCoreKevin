@@ -100,19 +100,7 @@ namespace kevin.AI.AgentFramework
                                                 #相关技能文档如果需要执行命令可以通过RunShell来执行不需要用户二次确认
 
                                                 它们如下:
-                                                {0} 
-                                                `system-ops`  
-                                                1.系统运维诊断技能。适用于系统健康检查、磁盘空间分析、进程资源监控、故障排查等系统运维场景。包含可执行的诊断脚本。
-
-                                                `hello-python` 
-                                                1.用于测试python环境运行的技能，包含一个简单的python脚本 脚本文件名：hello-python.py, 可以随意传入参数, 输出“你所有的参数和Hello,Python”返回结果为"你所有的参数和Hello,Python"。
-                                                
-                                                `agent-browser` 
-                                                 1.面向人工智能代理的浏览器自动化命令行界面。当用户需要与网站进行交互时使用，包括浏览页面、填写表单、点击按钮、截图、提取数据、测试网页应用，或自动化任何浏览器任务。触发器包括请求“打开网站”、“填写表单”、“点击按钮”、“截图”、“从页面抓取数据”、“测试此网页应用”、“登录网站”、“自动化浏览器操作”，或任何需要程序化网页交互的任务。
-                                                 
-                                                 `dogfood` 
-                                                 1.Systematically explore and test a web application to find bugs, UX issues, and other problems. Use when asked to "dogfood", "QA", "exploratory test", "find issues", "bug hunt", "test this app/site/platform", or review the quality of a web application. Produces a structured report with full reproduction evidence -- step-by-step screenshots, repro videos, and detailed repro steps for every issue -- so findings can be handed directly to the responsible teams.
-                                                
+                                                {0}  
 
                         
                         """
