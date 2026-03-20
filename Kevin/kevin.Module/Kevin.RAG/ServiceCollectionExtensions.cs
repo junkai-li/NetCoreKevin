@@ -1,4 +1,5 @@
-﻿using Kevin.RAG.Ollama;
+﻿using Kevin.RAG.Interfaces;
+using Kevin.RAG.Ollama;
 using Kevin.RAG.Ollama.Models;
 using Kevin.RAG.Qdrant;
 using Kevin.RAG.Qdrant.Models;
@@ -19,7 +20,7 @@ namespace Kevin.RAG
             services.Configure(actionOllamaApi);
             services.Configure(actionQdrantClient);
             services.AddTransient<IOllamaApiService, OllamaApiService>();
-            services.AddTransient<IQdrantClientService, QdrantClientService>();
+            services.AddTransient<IRAGStorageService, QdrantClientService>();
             services.AddTransient<IRAGService, RAGService>();
         }
     }

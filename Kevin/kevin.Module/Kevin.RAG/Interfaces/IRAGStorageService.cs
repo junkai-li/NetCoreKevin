@@ -1,16 +1,10 @@
 ﻿using Kevin.RAG.Dto;
 using Microsoft.Extensions.AI;
-using Microsoft.Extensions.VectorData;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Kevin.RAG.Qdrant
+namespace Kevin.RAG.Interfaces
 {
-    public interface IQdrantClientService: IDisposable
-    { 
+    public interface IRAGStorageService : IDisposable
+    {
 
         /// <summary>
         /// 新增数据

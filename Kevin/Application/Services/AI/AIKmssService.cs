@@ -1,13 +1,12 @@
 ﻿using kevin.Domain.Entities.AI;
-using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using kevin.FileStorage;
 using Kevin.RAG;
 using Kevin.RAG.Dto;
+using Kevin.RAG.Interfaces;
 using Kevin.RAG.Ollama;
-using Kevin.RAG.Qdrant;
 using Kevin.RAG.Tools;
 using NetCore.Util;
 
@@ -27,14 +26,14 @@ namespace kevin.Application.Services.AI
 
         public IFileStorage FileStorage { get; set; }
 
-        private IQdrantClientService QdrantClientService { get; set; }
+        private IRAGStorageService QdrantClientService { get; set; }
 
         private IFileService FileService { get; set; }
 
         private IOllamaApiService OllamaApiService { get; set; }
 
 
-        public AIKmssService(IHttpContextAccessor _httpContextAccessor, IAIKmssRp _AIKmssRp, IAIKmsDetailsRp _AIKmsDetailsRp, IFileRp _FileRp, IFileStorage _FileStorage, IQdrantClientService _qdrantClientService, IFileService fileService, IOllamaApiService ollamaApiService, IAIModelsRp aIModelsRp) : base(_httpContextAccessor)
+        public AIKmssService(IHttpContextAccessor _httpContextAccessor, IAIKmssRp _AIKmssRp, IAIKmsDetailsRp _AIKmsDetailsRp, IFileRp _FileRp, IFileStorage _FileStorage, IRAGStorageService _qdrantClientService, IFileService fileService, IOllamaApiService ollamaApiService, IAIModelsRp aIModelsRp) : base(_httpContextAccessor)
         {
             this.AIKmssRp = _AIKmssRp;
             this.AIKmsDetailsRp = _AIKmsDetailsRp;

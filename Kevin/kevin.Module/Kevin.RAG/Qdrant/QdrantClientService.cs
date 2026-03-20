@@ -1,16 +1,15 @@
 ﻿using Kevin.RAG.Dto;
-using Kevin.RAG.Ollama;
+using Kevin.RAG.Interfaces;
 using Kevin.RAG.Qdrant.Models;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using OllamaSharp;
 using Qdrant.Client;
 using Qdrant.Client.Grpc;
 
 namespace Kevin.RAG.Qdrant
 {
-    public class QdrantClientService : IQdrantClientService
+    public class QdrantClientService : IRAGStorageService
     {
         private readonly string? Url;
         private readonly string? ApiKey;

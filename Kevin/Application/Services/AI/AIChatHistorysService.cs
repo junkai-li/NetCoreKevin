@@ -3,25 +3,14 @@ using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Entities.AI;
-using kevin.Domain.Interfaces.IRepositories;
-using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
-using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
-using kevin.Share.Dtos;
-using Kevin.RAG;
+using Kevin.RAG.Interfaces;
 using Kevin.RAG.Ollama;
 using Kevin.SignalR.Service;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
-using Microsoft.SemanticKernel.Connectors.InMemory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Web.Global.Exceptions;
 
 namespace kevin.Application.Services.AI
 {

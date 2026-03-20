@@ -1,25 +1,19 @@
 ﻿using Kevin.RAG.Dto;
-using Kevin.RAG.Ollama;
-using Kevin.RAG.Qdrant;
+using Kevin.RAG.Interfaces;
 using Microsoft.Extensions.AI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Kevin.RAG
 {
     public class RAGService : IRAGService
     {
-        private IQdrantClientService QdrantClientService { get; set; }
-        public RAGService(IQdrantClientService qdrantClientService)
+        private IRAGStorageService RAGStorageService { get; set; }
+        public RAGService(IRAGStorageService rAGStorageService)
         {
-            QdrantClientService = qdrantClientService;
+            RAGStorageService = rAGStorageService;
         }
         public async Task<(bool, string, List<DocumentChunkDto>)> GetSystemPrompt(string collectionName, Embedding<float> question, int topK = 3, double? Score = null)
         { 
-            var documents = await QdrantClientService.Search(collectionName, question, (ulong)topK, Score); 
+            var documents = await RAGStorageService.Search(collectionName, question, (ulong)topK, Score); 
             if (documents.Count == 0)
             { 
                 return (false,  "\n" + "文档信息列表：无相关信息", new List<DocumentChunkDto>());
