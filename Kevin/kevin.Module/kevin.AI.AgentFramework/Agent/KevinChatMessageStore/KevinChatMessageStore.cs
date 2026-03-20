@@ -30,6 +30,13 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
             var messages = data.ConvertAll(x => JsonSerializer.Deserialize<ChatMessage>(x.SerializedMessage!)!);
             messages.Reverse();
             messages = messages.OrderBy(t => t.CreatedAt).ToList();
+            if (context.RequestMessages.Count() == 1)
+            {
+                foreach (var item in context.RequestMessages)
+                {
+                    item.CreatedAt= DateTimeOffset.UtcNow;
+                } 
+            }
             //新对话
             //if (messages.Count == 0)
             //{
@@ -45,7 +52,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
                 await _chatMessageStore.AddMessagesAsync(allNewMessages.Select(x => new ChatHistoryItemDto()
                 {
                     Key = this.ThreadDbKey + x.MessageId,
-                    Timestamp = DateTimeOffset.UtcNow,
+                    Timestamp = x.CreatedAt,
                     ThreadId = this.ThreadDbKey,
                     MessageId = x.MessageId,
                     Role = x.Role.Value,
