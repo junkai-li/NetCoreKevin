@@ -22,7 +22,7 @@ namespace kevin.Ioc
         /// <typeparam name="T"></typeparam>
         /// <param name="services"></param>
         /// <param name="action"></param>
-        public void BatchAddScopeds<T>(IServiceCollection services, Action<Type> action,bool isAllAssemblys = true)
+        public void BatchAddScopeds<T>(IServiceCollection services, Action<Type> action, bool isAllAssemblys = true)
         {
             Type typeOf_IService = typeof(T);
             var sers = GetTypes(typeOf_IService);
@@ -48,7 +48,7 @@ namespace kevin.Ioc
                     try
                     {
                         var serviceTypes = item?.GetTypes()?.Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && typeOf_IService.IsAssignableFrom(a));
-                        if (serviceTypes!=default)
+                        if (serviceTypes != default)
                         {
                             foreach (var serviceType in serviceTypes)
                             {
@@ -65,17 +65,16 @@ namespace kevin.Ioc
                                 }
                             }
                         }
-                      
+
                     }
                     catch (Exception ex)
                     {
-
-                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(item.FullName + ex.Message);
                     }
 
                 }
             }
- 
+
         }
         /// <summary>
         /// 批量根据传入T进行AddTransient的生命周期注册
@@ -110,7 +109,7 @@ namespace kevin.Ioc
                     try
                     {
                         var serviceTypes = item?.GetTypes()?.Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && typeOf_IService.IsAssignableFrom(a));
-                        if (serviceTypes!=default)
+                        if (serviceTypes != default)
                         {
                             foreach (var serviceType in serviceTypes)
                             {
@@ -127,17 +126,16 @@ namespace kevin.Ioc
                                 }
                             }
                         }
-                    
+
                     }
                     catch (Exception ex)
                     {
-
-                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(item.FullName + ex.Message);
                     }
 
                 }
             }
-          
+
         }
         /// <summary>
         /// 批量根据传入T进行AddSingleton的生命周期注册
@@ -172,7 +170,7 @@ namespace kevin.Ioc
                     try
                     {
                         var serviceTypes = item?.GetTypes()?.Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && typeOf_IService.IsAssignableFrom(a));
-                        if (serviceTypes!=default)
+                        if (serviceTypes != default)
                         {
                             foreach (var serviceType in serviceTypes)
                             {
@@ -189,12 +187,11 @@ namespace kevin.Ioc
                                 }
                             }
                         }
-                      
+
                     }
                     catch (Exception ex)
                     {
-
-                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(item.FullName + ex.Message);
                     }
 
                 }
