@@ -42,7 +42,74 @@
   z-index: 0;
 }
 
-/* 粒子效果 */
+/* 科技感网格线 - 3D透视网格 */
+.grid-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(0, 150, 255, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 150, 255, 0.15) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: grid-perspective 8s linear infinite;
+  transform-style: preserve-3d;
+  perspective: 500px;
+}
+
+.grid-lines::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(ellipse at center bottom, rgba(0, 150, 255, 0.2) 0%, transparent 70%);
+}
+
+@keyframes grid-perspective {
+  0% {
+    transform: perspective(500px) rotateX(60deg) translateY(0);
+    background-position: 0 0;
+  }
+  100% {
+    transform: perspective(500px) rotateX(60deg) translateY(40px);
+    background-position: 0 40px;
+  }
+}
+
+/* 科技扫描线 */
+.scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, rgba(0, 200, 255, 0.8), transparent);
+  animation: scan 4s linear infinite;
+  box-shadow: 0 0 20px rgba(0, 200, 255, 0.5), 0 0 40px rgba(0, 200, 255, 0.3);
+  z-index: 5;
+}
+
+@keyframes scan {
+  0% {
+    top: -4px;
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+/* 科技感粒子效果 - 更好的发光和运动 */
 .particles {
   position: absolute;
   top: 0;
@@ -53,49 +120,223 @@
 
 .particle {
   position: absolute;
-  width: 4px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.6);
+  width: 3px;
+  height: 3px;
+  background: rgba(0, 200, 255, 0.9);
   border-radius: 50%;
-  animation: float 6s infinite ease-in-out;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  animation: tech-float 8s infinite ease-in-out;
+  box-shadow: 0 0 8px rgba(0, 200, 255, 0.8), 0 0 15px rgba(0, 200, 255, 0.4);
 }
 
-@keyframes float {
-  0%,
-  100% {
-    transform: translate(0, 0);
+.particle:nth-child(odd) {
+  background: rgba(100, 200, 255, 0.9);
+  box-shadow: 0 0 8px rgba(100, 200, 255, 0.8), 0 0 15px rgba(100, 200, 255, 0.4);
+}
+
+.particle:nth-child(3n) {
+  background: rgba(0, 255, 200, 0.9);
+  box-shadow: 0 0 8px rgba(0, 255, 200, 0.8), 0 0 15px rgba(0, 255, 200, 0.4);
+}
+
+@keyframes tech-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
     opacity: 0.6;
   }
+  25% {
+    transform: translate(30px, -20px) scale(1.2);
+    opacity: 1;
+  }
   50% {
-    transform: translate(20px, 20px);
+    transform: translate(-20px, -40px) scale(0.8);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translate(10px, -10px) scale(1.1);
     opacity: 1;
   }
 }
 
-/* 网格线 */
-.grid-lines {
+/* 科技光圈效果 */
+.tech-orbit {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 150, 255, 0.4);
+  animation: orbit 12s linear infinite;
+}
+
+.tech-orbit::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: rgba(0, 200, 255, 1);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 200, 255, 1), 0 0 20px rgba(0, 200, 255, 0.6);
+}
+
+.tech-orbit-1 {
+  width: 150px;
+  height: 150px;
+  top: 15%;
+  left: 10%;
+  animation-duration: 20s;
+}
+
+.tech-orbit-2 {
+  width: 200px;
+  height: 200px;
+  bottom: 20%;
+  right: 8%;
+  animation-duration: 25s;
+  animation-direction: reverse;
+}
+
+.tech-orbit-3 {
+  width: 100px;
+  height: 100px;
+  top: 50%;
+  right: 15%;
+  animation-duration: 15s;
+}
+
+@keyframes orbit {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 电路线条效果 */
+.circuit-lines {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: linear-gradient(rgba(102, 126, 234, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(102, 126, 234, 0.1) 1px, transparent 1px);
-  background-size: 30px 30px;
-  animation: grid-move 20s linear infinite;
+  opacity: 0.15;
+  pointer-events: none;
 }
 
-@keyframes grid-move {
+.circuit-line {
+  position: absolute;
+  background: linear-gradient(90deg, transparent, rgba(0, 200, 255, 0.8), transparent);
+  height: 1px;
+  animation: circuit-flow 3s linear infinite;
+}
+
+.circuit-line:nth-child(1) {
+  top: 20%;
+  left: 0;
+  width: 30%;
+  animation-delay: 0s;
+}
+
+.circuit-line:nth-child(2) {
+  top: 45%;
+  right: 0;
+  width: 25%;
+  animation-delay: 1s;
+}
+
+.circuit-line:nth-child(3) {
+  top: 70%;
+  left: 10%;
+  width: 35%;
+  animation-delay: 2s;
+}
+
+@keyframes circuit-flow {
   0% {
-    transform: translate(0, 0);
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  50% {
+    opacity: 1;
   }
   100% {
-    transform: translate(30px, 30px);
+    opacity: 0;
+    transform: scaleX(1);
+    transform-origin: right;
   }
 }
 
-/* 悬浮元素 */
+/* 发光节点 */
+.glow-node {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: rgba(0, 200, 255, 1);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 200, 255, 1), 0 0 20px rgba(0, 200, 255, 0.6), 0 0 30px rgba(0, 200, 255, 0.3);
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.glow-node:nth-child(1) { top: 15%; left: 20%; animation-delay: 0s; }
+.glow-node:nth-child(2) { top: 35%; right: 25%; animation-delay: 0.5s; }
+.glow-node:nth-child(3) { bottom: 25%; left: 30%; animation-delay: 1s; }
+.glow-node:nth-child(4) { top: 60%; right: 15%; animation-delay: 1.5s; }
+
+@keyframes glow-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 1;
+  }
+}
+
+/* 数据流动效果 */
+.data-flow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  opacity: 0.2;
+}
+
+.data-stream {
+  position: absolute;
+  width: 2px;
+  height: 50px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 200, 255, 0.8), transparent);
+  animation: stream-fall 4s linear infinite;
+}
+
+.data-stream:nth-child(1) { left: 10%; animation-duration: 3s; animation-delay: 0s; }
+.data-stream:nth-child(2) { left: 25%; animation-duration: 4s; animation-delay: 1s; }
+.data-stream:nth-child(3) { left: 40%; animation-duration: 3.5s; animation-delay: 0.5s; }
+.data-stream:nth-child(4) { left: 55%; animation-duration: 4.5s; animation-delay: 2s; }
+.data-stream:nth-child(5) { left: 70%; animation-duration: 3s; animation-delay: 1.5s; }
+.data-stream:nth-child(6) { left: 85%; animation-duration: 4s; animation-delay: 0.8s; }
+
+@keyframes stream-fall {
+  0% {
+    top: -50px;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+/* 悬浮元素 - 科技六边形 */
 .floating-elements {
   position: absolute;
   top: 0;
@@ -104,62 +345,70 @@
   height: 100%;
 }
 
-.element {
+.hexagon {
   position: absolute;
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 50%;
-  animation: float-element 15s infinite linear;
+  width: 60px;
+  height: 34.6px;
+  background: rgba(0, 150, 255, 0.1);
+  border: 1px solid rgba(0, 150, 255, 0.4);
+  animation: hex-float 18s infinite ease-in-out;
 }
 
-.element-1 {
-  width: 80px;
-  height: 80px;
-  top: 10%;
-  left: 5%;
+.hexagon::before,
+.hexagon::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  left: 0;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+}
+
+.hexagon::before {
+  bottom: 100%;
+  border-bottom: 17.3px solid rgba(0, 150, 255, 0.4);
+}
+
+.hexagon::after {
+  top: 100%;
+  border-top: 17.3px solid rgba(0, 150, 255, 0.4);
+}
+
+.hexagon-1 {
+  top: 15%;
+  left: 8%;
+  animation-duration: 22s;
+}
+
+.hexagon-2 {
+  bottom: 20%;
+  right: 12%;
+  animation-duration: 26s;
+  animation-direction: reverse;
+}
+
+.hexagon-3 {
+  top: 55%;
+  right: 20%;
   animation-duration: 20s;
 }
 
-.element-2 {
-  width: 120px;
-  height: 120px;
-  bottom: 15%;
-  right: 10%;
-  animation-duration: 25s;
-  animation-direction: reverse;
-}
-
-.element-3 {
-  width: 60px;
-  height: 60px;
-  top: 40%;
-  right: 20%;
-  animation-duration: 18s;
-}
-
-.element-4 {
-  width: 100px;
-  height: 100px;
-  bottom: 20%;
-  left: 15%;
-  animation-duration: 22s;
-  animation-direction: reverse;
-}
-
-@keyframes float-element {
-  0% {
-    transform: translate(0, 0) rotate(0deg);
+@keyframes hex-float {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 0.6;
   }
   25% {
-    transform: translate(20px, 30px) rotate(90deg);
+    transform: translate(25px, -30px) rotate(120deg) scale(1.1);
+    opacity: 1;
   }
   50% {
-    transform: translate(0, 60px) rotate(180deg);
+    transform: translate(-15px, -50px) rotate(240deg) scale(0.9);
+    opacity: 0.8;
   }
   75% {
-    transform: translate(-20px, 30px) rotate(270deg);
-  }
-  100% {
-    transform: translate(0, 0) rotate(360deg);
+    transform: translate(20px, -20px) rotate(300deg) scale(1.05);
+    opacity: 1;
   }
 }
 

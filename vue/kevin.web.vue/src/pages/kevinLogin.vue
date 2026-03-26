@@ -2,13 +2,33 @@
   <div class="login-container">
     <!-- 动态背景 -->
     <div class="background">
-      <div class="particles"></div>
       <div class="grid-lines"></div>
+      <div class="scan-line"></div>
+      <div class="particles"></div>
+      <div class="tech-orbit tech-orbit-1"></div>
+      <div class="tech-orbit tech-orbit-2"></div>
+      <div class="tech-orbit tech-orbit-3"></div>
+      <div class="circuit-lines">
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+      </div>
+      <div class="glow-node"></div>
+      <div class="glow-node"></div>
+      <div class="glow-node"></div>
+      <div class="glow-node"></div>
+      <div class="data-flow">
+        <div class="data-stream"></div>
+        <div class="data-stream"></div>
+        <div class="data-stream"></div>
+        <div class="data-stream"></div>
+        <div class="data-stream"></div>
+        <div class="data-stream"></div>
+      </div>
       <div class="floating-elements">
-        <div class="element element-1"></div>
-        <div class="element element-2"></div>
-        <div class="element element-3"></div>
-        <div class="element element-4"></div>
+        <div class="hexagon hexagon-1"></div>
+        <div class="hexagon hexagon-2"></div>
+        <div class="hexagon hexagon-3"></div>
       </div>
     </div>
     <!--  -->
@@ -359,13 +379,21 @@ const initParticles = () => {
   const particlesContainer = document.querySelector(".particles");
   if (!particlesContainer) return;
 
-  // 创建粒子
-  for (let i = 0; i < 50; i++) {
+  const colors = [
+    'rgba(0, 200, 255, 0.9)',
+    'rgba(100, 200, 255, 0.9)',
+    'rgba(0, 255, 200, 0.9)'
+  ];
+
+  for (let i = 0; i < 40; i++) {
     const particle = document.createElement("div");
     particle.className = "particle";
     particle.style.left = `${Math.random() * 100}%`;
     particle.style.top = `${Math.random() * 100}%`;
-    particle.style.animationDelay = `${Math.random() * 5}s`;
+    particle.style.animationDelay = `${Math.random() * 8}s`;
+    particle.style.animationDuration = `${6 + Math.random() * 4}s`;
+    const colorIndex = i % 3;
+    particle.style.background = colors[colorIndex];
     particlesContainer.appendChild(particle);
   }
 };
