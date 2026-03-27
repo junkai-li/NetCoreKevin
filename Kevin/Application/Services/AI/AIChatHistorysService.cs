@@ -163,6 +163,7 @@ namespace kevin.Application.Services.AI
                             MaxOutputTokens = aiapp.MaxAskPromptSize,
                             Temperature = (float)(aiapp.Temperature / 100),
                             ResponseFormat = ChatResponseFormat.Text,
+                            Instructions = (aIPrompts.Prompt + aIPrompts.Description + systemPrompt) ?? "你是一个智能体,请根据你的提示词进行相关回答",
                         },
                         ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString())
                     }, isStreame: aiapp.MsgType == 2, streameCallback: async (msg) =>

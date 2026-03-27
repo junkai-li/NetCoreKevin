@@ -112,6 +112,7 @@ namespace kevin.AI.AgentFramework.Tools
                 {
                     Temperature = (float)(30 / 100),
                     ResponseFormat = ChatResponseFormat.Text,
+                    Instructions= SystemTemplate
                 },
             })).Item2;
 
