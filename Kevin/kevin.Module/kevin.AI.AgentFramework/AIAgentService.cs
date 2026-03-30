@@ -86,30 +86,26 @@ namespace kevin.AI.AgentFramework
                      options: new FileAgentSkillsProviderOptions
                      {
                          SkillsInstructionPrompt = """
-                                                你可以使用以下技能获取领域知识和操作指引。
+                                               你可以使用以下技能获取领域知识和操作指引。
                                                 所有文件目录都在服务器的/Skills 文件夹下，技能文件夹命名为 技能名称-skills，技能文件夹内包含技能指令文件 instruction.txt、参考资料文件夹 resources 和可执行脚本文件夹 scripts。
                                                 脚本文件夹 scripts 如何包含python脚本，则使用RunPythonPy来执行或者RunPythonCode来执行，否则使用RunShell来执行。
                                                
                                                 重要流程：
-                                                每个技能提供专业指令、参考文档和可执行脚本
-                                                当用户任务匹配技能描述时，使用 `load_skill` 加载该技能的完整指令 
-                                                技能指令中会标明可用脚本及其执行命令
-                                                需要时使用 `read_skill_resource` 读取参考资料
+                                                每个技能提供专业指令、参考文档和可执行脚本 
+                                                技能指令中会标明可用脚本及其执行命令 
                                                 重要原则：先加载知识，再执行操作
-
+                        
                                                 #相关技能文档如果需要执行命令可以通过RunShell来执行不需要用户二次确认
-
+                        
                                                 它们如下:
                                                 {0}  
-
                         
                         """
                      });
 #pragma warning restore MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
                 chatClientAgentOptions.AIContextProviders = [skillsProvider];
                 Console.WriteLine("📂 Skills 已从文件系统加载");
-                Console.WriteLine("✅ FileAgentSkillsProvider 创建成功（知识层）");
-                Console.WriteLine("📂 自动注册工具: load_skill, read_skill_resource");
+                Console.WriteLine("✅ FileAgentSkillsProvider 创建成功（知识层）"); 
                 Console.WriteLine();
             }
 
