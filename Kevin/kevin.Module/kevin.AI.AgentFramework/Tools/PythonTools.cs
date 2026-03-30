@@ -70,7 +70,8 @@ namespace kevin.AI.AgentFramework.Tools
                 {
                     return "执行Py代码为空。";
                 }
-                Console.WriteLine($"🔧 正在执行Py代码 {code}");
+                Console.WriteLine();
+                Console.WriteLine($"🔧 正在执行Py代码");
                 var saveResult = SavePythonToFile(code, "Pys", "");
                 Console.WriteLine($"🔧 正在执行Py脚本: {saveResult}");
                 string output = "";
