@@ -80,7 +80,7 @@ namespace WebApi
                     context.Request.EnableBuffering();
                     await next.Invoke();
                 });
-
+                app.Urls.Add("http://*:9901"); // 监听所有网络接口的9901端口
                 if (app.Environment.IsDevelopment())
                 {
 

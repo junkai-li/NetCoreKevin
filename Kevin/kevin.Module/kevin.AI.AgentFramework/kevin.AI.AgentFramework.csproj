@@ -82,6 +82,9 @@
     <None Update="Skills\agent-browser-skills\vercel-sandbox\SKILL.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Skills\all-skills\chemical-additive-sourcing\SKILL.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Skills\expense-report-skills\expense-report\assets\expense-report-template.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

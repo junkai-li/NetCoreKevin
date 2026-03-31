@@ -27,15 +27,18 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
          InvokingContext context, CancellationToken cancellationToken = default)
         {
             var data = _chatMessageStore.GetMessagesAsync(this.ThreadDbKey, cancellationToken).Result;
-            var messages = data.ConvertAll(x => JsonSerializer.Deserialize<ChatMessage>(x.SerializedMessage!)!);
+            var messages = data.OrderByDescending(t=>t.Timestamp).ToList().ConvertAll(x => JsonSerializer.Deserialize<ChatMessage>(x.SerializedMessage!)!);
             messages.Reverse();
-            messages = messages.OrderBy(t => t.CreatedAt).ToList();
-            if (context.RequestMessages.Count() == 1)
+            messages = messages.ToList();
+            if (context.RequestMessages.Count() > 0)
             {
                 foreach (var item in context.RequestMessages)
                 {
-                    item.CreatedAt= DateTimeOffset.UtcNow;
-                } 
+                    if (item.CreatedAt == null)
+                    {
+                        item.CreatedAt = DateTimeOffset.UtcNow;
+                    }
+                }
             }
             //新对话
             //if (messages.Count == 0)
@@ -52,7 +55,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
                 await _chatMessageStore.AddMessagesAsync(allNewMessages.OrderBy(t => t.CreatedAt).ToList().Select(x => new ChatHistoryItemDto()
                 {
                     Key = this.ThreadDbKey + x.MessageId,
-                    Timestamp = x.CreatedAt,
+                    Timestamp = x.CreatedAt ?? DateTimeOffset.UtcNow,
                     ThreadId = this.ThreadDbKey,
                     MessageId = x.MessageId,
                     Role = x.Role.Value,
