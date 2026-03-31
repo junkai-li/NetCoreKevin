@@ -37,8 +37,8 @@
         <div class="logo">
           <img :src="logoImage" alt="Logo" class="logo-image" />
         </div>
-        <h1 class="title">NetCoreKevin后台管理系统</h1>
-        <p class="subtitle">欢迎登陆NetCoreKevin开源框架系统后台</p>
+        <h1 class="title">AI智能体后台管理系统</h1>
+        <p class="subtitle">欢迎登陆AI智能体开源框架系统后台</p>
       </div>
 
       <a-tabs v-model:activeKey="activeTab" class="login-tabs">

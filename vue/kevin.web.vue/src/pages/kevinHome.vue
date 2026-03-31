@@ -25,7 +25,7 @@
         <div class="logo-wrapper">
           <img :src="logoImage" alt="Logo" class="logo-image" />
         </div>
-        <span v-if="!collapsed" class="logo-text">NetCoreKevin后台管理系统</span>
+        <span v-if="!collapsed" class="logo-text">AI智能体后台管理系统</span>
       </div>
 
       <div class="menu-wrapper">
@@ -222,7 +222,7 @@
       <!-- 底部 -->
       <a-layout-footer class="footer">
         <div class="footer-content">
-          <span>© 2025 NetCoreKevin后台管理系统. All Rights Reserved.</span>
+          <span>© 2025 AI智能体后台管理系统. All Rights Reserved.</span>
         </div>
       </a-layout-footer>
     </a-layout>

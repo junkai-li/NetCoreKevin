@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-container">
     <div class="welcome-card">
-      <h1>欢迎来到NetCoreKevin后台管理系统主页</h1>
+      <h1>欢迎来到AI智能体后台管理系统主页</h1>
       <p>您已成功登录系统</p>
       <div class="welcome-stats">
         <div class="stat-item">
