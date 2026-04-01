@@ -1,6 +1,6 @@
 ---
 name: expense-report
-description: 按照NetCoreKevin科技公司政策填写和审核员工费用报销。适用于费用报销、报销规则、收据要求、支出限额或费用类别等相关问题。
+description: 按照科技公司政策填写和审核员工费用报销。适用于费用报销、报销规则、收据要求、支出限额或费用类别等相关问题。
 ---
 
 # 费用报销（Expense Report）

@@ -25,91 +25,70 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Skills\agent-browser-skills\agent-browser\references\authentication.md">
+    <None Update="Skills\all-skills\agent-browser\references\authentication.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\agent-browser\references\commands.md">
+    <None Update="Skills\all-skills\agent-browser\references\commands.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\agent-browser\references\profiling.md">
+    <None Update="Skills\all-skills\agent-browser\references\profiling.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\agent-browser\references\proxy-support.md">
+    <None Update="Skills\all-skills\agent-browser\references\proxy-support.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\agent-browser\references\session-management.md">
+    <None Update="Skills\all-skills\agent-browser\references\session-management.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\agent-browser\references\snapshot-refs.md">
+    <None Update="Skills\all-skills\agent-browser\references\snapshot-refs.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\agent-browser\references\video-recording.md">
+    <None Update="Skills\all-skills\agent-browser\references\video-recording.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\agent-browser\SKILL.md">
+    <None Update="Skills\all-skills\agent-browser\SKILL.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\agent-browser\templates\authenticated-session.sh">
+    <None Update="Skills\all-skills\agent-browser\templates\authenticated-session.sh">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\agent-browser\templates\capture-workflow.sh">
+    <None Update="Skills\all-skills\agent-browser\templates\capture-workflow.sh">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\agent-browser\templates\form-automation.sh">
+    <None Update="Skills\all-skills\agent-browser\templates\form-automation.sh">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\dogfood\references\issue-taxonomy.md">
+    <None Update="Skills\all-skills\dogfood\references\issue-taxonomy.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\dogfood\SKILL.md">
+    <None Update="Skills\all-skills\dogfood\SKILL.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\dogfood\templates\dogfood-report-template.md">
+    <None Update="Skills\all-skills\dogfood\templates\dogfood-report-template.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\electron\SKILL.md">
+    <None Update="Skills\all-skills\electron\SKILL.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\slack\references\slack-tasks.md">
+    <None Update="Skills\all-skills\slack\references\slack-tasks.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\slack\SKILL.md">
+    <None Update="Skills\all-skills\slack\SKILL.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\slack\templates\slack-report-template.md">
+    <None Update="Skills\all-skills\slack\templates\slack-report-template.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\agent-browser-skills\vercel-sandbox\SKILL.md">
+    <None Update="Skills\all-skills\vercel-sandbox\SKILL.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\all-skills\chemical-additive-sourcing\SKILL.md">
+    <None Update="Skills\all-skills\expense-report\assets\expense-report-template.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\expense-report-skills\expense-report\assets\expense-report-template.md">
+    <None Update="Skills\all-skills\expense-report\references\POLICY_FAQ.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\expense-report-skills\expense-report\references\POLICY_FAQ.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\expense-report-skills\expense-report\SKILL.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\hello-python-skills\hello-python\scripts\hello-python.py">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\hello-python-skills\hello-python\SKILL.md">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\hello-python-skills\scripts\hello-python.py">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\system-ops-skills\scripts\check-disk-usage.ps1">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\system-ops-skills\scripts\check-system-info.ps1">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\system-ops-skills\scripts\check-top-processes.ps1">
+    <None Update="Skills\all-skills\expense-report\SKILL.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

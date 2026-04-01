@@ -85,34 +85,71 @@ namespace kevin.AI.AgentFramework
             {
 #pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
                 var skillsProvider = new FileAgentSkillsProvider(
-                     skillPaths: [Path.Combine(AppContext.BaseDirectory + "/Skills", "expense-report-skills"),
-                        Path.Combine(AppContext.BaseDirectory + "/Skills", "system-ops-skills"),
-                        Path.Combine(AppContext.BaseDirectory + "/Skills", "hello-python-skills"),
-                          Path.Combine(AppContext.BaseDirectory + "/Skills", "agent-browser-skills")
+                     skillPaths: [  
+                        Path.Combine(AppContext.BaseDirectory + "/Skills", "all-skills"), 
                         ],
                      options: new FileAgentSkillsProviderOptions
                      {
                          SkillsInstructionPrompt = """
-                                               你可以使用以下技能获取领域知识和操作指引。
+                                        # Skills Instruction Prompt  
+                                                你可以使用以下技能获取领域知识和操作指引。
                                                 所有文件目录都在服务器的/Skills 文件夹下，技能文件夹命名为 技能名称-skills，技能文件夹内包含技能指令文件 instruction.txt、参考资料文件夹 resources 和可执行脚本文件夹 scripts。
                                                 脚本文件夹 scripts 如何包含python脚本，则使用RunPythonPy来执行或者RunPythonCode来执行，否则使用RunShell来执行。
-                                               
-                                                重要流程：
-                                                每个技能提供专业指令、参考文档和可执行脚本 
-                                                技能指令中会标明可用脚本及其执行命令 
-                                                重要原则：先加载知识，再执行操作
-                        
-                                                #相关技能文档如果需要执行命令可以通过RunShell来执行不需要用户二次确认
-                        
-                                                它们如下:
-                                                {0}  
+                                                    
+                                        ## 可用技能列表 
+                                        {0} 
+
+                                        每个技能包含：
+                                        - **名称**：技能的唯一标识
+                                        - **描述**：技能的功能说明
+                                        - **参数**：调用时所需的输入字段（类型、含义）
+
+                                       #重要流程：
+                                                1.每个技能提供专业指令、参考文档和可执行脚本 
+                                                2.技能指令中会标明可用脚本及其执行命令 
+                                                3.重要原则：先加载知识，再执行操作
+                                                4.可以使用load_skill、read_skill_resource来获取技能指令和资源内容，理解后再决定是否调用工具执行脚本。
+
+                                        ## 工作流程 
+                                        1. **理解用户意图**：分析用户的问题，确定目标。
+                                        2. **判断是否需要技能**：
+                                           - 如果任务需要获取实时数据、执行计算、操作外部系统或访问你自身不具备的知识，则必须调用对应技能。
+                                           - 如果可以直接用通用知识回答，则直接回答。
+                                        3. **选择技能并构造调用**：从技能列表中选择最合适的技能，并按照技能描述构造输入参数。
+
+                                        如果技能调用失败，需根据错误信息调整或给出友好提示。 
+                                        根据技能返回结果生成最终答案：将技能返回的数据整合为自然语言回复用户。 
+
+                                        #注意事项
+                                        一次只能调用一个技能，如需多个步骤，分步进行。 
+                                        若用户未明确所需参数，请主动询问澄清。 
+                                        技能调用结果必须完整、准确地反映在最终回答中。
+                                        调用工具不需要二次确认，直接调用即可，不需要询问用户是否需要调用工具。
+
+                                        #Tools技能优先级
+                                         1.当技能需要使用Tools工具时，通用 HTTP 工具优先级大于RunShell、RunPythonPy、RunPythonCode。
+                                         2.当技能需要使用RunShell、RunPythonPy、RunPythonCode时，RunPythonCode优先级大于RunPythonPy。
+                                         3.RunShell优先级最小，只有在技能指令中明确说明需要使用RunShell来执行且不适合使用RunPythonCode和RunPythonPy来执行时才使用RunShell。
+
+                                        示例
+                                        用户：北京今天天气怎么样？
+                                        思考：用户需要实时天气，必须调用天气查询技能。
+                                        输出：
+
+                                        json
+                                        " 
+                                          "action": "get_weather",
+                                          "action_input":  
+                                            "city": "北京"
+                                           
+                                         "
+                                        技能返回：晴，25℃，微风
+                                        最终回答：北京今天晴天，气温25摄氏度，微风。
                         
                         """
                      });
 #pragma warning restore MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
-                chatClientAgentOptions.AIContextProviders = [skillsProvider];
-                Console.WriteLine("📂 Skills 已从文件系统加载");
-                Console.WriteLine("✅ FileAgentSkillsProvider 创建成功（知识层）"); 
+                chatClientAgentOptions.AIContextProviders = [skillsProvider]; 
                 Console.WriteLine();
             }
 
