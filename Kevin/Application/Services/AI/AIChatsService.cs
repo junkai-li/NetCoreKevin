@@ -1,4 +1,5 @@
 ﻿using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
+using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories;
@@ -96,9 +97,10 @@ namespace kevin.Application.Services.AI
             addHist.CreateUserId = CurrentUser.UserId;
             addHist.TenantId = CurrentUser.TenantId;
             addHist.IsSend = false;
-            addHist.AIChatsId = add.Id; 
-            addHist.Content = "请开始你的自我介绍";
+            addHist.AIChatsId = add.Id;
+            addHist.Content = "请加载所有技能然后,开始你的简单自我介绍";
             aIChatHistorysRp.Add(addHist);
+            string systemPrompt = SystemPrompt.SystemPromptText;
             await aIChatHistorysRp.SaveChangesAsync();
             switch (aIModels.AIType)
             {
@@ -106,25 +108,25 @@ namespace kevin.Application.Services.AI
                 case Domain.Share.Enums.AIType.ZhiPuAI:
                 case Domain.Share.Enums.AIType.AzureOpenAI:
                 default:
-                    addHist.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG("请开始你的自我介绍", aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
+                    addHist.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG("请加载所有技能然后,开始你的简单自我介绍", aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
                     {
-                        Name = aiapp.Name, 
-                        Description = aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答",
+                        Name = aiapp.Name,
+                        Description = aIPrompts.Description  ?? "你是一个智能体,请根据你的问题进行相关回答",
                         ChatOptions = new Microsoft.Extensions.AI.ChatOptions
                         {
                             MaxOutputTokens = aiapp.MaxAskPromptSize,
-                            Temperature = (float)(aiapp.Temperature/100),
+                            Temperature = (float)(aiapp.Temperature / 100),
                             ResponseFormat = ChatResponseFormat.Text,
-                            Instructions = aIPrompts.Prompt + (aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答"),
+                            Instructions = aIPrompts.Prompt + systemPrompt,
                         },
-                        ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, add.Id.ToString()) 
-                    },isStreame: aiapp.MsgType == 2, streameCallback: async (msg) =>
+                        ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, add.Id.ToString())
+                    }, isStreame: aiapp.MsgType == 2, streameCallback: async (msg) =>
                     {
                         await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
                     })).Item2;
                     //addHist.Content = aIClient.SendMsg("请开始你的自我介绍", aIModels.EndPoint, aIModels.ModelKey, aIModels.ModelName, aIPrompts.Prompt + (aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答")).choices.FirstOrDefault().message.content;
-                    break; 
-            } 
+                    break;
+            }
             return addHist.MapTo<AIChatHistorysDto>();
         }
 
@@ -147,7 +149,7 @@ namespace kevin.Application.Services.AI
                 if (!string.IsNullOrEmpty(LastMessage))
                 {
                     ai.LastMessage = LastMessage;
-                } 
+                }
                 ai.UpdateTime = DateTime.Now;
                 ai.UpdateUserId = CurrentUser.UserId;
                 await aIChatsRp.SaveChangesAsync();
