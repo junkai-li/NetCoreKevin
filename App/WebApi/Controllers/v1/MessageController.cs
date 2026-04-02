@@ -109,6 +109,19 @@ namespace App.WebApi.Controllers.v1
         {
             var result = await _messageService.GetMyNoReadCount(messageType);
             return result;
+        } 
+
+        /// <summary>
+        /// 已读消息
+        /// </summary>
+        /// <param name="messageId"></param>
+        /// <returns></returns>
+        [HttpGet("Read")]
+        [SkipAuthority] 
+        public async Task<bool> Read([FromQuery][Required] long messageId)
+        {
+            var result = await _messageService.Read(messageId);
+            return result;
         }
     }
 }

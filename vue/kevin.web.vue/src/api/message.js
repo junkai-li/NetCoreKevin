@@ -16,7 +16,9 @@ export const addEditMessage = (data) => {
 export const deleteMessage = (id) => {
   return http.delete(`/api/Message/Delete?Id=${id}`);
 };
-
+export const readMessage = (id) => {
+  return http.get(`/api/Message/Read?messageId=${id}`);
+};
 // 我的消息相关接口
 export const getPrivateUserSystemPageData = (params) => {
   return http.post('/api/Message/GetPrivateUserSystemPageData', params);

@@ -116,7 +116,8 @@ import {
   getPrivateUserSystemPageData,
   getPrivateUserPageData,
   getAnnouncementPageData,
-  getSystemPageData
+  getSystemPageData,
+  readMessage
 } from '@/api/message.js'
 import { MailOutlined } from '@ant-design/icons-vue'
 import MessageTable from '@/components/MessageTable.vue'
@@ -350,6 +351,8 @@ const handleSystemTableChange = (pager) => {
 const showDetail = (record) => {
   detailData.value = record
   detailModalVisible.value = true
+  // 读取消息
+  readMessage(record.id)
 }
 
 // 格式化日期

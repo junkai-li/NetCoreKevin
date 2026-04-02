@@ -595,6 +595,13 @@
             <param name="messageType"></param>
             <returns></returns>
         </member>
+        <member name="M:App.WebApi.Controllers.v1.MessageController.Read(System.Int64)">
+            <summary>
+            已读消息
+            </summary>
+            <param name="messageId"></param>
+            <returns></returns>
+        </member>
         <member name="T:App.WebApi.Controllers.v1.Organizational.DepartmentController">
             <summary>
             部门管理
