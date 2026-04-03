@@ -1,22 +1,13 @@
-﻿using Azure;
-using HttpMataki.NET.Auto;
-using kevin.AI.AgentFramework.Agent;
+﻿using HttpMataki.NET.Auto;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Tools;
 using Kevin.AI.Dto;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ModelContextProtocol;
 using ModelContextProtocol.Server;
 using OpenAI;
-using System;
 using System.ClientModel;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 namespace kevin.AI.AgentFramework
 {
     /// <summary>

@@ -13,11 +13,9 @@
       <PackageReference Include="Microsoft.Agents.AI" Version="1.0.0-rc4" />
       <PackageReference Include="Microsoft.Agents.AI.Abstractions" Version="1.0.0-rc4" />
       <PackageReference Include="Microsoft.Agents.AI.AzureAI" Version="1.0.0-rc4" />
-      <PackageReference Include="Microsoft.Agents.AI.Hosting" Version="1.0.0-preview.260311.1" />
       <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.0.0-rc4" />
       <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.0.0-rc4" />
       <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.11" />
-      <PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.67.1-preview" />
       <PackageReference Include="ModelContextProtocol" Version="1.1.0" />
       <PackageReference Include="OpenTelemetry" Version="1.14.0" />
       <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.14.0" />
