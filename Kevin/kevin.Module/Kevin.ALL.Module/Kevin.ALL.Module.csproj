@@ -97,7 +97,6 @@ Kevin.AI 系列
     <ProjectReference Include="..\Kevin.CrawlingService\kevin.CrawlingService.csproj" />
     <ProjectReference Include="..\kevin.DistributedLock\kevin.DistributedLock.csproj" />
     <ProjectReference Include="..\Kevin.Email\Kevin.Email.csproj" />
-    <ProjectReference Include="..\kevin.ESL\kevin.ESL.csproj" />
     <ProjectReference Include="..\kevin.FileStorage\kevin.FileStorage.csproj" />
     <ProjectReference Include="..\Kevin.HttpApiClients\Kevin.HttpApiClients.csproj" />
     <ProjectReference Include="..\kevin.Ioc\kevin.Ioc.csproj" />
