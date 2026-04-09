@@ -228,6 +228,9 @@ const rules = reactive({
   type: [
     { required: true, message: '请输入类型' }
   ],
+  aiPromptID: [
+    { required: true, message: '请选择提示词' }
+  ],
   chatModelID: [
     { required: true, message: '请选择会话模型' }
   ] , msgType: [
