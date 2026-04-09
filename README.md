@@ -80,6 +80,23 @@
 |![输入图片说明](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/image.png)|![输入图片说明](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/a4f1e8c1-7380-4b3f-acca-b01c849730bb.png)| ![输入图片说明](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/image3423123.png) |
 |--|--|--|
 
+# 🧰基于Ollama部署本地模型
+Ollama 支持多种操作系统，包括 macOS、Windows、Linux 以及通过 Docker 容器运行。
+Ollama 对硬件要求不高，旨在让用户能够轻松地在本地运行、管理和与大型语言模型进行交互。
+CPU：多核处理器（推荐 4 核或以上）。
+GPU：如果你计划运行大型模型或进行微调，推荐使用具有较高计算能力的 GPU（如 NVIDIA 的 CUDA 支持）。
+内存：至少 8GB RAM，运行较大模型时推荐 16GB 或更高。
+存储：需要足够的硬盘空间来存储预训练模型，通常需要 10GB 至数百 GB 的空间，具体取决于模型的大小。 
+
+Ollama 官方下载地址：[https://ollama.com/download](https://ollama.com/download)
+
+1.安装后运行模型 可根据电脑配置自由选择模型 可以使用qwen3:4b来进行测试
+ollama run qwen3:4b
+系统配置如下
+![输入图片说明](Doc/localve.png)
+
+
+
 # 🌐 项目概述
 NetCoreKevin 是一个基于 DDD（Domain-Driven Design） 和 微服务架构 的 .NET 8 Web API 项目，其核心目标是提供一个可复用、模块化、可扩展的架构平台。它集成了以下关键功能：
 
