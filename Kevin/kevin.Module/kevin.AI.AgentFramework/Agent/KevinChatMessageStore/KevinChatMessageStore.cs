@@ -27,7 +27,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
          InvokingContext context, CancellationToken cancellationToken = default)
         {
             var data = _chatMessageStore.GetMessagesAsync(this.ThreadDbKey, cancellationToken).Result;
-            var messages = data.OrderByDescending(t=>t.Timestamp).ToList().ConvertAll(x => JsonSerializer.Deserialize<ChatMessage>(x.SerializedMessage!)!);
+            var messages = data.OrderByDescending(t => t.Timestamp).ToList().ConvertAll(x => JsonSerializer.Deserialize<ChatMessage>(x.SerializedMessage!)!);
             messages.Reverse();
             messages = messages.ToList();
             if (context.RequestMessages.Count() > 0)
@@ -52,16 +52,34 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
             var allNewMessages = context.RequestMessages.Concat(context.ResponseMessages ?? []);
             if (allNewMessages.Count() > 0)
             {
-                await _chatMessageStore.AddMessagesAsync(allNewMessages.OrderBy(t => t.CreatedAt).ToList().Select(x => new ChatHistoryItemDto()
+                var adddata = allNewMessages.Select(x => new ChatHistoryItemDto()
                 {
                     Key = this.ThreadDbKey + x.MessageId,
-                    Timestamp = x.CreatedAt ?? DateTimeOffset.UtcNow,
+                    Timestamp = x.CreatedAt,
                     ThreadId = this.ThreadDbKey,
                     MessageId = x.MessageId,
                     Role = x.Role.Value,
                     SerializedMessage = JsonSerializer.Serialize(x),
                     MessageText = x.Text
-                }).ToList(), cancellationToken);
+                }).ToList();
+                for (int i = 0; i < adddata.Count; i++)
+                {
+                    if (adddata[i].Timestamp == null || adddata[i].Timestamp == default)
+                    {
+                        if (adddata[i].Role == ChatRole.Tool.Value)
+                        {
+                            if (adddata[i - 1].Role == ChatRole.Tool.Value)
+                            {
+                                adddata[i].Timestamp = adddata[i - 1].Timestamp!.Value.AddMilliseconds(1);
+                            }
+                            else
+                            {
+                                adddata[i].Timestamp = adddata[i + 1].Timestamp!.Value.AddMilliseconds(-1);
+                            }
+                        }
+                    }
+                }
+                await _chatMessageStore.AddMessagesAsync(adddata, cancellationToken);
             }
         }
     }
