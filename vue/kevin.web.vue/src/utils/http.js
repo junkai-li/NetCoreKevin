@@ -4,7 +4,7 @@ const apiBaseUrl = process.env.VUE_APP_API_BASE_URL
 // 创建 Axios 实例
 const myAxios = axios.create({
   baseURL: apiBaseUrl,
-  timeout: 60000,
+  timeout: 600000,
   withCredentials: true,
 }) 
  

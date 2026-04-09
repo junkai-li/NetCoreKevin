@@ -8,21 +8,21 @@ using Microsoft.Extensions.Options;
 using ModelContextProtocol.Server;
 using OpenAI;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 namespace kevin.AI.AgentFramework
 {
     /// <summary>
     /// AI服务
     /// </summary>
     public class AIAgentService : IAIAgentService
-    {
-        public static string AIRulePrompt = "";
-        public static bool IsHttpLog = false;
+    {  
+        public AISetting aISetting { get; set; } = new AISetting();
         public AIAgentService()
         {
         }
         public AIAgentService(IOptionsMonitor<AISetting> config)
         {
-            IsHttpLog = config.CurrentValue.IsHttpLog;
+            aISetting = config.CurrentValue;
         }
         /// <summary>
         /// 智能体转换为McpServerTool
@@ -43,23 +43,33 @@ namespace kevin.AI.AgentFramework
         {
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
             openAIClientOptions.Endpoint = new Uri(url);
+            openAIClientOptions.NetworkTimeout = TimeSpan.FromMinutes(10);// 设置网络超时时间为10分钟，适用于可能需要较长时间处理的请求
             var ai = new OpenAIClient(new ApiKeyCredential(model), openAIClientOptions);
             return ai.GetChatClient(keySecret).AsIChatClient();
         }
         public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, bool isStreame = false, Action<string> streameCallback = default)
         {
-            if (IsHttpLog)
+            if (aISetting.IsHttpLog)
             {
                 HttpClientAutoInterceptor.StartInterception();
             }
-            OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
-            openAIClientOptions.Endpoint = new Uri(url);
+            OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions()
+            {
+                Endpoint = new Uri(url),
+                NetworkTimeout = TimeSpan.FromMinutes(aISetting.NetworkTimeout),// 设置网络超时时间为10分钟，适用于可能需要较长时间处理的请求
+                RetryPolicy = new ClientRetryPolicy(maxRetries: aISetting.MaxRetries)//重试次数和延迟
+                {
+                    // 可自定义延迟，默认指数退避
+                }
+            };
             // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示 
             var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(keySecret) ? "local" : keySecret), openAIClientOptions);
             if (chatClientAgentOptions.ChatOptions != default && (chatClientAgentOptions.ChatOptions?.Tools == default || chatClientAgentOptions.ChatOptions?.Tools.Count == 0))
             {
-                // 🔑 能力层：工具
-                chatClientAgentOptions.ChatOptions.Tools = new List<AITool>() {
+                if (aISetting.IsAITools)
+                {
+                    // 🔑 能力层：工具
+                    chatClientAgentOptions.ChatOptions.Tools = new List<AITool>() {
                     AIFunctionFactory.Create(KevinBasicAI.GetNetCoreKevinInfo,new AIFunctionFactoryOptions{ Name = "GetNetCoreKevinInfo",Description = "获取NetCoreKevin框架的介绍信息" }),
                     AIFunctionFactory.Create(AgentHttpClientTools.GetAsync,new AIFunctionFactoryOptions{ Name = "GetAsync",Description = "通用 HTTP 工具 发送 GET 请求" }),
                     AIFunctionFactory.Create(AgentHttpClientTools.PostAsync,new AIFunctionFactoryOptions{ Name = "PostAsync",Description = "通用 HTTP 工具 发送 POST 请求" }),
@@ -72,13 +82,17 @@ namespace kevin.AI.AgentFramework
                     AIFunctionFactory.Create(CommonTools.GetDesktopPath,new AIFunctionFactoryOptions{ Name = "GetDesktopPath",Description = "获取当前系统桌面路径。 用于获取当前用户的桌面路径" }),
                     AIFunctionFactory.Create(CommonTools.WriteTextToDesktop,new AIFunctionFactoryOptions{ Name = "WriteTextToDesktop",Description = "输出文件到系统桌面。 用于把各种文件输出到桌面" }),
                     };
+                }
+             
             }
             if (chatClientAgentOptions.AIContextProviders == default)
             {
+                if (aISetting.IsAISkills)
+                {
 #pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
-                var skillsProvider = new FileAgentSkillsProvider(
-                     skillPaths: [  
-                        Path.Combine(AppContext.BaseDirectory + "/Skills", "all-skills"), 
+                    var skillsProvider = new FileAgentSkillsProvider(
+                     skillPaths: [
+                        Path.Combine(AppContext.BaseDirectory + "/Skills", "all-skills"),
                         ],
                      options: new FileAgentSkillsProviderOptions
                      {
@@ -127,8 +141,9 @@ namespace kevin.AI.AgentFramework
                         """
                      });
 #pragma warning restore MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
-                chatClientAgentOptions.AIContextProviders = [skillsProvider]; 
-                Console.WriteLine();
+                    chatClientAgentOptions.AIContextProviders = [skillsProvider];
+                    Console.WriteLine();
+                }
             }
 
             var aiAgent = ai.GetChatClient(model).AsIChatClient().AsAIAgent(chatClientAgentOptions);
@@ -153,7 +168,7 @@ namespace kevin.AI.AgentFramework
                 reslut = await aiAgent.RunAsync(msg);
                 resultText = reslut.Text;
             }
-            if (IsHttpLog)
+            if (aISetting.IsHttpLog)
             {
                 HttpClientAutoInterceptor.StopInterception();
             }

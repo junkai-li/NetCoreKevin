@@ -225,6 +225,10 @@ namespace Web.Extension
                 options.AIKeySecret = settings.AIKeySecret;
                 options.AIDefaultModel = settings.AIDefaultModel;
                 options.IsHttpLog = settings.IsHttpLog;
+                options.IsAISkills = settings.IsAISkills;
+                options.IsAITools = settings.IsAITools;
+                options.NetworkTimeout = settings.NetworkTimeout;
+                options.MaxRetries = settings.MaxRetries;
             });
 
             services.AddRAGQdrantAndOllama(options =>
