@@ -54,7 +54,8 @@ namespace kevin.AI.AgentFramework
             }
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions();
             openAIClientOptions.Endpoint = new Uri(url);
-            var ai = new OpenAIClient(new ApiKeyCredential(keySecret), openAIClientOptions);
+            // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示 
+            var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(keySecret) ? "local" : keySecret), openAIClientOptions);
             if (chatClientAgentOptions.ChatOptions != default && (chatClientAgentOptions.ChatOptions?.Tools == default || chatClientAgentOptions.ChatOptions?.Tools.Count == 0))
             {
                 // 🔑 能力层：工具
