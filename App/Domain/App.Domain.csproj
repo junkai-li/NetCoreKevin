@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Kevin\Kevin.Web\Kevin.Web.csproj" />
     <ProjectReference Include="..\AppShare\App.Share.csproj" />
+    <ProjectReference Include="..\..\Kevin\Kevin.Web.Basics\Kevin.Web.Basics.csproj" />
   </ItemGroup>
 
 </Project>
