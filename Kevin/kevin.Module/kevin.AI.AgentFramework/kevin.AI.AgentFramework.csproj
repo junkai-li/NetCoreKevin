@@ -10,11 +10,11 @@
   <ItemGroup> 
       <PackageReference Include="Azure.AI.OpenAI" Version="2.9.0-beta.1" /> 
       <PackageReference Include="HttpMataki.NET.Auto" Version="1.0.3" />  
-      <PackageReference Include="Microsoft.Agents.AI" Version="1.0.0-rc4" />
-      <PackageReference Include="Microsoft.Agents.AI.Abstractions" Version="1.0.0-rc4" />
+      <PackageReference Include="Microsoft.Agents.AI" Version="1.1.0" />
+      <PackageReference Include="Microsoft.Agents.AI.Abstractions" Version="1.1.0" />
       <PackageReference Include="Microsoft.Agents.AI.AzureAI" Version="1.0.0-rc4" />
-      <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.0.0-rc4" />
-      <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.0.0-rc4" />
+      <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.1.0" />
+      <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.1.0" />
       <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.11" />
       <PackageReference Include="ModelContextProtocol" Version="1.1.0" />
       <PackageReference Include="OpenTelemetry" Version="1.14.0" />
@@ -23,63 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Skills\all-skills\agent-browser\references\authentication.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\agent-browser\references\commands.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\agent-browser\references\profiling.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\agent-browser\references\proxy-support.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\agent-browser\references\session-management.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\agent-browser\references\snapshot-refs.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\agent-browser\references\video-recording.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\agent-browser\SKILL.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\agent-browser\templates\authenticated-session.sh">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\agent-browser\templates\capture-workflow.sh">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\agent-browser\templates\form-automation.sh">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\dogfood\references\issue-taxonomy.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\dogfood\SKILL.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\dogfood\templates\dogfood-report-template.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\electron\SKILL.md">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\slack\references\slack-tasks.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\slack\SKILL.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\slack\templates\slack-report-template.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Skills\all-skills\vercel-sandbox\SKILL.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Skills\all-skills\expense-report\assets\expense-report-template.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

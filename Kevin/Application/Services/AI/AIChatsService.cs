@@ -98,7 +98,7 @@ namespace kevin.Application.Services.AI
             addHist.TenantId = CurrentUser.TenantId;
             addHist.IsSend = false;
             addHist.AIChatsId = add.Id;
-            addHist.Content = "请加载所有技能然后,开始你的简单自我介绍";
+            addHist.Content = "请使用load_skill、read_skill_resource来获取技能指令和资源内容 加载技能然后,开始你的简单自我介绍";
             aIChatHistorysRp.Add(addHist);
             string systemPrompt = SystemPrompt.SystemPromptText;
             await aIChatHistorysRp.SaveChangesAsync();
@@ -108,7 +108,7 @@ namespace kevin.Application.Services.AI
                 case Domain.Share.Enums.AIType.ZhiPuAI:
                 case Domain.Share.Enums.AIType.AzureOpenAI:
                 default:
-                    addHist.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG("请加载所有技能然后,开始你的简单自我介绍", aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
+                    addHist.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG("请使用load_skill、read_skill_resource来获取技能指令和资源内容 加载技能然后,开始你的简单自我介绍", aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
                     {
                         Name = aiapp.Name,
                         Description = aIPrompts.Description  ?? "你是一个智能体,请根据你的问题进行相关回答",
