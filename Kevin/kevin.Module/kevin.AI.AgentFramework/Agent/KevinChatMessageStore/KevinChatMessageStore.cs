@@ -1,5 +1,4 @@
-﻿using kevin.AI.AgentFramework.Const;
-using kevin.AI.AgentFramework.Dto;
+﻿using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.Interfaces;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
@@ -49,7 +48,27 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         }
         protected override async ValueTask StoreChatHistoryAsync(InvokedContext context, CancellationToken cancellationToken = default)
         {
-            var allNewMessages = context.RequestMessages.Concat(context.ResponseMessages ?? []);
+            var responseMessages = context.ResponseMessages ?? Array.Empty<ChatMessage>();
+            var allNewMessages = context.RequestMessages.Concat(responseMessages).ToList();
+            var toolsMessages = allNewMessages.Where(x => x.Role == ChatRole.Tool).OrderBy(t => t.CreatedAt).ToList();
+            var toolsMessagesI = 0;
+            //修复assistant必须在tool之前CreatedAt时间问题 保证顺序正确性
+            if (toolsMessages.Count > 0)
+            {
+                foreach (var item in allNewMessages)
+                {
+                    if (item.Role == ChatRole.Assistant)
+                    {
+                        //是否工具调用提示
+                        if (string.IsNullOrEmpty(item.Text))
+                        {
+                            toolsMessages[toolsMessagesI].CreatedAt = item.CreatedAt!.Value.AddMilliseconds(1);
+                            toolsMessagesI++;
+                        }
+                    }
+                } 
+            }
+           
             if (allNewMessages.Count() > 0)
             {
                 var adddata = allNewMessages.Select(x => new ChatHistoryItemDto()
@@ -61,24 +80,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
                     Role = x.Role.Value,
                     SerializedMessage = JsonSerializer.Serialize(x),
                     MessageText = x.Text
-                }).ToList();
-                for (int i = 0; i < adddata.Count; i++)
-                {
-                    if (adddata[i].Timestamp == null || adddata[i].Timestamp == default)
-                    {
-                        if (adddata[i].Role == ChatRole.Tool.Value)
-                        {
-                            if (adddata[i - 1].Role == ChatRole.Tool.Value)
-                            {
-                                adddata[i].Timestamp = adddata[i - 1].Timestamp!.Value.AddMilliseconds(1);
-                            }
-                            else
-                            {
-                                adddata[i].Timestamp = adddata[i + 1].Timestamp!.Value.AddMilliseconds(-1);
-                            }
-                        }
-                    }
-                }
+                }).ToList(); 
                 await _chatMessageStore.AddMessagesAsync(adddata, cancellationToken);
             }
         }
