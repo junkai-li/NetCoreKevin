@@ -56,7 +56,7 @@
 -   第四步
 -  `启动App.AuthorizationService项目统一授权中心`
 -   第五步
--   `在vue文件夹下面启动前端 前端运行步骤：1、安装依赖npm install 2、运行npm run dev 3、打包npm run build`
+-   `在vue文件夹下面启动前端 前端运行步骤：1、安装依赖npm install 2、运行npm run serve 3、打包npm run build`
 
 ![输入图片说明](Doc/server.png)
 
