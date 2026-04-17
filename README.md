@@ -19,9 +19,6 @@
 |  ![输入图片说明](Doc/xg9.png) | ![输入图片说明](Doc/xg10.png)  |  ![输入图片说明](Doc/xg11.png) | ![输入图片说明](Doc/xg12.png)  |
 
 
-# 🌐后台自动任务调度系统（基于Quartz.NET）
-![输入图片说明](Doc/task.png)
-
 #  :envelope:  NetCoreKevin前言
 基于NET搭建-AI知识库智能体-现代化Saas企业级前后端分离架构：前端Vue3、IDS4单点登录、多缓存、自动任务、分布式、一库多租户、日志、授权和鉴权、CAP集成事件、SignalR、领域事件、MCP协议服务、IOC模块化注入、代码生成器、Quartz自动任务、AI、AgentFramework智能体、AISemanticKernel集成、RAG检索增强、AI知识库、AI联网搜索
 解耦设计都可以单独引用项目启动时注意相关Redis、db链接配置等相关配置详情可见下面的上手教程
