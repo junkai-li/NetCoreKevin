@@ -59,8 +59,15 @@ namespace kevin.FileStorage.KevinStaticFiles
         {
             fileStorageSetting = config.CurrentValue;
             if (string.IsNullOrEmpty(fileStorageSetting.Url))
-            {
-                fileStorageSetting.Url = $"{ExtractProtocolAndHost(_httpContextAccessor.GetUrl())}/" + fileStorageSetting.RequestPath;
+            { 
+                try
+                {
+                    fileStorageSetting.Url = $"{ExtractProtocolAndHost(_httpContextAccessor.GetUrl())}/" + fileStorageSetting.RequestPath;
+                }
+                catch (Exception)
+                {
+                    fileStorageSetting.Url = $"http://localhost:9901"; 
+                } 
             }
 
         }
