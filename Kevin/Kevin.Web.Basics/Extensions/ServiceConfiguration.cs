@@ -12,7 +12,6 @@ using Kevin.AI;
 using Kevin.AI.Dto;
 using Kevin.Api.Versioning;
 using Kevin.Common.App.Global;
-using Kevin.Common.App.IO;
 using Kevin.Common.Helper;
 using Kevin.Cors;
 using Kevin.Cors.Models;
@@ -28,7 +27,6 @@ using Kevin.SnowflakeId.Models;
 using Kevin.Web.Filters;
 using Kevin.Web.Filters.TransactionScope;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -36,12 +34,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Repository.Database;
-using System;
-using System.IO;
-using System.Linq;
 using System.Text.Encodings.Web;
-using TencentCloud.Tione.V20211111.Models;
 using Web.Filters;
+using Kevin.Hangfire;
+using Kevin.Hangfire.Models;
+using Hangfire;
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -190,8 +187,7 @@ namespace Web.Extension
                 options.VirtualHost = settings.VirtualHost;
             });
 
-            #endregion
-
+            #endregion 
 
             #region 邮件服务
 
@@ -257,6 +253,19 @@ namespace Web.Extension
 
             #endregion
 
+            #region Hangfire服务注入 
+            services.AddKevinHangfireRedis(options =>
+            {
+                var newoptions = Configuration.GetRequiredSection("HangfireRedisSetting").Get<HangfireRedisSetting>();
+                if (newoptions != default)
+                {
+                    options.Db = newoptions.Db;
+                    options.RedisConnectionString = newoptions.RedisConnectionString;
+                    options.Prefix = newoptions.Prefix;
+                }
+            });
+            #endregion
+
             return services;
         }
 
@@ -307,7 +316,13 @@ namespace Web.Extension
                 options.hostname = newoptions.hostname;
                 options.cacheMySignalRKeyName = newoptions.cacheMySignalRKeyName;
             });
-
+            #region Hangfire服务注入  
+            app.UseKevinHangfire(options =>
+            {
+                var newoptions = Configuration.GetRequiredSection("HangFireSetting").Get<HangFireSetting>();
+                options.userSetting = newoptions.userSetting; 
+            });
+            #endregion
             GlobalServices.Set(app.ApplicationServices);
             return app;
         }
