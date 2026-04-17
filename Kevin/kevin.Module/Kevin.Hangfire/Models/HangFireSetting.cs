@@ -15,7 +15,7 @@ namespace Kevin.Hangfire.Models
         /// <summary>
         /// 地址
         /// </summary>
-       public string DashboardUrl { get; set; }= "pchangfire";
+        public string DashboardUrl { get; set; } = "pchangfire";
         /// <summary>
         /// 标题
         /// </summary>
@@ -32,7 +32,10 @@ namespace Kevin.Hangfire.Models
         /// <summary>
         /// 是否区分大小写
         /// </summary>
-        public bool LoginCaseSensitive { get; set; } = true; 
-        public List<HangfireUserSetting> userSetting { get; set; } = new List<HangfireUserSetting>() { new HangfireUserSetting { Login = "admin", Password = "admin" } };
-         }; 
+        public bool LoginCaseSensitive { get; set; } = true;
+        /// <summary>
+        /// 用户设置
+        /// </summary>
+        public List<HangfireUserSetting> userSetting { get; set; } = new List<HangfireUserSetting>() { };
+    };
 }
