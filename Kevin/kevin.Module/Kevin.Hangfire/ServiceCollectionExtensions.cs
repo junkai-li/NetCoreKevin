@@ -2,6 +2,7 @@
 using Hangfire.MemoryStorage;
 using Hangfire.Redis.StackExchange;
 using Kevin.Hangfire.Models;
+using Kevin.Hangfire.TieredServiceRegistration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using static System.Collections.Specialized.BitVector32;
@@ -52,7 +53,7 @@ namespace Kevin.Hangfire
                     services.AddHangfireServer(options => options.SchedulePollingInterval = TimeSpan.FromSeconds(3));
                     isAdd = true;
                 }
-            }
+            } 
         }
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace Kevin.Hangfire
                 // 注册 HangFire 服务
                 services.AddHangfireServer(options => options.SchedulePollingInterval = TimeSpan.FromSeconds(3));
                 isAdd = true;
-            }
+            }  
         }
     }
 }

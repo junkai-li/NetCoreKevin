@@ -1,8 +1,10 @@
 ﻿using Hangfire;
 using Hangfire.Dashboard.BasicAuthorization;
 using Kevin.Hangfire.Models;
+using Kevin.Hangfire.TieredServiceRegistration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Globalization;
 
@@ -46,8 +48,11 @@ namespace Kevin.Hangfire
                 }), },
                     });//添加hangfire仪表盘中间件, 
             }
-
-
+            var jobManger = app.ApplicationServices.CreateAsyncScope().ServiceProvider.GetService<IRecurringJobManager>();
+            if (jobManger != default)
+            {
+                app.RunModuleConfigTasks(jobManger, TaskReflectionScheduler.GetAllReferencedAssemblies());//任务调度器，执行所有模块的配置任务 
+            }
         }
     }
 }

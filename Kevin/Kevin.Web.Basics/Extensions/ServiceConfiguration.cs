@@ -16,6 +16,8 @@ using Kevin.Common.Helper;
 using Kevin.Cors;
 using Kevin.Cors.Models;
 using Kevin.Email;
+using Kevin.Hangfire;
+using Kevin.Hangfire.Models;
 using Kevin.RAG;
 using Kevin.RAG.Ollama.Models;
 using Kevin.RAG.Qdrant.Models;
@@ -36,9 +38,6 @@ using Microsoft.Extensions.FileProviders;
 using Repository.Database;
 using System.Text.Encodings.Web;
 using Web.Filters;
-using Kevin.Hangfire;
-using Kevin.Hangfire.Models;
-using Hangfire;
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -159,6 +158,7 @@ namespace Web.Extension
             //注册文件服务 需要和静态文件中间件配合使用 配置保持一致
             services.AddKevinStaticFilesStorage(options =>
             {
+                options.Url = "http://localhost:9901";
                 options.Endpoint = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "KevinFlies");
             });
             #endregion
@@ -316,14 +316,15 @@ namespace Web.Extension
                 options.hostname = newoptions.hostname;
                 options.cacheMySignalRKeyName = newoptions.cacheMySignalRKeyName;
             });
+            GlobalServices.Set(app.ApplicationServices);
             #region Hangfire服务注入  
             app.UseKevinHangfire(options =>
             {
                 var newoptions = Configuration.GetRequiredSection("HangFireSetting").Get<HangFireSetting>();
-                options.userSetting = newoptions.userSetting; 
+                options.userSetting = newoptions.userSetting;
             });
             #endregion
-            GlobalServices.Set(app.ApplicationServices);
+
             return app;
         }
 

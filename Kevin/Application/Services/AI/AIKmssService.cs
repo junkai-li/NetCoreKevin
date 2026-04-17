@@ -3,11 +3,13 @@ using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using kevin.FileStorage;
+using Kevin.log4Net;
 using Kevin.RAG;
 using Kevin.RAG.Dto;
 using Kevin.RAG.Interfaces;
 using Kevin.RAG.Ollama;
 using Kevin.RAG.Tools;
+using Medallion.Threading;
 using NetCore.Util;
 
 namespace kevin.Application.Services.AI
@@ -31,9 +33,11 @@ namespace kevin.Application.Services.AI
         private IFileService FileService { get; set; }
 
         private IOllamaApiService OllamaApiService { get; set; }
+        private IDistributedLockProvider distLock { get; set; }
 
-
-        public AIKmssService(IHttpContextAccessor _httpContextAccessor, IAIKmssRp _AIKmssRp, IAIKmsDetailsRp _AIKmsDetailsRp, IFileRp _FileRp, IFileStorage _FileStorage, IRAGStorageService _qdrantClientService, IFileService fileService, IOllamaApiService ollamaApiService, IAIModelsRp aIModelsRp) : base(_httpContextAccessor)
+        public AIKmssService(IHttpContextAccessor _httpContextAccessor, IAIKmssRp _AIKmssRp, IAIKmsDetailsRp _AIKmsDetailsRp,
+            IFileRp _FileRp, IFileStorage _FileStorage, IRAGStorageService _qdrantClientService, IFileService fileService,
+            IOllamaApiService ollamaApiService, IAIModelsRp aIModelsRp, IDistributedLockProvider distributed) : base(_httpContextAccessor)
         {
             this.AIKmssRp = _AIKmssRp;
             this.AIKmsDetailsRp = _AIKmsDetailsRp;
@@ -43,6 +47,7 @@ namespace kevin.Application.Services.AI
             FileService = fileService;
             OllamaApiService = ollamaApiService;
             AIModelsRp = aIModelsRp;
+            distLock = distributed;
         }
         public async Task<dtoPageList<AIKmssDto>> GetList(dtoPagePar<string> dtoPagePar)
         {
@@ -210,7 +215,6 @@ namespace kevin.Application.Services.AI
             }
             await AIKmssRp.SaveChangesAsync();
             await AIKmsDetailsRp.SaveChangesAsync();
-            await ProcessKmssVectorData(id);
             return true;
         }
         /// <summary>
@@ -218,152 +222,172 @@ namespace kevin.Application.Services.AI
         /// </summary>
         /// <param name="KmsId"></param>
         /// <returns></returns>
-        public async Task<bool> ProcessKmssVectorData(long KmsId)
-        {
-            var data = await AIKmsDetailsRp.Query().Where(t => t.IsDelete == false && t.Status == ImportKmsStatus.Loadding && t.KmsId == KmsId).ToListAsync();
-            var kmssList = await AIKmssRp.Query().Where(t => t.IsDelete == false && data.Select(d => d.KmsId).Distinct().ToList().Contains(t.Id)).ToListAsync();
-            if (data.Count > 0 && kmssList.Count > 0)
+        public async Task<bool> ProcessKmssVectorData(long KmsId = default)
+        { 
+            var lock1 =   distLock.TryAcquireLock("kevin.Application.Services.AI.ProcessKmssVectorData:" + KmsId);
+            if (lock1 == null)
             {
-                foreach (var item in data)
+                LogHelper.logger.Error("kevin.Application.Services.AI.ProcessKmssVectorData:处理上传知识库矢量数据库: 获取分布式锁失败"); 
+                return false;
+            }
+            using (lock1)
+            { 
+                try
                 {
-                    try
+                    var query = AIKmsDetailsRp.Query().Where(t => t.IsDelete == false && t.Status == ImportKmsStatus.Loadding);
+                    if (KmsId != default)
                     {
-                        var kmss = kmssList.Where(t => t.Id == item.KmsId).FirstOrDefault();
-                        if (kmss != default)
+                        query = query.Where(t => t.KmsId == KmsId);
+                    }
+                    var data = await query.ToListAsync();
+                    var kmssList = await AIKmssRp.Query().Where(t => t.IsDelete == false && data.Select(d => d.KmsId).Distinct().ToList().Contains(t.Id)).ToListAsync();
+                    if (data.Count > 0 && kmssList.Count > 0)
+                    {
+                        foreach (var item in data)
                         {
-                            //内容
-                            string content = "";
-                            string FileName = "";
-                            //如果是文件
-                            if (item.FileId != default || !string.IsNullOrEmpty(item.Url))
+                            try
                             {
-                                #region 文件处理 
-                                var file = await FileRp.Query().Where(t => t.IsDelete == false && t.Id == item.FileId).FirstOrDefaultAsync();
-                                Stream? stream = null;
-                                if (file != default)
+                                var kmss = kmssList.Where(t => t.Id == item.KmsId).FirstOrDefault();
+                                if (kmss != default)
                                 {
-                                    FileName = file.Name ?? "";
-                                    var fileData = await FileService.GetFile(file.Id);
-                                    if (fileData.Item1 != default)
+                                    //内容
+                                    string content = "";
+                                    string FileName = "";
+                                    //如果是文件
+                                    if (item.FileId != default || !string.IsNullOrEmpty(item.Url))
                                     {
-                                        stream = fileData.Item1;
+                                        #region 文件处理 
+                                        var file = await FileRp.Query().Where(t => t.IsDelete == false && t.Id == item.FileId).FirstOrDefaultAsync();
+                                        Stream? stream = null;
+                                        if (file != default)
+                                        {
+                                            FileName = file.Name ?? "";
+                                            var fileData = await FileService.GetFile(file.Id);
+                                            if (fileData.Item1 != default)
+                                            {
+                                                stream = fileData.Item1;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            stream = await FileHelper.GetRemoteFileStreamAsync(item.Url);
+                                            FileName = await FileHelper.GetRealFileNameFromUrlAsync(item.Url);
+                                        }
+                                        if (stream != default)
+                                        {
+                                            switch ((item.FileType ?? "").Trim().ToLower())
+                                            {
+                                                case "text":
+                                                    content = TextStreamReader.ReadTextFromStream(stream);
+                                                    break;
+                                                case "markdown":
+                                                    content = TextStreamReader.ReadMarkdownFromStream(stream).RawContent;
+                                                    break;
+                                                case "pdf":
+                                                    content = PDFReader.ReadPdfToMarkdown(stream);
+                                                    break;
+                                                case "word":
+                                                    content = WordReader.ReadParagraphs(stream);
+                                                    break;
+                                                case "html":
+                                                    content = await HtmlReader.ExtractTextFromStreamAsync(stream);
+                                                    break;
+                                                default:
+                                                    content = TextStreamReader.ReadTextFromStream(stream);
+                                                    break;
+                                            }
+                                        }
+
+                                        #endregion
+
+                                    }
+                                    else
+                                    {
+                                        switch ((item.FileType ?? "").Trim().ToLower())
+                                        {
+                                            case "text":
+                                                content = item.Content;
+                                                break;
+                                            case "markdown":
+                                                content = TextStreamReader.ReadMarkdownFromText(item.Content).RawContent;
+                                                break;
+                                            case "html":
+                                                content = await HtmlReader.ExtractTextFromTextAsync(item.Content);
+                                                break;
+                                            default:
+                                                content = item.Content;
+                                                break;
+                                        }
+                                        FileName = item.ContentName;
+                                    }
+                                    var allChunks = new List<DocumentChunkDto>();
+                                    // 2. 初始化服务
+                                    var documentProcessor = new DocumentProcessor(chunkSize: kmss.MaxTokensPerParagraph, chunkOverlap: kmss.OverlappingTokens);
+                                    // 清理文档
+                                    var cleanedContent = documentProcessor.CleanDocument(content);
+                                    // 分块
+                                    var chunks = documentProcessor.ChunkByParagraph(cleanedContent);
+                                    Console.WriteLine($"文档 '{FileName}' 分成了 {chunks.Count} 个块");
+                                    // 创建文档块对象
+                                    for (int i = 0; i < chunks.Count; i++)
+                                    {
+                                        allChunks.Add(new DocumentChunkDto
+                                        {
+                                            Content = chunks[i],
+                                            SourceFile = FileName ?? "",
+                                            Id = SnowflakeIdService.GetNextId(),
+                                            CreatedAt = DateTime.Now,
+                                            Title = (FileName ?? "").ToLower().Replace(".txt", "").Replace(".word", "").Replace(".pdf", "").Replace(".markdown", "").Replace(".html", ""),
+
+                                            Category = kmss.Name,
+                                            ChunkIndex = i
+                                        });
+                                    }
+                                    ulong embeddingValueSize = 2048;
+                                    if (kmss.aIModelsId != default)
+                                    {
+                                        var aimode = AIModelsRp.Query().Where(t => t.IsDelete == false && t.Id == kmss.aIModelsId).FirstOrDefault();
+                                        if (aimode?.AIModelType == AIModelType.Embedding)
+                                        {
+                                            OllamaApiService = new OllamaApiService(aimode.EndPoint, aimode.ModelName, aimode.ModelKey);
+                                            embeddingValueSize = (ulong)aimode.EmbeddingValueSize;
+                                        }
+                                    }
+                                    // 生成嵌入向量
+                                    foreach (var chunk in allChunks)
+                                    {
+                                        chunk.ContentVector = await OllamaApiService.GetEmbedding(chunk.Content);
+                                    }
+                                    Console.WriteLine($"\n正在上传 {allChunks.Count} 个文档块到向量数据库...");
+                                    // 上传到向量数据库
+                                    var isaddok = await QdrantClientService.AddData("AIKmss-" + kmss.Id, allChunks, embeddingValueSize);
+                                    if (isaddok)
+                                    {
+                                        item.Status = ImportKmsStatus.Success;
+                                        item.UpdateTime = DateTime.Now;
+                                        item.ContentName = FileName ?? "";
                                     }
                                 }
                                 else
                                 {
-                                    stream = await FileHelper.GetRemoteFileStreamAsync(item.Url);
-                                    FileName = await FileHelper.GetRealFileNameFromUrlAsync(item.Url);
-                                }
-                                if (stream != default)
-                                {
-                                    switch ((item.FileType ?? "").Trim().ToLower())
-                                    {
-                                        case "text":
-                                            content = TextStreamReader.ReadTextFromStream(stream);
-                                            break;
-                                        case "markdown":
-                                            content = TextStreamReader.ReadMarkdownFromStream(stream).RawContent;
-                                            break;
-                                        case "pdf":
-                                            content = PDFReader.ReadPdfToMarkdown(stream);
-                                            break;
-                                        case "word":
-                                            content = WordReader.ReadParagraphs(stream);
-                                            break;
-                                        case "html":
-                                            content = await HtmlReader.ExtractTextFromStreamAsync(stream);
-                                            break;
-                                        default:
-                                            content = TextStreamReader.ReadTextFromStream(stream);
-                                            break;
-                                    }
-                                }
-
-                                #endregion
-
-                            }
-                            else
-                            {
-                                switch ((item.FileType ?? "").Trim().ToLower())
-                                {
-                                    case "text":
-                                        content = item.Content;
-                                        break;
-                                    case "markdown":
-                                        content = TextStreamReader.ReadMarkdownFromText(item.Content).RawContent;
-                                        break;  
-                                    case "html":
-                                        content = await HtmlReader.ExtractTextFromTextAsync(item.Content);
-                                        break;
-                                    default:
-                                        content = item.Content;
-                                        break;
-                                } 
-                                FileName = item.ContentName;
-                            }
-                            var allChunks = new List<DocumentChunkDto>();
-                            // 2. 初始化服务
-                            var documentProcessor = new DocumentProcessor(chunkSize: kmss.MaxTokensPerParagraph, chunkOverlap: kmss.OverlappingTokens);
-                            // 清理文档
-                            var cleanedContent = documentProcessor.CleanDocument(content);
-                            // 分块
-                            var chunks = documentProcessor.ChunkByParagraph(cleanedContent);
-                            Console.WriteLine($"文档 '{FileName}' 分成了 {chunks.Count} 个块");
-                            // 创建文档块对象
-                            for (int i = 0; i < chunks.Count; i++)
-                            {
-                                allChunks.Add(new DocumentChunkDto
-                                {
-                                    Content = chunks[i],
-                                    SourceFile = FileName ?? "",
-                                    Id = SnowflakeIdService.GetNextId(),
-                                    CreatedAt = DateTime.Now,
-                                    Title = (FileName ?? "").ToLower().Replace(".txt", "").Replace(".word", "").Replace(".pdf", "").Replace(".markdown", "").Replace(".html", ""),
-
-                                    Category = kmss.Name,
-                                    ChunkIndex = i
-                                });
-                            }
-                            ulong embeddingValueSize = 2048;
-                            if (kmss.aIModelsId != default)
-                            {
-                                var aimode = AIModelsRp.Query().Where(t => t.IsDelete == false && t.Id == kmss.aIModelsId).FirstOrDefault();
-                                if (aimode?.AIModelType == AIModelType.Embedding)
-                                {
-                                    OllamaApiService = new OllamaApiService(aimode.EndPoint, aimode.ModelName, aimode.ModelKey);
-                                    embeddingValueSize = (ulong)aimode.EmbeddingValueSize;
+                                    throw new UserFriendlyException("数据不存在或已删除");
                                 }
                             }
-                            // 生成嵌入向量
-                            foreach (var chunk in allChunks)
+                            catch (Exception ex)
                             {
-                                chunk.ContentVector = await OllamaApiService.GetEmbedding(chunk.Content);
-                            }
-                            Console.WriteLine($"\n正在上传 {allChunks.Count} 个文档块到向量数据库...");
-                            // 上传到向量数据库
-                            var isaddok = await QdrantClientService.AddData("AIKmss-" + kmss.Id, allChunks, embeddingValueSize);
-                            if (isaddok)
-                            {
-                                item.Status = ImportKmsStatus.Success;
+                                item.Status = ImportKmsStatus.Fail;
                                 item.UpdateTime = DateTime.Now;
-                                item.ContentName = FileName ?? "";
+                                item.ErrorMessage = ex.Message;
                             }
                         }
-                        else
-                        {
-                            throw new UserFriendlyException("数据不存在或已删除");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        item.Status = ImportKmsStatus.Fail;
-                        item.UpdateTime = DateTime.Now;
-                        item.ErrorMessage = ex.Message;
+                        await AIKmsDetailsRp.SaveChangesAsync();
                     }
                 }
-                await AIKmsDetailsRp.SaveChangesAsync();
+                catch (Exception ex)
+                {
+                    LogHelper.logger.Error("处理上传知识库矢量数据库:" + ex);
+                }
             }
-
             return true;
         }
 

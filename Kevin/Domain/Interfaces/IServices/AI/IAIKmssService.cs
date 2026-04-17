@@ -47,6 +47,6 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// </summary>
         /// <param name="KmsId"></param>
         /// <returns></returns>
-        Task<bool> ProcessKmssVectorData(long KmsId);
+        Task<bool> ProcessKmssVectorData(long KmsId = default);
     }
 }
