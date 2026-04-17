@@ -12,9 +12,9 @@ namespace Kevin.Hangfire
 {
     public static class ApplicationBuilderExtensions
     {
-        public static void UseKevinHangfire(this IApplicationBuilder app, Action<HangFireSetting> action)
+        public static void UseKevinHangfire(this IApplicationBuilder app, Action<HangfireSetting> action)
         {
-            var hangFireSetting = new HangFireSetting();
+            var hangFireSetting = new HangfireSetting();
             action.Invoke(hangFireSetting);
             //设置本地化信息，可实现 固定 Hangfire 管理面板为中文显示
             app.UseRequestLocalization(new RequestLocalizationOptions

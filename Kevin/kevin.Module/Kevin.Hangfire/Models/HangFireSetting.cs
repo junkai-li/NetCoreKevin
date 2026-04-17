@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Kevin.Hangfire.Models
 {
-    public class HangFireSetting
+    public class HangfireSetting
     {
         /// <summary>
         /// 是否启用Hangfire Dashboard

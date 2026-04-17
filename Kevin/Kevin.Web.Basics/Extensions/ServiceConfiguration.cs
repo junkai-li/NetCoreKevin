@@ -319,7 +319,7 @@ namespace Web.Extension
             #region Hangfire服务注入  
             app.UseKevinHangfire(options =>
             {
-                var newoptions = Configuration.GetRequiredSection("HangFireSetting").Get<HangFireSetting>();
+                var newoptions = Configuration.GetRequiredSection("HangfireSetting").Get<HangfireSetting>();
                 options.userSetting = newoptions.userSetting;
             });
             #endregion
