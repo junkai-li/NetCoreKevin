@@ -864,6 +864,11 @@
             用户额外信息
             </summary>
         </member>
+        <member name="M:kevin.Domain.Share.Dtos.User.dtoUser.LoginUserCheck">
+            <summary>
+            登录用户检查
+            </summary> 
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.User.dtoUserInfo.UserId">
             <summary>
             用户ID
