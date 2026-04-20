@@ -33,7 +33,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="NPOI" Version="2.7.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
@@ -52,6 +51,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\kevin.Share\kevin.Domain.Share.csproj" />
     <ProjectReference Include="..\kevin.Cache\kevin.Cache.csproj" />
+    <ProjectReference Include="..\Kevin.HttpApiClients\Kevin.HttpApiClients.csproj" />
     <ProjectReference Include="..\Kevin.log4Net\Kevin.log4Net.csproj" />
   </ItemGroup>
 

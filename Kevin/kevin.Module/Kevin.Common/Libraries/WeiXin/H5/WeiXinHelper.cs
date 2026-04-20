@@ -3,6 +3,7 @@ using Common.Json;
 using kevin.Domain.Share.Interfaces;
 using Kevin.Common.App;
 using Kevin.Common.App.Global;
+using Kevin.HttpApiClients.Helper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -58,7 +59,7 @@ namespace Web.Libraries.WeiXin.H5
             {
                 string url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + appid + "&secret=" + secret;
 
-                var returnJson = Common.HttpHelper.Post(url, "", "form");
+                var returnJson = HttpClientHelper.Post(url, "", "form");
 
                 token = JsonHelper.GetValueByKey(returnJson, "access_token");
 
@@ -86,7 +87,7 @@ namespace Web.Libraries.WeiXin.H5
 
                 string getUrl = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=" + GetAccessToken() + "&type=jsapi";
 
-                string returnJson = Common.HttpHelper.Post(getUrl, "", "form");
+                string returnJson = HttpClientHelper.Post(getUrl, "", "form");
 
                 ticketid = JsonHelper.GetValueByKey(returnJson, "ticket");
 
@@ -154,7 +155,7 @@ namespace Web.Libraries.WeiXin.H5
             string xml = data.ToXml(); //转换成XML 
             var url = "https://api.mch.weixin.qq.com/pay/unifiedorder";//微信统一下单请求地址 
 
-            var getdata = Common.HttpHelper.Post(url, xml, "form");
+            var getdata = HttpClientHelper.Post(url, xml, "form");
 
             ////获取xml数据
             //XmlDocument doc = new XmlDocument();

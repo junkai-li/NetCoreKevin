@@ -1,5 +1,6 @@
 ﻿using kevin.Domain.Share.Interfaces;
 using Kevin.Common.App.Global;
+using Kevin.HttpApiClients.Helper;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -48,7 +49,7 @@ namespace Web.Libraries.WeiXin.MiniApp
         {
             string url = "https://api.weixin.qq.com/sns/jscode2session?appid=" + appid + "&secret=" + secret + "&js_code=" + code + "&grant_type=authorization_code";
 
-            string httpret = Common.HttpHelper.Get(url);
+            string httpret = HttpClientHelper.Get(url);
 
             try
             {
@@ -124,7 +125,7 @@ namespace Web.Libraries.WeiXin.MiniApp
                               , orderno, price, "JSAPI", unifiedorderSign);
 
 
-            var getdata = Common.HttpHelper.Post(url, zhi, "form");
+            var getdata = HttpClientHelper.Post(url, zhi, "form");
 
             //获取xml数据
             XmlDocument doc = new();

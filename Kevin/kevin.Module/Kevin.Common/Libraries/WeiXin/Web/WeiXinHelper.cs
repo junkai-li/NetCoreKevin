@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using Kevin.HttpApiClients.Helper;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -79,7 +80,7 @@ namespace Web.Libraries.WeiXin.Web
 
 
 
-            var getdata = Common.HttpHelper.Post(url, zhi, "form");
+            var getdata = HttpClientHelper.Post(url, zhi, "form");
 
             //获取xml数据
             XmlDocument doc = new();

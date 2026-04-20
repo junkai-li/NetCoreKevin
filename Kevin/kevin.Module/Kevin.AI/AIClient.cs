@@ -1,6 +1,7 @@
 ﻿using Common;
 using Kevin.AI.Dto;
 using Kevin.Common.Extension;
+using Kevin.HttpApiClients.Helper;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -55,7 +56,7 @@ namespace Kevin.AI
             {
                 datajson.messages.Add(new MessagesItem { role = "user", content = msg });
             }
-            var json = HttpHelper.Post(url, datajson.ToJson(), "json", headers: new Dictionary<string, string> { { "Authorization", keySecret }, }, isSkipSslVerification: true);
+            var json = HttpClientHelper.Post(url, datajson.ToJson(), "json", headers: new Dictionary<string, string> { { "Authorization", keySecret }, }, isSkipSslVerification: true);
             var result = JsonExtension.ToObject<AIReslutDto>(json);
             return result;
         }

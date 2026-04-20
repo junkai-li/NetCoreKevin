@@ -81,7 +81,7 @@ namespace Kevin.RAG.Ollama
             {
                 if (httpClientDisHelper != default)
                 {
-                    EmbeddingDto data = (await httpClientDisHelper.PostAsync(Url, new { model = DefaultModel, input = text }.ToJson())).ToObject<EmbeddingDto>();
+                    EmbeddingDto data = (await httpClientDisHelper.PostAsync<EmbeddingDto>(Url, new { model = DefaultModel, input = text }.ToJson()));
                     return new Embedding<float>(data.data.First().embedding.ToArray().AsMemory());
                 } 
             }

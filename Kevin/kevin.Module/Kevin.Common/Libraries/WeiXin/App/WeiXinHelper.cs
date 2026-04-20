@@ -1,6 +1,7 @@
 ﻿using Common;
 using kevin.Domain.Share.Interfaces;
 using Kevin.Common.App.Global;
+using Kevin.HttpApiClients.Helper;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -81,7 +82,7 @@ namespace Web.Libraries.WeiXin.App
 
 
 
-            var getdata = HttpHelper.Post(url, zhi, "form");
+            var getdata = HttpClientHelper.Post(url, zhi, "form");
 
             //获取xml数据
             XmlDocument doc = new();
@@ -133,7 +134,7 @@ namespace Web.Libraries.WeiXin.App
 
                 string url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + appid + "&secret=" + appsecret + "&code=" + code + "&grant_type=authorization_code";
 
-                var returnJson = HttpHelper.Post(url, "", "form");
+                var returnJson = HttpClientHelper.Post(url, "", "form");
 
                 token = Common.Json.JsonHelper.GetValueByKey(returnJson, "access_token");
                 openid = Common.Json.JsonHelper.GetValueByKey(returnJson, "openid");
@@ -160,7 +161,7 @@ namespace Web.Libraries.WeiXin.App
         {
             string url = "https://api.weixin.qq.com/sns/userinfo?access_token=" + accessToken + "&openid=" + openId;
 
-            var returnJson = HttpHelper.Post(url, "", "form");
+            var returnJson = HttpClientHelper.Post(url, "", "form");
 
             var userInfo = Common.Json.JsonHelper.JSONToObject<GetUserInfo>(returnJson);
 

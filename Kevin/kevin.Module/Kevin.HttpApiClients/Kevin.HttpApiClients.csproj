@@ -11,4 +11,8 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.11" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Kevin.log4Net\Kevin.log4Net.csproj" />
+  </ItemGroup>
+
 </Project>
