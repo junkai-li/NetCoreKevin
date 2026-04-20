@@ -45,5 +45,13 @@
         /// </summary>
         [Description("排序")]
         public int Sort { get; set; }
+
+        public void DeleteCheck()
+        {
+            if (this.IsSystem)
+            {
+                throw new InvalidOperationException("系统内置字典不能删除");
+            }
+        }
     }
 }

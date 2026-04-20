@@ -46,14 +46,7 @@ namespace kevin.Application.Services
             }
             else
             {
-                if (TTenant.IsDelete)
-                {
-                    throw new UserFriendlyException("租户已删除");
-                }
-                if (TTenant.Status == kevin.Domain.Share.Enums.TenantStatusEnums.Inactive)
-                {
-                    throw new UserFriendlyException("租户已失效");
-                }
+                TTenant.IsInactiveCheck();
             }
             var user = _IUserService.LoginUser(login.Name, login.PassWord, login.TenantId, login.PasswordHash ?? "");
             var clinet = new HttpClient();

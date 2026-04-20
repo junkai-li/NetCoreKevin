@@ -87,5 +87,16 @@ namespace kevin.Domain.Share.Dtos.User
 
         public string? ExportUserInfo { get; set; }
 
+        /// <summary>
+        /// 登录用户检查
+        /// </summary> 
+        public void LoginUserCheck()
+        {
+            if (!this.Status)
+            {
+                throw new Exception("用户已失效");
+            }
+        }
+
     }
 }

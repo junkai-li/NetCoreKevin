@@ -2,6 +2,7 @@
 using Kevin.Common.App;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Policy;
+using Web.Global.Exceptions;
 
 namespace kevin.Domain.Entities
 {
@@ -144,6 +145,13 @@ namespace kevin.Domain.Entities
         /// <summary>
         /// 权限类型1.菜单权限2.功能权限3.数据权限 4.接口权限
         /// </summary>
-        public Int32 PermissionType { get; set; }
+        public Int32 PermissionType { get; set; } 
+        public void UpDateCheck()
+        {
+            if (this.IsManual != true)
+            {
+                throw new UserFriendlyException("非手动添加禁止修改");
+            }
+        }
     }
 }

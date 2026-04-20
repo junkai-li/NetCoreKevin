@@ -252,10 +252,7 @@ namespace kevin.Application
                 var data = permissionRp.Query().Where(t => t.Id == parm.Id).FirstOrDefault();
                 if (data != default)
                 {
-                    if (data.IsManual != true)
-                    {
-                        throw new UserFriendlyException("非手动添加禁止修改");
-                    }
+                    data.UpDateCheck();
                     //验证是否重复
                     var repeatData = permissionRp.Query().Where(t => t.Id != parm.Id && t.Area == parm.Area && t.Module == parm.Module && t.Action == parm.Action).FirstOrDefault();
                     if (repeatData != default)

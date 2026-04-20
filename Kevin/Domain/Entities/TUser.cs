@@ -76,6 +76,17 @@ namespace kevin.Domain.Entities
         {
             return PasswordHash == new HashHelper().SHA256Hash(password);
         }
+        /// <summary>
+        /// 删除校验
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        public void DeleteCheck()
+        {
+            if (this.IsSuperAdmin)
+            {
+                throw new InvalidOperationException("超级管理员不能删除");
+            }
+        }
 
     }
 }

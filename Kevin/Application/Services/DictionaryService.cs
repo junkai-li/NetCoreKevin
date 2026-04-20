@@ -128,10 +128,7 @@ namespace kevin.Application.Services
 
             if (like != null)
             {
-                if (like.IsSystem)
-                {
-                    throw new UserFriendlyException("系统内置配置不能删除");
-                }
+                like.DeleteCheck();
                 like.IsDelete = true;
                 like.DeleteTime = DateTime.Now;
                 dictionaryRp.SaveChangesWithSaveLog();

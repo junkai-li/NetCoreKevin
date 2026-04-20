@@ -1,4 +1,5 @@
 ﻿using kevin.Domain.Share.Enums;
+using Web.Global.Exceptions;
 
 namespace kevin.Domain.Entities
 {
@@ -7,15 +8,15 @@ namespace kevin.Domain.Entities
     /// </summary>
     [Table("TTenant")]
     [Description("租户表")]
-    public partial class TTenant: CUD
+    public partial class TTenant : CUD
     {
-        public TTenant(Int32 code, string name,DateTime createTime)
-        {  
-            this.Code= code;
-            this.Name= name;
+        public TTenant(Int32 code, string name, DateTime createTime)
+        {
+            this.Code = code;
+            this.Name = name;
             this.Status = TenantStatusEnums.Active;
             this.CreateTime = createTime;
-            this.IsDelete = false; 
+            this.IsDelete = false;
         }
 
         /// <summary>
@@ -34,6 +35,21 @@ namespace kevin.Domain.Entities
         /// </summary>
         [Description("租户状态")]
         public TenantStatusEnums Status { get; set; } = TenantStatusEnums.Active;
-         
+
+        /// <summary>
+        /// 租户可用校验
+        /// </summary>
+        /// <returns></returns>
+        public void IsInactiveCheck()
+        {
+            if (this.IsDelete)
+            {
+                throw new UserFriendlyException("租户已删除");
+            }
+            if (this.Status == kevin.Domain.Share.Enums.TenantStatusEnums.Inactive)
+            {
+                throw new UserFriendlyException("租户已失效");
+            }
+        }
     }
 }

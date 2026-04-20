@@ -155,10 +155,7 @@ namespace kevin.Application
             {
                 throw new UserFriendlyException("账户或密码错误");
             }
-            if (!user.Status)
-            {
-                throw new UserFriendlyException("用户已失效");
-            }
+            user.LoginUserCheck();
             var roleData = userBindRoleRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).Include(u => u.Role).ToList();
             user.Roles = roleData.Where(r => r.Role != default).Select(r => new dtoRole { Id = r.RoleId, Name = r.Role?.Name ?? "", Remarks = r.Role?.Remarks ?? "", CreateTime = r.Role?.CreateTime ?? DateTime.Now }).ToList();
             return user;
@@ -543,10 +540,7 @@ namespace kevin.Application
             var data = userRp.Query().Where(x => x.Id == Id && x.IsDelete == false && x.TenantId == CurrentUser.TenantId).FirstOrDefault();
             if (data != default)
             {
-                if (data.IsSuperAdmin)
-                {
-                    throw new UserFriendlyException("超级管理员不能删除");
-                }
+                data.DeleteCheck();
                 //编辑
                 data.IsDelete = true;
                 data.DeleteTime = DateTime.Now;
