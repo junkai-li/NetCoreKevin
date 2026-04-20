@@ -92,6 +92,34 @@ ollama run qwen3:4b
 系统配置如下
 ![输入图片说明](Doc/localve.png)
 
+# 🌐 自动任务配置（Hangfire）
+默认基于redis方式注册Hangfire可在Kevin.Hangfire.ServiceCollectionExtensions自行添加或调整注入方式
+
+1.继承IModuleConfigTasks类实现ConfigTasks会自动注册任务，可直接调用应用服务
+
+```
+    /// <summary>
+    /// AIKmssTasks配置任务设置
+    /// </summary>
+    public class AIKmssModuleConfigTasks : IModuleConfigTasks
+    {  
+        /// <summary>
+        /// 配置任务
+        /// </summary>
+        public Task<bool> ConfigTasks(IRecurringJobManager recurringJobManager)
+        {
+            recurringJobManager.AddOrUpdate<IAIKmssService>(
+                recurringJobId: "每6分钟检测是否有AI文档知识库需要处理",      // 唯一的 ID，用于后续修改或删除
+                (s) => s.ProcessKmssVectorData(default),
+                "0 0/6 0/1 * * ? ", new RecurringJobOptions
+                {
+                    TimeZone = TimeZoneInfo.Local,        // 指定时区（默认UTC） 
+                }
+            );
+            return Task.FromResult(true);
+        } 
+    }
+```
 
 
 # 🌐 项目概述
