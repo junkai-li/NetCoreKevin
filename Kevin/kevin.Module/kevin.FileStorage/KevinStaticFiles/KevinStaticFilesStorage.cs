@@ -9,6 +9,7 @@ namespace kevin.FileStorage.KevinStaticFiles
     {
         private readonly Models.FileStorageSetting fileStorageSetting;
 
+        private static string _url { get; set; }=string.Empty;
 
         // <summary>
         /// 提取URL中第一个'/'之前的部分（协议+主机+端口）
@@ -59,15 +60,16 @@ namespace kevin.FileStorage.KevinStaticFiles
         {
             fileStorageSetting = config.CurrentValue;
             if (string.IsNullOrEmpty(fileStorageSetting.Url))
-            { 
+            {
                 try
                 {
                     fileStorageSetting.Url = $"{ExtractProtocolAndHost(_httpContextAccessor.GetUrl())}/" + fileStorageSetting.RequestPath;
+                    _url = fileStorageSetting.Url;
                 }
                 catch (Exception)
                 {
-                    fileStorageSetting.Url = $"http://localhost:9901"; 
-                } 
+                    fileStorageSetting.Url = _url ?? $"http://localhost:9901";
+                }
             }
 
         }
