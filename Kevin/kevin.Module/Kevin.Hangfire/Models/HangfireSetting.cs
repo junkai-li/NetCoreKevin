@@ -1,4 +1,4 @@
-﻿namespace Kevin.Hangfire.Models
+namespace Kevin.Hangfire.Models
 {
     public class HangfireSetting
     {
