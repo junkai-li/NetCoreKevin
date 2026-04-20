@@ -95,7 +95,7 @@ ollama run qwen3:4b
 # 🌐 自动任务配置（Hangfire）
 默认基于redis方式注册Hangfire可在Kevin.Hangfire.ServiceCollectionExtensions自行添加或调整注入方式
 
-1.继承IModuleConfigTasks类实现ConfigTasks会自动注册任务，可直接调用应用服务
+1.继承IModuleConfigTasks类实现ConfigTasks会在项目启动时自动注册任务，并且自动任务可以基于接口类直接调用应用服务
 
 ```
     /// <summary>
