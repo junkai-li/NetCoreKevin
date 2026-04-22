@@ -1,12 +1,9 @@
-﻿using Amazon.Runtime.Internal.Transform;
-using Elastic.Transport;
-using Kevin.Common.Extension;
+﻿using Kevin.Common.Extension;
 using Kevin.HttpApiClients.Helper;
 using Kevin.RAG.Dto;
 using Kevin.RAG.Ollama.Models;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
-using MongoDB.Bson;
 using OllamaSharp;
 
 namespace Kevin.RAG.Ollama

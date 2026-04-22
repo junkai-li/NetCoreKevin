@@ -3,7 +3,6 @@ using Kevin.RAG.Interfaces;
 using Kevin.RAG.Qdrant.Models;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
-using MongoDB.Driver;
 using Qdrant.Client;
 using Qdrant.Client.Grpc;
 
