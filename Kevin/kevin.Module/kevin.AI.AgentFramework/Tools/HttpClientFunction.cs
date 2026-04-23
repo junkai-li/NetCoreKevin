@@ -1,17 +1,9 @@
-﻿using Azure;
-using kevin.AI.AgentFramework.Interfaces;
+﻿using kevin.AI.AgentFramework.Interfaces;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Reflection.Metadata;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace kevin.AI.AgentFramework.Tools
 {

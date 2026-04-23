@@ -8,15 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup> 
-      <PackageReference Include="Azure.AI.OpenAI" Version="2.9.0-beta.1" /> 
-      <PackageReference Include="HttpMataki.NET.Auto" Version="1.0.3" />  
-      <PackageReference Include="Microsoft.Agents.AI" Version="1.1.0" />
-      <PackageReference Include="Microsoft.Agents.AI.Abstractions" Version="1.1.0" />
-      <PackageReference Include="Microsoft.Agents.AI.AzureAI" Version="1.0.0-rc4" />
-      <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.1.0" />
-      <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.1.0" />
+      <PackageReference Include="HttpMataki.NET.Auto" Version="1.0.3" />
+      <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.2.0" />
       <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.11" />
-      <PackageReference Include="ModelContextProtocol" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.2.0" />
+      <PackageReference Include="ModelContextProtocol" Version="1.2.0" />
       <PackageReference Include="OpenTelemetry" Version="1.14.0" />
       <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.14.0" />
       <PackageReference Include="System.Linq.Async" Version="7.0.0" />
