@@ -6,7 +6,7 @@ using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebApi.Controllers.v1
+namespace Kevin.Web.Basics.Controllers
 {
 
     /// <summary>

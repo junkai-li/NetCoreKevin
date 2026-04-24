@@ -5,13 +5,11 @@ using kevin.Domain.Share.Dtos.Organizational;
 using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 using Web.Filters;
 
-namespace App.WebApi.Controllers.v1.Organizational
+namespace Kevin.Web.Basics.AI.Organizational
 {
     /// <summary>
     /// 部门管理

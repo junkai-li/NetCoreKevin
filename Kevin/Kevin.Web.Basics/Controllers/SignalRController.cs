@@ -1,18 +1,9 @@
-﻿using kevin.Application;
-using kevin.Domain.Interfaces.IServices;
-using kevin.Domain.Share.Attributes;
-using kevin.Domain.Share.Dtos;
-using kevin.Permission.Permission.Attributes;
-using kevin.Permission.Permisson.Attributes;
-using Kevin.SignalR.Service;
+﻿using Kevin.SignalR.Service;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace App.WebApi.Controllers
+namespace Kevin.Web.Basics.Controllers
 {
     /// <summary>
     /// SignalR相关API服务

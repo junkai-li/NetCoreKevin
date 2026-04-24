@@ -1,16 +1,13 @@
 ﻿using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Share.Attributes;
 using kevin.Domain.Share.Dtos;
-using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Dtos.System;
 using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace App.WebApi.Controllers
+namespace Kevin.Web.Basics.Controllers
 {
     /// <summary>
     /// 租户管理

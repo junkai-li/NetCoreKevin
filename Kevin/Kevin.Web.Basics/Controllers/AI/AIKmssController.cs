@@ -1,17 +1,14 @@
-﻿using kevin.Application.Services.AI;
-using kevin.Domain.Interfaces.IServices.AI;
+﻿using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Attributes;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 
-namespace App.WebApi.Controllers.v1.AI
+namespace Kevin.Web.Basics.AI
 {
     /// <summary>
     /// AI知识库管理

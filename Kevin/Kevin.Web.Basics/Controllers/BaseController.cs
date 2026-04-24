@@ -5,9 +5,8 @@ using Kevin.SnowflakeId.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
 
-namespace WebApi.Controllers
+namespace Kevin.Web.Basics.Controllers
 {
     /// <summary>
     /// 系统基础方法控制器

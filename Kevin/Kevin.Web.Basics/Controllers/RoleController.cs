@@ -4,12 +4,10 @@ using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using kevin.Share.Dtos.System;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 
-namespace App.WebApi.Controllers.v1
+namespace Kevin.Web.Basics.Controllers
 {
     /// <summary>
     /// 角色管理

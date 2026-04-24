@@ -1,6 +1,5 @@
 ﻿using kevin.Domain.Entities;
 using kevin.Domain.Interfaces.IServices;
-using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -8,12 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using SkiaSharp;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace WebApi.Controllers
+namespace Kevin.Web.Basics.Controllers
 {
 
     /// <summary>

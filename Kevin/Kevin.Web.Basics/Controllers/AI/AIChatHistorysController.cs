@@ -6,67 +6,63 @@ using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using Kevin.Web.Filters.TransactionScope.Attribute;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
-using Web.Filters;
 
-namespace App.WebApi.Controllers.v1.AI
+namespace Kevin.Web.Basics.AI
 {
-
     /// <summary>
-    /// AI对话
+    /// AI对话记录
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
     [MyArea("AI管理", "AI")]
-    [MyModule("AI对话管理", "AIChats")]
-    public class AIChatsController : ControllerBase
+    [MyModule("AI对话聊天记录管理", "AIChatHistorys")]
+    public class AIChatHistorysController : ControllerBase
     {
-        private IAIChatsService _service { get; set; }
+        private IAIChatHistorysService _service { get; set; }
 
-        public AIChatsController(IAIChatsService service)
+        public AIChatHistorysController(IAIChatHistorysService service)
         {
             this._service = service;
         }
         /// <summary>
-        /// 获取我的AI对话列表
+        /// 获取AI对话聊天记录
         /// </summary>
         /// <param name="par"></param>
         /// <returns></returns>
-        [HttpPost("GetMyPageData")]
-        [ActionDescription("获取我的AI对话列表")] 
-        [HttpLog("AI对话管理", "获取我的AI对话列表")]
-        public async Task<dtoPageData<AIChatsDto>> GetMyPageData([FromBody] dtoPagePar<string> par)
+        [HttpPost("GetPageData")]
+        [ActionDescription("获取AI对话聊天记录")]
+        [HttpLog("AI对话聊天记录管理", "获取AI对话聊天记录")]
+        public async Task<dtoPageData<AIChatHistorysDto>> GetPageData([FromBody] dtoPagePar<string> par)
         {
-            var result = await _service.GetMyPageData(par);
+            var result = await _service.GetPageData(par);
             return result;
         }
 
         /// <summary>
-        /// 新增AI对话
+        /// 新增AI对话聊天记录
         /// </summary>
         /// <param name="par"></param>
         /// <returns></returns>
 
         [HttpPost("Add")]
-        [ActionDescription("新增AI对话")]
-        [HttpLog("AI对话管理", "新增AI对话")]
+        [ActionDescription("新增AI对话聊天记录")]
+        [HttpLog("AI对话聊天记录管理", "新增AI对话聊天记录")]
         [Transactional]
-        public async Task<AIChatHistorysDto> Add([FromBody] AIChatsDto par)
+        public async Task<AIChatHistorysDto> Add([FromBody] AIChatHistorysDto par)
         {
             var result = await _service.Add(par);
             return result;
         }
         /// <summary>
-        /// 删除AI对话
+        /// 删除AI对话聊天记录
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        [ActionDescription("删除AI对话")]
-        [HttpLog("AI对话管理", "删除AI对话")]
+        [ActionDescription("删除AI对话聊天记录")]
+        [HttpLog("AI对话聊天记录管理", "删除AI对话聊天记录")]
         [HttpDelete("Delete")]
         [Transactional]
         public async Task<bool> Delete([FromQuery][Required] long Id)

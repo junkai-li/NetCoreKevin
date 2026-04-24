@@ -10,12 +10,9 @@ using Kevin.Web.Filters.TransactionScope.Attribute;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Web.Filters;
 
-namespace WebApi.Controllers.v1
+namespace Kevin.Web.Basics.Controllers
 {
 
 

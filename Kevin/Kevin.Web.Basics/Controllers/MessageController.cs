@@ -1,22 +1,17 @@
-﻿using kevin.Application.Services;
-using kevin.Domain.Interfaces.IServices;
+﻿using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Share.Attributes;
 using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.Msg;
 using kevin.Domain.Share.Dtos.System;
-using kevin.Domain.Share.Dtos.User;
 using kevin.Domain.Share.Enums;
 using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
-using kevin.Share.Dtos.System;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 using Web.Filters;
 
-namespace App.WebApi.Controllers.v1
+namespace Kevin.Web.Basics.Controllers
 {
     /// <summary>
     /// 消息管理

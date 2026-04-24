@@ -28,12 +28,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="App.WebApi.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Properties\launchSettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\v1\" />
   </ItemGroup>
 
 

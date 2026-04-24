@@ -1,17 +1,13 @@
-﻿using kevin.Application;
-using kevin.CodeGenerator;
+﻿using kevin.CodeGenerator;
 using kevin.CodeGenerator.Dto;
-using kevin.Domain.Interfaces.IServices;
 using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 using Web.Global.Exceptions;
 
-namespace App.WebApi.Controllers
+namespace Kevin.Web.Basics.Controllers
 {
     /// <summary>
     /// 代码生成器

@@ -7,9 +7,8 @@ using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 
-namespace AdminApi.Controllers
+namespace Kevin.Web.Basics.Controllers
 {
     /// <summary>
     /// 权限管理

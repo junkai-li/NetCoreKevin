@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Repository.Database;
 using Web.Global.User;
 
-namespace Kevin.Web.Controllers
+namespace Kevin.Web.Basics.Controllers
 {
     [ApiController]
     public class ApiControllerBase : ControllerBase
