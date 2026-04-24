@@ -133,28 +133,34 @@ ollama run qwen3:4b
 
 5.因为引用的Kevin.Web.Basics模块 后续更新同步只需拉取NetCoreKevin新代码，好处是可以即保持框架更新也可以开发自己的业务
 
-# 🌐 项目概述
-NetCoreKevin 是一个基于 DDD（Domain-Driven Design） 和 微服务架构 的 .NET 8 Web API 项目，其核心目标是提供一个可复用、模块化、可扩展的架构平台。它集成了以下关键功能：
-
-    身份认证与授权（基于 IdentityServer4）
-    多缓存支持（Redis、内存缓存）
-    分布式系统支持（CAP 集成事件）
-    多租户支持（一库多租户）
-    任务调度
-    日志系统（log4Net）
-    实时通信（SignalR）
-    AI 集成（SemanticKernel、OCR 验证码识别）
-    短信服务（阿里云、腾讯云）
-    文件存储（阿里云、腾讯云）
-    自动化爬虫（Selenium）
-    模块化依赖注入（IOC）
-    多版本 API 兼容
-    单元测试支持
-    Docker 支持
-    RabbitMQ
+# 🌐 项目概述 
 
  ![输入图片说明](Doc/image.png)
 
+
+# 🧰 技术亮点
+技术点	说明
+
+- .NET 9	最新的 .NET 框架，性能更优，支持更多新特性
+- DDD	领域驱动设计，将复杂业务逻辑抽象为模块化结构
+- 微服务架构	通过 Consul、CAP、Quartz 等实现服务解耦和分布式管理
+- CAP	消息总线，用于跨服务事件通信
+- MediatR	领域事件处理
+- IdentityServer4	安全认证中心，支持 OAuth2 和 OpenID Connect
+- Hangfire	定时任务调度
+- EF Core	ORM 工具，用于数据库操作
+- Docker	容器化部署，便于环境管理
+- AI 集成	SemanticKernel、MCP 服务、OCR 验证码识别等 AI 技术
+
+# 🧠 AI 集成说明
+
+Skill 工具使用：基于Agent-Framework 语义理解框架，实现自然语言处理及技能（Skill）的调用与编排。
+
+Tools 工具自定义开发：支持自定义 AI 工具开发，如 OCR 验证码识别等图像识别工具。
+
+MCP 服务：用于 AI 服务之间的通信与协议扩展。
+
+Agent-Framework 框架开发：借助 Agent 开发框架构建智能代理，支持多步推理与任务自动化。
 
 # 🧩 项目结构详解
 以下是项目的核心模块及其功能说明：
@@ -233,28 +239,6 @@ IOC容器：提供模块化依赖注入。
 
 Web工具层：包含全局过滤器、中间件等Web相关基础组件。
 
-
-# 🧰 技术亮点
-技术点	说明
-
-- .NET 8	最新的 .NET 框架，性能更优，支持更多新特性
-- DDD	领域驱动设计，将复杂业务逻辑抽象为模块化结构
-- 微服务架构	通过 Consul、CAP、Quartz 等实现服务解耦和分布式管理
-- CAP	消息总线，用于跨服务事件通信
-- MediatR	领域事件处理
-- IdentityServer4	安全认证中心，支持 OAuth2 和 OpenID Connect
-- Hangfire	定时任务调度
-- EF Core	ORM 工具，用于数据库操作
-- Docker	容器化部署，便于环境管理
-- AI 集成	SemanticKernel、MCP 服务、OCR 验证码识别等 AI 技术
-
-# 🧠 AI 集成说明
-AI 模块包括：
-
-- SemanticKernel：语义理解框架，支持自然语言处理。
-- OCR 验证码识别：通过 AI 技术识别验证码图像。
-- MCP 服务：用于 AI 服务通信或协议扩展。
-
 # 📝 总结
 NetCoreKevin 是一个非常完整的微服务架构项目，结合了 DDD、CAP、Hangfire、EFCore 等多种技术，并集成了 AI、OCR、短信、文件存储等实用功能。其模块化设计使得每个功能都可以独立引用，非常适合大型企业级应用的开发。
 ## Star History
@@ -274,8 +258,4 @@ NetCoreKevin 是一个非常完整的微服务架构项目，结合了 DDD、CAP
  |  ![输入图片说明](Doc/wx.jpeg) |     ![输入图片说明](Doc/wx_jiaoliuqun.JPG)  | 
 |---|---|
 
-# DDD思想    
-![输入图片说明](Doc/e6daeb16-5b1e-487b-93be-f73f5201964a.png)
-# 思维导图
-![思维导图](Doc/junkai-li-NetCoreKevin-mindmap.png)
 
