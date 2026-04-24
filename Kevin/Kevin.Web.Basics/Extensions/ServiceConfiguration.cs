@@ -107,9 +107,7 @@ namespace Web.Extension
             });
 
             services.AddControllers().AddControllersAsServices(); //控制器当做实例创建 
-            services.AddKevinApiVersioning(new System.Collections.Generic.List<string> {
-           "kevin.Domain.Share.xml","App.WebApi.xml"
-            }); //api版本
+            services.AddKevinApiVersioning(); //api版本
 
             #region 缓存服务模式
             //注册缓存服务 内存模式

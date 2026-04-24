@@ -18,12 +18,12 @@ namespace Kevin.Api.Versioning
         /// <summary>
         /// 添加版本控制
         /// </summary>
-        /// <param name="services"></param>
-        /// <param name="xmls">xml文件名称列表</param>
-        public static void AddKevinApiVersioning(this IServiceCollection services,List<string> xmls)
+        /// <param name="services"></param> 
+        public static void AddKevinApiVersioning(this IServiceCollection services)
         {
             services.AddEndpointsApiExplorer();
-            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerConfigureOptions>(); 
+            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerConfigureOptions>();
+            var xmlFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml");
             //注册Swagger生成器，定义一个和多个Swagger 文档
             services.AddSwaggerGen(options =>
             {
@@ -31,7 +31,7 @@ namespace Kevin.Api.Versioning
 
                 options.MapType<long>(() => new OpenApiSchema { Type = "string", Format = "long" });
                 //其他类库的注释文件
-                foreach (var item in xmls)
+                foreach (var item in xmlFiles)
                 {
                     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, item), true);
                 }   
