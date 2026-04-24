@@ -78,19 +78,19 @@
 |--|--|--|
 
 # 🧰基于Ollama部署本地模型
-Ollama 支持多种操作系统，包括 macOS、Windows、Linux 以及通过 Docker 容器运行。
-Ollama 对硬件要求不高，旨在让用户能够轻松地在本地运行、管理和与大型语言模型进行交互。
-CPU：多核处理器（推荐 4 核或以上）。
-GPU：如果你计划运行大型模型或进行微调，推荐使用具有较高计算能力的 GPU（如 NVIDIA 的 CUDA 支持）。
-内存：至少 8GB RAM，运行较大模型时推荐 16GB 或更高。
-存储：需要足够的硬盘空间来存储预训练模型，通常需要 10GB 至数百 GB 的空间，具体取决于模型的大小。 
 
-Ollama 官方下载地址：[https://ollama.com/download](https://ollama.com/download)
+- Ollama 支持多种操作系统，包括 macOS、Windows、Linux 以及通过 Docker 容器运行。
+- Ollama 对硬件要求不高，旨在让用户能够轻松地在本地运行、管理和与大型语言模型进行交互。
+- CPU：多核处理器（推荐 4 核或以上）。
+- GPU：如果你计划运行大型模型或进行微调，推荐使用具有较高计算能力的 GPU（如 NVIDIA 的 CUDA 支持）。
+- 内存：至少 8GB RAM，运行较大模型时推荐 16GB 或更高。
+- 存储：需要足够的硬盘空间来存储预训练模型，通常需要 10GB 至数百 GB 的空间，具体取决于模型的大小。 
+- Ollama 官方下载地址：[https://ollama.com/download](https://ollama.com/download)
+- 1.安装后运行模型 可根据电脑配置自由选择模型 可以使用qwen3:4b来进行测试
+- ollama run qwen3:4b
+- 系统配置如下
+- ![输入图片说明](Doc/localve.png)
 
-1.安装后运行模型 可根据电脑配置自由选择模型 可以使用qwen3:4b来进行测试
-ollama run qwen3:4b
-系统配置如下
-![输入图片说明](Doc/localve.png)
 
 # 🌐 自动任务配置（Hangfire）
 默认基于redis方式注册Hangfire可在Kevin.Hangfire.ServiceCollectionExtensions自行添加或调整注入方式
@@ -122,16 +122,13 @@ ollama run qwen3:4b
 ```
 # 🌐 新项目使用教程(基于NetCoreKevin进行二次开发)
 
-1.新建项目直接引用Kevin.Web.Basics
-![输入图片说明](InitData/new1.png)
+- 1.新建项目直接引用Kevin.Web.Basics
+- ![输入图片说明](InitData/new1.png)
+- 2.copy所有的appsettings.json文件到新项目还有Program的代码
+- 3.调整配置文件的数据库和redis配置以及json中MigrationsAssembly为新项目的程序集，如上图应设“AINet.Domain”
+- 4.项目结构可参考上图或者开源架构中的App模块
+- 5.因为引用的Kevin.Web.Basics模块 后续更新同步只需拉取NetCoreKevin新代码，好处是可以即保持框架更新也可以开发自己的业务
 
-2.copy所有的appsettings.json文件到新项目还有Program的代码
-
-3.调整配置文件的数据库和redis配置以及json中MigrationsAssembly为新项目的程序集，如上图应设“AINet.Domain”
-
-4.项目结构可参考上图或者开源架构中的App模块
-
-5.因为引用的Kevin.Web.Basics模块 后续更新同步只需拉取NetCoreKevin新代码，好处是可以即保持框架更新也可以开发自己的业务
 
 # 🌐 项目概述 
 
@@ -153,14 +150,11 @@ ollama run qwen3:4b
 - AI 集成	SemanticKernel、MCP 服务、OCR 验证码识别等 AI 技术
 
 # 🧠 AI 集成说明
+- Skill 工具使用：基于Agent-Framework 语义理解框架，实现自然语言处理及技能（Skill）的调用与编排。
+- Tools 工具自定义开发：支持自定义 AI 工具开发，如 OCR 验证码识别等图像识别工具。
+- MCP 服务：用于 AI 服务之间的通信与协议扩展。
+- Agent-Framework 框架开发：借助 Agent 开发框架构建智能代理，支持多步推理与任务自动化。
 
-Skill 工具使用：基于Agent-Framework 语义理解框架，实现自然语言处理及技能（Skill）的调用与编排。
-
-Tools 工具自定义开发：支持自定义 AI 工具开发，如 OCR 验证码识别等图像识别工具。
-
-MCP 服务：用于 AI 服务之间的通信与协议扩展。
-
-Agent-Framework 框架开发：借助 Agent 开发框架构建智能代理，支持多步推理与任务自动化。
 
 # 🧩 项目结构详解
 以下是项目的核心模块及其功能说明：
