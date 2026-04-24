@@ -85,7 +85,9 @@ namespace Repository.Database
         {
 
             var optionsBuilder = new DbContextOptionsBuilder<KevinDbContext>();
-
+            var migrationsAssembly = Configuration.GetValue<string>("MigrationsAssembly")
+                         ?? Assembly.GetEntryAssembly()?.GetName().Name
+                         ?? "DefaultAssembly";
 
             //SQLServer:"Data Source=localhost;Initial Catalog=webcore;User ID=sa;Password=123456;Max Pool Size=100;Encrypt=False"
             //MySQL:"server=127.0.0.1;database=webcore;user id=root;password=123456;maxpoolsize=100"
@@ -102,8 +104,12 @@ namespace Repository.Database
                     }
                 }
                 //optionsBuilder.UseSqlServer(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory"));
-                //optionsBuilder.UseMySQL(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory"));
-                optionsBuilder.UseMySql(ConnectionString, new MySqlServerVersion(new Version(8, 0, 22)), o => o.MigrationsHistoryTable("__efmigrationshistory"));
+                //optionsBuilder.UseMySQL(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory")); 
+                optionsBuilder.UseMySql(ConnectionString, new MySqlServerVersion(new Version(8, 0, 22)), o =>
+                {
+                    o.MigrationsHistoryTable("__efmigrationshistory");
+                    o.MigrationsAssembly(migrationsAssembly);
+                });
                 //optionsBuilder.UseSqlite(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory"));
                 //optionsBuilder.UseNpgsql(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory"));
             }
@@ -145,7 +151,7 @@ namespace Repository.Database
                 }
                 catch (Exception ex)
                 {
-                    LogHelper.logger.Error(ex); 
+                    LogHelper.logger.Error(ex);
                 }
 
             }
