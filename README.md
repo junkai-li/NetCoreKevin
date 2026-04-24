@@ -120,6 +120,16 @@ ollama run qwen3:4b
         } 
     }
 ```
+# 🌐 新项目使用教程
+
+1.新建项目直接引用Kevin.Web.Basics
+![输入图片说明](InitData/new1.png)
+
+2.copy所有的appsettings.json文件到新项目还有Program的代码
+
+3.调整配置文件的数据库和redis配置以及json中MigrationsAssembly为新项目的程序集，如上图应设“AINet.Domain”
+
+4.项目结构可参考上图或者开源架构中的App模块
 
 
 # 🌐 项目概述
