@@ -120,7 +120,7 @@ ollama run qwen3:4b
         } 
     }
 ```
-# 🌐 新项目使用教程
+# 🌐 新项目使用教程(基于NetCoreKevin进行二次开发)
 
 1.新建项目直接引用Kevin.Web.Basics
 ![输入图片说明](InitData/new1.png)
@@ -131,6 +131,7 @@ ollama run qwen3:4b
 
 4.项目结构可参考上图或者开源架构中的App模块
 
+5.因为引用的Kevin.Web.Basics模块 后续更新同步只需拉取NetCoreKevin新代码，好处是可以即保持框架更新也可以开发自己的业务
 
 # 🌐 项目概述
 NetCoreKevin 是一个基于 DDD（Domain-Driven Design） 和 微服务架构 的 .NET 8 Web API 项目，其核心目标是提供一个可复用、模块化、可扩展的架构平台。它集成了以下关键功能：
