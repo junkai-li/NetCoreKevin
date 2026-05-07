@@ -50,9 +50,8 @@
 -   `执行初始化数据库命令：在vs中“程序包管理控制台”选择Kevin.EntityFrameworkCore项目 执行NuGet命令  Add-Migration "初始化数据库"  在执行=》 Update-Database  执行完成后开始第三步`
 -   第三步
 -   `启动App.WebApi第一次启动会初始化种子数据 种子数据配置可以在kevin.Domain.BaseDatas下面查看和更改 启动后通过http://localhost:9901/swagger/index.html路由查看接口页面和如下页面`
+ 
 -   第四步
--  `启动App.AuthorizationService项目统一授权中心`
--   第五步
 -   `在vue文件夹下面启动前端 前端运行步骤：1、安装依赖npm install 2、运行npm run serve 3、打包npm run build`
 
 ![输入图片说明](Doc/server.png)
@@ -142,8 +141,7 @@
 - DDD	领域驱动设计，将复杂业务逻辑抽象为模块化结构
 - 微服务架构	通过 Consul、CAP、Quartz 等实现服务解耦和分布式管理
 - CAP	消息总线，用于跨服务事件通信
-- MediatR	领域事件处理
-- IdentityServer4	安全认证中心，支持 OAuth2 和 OpenID Connect
+- MediatR	领域事件处理 
 - Hangfire	定时任务调度
 - EF Core	ORM 工具，用于数据库操作
 - Docker	容器化部署，便于环境管理
