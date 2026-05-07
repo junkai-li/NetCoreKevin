@@ -121,7 +121,7 @@
     }
 ```
 # 🌐 新项目使用教程(基于NetCoreKevin进行二次开发)
-
+[项目地址：https://gitee.com/netkevin-li/ainet](https://gitee.com/netkevin-li/ainet)
 - 1.新建项目直接引用Kevin.Web.Basics
 - ![输入图片说明](InitData/new1.png)
 - 2.copy所有的appsettings.json文件到新项目还有Program的代码
