@@ -83,11 +83,12 @@ namespace Repository.Database
 
         private static DbContextOptions<KevinDbContext> GetDbContextOptions(IConfiguration Configuration)
         {
-
             var optionsBuilder = new DbContextOptionsBuilder<KevinDbContext>();
-            var migrationsAssembly = Configuration.GetValue<string>("MigrationsAssembly")
+            var migrationsAssembly = (Configuration != default ? Configuration.GetValue<string>("MigrationsAssembly") : ConfigHelper.GetValue("MigrationsAssembly"))
                          ?? Assembly.GetEntryAssembly()?.GetName().Name
                          ?? "DefaultAssembly";
+
+
 
             //SQLServer:"Data Source=localhost;Initial Catalog=webcore;User ID=sa;Password=123456;Max Pool Size=100;Encrypt=False"
             //MySQL:"server=127.0.0.1;database=webcore;user id=root;password=123456;maxpoolsize=100"

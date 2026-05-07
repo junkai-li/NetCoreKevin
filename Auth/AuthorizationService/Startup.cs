@@ -1,6 +1,7 @@
 using Aop.Api.Domain;
 using kevin.Cache;
 using Kevin.Common.App.Global;
+using Kevin.Common.Helper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +31,8 @@ namespace AuthorizationService
         {
             Repository.Database.KevinDbContext.ConnectionString = Configuration.GetConnectionString("dbConnection");
             Repository.Database.KevinDbContext.DBDefaultHasIndexFields = Configuration.GetSection("DBDefaultHasIndexFields")?.Get<string>()?.Split(",")?.ToList();
-            services.AddDbContextPool<Repository.Database.KevinDbContext>(options => { }, 100); 
+            ConfigHelper.Initialize(Configuration);
+            services.AddDbContextPool<Repository.Database.KevinDbContext>(options => { }, 100);
             //×¢ÈëIdentityServer·þÎñ
             services.AddIdentityServer(options =>
             {
@@ -47,13 +49,13 @@ namespace AuthorizationService
                 .AddInMemoryApiScopes(Config.ApiScopes)
                 .AddInMemoryClients(Config.Clients)
                  .AddProfileService<ImplicitProfileService>()
-                .AddResourceOwnerValidator<ResourceOwnerPasswordValidator>(); 
+                .AddResourceOwnerValidator<ResourceOwnerPasswordValidator>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "AuthorizationService", Version = "v1" });
             });
-            services.AddKevinMemoryCache(); 
+            services.AddKevinMemoryCache();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
