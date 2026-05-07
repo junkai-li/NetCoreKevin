@@ -34,7 +34,7 @@ namespace Kevin.Web.Basics.AI
         /// <param name="par"></param>
         /// <returns></returns>
         [HttpPost("GetMyPageData")]
-        [ActionDescription("获取我的AI对话列表")] 
+        [ActionDescription("获取我的AI对话列表")]
         [HttpLog("AI对话管理", "获取我的AI对话列表")]
         public async Task<dtoPageData<AIChatsDto>> GetMyPageData([FromBody] dtoPagePar<string> par)
         {

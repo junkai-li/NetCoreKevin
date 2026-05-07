@@ -1,10 +1,7 @@
 ﻿using Kevin.Web.Filters.TransactionScope.Attribute;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
-using System;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace Kevin.Web.Filters.TransactionScope

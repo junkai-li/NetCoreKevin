@@ -1,11 +1,5 @@
 ﻿using kevin.Domain.Share.Dtos.Bases;
-using kevin.Domain.Share.Dtos.System;
 using kevin.Domain.Share.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Domain.Share.Dtos.AI
 {
@@ -16,7 +10,7 @@ namespace kevin.Domain.Share.Dtos.AI
         /// <summary>
         /// 文件名称
         /// </summary> 
-        public long? FileId { get; set; } 
+        public long? FileId { get; set; }
         /// <summary>
         /// 数据类型 Text/Word/PDF/Markdown/Html
         /// </summary>

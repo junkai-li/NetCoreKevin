@@ -1,13 +1,7 @@
 ﻿using kevin.Cache.Service;
-using Kevin.Common.Extension;
 using Kevin.SignalR.Models;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Web.Global.User;
 
 namespace Kevin.SignalR.Service

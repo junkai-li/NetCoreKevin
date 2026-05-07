@@ -2,18 +2,12 @@
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.Domain.Entities.AI;
-using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
-using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
-using kevin.Share.Dtos;
-using Kevin.AI;
 using Kevin.SignalR.Service;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
-using System;
-using Web.Global.Exceptions;
 
 namespace kevin.Application.Services.AI
 {
@@ -111,7 +105,7 @@ namespace kevin.Application.Services.AI
                     addHist.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG("请使用load_skill、read_skill_resource来获取技能指令和资源内容 加载技能然后,开始你的简单自我介绍", aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
                     {
                         Name = aiapp.Name,
-                        Description = aIPrompts.Description  ?? "你是一个智能体,请根据你的问题进行相关回答",
+                        Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
                         ChatOptions = new Microsoft.Extensions.AI.ChatOptions
                         {
                             MaxOutputTokens = aiapp.MaxAskPromptSize,

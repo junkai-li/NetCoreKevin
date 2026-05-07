@@ -1,7 +1,6 @@
 ﻿using Aliyun.OSS;
 using Aliyun.OSS.Util;
 using Microsoft.Extensions.Options;
-using TencentCloud.Waf.V20180125.Models;
 
 namespace kevin.FileStorage.AliCloud
 {

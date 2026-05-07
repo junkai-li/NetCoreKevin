@@ -66,9 +66,9 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
                             toolsMessagesI++;
                         }
                     }
-                } 
+                }
             }
-           
+
             if (allNewMessages.Count() > 0)
             {
                 var adddata = allNewMessages.Select(x => new ChatHistoryItemDto()
@@ -80,7 +80,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
                     Role = x.Role.Value,
                     SerializedMessage = JsonSerializer.Serialize(x),
                     MessageText = x.Text
-                }).ToList(); 
+                }).ToList();
                 await _chatMessageStore.AddMessagesAsync(adddata, cancellationToken);
             }
         }

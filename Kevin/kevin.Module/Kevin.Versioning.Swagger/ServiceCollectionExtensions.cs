@@ -3,18 +3,12 @@ using Kevin.Api.Versioning.Swagger;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Asp.Versioning.ApiExplorer;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 namespace Kevin.Api.Versioning
 {
     public static class ServiceCollectionExtensions
-    { 
+    {
         /// <summary>
         /// 添加版本控制
         /// </summary>
@@ -34,7 +28,7 @@ namespace Kevin.Api.Versioning
                 foreach (var item in xmlFiles)
                 {
                     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, item), true);
-                }   
+                }
                 //开启 Swagger JWT 鉴权模块
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
@@ -65,7 +59,7 @@ namespace Kevin.Api.Versioning
                     return apiDescriptions.First();
                 });
             });
-           
+
             var apiVersioningBuilder = services.AddApiVersioning(options =>
             {
                 //通过Header向客户端通报支持的版本
@@ -85,7 +79,7 @@ namespace Kevin.Api.Versioning
                     new UrlSegmentApiVersionReader(),
                     new HeaderApiVersionReader("X-API-Version"),
                     new MediaTypeApiVersionReader("version")
-                    );   
+                    );
             });
             apiVersioningBuilder.AddApiExplorer(options =>
             {
@@ -116,7 +110,7 @@ namespace Kevin.Api.Versioning
 
                     return new BadRequestObjectResult(result);
                 };
-            }); 
+            });
 
         }
     }

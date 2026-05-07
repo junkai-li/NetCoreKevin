@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
-using Kevin.HttpApiClients.Helper;
+﻿using Kevin.HttpApiClients.Helper;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Xml;
 
 namespace Web.Libraries.WeiXin.Web
 {

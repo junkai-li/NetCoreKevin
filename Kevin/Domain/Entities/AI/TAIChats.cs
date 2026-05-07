@@ -39,6 +39,6 @@
         /// <summary>
         /// 对话下的所有聊天记录
         /// </summary>
-        public virtual List<TAIChatHistorys>? TAIChatHistorys { get; set; } 
+        public virtual List<TAIChatHistorys>? TAIChatHistorys { get; set; }
     }
 }

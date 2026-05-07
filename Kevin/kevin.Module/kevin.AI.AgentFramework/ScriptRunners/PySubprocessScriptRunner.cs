@@ -1,16 +1,12 @@
 ﻿using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.AI.AgentFramework.ScriptRunners
 {
-    public  class PySubprocessScriptRunner 
+    public class PySubprocessScriptRunner
     {
         private readonly ILogger<PySubprocessScriptRunner> _logger;
         private readonly string _pythonPath; // 例如 "python" 或 "/usr/bin/python3"
@@ -20,7 +16,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
         }
         public async Task<object?> RunAsync(
 #pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
-                AgentFileSkill skill, 
+                AgentFileSkill skill,
                 AgentFileSkillScript script,
                 AIFunctionArguments arguments,
                 CancellationToken cancellationToken)
@@ -80,7 +76,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
             // 5. 处理执行结果
             if (process.ExitCode != 0)
             {
-                string errorMsg = errorBuilder.ToString();  
+                string errorMsg = errorBuilder.ToString();
                 throw new InvalidOperationException($"Script execution failed: {errorMsg}");
             }
 

@@ -8,7 +8,7 @@
     [Table("TWeiXinKey")]
     [Description("微信商户平台账户配置表")]
     public partial class TWeiXinKey : CD
-    { 
+    {
         /// <summary>
         /// WxAppId
         /// </summary>

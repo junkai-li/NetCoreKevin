@@ -1,6 +1,6 @@
-﻿using System.Text;
+﻿using DocumentFormat.OpenXml.Packaging;
+using System.Text;
 using System.Xml;
-using DocumentFormat.OpenXml.Packaging;
 
 namespace Kevin.RAG;
 
@@ -9,7 +9,7 @@ public class WordReader
     public static string ReadParagraphs(Stream documentContents)
     {
         // Open the document.
-        if(documentContents == null || !documentContents.CanRead)
+        if (documentContents == null || !documentContents.CanRead)
             throw new ArgumentException("文件流无效");
 
         // ✅ 关键步骤1：确保流可定位且支持 Seek

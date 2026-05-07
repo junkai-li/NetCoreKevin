@@ -10,8 +10,8 @@
         /// <summary>
         /// 对话id
         /// </summary>
-        public long AIChatsId { get; set; } 
-        public virtual TAIChats? AIChats { get; set; }  
+        public long AIChatsId { get; set; }
+        public virtual TAIChats? AIChats { get; set; }
         /// <summary>
         /// 消息内容
         /// </summary> 

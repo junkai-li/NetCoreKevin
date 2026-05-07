@@ -1,11 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using MediatR;
 namespace kevin.Domain.EventBus
 {
     public static class ServiceCollectionExtensions
@@ -18,7 +12,8 @@ namespace kevin.Domain.EventBus
         /// <returns></returns>
         public static void AddKevinMediatRDomainEventBus(this IServiceCollection services, IEnumerable<Assembly> assemblies)
         {
-            services.AddMediatR(cfg => {
+            services.AddMediatR(cfg =>
+            {
                 cfg.RegisterServicesFromAssemblies(assemblies.ToArray());
             });
         }

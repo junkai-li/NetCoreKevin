@@ -1,13 +1,8 @@
 ﻿using Kevin.Email.dto;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Kevin.Email
 {
@@ -41,7 +36,7 @@ namespace Kevin.Email
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public async Task<bool> SendEmail(SendEmailDto email)
-        {  
+        {
             using (MailMessage message = new())
             {
                 foreach (var filePath in email.FileList)
@@ -63,7 +58,7 @@ namespace Kevin.Email
                 message.IsBodyHtml = email.IsBodyHtml;
                 await _smtpClient.SendMailAsync(message);
             }
-            return true; 
+            return true;
         }
     }
 }

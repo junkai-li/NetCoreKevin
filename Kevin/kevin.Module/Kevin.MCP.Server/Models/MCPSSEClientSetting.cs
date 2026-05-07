@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Kevin.AI.MCP.Server.Models
+﻿namespace Kevin.AI.MCP.Server.Models
 {
     public class MCPSseClientSetting
     {
-       
+
         public MCPSseClientSetting(string Name, string Url, bool UseStreamableHttp, Dictionary<string, string>? AdditionalHeaders, TimeSpan ConnectionTimeout)
         {
             this.Name = Name;
@@ -16,7 +10,7 @@ namespace Kevin.AI.MCP.Server.Models
             this.UseStreamableHttp = UseStreamableHttp;
             this.AdditionalHeaders = AdditionalHeaders;
             this.ConnectionTimeout = ConnectionTimeout;
-        } 
+        }
         /// <summary>
         /// Name
         /// </summary>

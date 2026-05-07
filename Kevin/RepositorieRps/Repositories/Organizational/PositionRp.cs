@@ -1,5 +1,4 @@
 ﻿using kevin.Domain.Entities.Organizational;
-using Kevin.EntityFrameworkCore._.Data;
 
 namespace kevin.Domain.Interfaces.IRepositories.Organizational
 {
@@ -8,5 +7,5 @@ namespace kevin.Domain.Interfaces.IRepositories.Organizational
         public PositionRp(IServiceProvider serviceProvider) : base(serviceProvider)
         {
         }
-    } 
+    }
 }

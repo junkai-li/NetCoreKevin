@@ -14,8 +14,8 @@ namespace kevin.Domain.Entities
         {
             this.Sign = sign;
             this.Type = type;
-            this.Content = content; 
-            this.AddDomainEvent(new TLogCreatedEvent(this),EventBus.EventBusEnums.Add);
+            this.Content = content;
+            this.AddDomainEvent(new TLogCreatedEvent(this), EventBus.EventBusEnums.Add);
         }
 
         /// <summary>

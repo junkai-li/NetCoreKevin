@@ -94,7 +94,7 @@ namespace kevin.AI.AgentFramework
 #pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
                     var skill = new UnitConverterSkill();
                     var skillGetWeather = new GetWeatherSkill();
-                    var skillsProvider = new AgentSkillsProviderBuilder() 
+                    var skillsProvider = new AgentSkillsProviderBuilder()
                                         .UseFileSkill(Path.Combine(AppContext.BaseDirectory + "/Skills", "all-skills"),
                                         new AgentFileSkillsSourceOptions
                                         {

@@ -1,13 +1,10 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-
-namespace kevin.Domain.Bases
+﻿namespace kevin.Domain.Bases
 {
 
     /// <summary>
     /// 创建，编辑，删除
     /// </summary>
-    public class CUD:CD
+    public class CUD : CD
     {
 
 

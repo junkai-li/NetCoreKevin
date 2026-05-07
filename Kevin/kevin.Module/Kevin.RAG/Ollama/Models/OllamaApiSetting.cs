@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Kevin.RAG.Ollama.Models
+﻿namespace Kevin.RAG.Ollama.Models
 {
     public class OllamaApiSetting
     {

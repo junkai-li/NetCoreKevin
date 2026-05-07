@@ -25,7 +25,7 @@ namespace Kevin.Web.Basics.Controllers
         public FileController(IFileService service)
         {
             this._fileService = service;
-        } 
+        }
 
         /// <summary>
         /// 远程单文件上传接口
@@ -102,7 +102,7 @@ namespace Kevin.Web.Basics.Controllers
         public async Task<FileResult> GetFile([Required] long fileid, CancellationToken cancellationToken)
         {
             var data = await _fileService.GetFile(fileid, cancellationToken);
-            return File(data.Item1, data.Item2, data.Item3); 
+            return File(data.Item1, data.Item2, data.Item3);
         }
 
 
@@ -162,7 +162,7 @@ namespace Kevin.Web.Basics.Controllers
                         width = (int)(original.Width * percent);
                         height = (int)(original.Height * percent);
                     }
-                    var SKSamplingOptions = new SKSamplingOptions();  
+                    var SKSamplingOptions = new SKSamplingOptions();
                     using var resizeBitmap = original.Resize(new SKImageInfo(width, height), SKSamplingOptions);
                     using var image = SKImage.FromBitmap(resizeBitmap);
                     using var imageData = image.Encode(SKEncodedImageFormat.Png, 100);
@@ -171,7 +171,7 @@ namespace Kevin.Web.Basics.Controllers
 
             }
         }
-         
+
         /// <summary>
         /// 通过文件ID获取文件静态访问路径
         /// </summary>
@@ -181,8 +181,8 @@ namespace Kevin.Web.Basics.Controllers
         [HttpGet("GetFilePath")]
         public async Task<string> GetFilePath([Required] long fileid, CancellationToken cancellationToken)
         {
-            return  await _fileService.GetFilePath(fileid, cancellationToken); 
-        }  
+            return await _fileService.GetFilePath(fileid, cancellationToken);
+        }
 
         /// <summary>
         /// 通过文件ID删除文件方法
@@ -193,7 +193,7 @@ namespace Kevin.Web.Basics.Controllers
         [HttpDelete("DeleteFile")]
         public async Task<bool> DeleteFile(long id, CancellationToken cancellationToken)
         {
-            return  await _fileService.DeleteFile(id, cancellationToken);
+            return await _fileService.DeleteFile(id, cancellationToken);
         }
 
 

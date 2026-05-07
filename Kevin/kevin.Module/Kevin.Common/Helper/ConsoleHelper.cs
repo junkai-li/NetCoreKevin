@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Kevin.Common.Helper
 {
@@ -12,7 +8,7 @@ namespace Kevin.Common.Helper
     /// </summary>
     public static class ConsoleHelper
     {
-        public  enum Style
+        public enum Style
         {
             Gradient,
             Boxed,
@@ -197,7 +193,7 @@ namespace Kevin.Common.Helper
         /// <param name="frameworkName"></param>
 
         public static void PrintWithTypewriterEffect(string frameworkName)
-        { 
+        {
             // 播放提示音
             Console.ForegroundColor = ConsoleColor.Green;
 

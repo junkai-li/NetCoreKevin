@@ -11,7 +11,7 @@
             this.WeiXinKeyRp = _WeiXinKeyRp;
         }
 
-          public async Task<dtoPageData<TWeiXinKey>> GetPageData(dtoPagePar<string> dtoPagePar)
+        public async Task<dtoPageData<TWeiXinKey>> GetPageData(dtoPagePar<string> dtoPagePar)
         {
             int skip = dtoPagePar.GetSkip();
             var result = new dtoPageData<TWeiXinKey>();
@@ -38,8 +38,8 @@
             {
                 var add = data.MapTo<TWeiXinKey>();
                 add.Id = data.Id == default ? SnowflakeIdService.GetNextId() : data.Id;
-                add.IsDelete = false; 
-                add.CreateTime = DateTime.Now; 
+                add.IsDelete = false;
+                add.CreateTime = DateTime.Now;
                 add.TenantId = CurrentUser.TenantId;
                 WeiXinKeyRp.Add(add);
             }
@@ -48,24 +48,24 @@
                 var upData = WeiXinKeyRp.Query().Where(t => t.IsDelete == false && t.Id == data.Id).FirstOrDefault();
                 if (upData != default)
                 {
-                    upData= data.MapTo(upData); 
-                    upData.TenantId = CurrentUser.TenantId; 
+                    upData = data.MapTo(upData);
+                    upData.TenantId = CurrentUser.TenantId;
                 }
                 else
                 {
                     throw new UserFriendlyException("数据不存在或已删除");
-                } 
+                }
             }
-            await WeiXinKeyRp.SaveChangesAsync(); 
+            await WeiXinKeyRp.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> Delete(long id)
         {
-            var data = await WeiXinKeyRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync(); 
+            var data = await WeiXinKeyRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
             if (data != default)
             {
-                
+
                 data.IsDelete = true;
                 data.DeleteTime = DateTime.Now;
                 WeiXinKeyRp.SaveChangesWithSaveLog();

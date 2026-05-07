@@ -1,5 +1,4 @@
-﻿using kevin.Domain.Entities;
-using MediatR;
+﻿using MediatR;
 
 namespace kevin.Domain.Events
 {

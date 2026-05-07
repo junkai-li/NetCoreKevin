@@ -1,11 +1,6 @@
 ﻿using kevin.Domain.Entities.AI;
-using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IServices.AI;
-using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
-using kevin.Share.Dtos;
-using System;
-using Web.Global.Exceptions;
 
 namespace kevin.Application.Services.AI
 {
@@ -83,7 +78,7 @@ namespace kevin.Application.Services.AI
                 }
             }
             if (isAdd)
-            { 
+            {
                 var add = par.MapTo<TAIApps>();
                 add.Id = par.Id == default ? SnowflakeIdService.GetNextId() : par.Id;
                 add.IsDelete = false;
@@ -104,8 +99,8 @@ namespace kevin.Application.Services.AI
                     msg.Describe = par.Describe;
                     msg.Icon = par.Icon;
                     msg.Type = par.Type;
-                    msg.ChatModelID = par.ChatModelID; 
-                    msg.RerankModelID = par.RerankModelID; 
+                    msg.ChatModelID = par.ChatModelID;
+                    msg.RerankModelID = par.RerankModelID;
                     msg.Temperature = par.Temperature;
                     msg.KmsId = par.KmsId;
                     msg.SecretKey = par.SecretKey;
@@ -115,7 +110,7 @@ namespace kevin.Application.Services.AI
                     msg.MaxMatchesCount = par.MaxMatchesCount;
                     msg.RerankCount = par.RerankCount;
                     msg.AnswerTokens = par.AnswerTokens;
-                    msg.AIPromptID = par.AIPromptID; 
+                    msg.AIPromptID = par.AIPromptID;
                 }
                 else
                 {

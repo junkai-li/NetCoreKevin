@@ -4,7 +4,7 @@ namespace kevin.Domain.BaseDatas
 {
     public class TRoleBaseData
     {
-        public static long Id= 4514140354257222771;
+        public static long Id = 4514140354257222771;
         public static List<TRole> TRoles { get; set; } = new List<TRole>()
         {
            new TRole { Id = Id, Name = "admin",Remarks="admin", CreateTime = DateTime.Parse("2020-01-01 00:00:01"),TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32()}

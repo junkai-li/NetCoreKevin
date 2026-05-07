@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks; 
 
 namespace System
 {
     public static class FileExtension
     {
-        private static void RecursingFolder(List<string> visitedPath,string rd, Action<string, string[]> directoryAndFiles)
+        private static void RecursingFolder(List<string> visitedPath, string rd, Action<string, string[]> directoryAndFiles)
         {
             if (!Directory.Exists(rd))
             {
@@ -51,7 +48,7 @@ namespace System
             {
                 string path = fullPath;
                 int length = fullPath.Length;
-                var isWithSeparatorChar =  length != 0 && (int)fullPath[length - 1] == (int)Path.DirectorySeparatorChar;
+                var isWithSeparatorChar = length != 0 && (int)fullPath[length - 1] == (int)Path.DirectorySeparatorChar;
                 if (isWithSeparatorChar)
                     path = fullPath[0..(fullPath.Length - 1)];
                 str = Path.GetFileName(path);

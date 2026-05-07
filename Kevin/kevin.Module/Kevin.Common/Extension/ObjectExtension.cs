@@ -9,7 +9,6 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace System
 {
@@ -183,13 +182,13 @@ namespace System
                     var valueType = sourceType.GetProperty(p.Name);
                     var modelType = targetType.GetProperty(p.Name);
                     if (valueType.PropertyType != modelType.PropertyType)
-                        continue;  
+                        continue;
 
                     var value = valueType.GetValue(source);
                     if (value == null)
-                        continue; 
+                        continue;
 
-                    var preSetValue = value; 
+                    var preSetValue = value;
                     //only support simple object type not support collection
                     if (!valueType.PropertyType.IsValueType && valueType.PropertyType != typeof(String))
                     {
@@ -204,7 +203,7 @@ namespace System
                             MapToSimpleObject(source, targetPropInstance);
                         }
                         preSetValue = targetPropInstance;
-                    } 
+                    }
                     targetValueType.SetValue(destination, preSetValue);
                 }
             }
@@ -561,23 +560,23 @@ namespace System
         /// <param name="targetType">目标类型</param>
         /// <returns></returns>
         public static object ChangeType_ByConvert(this object obj, Type targetType)
-        { 
-                if (obj.GetType().ToString() == "MySql.Data.Types.MySqlDateTime") obj = obj.ToDateTime();//MySql时间类型转成C# DateTime类型
-                if ((obj.GetType() == typeof(Byte) || obj.GetType() == typeof(SByte)))
-                {
-                    obj = obj.ToTryInt16();
-                }
-                object resObj;
-                if (targetType.IsGenericType && targetType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
-                {
-                    NullableConverter newNullableConverter = new NullableConverter(targetType);
-                    resObj = newNullableConverter.ConvertFrom(obj);
-                }
-                else
-                {
-                    resObj = Convert.ChangeType(obj, targetType);
-                } 
-                return resObj; 
+        {
+            if (obj.GetType().ToString() == "MySql.Data.Types.MySqlDateTime") obj = obj.ToDateTime();//MySql时间类型转成C# DateTime类型
+            if ((obj.GetType() == typeof(Byte) || obj.GetType() == typeof(SByte)))
+            {
+                obj = obj.ToTryInt16();
+            }
+            object resObj;
+            if (targetType.IsGenericType && targetType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
+            {
+                NullableConverter newNullableConverter = new NullableConverter(targetType);
+                resObj = newNullableConverter.ConvertFrom(obj);
+            }
+            else
+            {
+                resObj = Convert.ChangeType(obj, targetType);
+            }
+            return resObj;
         }
         public static bool ToBoolean(this object value)
         {
@@ -746,7 +745,7 @@ namespace System
                 return 0;
             }
         }
-         
+
 
         public static short ToTryInt16(this object value)
         {

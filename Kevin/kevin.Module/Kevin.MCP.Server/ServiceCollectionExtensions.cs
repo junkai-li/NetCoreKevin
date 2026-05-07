@@ -20,8 +20,8 @@ namespace Kevin.AI.MCP.Server
             if (action != default)
             {
                 services.Configure(action);
-            } 
-           // services.AddTransient<IMySseToolClient, MySseToolClient>();
+            }
+            // services.AddTransient<IMySseToolClient, MySseToolClient>();
             //AddOpenTelemetry()：添加OpenTelemetry服务。
             //WithTracing()：配置跟踪，包括所有源（AddSource("*")），ASP.NET Core和HTTP客户端的自动仪器化。
             //WithMetrics()：配置度量，包括所有计量器（AddMeter("*")），ASP.NET Core和HTTP客户端的自动仪器化。

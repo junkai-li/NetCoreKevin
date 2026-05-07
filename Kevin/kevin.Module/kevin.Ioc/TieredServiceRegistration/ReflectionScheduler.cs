@@ -200,5 +200,5 @@ namespace kevin.Ioc.TieredServiceRegistration
         {
             return obj.GetName().FullName.GetHashCode();
         }
-    } 
+    }
 }

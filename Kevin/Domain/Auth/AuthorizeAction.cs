@@ -1,5 +1,4 @@
 ﻿using kevin.Cache.Service;
-using kevin.Share.Dtos;
 using Kevin.Common.App.Global;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,8 +34,8 @@ namespace Web.Auth
                 {
                     return false;
                 }
-            } 
-            return false; 
+            }
+            return false;
         }
 
 

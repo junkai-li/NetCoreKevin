@@ -1,5 +1,4 @@
-﻿using kevin.Domain.Entities;
-using kevin.Domain.Share.Enums;
+﻿using kevin.Domain.Share.Enums;
 
 namespace kevin.Domain.Entities
 {
@@ -48,13 +47,13 @@ namespace kevin.Domain.Entities
         /// 部门ID
         /// </summary> 
         [Description("部门ID")]
-        public long? DepartmentId { get; set; } 
+        public long? DepartmentId { get; set; }
 
         /// <summary>
         /// 上级用户id
         /// </summary>
         [Description("上级用户id")]
-        public long? SupervisorId { get; set; } 
+        public long? SupervisorId { get; set; }
         /// <summary>
         /// 工号
         /// </summary>

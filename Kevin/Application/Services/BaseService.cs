@@ -1,5 +1,4 @@
 ﻿using kevin.Domain.Share;
-using Kevin.Common.App.Global;
 using Kevin.SnowflakeId.Service;
 using Microsoft.Extensions.DependencyInjection;
 using Web.Global.User;
@@ -34,7 +33,7 @@ public partial class BaseService : IBaseService
         else
         {
             //非Http请求上下文时，直接new一个
-            SnowflakeIdService =  new Kevin.SnowflakeId.Service.SnowflakeIdService();
+            SnowflakeIdService = new Kevin.SnowflakeId.Service.SnowflakeIdService();
         }
     }
 }

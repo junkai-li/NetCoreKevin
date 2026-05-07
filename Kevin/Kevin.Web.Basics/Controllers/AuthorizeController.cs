@@ -3,9 +3,8 @@ using kevin.Domain.Interfaces.IServices;
 using kevin.Domain.Share.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
-namespace WebApi.Controllers
+namespace Kevin.Web.Basics.Controllers
 {
 
 
@@ -24,7 +23,7 @@ namespace WebApi.Controllers
         public ICacheService _CacheService { get; set; }
         public AuthorizeController()
         {
-        }  
+        }
         ///// <summary>
         ///// 获取Token认证信息
         ///// </summary>
@@ -34,20 +33,20 @@ namespace WebApi.Controllers
         [HttpLog("登录", "GetToken获取Token认证信息")]
         public async Task<string> GetToken([FromBody] dtoLogin login)
         {
-            return await _IAuthorizeService.GetToken(login); 
-        } 
+            return await _IAuthorizeService.GetToken(login);
+        }
         /// <summary>
         /// 利用手机号和短信验证码获取Token认证信息
         /// </summary>
         /// <param name="keyValue">key 为手机号，value 为验证码</param>
         /// <returns></returns>
         [HttpPost("GetTokenBySms")]
-        [HttpLog("登录", "GetTokenBySms利用手机号和短信验证码获取Token认证信息")]  
+        [HttpLog("登录", "GetTokenBySms利用手机号和短信验证码获取Token认证信息")]
         public async Task<string> GetTokenBySms(dtoKeyValue keyValue)
         {
             return await _IAuthorizeService.GetTokenBySms(keyValue);
 
-        } 
+        }
         /// <summary>
         /// 发送短信验证手机号码所有权
         /// </summary>
@@ -55,9 +54,9 @@ namespace WebApi.Controllers
         /// <returns></returns>
         [HttpPost("SendSmsVerifyPhone")]
         public bool SendSmsVerifyPhone(dtoKeyValue keyValue)
-        { 
-            return   _IAuthorizeService.SendSmsVerifyPhone(keyValue);
+        {
+            return _IAuthorizeService.SendSmsVerifyPhone(keyValue);
 
-        }  
+        }
     }
 }

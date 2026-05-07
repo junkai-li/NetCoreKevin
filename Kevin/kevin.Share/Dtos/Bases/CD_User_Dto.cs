@@ -10,13 +10,13 @@
         /// <summary>
         /// 创建人ID
         /// </summary> 
-        public long CreateUserId { get; set; } 
-        public virtual string? CreateUser { get; set; } 
+        public long CreateUserId { get; set; }
+        public virtual string? CreateUser { get; set; }
 
         /// <summary>
         /// 删除人ID
         /// </summary> 
-        public long? DeleteUserId { get; set; } 
+        public long? DeleteUserId { get; set; }
         public virtual string? DeleteUser { get; set; }
     }
 }

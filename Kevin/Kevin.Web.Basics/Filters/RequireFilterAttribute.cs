@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 using Web.Global.Exceptions;
 
 namespace Kevin.Web.Filters
@@ -15,8 +13,8 @@ namespace Kevin.Web.Filters
                 var errors = context.ModelState
                     .Where(e => e.Value.Errors.Count > 0)
                     .Select(e => e.Value.Errors.First().ErrorMessage)
-                    .ToList(); 
-                var str = string.Join("|", errors);  
+                    .ToList();
+                var str = string.Join("|", errors);
                 throw new UserFriendlyException("未通过数据验证：" + str);
             }
 

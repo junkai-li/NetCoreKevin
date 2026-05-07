@@ -8,7 +8,7 @@ namespace kevin.Application.TaskServices
     /// AIKmssTasks配置任务设置
     /// </summary>
     public class AIKmssModuleConfigTasks : IModuleConfigTasks
-    {  
+    {
         /// <summary>
         /// 配置任务
         /// </summary>
@@ -23,6 +23,6 @@ namespace kevin.Application.TaskServices
                 }
             );
             return Task.FromResult(true);
-        } 
+        }
     }
 }

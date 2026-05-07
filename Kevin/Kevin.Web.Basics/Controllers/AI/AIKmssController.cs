@@ -14,7 +14,7 @@ namespace Kevin.Web.Basics.AI
     /// AI知识库管理
     /// </summary>
     [Route("api/[controller]")]
-    [ApiController] 
+    [ApiController]
     [Authorize]
     [MyArea("AI管理", "AI")]
     [MyModule("AI知识库管理", "AIKmss")]

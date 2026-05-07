@@ -18,9 +18,9 @@ namespace Kevin.Web.Basics.AI
     [ApiController]
     [Authorize]
     [MyArea("AI管理", "AI")]
-    [MyModule("AI应用管理", "AIApps")] 
+    [MyModule("AI应用管理", "AIApps")]
     public class AIAppsController : ControllerBase
-    { 
+    {
         private IAIAppsService _service { get; set; }
 
         public AIAppsController(IAIAppsService service)

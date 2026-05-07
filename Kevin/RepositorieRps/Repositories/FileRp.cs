@@ -1,6 +1,4 @@
-﻿using Kevin.EntityFrameworkCore._.Data;
-
-namespace kevin.RepositorieRps.Repositories
+﻿namespace kevin.RepositorieRps.Repositories
 {
     public class FileRp : Repository<TFile, long>, IFileRp
     {

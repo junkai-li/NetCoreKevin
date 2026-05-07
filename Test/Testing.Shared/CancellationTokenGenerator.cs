@@ -7,7 +7,7 @@ namespace Testing.Shared
     {
         public object Create(object request, ISpecimenContext context)
         {
-            if(request is Type type)
+            if (request is Type type)
             {
                 return type == typeof(CancellationToken) ? new CancellationTokenSource().Token : new NoSpecimen();
             }

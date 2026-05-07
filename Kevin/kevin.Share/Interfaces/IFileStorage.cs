@@ -29,7 +29,7 @@
         /// <param name="remotePath">远程文件地址</param>
         /// <returns></returns>
         public bool FileDelete(string remotePath);
-         
+
 
         /// <summary>
         /// 获取文件临时访问URL

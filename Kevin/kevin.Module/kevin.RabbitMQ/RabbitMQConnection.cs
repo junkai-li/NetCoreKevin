@@ -1,10 +1,5 @@
 ﻿using kevin.RabbitMQ.Interfaces;
 using RabbitMQ.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.RabbitMQ
 {
@@ -16,7 +11,7 @@ namespace kevin.RabbitMQ
 
         public RabbitMQConnection(ConnectionFactory factory)
         {
-            _factory = factory ?? throw new ArgumentNullException(nameof(factory)); 
+            _factory = factory ?? throw new ArgumentNullException(nameof(factory));
             _connection = factory.CreateConnection();
         }
 

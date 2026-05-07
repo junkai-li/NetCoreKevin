@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using kevin.Domain.Share.Dtos.Bases;
 using kevin.Domain.Share.Enums;
-using kevin.Domain.Share.Dtos.Bases;
 
 namespace kevin.Domain.Share.Dtos.Organizational
 {
@@ -26,12 +21,12 @@ namespace kevin.Domain.Share.Dtos.Organizational
         /// <summary>
         /// 岗位描述
         /// </summary> 
-        public string? Description { get; set; } 
+        public string? Description { get; set; }
 
         /// <summary>
         /// 我的下级
         /// </summary>
-        public List<PositionDto> Children { get; set; }= new List<PositionDto>();
+        public List<PositionDto> Children { get; set; } = new List<PositionDto>();
 
         /// <summary>
         /// 状态（1.启用/禁用-1）

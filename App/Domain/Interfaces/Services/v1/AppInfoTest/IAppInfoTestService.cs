@@ -6,7 +6,7 @@ namespace App.Domain.Interfaces.Services.v1.AppInfoTest
     /// </summary>
     public interface IAppInfoTestService : IBaseService
     {
-         /// <summary>
+        /// <summary>
         /// ��ȡ��ҳ����
         /// </summary>
         /// <param name="dtoPagePar"></param>

@@ -59,7 +59,7 @@ namespace System
             }
             catch (Exception)
             {
-                return default; 
+                return default;
             }
         }
         /// <summary>
@@ -71,8 +71,8 @@ namespace System
         {
             try
             {
-                var value = System.Convert.ChangeType(input, typeof (T));
-                return (T) value;
+                var value = System.Convert.ChangeType(input, typeof(T));
+                return (T)value;
             }
             catch (Exception)
             {
@@ -113,7 +113,7 @@ namespace System
             int yi = amount / 100000000;
             if (yi != 0)
             {
-                AppendChineseMoney(sb, yi, zhengwei,1000);
+                AppendChineseMoney(sb, yi, zhengwei, 1000);
                 sb.Append("亿");
             }
             amount = amount % 100000000;
@@ -125,12 +125,12 @@ namespace System
             }
             int qian = amount % 10000;
             AppendChineseMoney(sb, qian, zhengwei, 1000);
-            var xiaoshu = (value - amount)*100;
+            var xiaoshu = (value - amount) * 100;
             sb.Append("元");
             if (xiaoshu == 0)
                 sb.Append("整");
             else
-                AppendChineseMoney(sb,System.Convert.ToInt32(xiaoshu), xiaowei,10);
+                AppendChineseMoney(sb, System.Convert.ToInt32(xiaoshu), xiaowei, 10);
             return sb.ToString();
         }
 
@@ -158,10 +158,10 @@ namespace System
                 }
                 value = value % divor;
                 divor = divor / 10;
-                if (value == 0)break;
+                if (value == 0) break;
             }
         }
- 
+
 
         /// <summary>
         /// 得到名称
@@ -189,7 +189,7 @@ namespace System
             if (string.IsNullOrEmpty(value)) return default;
             try
             {
-                return (T)Enum.Parse(typeof (T), value);
+                return (T)Enum.Parse(typeof(T), value);
             }
             catch (Exception)
             {
@@ -217,7 +217,7 @@ namespace System
         /// <returns></returns>
         public static T[] GetEnums<T>(this int sum)
         {
-            return (from t in (T[]) Enum.GetValues(typeof (T)) where (t.Convert<int>() & sum) > 0 select t.Convert<T>()).ToArray();
+            return (from t in (T[])Enum.GetValues(typeof(T)) where (t.Convert<int>() & sum) > 0 select t.Convert<T>()).ToArray();
         }
         /// <summary>
         /// 得到枚举组合值
@@ -236,7 +236,7 @@ namespace System
         public static T[] GetEnums<T>(this string values)
         {
             if (values == null) return null;
-            return (from value in (T[]) Enum.GetValues(typeof (T)) where values.Contains((value.Convert<int>()).ToString(CultureInfo.InvariantCulture)) select value.Convert<T>()).ToArray();
+            return (from value in (T[])Enum.GetValues(typeof(T)) where values.Contains((value.Convert<int>()).ToString(CultureInfo.InvariantCulture)) select value.Convert<T>()).ToArray();
 
         }
 

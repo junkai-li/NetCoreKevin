@@ -66,9 +66,9 @@ namespace Kevin.Web.Basics.Controllers
         [HttpDelete("DeleteSign")]
         [HttpLog("标记", "删除标记")]
         [ActionDescription("删除标记")]
-        public bool DeleteSign([FromQuery]dtoSign deleteSign)
+        public bool DeleteSign([FromQuery] dtoSign deleteSign)
         {
-            return _signService.DeleteSign(deleteSign); 
+            return _signService.DeleteSign(deleteSign);
         }
 
     }

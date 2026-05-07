@@ -9,9 +9,9 @@ namespace kevin.Domain.Entities.AI
     [Table("TAIKmsDetails")]
     [Description("TAIKmsDetails")]
     public class TAIKmsDetails : CUD_User
-    { 
+    {
         public long KmsId { get; set; }
-        public virtual TAIKmss? Kms { get; set; } 
+        public virtual TAIKmss? Kms { get; set; }
 
         /// <summary>
         /// 文件名称
@@ -21,7 +21,7 @@ namespace kevin.Domain.Entities.AI
         /// <summary>
         /// 数据类型Text  Markdown PDF Word Html
         /// </summary>
-        public string? FileType { get; set; }  
+        public string? FileType { get; set; }
         /// <summary>
         /// 内容
         /// </summary>
@@ -33,15 +33,15 @@ namespace kevin.Domain.Entities.AI
         /// <summary>
         /// 远程地址
         /// </summary>
-        public string Url { get; set; } = ""; 
+        public string Url { get; set; } = "";
         /// <summary>
         /// 数据数量
         /// </summary>
-        public int? DataCount { get; set; }   
+        public int? DataCount { get; set; }
         /// <summary>
         /// 状态
         /// </summary>
-        public ImportKmsStatus? Status { get; set; } = ImportKmsStatus.Loadding;  
+        public ImportKmsStatus? Status { get; set; } = ImportKmsStatus.Loadding;
         /// <summary>
         /// 异常消息
         /// </summary>

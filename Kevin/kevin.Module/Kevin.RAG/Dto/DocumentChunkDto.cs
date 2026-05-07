@@ -1,12 +1,5 @@
-﻿using DocumentFormat.OpenXml.EMMA;
-using Microsoft.Extensions.AI;
+﻿using Microsoft.Extensions.AI;
 using Microsoft.Extensions.VectorData;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 namespace Kevin.RAG.Dto
 {
     /// <summary>

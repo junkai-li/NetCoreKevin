@@ -1,13 +1,10 @@
 ﻿using Common.Json;
 using kevin.Cache.Service;
-using Kevin.Common.App.Global;
 using Kevin.Common.Extension;
 using Kevin.log4Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Linq;
 
 namespace Web.Filters
 {

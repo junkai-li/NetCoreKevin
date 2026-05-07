@@ -2,7 +2,7 @@
 
 namespace kevin.Domain.Interfaces.IServices
 {
-    public interface IHttpLogService: IBaseService
+    public interface IHttpLogService : IBaseService
     {
 
         /// <summary>

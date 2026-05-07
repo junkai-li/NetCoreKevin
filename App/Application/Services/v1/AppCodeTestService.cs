@@ -11,7 +11,7 @@
             this.AppCodeTestRp = _AppCodeTestRp;
         }
 
-          public async Task<dtoPageData<TAppCodeTest>> GetPageData(dtoPagePar<string> dtoPagePar)
+        public async Task<dtoPageData<TAppCodeTest>> GetPageData(dtoPagePar<string> dtoPagePar)
         {
             int skip = dtoPagePar.GetSkip();
             var result = new dtoPageData<TAppCodeTest>();
@@ -38,7 +38,7 @@
             {
                 var add = data.MapTo<TAppCodeTest>();
                 add.Id = data.Id == default ? SnowflakeIdService.GetNextId() : data.Id;
-                add.IsDelete = false; 
+                add.IsDelete = false;
                 add.CreateTime = DateTime.Now;
                 add.CreateUserId = CurrentUser.UserId;
                 add.TenantId = CurrentUser.TenantId;
@@ -49,26 +49,26 @@
                 var upData = AppCodeTestRp.Query().Where(t => t.IsDelete == false && t.Id == data.Id).FirstOrDefault();
                 if (upData != default)
                 {
-                    upData= data.MapTo(upData);
+                    upData = data.MapTo(upData);
                     upData.UpdateTime = DateTime.Now;
                     upData.UpdateUserId = CurrentUser.UserId;
-                    upData.TenantId = CurrentUser.TenantId; 
+                    upData.TenantId = CurrentUser.TenantId;
                 }
                 else
                 {
                     throw new UserFriendlyException("数据不存在或已删除");
-                } 
+                }
             }
-            await AppCodeTestRp.SaveChangesAsync(); 
+            await AppCodeTestRp.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> Delete(long id)
         {
-            var data = await AppCodeTestRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync(); 
+            var data = await AppCodeTestRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
             if (data != default)
             {
-                
+
                 data.IsDelete = true;
                 data.DeleteTime = DateTime.Now;
                 AppCodeTestRp.SaveChangesWithSaveLog();

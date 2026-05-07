@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Web.Libraries.WeiXin.H5.Models
+﻿namespace Web.Libraries.WeiXin.H5.Models
 {
     public class WeiXinJsSdkSign
     {

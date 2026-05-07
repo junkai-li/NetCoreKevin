@@ -1,10 +1,8 @@
-﻿using kevin.Domain.Interfaces.IServices;
-using kevin.Domain.Share.Dtos.User;
+﻿using kevin.Domain.Share.Dtos.User;
 using kevin.Permission.Permission.Action;
 using Kevin.Common.App;
 using Kevin.log4Net;
 using Kevin.Models.JwtBearer;
-using Kevin.SnowflakeId.Service;
 using Microsoft.Extensions.DependencyInjection;
 using Web.Global.User;
 
@@ -61,7 +59,7 @@ namespace kevin.Application
                 LogHelper<CurrentUser>.logger.Error("获取用户数据权限出错", ex);
                 return new List<long>() { UserId };
             }
-          
+
         }
 
         public virtual dtoUserInfo? UserInfo => _serviceProvider.GetService<IUserService>()?.GetUserInfo(UserId);

@@ -5,7 +5,7 @@
     /// <summary>
     /// 查询块头返回值
     /// </summary>
-    public class dtoQueryBlockRet:dtoBaseRet
+    public class dtoQueryBlockRet : dtoBaseRet
     {
 
         public BlockData blockData

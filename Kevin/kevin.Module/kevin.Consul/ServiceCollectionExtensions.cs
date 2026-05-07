@@ -1,6 +1,5 @@
 ﻿using kevin.Consul.Models;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
 
 namespace kevin.Consul
 {

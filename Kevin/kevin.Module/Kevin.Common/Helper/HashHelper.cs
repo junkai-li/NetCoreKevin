@@ -9,7 +9,7 @@ namespace Kevin.Common.Helper
         public string SHA256Hash(string value);
     }
 
-    public class HashHelper :IHashHelper
+    public class HashHelper : IHashHelper
     {
 
         public string SHA256Hash(string value)

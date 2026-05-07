@@ -1,11 +1,7 @@
 ﻿using kevin.Domain.Entities.AI;
-using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IServices.AI;
-using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
-using kevin.Share.Dtos;
-using Web.Global.Exceptions;
 
 namespace kevin.Application.Services.AI
 {
@@ -85,7 +81,7 @@ namespace kevin.Application.Services.AI
                 add.IsDelete = false;
                 add.CreateTime = DateTime.Now;
                 add.CreateUserId = CurrentUser.UserId;
-                add.TenantId = CurrentUser.TenantId; 
+                add.TenantId = CurrentUser.TenantId;
                 aIModelsRp.Add(add);
             }
             else
@@ -102,7 +98,7 @@ namespace kevin.Application.Services.AI
                     msg.ModelName = par.ModelName;
                     msg.ModelKey = par.ModelKey;
                     msg.ModelDescription = par.ModelDescription;
-                    msg.EmbeddingValueSize=par.EmbeddingValueSize;
+                    msg.EmbeddingValueSize = par.EmbeddingValueSize;
 
                 }
                 else

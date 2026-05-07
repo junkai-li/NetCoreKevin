@@ -1,19 +1,12 @@
-using Aop.Api.Domain;
 using kevin.Domain.Configuration;
-using kevin.Domain.Entities;
 using kevin.Domain.Interfaces.IServices.Organizational;
-using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.Organizational;
 using kevin.Domain.Share.Dtos.User;
 using kevin.Permission.Interfaces;
 using kevin.Permission.Permission.Enums;
-using kevin.Share.Dtos;
 using kevin.Share.Dtos.System;
 using Kevin.Common.Helper;
 using Repository.Database;
-using System;
-using System.Threading.Tasks;
-using Web.Global.Exceptions;
 
 namespace kevin.Application
 {
@@ -137,7 +130,9 @@ namespace kevin.Application
                 Phone = t.Phone,
                 Email = t.Email,
                 CreateTime = t.CreateTime,
-                Id = t.Id
+                Id = t.Id,
+                IsSuperAdmin = t.IsSuperAdmin,
+                TenantId = t.TenantId,
             }).FirstOrDefault();
             if (!string.IsNullOrEmpty(passwordHash))
             {
@@ -774,14 +769,14 @@ namespace kevin.Application
         /// <returns></returns>
         public async Task<List<long>> GetMyAndChildrenDepartmentUserIds()
         {
-           return await Task.Run(() =>
-            {
-                if (CurrentUser.UserInfo == default)
-                {
-                    return new List<long>();
-                }
-                return departmentService.GetDepartmentChildUserIds(CurrentUser.UserInfo.DepartmentId);
-            });
+            return await Task.Run(() =>
+             {
+                 if (CurrentUser.UserInfo == default)
+                 {
+                     return new List<long>();
+                 }
+                 return departmentService.GetDepartmentChildUserIds(CurrentUser.UserInfo.DepartmentId);
+             });
 
         }
 

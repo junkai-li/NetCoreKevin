@@ -1,7 +1,4 @@
 ﻿using kevin.Domain.EventBus;
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace kevin.Domain.Bases
 {
@@ -9,7 +6,7 @@ namespace kevin.Domain.Bases
     /// <summary>
     /// 创建，删除
     /// </summary>
-    public class CD: DEBaseEntity
+    public class CD : DEBaseEntity
     {
 
         /// <summary>

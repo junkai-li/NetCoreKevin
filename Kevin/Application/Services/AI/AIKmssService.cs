@@ -223,15 +223,15 @@ namespace kevin.Application.Services.AI
         /// <param name="KmsId"></param>
         /// <returns></returns>
         public async Task<bool> ProcessKmssVectorData(long KmsId = default)
-        { 
-            var lock1 =   distLock.TryAcquireLock("kevin.Application.Services.AI.ProcessKmssVectorData:" + KmsId);
+        {
+            var lock1 = distLock.TryAcquireLock("kevin.Application.Services.AI.ProcessKmssVectorData:" + KmsId);
             if (lock1 == null)
             {
-                LogHelper.logger.Error("kevin.Application.Services.AI.ProcessKmssVectorData:处理上传知识库矢量数据库: 获取分布式锁失败"); 
+                LogHelper.logger.Error("kevin.Application.Services.AI.ProcessKmssVectorData:处理上传知识库矢量数据库: 获取分布式锁失败");
                 return false;
             }
             using (lock1)
-            { 
+            {
                 try
                 {
                     var query = AIKmsDetailsRp.Query().Where(t => t.IsDelete == false && t.Status == ImportKmsStatus.Loadding);

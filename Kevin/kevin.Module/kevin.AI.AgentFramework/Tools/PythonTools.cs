@@ -22,7 +22,7 @@ namespace kevin.AI.AgentFramework.Tools
                 if (!scriptPath.Contains(":"))
                 {
                     scriptPath = AppContext.BaseDirectory + scriptPath.Replace(@"/", @"\");
-                } 
+                }
                 Console.WriteLine();
                 Console.WriteLine($"🔧 正在执行Py脚本 {scriptPath}");
                 // 设置进程信息

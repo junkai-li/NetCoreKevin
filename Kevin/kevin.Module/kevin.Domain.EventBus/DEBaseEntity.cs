@@ -1,11 +1,5 @@
 ﻿using MediatR;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Domain.EventBus
 {
@@ -25,9 +19,9 @@ namespace kevin.Domain.EventBus
 
         [NotMapped]
         private List<INotification> ModifieddomainEvents = new();
-         
 
-        public void AddDomainEvent(INotification eventItem, EventBusEnums eventBusEnums= EventBusEnums.Other)
+
+        public void AddDomainEvent(INotification eventItem, EventBusEnums eventBusEnums = EventBusEnums.Other)
         {
             switch (eventBusEnums)
             {
@@ -46,7 +40,7 @@ namespace kevin.Domain.EventBus
             }
         }
 
-        public void  AddDomainEventIfAbsent(INotification eventItem, EventBusEnums eventBusEnums= EventBusEnums.Other)
+        public void AddDomainEventIfAbsent(INotification eventItem, EventBusEnums eventBusEnums = EventBusEnums.Other)
         {
             switch (eventBusEnums)
             {
@@ -54,40 +48,40 @@ namespace kevin.Domain.EventBus
                     if (!AdddomainEvents.Contains(eventItem))
                     {
                         AdddomainEvents.Add(eventItem);
-                    } 
+                    }
                     break;
                 case EventBusEnums.Deleted:
                     if (!DeleteddomainEvents.Contains(eventItem))
                     {
                         DeleteddomainEvents.Add(eventItem);
-                    } 
+                    }
                     break;
                 case EventBusEnums.Modified:
                     if (!ModifieddomainEvents.Contains(eventItem))
                     {
                         ModifieddomainEvents.Add(eventItem);
-                    } 
+                    }
                     break;
                 default:
                     if (!domainEvents.Contains(eventItem))
                     {
                         domainEvents.Add(eventItem);
-                    } 
+                    }
                     break;
             }
         }
 
-        public void  ClearDomainEvents(EventBusEnums eventBusEnums= EventBusEnums.Other)
+        public void ClearDomainEvents(EventBusEnums eventBusEnums = EventBusEnums.Other)
         {
             switch (eventBusEnums)
             {
-                case EventBusEnums.Add: 
+                case EventBusEnums.Add:
                     AdddomainEvents.Clear();
                     break;
-                case EventBusEnums.Deleted: 
+                case EventBusEnums.Deleted:
                     DeleteddomainEvents.Clear();
                     break;
-                case EventBusEnums.Modified: 
+                case EventBusEnums.Modified:
                     ModifieddomainEvents.Clear();
                     break;
                 default:
@@ -96,19 +90,19 @@ namespace kevin.Domain.EventBus
             }
         }
 
-        public IEnumerable<INotification> GetDomainEvents(EventBusEnums eventBusEnums= EventBusEnums.Other)
+        public IEnumerable<INotification> GetDomainEvents(EventBusEnums eventBusEnums = EventBusEnums.Other)
         {
             switch (eventBusEnums)
             {
-                case EventBusEnums.Add: 
-                    return AdddomainEvents; 
-                case EventBusEnums.Deleted: 
+                case EventBusEnums.Add:
+                    return AdddomainEvents;
+                case EventBusEnums.Deleted:
                     return DeleteddomainEvents;
-                case EventBusEnums.Modified: 
+                case EventBusEnums.Modified:
                     return ModifieddomainEvents;
                 default:
                     return domainEvents;
-            } 
+            }
         }
         public IEnumerable<INotification> GetAllDomainEvents()
         {

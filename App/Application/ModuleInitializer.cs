@@ -4,7 +4,6 @@ using kevin.Ioc.TieredServiceRegistration;
 using Kevin.Common.App.Global;
 using Kevin.Common.Helper;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace App.Application
 {
@@ -18,6 +17,6 @@ namespace App.Application
             });
             ConsoleHelper.Print("App.Application服务注册完成");
         }
-         
+
     }
 }

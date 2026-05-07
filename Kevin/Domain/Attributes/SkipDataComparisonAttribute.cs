@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace kevin.Domain.Attributes
+﻿namespace kevin.Domain.Attributes
 {
     /// <summary>
     /// 用于跳过数据比对

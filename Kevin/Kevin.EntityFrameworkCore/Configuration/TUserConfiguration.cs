@@ -8,7 +8,7 @@ namespace Kevin.EntityFrameworkCore.Configuration
     public class TUserConfiguration : IEntityTypeConfiguration<TUser>
     {
         public void Configure(EntityTypeBuilder<TUser> builder)
-        { 
+        {
             builder.HasData(
                 TUserBaseData.TUsers
                 );

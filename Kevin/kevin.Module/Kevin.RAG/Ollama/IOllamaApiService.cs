@@ -2,7 +2,7 @@
 
 namespace Kevin.RAG.Ollama
 {
-    public interface IOllamaApiService:IDisposable
+    public interface IOllamaApiService : IDisposable
     {
         /// <summary>
         /// 返回矢量数据

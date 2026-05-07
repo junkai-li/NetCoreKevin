@@ -14,7 +14,7 @@ namespace Kevin.Web.Basics.Controllers
     /// 权限管理
     /// </summary>
     [Route("api/[controller]")]
-    [MyArea("系统管理", "System")] 
+    [MyArea("系统管理", "System")]
     [MyModule("权限管理", "Permission")]
     [Authorize]
     [ApiController]

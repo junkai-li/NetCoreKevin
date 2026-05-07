@@ -5,7 +5,7 @@
         /// <summary>
         /// 请求地址
         /// </summary>
-        public string AIUrl { get; set; } = "https://dashscope.aliyuncs.com/compatible-mode/v1/";  
+        public string AIUrl { get; set; } = "https://dashscope.aliyuncs.com/compatible-mode/v1/";
 
 
         /// <summary>
@@ -20,7 +20,7 @@
         /// <summary>
         /// //是否开启AI请求日志
         /// </summary>
-        public bool IsHttpLog { get; set; } = false; 
+        public bool IsHttpLog { get; set; } = false;
         /// <summary>
         /// 是否启用AI技能
         /// </summary>

@@ -184,6 +184,25 @@
             岗位管理
             </summary>
         </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AuthorizeController">
+            <summary>
+            系统访问授权模块
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AuthorizeController.GetTokenBySms(kevin.Share.Dtos.dtoKeyValue)">
+            <summary>
+            利用手机号和短信验证码获取Token认证信息
+            </summary>
+            <param name="keyValue">key 为手机号，value 为验证码</param>
+            <returns></returns>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AuthorizeController.SendSmsVerifyPhone(kevin.Share.Dtos.dtoKeyValue)">
+            <summary>
+            发送短信验证手机号码所有权
+            </summary>
+            <param name="keyValue">key 为手机号，value 可为空</param>
+            <returns></returns>
+        </member>
         <member name="T:Kevin.Web.Basics.Controllers.BaseController">
             <summary>
             系统基础方法控制器

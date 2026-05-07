@@ -2,7 +2,7 @@
 
 namespace kevin.Domain.Interfaces.IServices
 {
-    public interface ISignService: IBaseService
+    public interface ISignService : IBaseService
     {
         /// <summary>
         /// 获取标记总数

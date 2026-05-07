@@ -849,6 +849,11 @@
             最近登陆时间
              </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.IsSuperAdmin">
+            <summary>
+            是否超级管理员
+            </summary> 
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.RecentLoginTimeStr">
              <summary>
             最近登陆时间
@@ -1373,26 +1378,6 @@
         <member name="M:Web.Global.User.ICurrentUser.GetModuleDataPermissionsUserIds">
             <summary>
             获取请求接口模块登录用户可查看数据访问的所有用户Id集合
-            </summary>
-        </member>
-        <member name="T:Models.JwtBearer.JwtSettings">
-            <summary>
-            JWT 配置信息
-            </summary>
-        </member>
-        <member name="P:Models.JwtBearer.JwtSettings.Issuer">
-            <summary>
-            token是谁颁发的
-            </summary>
-        </member>
-        <member name="P:Models.JwtBearer.JwtSettings.Audience">
-            <summary>
-            token可以给哪些客户端使用
-            </summary>
-        </member>
-        <member name="P:Models.JwtBearer.JwtSettings.SecretKey">
-            <summary>
-            加密的key
             </summary>
         </member>
     </members>

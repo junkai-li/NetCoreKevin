@@ -2,7 +2,7 @@
 {
     [Table("TRolePermission")]
     [Description("角色权限表")]
-    public partial class TRolePermission: CD_User
+    public partial class TRolePermission : CD_User
     {
         /// <summary>
         /// 角色编号;
@@ -18,7 +18,7 @@
         /// 权限编号;
         /// </summary>
         [Description("权限编号")]
-        public virtual string?  PermissionId { get; set; }
+        public virtual string? PermissionId { get; set; }
 
         /// <summary>
         /// 权限编号;

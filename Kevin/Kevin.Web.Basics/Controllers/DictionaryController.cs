@@ -32,16 +32,16 @@ namespace Kevin.Web.Basics.Controllers
         [HttpLog("字典管理", "获取系统字典列表")]
         public async Task<dtoPageData<DictionaryDto>> GetPageData([FromBody] dtoPagePar<string> dtoPage)
         {
-            dtoPage.Parameter = dtoPage.Parameter == default ?  "":dtoPage.Parameter; 
+            dtoPage.Parameter = dtoPage.Parameter == default ? "" : dtoPage.Parameter;
             var result = await _dictionaryService.GetPageData(dtoPage);
             return result;
         }
 
-        [HttpGet("GetTypeList")] 
+        [HttpGet("GetTypeList")]
         [HttpLog("字典管理", "获取系统字典类型列表")]
         [SkipAuthority]
         public async Task<List<string>> GetTypeList()
-        { 
+        {
             var result = await _dictionaryService.GetTypeList();
             return result;
         }

@@ -19,7 +19,7 @@ namespace App.WebApi.Controllers.v2
         [HttpGet("GetVersion")]
         public string GetVersion()
         {
-            throw new UserFriendlyException("我是版本2"); 
+            throw new UserFriendlyException("我是版本2");
         }
     }
 }

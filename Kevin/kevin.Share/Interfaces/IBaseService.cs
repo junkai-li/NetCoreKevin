@@ -3,8 +3,8 @@ using Web.Global.User;
 
 namespace kevin.Domain.Share
 {
-    public partial interface IBaseService: IService
-    {  
-        ICurrentUser CurrentUser { get;}
+    public partial interface IBaseService : IService
+    {
+        ICurrentUser CurrentUser { get; }
     }
 }

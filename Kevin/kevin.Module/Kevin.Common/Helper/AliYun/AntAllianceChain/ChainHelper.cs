@@ -1,8 +1,4 @@
-﻿using Common.AliYun.AntAllianceChain.Models;
-using Common.Json;
-using System;
-
-namespace Common.AliYun.AntAllianceChain
+﻿namespace Common.AliYun.AntAllianceChain
 {
 
 

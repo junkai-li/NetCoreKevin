@@ -5,7 +5,6 @@
 global using System;
 #endregion
 
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -16,11 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using kevin.HttpApiClients;
 using Kevin.Common.App.Global;
 using Kevin.Common.App.IO;
-using Microsoft.AspNetCore.Authorization;
-using System.Runtime.CompilerServices;
-using kevin.Application;
 using Kevin.log4Net;
-using kevin.AI.AgentFramework.Tools;
 namespace WebApi
 {
     public class Program
@@ -29,8 +24,8 @@ namespace WebApi
         {
             try
             {
-                 Common.EnvironmentHelper.InitTestServer();
-                var builder = WebApplication.CreateBuilder(args); 
+                Common.EnvironmentHelper.InitTestServer();
+                var builder = WebApplication.CreateBuilder(args);
                 builder.Logging.UseKevinLog4Net();//日志
                 #region Kestrel Https并绑定证书
                 //启用 Kestrel Https 并绑定证书
@@ -45,23 +40,9 @@ namespace WebApi
                 #endregion
 
                 //builder.Services.AddKevinRedisCap(builder.Configuration.GetConnectionString("redisConnection"), builder.Configuration.GetConnectionString("dbConnection")); cap
-                Path._hostingEnvironment= builder.Environment;
-                builder.Services.ConfigServies(builder.Configuration); 
+                Path._hostingEnvironment = builder.Environment;
+                builder.Services.ConfigServies(builder.Configuration);
 
-                #region IDSERVER授权服务器
-                //IDSERVER 使用授权服务器 用于单点登录
-                builder.Services.AddAuthentication(o =>
-                {
-                    o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                }).AddJwtBearer("Bearer", o =>
-                {
-                    o.Audience = builder.Configuration["JwtOptions:Audience"];
-                    o.Authority = builder.Configuration["JwtOptions:Authority"];
-                    o.RequireHttpsMetadata = false;
-                    o.TokenValidationParameters.RequireExpirationTime = true;
-                    o.TokenValidationParameters.ValidateAudience = false;
-                });
-                #endregion
 
                 builder.Services.AddKevinHttpApiClients();
                 builder.Services.AddControllers(options =>
@@ -71,7 +52,7 @@ namespace WebApi
                 var app = builder.Build();
 
 
-              
+
                 //app.MapMcp(); //MCP服务映射MCP端点
                 //开启倒带模式运行多次读取HttpContext.Body中的内容 
                 app.Use(async (context, next) =>
@@ -84,9 +65,9 @@ namespace WebApi
                 if (app.Environment.IsDevelopment())
                 {
 
-                   app.UseDeveloperExceptionPage(); 
+                    app.UseDeveloperExceptionPage();
                     ////注册全局异常处理机制
-                   // app.UseExceptionHandler(builder => builder.Run(async context => await GlobalError.ErrorEvent(context)));
+                    // app.UseExceptionHandler(builder => builder.Run(async context => await GlobalError.ErrorEvent(context)));
                 }
                 else
                 {
@@ -100,11 +81,11 @@ namespace WebApi
                 //kevin初始化
                 app.UseKevin(builder.Configuration);
                 //app.UseKevinConsul(builder.Configuration.GetSection("ConsulSetting").Get<ConsulSetting>(), app.Lifetime);//服务网关  
-                app.Run(); 
+                app.Run();
             }
             catch (Exception ex)
             {
-                Kevin.log4Net.LogHelper<Program>.logger.Error(ex.Message, ex); 
+                Kevin.log4Net.LogHelper<Program>.logger.Error(ex.Message, ex);
                 Console.WriteLine(ex.Message);
                 throw;
             }

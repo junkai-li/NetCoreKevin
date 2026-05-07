@@ -2,9 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Linq;
-using System.Threading;
 
 namespace Web.Filters
 {
@@ -51,7 +48,7 @@ namespace Web.Filters
 
                 while (isAction == false)
                 {
-                    var lock1 = context.HttpContext.RequestServices.GetService<IDistributedLockProvider>().AcquireLock(key, TimeSpan.FromSeconds(60)); 
+                    var lock1 = context.HttpContext.RequestServices.GetService<IDistributedLockProvider>().AcquireLock(key, TimeSpan.FromSeconds(60));
                     if (lock1 != null)
                     {
                         isAction = true;
@@ -90,8 +87,8 @@ namespace Web.Filters
                     var token = context.HttpContext.Request.Headers.Where(t => t.Key == "Authorization").Select(t => t.Value).FirstOrDefault();
 
                     key = key + "_" + token;
-                } 
-                key = "QueueLimit_" + Common.CryptoHelper.GetMd5(key); 
+                }
+                key = "QueueLimit_" + Common.CryptoHelper.GetMd5(key);
             }
             catch
             {

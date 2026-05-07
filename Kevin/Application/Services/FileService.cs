@@ -1,9 +1,7 @@
 ﻿using kevin.Domain.Share.Consts;
 using kevin.FileStorage;
-using kevin.Share.Dtos;
 using Kevin.Common.App;
 using Microsoft.AspNetCore.StaticFiles;
-using Web.Global.Exceptions;
 
 namespace kevin.Application.Services
 {
@@ -67,7 +65,7 @@ namespace kevin.Application.Services
                 {
                     //下载文件
                     fileStorage.FileDownload(file.Url, path);
-                } 
+                }
                 //读取文件入流
                 var stream = System.IO.File.OpenRead(path);
                 // 重置流指针 
@@ -75,9 +73,9 @@ namespace kevin.Application.Services
                 //获取文件后缀
                 string fileExt = Path.GetExtension(path);
                 ////获取系统常规全部mime类型
-               var provider = new FileExtensionContentTypeProvider();
+                var provider = new FileExtensionContentTypeProvider();
                 ////通过文件后缀寻找对呀的mime类型
-                 var memi = provider.Mappings.ContainsKey(fileExt) ? provider.Mappings[fileExt] : provider.Mappings[".zip"];
+                var memi = provider.Mappings.ContainsKey(fileExt) ? provider.Mappings[fileExt] : provider.Mappings[".zip"];
                 return Task.FromResult<(FileStream?, string?, string?)>((stream, memi, file.Name));
             }
             throw new UserFriendlyException("通过指定的文件ID未找到任何文件");

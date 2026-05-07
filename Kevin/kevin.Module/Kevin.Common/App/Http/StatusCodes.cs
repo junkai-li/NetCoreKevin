@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Kevin.Common.App.Http
+﻿namespace Kevin.Common.App.Http
 {
     public class StatusCodes
     {

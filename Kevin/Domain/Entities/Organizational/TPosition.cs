@@ -33,7 +33,7 @@ namespace kevin.Domain.Entities.Organizational
         /// <summary>
         /// 上级岗位ID
         /// </summary>
-        public long? ParentId { get; set; } 
+        public long? ParentId { get; set; }
         public virtual TPosition? Parent { get; set; }
 
         /// <summary>

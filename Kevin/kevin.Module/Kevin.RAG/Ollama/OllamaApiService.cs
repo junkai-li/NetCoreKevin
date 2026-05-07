@@ -80,7 +80,7 @@ namespace Kevin.RAG.Ollama
                 {
                     EmbeddingDto data = (await httpClientDisHelper.PostAsync<EmbeddingDto>(Url, new { model = DefaultModel, input = text }.ToJson()));
                     return new Embedding<float>(data.data.First().embedding.ToArray().AsMemory());
-                } 
+                }
             }
             return await Microsoft.Extensions.AI.EmbeddingGeneratorExtensions.GenerateAsync<string, Embedding<float>>(ollamaApiClient, text, options: null, cancellationToken: default).ConfigureAwait(false);
 

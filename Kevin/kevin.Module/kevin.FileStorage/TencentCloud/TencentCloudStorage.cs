@@ -3,8 +3,6 @@ using COSXML.Auth;
 using COSXML.Model.Object;
 using COSXML.Model.Tag;
 using COSXML.Transfer;
-using kevin.FileStorage.AliCloud.Models;
-using kevin.FileStorage.TencentCloud.Models;
 using Microsoft.Extensions.Options;
 using System.Text;
 using System.Web;

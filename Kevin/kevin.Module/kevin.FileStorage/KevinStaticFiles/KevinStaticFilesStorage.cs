@@ -9,7 +9,7 @@ namespace kevin.FileStorage.KevinStaticFiles
     {
         private readonly Models.FileStorageSetting fileStorageSetting;
 
-        private static string _url { get; set; }=string.Empty;
+        private static string _url { get; set; } = string.Empty;
 
         // <summary>
         /// 提取URL中第一个'/'之前的部分（协议+主机+端口）

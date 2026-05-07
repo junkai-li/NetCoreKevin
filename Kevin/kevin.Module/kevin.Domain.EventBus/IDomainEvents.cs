@@ -5,10 +5,10 @@ namespace kevin.Domain.EventBus
     public interface IDomainEvents
     {
 
-       /// <summary>
-       /// 所有事件
-       /// </summary>
-       /// <returns></returns>
+        /// <summary>
+        /// 所有事件
+        /// </summary>
+        /// <returns></returns>
         IEnumerable<INotification> GetAllDomainEvents();
         IEnumerable<INotification> GetDomainEvents(EventBusEnums domainEvents = EventBusEnums.Other);
         void AddDomainEvent(INotification eventItem, EventBusEnums domainEvents = EventBusEnums.Other);

@@ -1,9 +1,4 @@
 ﻿using kevin.CrawlingService;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static kevin.CrawlingService.SeleniumHelper;
 
 namespace Kevin.Unit.Tests.Kevin.Module
@@ -12,7 +7,7 @@ namespace Kevin.Unit.Tests.Kevin.Module
     {
         [Fact]
         public void TestSeleniumHelper()
-        { 
+        {
             //TODO: Add your test code here
             using (var helper = new SeleniumHelper("msedgedriver.exe", BrowserType.Edge, false))
             {

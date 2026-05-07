@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace kevin.Consul.Models
+﻿namespace kevin.Consul.Models
 {
     public class ConsulSetting
     {
@@ -21,10 +15,10 @@ namespace kevin.Consul.Models
             this.ServiceIP = serviceIP;
             this.ServiceHealthCheck = serviceHealthCheck;
             this.ConsulAddress = consulAddress;
-            this.ServicePort = servicePort; 
+            this.ServicePort = servicePort;
         }
         public ConsulSetting()
-        { 
+        {
         }
         /// <summary>
         /// 服务名称

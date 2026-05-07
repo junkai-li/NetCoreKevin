@@ -2,12 +2,6 @@
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
-using kevin.Domain.Interfaces.IServices.AI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Application.Services.AI
 {
@@ -36,7 +30,7 @@ namespace kevin.Application.Services.AI
                 SerializedMessage = t.SerializedMessage ?? "",
                 MessageText = t.MessageText,
                 MessageId = t.MessageId ?? SnowflakeIdService.GetNextId().ToString()
-            }).ToList(); 
+            }).ToList();
 
             aIChatMessageStoreRp.AddRange(adddata);
             await aIChatMessageStoreRp.SaveChangesAsync();
@@ -53,7 +47,7 @@ namespace kevin.Application.Services.AI
                 MessageText = t.MessageText,
                 Role = t.Role,
                 MessageId = t.MessageId
-            }).ToListAsync(); 
+            }).ToListAsync();
         }
     }
 }

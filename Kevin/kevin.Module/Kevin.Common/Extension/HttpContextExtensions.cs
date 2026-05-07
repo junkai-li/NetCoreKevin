@@ -1,13 +1,7 @@
-﻿using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks; 
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc; 
-using Web.Global.Exceptions;
+using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Http
 {
@@ -34,7 +28,7 @@ namespace Microsoft.AspNetCore.Http
             }
 
         }
-        
+
         public static string GetBody(this HttpContext context)
         {
             try
@@ -131,7 +125,7 @@ namespace Microsoft.AspNetCore.Http
 
             try
             {
-                string device = context.Request.Headers["User-Agent"]; 
+                string device = context.Request.Headers["User-Agent"];
                 return device;
             }
             catch
@@ -139,8 +133,8 @@ namespace Microsoft.AspNetCore.Http
 
                 return "";
             }
-        } 
-         
+        }
+
 
         /// <summary>
         /// 设置规范化文档自动登录
@@ -273,8 +267,8 @@ namespace Microsoft.AspNetCore.Http
             // 回到顶部，解决此类问题 https://gitee.com/dotnetchina/Furion/issues/I6NX9E
             request.Body.Seek(0, SeekOrigin.Begin);
             return body;
-        } 
- 
+        }
+
         /// <summary>
         /// 判断是否是 WebSocket 请求
         /// </summary>

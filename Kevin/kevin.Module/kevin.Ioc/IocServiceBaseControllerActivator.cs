@@ -26,9 +26,9 @@ namespace kevin.Ioc
                         prop.SetValue(controllerInstance, propValue);
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    Console.WriteLine(prop.PropertyType.ToString()+ "IocProperty注入失败:"+ ex.Message);
+                    Console.WriteLine(prop.PropertyType.ToString() + "IocProperty注入失败:" + ex.Message);
                 }
 
 
@@ -53,7 +53,7 @@ namespace kevin.Ioc
                 catch (Exception ex)
                 {
                     Console.WriteLine("IocMethod注入失败" + ex.Message);
-                } 
+                }
             }
             return controllerInstance;
         }

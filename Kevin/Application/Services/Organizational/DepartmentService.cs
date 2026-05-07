@@ -1,13 +1,8 @@
 ﻿using kevin.Application;
 using kevin.Domain.Entities.Organizational;
 using kevin.Domain.Interfaces.IRepositories.Organizational;
-using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.Organizational;
 using kevin.Domain.Share.Enums;
-using kevin.RepositorieRps.Repositories;
-using kevin.Share.Dtos;
-using System;
-using Web.Global.Exceptions;
 
 namespace kevin.Domain.Interfaces.IServices.Organizational
 {

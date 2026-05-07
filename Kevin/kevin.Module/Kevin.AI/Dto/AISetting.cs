@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Kevin.AI.Dto
+﻿namespace Kevin.AI.Dto
 {
     public class AISetting
     {
         /// <summary>
         /// 请求地址
         /// </summary>
-        public string AIUrl { get; set; } = "";  
+        public string AIUrl { get; set; } = "";
 
 
         /// <summary>

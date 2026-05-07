@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Kevin.SignalR.Service
+﻿namespace Kevin.SignalR.Service
 {
     /// <summary>
     /// 自行实现相关逻辑接口
@@ -51,7 +45,7 @@ namespace Kevin.SignalR.Service
         /// <param name="connIds"></param>
         /// <param name="msg"></param>
         /// <returns></returns>
-        Task SendConnIdsMsg(string method,List<string> connIds, string msg);
+        Task SendConnIdsMsg(string method, List<string> connIds, string msg);
 
         /// <summary>
         ///指定身份发送消息

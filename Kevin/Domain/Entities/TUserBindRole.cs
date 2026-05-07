@@ -9,7 +9,7 @@
         /// </summary>
         [Description("用户ID")]
         public long UserId { get; set; }
-        public virtual TUser? User { get; set; } 
+        public virtual TUser? User { get; set; }
         /// <summary>
         /// 角色信息
         /// </summary>

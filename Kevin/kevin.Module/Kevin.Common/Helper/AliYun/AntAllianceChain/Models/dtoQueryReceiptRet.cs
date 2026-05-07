@@ -6,7 +6,7 @@
     /// </summary>
     public class dtoQueryReceiptRet : dtoBaseRet
     {
-       
+
 
         public ReceiptData receiptData
         {

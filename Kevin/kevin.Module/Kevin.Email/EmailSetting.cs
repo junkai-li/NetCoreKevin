@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Kevin.Email
+﻿namespace Kevin.Email
 {
     /// <summary>
     /// 邮件配置
@@ -14,7 +8,7 @@ namespace Kevin.Email
         /// <summary>
         /// SMTP服务器地址
         /// </summary>
-        public string SmtpServer { get; set; }= string.Empty;
+        public string SmtpServer { get; set; } = string.Empty;
 
         /// <summary>
         /// SMTP账户 

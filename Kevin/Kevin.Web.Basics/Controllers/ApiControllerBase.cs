@@ -16,6 +16,6 @@ namespace Kevin.Web.Basics.Controllers
         [IocProperty]
         public IConfiguration Configuration { get; set; }
         [IocProperty]
-        public IDistributedLockProvider distLock { get; set; } 
+        public IDistributedLockProvider distLock { get; set; }
     }
 }

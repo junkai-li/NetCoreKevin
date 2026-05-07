@@ -3,7 +3,6 @@ using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IServices;
 using Kevin.Testing.Shared.Attributes;
 using Microsoft.AspNetCore.Http;
-using Testing.Shared;
 
 namespace Kevin.Unit.Kevin.Services
 {
@@ -11,11 +10,11 @@ namespace Kevin.Unit.Kevin.Services
     {
         [Theory]
         [AutoFakeItEasy]
-     
+
         public async Task Add_ShouldHandleInvalidParameters(
             [Frozen] IHttpContextAccessor mockHttpContextAccessor,
             [Frozen] IHttpLogRp mockHttpLogRp,
-             [Frozen] IHttpLogService httpLogService, 
+             [Frozen] IHttpLogService httpLogService,
             string type, string remark)
         {
             if (mockHttpContextAccessor is null)
@@ -46,7 +45,7 @@ namespace Kevin.Unit.Kevin.Services
             var result = await httpLogService.Add(type, remark);
 
             // Assert
-            Assert.False(result); 
+            Assert.False(result);
+        }
     }
-}
 }

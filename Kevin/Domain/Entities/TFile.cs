@@ -10,7 +10,7 @@ namespace kevin.Domain.Entities
     [Table("TFile")]
     [Description("文件表")]
     [Index(nameof(Table))]
-    [Index(nameof(TableId))] 
+    [Index(nameof(TableId))]
     public partial class TFile : CD_User
     {
 

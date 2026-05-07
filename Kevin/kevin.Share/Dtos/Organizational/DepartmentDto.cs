@@ -1,7 +1,5 @@
 ﻿using kevin.Domain.Share.Dtos.Bases;
 using kevin.Domain.Share.Enums;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 
 namespace kevin.Domain.Share.Dtos.Organizational
 {

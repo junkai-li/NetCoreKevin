@@ -1,6 +1,4 @@
-﻿using Common;
-using kevin.Domain.Share.Interfaces;
-using Kevin.Common.App.Global;
+﻿using Kevin.Common.App.Global;
 using Kevin.HttpApiClients.Helper;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;

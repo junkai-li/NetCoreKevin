@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace kevin.Domain.Share.Dtos.User
+﻿namespace kevin.Domain.Share.Dtos.User
 {
     public class dtoUserPar
     {

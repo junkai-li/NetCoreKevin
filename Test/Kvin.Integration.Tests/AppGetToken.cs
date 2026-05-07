@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Kvin.Integration.Tests
+﻿namespace Kvin.Integration.Tests
 {
     public static class AppGetToken
     {
-        public static void GetToken(ref HttpClient _client,string Name = "admin", string PassWord = "admin", int TenantId = 1000)
+        public static void GetToken(ref HttpClient _client, string Name = "admin", string PassWord = "admin", int TenantId = 1000)
         {
             var data = new
             {

@@ -1,6 +1,4 @@
-﻿using kevin.Share.Dtos;
-
-namespace kevin.Application.Services
+﻿namespace kevin.Application.Services
 {
     public class OSLogService : BaseService, IOSLogService
     {

@@ -15,7 +15,7 @@ namespace Kevin.Web.Basics.Controllers
     [ApiController]
     [Authorize]
     [MyArea("系统管理", "System")]
-    [MyModule("操作日志", "Log")] 
+    [MyModule("操作日志", "Log")]
     public class LogController : ControllerBase
     {
         private IHttpLogService _httpLogService { get; set; }

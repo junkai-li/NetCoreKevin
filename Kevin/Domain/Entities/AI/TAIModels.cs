@@ -1,9 +1,4 @@
 ﻿using kevin.Domain.Share.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Domain.Entities.AI
 {
@@ -12,8 +7,8 @@ namespace kevin.Domain.Entities.AI
     /// </summary>
     [Table("TAIModels")]
     [Description("AI模型配置")]
-    public partial class TAIModels: CUD_User
-    { 
+    public partial class TAIModels : CUD_User
+    {
         /// <summary>
         /// AI类型
         /// </summary>

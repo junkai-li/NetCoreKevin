@@ -1,7 +1,5 @@
-﻿using kevin.Ioc.Extension;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Reflection;
 
 namespace kevin.Ioc.Extension

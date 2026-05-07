@@ -1,7 +1,5 @@
-﻿using Kevin.EntityFrameworkCore._.Data;
-
-namespace kevin.RepositorieRps.Repositories
-{ 
+﻿namespace kevin.RepositorieRps.Repositories
+{
     public class UserInfoRp : Repository<TUserInfo, long>, IUserInfoRp
     {
         public UserInfoRp(IServiceProvider serviceProvider) : base(serviceProvider)

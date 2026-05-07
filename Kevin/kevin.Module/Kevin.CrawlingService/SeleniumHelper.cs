@@ -7,7 +7,7 @@ using OpenQA.Selenium.Support.UI;
 
 namespace kevin.CrawlingService
 {
-     
+
     public class SeleniumHelper : IDisposable
     {
         private IWebDriver _driver;

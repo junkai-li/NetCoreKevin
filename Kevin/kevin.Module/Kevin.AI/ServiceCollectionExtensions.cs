@@ -6,7 +6,7 @@ namespace Kevin.AI
     {
         public static void AddAIClient(this IServiceCollection services, Action<AISetting> action)
         {
-            services.Configure(action);  
+            services.Configure(action);
             services.AddTransient<IAIClient, AIClient>();
         }
     }

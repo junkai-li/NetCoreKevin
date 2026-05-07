@@ -20,10 +20,10 @@ namespace Kevin.Unit.Tests.Kevin.Module
                 HandshakeContinuationTimeout = TimeSpan.FromSeconds(30), // 握手超时 
                 AutomaticRecoveryEnabled = true, // 自动重连
                 NetworkRecoveryInterval = TimeSpan.FromSeconds(10) // 重连间隔
-            }; 
+            };
             using var rabbitMQConnection = new RabbitMQConnection(factory);
             var serv = new RabbitMQPublisherService(rabbitMQConnection);
-            serv.PublishList<string>("test_exchange", "test_routingkey", new List<string> { "hello", "world" },exchangeType: ExchangeType.Direct, queue: "test_queue", isConfirmSelect: true, basicAcks: (sender, ea) =>
+            serv.PublishList<string>("test_exchange", "test_routingkey", new List<string> { "hello", "world" }, exchangeType: ExchangeType.Direct, queue: "test_queue", isConfirmSelect: true, basicAcks: (sender, ea) =>
             {
                 isPublishOk = true;
                 Console.WriteLine($"message已发送:{sender} {ea.DeliveryTag}");
@@ -46,9 +46,9 @@ namespace Kevin.Unit.Tests.Kevin.Module
                 Console.WriteLine($"收到消息: {message}");
                 // 处理消息
                 // 返回true表示处理成功，false表示处理失败
-                isConsumer= true;
+                isConsumer = true;
                 return true;
-            }; 
+            };
             // 开始消费
             consumerService.StartConsume(
                 exchange: "test_exchange",
@@ -57,7 +57,7 @@ namespace Kevin.Unit.Tests.Kevin.Module
                 exchangeType: ExchangeType.Direct,
                 autoAck: false,
                 prefetchCount: 1,
-                messageHandler: messageHandler);  
+                messageHandler: messageHandler);
             Assert.False(isConsumer);
         }
     }

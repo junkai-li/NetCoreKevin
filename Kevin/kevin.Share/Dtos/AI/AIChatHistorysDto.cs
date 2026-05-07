@@ -1,10 +1,5 @@
 ﻿using kevin.Domain.Share.Dtos.Bases;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Domain.Share.Dtos.AI
 {
@@ -17,8 +12,8 @@ namespace kevin.Domain.Share.Dtos.AI
         /// 对话id
         /// </summary>
         public long AIChatsId { get; set; }
-        public virtual string? AIChats { get; set; } 
-       
+        public virtual string? AIChats { get; set; }
+
         /// <summary>
         /// 消息内容
         /// </summary> 

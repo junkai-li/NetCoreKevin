@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace kevin.Share.Dtos
+﻿namespace kevin.Share.Dtos
 {
 
 

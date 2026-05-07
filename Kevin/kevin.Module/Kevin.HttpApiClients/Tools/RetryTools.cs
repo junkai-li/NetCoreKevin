@@ -1,7 +1,4 @@
 ﻿using Kevin.log4Net;
-using System;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
 /// <summary>
 /// 任务进行多次的重试  return Common.RetryTools.Retry(() => _spSystemSettingsDapperRep.GetSendMailList(mailSearchModel));
 /// </summary>

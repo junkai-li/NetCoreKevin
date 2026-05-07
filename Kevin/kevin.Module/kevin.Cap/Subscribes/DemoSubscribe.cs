@@ -1,5 +1,4 @@
 ﻿using DotNetCore.CAP;
-using System;
 
 namespace kevin.Cap
 {
@@ -9,7 +8,7 @@ namespace kevin.Cap
         [CapSubscribe("ShowMessage", Group = "Group1")]
         public void ShowMessage(string message)
         {
-            var inst=int.Parse(message);
+            var inst = int.Parse(message);
             Task.Run(() =>
             {
                 Console.WriteLine("ShowMessageGroup1" + DateTime.Now + inst.ToString());

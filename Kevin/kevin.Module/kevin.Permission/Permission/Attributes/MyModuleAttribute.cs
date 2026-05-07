@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace kevin.Permission.Permission.Attributes
+﻿namespace kevin.Permission.Permission.Attributes
 {
     public class MyModuleAttribute : Attribute
     {

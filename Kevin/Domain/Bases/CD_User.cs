@@ -1,6 +1,4 @@
-﻿using kevin.Domain.Entities;
-
-namespace kevin.Domain.Bases
+﻿namespace kevin.Domain.Bases
 {
 
     /// <summary>

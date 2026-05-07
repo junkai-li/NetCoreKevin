@@ -15,10 +15,10 @@ namespace Kevin.Web.Basics.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    [MyArea("系统管理", "System")] 
+    [MyArea("系统管理", "System")]
     [MyModule("角色管理", "Role")]
     public class RoleController : ControllerBase
-    { 
+    {
         private IRoleService _roleService { get; set; }
 
         public RoleController(IRoleService roleService)
@@ -47,7 +47,7 @@ namespace Kevin.Web.Basics.Controllers
         [ActionDescription("删除角色数据")]
         [HttpLog("角色管理", "删除角色数据")]
         [HttpDelete("DeleteRole")]
-        public async Task<bool> DeleteRole([FromQuery][Required]long roleId)
+        public async Task<bool> DeleteRole([FromQuery][Required] long roleId)
         {
             var result = await _roleService.DeleteRole(roleId);
             return result;

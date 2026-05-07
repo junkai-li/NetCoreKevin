@@ -5,7 +5,7 @@ namespace Kevin.Common.App.IO
     public static class Path
     {
         public static IHostEnvironment _hostingEnvironment { get; set; }
-         
+
         /// <summary>
         /// 获取获取应用程序根目录路径
         /// </summary>

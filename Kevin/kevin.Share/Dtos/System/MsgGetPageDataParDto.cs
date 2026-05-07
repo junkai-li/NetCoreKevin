@@ -1,9 +1,4 @@
 ﻿using kevin.Domain.Share.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Domain.Share.Dtos.System
 {
@@ -15,12 +10,12 @@ namespace kevin.Domain.Share.Dtos.System
         /// <summary>
         /// 消息类型
         /// </summary>
-        public MessageType SysMsgType { get; set; }= MessageType.All;
+        public MessageType SysMsgType { get; set; } = MessageType.All;
 
         /// <summary>
         /// 相关人id
         /// </summary>
-        public string  UserId { get; set; } = "";  
+        public string UserId { get; set; } = "";
 
         /// <summary>
         /// 关联Id

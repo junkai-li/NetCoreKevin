@@ -5,7 +5,6 @@ using Kevin.Hangfire.TieredServiceRegistration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.Globalization;
 
 namespace Kevin.Hangfire

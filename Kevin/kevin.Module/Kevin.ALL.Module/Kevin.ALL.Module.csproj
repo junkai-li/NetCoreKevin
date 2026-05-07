@@ -88,6 +88,7 @@ Kevin.AI 系列
 
   <ItemGroup>
     <ProjectReference Include="..\kevin.AI.AgentFramework\kevin.AI.AgentFramework.csproj" />
+    <ProjectReference Include="..\Kevin.Authentication.Jwt\Kevin.Authentication.Jwt.csproj" />
     <ProjectReference Include="..\kevin.Cache\kevin.Cache.csproj" />
     <ProjectReference Include="..\kevin.Cap\kevin.Cap.csproj" />
     <ProjectReference Include="..\kevin.CodeGenerator\kevin.CodeGenerator.csproj" />

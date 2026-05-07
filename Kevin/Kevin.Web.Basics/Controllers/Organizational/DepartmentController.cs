@@ -15,7 +15,7 @@ namespace Kevin.Web.Basics.AI.Organizational
     /// 部门管理
     /// </summary>
     [Route("api/[controller]")]
-    [ApiController] 
+    [ApiController]
     [Authorize]
     [MyArea("组织架构", "Organizational")]
     [MyModule("部门管理", "Department")]

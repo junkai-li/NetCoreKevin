@@ -4,8 +4,8 @@
     /// <summary>
     /// 创建，编辑，删除
     /// </summary>
-    public class CUD_Dto:CD_Dto
-    { 
+    public class CUD_Dto : CD_Dto
+    {
         /// <summary>
         /// 更新时间
         /// </summary>  

@@ -104,7 +104,7 @@ namespace Kevin.Web.Basics.Controllers
         {
             var result = await _messageService.GetMyNoReadCount(messageType);
             return result;
-        } 
+        }
 
         /// <summary>
         /// 已读消息
@@ -112,7 +112,7 @@ namespace Kevin.Web.Basics.Controllers
         /// <param name="messageId"></param>
         /// <returns></returns>
         [HttpGet("Read")]
-        [SkipAuthority] 
+        [SkipAuthority]
         public async Task<bool> Read([FromQuery][Required] long messageId)
         {
             var result = await _messageService.Read(messageId);

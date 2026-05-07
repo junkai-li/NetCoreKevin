@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace kevin.Share.Dtos
+﻿namespace kevin.Share.Dtos
 {
 
 
@@ -39,7 +37,7 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 文件大小
         /// </summary>
-        public long Length { get; set; }    
+        public long Length { get; set; }
 
 
 

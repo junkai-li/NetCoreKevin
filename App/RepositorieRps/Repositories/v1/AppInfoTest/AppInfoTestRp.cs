@@ -1,5 +1,5 @@
 ﻿using App.Domain.Entities.AppInfoTest;
-using  App.Domain.Interfaces.Repositorie.v1.AppInfoTest;
+using App.Domain.Interfaces.Repositorie.v1.AppInfoTest;
 namespace App.RepositorieRps.Repositories.v1.AppInfoTest
 {
     /// <summary>
@@ -12,4 +12,4 @@ namespace App.RepositorieRps.Repositories.v1.AppInfoTest
         {
         }
     }
-} 
+}

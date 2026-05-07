@@ -1,12 +1,7 @@
-﻿using kevin.Domain.Entities;
-using kevin.Permission.Interfaces;
+﻿using kevin.Permission.Interfaces;
 using kevin.Permission.Permission;
 using kevin.Permission.Permission.Enums;
 using kevin.Permission.Permisson;
-using kevin.RepositorieRps.Repositories;
-using kevin.Share.Dtos;
-using System.Threading.Tasks;
-using Web.Global.Exceptions;
 namespace kevin.Application
 {
     public class PermissionService : BaseService, IPermissionService

@@ -2,12 +2,7 @@
 using Kevin.log4Net;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using TencentCloud.Cfw.V20190904.Models;
 
 namespace kevin.RabbitMQ
 {
@@ -59,7 +54,7 @@ namespace kevin.RabbitMQ
 
             // 注册接收消息事件
             consumer.Received += (model, ea) =>
-            { 
+            {
                 try
                 {
                     var body = ea.Body.ToArray();
@@ -80,7 +75,7 @@ namespace kevin.RabbitMQ
                     }
                 }
                 catch (Exception ex)
-                { 
+                {
                     LogHelper<RabbitMQConsumerService>.logger.Error($"消息处理异常: {ex.Message}");
                     if (!autoAck)
                     {
@@ -131,6 +126,6 @@ namespace kevin.RabbitMQ
                 }
                 _isDisposed = true;
             }
-        } 
+        }
     }
 }

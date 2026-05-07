@@ -18,8 +18,8 @@ namespace Kevin.Unit.Test.Kevin.Common
             var result = DataHelper.DataTableToListDisplayName<TestModel>(table);
 
             // Assert
-            Assert.NotNull(result); 
-            Assert.Equal(2,result.Count);
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
         }
 
         [Fact]

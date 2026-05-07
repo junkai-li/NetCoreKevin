@@ -41,6 +41,6 @@ namespace Kevin.Common.Helper
                 throw new InvalidOperationException("配置未初始化，请先调用Initialize方法");
 
             return _configuration?[key];
-        } 
+        }
     }
 }

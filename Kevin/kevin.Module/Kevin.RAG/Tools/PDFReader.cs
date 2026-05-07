@@ -543,7 +543,7 @@ public class TextBlockAnalyzer
         return words.Any() &&
             words.SelectMany(w => w.Letters)
                 .Where(l => l.FontName != null)
-                .Any(l => (l.FontName??"").ToLower().Contains("mono") ||
+                .Any(l => (l.FontName ?? "").ToLower().Contains("mono") ||
                           (l.FontName ?? "").ToLower().Contains("courier"));
     }
 }

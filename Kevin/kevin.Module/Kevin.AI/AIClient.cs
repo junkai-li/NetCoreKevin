@@ -1,14 +1,7 @@
-﻿using Common;
-using Kevin.AI.Dto;
+﻿using Kevin.AI.Dto;
 using Kevin.Common.Extension;
 using Kevin.HttpApiClients.Helper;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Kevin.AI
 {

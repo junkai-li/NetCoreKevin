@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace kevin.Ioc.IocAttrributes
+﻿namespace kevin.Ioc.IocAttrributes
 {
 
     /// <summary>

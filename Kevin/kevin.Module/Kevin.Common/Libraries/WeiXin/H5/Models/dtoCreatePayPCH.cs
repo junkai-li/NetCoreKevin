@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Web.Libraries.WeiXin.H5.Models
 {
@@ -10,7 +7,7 @@ namespace Web.Libraries.WeiXin.H5.Models
     /// </summary>
     public class dtoCreatePayPCH
     {
-       public dtoCreatePayPCH()
+        public dtoCreatePayPCH()
         {
             TimeSpan cha = DateTime.UtcNow - (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc));
             long t = (long)cha.TotalSeconds;

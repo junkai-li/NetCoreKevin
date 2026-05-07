@@ -13,9 +13,9 @@ namespace kevin.RepositorieRps
         {
             new IocHelper().BatchAddScopeds<IBaseRepository>(services, t =>
             {
-                GlobalServices.AddIRepositry(t); 
+                GlobalServices.AddIRepositry(t);
             });
             ConsoleHelper.Print("kevin.RepositorieRps仓储服务注入完成");
-        } 
+        }
     }
 }

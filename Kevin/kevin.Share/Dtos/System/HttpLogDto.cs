@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Domain.Share.Dtos.System
 {
@@ -19,7 +14,7 @@ namespace kevin.Domain.Share.Dtos.System
         /// 创建人ID
         /// </summary>
         [Description("创建人ID")]
-        public long CreateUserId { get; set; } 
+        public long CreateUserId { get; set; }
 
         /// <summary>
         /// 登录人

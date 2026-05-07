@@ -11,7 +11,7 @@ namespace Kevin.SMS
         {
             services.Configure(action);
 
-            services.AddTransient<ISMS, AliCloudSMS>(); 
+            services.AddTransient<ISMS, AliCloudSMS>();
         }
 
         public static void AddTencentCloudSMS(this IServiceCollection services, Action<Kevin.SMS.TencentCloud.Models.SMSSetting> action)

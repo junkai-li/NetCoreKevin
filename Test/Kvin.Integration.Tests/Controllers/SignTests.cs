@@ -18,13 +18,13 @@ namespace Kvin.Integration.Tests.Controllers
             _client.DefaultRequestHeaders.TryAddWithoutValidation("X-Forwarded-For", "127.0.0.1");
             _client.DefaultRequestHeaders.TryAddWithoutValidation("X-API-Version", "1.0");
             AppGetToken.GetToken(ref _client);
-        } 
- 
+        }
+
 
         [Theory, TestPriority(-3)]
         [AutoData]
         public async Task AddSign(string Table, Guid TableId, string Sign)
-        {  
+        {
             var data = new
             {
                 Table = Table,
@@ -44,25 +44,25 @@ namespace Kvin.Integration.Tests.Controllers
         [Theory, TestPriority(3)]
         [AutoData]
         public async Task GetSignCount(string Table, Guid TableId, string Sign)
-        { 
-           await AddSign(Table, TableId, Sign);
+        {
+            await AddSign(Table, TableId, Sign);
             //获取新增count
             var response2 = await _client.GetAsync($"/api/Sign/GetSignCount?table={Table}&tableId={TableId}&sign={Sign}");
             Assert.Equal(HttpStatusCode.OK, response2.StatusCode);
             var reslut2 = await response2.Content.ReadAsStringAsync();
             Assert.True(!reslut2.ToLower().Contains("errMsg"));
-            Assert.True(JsonHelper.GetValueByKey(reslut2, "data").ToTryInt32() > 0); 
+            Assert.True(JsonHelper.GetValueByKey(reslut2, "data").ToTryInt32() > 0);
         }
 
         [Theory, TestPriority(4)]
         [AutoData]
         public async Task DeleteSign(string Table, Guid TableId, string Sign)
-        {  
+        {
             var response2 = await _client.DeleteAsync($"/api/Sign/DeleteSign?table={Table}&tableId={TableId}&sign={Sign}");
             Assert.Equal(HttpStatusCode.OK, response2.StatusCode);
             var reslut2 = await response2.Content.ReadAsStringAsync();
             Assert.True(!reslut2.ToLower().Contains("errMsg"));
-            Assert.True(JsonHelper.GetValueByKey(reslut2, "data").ToBoolean()); 
+            Assert.True(JsonHelper.GetValueByKey(reslut2, "data").ToBoolean());
         }
     }
 }

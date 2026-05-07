@@ -1,9 +1,5 @@
-﻿using kevin.Domain.Entities;
-using kevin.Domain.Share.Dtos;
-using kevin.Domain.Share.Dtos.Msg;
+﻿using kevin.Domain.Share.Dtos.Msg;
 using kevin.Domain.Share.Enums;
-using kevin.Share.Dtos;
-using Web.Global.Exceptions;
 
 namespace kevin.Application.Services
 {

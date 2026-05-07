@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Domain.Share.Dtos.System
 {
@@ -21,7 +15,7 @@ namespace kevin.Domain.Share.Dtos.System
         /// 创建人ID
         /// </summary>
         [Description("创建人ID")]
-        public long CreateUserId { get; set; } 
+        public long CreateUserId { get; set; }
         public virtual string? CreateUserName { get; set; }
 
 
@@ -29,7 +23,7 @@ namespace kevin.Domain.Share.Dtos.System
         /// 编辑人ID
         /// </summary>
         [Description("编辑人ID")]
-        public long? UpdateUserId { get; set; } 
+        public long? UpdateUserId { get; set; }
         public virtual string? UpdateUserName { get; set; }
         /// <summary>
         /// 创建时间

@@ -5,6 +5,6 @@
     /// </summary>
     public interface IAppCodeTestRp : IRepository<TAppCodeTest, long>
     {
-        
+
     }
-} 
+}

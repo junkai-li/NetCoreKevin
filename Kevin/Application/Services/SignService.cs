@@ -1,10 +1,9 @@
-﻿using kevin.Domain.Entities;
-using kevin.Domain.Share.Dtos.Sign;
+﻿using kevin.Domain.Share.Dtos.Sign;
 
 namespace kevin.Application
 {
     public class SignService : BaseService, ISignService
-    { 
+    {
         public ISignRp signRp { get; set; }
         public SignService(IHttpContextAccessor _httpContextAccessor, ISignRp _signRp) : base(_httpContextAccessor)
         {

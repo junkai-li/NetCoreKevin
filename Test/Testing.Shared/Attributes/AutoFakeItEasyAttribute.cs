@@ -4,7 +4,7 @@ using Testing.Shared;
 
 namespace Kevin.Testing.Shared.Attributes
 {
-    public class AutoFakeItEasyAttribute: AutoDataAttribute
+    public class AutoFakeItEasyAttribute : AutoDataAttribute
     {
         //AutoFakeItEasyCustomization can create implementation of interfaces and abstract classes using FakeItEasy
         public AutoFakeItEasyAttribute()

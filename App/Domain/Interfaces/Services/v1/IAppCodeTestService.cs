@@ -5,7 +5,7 @@
     /// </summary>
     public interface IAppCodeTestService : IBaseService
     {
-         /// <summary>
+        /// <summary>
         /// ��ȡ��ҳ����
         /// </summary>
         /// <param name="dtoPagePar"></param>

@@ -1,6 +1,5 @@
 ﻿using kevin.CodeGenerator.Dto;
 using Microsoft.Extensions.Options;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -116,60 +115,60 @@ namespace kevin.CodeGenerator
 
         public async Task<bool> BulidCode(List<EntityItemDto> entityItems)
         {
-           return await Task.Run(() =>
-            {
-                if (entityItems.Count > 0)
-                {
-                    ProcessingPath(ref entityItems);
-                    //获取对应的模板文件
-                    var iRpTemplate = GetBuildCodeTemplate("IRp");
-                    var rpTemplate = GetBuildCodeTemplate("Rp");
-                    var iServiceTemplate = GetBuildCodeTemplate("IService");
-                    var service = GetBuildCodeTemplate("Service");
+            return await Task.Run(() =>
+             {
+                 if (entityItems.Count > 0)
+                 {
+                     ProcessingPath(ref entityItems);
+                     //获取对应的模板文件
+                     var iRpTemplate = GetBuildCodeTemplate("IRp");
+                     var rpTemplate = GetBuildCodeTemplate("Rp");
+                     var iServiceTemplate = GetBuildCodeTemplate("IService");
+                     var service = GetBuildCodeTemplate("Service");
 
-                    foreach (var item in entityItems)
-                    {
-                        var tEntityName = item.EntityName;
-                        if (item.EntityName.StartsWith("T", StringComparison.OrdinalIgnoreCase))
-                        {
-                            item.EntityName = item.EntityName.Substring(1);
-                        }
-                        var entityNamespace = item.Description.Replace("..\\..\\", "").Replace("\\" + tEntityName + ".cs", "").Replace("\\", ".");
-                        WriteCode(new Dictionary<string, string>
-                    {
+                     foreach (var item in entityItems)
+                     {
+                         var tEntityName = item.EntityName;
+                         if (item.EntityName.StartsWith("T", StringComparison.OrdinalIgnoreCase))
+                         {
+                             item.EntityName = item.EntityName.Substring(1);
+                         }
+                         var entityNamespace = item.Description.Replace("..\\..\\", "").Replace("\\" + tEntityName + ".cs", "").Replace("\\", ".");
+                         WriteCode(new Dictionary<string, string>
+                     {
                         {"%entityName%",item.EntityName},
                         {"%entityNamespace%", entityNamespace},
                         {"%namespacePath%",item.IRpBulidPath}
-                    }, iRpTemplate, $"../../{item.IRpBulidPath.Trim().Replace(".", "\\")}\\I{item.EntityName}Rp.cs");
-                        WriteCode(new Dictionary<string, string>
-                    {
+                     }, iRpTemplate, $"../../{item.IRpBulidPath.Trim().Replace(".", "\\")}\\I{item.EntityName}Rp.cs");
+                         WriteCode(new Dictionary<string, string>
+                     {
                         {"%entityName%",item.EntityName},
                         {"%entityNamespace%", entityNamespace},
                         {"%iRpBulidNamespace%", item.IRpBulidPath},
                         {"%namespacePath%",item.RpBulidPath}
-                    }, rpTemplate, $"../../{item.RpBulidPath.Trim().Replace(".", "\\")}\\{item.EntityName}Rp.cs");
-                        WriteCode(new Dictionary<string, string>
-                    {
+                     }, rpTemplate, $"../../{item.RpBulidPath.Trim().Replace(".", "\\")}\\{item.EntityName}Rp.cs");
+                         WriteCode(new Dictionary<string, string>
+                     {
                         {"%entityName%",item.EntityName},
                         {"%entityNamespace%", entityNamespace},
                         {"%namespacePath%",item.IServiceBulidPath}
-                    }, iServiceTemplate, $"../../{item.IServiceBulidPath.Trim().Replace(".", "\\")}\\I{item.EntityName}Service.cs");
-                        WriteCode(new Dictionary<string, string>
-                    {
+                     }, iServiceTemplate, $"../../{item.IServiceBulidPath.Trim().Replace(".", "\\")}\\I{item.EntityName}Service.cs");
+                         WriteCode(new Dictionary<string, string>
+                     {
                         {"%entityName%",item.EntityName},
                         {"%entityNamespace%", entityNamespace},
                         {"%iRpBulidNamespace%", item.IRpBulidPath},
                         {"%iServiceBulidNamespace%", item.IServiceBulidPath},
                         {"%namespacePath%",item.ServiceBulidPath}
-                    }, service, $"../../{item.ServiceBulidPath.Trim().Replace(".", "\\")}\\{item.EntityName}Service.cs");
+                     }, service, $"../../{item.ServiceBulidPath.Trim().Replace(".", "\\")}\\{item.EntityName}Service.cs");
 
 
-                    }
-                }
+                     }
+                 }
 
-                return true;
-            });
-          
+                 return true;
+             });
+
         }
 
         /// <summary>

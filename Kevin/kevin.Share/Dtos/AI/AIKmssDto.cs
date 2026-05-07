@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 namespace kevin.Domain.Share.Dtos.AI
 {
     public class AIKmssDto : CUD_User_Dto
-    {  
+    {
         /// <summary>
         /// 名称
         /// </summary>
@@ -33,7 +33,7 @@ namespace kevin.Domain.Share.Dtos.AI
         /// 矢量化模型Id
         /// </summary> 
         [Description("矢量化模型Id")]
-        public long? aIModelsId { get; set; } 
+        public long? aIModelsId { get; set; }
 
         public int DocumentCount { get => this.AIKmssDetailsList.Count; }
         /// <summary>

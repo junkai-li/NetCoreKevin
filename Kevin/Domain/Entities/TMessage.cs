@@ -37,7 +37,7 @@ namespace kevin.Domain.Entities
         /// <summary>
         /// 接收人信息
         /// </summary>
-         [MaxLength(100)]
+        [MaxLength(100)]
         public string? RecipientUserId { get; set; } = "";
         [MaxLength(100)]
         public string? RecipientUserName { get; set; } = "";

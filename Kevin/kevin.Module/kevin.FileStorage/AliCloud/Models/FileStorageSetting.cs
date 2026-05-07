@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace kevin.FileStorage.AliCloud.Models
+﻿namespace kevin.FileStorage.AliCloud.Models
 {
     public class FileStorageSetting
     {
@@ -17,7 +11,7 @@ namespace kevin.FileStorage.AliCloud.Models
         /// <summary>
         /// 账户ID
         /// </summary>
-        public  required string AccessKeyId { get; set; }
+        public required string AccessKeyId { get; set; }
 
 
         /// <summary>

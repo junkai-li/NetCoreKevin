@@ -1,8 +1,4 @@
-﻿using kevin.Domain.Share.Dtos;
-using kevin.Share.Dtos;
-using Web.Global.Exceptions;
-
-namespace kevin.Application.Services
+﻿namespace kevin.Application.Services
 {
     public class DictionaryService : BaseService, IDictionaryService
     {

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace kevin.Domain.Entities.AI
+﻿namespace kevin.Domain.Entities.AI
 {
     /// <summary>
     /// TAIApps
@@ -42,15 +36,15 @@ namespace kevin.Domain.Entities.AI
         /// </summary>
         [Required]
         [Description("会话模型ID")]
-        public String? ChatModelID { get; set; } 
+        public String? ChatModelID { get; set; }
         [MaxLength(200)]
-        public String? RerankModelID { get; set; } 
+        public String? RerankModelID { get; set; }
         /// <summary>
         /// 温度 温度越低0.1-2.0，答案越确定；温度越高，答案越随机
         /// </summary> 
         [DefaultValue(70)]
         [Description("温度")]
-        public Double Temperature { get; set; } = 70f; 
+        public Double Temperature { get; set; } = 70f;
 
         /// <summary>
         /// 知识库ID

@@ -1,15 +1,11 @@
-﻿using Duende.IdentityModel.Client;
-using kevin.Cache.Service;
-using kevin.Domain.Entities;
+﻿using kevin.Cache.Service;
 using kevin.Domain.Share.Attributes;
-using kevin.Share.Dtos;
-using Kevin.Common.Helper;
+using Kevin.Authentication.Jwt.IService;
 using Kevin.SMS;
 using Medallion.Threading;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Repository.Database;
-using Web.Global.Exceptions;
 
 
 namespace kevin.Application.Services
@@ -21,14 +17,16 @@ namespace kevin.Application.Services
         public IConfiguration Configuration { get; set; }
         public IDistributedLockProvider distLock { get; set; }
 
+        public ITokenService _TokenService { get; set; }
         public ISMS _ISMS { get; set; }
-        public AuthorizeService(IHttpContextAccessor _httpContextAccessor, IUserService IUserService, ICacheService ICacheService, IConfiguration IConfiguration, IDistributedLockProvider IDistributedLockProvider, ISMS ISMS) : base(_httpContextAccessor)
+        public AuthorizeService(IHttpContextAccessor _httpContextAccessor, IUserService IUserService, ICacheService ICacheService, IConfiguration IConfiguration, IDistributedLockProvider IDistributedLockProvider, ISMS ISMS, ITokenService tokenService) : base(_httpContextAccessor)
         {
             this._IUserService = IUserService;
             this._CacheService = ICacheService;
             this.Configuration = IConfiguration;
             this.distLock = IDistributedLockProvider;
             this._ISMS = ISMS;
+            this._TokenService = tokenService;
         }
 
         ///// <summary>
@@ -49,34 +47,18 @@ namespace kevin.Application.Services
                 TTenant.IsInactiveCheck();
             }
             var user = _IUserService.LoginUser(login.Name, login.PassWord, login.TenantId, login.PasswordHash ?? "");
-            var clinet = new HttpClient();
-            var disco = await clinet.GetDiscoveryDocumentAsync(Configuration["JwtOptions:Authority"]);
-            if (disco.IsError)
+            var accessToken = _TokenService.GenerateAccessToken(new Kevin.Authentication.Jwt.Dto.UserDto
             {
-                throw new UserFriendlyException("登录异常：" + disco.Error);
-            }
-            //var par = new Parameters();
-            //par.Add("TenantId", login.TenantId.ToString()); 
-            var tokenResponse = await clinet.RequestPasswordTokenAsync(new PasswordTokenRequest
-            {
-                Address = disco.TokenEndpoint,
-                ClientId = Configuration["IdentityServerInfo:ClientId"] ?? "",
-                ClientSecret = Configuration["IdentityServerInfo:ClientSecret"],
-                Scope = Configuration["IdentityServerInfo:Scope"],
-                UserName = user.Id.ToString(),
-                Password = login.PasswordHash ??  new HashHelper().SHA256Hash(login.PassWord),
+                Id = user.Id.ToString(),
+                Name = user.Name,
+                IsSuperAdmin = user.IsSuperAdmin,
+                Password = user.PassWord,
+                Phone = user.Phone,
+                CreatedTime = user.CreateTime,
+                TenantId = user.TenantId,
             });
-            if (tokenResponse.IsError)
-            {
-                throw new UserFriendlyException(tokenResponse.ErrorDescription);
-            }
-            //保存刷新令牌
-            if (!string.IsNullOrEmpty(tokenResponse.AccessToken) && !string.IsNullOrEmpty(tokenResponse.RefreshToken))
-            {
-                _CacheService.SetString(tokenResponse.AccessToken, tokenResponse.RefreshToken, TimeSpan.FromDays(2));
-            }
-            return tokenResponse.AccessToken ?? "获取AccessToken失败";
-        } 
+            return accessToken ?? "获取AccessToken失败";
+        }
         /// <summary>
         /// 利用手机号和短信验证码获取Token认证信息
         /// </summary>
@@ -113,7 +95,7 @@ namespace kevin.Application.Services
                 throw new UserFriendlyException("Authorize.GetTokenBySms.'New password is not allowed to be empty");
             }
 
-        } 
+        }
         /// <summary>
         /// 发送短信验证手机号码所有权
         /// </summary>
@@ -140,6 +122,6 @@ namespace kevin.Application.Services
                 }
             }
             return false;
-        } 
+        }
     }
 }

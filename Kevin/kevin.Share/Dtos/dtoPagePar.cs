@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace kevin.Domain.Share.Dtos
+﻿namespace kevin.Domain.Share.Dtos
 {
     public class dtoPagePar<T>
     {
@@ -27,7 +21,7 @@ namespace kevin.Domain.Share.Dtos
         /// <summary>
         /// 分页大小
         /// </summary>
-        public int pageSize { get; set; } =20;
+        public int pageSize { get; set; } = 20;
         /// <summary>
         /// 分页页数
         /// </summary>

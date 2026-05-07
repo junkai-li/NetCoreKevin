@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace kevin.Permission.Permisson.Attributes
+﻿namespace kevin.Permission.Permisson.Attributes
 {
     /// <summary>
     /// 标记Controller和Action的描述

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace kevin.FileStorage.TencentCloud.Models
+﻿namespace kevin.FileStorage.TencentCloud.Models
 {
     public class FileStorageSetting
     {

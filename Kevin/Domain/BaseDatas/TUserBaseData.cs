@@ -1,5 +1,4 @@
-﻿using kevin.Domain.Entities;
-using Kevin.Common.App;
+﻿using Kevin.Common.App;
 using Kevin.Common.Helper;
 
 namespace kevin.Domain.Configuration

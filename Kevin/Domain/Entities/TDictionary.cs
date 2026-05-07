@@ -7,13 +7,13 @@
     [Table("TDictionary")]
     [Description("字典信息表")]
     public partial class TDictionary : CUD_User
-    { 
+    {
         /// <summary>
         /// 键
         /// </summary>
         [StringLength(200)]
         [Description("键")]
-        public string? Key { get; set; } 
+        public string? Key { get; set; }
         /// <summary>
         /// 值
         /// </summary>

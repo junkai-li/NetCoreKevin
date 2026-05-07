@@ -1,5 +1,4 @@
 ﻿using Kevin.SnowflakeId.Models;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 
 namespace Kevin.SnowflakeId.Service
@@ -35,7 +34,7 @@ namespace Kevin.SnowflakeId.Service
             if (datacenterId > maxDatacenterId || datacenterId < 0)
             {
                 throw new ArgumentException($"Datacenter ID 必须在 0 到 {maxDatacenterId} 之间");
-            } 
+            }
         }
         public SnowflakeIdService(IOptionsMonitor<SnowflakeIdSetting> config)
         {
@@ -52,9 +51,9 @@ namespace Kevin.SnowflakeId.Service
             }
             if (datacenterId > maxDatacenterId || datacenterId < 0)
             {
-                throw new ArgumentException($"Datacenter ID 必须在 0 到 {maxDatacenterId} 之间"); 
+                throw new ArgumentException($"Datacenter ID 必须在 0 到 {maxDatacenterId} 之间");
             }
-           
+
         }
 
         public long GetNextId()

@@ -1,9 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Domain.Entities.AI
 {
@@ -43,7 +38,7 @@ namespace kevin.Domain.Entities.AI
         /// 消息id
         /// </summary>
         [Description("消息id")]
-        [MaxLength(100)] 
+        [MaxLength(100)]
         public string? MessageId { get; set; }
     }
 }

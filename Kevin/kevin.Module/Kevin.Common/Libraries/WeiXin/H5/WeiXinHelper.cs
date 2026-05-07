@@ -1,6 +1,5 @@
 ﻿global using kevin.Cache.Service;
 using Common.Json;
-using kevin.Domain.Share.Interfaces;
 using Kevin.Common.App;
 using Kevin.Common.App.Global;
 using Kevin.HttpApiClients.Helper;
@@ -20,7 +19,7 @@ namespace Web.Libraries.WeiXin.H5
 
         private static string appid;
 
-        private static string secret; 
+        private static string secret;
 
         private string mchid;
 
@@ -118,12 +117,12 @@ namespace Web.Libraries.WeiXin.H5
             using (var sha1 = SHA1.Create())
             {
                 byte[] bytes_sha1_in = System.Text.UTF8Encoding.Default.GetBytes(strYW);
-            byte[] bytes_sha1_out = sha1.ComputeHash(bytes_sha1_in);
-            string str_sha1_out = BitConverter.ToString(bytes_sha1_out);
-            str_sha1_out = str_sha1_out.Replace("-", "").ToLower();
-            sdkSign.signature = str_sha1_out;
+                byte[] bytes_sha1_out = sha1.ComputeHash(bytes_sha1_in);
+                string str_sha1_out = BitConverter.ToString(bytes_sha1_out);
+                str_sha1_out = str_sha1_out.Replace("-", "").ToLower();
+                sdkSign.signature = str_sha1_out;
 
-            } 
+            }
             return sdkSign;
         }
 

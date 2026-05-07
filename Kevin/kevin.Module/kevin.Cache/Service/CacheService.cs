@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
-using System;
 using System.Text;
 
 namespace kevin.Cache.Service
@@ -147,7 +146,7 @@ namespace kevin.Cache.Service
                 throw new Exception($"key不能为空");
             }
             var value = JsonConvert.DeserializeObject<T>(valueStr.Replace("undefined", "null"));
-            if (value!=null)
+            if (value != null)
             {
                 return value;
             }

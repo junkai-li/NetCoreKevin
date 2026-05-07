@@ -1,5 +1,4 @@
-﻿using kevin.Domain.Entities;
-using kevin.Permission.Interfaces;
+﻿using kevin.Permission.Interfaces;
 using Repository.Database;
 
 namespace kevin.Application
@@ -7,7 +6,7 @@ namespace kevin.Application
     public class KevinPermissionService : BaseService, IKevinPermissionService
     {
         public KevinPermissionService(IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
-        { 
+        {
         }
 
 
@@ -15,13 +14,13 @@ namespace kevin.Application
         {
             using (var db = new KevinDbContext())
             {
-                return db.Set<TPermission>().Where(x => x.IsDelete == false).Select(x => (x.Id ?? "")).ToList(); 
+                return db.Set<TPermission>().Where(x => x.IsDelete == false).Select(x => (x.Id ?? "")).ToList();
             }
         }
         public List<long> GetUserRoleIds(string userId)
         {
             using var db = new KevinDbContext();
-            var userBindRoles = db.Set<TUserBindRole>().Where(x => x.IsDelete == false && x.UserId ==userId.ToTryInt64()).ToList();
+            var userBindRoles = db.Set<TUserBindRole>().Where(x => x.IsDelete == false && x.UserId == userId.ToTryInt64()).ToList();
             if (userBindRoles != default && userBindRoles.Count > 0)
             {
                 return userBindRoles.Select(x => x.RoleId).ToList();
@@ -77,7 +76,7 @@ namespace kevin.Application
             }
             var pers = new Dictionary<string, bool>();
             pers = GetUserPermissions(CurrentUser.UserId.ToString());
-            if (pers.Count == 0 || !pers.ContainsKey(CurrentUser.TenantId+"/" + permissionId))
+            if (pers.Count == 0 || !pers.ContainsKey(CurrentUser.TenantId + "/" + permissionId))
             {
                 return false;
             }

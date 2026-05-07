@@ -21,6 +21,6 @@ namespace kevin.Domain.Share.Dtos.System
         {
             get; set;
         }
-        public List<AreaPermissionDto> dtos { get; set; } = new List<AreaPermissionDto>(); 
+        public List<AreaPermissionDto> dtos { get; set; } = new List<AreaPermissionDto>();
     }
 }

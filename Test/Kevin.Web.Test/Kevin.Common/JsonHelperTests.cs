@@ -7,8 +7,8 @@ namespace Kevin.Unit.Test.Kevin.Common
     {
         [Theory]
         [InlineData("{\"name\":\"kevin\"}", "name", "kevin")]
-        public void GetValueByKey(string json,string key,string expected)
-        { 
+        public void GetValueByKey(string json, string key, string expected)
+        {
             Assert.Equal(expected, JsonHelper.GetValueByKey(json, key));
         }
 
@@ -32,12 +32,12 @@ namespace Kevin.Unit.Test.Kevin.Common
             table.Columns.Add("Name", typeof(string));
             DataRow row = table.NewRow();
             row["Id"] = 1;
-            row["Name"] = "Test"; 
+            row["Name"] = "Test";
             // Act
-            var result = JsonHelper.DataRowToJSON(row); 
+            var result = JsonHelper.DataRowToJSON(row);
             // Assert
             Assert.NotNull(result);
-            Assert.Equal("{\"Id\":1,\"Name\":\"Test\"}", result.ToString()); 
+            Assert.Equal("{\"Id\":1,\"Name\":\"Test\"}", result.ToString());
         }
 
         [Fact]
@@ -144,4 +144,4 @@ namespace Kevin.Unit.Test.Kevin.Common
             public required string Name { get; set; }
         }
     }
-} 
+}

@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Linq;
 
 namespace Kevin.Web.Filters
 {
@@ -39,7 +37,7 @@ namespace Kevin.Web.Filters
 
         void IResultFilter.OnResultExecuting(ResultExecutingContext context)
         {
-          
+
         }
     }
 }

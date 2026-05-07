@@ -12,10 +12,10 @@ namespace Kevin.Web.Basics.Controllers
     /// <summary>
     /// 租户管理
     /// </summary>
-    [ApiVersionNeutral] 
-    [Route("api/[controller]")] 
-    [MyArea("租户管理", "TenantSystem")] 
-    [MyModule("租户管理", "Tenant")] 
+    [ApiVersionNeutral]
+    [Route("api/[controller]")]
+    [MyArea("租户管理", "TenantSystem")]
+    [MyModule("租户管理", "Tenant")]
     [Authorize]
     [ApiController]
     public class TenantController : ApiControllerBase

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
- 
+
 
 /// <summary>
 /// 枚举值校验

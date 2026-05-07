@@ -1,26 +1,20 @@
-﻿
-using NPOI;
-using NPOI.HSSF.UserModel;
-using NPOI.SS.Formula.Functions;
-using NPOI.SS.UserModel;
+﻿using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Common.Action
 {
     public static class NpoiExtendAction
     {
-    
+
         public static Dictionary<int, List<XSSFPictureData>> GetAllXSSFPictureDics(XSSFWorkbook wk)
         {
-          
+
             var data = GetPicMap(wk);
             return data;
-        }  
+        }
 
         /**
         * 获取文字
@@ -38,7 +32,7 @@ namespace Common.Action
             for (int i = 0; i <= HSSsheet.LastRowNum; i++)
             {
                 // 读取左上端单元格
-                IRow row =  HSSsheet.GetRow(i);
+                IRow row = HSSsheet.GetRow(i);
                 // 行不为空
                 if (row != null)
                 {
@@ -75,16 +69,17 @@ namespace Common.Action
                 List<XSSFPictureData> list = new();
 
 
-                if (shape is XSSFPicture) {
+                if (shape is XSSFPicture)
+                {
                     XSSFPicture pic = (XSSFPicture)shape;
-                    var picture = (XSSFPicture)shape; 
+                    var picture = (XSSFPicture)shape;
 
                     XSSFPictureData picData = (XSSFPictureData)picture.PictureData;
                     //如果通过本次获取的行能得到value，说明本行已存在， 
                     if (picMap.Where(x => x.Key == anchor.Row1).Count() > 0)
                     {
                         //找到本行的集合
-                        List<XSSFPictureData> list2 = picMap.Where(x=>x.Key==anchor.Row1).FirstOrDefault().Value;
+                        List<XSSFPictureData> list2 = picMap.Where(x => x.Key == anchor.Row1).FirstOrDefault().Value;
                         //将图片存储进去 
                         list2.Add(picData);
                         //进入下一轮循环
@@ -101,8 +96,8 @@ namespace Common.Action
                     picMap.Add(anchor.Row1, null);
                 }
 
-            } 
-         return picMap;
-    } 
+            }
+            return picMap;
+        }
     }
 }

@@ -6,6 +6,6 @@ namespace App.Domain.Interfaces.Repositorie.v1.AppInfoTest
     /// </summary>
     public interface IAppInfoTestRp : IRepository<TAppInfoTest, long>
     {
-        
+
     }
-} 
+}

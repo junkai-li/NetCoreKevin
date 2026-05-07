@@ -59,8 +59,8 @@ namespace kevin.Domain.Entities
         /// 密码Hash
         /// </summary>
         [Description("密码Hash")]
-        public   string? PasswordHash { get; set; } 
-         
+        public string? PasswordHash { get; set; }
+
         /// <summary>
         /// 是否超级管理员
         /// </summary>

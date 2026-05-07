@@ -1,10 +1,10 @@
-﻿using DnsClient; 
+﻿using DnsClient;
+using Kevin.Common.Extension;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
-using Kevin.Common.Extension;
 
 namespace Kevin.Common.Validator
 {

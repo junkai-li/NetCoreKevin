@@ -1,16 +1,10 @@
 ﻿using kevin.Domain.BaseDatas;
 using kevin.Domain.Configuration;
-using kevin.Domain.Entities;
 using kevin.Domain.Entities.Organizational;
 using kevin.Domain.EventBus;
 using kevin.Domain.Events;
-using kevin.Domain.Interfaces.IRepositories.Organizational;
-using kevin.Domain.Share.Dtos;
-using kevin.Domain.Share.Dtos.Organizational;
 using kevin.Domain.Share.Enums;
-using kevin.Share.Dtos;
 using Repository.Database;
-using Web.Global.Exceptions;
 
 namespace kevin.Application
 {
@@ -36,7 +30,7 @@ namespace kevin.Application
             if (!CurrentUser.IsSuperAdmin)
             {
                 throw new UserFriendlyException("非超级管理员无权限操作");
-            } 
+            }
             var dataPage = new dtoPageData<dtoTenant>();
             int skip = par.GetSkip();
             var data = tenantRp.Query(false).Where(t => t.IsDelete == false);
@@ -54,13 +48,13 @@ namespace kevin.Application
             if (!CurrentUser.IsSuperAdmin)
             {
                 throw new UserFriendlyException("非超级管理员无权限操作");
-            } 
+            }
             var tenant = await tenantRp.Query(false).FirstOrDefaultAsync(t => t.Id == id);
             if (tenant != default)
             {
                 tenant.Status = TenantStatusEnums.Inactive;
                 tenant.UpdateTime = DateTime.Now;
-                 tenantRp.SaveChangesWithSaveLog();
+                tenantRp.SaveChangesWithSaveLog();
                 return true;
             }
             else
@@ -73,13 +67,13 @@ namespace kevin.Application
             if (!CurrentUser.IsSuperAdmin)
             {
                 throw new UserFriendlyException("非超级管理员无权限操作");
-            } 
+            }
             var tenant = await tenantRp.Query(false).FirstOrDefaultAsync(t => t.Id == id);
             if (tenant != default)
             {
                 tenant.Status = TenantStatusEnums.Active;
                 tenant.UpdateTime = DateTime.Now;
-                tenantRp.SaveChangesWithSaveLog(); 
+                tenantRp.SaveChangesWithSaveLog();
                 return true;
             }
             else
@@ -93,7 +87,7 @@ namespace kevin.Application
             if (!CurrentUser.IsSuperAdmin)
             {
                 throw new UserFriendlyException("非超级管理员无权限操作");
-            } 
+            }
             var tenantcode = await tenantRp.Query(false).FirstOrDefaultAsync(t => t.Id != tenant.Id.ToTryInt64() && t.Code == tenant.Code);
             if (tenantcode != default)
             {
@@ -119,7 +113,7 @@ namespace kevin.Application
             if (!CurrentUser.IsSuperAdmin)
             {
                 throw new UserFriendlyException("非超级管理员无权限操作");
-            } 
+            }
             var tenantcode = await tenantRp.Query(false).FirstOrDefaultAsync(t => t.Code == tenant.Code);
             if (tenantcode != default)
             {
@@ -129,7 +123,7 @@ namespace kevin.Application
             addtenant.AddDomainEvent(new TTenantCreatedEvent(addtenant), EventBusEnums.Add);
             tenantRp.Add(addtenant);
             tenantRp.SaveChangesWithSaveLog();
-            return  true;
+            return true;
         }
 
         public async Task<bool> DeleteAsync(long id, CancellationToken cancellationToken)
@@ -141,13 +135,13 @@ namespace kevin.Application
             if (TTenantBaseData.TTenants.Where(t => t.Id == id).FirstOrDefault() != default)
             {
                 throw new UserFriendlyException("种子数据不能删除");
-            } 
+            }
             var tenant = await tenantRp.Query(false).FirstOrDefaultAsync(t => t.Id == id);
             if (tenant != default)
             {
                 tenant.IsDelete = true;
-                tenant.DeleteTime = DateTime.Now; 
-                tenantRp.SaveChangesWithSaveLog(); 
+                tenant.DeleteTime = DateTime.Now;
+                tenantRp.SaveChangesWithSaveLog();
                 return true;
             }
             else
@@ -211,7 +205,7 @@ namespace kevin.Application
                 userbindrole.UserId = user.Id;
                 userbindrole.CreateTime = DateTime.Now;
                 userbindrole.TenantId = tenant.Code;
-                userbindrole.CreateUserId= user.Id;
+                userbindrole.CreateUserId = user.Id;
                 addUserBindRoles.Add(userbindrole);
             }
 

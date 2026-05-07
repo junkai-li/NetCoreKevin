@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
 
 namespace System.Linq
@@ -63,7 +61,7 @@ namespace System.Linq
             {
                 return source.Where(predicate);
             }
-            
+
             return source;
         }
 

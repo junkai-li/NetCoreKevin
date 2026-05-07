@@ -1,18 +1,13 @@
-﻿using kevin.Domain.Bases;
-using kevin.Domain.Interface;
+﻿using kevin.Domain.Interface;
 using Kevin.Common.App;
 using Kevin.Common.Extension;
 using Kevin.SnowflakeId.Service;
-using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
-using NPOI.SS.Formula.Functions;
 using Repository.Database;
-using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading.Tasks;
 using Web.Global.User;
 
@@ -95,7 +90,7 @@ namespace Kevin.EntityFrameworkCore._.Data
                         {
                             var userIds = CurrentUser.GetModuleDataPermissionsUserIds().Result;
                             if (userIds.Count > 0)
-                            { 
+                            {
                                 t_d_p_predicate = t_d_p_predicate.And(e => userIds.Contains(EF.Property<long>(e, "CreateUserId")));
                             }
                         }

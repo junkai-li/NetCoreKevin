@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace kevin.Share.Dtos
+﻿namespace kevin.Share.Dtos
 {
 
 

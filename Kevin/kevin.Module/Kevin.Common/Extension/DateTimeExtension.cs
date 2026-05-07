@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 
 namespace System
 {
-    public  static class DateTimeExtension
+    public static class DateTimeExtension
     {
         /// <summary>
         /// 获取日期中的 年月日 组成新日期
@@ -72,6 +67,6 @@ namespace System
             int weekOfYear = gc.GetWeekOfYear(day, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
             return weekOfYear;
         }
-        
+
     }
 }

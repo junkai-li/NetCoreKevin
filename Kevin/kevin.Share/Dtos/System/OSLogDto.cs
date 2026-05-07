@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Domain.Share.Dtos.System
 {
@@ -60,8 +55,8 @@ namespace kevin.Domain.Share.Dtos.System
         /// 操作人信息
         /// </summary>
         [Description("操作人信息")]
-        public long? ActionUserId { get; set; } 
-        public string? ActionUserName { get; set; } 
+        public long? ActionUserId { get; set; }
+        public string? ActionUserName { get; set; }
 
 
 

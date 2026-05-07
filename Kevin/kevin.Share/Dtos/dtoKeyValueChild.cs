@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace kevin.Share.Dtos
+﻿namespace kevin.Share.Dtos
 {
     public class dtoKeyValueChild
     {
@@ -26,7 +24,7 @@ namespace kevin.Share.Dtos
         /// <summary>
         /// 子级集合信息
         /// </summary>
-        public List<dtoKeyValueChild> ChildList { get; set; }= new List<dtoKeyValueChild>();
+        public List<dtoKeyValueChild> ChildList { get; set; } = new List<dtoKeyValueChild>();
 
 
 

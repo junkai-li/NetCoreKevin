@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace kevin.Permission.Permisson
@@ -12,40 +11,40 @@ namespace kevin.Permission.Permisson
         [Display(Name = "ActionName")]
         [StringLength(50, ErrorMessage = "{0}stringmax{1}")]
         [Required(ErrorMessage = "{0}required")]
-        public   string? ActionName { get; set; }
+        public string? ActionName { get; set; }
 
         [Display(Name = "ActionName")]
         [StringLength(50, ErrorMessage = "{0}stringmax{1}")]
         [Required(ErrorMessage = "{0}required")]
-        public  string? Action { get; set; }
+        public string? Action { get; set; }
 
         [Required(ErrorMessage = "{0}required")]
         [StringLength(50, ErrorMessage = "{0}stringmax{1}")]
         [Display(Name = "MethodName")]
-        public   string? MethodName { get; set; }
+        public string? MethodName { get; set; }
         [Required(ErrorMessage = "{0}required")]
         [StringLength(50, ErrorMessage = "{0}stringmax{1}")]
         [Display(Name = "MethodName")]
-        public   string? Method { get; set; }
+        public string? Method { get; set; }
 
-        public   string? HttpMethod { get; set; }
+        public string? HttpMethod { get; set; }
 
 
         [Display(Name = "Module")]
-        public   SysCtrl? Controller { get; set; }
+        public SysCtrl? Controller { get; set; }
 
         [Display(Name = "Parameter")]
         [StringLength(50, ErrorMessage = "{0}stringmax{1}")]
-        public   string? Parameter { get; set; }
+        public string? Parameter { get; set; }
 
         [NotMapped]
-        public   List<string>? ParasToRunTest { get; set; }
+        public List<string>? ParasToRunTest { get; set; }
 
         [NotMapped]
         public bool IgnorePrivillege { get; set; }
 
         [NotMapped]
-        private  string? _url;
+        private string? _url;
         [NotMapped]
         public string Url
         {

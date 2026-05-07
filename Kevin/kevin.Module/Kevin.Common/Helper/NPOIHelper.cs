@@ -19,7 +19,7 @@ using System.Text.RegularExpressions;
 namespace Kevin.Common.Helper
 {
     public class NPOIHelper : ControllerBase
-    { 
+    {
 
         #region 从datatable中将数据导出到excel
 

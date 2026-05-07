@@ -19,7 +19,7 @@ namespace Kevin.Api.Versioning.Swagger
         public void Configure(SwaggerGenOptions options)
         {
             foreach (var description in provider.ApiVersionDescriptions)
-            { 
+            {
                 options.SwaggerDoc(description.GroupName, CreateInfoForApiVersion(description));
                 Console.WriteLine(description.GroupName);
                 var modelPrefix = Assembly.GetEntryAssembly()?.GetName().Name + ".Models.";

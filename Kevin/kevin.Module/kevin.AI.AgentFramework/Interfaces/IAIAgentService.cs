@@ -1,19 +1,11 @@
 ﻿using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
-using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
-using OpenAI;
-using System;
-using System.ClientModel;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.AI.AgentFramework.Interfaces
 {
     public interface IAIAgentService
-    { 
+    {
         /// <summary>
         /// 创建智能体并发送消息
         /// </summary>
@@ -36,7 +28,7 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="aIAgent">智能体</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-         McpServerTool AIAgentAsMcpServerTool(AIAgent aIAgent); 
+        McpServerTool AIAgentAsMcpServerTool(AIAgent aIAgent);
         /// <summary>
         /// 获取代理
         /// </summary>

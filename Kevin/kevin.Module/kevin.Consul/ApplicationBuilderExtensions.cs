@@ -2,11 +2,6 @@
 using kevin.Consul.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Consul
 {
@@ -33,9 +28,9 @@ namespace kevin.Consul
                     HTTP = $"http://{setting.ServiceIP}:{setting.ServicePort}{setting.ServiceHealthCheck}",//健康检查地址
                     Timeout = TimeSpan.FromSeconds(5)//超时时间
                 }
-            }; 
+            };
             //服务注册
-            consulClient.Agent.ServiceRegister(registration).Wait(); 
+            consulClient.Agent.ServiceRegister(registration).Wait();
             //应用程序终止时，取消注册
             lifetime.ApplicationStopping.Register(() =>
             {

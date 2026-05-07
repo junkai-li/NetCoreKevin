@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace kevin.Share.Dtos.System
 {
-   public class dtoRole
+    public class dtoRole
     {  /// <summary>
        /// Id
        /// </summary>
@@ -15,14 +10,14 @@ namespace kevin.Share.Dtos.System
         /// <summary>
         /// 角色名称
         /// </summary>
-        [Required(ErrorMessage ="角色名称不能为空")]
+        [Required(ErrorMessage = "角色名称不能为空")]
         public string Name { get; set; } = "";
 
 
         /// <summary>
         /// 备注信息
         /// </summary>
-        public string Remarks { get; set; } = ""; 
+        public string Remarks { get; set; } = "";
 
         /// <summary>
         /// 创建时间

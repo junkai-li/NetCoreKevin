@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace AuthorizationService
+﻿namespace Kevin.Authentication.Jwt.Dto
 {
-    /// <summary>
-    /// 系统用户dto
-    /// </summary>
-    public class userDto
+    public class UserDto
     {
         /// <summary>
         /// Id
@@ -23,10 +14,10 @@ namespace AuthorizationService
         /// <summary>
         /// 是否超级管理员
         /// </summary> 
-        public   bool IsSuperAdmin { get; set; }
+        public bool IsSuperAdmin { get; set; }
 
         /// <summary>
-        /// Password
+        /// Password //存储哈希
         /// </summary>
         public string Password { get; set; }
 
@@ -38,13 +29,12 @@ namespace AuthorizationService
         /// <summary>
         /// 创建人;
         /// </summary> 
-        public   string CreatedBy { get; set; }
+        public string CreatedBy { get; set; }
         /// <summary>
         /// 创建时间
         /// </summary> 
         public virtual DateTime? CreatedTime { get; set; }
 
         public int TenantId { get; set; }
-
     }
 }

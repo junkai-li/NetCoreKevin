@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace kevin.Ioc.IocAttrributes
+﻿namespace kevin.Ioc.IocAttrributes
 {
     /// <summary>
     /// 属性的特性标记，主要用于标记属性
@@ -9,6 +7,6 @@ namespace kevin.Ioc.IocAttrributes
     public class IocPropertyAttribute : Attribute
     {
 
-    } 
+    }
 
 }

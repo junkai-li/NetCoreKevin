@@ -2,18 +2,13 @@
 using kevin.Domain.Entities.Organizational;
 using kevin.Domain.Share.Enums;
 using Kevin.Common.App;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Domain.BaseDatas
 {
     public class TDepartmentBaseDatas
     {
         public static List<TDepartment> Data { get; set; } = new List<TDepartment>()
-        { 
+        {
            new TDepartment() {
                Id=4514141254257227771,
                Name="NET科技有限公司",

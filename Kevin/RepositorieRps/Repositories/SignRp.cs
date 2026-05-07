@@ -1,6 +1,4 @@
-﻿using Kevin.EntityFrameworkCore._.Data;
-
-namespace kevin.RepositorieRps.Repositories
+﻿namespace kevin.RepositorieRps.Repositories
 {
 
     public class SignRp : Repository<TSign, long>, ISignRp

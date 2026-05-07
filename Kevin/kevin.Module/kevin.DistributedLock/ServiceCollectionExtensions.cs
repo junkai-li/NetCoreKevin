@@ -44,7 +44,7 @@ namespace kevin.DistributedLock
             {
                 Console.WriteLine("分布式锁注入失败请检查Redis连接：" + ex.Message);
             }
-         
+
         }
     }
 }

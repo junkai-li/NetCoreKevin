@@ -56,7 +56,7 @@ namespace Kevin.Common.App.Global
                     parameter,
                     authorization,
                     error
-                }; 
+                };
                 string strContent = JsonHelper.ObjectToJSON(content);
             }
             context.Response.ContentType = "application/json; charset=utf-8";

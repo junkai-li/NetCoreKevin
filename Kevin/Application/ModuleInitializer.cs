@@ -1,9 +1,7 @@
 ﻿using kevin.Application;
-using kevin.Domain.Share;
 using kevin.Domain.Share.Interfaces;
 using kevin.Ioc;
 using kevin.Ioc.TieredServiceRegistration;
-using kevin.Permission.Interfaces;
 using Kevin.Common.App.Global;
 using Kevin.Common.Helper;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +17,7 @@ namespace Kevin.Application
             {
                 GlobalServices.AddIService(t);
             });
-            services.AddScoped<ICurrentUser, CurrentUser>(); 
+            services.AddScoped<ICurrentUser, CurrentUser>();
             ConsoleHelper.Print("kevin.Application服务注册完成");
         }
     }

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System.ComponentModel.DataAnnotations;
 using Web.Global.User;
 
 namespace Kevin.SignalR
@@ -19,8 +18,8 @@ namespace Kevin.SignalR
 
         public ICacheService _cacheService { get; set; }
 
-       
-        public  IHttpContextAccessor _httpContextAccessor { get; set; }
+
+        public IHttpContextAccessor _httpContextAccessor { get; set; }
 
         private readonly SignalrRdisSetting _config;
 
@@ -37,7 +36,7 @@ namespace Kevin.SignalR
                 if (cacheService != default)
                 {
                     _cacheService = cacheService;
-                }  
+                }
             }
             _config = config.CurrentValue;
             if (httpContextAccessor != default)

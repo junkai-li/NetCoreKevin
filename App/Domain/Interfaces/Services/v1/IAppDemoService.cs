@@ -1,8 +1,4 @@
-﻿using kevin.Domain.Share.Dtos;
-using kevin.Domain.Share.Dtos.System;
-using kevin.Share.Dtos;
-
-namespace App.Domain.Interfaces.Services.v1
+﻿namespace App.Domain.Interfaces.Services.v1
 {
     /// <summary>
     /// ����ӿ�

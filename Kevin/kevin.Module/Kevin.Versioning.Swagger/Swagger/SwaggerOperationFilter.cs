@@ -2,11 +2,6 @@
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Kevin.Api.Versioning.Swagger
 {
@@ -15,7 +10,7 @@ namespace Kevin.Api.Versioning.Swagger
     /// swagger 集成多版本api自定义设置
     /// </summary>
     public class SwaggerOperationFilter : IOperationFilter
-    { 
+    {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             var apiDescription = context.ApiDescription;

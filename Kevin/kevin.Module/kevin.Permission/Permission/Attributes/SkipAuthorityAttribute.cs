@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace kevin.Permission.Permisson.Attributes
+﻿namespace kevin.Permission.Permisson.Attributes
 {
     /// <summary>
     /// 跳出权限控制属性

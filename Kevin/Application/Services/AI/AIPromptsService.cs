@@ -1,25 +1,15 @@
 ﻿using kevin.Domain.Entities.AI;
-using kevin.Domain.Interfaces.IRepositories;
-using kevin.Domain.Interfaces.IRepositories.Organizational;
 using kevin.Domain.Interfaces.IServices.AI;
-using kevin.Domain.Share.Dtos;
 using kevin.Domain.Share.Dtos.AI;
-using kevin.Share.Dtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Web.Global.Exceptions;
 
 namespace kevin.Application.Services.AI
 {
     public class AIPromptsService : BaseService, IAIPromptsService
     {
-        public IAIPromptsRp aIPromptsRp { get; set; } 
+        public IAIPromptsRp aIPromptsRp { get; set; }
         public AIPromptsService(IHttpContextAccessor _httpContextAccessor, IAIPromptsRp _aIPromptsRp) : base(_httpContextAccessor)
         {
-            this.aIPromptsRp = _aIPromptsRp; 
+            this.aIPromptsRp = _aIPromptsRp;
         }
 
         /// <summary>
@@ -62,9 +52,9 @@ namespace kevin.Application.Services.AI
         /// <returns></returns> 
         public async Task<List<AIPromptsDto>> GetALLList()
         {
-            var result = new List<AIPromptsDto>(); 
-            var data = aIPromptsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId); 
-            result= (await data.OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIPrompts, AIPromptsDto>();
+            var result = new List<AIPromptsDto>();
+            var data = aIPromptsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
+            result = (await data.OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIPrompts, AIPromptsDto>();
             return result;
         }
 
@@ -99,12 +89,12 @@ namespace kevin.Application.Services.AI
             {
                 var msg = aIPromptsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == par.Id).FirstOrDefault();
                 if (msg != default)
-                { 
+                {
                     msg.UpdateTime = DateTime.Now;
                     msg.UpdateUserId = CurrentUser.UserId;
                     msg.TenantId = CurrentUser.TenantId;
                     msg.Name = par.Name;
-                    msg.Prompt = par.Prompt; 
+                    msg.Prompt = par.Prompt;
                     msg.Description = par.Description;
                 }
                 else

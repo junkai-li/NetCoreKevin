@@ -5,6 +5,6 @@
     /// </summary>
     public interface IAppDemoRp : IRepository<TAppDemo, long>
     {
-        
+
     }
-} 
+}

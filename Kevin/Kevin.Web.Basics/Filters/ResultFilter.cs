@@ -2,7 +2,6 @@
 using Kevin.Common.App.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using System;
 
 namespace Web.Filters
 {
@@ -132,7 +131,7 @@ namespace Web.Filters
                     default:
                         if (Result.StatusCode == StatusCodes.Status400BadRequest)
                         {
-                            string errMsg2 =JsonHelper.GetValueByKey(Result.Value.EntityToJson(), "errMsg") ?? "未知错误";
+                            string errMsg2 = JsonHelper.GetValueByKey(Result.Value.EntityToJson(), "errMsg") ?? "未知错误";
                             context.Result = new JsonResult(new { code = StatusCodes.Status400BadRequest, IsSuccess = false, msg = "errmsg", errMsg = errMsg2 });
                         }
                         else

@@ -11,6 +11,7 @@ using kevin.RabbitMQ;
 using Kevin.AI;
 using Kevin.AI.Dto;
 using Kevin.Api.Versioning;
+using Kevin.Authentication.Jwt;
 using Kevin.Common.App.Global;
 using Kevin.Common.Helper;
 using Kevin.Cors;
@@ -71,6 +72,12 @@ namespace Web.Extension
             {
                 options.MaxAge = TimeSpan.FromDays(365);
             });
+            #endregion
+
+            #region JWT鉴权
+
+            services.AddKevinAuthenticationJwt(Configuration);
+
             #endregion
 
             #region 权限校验 
@@ -155,7 +162,7 @@ namespace Web.Extension
             #region 注册文件服务 
             //注册文件服务 需要和静态文件中间件配合使用 配置保持一致
             services.AddKevinStaticFilesStorage(options =>
-            { 
+            {
                 options.Endpoint = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "KevinFlies");
             });
             #endregion

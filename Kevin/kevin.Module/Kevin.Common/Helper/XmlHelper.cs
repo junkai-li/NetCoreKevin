@@ -16,37 +16,38 @@ namespace Common
         /// <param name="obj">对象</param>
         /// <returns></returns>
         public static string ObjectToXml(object obj)
-        { 
-                if (obj != default)
+        {
+            if (obj != default)
+            {
+                using (MemoryStream memoryStream = new())
                 {
-                    using (MemoryStream memoryStream = new())
+                    XmlWriterSettings xmlWriterSettings = new();
+                    xmlWriterSettings.Encoding = Encoding.UTF8;
+                    xmlWriterSettings.OmitXmlDeclaration = true;
+
+                    using (var xmlWriter = XmlWriter.Create(memoryStream, xmlWriterSettings))
                     {
-                        XmlWriterSettings xmlWriterSettings = new();
-                        xmlWriterSettings.Encoding = Encoding.UTF8;
-                        xmlWriterSettings.OmitXmlDeclaration = true;
+                        //去除默认命名空间xmlns:xsd和xmlns:xsi
+                        XmlSerializerNamespaces ns = new();
+                        ns.Add("", "");
 
-                        using (var xmlWriter = XmlWriter.Create(memoryStream, xmlWriterSettings))
+                        XmlSerializer xmlSerializer = new(obj.GetType());
+                        xmlSerializer.Serialize(xmlWriter, obj);
+
+                        memoryStream.Position = 0;
+                        using (var sr = new StreamReader(memoryStream))
                         {
-                            //去除默认命名空间xmlns:xsd和xmlns:xsi
-                            XmlSerializerNamespaces ns = new();
-                            ns.Add("", "");
+                            var xmlString = sr.ReadToEnd();
 
-                            XmlSerializer xmlSerializer = new(obj.GetType());
-                            xmlSerializer.Serialize(xmlWriter, obj);
-
-                            memoryStream.Position = 0;
-                            using (var sr = new StreamReader(memoryStream))
-                            {
-                                var xmlString = sr.ReadToEnd();
-
-                                return xmlString;
-                            }
+                            return xmlString;
                         }
                     }
                 }
-                else {
-                   throw new ArgumentNullException("obj"); 
-                }   
+            }
+            else
+            {
+                throw new ArgumentNullException("obj");
+            }
         }
 
 

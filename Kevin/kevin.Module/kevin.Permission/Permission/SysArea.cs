@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-
-
-namespace kevin.Permission.Permisson
+﻿namespace kevin.Permission.Permisson
 {
     /// <summary>
     /// FrameworkArea

@@ -10,24 +10,24 @@
         /// <summary>
         /// 创建时间
         /// </summary> 
-        public DateTime CreateTime { get; set; } 
+        public DateTime CreateTime { get; set; }
 
         /// <summary>
         /// 创建人ID
         /// </summary> 
-        public long? CreateUserId { get; set; } 
+        public long? CreateUserId { get; set; }
 
 
         /// <summary>
         /// 编辑人ID
         /// </summary> 
-        public long? UpdateUserId { get; set; } 
+        public long? UpdateUserId { get; set; }
 
         /// <summary>
         /// 更新时间
         /// </summary> 
         public DateTime? UpdatedTime { get; set; }
-         
+
         /// <summary>
         /// 区域;
         /// </summary> 

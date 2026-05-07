@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 
 namespace kevin.Domain.Share.Dtos.Bases
 {
@@ -21,7 +20,7 @@ namespace kevin.Domain.Share.Dtos.Bases
         /// 创建时间
         /// </summary>
         [Description("创建时间")]
-        public DateTime CreateTime { get; set; } 
+        public DateTime CreateTime { get; set; }
         /// <summary>
         /// 租户ID;
         /// </summary> 

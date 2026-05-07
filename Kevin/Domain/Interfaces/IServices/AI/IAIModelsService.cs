@@ -1,5 +1,4 @@
 ﻿using kevin.Domain.Share.Dtos.AI;
-using kevin.Domain.Share.Enums;
 
 namespace kevin.Domain.Interfaces.IServices.AI
 {

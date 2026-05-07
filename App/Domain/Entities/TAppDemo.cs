@@ -17,6 +17,6 @@ namespace App.Domain.Entities
         /// </summary>
         [StringLength(200)]
         [Description("DemoName")]
-        public string DemoName { get; set; } = ""; 
+        public string DemoName { get; set; } = "";
     }
 }

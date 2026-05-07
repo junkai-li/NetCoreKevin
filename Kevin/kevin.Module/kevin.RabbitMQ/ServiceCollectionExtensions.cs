@@ -1,5 +1,4 @@
-﻿using kevin.RabbitMQ;
-using kevin.RabbitMQ.Interfaces;
+﻿using kevin.RabbitMQ.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;

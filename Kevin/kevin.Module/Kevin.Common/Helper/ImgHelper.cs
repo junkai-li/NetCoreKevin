@@ -1,7 +1,7 @@
-﻿ 
+﻿
 using SkiaSharp;
 using SkiaSharp.QrCode;
-using System; 
+using System;
 
 namespace Common
 {

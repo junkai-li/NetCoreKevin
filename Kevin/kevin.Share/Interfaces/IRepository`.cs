@@ -1,6 +1,5 @@
 ﻿using kevin.Domain.Share.Interfaces;
 using System.Linq.Expressions;
-using Web.Global.User;
 
 namespace kevin.Domain.Interface
 {

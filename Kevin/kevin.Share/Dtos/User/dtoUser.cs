@@ -13,19 +13,19 @@ namespace kevin.Domain.Share.Dtos.User
         /// <summary>
         /// 用户名
         /// </summary>
-        public string? Name { get; set; }
+        public string Name { get; set; } = "";
 
 
         /// <summary>
         /// 昵称
         /// </summary>
-        public string? NickName { get; set; }
+        public string NickName { get; set; } = "";
 
 
         /// <summary>
         /// 手机号
         /// </summary>
-        public string? Phone { get; set; }
+        public string Phone { get; set; } = "";
 
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace kevin.Domain.Share.Dtos.User
         /// <summary>
         /// 密码
         /// </summary>
-        public string? PassWord { get; set; }
+        public string PassWord { get; set; } = "";
 
         /// <summary>
         /// 创建时间
@@ -66,6 +66,13 @@ namespace kevin.Domain.Share.Dtos.User
         ///最近登陆时间
         /// </summary>
         public DateTime? RecentLoginTime { get; set; }
+
+        /// <summary>
+        /// 是否超级管理员
+        /// </summary> 
+        public bool IsSuperAdmin { get; set; }
+
+        public Int32 TenantId { get; set; }
 
         /// <summary>
         ///最近登陆时间
