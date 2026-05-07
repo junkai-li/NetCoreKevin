@@ -28,6 +28,13 @@ import FileHandler from "../utils/fileHandler";
 // 全局响应拦截器
 myAxios.interceptors.response.use( 
   function (response) { 
+    // 检查是否有新的 Token，如果有则更新
+    const newToken = response.headers['newtoken'];
+    if (newToken) {
+      localStorage.setItem('token', newToken);
+      console.log('New token:', newToken);
+    }
+
     // 判断是否为文件下载响应
     const contentType = response.headers['content-type'];
     if (contentType && (contentType.indexOf('application/octet-stream') !== -1 || 

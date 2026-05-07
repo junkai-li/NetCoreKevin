@@ -11,4 +11,9 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\kevin.Cache\kevin.Cache.csproj" />
+    <ProjectReference Include="..\Kevin.Common\Kevin.Common.csproj" />
+  </ItemGroup>
+
 </Project>

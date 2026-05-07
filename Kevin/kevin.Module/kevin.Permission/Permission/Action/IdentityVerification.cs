@@ -1,8 +1,8 @@
-﻿using Duende.IdentityModel.Client;
-using kevin.Cache.Service;
+﻿using kevin.Cache.Service;
 using kevin.Permission.Interfaces;
 using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
+using Kevin.Authentication.Jwt.IService;
 using Kevin.Common.App;
 using Kevin.Common.Helper;
 using Microsoft.AspNetCore.Authorization;
@@ -120,14 +120,13 @@ namespace kevin.Permission.Permission.Action
                     var cacheService = httpContext.RequestServices.GetService<ICacheService>();
                     if (cacheService != default)
                     {
-                        //获取刷新令牌
-                        var RefreshToken = cacheService.GetString(httpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
-                        var Result = RenewTokenAsync(RefreshToken, httpContext);
-                        if (!string.IsNullOrEmpty(Result.Result))
+                        var tokenService = httpContext.RequestServices.GetService<ITokenService>(); 
+                        var resultToken = tokenService.RefreshTokenAccessToken(httpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+                        if (!string.IsNullOrEmpty(resultToken))
                         {
                             if (httpContext != default)
                             {
-                                httpContext.Response.Headers["NewToken"] = Result.Result;
+                                httpContext.Response.Headers["NewToken"] = resultToken;
                                 httpContext.Response.Headers["Access-Control-Expose-Headers"] = "NewToken";  //解决 Ionic 取不到 Header中的信息问题
 
                             }
@@ -139,41 +138,7 @@ namespace kevin.Permission.Permission.Action
                 }
             }
 
-        }
-
-        /// <summary>
-        /// 刷新token
-        /// </summary>
-        /// <returns></returns>
-        private static async Task<string> RenewTokenAsync(string token, HttpContext httpContext)
-        {
-            var clinet = new HttpClient();
-            var disco = await clinet.GetDiscoveryDocumentAsync(ConfigHelper.GetValue("IdentityServerUrl"));
-            if (!disco.IsError)
-            {
-                var refreshToken = await clinet.RequestRefreshTokenAsync(new RefreshTokenRequest
-                {
-                    ClientId = ConfigHelper.GetValue("IdentityServerInfo:ClientId"),
-                    Address = disco.TokenEndpoint,
-                    ClientSecret = ConfigHelper.GetValue("IdentityServerInfo:ClientSecret"),
-                    Scope = ConfigHelper.GetValue("IdentityServerInfo:Scope"),
-                    GrantType = OpenIdConnectGrantTypes.RefreshToken,
-                    RefreshToken = token
-                });
-                if (!refreshToken.IsError)
-                {
-                    var cache = httpContext.RequestServices.GetService<ICacheService>();
-                    if (cache != default)
-                    {
-                        //保存刷新令牌
-                        cache.SetString(refreshToken.AccessToken ?? "", refreshToken.RefreshToken ?? "", TimeSpan.FromDays(2));
-                    }
-                    return refreshToken.AccessToken ?? "";
-                }
-            }
-
-            return "";
-        }
+        } 
 
 
         /// <summary>
