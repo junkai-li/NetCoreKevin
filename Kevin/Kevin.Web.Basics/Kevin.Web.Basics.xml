@@ -702,17 +702,6 @@
             自动启用事务的筛选器
             </summary>
         </member>
-        <member name="T:App.WebApi.Controllers.v1.VersionController">
-            <summary>
-            版本控制器
-            </summary> 
-        </member>
-        <member name="M:App.WebApi.Controllers.v1.VersionController.GetVersion">
-            <summary>
-            我是版本
-            </summary> 
-            <returns></returns>
-        </member>
         <member name="M:Web.Extension.ServiceConfiguration.UseKevin(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.Extensions.Configuration.IConfiguration)">
             <summary>
             使用UseKevin
