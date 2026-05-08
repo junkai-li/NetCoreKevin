@@ -47,7 +47,7 @@ namespace Kevin.Hangfire
                         Prefix = hangfireRedisSetting.Prefix // 避免Key冲突的命名空间[reference:5]
                     }));
                     // 注册 HangFire 服务
-                    services.AddHangfireServer(options => options.SchedulePollingInterval = TimeSpan.FromSeconds(3));
+                    services.AddHangfireServer(options => options.SchedulePollingInterval = TimeSpan.FromSeconds(15));
                     isAdd = true;
                 }
             }
@@ -69,7 +69,7 @@ namespace Kevin.Hangfire
                 services.AddHangfire(options => options.UseMemoryStorage());
 
                 // 注册 HangFire 服务
-                services.AddHangfireServer(options => options.SchedulePollingInterval = TimeSpan.FromSeconds(3));
+                services.AddHangfireServer(options => options.SchedulePollingInterval = TimeSpan.FromSeconds(15));
                 isAdd = true;
             }
         }
