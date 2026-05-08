@@ -9,9 +9,9 @@
 
   <ItemGroup> 
       <PackageReference Include="HttpMataki.NET.Auto" Version="1.0.3" />
-      <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.2.0" />
+      <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.4.0" />
       <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.11" />
-    <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.2.0" />
+    <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.4.0" />
       <PackageReference Include="ModelContextProtocol" Version="1.2.0" />
       <PackageReference Include="OpenTelemetry" Version="1.14.0" />
       <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.14.0" />

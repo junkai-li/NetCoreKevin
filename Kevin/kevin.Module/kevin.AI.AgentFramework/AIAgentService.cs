@@ -95,13 +95,13 @@ namespace kevin.AI.AgentFramework
                     var skill = new UnitConverterSkill();
                     var skillGetWeather = new GetWeatherSkill();
                     var skillsProvider = new AgentSkillsProviderBuilder()
+                                         .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)
                                         .UseFileSkill(Path.Combine(AppContext.BaseDirectory + "/Skills", "all-skills"),
                                         new AgentFileSkillsSourceOptions
                                         {
                                             AllowedScriptExtensions = [".py", ".sh", ".ps1", ".sh"],
                                             ScriptDirectories = ["scripts", "tools", "templates"],
-                                        }, (s, sc, a, ct) => new PySubprocessScriptRunner().RunAsync(s, sc, a, ct)
-                                        )
+                                        })
                                         .UseSkill(skill)
                                         .UseSkill(skillGetWeather)
                                         .UsePromptTemplate("""
