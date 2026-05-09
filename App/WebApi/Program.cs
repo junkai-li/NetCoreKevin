@@ -16,6 +16,7 @@ using kevin.HttpApiClients;
 using Kevin.Common.App.Global;
 using Kevin.Common.App.IO;
 using Kevin.log4Net;
+using Kevin.Common.Helper;
 namespace WebApi
 {
     public class Program
@@ -24,7 +25,9 @@ namespace WebApi
         {
             try
             {
-                Common.EnvironmentHelper.InitTestServer();
+                //设置环境变量-----如果需要手动切换环境 只需要修改这里即可 
+                EnvironmentConfigHelper.SetEnvironment(EnvironmentConfigHelper.GetEnvironment());
+
                 var builder = WebApplication.CreateBuilder(args);
                 builder.Logging.UseKevinLog4Net();//日志
                 #region Kestrel Https并绑定证书
