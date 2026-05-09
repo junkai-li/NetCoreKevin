@@ -23,9 +23,9 @@ namespace Kevin.Common.Helper
 
         public static Dictionary<string, string> EnvironmentDictionary = new Dictionary<string, string>
         {
-            { Development, "开发环境" },
-            { Test, "测试环境" },
-            { Formal, "正式环境" }
+            { Development, "开发环境---配置appsettings.Development.json" },
+            { Test, "测试环境---配置appsettings.Test.json" },
+            { Formal, "正式环境---配置appsettings.json" }
         };
 
         /// <summary>
