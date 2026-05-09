@@ -1,57 +1,42 @@
-#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-#使用asp.net core 8.0作为基础镜像，起一个别名为base
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-#设置容器的工作目录为/app
-WORKDIR /app
-#安装 libgdiplus 以解决 System.Drawing 在 linux 下无法运行的问题
-RUN apt-get update && apt-get -y install libgdiplus 
+# 请参阅 https://aka.ms/customizecontainer 以了解如何自定义调试容器，以及 Visual Studio 如何使用此 Dockerfile 生成映像以更快地进行调试。
+
+# 此阶段用于在快速模式(默认为调试配置)下从 VS 运行时
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+
+USER root
+
+#修改镜像内部软件源采用阿里镜像
+RUN sed -i 's@http://deb.debian.org@https://mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
+
+# 安装 SkiaSharp 依赖（libfontconfig1）并清理缓存
+RUN apt-get update && apt-get -y install libfontconfig1 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 #设置时区为中国上海
 ENV TZ=Asia/Shanghai
-#暴露80端口
-EXPOSE 80
-#使用.net core sdk作为基础镜像，起一个别名为build
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-#设置容器的工作目录为/src
-WORKDIR /src
-#拷贝WebApi.csproj项目文件到容器中的/src/WebApi/目录
-COPY ["WebApi/WebApi.csproj", "WebApi/"]
-COPY ["Service/AppServices.csproj", "Service/"]
-COPY ["DomainServices/AppDomainServices.csproj", "DomainServices/"]
-COPY ["Repositories/AppRepositorieRps.csproj", "Repositories/"]
-COPY ["Web/Kevin.Web.csproj", "Web/"]
-COPY ["Common/Kevin.Common.csproj", "Common/"]
-COPY ["kevin.Share/kevin.Share.csproj", "kevin.Share/"]
-COPY ["CrawlingService/kevin.CrawlingService.csproj", "CrawlingService/"]
-COPY ["kevin.Cache/kevin.Cache.csproj", "kevin.Cache/"]
-COPY ["kevin.Cap/kevin.Cap.csproj", "kevin.Cap/"]
-COPY ["kevin.Consul/kevin.Consul.csproj", "kevin.Consul/"]
-COPY ["Kevin.Cors/Kevin.Cors.csproj", "Kevin.Cors/"]
-COPY ["kevin.DistributedLock/kevin.DistributedLock.csproj", "kevin.DistributedLock/"]
-COPY ["Kevin.HttpApiClients/Kevin.HttpApiClients.csproj", "Kevin.HttpApiClients/"]
-COPY ["Kevin.log4Net/Kevin.log4Net.csproj", "Kevin.log4Net/"]
-COPY ["kevin.Permission/kevin.Permission.csproj", "kevin.Permission/"]
-COPY ["Repository/Kevin.EntityFrameworkCore.csproj", "Repository/"]
-COPY ["kevin.Domain/kevin.Domain.csproj", "kevin.Domain/"]
-COPY ["Kevin.SignalR/Kevin.SignalR.csproj", "Kevin.SignalR/"] 
-COPY ["Kevin.AI/Kevin.AI.csproj", "Kevin.AI/"] 
-COPY ["kevin_ESL/kevin_ESL.csproj", "kevin_ESL/"] 
-#执行dotnet restore命令，相当于平时用vs还原nuget包
-RUN dotnet restore "WebApi/WebApi.csproj"
-#拷贝当前目录的文件到到容器的/src目录
-COPY . .
-#拷贝当前目录的文件到到容器的/src目录
-WORKDIR "/src/WebApi"
-#执行dotnet build命令，相当于平时用vs生成项目。以Release模式生成到容器的/app/build目录
-RUN dotnet build "WebApi.csproj" -c Release -o /app/build
-#将上面的build作为基础镜像，又重命名为publish
-FROM build AS publish
-#执行dotnet publish命令，相当于平时用vs发布项目。以Release模式发布到容器的/app/publish目录
-RUN dotnet publish "WebApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
-#将上面的base作为基础镜像，又重命名为final
-FROM base AS final
-#设置容器的工作目录为/app
+
+USER $APP_UID
 WORKDIR /app
-#拷贝/app/publish目录到当前工作目录
+EXPOSE 8080
+EXPOSE 8081
+
+# 此阶段用于生成服务项目
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+COPY . .
+WORKDIR "/src/Presentation/App.WebApi"
+RUN dotnet restore "App.WebApi.csproj"
+RUN dotnet build "App.WebApi.csproj" -c Release -o /app/build
+
+
+# 此阶段用于发布要复制到最终阶段的服务项目
+FROM build AS publish
+RUN dotnet publish "App.WebApi.csproj" -c Release -r linux-x64 -o /app/publish /p:UseAppHost=false
+
+
+# 此阶段在生产中使用，或在常规模式下从 VS 运行时使用(在不使用调试配置时为默认值)
+FROM base AS final
+WORKDIR /app
 COPY --from=publish /app/publish .
-#指定容器入口命令，容器启动时会运行dotnet WebApi.dll
-ENTRYPOINT ["dotnet", "WebApi.dll"]
+ENTRYPOINT ["dotnet", "App.WebApi.dll"]
