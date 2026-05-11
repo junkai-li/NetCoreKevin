@@ -28,12 +28,7 @@ namespace Kevin.SignalR
                 op.Configuration.ConnectRetry = 3;
                 op.Configuration.SyncTimeout = 3000;
             });
-            services.TryAddScoped<ISignalRMsgService, SignalRMsgService>();
-            services.AddKevineRedisCache(op =>
-            {
-                op.Configuration = $"{signalrSetting.hostname}:{signalrSetting.port},DefaultDatabase={signalrSetting.defaultDatabase},Password={signalrSetting.password}";
-                op.InstanceName = "cache";
-            });
+            services.TryAddScoped<ISignalRMsgService, SignalRMsgService>(); 
         }
     }
 }

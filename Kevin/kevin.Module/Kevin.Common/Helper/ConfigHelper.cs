@@ -31,6 +31,20 @@ namespace Kevin.Common.Helper
         }
 
         /// <summary>
+        /// 泛型方法读取配置节
+        /// </summary>
+        /// <typeparam name="T">配置类类型</typeparam>
+        /// <param name="sectionKey">配置节键名</param>
+        /// <returns>配置实例</returns>
+        public static IConfigurationSection GetSection(string sectionKey)
+        {
+            if (_configuration == null)
+                throw new InvalidOperationException("配置未初始化，请先调用Initialize方法");
+
+            return _configuration.GetSection(sectionKey);
+        }
+
+        /// <summary>
         /// 直接读取配置值
         /// </summary>
         /// <param name="key">配置键</param>
