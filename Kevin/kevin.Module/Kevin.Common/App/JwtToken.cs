@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Kevin.Common.Helper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Text;
 
 namespace Kevin.Common.App
 {
@@ -17,13 +21,13 @@ namespace Kevin.Common.App
 
             try
             {
-                var Authorization = httpContext.Current().Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                if (string.IsNullOrEmpty(Authorization))
+                var jwt = ConfigHelper.GetSection("Jwt");
+                var Authorization = httpContext.Current().Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(Authorization) || !IsBearerValidJwt(Authorization))
                 {
-                    Authorization = httpContext.Current().Request.Query["Authorization"].ToString().Replace("Bearer ", "");
-                }
-
-                var securityToken = new JwtSecurityToken(Authorization);
+                    Authorization = httpContext.Current().Request.Query["Authorization"].ToString();
+                } 
+                var securityToken = new JwtSecurityToken(Authorization.Replace("Bearer ", ""));
 
                 var value = securityToken.Claims.ToList().Where(t => t.Type.ToLower() == key.ToLower()).FirstOrDefault().Value;
 
@@ -34,7 +38,26 @@ namespace Kevin.Common.App
                 return null;
             }
         }
+        /// <summary>
+        /// 简单验证JWT的有效性 ，适用于从Authorization头提取的Token
+        /// </summary>
+        /// <param name="authorizationHeader"></param>
+        /// <param name="secretKey"></param>
+        /// <param name="validIssuer"></param>
+        /// <param name="validAudience"></param>
+        /// <returns></returns>
+        public static bool IsBearerValidJwt(string authorizationHeader)
+        {
+            // 1. 检查 Authorization 头格式
+            if (string.IsNullOrEmpty(authorizationHeader) ||
+                !authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                return false;
 
+            string token = authorizationHeader.Substring("Bearer ".Length).Trim();
+            if (string.IsNullOrEmpty(token))
+                return false; 
+            return true;
+        }
 
 
         /// <summary>

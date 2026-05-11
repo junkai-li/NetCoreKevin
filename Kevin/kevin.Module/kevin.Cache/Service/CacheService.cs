@@ -143,7 +143,7 @@ namespace kevin.Cache.Service
             var valueStr = Cache.GetString(key);
             if (string.IsNullOrEmpty(valueStr))
             {
-                throw new Exception($"key不能为空");
+                throw new Exception($"缓存key：{key}值为空");
             }
             var value = JsonConvert.DeserializeObject<T>(valueStr.Replace("undefined", "null"));
             if (value != null)
