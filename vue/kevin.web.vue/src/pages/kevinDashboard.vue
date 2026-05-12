@@ -31,7 +31,7 @@
       </a-card>
       
       <a-card class="info-card" title="快捷操作">
-        <a-button type="primary" @click="showAddUserModal" ghost>添加用户</a-button>
+        <a-button type="primary" @click="showAddUserModal">添加用户</a-button>
         <!-- <a-button type="primary" ghost style="margin-left: 10px;">系统设置</a-button> -->
       </a-card>
     </div>
