@@ -677,14 +677,13 @@ const deleteConversation = async (conversationId, event) => {
 <style scoped>
 .ai-chat-container {
   height: calc(100vh - 220px);
-  border-radius: 15px;
+  border-radius: 8px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  color: white;
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  color: rgba(0, 0, 0, 0.88);
 }
 
 .chat-layout {
@@ -694,40 +693,37 @@ const deleteConversation = async (conversationId, event) => {
 
 .chat-sidebar {
   width: 280px;
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  border-right: 1px solid #f0f0f0;
   display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.05);
-  height: 100%; /* 设置固定高度 */
+  background: #fafafa;
+  height: 100%;
 }
 
 .sidebar-header {
   padding: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid #f0f0f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-shrink: 0; /* 防止头部被压缩 */
+  flex-shrink: 0;
 }
 
 .sidebar-header h3 {
   margin: 0;
-  color: white;
+  color: rgba(0, 0, 0, 0.88);
   font-size: 16px;
   font-weight: 500;
 }
 
 .add-button {
-  background: linear-gradient(45deg, #667eea, #764ba2);
+  background: #1677ff;
   border: none;
-  border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-  transition: all 0.3s ease;
+  border-radius: 6px;
 }
 
 .add-button:hover {
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-  transform: translateY(-2px);
+  background: #0958d9;
 }
 
 .conversation-list {
@@ -750,12 +746,12 @@ const deleteConversation = async (conversationId, event) => {
 }
 
 .conversation-list::-webkit-scrollbar-thumb {
-  background: rgba(102, 126, 234, 0.5);
+  background: #1677ff;
   border-radius: 3px;
 }
 
 .conversation-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(102, 126, 234, 0.7);
+  background: #0958d9;
 }
 
 .conversation-item {
@@ -772,13 +768,13 @@ const deleteConversation = async (conversationId, event) => {
 }
 
 .conversation-item:hover {
-  background: rgba(102, 126, 234, 0.2);
-  border: 1px solid rgba(102, 126, 234, 0.3);
+  background: rgba(22, 119, 255, 0.2);
+  border: 1px solid rgba(22, 119, 255, 0.3);
 }
 
 .conversation-item.active {
-  background: rgba(102, 126, 234, 0.3);
-  border: 1px solid rgba(102, 126, 234, 0.5);
+  background: rgba(22, 119, 255, 0.3);
+  border: 1px solid rgba(22, 119, 255, 0.5);
 }
 
 .conversation-content {
@@ -844,19 +840,19 @@ const deleteConversation = async (conversationId, event) => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.02);
-  height: 100%; /* 设置固定高度 */
+  background: #fff;
+  height: 100%;
 }
 
 .chat-header {
   padding: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  flex-shrink: 0; /* 防止头部被压缩 */
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
 }
 
 .chat-header h2 {
   margin: 0;
-  color: white;
+  color: rgba(0, 0, 0, 0.88);
   font-size: 18px;
   font-weight: 500;
 }
@@ -867,7 +863,7 @@ const deleteConversation = async (conversationId, event) => {
   gap: 8px;
   margin-top: 8px;
   font-size: 14px;
-  opacity: 0.8;
+  color: rgba(0, 0, 0, 0.65);
 }
 
 /* 智能体选择模态框样式 */
@@ -898,12 +894,12 @@ const deleteConversation = async (conversationId, event) => {
 }
 
 .chat-messages::-webkit-scrollbar-thumb {
-  background: rgba(102, 126, 234, 0.5);
+  background: #1677ff;
   border-radius: 3px;
 }
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
-  background: rgba(102, 126, 234, 0.7);
+  background: #0958d9;
 }
 
 .message-item {
@@ -924,13 +920,13 @@ const deleteConversation = async (conversationId, event) => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(145deg, rgba(102, 126, 234, 0.3), rgba(102, 126, 234, 0.2));
+  background: rgba(22, 119, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #1677ff;
   flex-shrink: 0;
-  border: 1px solid rgba(102, 126, 234, 0.3);
+  border: 1px solid rgba(22, 119, 255, 0.3);
 }
 
 .message-content {
@@ -976,13 +972,18 @@ const deleteConversation = async (conversationId, event) => {
 }
 
 .message-item.user-message .message-text {
-  background: linear-gradient(145deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
+  background: #1677ff;
   border-bottom-right-radius: 4px;
 }
 
 .message-item.ai-message .message-text {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05);
   border-bottom-left-radius: 4px;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.message-item.ai-message .message-time {
+  color: rgba(0, 0, 0, 0.45);
 }
 
 .message-time {
@@ -999,7 +1000,7 @@ const deleteConversation = async (conversationId, event) => {
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05);
   border-radius: 18px;
   border-bottom-left-radius: 4px;
 }
@@ -1007,7 +1008,7 @@ const deleteConversation = async (conversationId, event) => {
 .typing-indicator span {
   height: 8px;
   width: 8px;
-  background: rgba(255, 255, 255, 0.6);
+  background: #1677ff;
   border-radius: 50%;
   margin: 0 2px;
   animation: typing 1s infinite;
@@ -1078,31 +1079,28 @@ const deleteConversation = async (conversationId, event) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.02);
+  background: #fafafa;
 }
 
 .placeholder-content {
   text-align: center;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(0, 0, 0, 0.45);
 }
 
 .placeholder-icon {
   font-size: 48px;
   margin-bottom: 20px;
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(0, 0, 0, 0.25);
 }
 
 .add-button-large {
-  background: linear-gradient(45deg, #667eea, #764ba2);
+  background: #1677ff;
   border: none;
-  border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-  transition: all 0.3s ease;
+  border-radius: 6px;
 }
 
 .add-button-large:hover {
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-  transform: translateY(-2px);
+  background: #0958d9;
 }
 
 .placeholder-content p {
@@ -1251,25 +1249,23 @@ const deleteConversation = async (conversationId, event) => {
 }
 
 :deep(.online-search-switch.ant-switch-checked) {
-  background: linear-gradient(45deg, #667eea, #764ba2) !important;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+  background: #1677ff !important;
 }
 
 :deep(.online-search-switch.ant-switch-unchecked) {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.25) !important;
 }
 
 /* 发送按钮样式 */
 .send-button {
-  border-radius: 25px;
-  background: linear-gradient(45deg, #667eea, #764ba2);
+  border-radius: 6px;
+  background: #1677ff;
   border: none;
   padding: 10px 28px;
   font-size: 14px;
   font-weight: 600;
   color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(22, 119, 255, 0.3);
   transition: all 0.3s ease;
   cursor: pointer;
   display: flex;
@@ -1299,13 +1295,12 @@ const deleteConversation = async (conversationId, event) => {
 }
 
 .send-button:hover:not(:disabled) {
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-  transform: translateY(-2px);
-  background: linear-gradient(45deg, #768eea, #865ba2);
+  background: #0958d9;
+  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.4);
 }
 
 .send-button:disabled {
-  background: rgba(102, 126, 234, 0.3);
+  background: rgba(22, 119, 255, 0.3);
   box-shadow: none;
   cursor: not-allowed;
   opacity: 0.7;
@@ -1417,19 +1412,16 @@ const deleteConversation = async (conversationId, event) => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .conversation-item:hover {
-  background: rgba(102, 126, 234, 0.2);
-  border: 1px solid rgba(102, 126, 234, 0.4);
-  transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+  background: rgba(22, 119, 255, 0.2);
+  border: 1px solid rgba(22, 119, 255, 0.4);
 }
 
 .conversation-item.active {
-  background: rgba(102, 126, 234, 0.3);
-  border: 1px solid rgba(102, 126, 234, 0.5);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  background: rgba(22, 119, 255, 0.3);
+  border: 1px solid rgba(22, 119, 255, 0.5);
 }
 </style>
