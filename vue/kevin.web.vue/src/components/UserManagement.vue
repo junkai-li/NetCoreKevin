@@ -523,11 +523,13 @@ defineExpose({
   color: #0958d9 !important;
 }
 
-:deep(.my-table .ant-btn-dangerous) {
+:deep(.my-table .ant-btn-dangerous),
+:deep(.my-table .danger) {
   color: #ff4d4f !important;
 }
 
-:deep(.my-table .ant-btn-dangerous:hover) {
+:deep(.my-table .ant-btn-dangerous:hover),
+:deep(.my-table .danger:hover) {
   color: #cf1322 !important;
 }
 </style>
