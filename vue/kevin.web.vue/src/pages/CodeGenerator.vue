@@ -193,7 +193,6 @@ onMounted(() => {
 
 <style scoped>
 @import "../css/management.css";
-@import "../css/MyTable.css";
 
 .code-generator-container {
   padding: 16px;
@@ -201,39 +200,39 @@ onMounted(() => {
 }
 
 .code-generator-card {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  color: rgba(0, 0, 0, 0.88);
   overflow: hidden;
-  backdrop-filter: blur(10px);
   height: 100%;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .code-generator-card .ant-card-head{
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
+  border-bottom: 1px solid #f0f0f0;
+  color: rgba(0, 0, 0, 0.88);
   padding: 0 20px;
-  background: transparent;
+  background: #fafafa;
 }
 
 .code-generator-card .ant-card-head-title{
-  color: white;
+  color: rgba(0, 0, 0, 0.88);
   padding: 16px 0;
 }
 
 .generator-content {
   padding: 16px 0;
-  color: white;
+  color: rgba(0, 0, 0, 0.88);
 }
 
 .step-section {
   margin-bottom: 32px;
   padding-bottom: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
+  border-bottom: 1px solid #f0f0f0;
+  color: rgba(0, 0, 0, 0.88);
 }
 
 .step-section:last-child {
@@ -242,123 +241,96 @@ onMounted(() => {
 
 .step-section h3 {
   margin-bottom: 16px;
-  color: white;
+  color: rgba(0, 0, 0, 0.88);
   font-size: 16px;
 }
 
 .step-desc {
   margin-top: 12px;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(0, 0, 0, 0.65);
   font-style: italic;
 }
 
 .entity-info {
   margin-bottom: 16px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #fafafa;
   border-radius: 4px;
-  color: white;
+  color: rgba(0, 0, 0, 0.88);
 }
 
 .entity-info p {
   margin: 8px 0;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(0, 0, 0, 0.65);
 }
 
 .entity-actions {
   margin-bottom: 16px;
 }
 
-/* 为下拉框和按钮添加白色主题 */
 :deep(.ant-select-selector) {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  color: rgba(255, 255, 255, 0.85) !important;
+  background: #fff !important;
+  border: 1px solid #d9d9d9 !important;
+  color: rgba(0, 0, 0, 0.88) !important;
 }
 
 :deep(.ant-select-selection-item) {
-  color: rgba(255, 255, 255, 0.85) !important;
+  color: rgba(0, 0, 0, 0.88) !important;
 }
 
 :deep(.ant-table) {
-  background: transparent;
-  color: white;
+  background: #fff;
+  color: rgba(0, 0, 0, 0.88);
 }
 
 :deep(.ant-table-thead > tr > th) {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  background: #fafafa;
+  color: rgba(0, 0, 0, 0.88);
+  border-bottom: 1px solid #f0f0f0;
 }
 
 :deep(.ant-table-tbody > tr > td) {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.7);
+  border-bottom: 1px solid #f0f0f0;
+  color: rgba(0, 0, 0, 0.65);
 }
 
-/* 覆盖MyTable.css中的悬停样式，确保使用灰色 */
-:deep(.ant-table-tbody > tr:hover > td),
-:deep(.ant-table-tbody > tr:hover.ant-table-row-selected > td) {
-  background: rgba(128, 128, 128, 0.15) !important;
-  color: white !important;
+:deep(.ant-table-tbody > tr:hover > td) {
+  background: #fafafa !important;
 }
 
-/* 选中行的灰色样式 */
-:deep(.ant-table-tbody > tr.ant-table-row-selected > td),
-:deep(.ant-table-tbody > tr.ant-table-row-selected td) {
-  background: rgba(128, 128, 128, 0.2) !important;
-  color: white !important;
-}
-
-:deep(.ant-table-tbody > tr.ant-table-row-selected:hover > td),
-:deep(.ant-table-tbody > tr.ant-table-row-selected:hover td) {
-  background: rgba(128, 128, 128, 0.3) !important;
-  color: white !important;
-}
-
-/* 覆盖MyTable.css中的其他悬停相关样式 */
-:deep(.my-table .ant-table-tbody>tr:hover>td),
-:deep(.my-table .ant-table-tbody>tr.ant-table-row:hover>td) {
-  background: rgba(128, 128, 128, 0.15) !important;
-  color: white !important;
-}
-
-/* 额外确保表格行背景为透明，避免默认白色背景 */
-:deep(.ant-table-tbody > tr > td),
-:deep(.ant-table-tbody > tr.ant-table-row > td) {
-  background: transparent !important;
-  color: rgba(255, 255, 255, 0.7) !important;
-}
-
-:deep(.ant-btn-primary) {
-  background: rgba(102, 126, 234, 0.8);
-  border: 1px solid rgba(102, 126, 234, 0.8);
-}
-
-:deep(.ant-btn-primary:hover) {
-  background: rgba(102, 126, 234, 1);
-  border: 1px solid rgba(102, 126, 234, 1);
-}
-
-:deep(.ant-btn) {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: rgba(255, 255, 255, 0.85);
-}
-
-:deep(.ant-btn:hover) {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(102, 126, 234, 0.5);
-  color: white;
-}
-
-:deep(.ant-tag) {
-  color: white;
-  background: rgba(102, 126, 234, 0.2);
-  border: 1px solid rgba(102, 126, 234, 0.3);
+:deep(.ant-table-tbody > tr.ant-table-row-selected > td) {
+  background: #e6f4ff !important;
 }
 
 :deep(.ant-table-wrapper) {
   text-align: left;
+}
+
+:deep(.ant-btn-primary) {
+  background: #1677ff;
+  border: 1px solid #1677ff;
+}
+
+:deep(.ant-btn-primary:hover) {
+  background: #0958d9;
+  border: 1px solid #0958d9;
+}
+
+:deep(.ant-btn) {
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+:deep(.ant-btn:hover) {
+  background: #f5f5f5;
+  border-color: #d9d9d9;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+:deep(.ant-tag) {
+  color: rgba(0, 0, 0, 0.88);
+  background: #fafafa;
+  border: 1px solid #d9d9d9;
 }
 </style>

@@ -5,7 +5,7 @@
         <div class="card-header">
           <div class="header-title">
             <UserOutlined class="title-icon" />
-            <span style="color: aliceblue;">个人中心</span>
+            <span>个人中心</span>
           </div>
         </div>
       </template>
@@ -205,8 +205,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-@import '../css/UserList.css';
-@import '../css/UserProfile.css';
+@import '../css/management.css';
 
 .user-profile-container {
   height: 100%;
@@ -215,23 +214,23 @@ onMounted(() => {
 
 .user-profile-card {
   height: 100%;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  color: rgba(0, 0, 0, 0.88);
   overflow: hidden;
-  backdrop-filter: blur(10px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 :deep(.user-profile-card .ant-card-head) {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
+  border-bottom: 1px solid #f0f0f0;
+  color: rgba(0, 0, 0, 0.88);
   padding: 0 20px;
-  background: transparent;
+  background: #fafafa;
 }
 
 :deep(.user-profile-card .ant-card-head-title) {
-  color: white;
+  color: rgba(0, 0, 0, 0.88);
   padding: 16px 0;
 }
 
@@ -246,12 +245,13 @@ onMounted(() => {
   align-items: center;
   font-size: 18px;
   font-weight: 500;
+  color: rgba(0, 0, 0, 0.88);
 }
 
 .title-icon {
   margin-right: 8px;
   font-size: 20px;
-  color: aliceblue;
+  color: #1677ff;
 }
 
 .profile-content {
@@ -275,11 +275,11 @@ onMounted(() => {
   margin-top: 16px;
   margin-bottom: 8px;
   font-size: 20px;
-  color: white;
+  color: rgba(0, 0, 0, 0.88);
 }
 
 .user-id {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(0, 0, 0, 0.45);
   font-size: 14px;
   margin: 0;
 }
@@ -288,27 +288,32 @@ onMounted(() => {
   padding-top: 20px;
 }
 
-/* 确保描述列表中的文字为白色 */
 :deep(.info-section .ant-descriptions-item-label) {
-  color: white;
-  background-color: rgba(255, 255, 255, 0.08);
+  color: rgba(0, 0, 0, 0.88);
+  background-color: #fafafa;
 }
 
 :deep(.info-section .ant-descriptions-item-content) {
-  color: white;
-  background-color: rgba(255, 255, 255, 0.08);
+  color: rgba(0, 0, 0, 0.88);
+  background-color: #fff;
 }
 
 :deep(.info-section .ant-descriptions-view) {
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #f0f0f0;
 }
 
 :deep(.info-section .ant-descriptions-row) {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid #f0f0f0;
 }
 
 :deep(.info-section .ant-descriptions-row:last-child) {
   border-bottom: none;
+}
+
+:deep(.ant-tag) {
+  color: #1677ff;
+  background: #e6f4ff;
+  border: 1px solid #91caff;
 }
 
 .action-buttons {
