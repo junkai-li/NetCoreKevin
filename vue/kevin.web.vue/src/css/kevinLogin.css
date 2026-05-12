@@ -1,22 +1,56 @@
-/* 登录页 — 简约企业风 */
-
+/* 登录页 — AI科技风格（白色背景） */
 .login-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px 16px;
-  background: linear-gradient(160deg, #f0f2f5 0%, #e8ecf1 45%, #f5f7fa 100%);
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(22, 119, 255, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(102, 126, 234, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(22, 119, 255, 0.05) 0%, transparent 50%);
+  animation: rotate 60s linear infinite;
+  pointer-events: none;
+}
+
+.login-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    linear-gradient(rgba(22, 119, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(22, 119, 255, 0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
 }
 
 .login-card {
   width: 100%;
   max-width: 420px;
   padding: 40px 36px 32px;
-  background: #fff;
-  border-radius: 8px;
-  border: 1px solid #f0f0f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid rgba(22, 119, 255, 0.15);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.06),
+    0 0 60px rgba(22, 119, 255, 0.05);
+  position: relative;
+  z-index: 1;
 }
 
 .login-header {
@@ -37,6 +71,7 @@
   width: 56px;
   height: 56px;
   object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(22, 119, 255, 0.2));
 }
 
 .login-header .title {
@@ -63,6 +98,25 @@
 
 .login-tabs :deep(.ant-tabs-tab) {
   font-size: 15px;
+  color: rgba(0, 0, 0, 0.55);
+  transition: all 0.3s ease;
+}
+
+.login-tabs :deep(.ant-tabs-tab:hover) {
+  color: #1677ff;
+}
+
+.login-tabs :deep(.ant-tabs-tab-active .ant-tabs-tab-btn) {
+  color: #1677ff !important;
+}
+
+.login-tabs :deep(.ant-tabs-ink-bar) {
+  background: linear-gradient(90deg, #1677ff, #4096ff);
+  box-shadow: 0 0 8px rgba(22, 119, 255, 0.4);
+}
+
+.login-tabs :deep(.ant-tabs-nav::before) {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
 }
 
 .form-options {
@@ -75,6 +129,7 @@
 .forgot-link {
   color: #1677ff;
   font-size: 14px;
+  transition: color 0.3s ease;
 }
 
 .forgot-link:hover {
@@ -100,6 +155,37 @@
 .captcha-button {
   flex-shrink: 0;
   height: 40px;
+  background: #1677ff;
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.captcha-button:hover:not(:disabled) {
+  background: #0958d9;
+  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
+}
+
+.captcha-button:disabled {
+  background: #d9d9d9;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.login-button {
+  height: 44px;
+  font-size: 16px;
+  font-weight: 500;
+  background: linear-gradient(135deg, #1677ff, #4096ff);
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.25);
+  transition: all 0.3s ease;
+}
+
+.login-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0958d9, #1677ff);
+  box-shadow: 0 6px 20px rgba(22, 119, 255, 0.4);
+  transform: translateY(-1px);
 }
 
 .login-footer {
@@ -113,10 +199,35 @@
   color: #1677ff;
   margin-left: 4px;
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .register-link:hover {
   color: #4096ff;
+}
+
+.custom-input :deep(.ant-input) {
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.custom-input :deep(.ant-input:focus) {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+}
+
+.custom-input :deep(.ant-input-prefix) {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.custom-input :deep(.ant-input-affix-wrapper) {
+  border-radius: 6px;
+}
+
+.custom-input :deep(.ant-input-affix-wrapper:focus),
+.custom-input :deep(.ant-input-affix-wrapper-focused) {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
 }
 
 @media (max-width: 480px) {
@@ -135,4 +246,9 @@
   .captcha-button {
     width: 100%;
   }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

@@ -320,14 +320,22 @@ const loadSavedLoginInfo = () => {
   if (savedInfo) {
     try {
       const info = JSON.parse(savedInfo);
-      passwordForm.username = info.username || '';
-      passwordForm.password = info.password || '';
-      passwordForm.tenantId = info.tenantId || '';
-      passwordForm.remember = info.remember || false;
+      if (info.username && info.password && info.tenantId) {
+        passwordForm.username = info.username;
+        passwordForm.password = info.password;
+        passwordForm.tenantId = info.tenantId;
+        passwordForm.remember = info.remember !== false;
+        return;
+      }
     } catch (error) {
       console.error('Failed to parse saved login info:', error);
     }
-  }
+  }else{ 
+      passwordForm.username = 'admin';
+  passwordForm.password = 'admin123';
+  passwordForm.tenantId = '1000';
+  passwordForm.remember = true;
+  } 
 };
 
 onMounted(() => {
