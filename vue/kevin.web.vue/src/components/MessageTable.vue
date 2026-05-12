@@ -138,4 +138,13 @@ const formatDate = (dateString) => {
 .unread {
   font-weight: bold;
 }
+
+.action-buttons :deep(.ant-btn-link) {
+  color: #1677ff;
+  padding: 0;
+}
+
+.action-buttons :deep(.ant-btn-link:hover) {
+  color: #0958d9;
+}
 </style>

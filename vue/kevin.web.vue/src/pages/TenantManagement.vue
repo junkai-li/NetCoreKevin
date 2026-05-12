@@ -385,3 +385,22 @@ onMounted(() => {
   loadTenantData();
 });
 </script>
+
+<style scoped>
+:deep(.my-table .ant-btn-link) {
+  color: #1677ff !important;
+  padding: 0;
+}
+
+:deep(.my-table .ant-btn-link:hover) {
+  color: #0958d9 !important;
+}
+
+:deep(.my-table .ant-btn-dangerous) {
+  color: #ff4d4f !important;
+}
+
+:deep(.my-table .ant-btn-dangerous:hover) {
+  color: #cf1322 !important;
+}
+</style>
