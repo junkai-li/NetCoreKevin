@@ -486,7 +486,7 @@ onMounted(() => {
   flex: 1;
   overflow-y: auto;
   background: transparent;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(0, 0, 0, 0.88);
 }
 
 .org-node-content {
@@ -506,13 +506,13 @@ onMounted(() => {
 
 .org-node-name {
   font-weight: 500;
-  color: #7fdbff;
+  color: rgba(0, 0, 0, 0.88);
 }
 
 .org-node-code {
-  color: rgba(127, 219, 255, 0.85);
+  color: rgba(0, 0, 0, 0.45);
   font-size: 12px;
-  background: rgba(22, 119, 255, 0.2);
+  background: rgba(0, 0, 0, 0.04);
   padding: 2px 6px;
   border-radius: 4px;
 }
@@ -537,13 +537,30 @@ onMounted(() => {
   opacity: 1;
 }
 
+:deep(.org-node-actions .ant-btn-link) {
+  color: #1677ff;
+  padding: 0;
+}
+
+:deep(.org-node-actions .ant-btn-link:hover) {
+  color: #0958d9;
+}
+
+:deep(.org-node-actions .ant-btn-dangerous) {
+  color: #ff4d4f;
+}
+
+:deep(.org-node-actions .ant-btn-dangerous:hover) {
+  color: #cf1322;
+}
+
 :deep(.ant-tree-treenode) {
   padding: 2px 0;
 }
 
 :deep(.ant-tree-switcher) {
   align-self: center;
-  color: rgba(127, 219, 255, 0.5);
+  color: rgba(0, 0, 0, 0.45);
 }
 
 :deep(.ant-tree-node-content-wrapper) {
@@ -552,22 +569,22 @@ onMounted(() => {
   padding: 0 8px !important;
   border-radius: 6px;
   transition: all 0.3s;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(0, 0, 0, 0.88);
   background: transparent;
 }
 
 :deep(.ant-tree-node-content-wrapper:hover) {
-  background: rgba(5, 15, 29, 0.1) !important;
+  background: rgba(0, 0, 0, 0.04) !important;
 }
 
 :deep(.ant-tree-node-selected) {
-  background: rgba(5, 15, 29, 0.2) !important;
+  background: rgba(22, 119, 255, 0.1) !important;
 }
 
 :deep(.ant-tree-node-selected:hover) {
-  background: rgba(22, 119, 255, 0.3) !important;
+  background: rgba(22, 119, 255, 0.15) !important;
 }
 :deep(.ant-tree-treenode-selected::before){
-  background:transparent !important; 
+  background:transparent !important;
 }
 </style>
