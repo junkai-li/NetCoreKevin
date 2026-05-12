@@ -1,31 +1,32 @@
 
 .management-container {
-  color: white;
+  color: rgba(0, 0, 0, 0.88);
   height: 100%;
 }
 
 .management-card {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  color: rgba(0, 0, 0, 0.88);
   overflow: hidden;
-  backdrop-filter: blur(10px);
   height: 100%;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .management-card .ant-card-head{
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
+  border-bottom: 1px solid #f0f0f0;
+  color: rgba(0, 0, 0, 0.88);
   padding: 0 20px;
-  background: transparent;
+  background: #fafafa;
 }
 
 .management-card .ant-card-head-title{
-  color: white;
+  color: rgba(0, 0, 0, 0.88);
   padding: 16px 0;
+  font-weight: 600;
 }
 
 .card-header {
@@ -39,13 +40,13 @@
 .header-title {
   display: flex;
   align-items: center;
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .title-icon {
   margin-right: 8px;
-  color: #667eea;
+  color: #1677ff;
 }
 
 .header-actions {
@@ -61,7 +62,7 @@
   align-items: center;
   margin-bottom: 16px;
   padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .toolbar-left,
@@ -70,93 +71,35 @@
   gap: 8px;
 }
 
-/* 工具栏搜索框样式优化 */
 .toolbar .ant-input-group-wrapper {
-  border-radius: 24px;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.toolbar .ant-input-group-wrapper:hover {
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-  transform: translateY(-1px);
 }
 
 .toolbar .ant-input-wrapper {
-  border-radius: 24px;
+  border-radius: 8px;
   overflow: hidden;
 }
 
 .toolbar .ant-input {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  border-radius: 24px 0 0 24px;
+  border-radius: 8px 0 0 8px;
   height: 36px;
-  padding: 0 16px;
-  transition: all 0.3s ease;
-}
-
-.toolbar .ant-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.toolbar .ant-input:focus {
-  box-shadow: none;
-  border-color: #667eea;
-  background: rgba(255, 255, 255, 0.15);
+  padding: 0 12px;
 }
 
 .toolbar .ant-input-group-addon {
-  background: rgba(102, 126, 234, 0.8);
-  border-color: rgba(102, 126, 234, 0.8);
-  border-radius: 0 24px 24px 0;
+  border-radius: 0 8px 8px 0;
   padding: 0;
 }
 
 .toolbar .ant-input-search-button {
-  background: transparent;
-  border: none;
-  color: white;
   height: 36px;
   width: 40px;
-  border-radius: 0 24px 24px 0;
-  transition: all 0.3s ease;
-}
-
-.toolbar .ant-input-search-button:hover {
-  background: rgba(102, 126, 234, 1);
-  transform: scale(1.05);
-}
-
-.toolbar .ant-input-search-button .anticon {
-  color: white;
-  font-size: 16px;
+  border-radius: 0 8px 8px 0;
 }
 
 .toolbar-button {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: rgba(255, 255, 255, 0.85);
   border-radius: 6px;
-  transition: all 0.3s ease;
-}
-
-.toolbar-button:hover {
-  background: rgba(102, 126, 234, 0.2);
-  border-color: rgba(102, 126, 234, 0.5);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.toolbar-button .anticon{
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.toolbar-button:hover .anticon{
-  color: white;
 }
 
 .table-container {
@@ -172,105 +115,33 @@
   margin-top: 0;
 }
 
-.action-button {
-  color: rgba(255, 255, 255, 0.85) !important;
-  padding: 0 4px;
-  height: auto;
-  line-height: normal;
-}
-
-.action-button:hover {
-  color: #667eea !important;
-  background: transparent;
-}
-
-.action-button.danger:hover {
-  color: #ff4d4f !important;
-}
-
 .search-input {
-  border-radius: 20px;
+  border-radius: 8px;
   overflow: hidden;
 }
 
-.search-input .ant-input{
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: white;
-}
-
-.search-input .ant-input::placeholder{
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.search-input .ant-input:focus{
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-}
-
-.search-input .ant-input-search-button{
-  background: rgba(102, 126, 234, 0.8);
-  border-color: rgba(102, 126, 234, 0.8);
-}
-
 .add-button {
-  background: linear-gradient(45deg, #667eea, #764ba2);
-  border: none;
   border-radius: 6px;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-  transition: all 0.3s ease;
 }
-
-.add-button:hover {
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-  transform: translateY(-2px);
-}
- 
 
 .custom-input .ant-input{
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: white;
   border-radius: 6px;
-}
-
-.custom-input .ant-input:focus{
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-  border-color: #667eea;
 }
 
 .custom-select .ant-select-selector{
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: white !important;
   border-radius: 6px !important;
-}
-
-.custom-select .ant-select-selection-item{
-  color: white;
-}
-
-.custom-select .ant-select-arrow{
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.ant-switch{
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.ant-switch-checked{
-  background: #667eea;
 }
 
 .avatar-uploader .ant-upload.ant-upload-select-picture-card{
   width: 100px;
   height: 100px;
-  border: 1px dashed rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 6px;
+  border: 1px dashed #d9d9d9;
+  background: #fafafa;
+  border-radius: 8px;
 }
 
 .avatar-uploader .ant-upload.ant-upload-select-picture-card:hover{
-  border-color: #667eea;
+  border-color: #1677ff;
 }
 
 @media (max-width: 768px){

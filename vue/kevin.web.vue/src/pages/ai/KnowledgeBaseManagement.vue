@@ -298,16 +298,17 @@ onMounted(() => {
 
 <style scoped>
 .management-container {
-  padding: 24px;
+  padding: 0;
   background-color: transparent;
 }
 
 .management-card {
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: rgba(255, 255, 255, 0.85);
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  color: rgba(0, 0, 0, 0.88);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .card-header {
@@ -319,14 +320,15 @@ onMounted(() => {
 .header-title {
   display: flex;
   align-items: center;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(0, 0, 0, 0.88);
 }
 
 .title-icon {
   margin-right: 8px;
   font-size: 18px;
+  color: #1677ff;
 }
 
 .header-actions {
@@ -338,25 +340,20 @@ onMounted(() => {
   margin-right: 16px;
 }
 
-.add-button {
-  background: linear-gradient(90deg, #667eea, #764ba2);
-  border: none;
-}
-
 :deep(.ant-card-head) {
-  background: rgba(255, 255, 255, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 :deep(.ant-card) {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: rgba(255, 255, 255, 0.75);
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  color: rgba(0, 0, 0, 0.88);
 }
 
 :deep(.ant-card-hoverable:hover) {
-  background: rgba(128, 128, 128, 0.15);
-  border-color: rgba(102, 126, 234, 0.5);
+  border-color: #d9d9d9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .knowledge-base-card {
@@ -372,7 +369,7 @@ onMounted(() => {
 
 .kb-name {
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(0, 0, 0, 0.88);
 }
 
 .kb-info {
@@ -394,8 +391,8 @@ onMounted(() => {
 }
 
 .section-label {
-   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.55);
   white-space: nowrap;
   text-align: left;
   min-width: 50px;
@@ -403,28 +400,29 @@ onMounted(() => {
 }
 
 .section-content {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(0, 0, 0, 0.88);
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: left;
   font-size: 14px;
   line-height: 1.5;
-  display: -webkit-box; 
+  display: -webkit-box;
   -webkit-box-orient: vertical;
   white-space: normal;
   word-break: break-word;
-  /* 确保内容完全靠左 */
   margin: 0;
   padding: 0;
 }
-.card-content{
-    display: flex;
+
+.card-content {
+  display: flex;
   flex-direction: column;
-  gap: 16px; 
+  gap: 16px;
 }
+
 .pagination-container {
-margin-top: 24px;
+  margin-top: 24px;
   display: flex;
   justify-content: flex-end;
 }
@@ -434,57 +432,20 @@ margin-top: 24px;
 :deep(.ant-select-selector),
 :deep(.ant-picker),
 :deep(.ant-input-search > .ant-input-group > .ant-input-group-addon .ant-input-search-button) {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: rgba(255, 255, 255, 0.85) !important;
-}
-
-:deep(.ant-input:hover),
-:deep(.ant-input-number:hover),
-:deep(.ant-select-selector:hover),
-:deep(.ant-picker:hover),
-:deep(.ant-input-search > .ant-input-group > .ant-input-group-addon .ant-input-search-button:hover) {
-  border-color: rgba(102, 126, 234, 0.5) !important;
-}
-
-:deep(.ant-input:focus),
-:deep(.ant-input-number:focus),
-:deep(.ant-select-selector:focus),
-:deep(.ant-picker:focus),
-:deep(.ant-input-search > .ant-input-group > .ant-input-group-addon .ant-input-search-button:focus) {
-  border-color: #667eea !important;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
+  background: #fff !important;
+  border: 1px solid #d9d9d9 !important;
+  color: rgba(0, 0, 0, 0.88) !important;
 }
 
 :deep(.ant-form-item-label > label) {
-  color: rgba(255, 255, 255, 0.85) !important;
+  color: rgba(0, 0, 0, 0.88) !important;
 }
 
 :deep(.ant-empty) {
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(0, 0, 0, 0.45);
 }
 
-:deep(.ant-tag) {
-  border: none;
-  padding: 2px 8px;
-  border-radius: 4px;
-}
-
-:deep(.ant-dropdown-menu) {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-:deep(.ant-dropdown-menu-item) {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-:deep(.ant-dropdown-menu-item:hover) {
-  background: rgba(102, 126, 234, 0.2);
-  color: white;
+:deep(.ant-empty-description) {
+  color: rgba(0, 0, 0, 0.45);
 }
 </style>

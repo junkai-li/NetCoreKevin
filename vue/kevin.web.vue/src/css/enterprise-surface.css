@@ -1,0 +1,260 @@
+/* 业务页历史样式多为深色玻璃风，在浅色内容区内统一为企业风表格与卡片 */
+
+.content-wrapper .user-management-container,
+.content-wrapper .management-container,
+.content-wrapper .dashboard-container {
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.content-wrapper .user-management-card,
+.content-wrapper .management-card {
+  background: #fff !important;
+  border: 1px solid #f0f0f0 !important;
+  color: rgba(0, 0, 0, 0.88) !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.content-wrapper .user-management-card .ant-card-head,
+.content-wrapper .management-card .ant-card-head {
+  background: #fafafa !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.content-wrapper .user-management-card .ant-card-head-title,
+.content-wrapper .management-card .ant-card-head-title {
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.content-wrapper .header-title {
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.content-wrapper .title-icon {
+  color: #1677ff !important;
+}
+
+.content-wrapper .toolbar {
+  border-bottom-color: #f0f0f0 !important;
+}
+
+.content-wrapper .ant-table,
+.content-wrapper .my-table {
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.content-wrapper .ant-table-thead > tr > th,
+.content-wrapper .my-table .ant-table-thead > tr > th {
+  background: #fafafa !important;
+  color: rgba(0, 0, 0, 0.88) !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.content-wrapper .ant-table-tbody > tr > td,
+.content-wrapper .my-table .ant-table-tbody > tr > td {
+  color: rgba(0, 0, 0, 0.65) !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+  background: #fff !important;
+}
+
+.content-wrapper .ant-table-tbody > tr:hover > td,
+.content-wrapper .my-table .ant-table-tbody > tr:hover > td {
+  background: #fafafa !important;
+}
+
+.content-wrapper .ant-table-tbody > tr.ant-table-row-selected > td,
+.content-wrapper .my-table .ant-table-tbody > tr.ant-table-row-selected > td {
+  background: #e6f4ff !important;
+}
+
+.content-wrapper .ant-pagination,
+.content-wrapper .my-table .ant-pagination {
+  color: rgba(0, 0, 0, 0.65) !important;
+}
+
+.content-wrapper .ant-card-head {
+  border-bottom-color: #f0f0f0 !important;
+}
+
+.content-wrapper .ant-input,
+.content-wrapper .ant-input-password .ant-input {
+  color: rgba(0, 0, 0, 0.88) !important;
+  background: #fff !important;
+}
+
+.content-wrapper .custom-input .ant-input,
+.content-wrapper .search-input .ant-input {
+  background: #fff !important;
+  border-color: #d9d9d9 !important;
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.content-wrapper .custom-select .ant-select-selector {
+  background: #fff !important;
+  border-color: #d9d9d9 !important;
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.content-wrapper .custom-select .ant-select-selection-item {
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+/* 卡片内「更多」图标 */
+.content-wrapper .management-card .ant-dropdown-link {
+  color: rgba(0, 0, 0, 0.55) !important;
+}
+
+/* My AI 对话：原样式为浅色底 + 白字，在浅色主内容区会看不见 */
+.content-wrapper .ai-chat-container {
+  background: #fff !important;
+  border: 1px solid #f0f0f0 !important;
+  color: rgba(0, 0, 0, 0.88) !important;
+  backdrop-filter: none !important;
+}
+
+.content-wrapper .chat-sidebar {
+  background: #fafafa !important;
+  border-right-color: #f0f0f0 !important;
+}
+
+.content-wrapper .sidebar-header {
+  border-bottom-color: #f0f0f0 !important;
+}
+
+.content-wrapper .sidebar-header h3 {
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.content-wrapper .conversation-item {
+  background: #fff !important;
+  border: 1px solid #f0f0f0 !important;
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.content-wrapper .conversation-item:hover {
+  background: #f5f5f5 !important;
+  border-color: #d9d9d9 !important;
+}
+
+.content-wrapper .conversation-item.active {
+  background: #e6f4ff !important;
+  border-color: #91caff !important;
+}
+
+.content-wrapper .conversation-title {
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.content-wrapper .conversation-preview,
+.content-wrapper .conversation-time {
+  color: rgba(0, 0, 0, 0.45) !important;
+}
+
+.content-wrapper .delete-btn {
+  color: rgba(0, 0, 0, 0.45) !important;
+}
+
+.content-wrapper .chat-main {
+  background: #fff !important;
+}
+
+.content-wrapper .chat-header {
+  border-bottom-color: #f0f0f0 !important;
+}
+
+.content-wrapper .chat-header h2 {
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.content-wrapper .agent-info {
+  color: rgba(0, 0, 0, 0.65) !important;
+  opacity: 1 !important;
+}
+
+.content-wrapper .message-avatar {
+  background: #e6f4ff !important;
+  border-color: #91caff !important;
+  color: #1677ff !important;
+}
+
+.content-wrapper .message-text {
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.content-wrapper .message-item.user-message .message-text {
+  background: #1677ff !important;
+  color: #fff !important;
+}
+
+.content-wrapper .message-item.ai-message .message-text {
+  background: #f5f5f5 !important;
+  color: rgba(0, 0, 0, 0.88) !important;
+  border: 1px solid #f0f0f0;
+}
+
+.content-wrapper .message-time {
+  color: rgba(0, 0, 0, 0.45) !important;
+}
+
+.content-wrapper .message-item.user-message .message-time {
+  color: rgba(0, 0, 0, 0.45) !important;
+}
+
+.content-wrapper .typing-indicator {
+  background: #f5f5f5 !important;
+  border: 1px solid #f0f0f0;
+}
+
+.content-wrapper .typing-indicator span {
+  background: rgba(0, 0, 0, 0.35) !important;
+}
+
+.content-wrapper .copy-button {
+  color: rgba(0, 0, 0, 0.45) !important;
+}
+
+.content-wrapper .copy-button:hover {
+  color: #1677ff !important;
+}
+
+.content-wrapper .chat-input-area {
+  border-top-color: #f0f0f0 !important;
+  background: #fafafa !important;
+}
+
+.content-wrapper .input-group {
+  background: #fff !important;
+  border: 1px solid #f0f0f0 !important;
+  box-shadow: none !important;
+}
+
+.content-wrapper .message-input,
+.content-wrapper .message-input.ant-input,
+.content-wrapper .message-input textarea,
+.content-wrapper .message-input .ant-input {
+  background: #fff !important;
+  border-color: #d9d9d9 !important;
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.content-wrapper .message-input .ant-input::placeholder {
+  color: rgba(0, 0, 0, 0.35) !important;
+}
+
+.content-wrapper .online-search-switch .ant-switch-inner {
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.content-wrapper .chat-placeholder,
+.content-wrapper .placeholder-content {
+  color: rgba(0, 0, 0, 0.45) !important;
+}
+
+.content-wrapper .placeholder-icon {
+  color: rgba(0, 0, 0, 0.25) !important;
+}
+
+.content-wrapper .empty-conversations .ant-empty-description {
+  color: rgba(0, 0, 0, 0.45) !important;
+}

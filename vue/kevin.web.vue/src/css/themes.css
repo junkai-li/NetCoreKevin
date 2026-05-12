@@ -1,155 +1,164 @@
-/* 主题样式定义 */
+/* 企业风主题：浅色工作区 + 深色侧栏，仅通过变量区分强调色与侧栏色调 */
 
-/* 默认主题 */
-.theme-default {
-  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e) !important;
+.layout-container {
+  --page-bg: #f0f2f5;
+  --sider-bg: #001529;
+  --sider-logo-border: rgba(255, 255, 255, 0.06);
+  --accent: #1677ff;
+  --accent-soft: rgba(22, 119, 255, 0.12);
+  --header-bg: #ffffff;
+  --header-border: #f0f0f0;
+  --content-surface: #ffffff;
+  --content-border: #f0f0f0;
+  --text-strong: rgba(0, 0, 0, 0.88);
+  --text-muted: rgba(0, 0, 0, 0.45);
+  --footer-text: rgba(0, 0, 0, 0.45);
 }
 
-.theme-default .logo-text {
-  color: white;
+/* 企业蓝（默认） */
+.theme-enterprise .logo-text {
+  color: rgba(255, 255, 255, 0.95);
 }
 
-.theme-default .trigger {
-  color: rgba(255, 255, 255, 0.85);
+.theme-enterprise .trigger,
+.theme-enterprise .user-name {
+  color: var(--text-strong);
 }
 
-.theme-default .trigger:hover {
-  color: #667eea;
+.theme-enterprise .trigger:hover {
+  color: var(--accent);
 }
 
-.theme-default .user-name {
-  color: rgba(255, 255, 255, 0.85);
+.theme-enterprise .header-icon {
+  color: var(--text-muted);
 }
 
-/* 绿色主题 */
-.theme-green {
-  background: linear-gradient(135deg, #1a2a1d, #2c5f2d, #243b24) !important;
+.theme-enterprise .header-icon:hover {
+  color: var(--accent);
 }
 
-.theme-green .logo-text {
-  color: #a8e6cf;
-}
-
-.theme-green .trigger {
-  color: rgba(168, 230, 207, 0.85);
-}
-
-.theme-green .trigger:hover {
-  color: #66eea2;
-  text-shadow: 0 0 8px rgba(102, 238, 162, 0.6);
-}
-
-.theme-green .user-name {
-  color: rgba(168, 230, 207, 0.85);
-}
-
-.theme-green :deep(.ant-menu-dark .ant-menu-item:hover) {
-  background: rgba(102, 238, 162, 0.2);
-}
-
-.theme-green :deep(.ant-menu-dark .ant-menu-item-selected) {
-  background: linear-gradient(90deg, rgba(102, 238, 162, 0.3), rgba(44, 95, 45, 0.3));
-}
-
-.theme-green :deep(.ant-btn-link) {
-  color: #66eea2;
-}
-
-.theme-green :deep(.ant-btn-link:hover) {
-  color: #2c5f2d;
-}
-
-/* 紫色主题 */
-.theme-purple {
-  background: linear-gradient(135deg, #2d1a2d, #5e2a5e, #3b243b) !important;
-}
-
-.theme-purple .logo-text {
-  color: #e0b0ff;
-}
-
-.theme-purple .trigger {
-  color: rgba(224, 176, 255, 0.85);
-}
-
-.theme-purple .trigger:hover {
-  color: #c76cff;
-  text-shadow: 0 0 8px rgba(199, 108, 255, 0.6);
-}
-
-.theme-purple .user-name {
-  color: rgba(224, 176, 255, 0.85);
-}
-
-.theme-purple :deep(.ant-menu-dark .ant-menu-item:hover) {
-  background: rgba(199, 108, 255, 0.2);
-}
-
-.theme-purple :deep(.ant-menu-dark .ant-menu-item-selected) {
-  background: linear-gradient(90deg, rgba(199, 108, 255, 0.3), rgba(94, 42, 94, 0.3));
-}
-
-.theme-purple :deep(.ant-btn-link) {
-  color: #c76cff;
-}
-
-.theme-purple :deep(.ant-btn-link:hover) {
-  color: #5e2a5e;
-}
-
-/* 深蓝色主题 */
-.theme-darkblue {
-  --primary-color: #1890ff;
-  --primary-bg: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-  --menu-bg: rgba(18, 30, 52, 0.85);
-  --menu-hover-bg: rgba(22, 119, 255, 0.2);
-  --menu-selected-bg: linear-gradient(90deg, rgba(24, 144, 255, 0.3), rgba(24, 144, 255, 0.1));
-  --header-bg: rgba(18, 30, 52, 0.85);
-  --content-bg: rgba(18, 30, 52, 0.5);
-  --border-color: rgba(255, 255, 255, 0.18);
-  --text-color: rgba(255, 255, 255, 0.85);
-  --text-secondary: rgba(255, 255, 255, 0.7);
-}
-
-/* 新增的黑色搭配蓝色主题 */
+/* 黑蓝：侧栏更深 */
 .theme-blackblue {
-  background: linear-gradient(135deg, #000000, #000000, #001529) !important;
+  --sider-bg: #0a0a0f;
+  --accent: #1677ff;
 }
 
 .theme-blackblue .logo-text {
-  color: #7fdbff;
+  color: rgba(255, 255, 255, 0.92);
 }
 
-.theme-blackblue .trigger {
-  color: rgba(127, 219, 255, 0.85);
+.theme-blackblue .trigger,
+.theme-blackblue .user-name {
+  color: var(--text-strong);
 }
 
 .theme-blackblue .trigger:hover {
-  color: #4da6ff;
-  text-shadow: 0 0 8px rgba(77, 166, 255, 0.6);
+  color: var(--accent);
 }
 
-.theme-blackblue .user-name {
-  color: rgba(127, 219, 255, 0.85);
+/* 灰蓝侧栏 */
+.theme-default {
+  --sider-bg: #141824;
+  --accent: #4f6ae8;
 }
 
-.theme-blackblue :deep(.ant-menu-dark .ant-menu-item:hover) {
-  background: rgba(22, 119, 255, 0.2);
+.theme-default .logo-text {
+  color: rgba(255, 255, 255, 0.92);
 }
 
-.theme-blackblue :deep(.ant-menu-dark .ant-menu-item-selected) {
-  background: linear-gradient(90deg, rgba(22, 119, 255, 0.5), rgba(22, 119, 255, 0.1));
+.theme-default .trigger,
+.theme-default .user-name {
+  color: var(--text-strong);
 }
 
-.theme-blackblue :deep(.ant-btn-link) {
-  color: #1677ff;
+.theme-default .trigger:hover {
+  color: var(--accent);
 }
 
-.theme-blackblue :deep(.ant-btn-link:hover) {
-  color: #001529;
+/* 绿色强调 */
+.theme-green {
+  --sider-bg: #0f2418;
+  --accent: #389e0d;
+  --accent-soft: rgba(56, 158, 13, 0.12);
 }
 
-/* 主题预览样式 */
+.theme-green .logo-text {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.theme-green .trigger,
+.theme-green .user-name {
+  color: var(--text-strong);
+}
+
+.theme-green .trigger:hover {
+  color: var(--accent);
+}
+
+.theme-green :deep(.ant-menu-dark .ant-menu-item:hover) {
+  background: var(--accent-soft);
+}
+
+.theme-green :deep(.ant-menu-dark .ant-menu-item-selected) {
+  background: var(--accent-soft);
+}
+
+.theme-green :deep(.ant-btn-link) {
+  color: var(--accent);
+}
+
+/* 紫色强调 */
+.theme-purple {
+  --sider-bg: #1a1224;
+  --accent: #722ed1;
+  --accent-soft: rgba(114, 46, 209, 0.15);
+}
+
+.theme-purple .logo-text {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.theme-purple .trigger,
+.theme-purple .user-name {
+  color: var(--text-strong);
+}
+
+.theme-purple .trigger:hover {
+  color: var(--accent);
+}
+
+.theme-purple :deep(.ant-menu-dark .ant-menu-item:hover) {
+  background: var(--accent-soft);
+}
+
+.theme-purple :deep(.ant-menu-dark .ant-menu-item-selected) {
+  background: var(--accent-soft);
+}
+
+.theme-purple :deep(.ant-btn-link) {
+  color: var(--accent);
+}
+
+/* 深蓝侧栏 */
+.theme-darkblue {
+  --sider-bg: #0d1b2a;
+  --accent: #1677ff;
+}
+
+.theme-darkblue .logo-text {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.theme-darkblue .trigger,
+.theme-darkblue .user-name {
+  color: var(--text-strong);
+}
+
+.theme-darkblue .trigger:hover {
+  color: var(--accent);
+}
+
+/* 主题预览色块 */
 .theme-preview {
   width: 20px;
   height: 20px;
@@ -157,26 +166,31 @@
   display: inline-block;
   margin-right: 8px;
   vertical-align: middle;
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.theme-default .theme-preview {
-  background: linear-gradient(135deg, #0f0c29, #302b63);
+.theme-preview.theme-enterprise {
+  background: linear-gradient(135deg, #001529 50%, #1677ff 50%);
 }
 
-.theme-green .theme-preview {
-  background: linear-gradient(135deg, #1a2a1d, #2c5f2d);
+.theme-preview.theme-blackblue {
+  background: linear-gradient(135deg, #0a0a0f 50%, #1677ff 50%);
 }
 
-.theme-purple .theme-preview {
-  background: linear-gradient(135deg, #2d1a2d, #5e2a5e);
+.theme-preview.theme-default {
+  background: linear-gradient(135deg, #141824 50%, #4f6ae8 50%);
 }
 
-.theme-darkblue .theme-preview {
-  background: linear-gradient(135deg, #001f3f, #003366);
+.theme-preview.theme-green {
+  background: linear-gradient(135deg, #0f2418 50%, #389e0d 50%);
 }
 
-.theme-blackblue .theme-preview {
-  background: linear-gradient(135deg, #000000, #1677ff);
+.theme-preview.theme-purple {
+  background: linear-gradient(135deg, #1a1224 50%, #722ed1 50%);
+}
+
+.theme-preview.theme-darkblue {
+  background: linear-gradient(135deg, #0d1b2a 50%, #1677ff 50%);
 }
 
 .theme-option {

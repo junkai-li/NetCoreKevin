@@ -5,7 +5,9 @@ import Antd from 'ant-design-vue';
 // 引入路由
 import router from './router';
 // 引入Antd组件库CSS文件
-import 'ant-design-vue/dist/reset.css'; 
+import 'ant-design-vue/dist/reset.css';
+import './css/enterprise-surface.css';
+import './css/pagination-enterprise.css'; 
 // 使用 resize-observer-polyfill 替换原生 ResizeObserver
 import ResizeObserver from 'resize-observer-polyfill';
 window.ResizeObserver = ResizeObserver;

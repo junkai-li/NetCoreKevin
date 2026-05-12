@@ -424,31 +424,31 @@ onMounted(() => {
 @import "../css/management.css";
 
 .user-management-container {
-  color: white;
+  color: rgba(0, 0, 0, 0.88);
   height: 100%;
 }
 
 :deep(.user-management-card) {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  color: rgba(0, 0, 0, 0.88);
   overflow: hidden;
-  backdrop-filter: blur(10px);
   height: 100%;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 :deep(.user-management-card .ant-card-head) {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
+  border-bottom: 1px solid #f0f0f0;
+  color: rgba(0, 0, 0, 0.88);
   padding: 0 20px;
-  background: transparent;
+  background: #fafafa;
 }
 
 :deep(.user-management-card .ant-card-head-title) {
-  color: white;
+  color: rgba(0, 0, 0, 0.88);
   padding: 16px 0;
 }
 
@@ -458,7 +458,7 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 16px;
   padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .toolbar-left,
@@ -478,13 +478,14 @@ onMounted(() => {
 .header-title {
   display: flex;
   align-items: center;
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
 }
 
 .title-icon {
   margin-right: 8px;
-  color: #667eea;
+  color: #1677ff;
 }
 
 .tab-content {
@@ -509,20 +510,25 @@ onMounted(() => {
   line-height: 1.6;
 }
 
-/* 自定义 tabs 样式 */
+/* Tabs：浅色底上必须用深色字 */
+:deep(.ant-tabs-nav::before) {
+  border-bottom-color: #f0f0f0;
+}
+
 :deep(.ant-tabs-tab) {
-  color: white;
+  color: rgba(0, 0, 0, 0.65) !important;
 }
 
 :deep(.ant-tabs-tab:hover) {
-  color: #667eea;
+  color: #1677ff !important;
 }
 
-:deep(.ant-tabs-tab-active) {
-  color: #667eea;
+:deep(.ant-tabs-tab-active),
+:deep(.ant-tabs-tab-active .ant-tabs-tab-btn) {
+  color: #1677ff !important;
 }
 
 :deep(.ant-tabs-ink-bar) {
-  background: #667eea;
+  background: #1677ff !important;
 }
 </style>

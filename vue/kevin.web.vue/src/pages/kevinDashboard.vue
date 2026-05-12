@@ -110,38 +110,38 @@ onMounted(() => {
 
 <style scoped>
 .dashboard-container {
-  color: white;
+  color: rgba(0, 0, 0, 0.88);
 }
 
 .welcome-card {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  padding: 30px;
-  margin-bottom: 30px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 28px 24px;
+  margin-bottom: 20px;
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  color: white;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .welcome-card h1 {
-  color: white;
-  font-size: 28px;
-  margin-bottom: 10px;
-  text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 8px;
 }
 
 .welcome-card p {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 16px;
-  margin-bottom: 30px;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 14px;
+  margin-bottom: 24px;
 }
 
 .welcome-stats {
   display: flex;
   justify-content: center;
-  gap: 40px;
-  margin-top: 20px;
+  gap: 48px;
+  margin-top: 8px;
+  flex-wrap: wrap;
 }
 
 .stat-item {
@@ -150,56 +150,36 @@ onMounted(() => {
 
 .stat-value {
   display: block;
-  font-size: 28px;
-  font-weight: bold;
-  color: #667eea;
-  text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+  font-size: 26px;
+  font-weight: 600;
+  color: #1677ff;
 }
 
 .stat-label {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.45);
+  margin-top: 4px;
+  display: inline-block;
 }
 
 .info-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-  margin-top: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
 }
 
 .info-card {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
 }
 
 :deep(.info-card .ant-card-head) {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 0 20px;
-  background: transparent;
-}
-
-:deep(.info-card .ant-card-head-title) {
-  color: white;
+  border-bottom: 1px solid #f0f0f0;
+  font-weight: 600;
 }
 
 :deep(.info-card .ant-card-body) {
-  color: rgba(255, 255, 255, 0.8);
-  background: transparent;
-}
-
-:deep(.ant-btn-background-ghost.ant-btn-primary) {
-  color: #667eea;
-  border-color: #667eea;
-  background: transparent;
-}
-
-:deep(.ant-btn-background-ghost.ant-btn-primary:hover) {
-  color: #764ba2;
-  border-color: #764ba2;
-  box-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
+  color: rgba(0, 0, 0, 0.65);
 }
 </style>

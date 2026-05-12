@@ -1,0 +1,134 @@
+/* 全站分页浅色统一：独立分页容器 + 表格底部分页（含 .my-table） */
+
+.pagination-container {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 0;
+  flex-wrap: wrap;
+}
+
+.pagination-container .ant-pagination,
+.my-table .ant-pagination,
+.ant-table-wrapper .ant-pagination {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: rgba(0, 0, 0, 0.65);
+  background: transparent;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+}
+
+.pagination-container .ant-pagination-item,
+.my-table .ant-pagination-item,
+.ant-table-wrapper .ant-pagination-item {
+  background: #fff !important;
+  border: 1px solid #d9d9d9 !important;
+  border-radius: 6px !important;
+}
+
+.pagination-container .ant-pagination-item a,
+.my-table .ant-pagination-item a,
+.ant-table-wrapper .ant-pagination-item a {
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.pagination-container .ant-pagination-item-active,
+.my-table .ant-pagination-item-active,
+.ant-table-wrapper .ant-pagination-item-active {
+  border-color: #1677ff !important;
+}
+
+.pagination-container .ant-pagination-item-active a,
+.my-table .ant-pagination-item-active a,
+.ant-table-wrapper .ant-pagination-item-active a {
+  color: #1677ff !important;
+}
+
+.pagination-container .ant-pagination-next .ant-pagination-item-link,
+.pagination-container .ant-pagination-prev .ant-pagination-item-link,
+.my-table .ant-pagination-next .ant-pagination-item-link,
+.my-table .ant-pagination-prev .ant-pagination-item-link,
+.ant-table-wrapper .ant-pagination-next .ant-pagination-item-link,
+.ant-table-wrapper .ant-pagination-prev .ant-pagination-item-link {
+  color: rgba(0, 0, 0, 0.65) !important;
+  background: #fff !important;
+  border: 1px solid #d9d9d9 !important;
+  border-radius: 6px !important;
+}
+
+.pagination-container .ant-pagination-total-text,
+.my-table .ant-pagination-total-text,
+.ant-table-wrapper .ant-pagination-total-text {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.pagination-container .ant-select-selector,
+.my-table .ant-pagination .ant-select-selector,
+.ant-table-wrapper .ant-pagination .ant-select-selector {
+  background: #fff !important;
+  border: 1px solid #d9d9d9 !important;
+}
+
+.pagination-container .ant-select-selection-item,
+.my-table .ant-pagination .ant-select-selection-item,
+.ant-table-wrapper .ant-pagination .ant-select-selection-item {
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.pagination-container .ant-select-arrow,
+.my-table .ant-pagination .ant-select-arrow,
+.ant-table-wrapper .ant-pagination .ant-select-arrow {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.pagination-container .ant-pagination-options-quick-jumper,
+.my-table .ant-pagination-options-quick-jumper,
+.ant-table-wrapper .ant-pagination-options-quick-jumper {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.pagination-container .ant-pagination-options-quick-jumper input,
+.my-table .ant-pagination-options-quick-jumper input,
+.ant-table-wrapper .ant-pagination-options-quick-jumper input {
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.pagination-container .ant-pagination-item-disabled,
+.pagination-container .ant-pagination-item-disabled:hover,
+.my-table .ant-pagination-item-disabled,
+.my-table .ant-pagination-item-disabled:hover,
+.ant-table-wrapper .ant-pagination-item-disabled,
+.ant-table-wrapper .ant-pagination-item-disabled:hover {
+  background: #f5f5f5 !important;
+  border-color: #d9d9d9 !important;
+  opacity: 0.65;
+}
+
+.pagination-container .ant-pagination-item-disabled a,
+.my-table .ant-pagination-item-disabled a,
+.ant-table-wrapper .ant-pagination-item-disabled a {
+  color: rgba(0, 0, 0, 0.25) !important;
+}
+
+.pagination-container .ant-pagination-next.ant-pagination-disabled .ant-pagination-item-link,
+.pagination-container .ant-pagination-prev.ant-pagination-disabled .ant-pagination-item-link,
+.my-table .ant-pagination-next.ant-pagination-disabled .ant-pagination-item-link,
+.my-table .ant-pagination-prev.ant-pagination-disabled .ant-pagination-item-link,
+.ant-table-wrapper .ant-pagination-next.ant-pagination-disabled .ant-pagination-item-link,
+.ant-table-wrapper .ant-pagination-prev.ant-pagination-disabled .ant-pagination-item-link {
+  color: rgba(0, 0, 0, 0.25) !important;
+  background: #f5f5f5 !important;
+  border-color: #d9d9d9 !important;
+}
+
+/* 表格底部分页与表格的间距 */
+.ant-table-pagination {
+  margin: 16px 0 0 !important;
+}

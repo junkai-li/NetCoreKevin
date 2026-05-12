@@ -1,14 +1,12 @@
- 
- 
 .action-button {
-  color: rgba(255, 255, 255, 0.85) !important;
+  color: rgba(0, 0, 0, 0.65) !important;
   padding: 0 4px;
   height: auto;
   line-height: normal;
 }
 
 .action-button:hover {
-  color: #667eea !important;
+  color: #1677ff !important;
   background: transparent;
 }
 
@@ -17,6 +15,6 @@
 }
 
 .search-input {
-  border-radius: 20px;
+  border-radius: 8px;
   overflow: hidden;
 }
