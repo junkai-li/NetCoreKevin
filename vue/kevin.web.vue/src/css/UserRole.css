@@ -206,8 +206,8 @@
 }
 
 :deep(.search-input .ant-input-search-button) {
-  background: rgba(102, 126, 234, 0.8);
-  border-color: rgba(102, 126, 234, 0.8);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 

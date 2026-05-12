@@ -235,12 +235,12 @@
 }
 
 .menu-wrapper::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--scrollbar-thumb, rgba(255, 255, 255, 0.2));
   border-radius: 3px;
 }
 
 .menu-wrapper::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background: var(--scrollbar-thumb-hover, rgba(255, 255, 255, 0.28));
 }
 
 :deep(.theme-switch-button) {

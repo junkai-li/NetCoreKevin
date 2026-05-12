@@ -6,15 +6,93 @@
 }
 
 .action-button:hover {
-  color: #1677ff !important;
+  color: var(--accent) !important;
   background: transparent;
 }
 
 .action-button.danger:hover {
-  color: #ff4d4f !important;
+  color: var(--danger) !important;
 }
 
 .search-input {
   border-radius: 8px;
   overflow: hidden;
+}
+
+/* 全局按钮样式 - 使用主题变量 */
+.layout-container .ant-btn-primary {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
+.layout-container .ant-btn-primary:hover,
+.layout-container .ant-btn-primary:focus {
+  background: var(--accent-hover, var(--accent)) !important;
+  border-color: var(--accent-hover, var(--accent)) !important;
+}
+
+.layout-container .ant-btn-link {
+  color: var(--accent) !important;
+}
+
+.layout-container .ant-btn-link:hover {
+  color: var(--accent-hover, var(--accent)) !important;
+}
+
+.layout-container .ant-switch-checked {
+  background: var(--accent) !important;
+}
+
+/* 输入框聚焦样式 */
+.layout-container .ant-input:focus,
+.layout-container .ant-input-focused {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px var(--accent-soft) !important;
+}
+
+.layout-container .ant-input-affix-wrapper:focus,
+.layout-container .ant-input-affix-wrapper-focused {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px var(--accent-soft) !important;
+}
+
+/* 选择框样式 */
+.layout-container .ant-select-focused .ant-select-selector {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px var(--accent-soft) !important;
+}
+
+/* 复选框样式 */
+.layout-container .ant-checkbox-checked .ant-checkbox-inner {
+  background-color: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
+.layout-container .ant-checkbox-wrapper:hover .ant-checkbox-inner,
+.layout-container .ant-checkbox:hover .ant-checkbox-inner {
+  border-color: var(--accent) !important;
+}
+
+/* 单选框样式 */
+.layout-container .ant-radio-checked .ant-radio-inner {
+  border-color: var(--accent) !important;
+}
+
+.layout-container .ant-radio-checked .ant-radio-inner::after {
+  background-color: var(--accent) !important;
+}
+
+/* 日期选择器样式 */
+.layout-container .ant-picker:hover,
+.layout-container .ant-picker-focused {
+  border-color: var(--accent) !important;
+}
+
+.layout-container .ant-picker-focused {
+  box-shadow: 0 0 0 2px var(--accent-soft) !important;
+}
+
+/* 开关样式 */
+.layout-container .ant-switch:checked {
+  background: var(--accent) !important;
 }

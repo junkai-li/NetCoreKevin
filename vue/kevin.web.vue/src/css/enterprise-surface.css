@@ -110,14 +110,14 @@
 }
 
 .content-wrapper .search-input .ant-input-search-button {
-  background: #1677ff !important;
-  border-color: #1677ff !important;
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
   color: #fff !important;
 }
 
 .content-wrapper .search-input .ant-input-search-button:hover {
-  background: #0958d9 !important;
-  border-color: #0958d9 !important;
+  background: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
 }
 
 .content-wrapper .search-input .ant-input-search-button .anticon {
@@ -125,8 +125,8 @@
 }
 
 .content-wrapper .ant-input-group-addon {
-  background: #1677ff !important;
-  border-color: #1677ff !important;
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
   color: #fff !important;
 }
 
@@ -135,20 +135,20 @@
 }
 
 .content-wrapper .ant-input-search .ant-input-group-addon {
-  background: #1677ff !important;
-  border-color: #1677ff !important;
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
   color: #fff !important;
 }
 
 .content-wrapper .ant-input-search .ant-input-group-addon .ant-btn-icon-only {
-  background: #1677ff !important;
-  border-color: #1677ff !important;
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
   color: #fff !important;
 }
 
 .content-wrapper .ant-input-search .ant-input-group-addon .ant-btn-icon-only:hover {
-  background: #0958d9 !important;
-  border-color: #0958d9 !important;
+  background: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
 }
 
 .content-wrapper .custom-select .ant-select-selector {

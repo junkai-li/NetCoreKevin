@@ -5,6 +5,7 @@
   --sider-bg: #001529;
   --sider-logo-border: rgba(255, 255, 255, 0.06);
   --accent: #1677ff;
+  --accent-hover: #4096ff;
   --accent-soft: rgba(22, 119, 255, 0.12);
   --header-bg: #ffffff;
   --header-border: #f0f0f0;
@@ -13,6 +14,8 @@
   --text-strong: rgba(0, 0, 0, 0.88);
   --text-muted: rgba(0, 0, 0, 0.45);
   --footer-text: rgba(0, 0, 0, 0.45);
+  --header-icon-color: rgba(0, 0, 0, 0.45);
+  --danger: #ff4d4f;
 }
 
 /* 企业蓝（默认） */
@@ -30,17 +33,23 @@
 }
 
 .theme-enterprise .header-icon {
-  color: var(--text-muted);
+  color: var(--header-icon-color);
 }
 
 .theme-enterprise .header-icon:hover {
   color: var(--accent);
 }
 
+.theme-enterprise :deep(.ant-badge-status-dot) {
+  background: var(--accent);
+}
+
 /* 黑蓝：侧栏更深 */
 .theme-blackblue {
   --sider-bg: #0a0a0f;
   --accent: #1677ff;
+  --accent-hover: #4096ff;
+  --header-icon-color: rgba(0, 0, 0, 0.65);
 }
 
 .theme-blackblue .logo-text {
@@ -56,10 +65,21 @@
   color: var(--accent);
 }
 
+.theme-blackblue .header-icon {
+  color: var(--header-icon-color);
+}
+
+.theme-blackblue .header-icon:hover {
+  color: var(--accent);
+}
+
 /* 灰蓝侧栏 */
 .theme-default {
   --sider-bg: #141824;
   --accent: #4f6ae8;
+  --accent-hover: #6b82e0;
+  --accent-soft: rgba(79, 106, 232, 0.15);
+  --header-icon-color: rgba(0, 0, 0, 0.65);
 }
 
 .theme-default .logo-text {
@@ -75,11 +95,25 @@
   color: var(--accent);
 }
 
+.theme-default .header-icon {
+  color: var(--header-icon-color);
+}
+
+.theme-default .header-icon:hover {
+  color: var(--accent);
+}
+
+.theme-default :deep(.ant-badge-status-dot) {
+  background: var(--accent);
+}
+
 /* 绿色强调 */
 .theme-green {
   --sider-bg: #0f2418;
   --accent: #389e0d;
+  --accent-hover: #52c41a;
   --accent-soft: rgba(56, 158, 13, 0.12);
+  --header-icon-color: rgba(0, 0, 0, 0.65);
 }
 
 .theme-green .logo-text {
@@ -95,6 +129,14 @@
   color: var(--accent);
 }
 
+.theme-green .header-icon {
+  color: var(--header-icon-color);
+}
+
+.theme-green .header-icon:hover {
+  color: var(--accent);
+}
+
 .theme-green :deep(.ant-menu-dark .ant-menu-item:hover) {
   background: var(--accent-soft);
 }
@@ -107,11 +149,17 @@
   color: var(--accent);
 }
 
+.theme-green :deep(.ant-badge-status-dot) {
+  background: var(--accent);
+}
+
 /* 紫色强调 */
 .theme-purple {
   --sider-bg: #1a1224;
   --accent: #722ed1;
+  --accent-hover: #9254de;
   --accent-soft: rgba(114, 46, 209, 0.15);
+  --header-icon-color: rgba(0, 0, 0, 0.65);
 }
 
 .theme-purple .logo-text {
@@ -127,6 +175,14 @@
   color: var(--accent);
 }
 
+.theme-purple .header-icon {
+  color: var(--header-icon-color);
+}
+
+.theme-purple .header-icon:hover {
+  color: var(--accent);
+}
+
 .theme-purple :deep(.ant-menu-dark .ant-menu-item:hover) {
   background: var(--accent-soft);
 }
@@ -139,10 +195,16 @@
   color: var(--accent);
 }
 
+.theme-purple :deep(.ant-badge-status-dot) {
+  background: var(--accent);
+}
+
 /* 深蓝侧栏 */
 .theme-darkblue {
   --sider-bg: #0d1b2a;
   --accent: #1677ff;
+  --accent-hover: #4096ff;
+  --header-icon-color: rgba(0, 0, 0, 0.65);
 }
 
 .theme-darkblue .logo-text {
@@ -156,6 +218,103 @@
 
 .theme-darkblue .trigger:hover {
   color: var(--accent);
+}
+
+.theme-darkblue .header-icon {
+  color: var(--header-icon-color);
+}
+
+.theme-darkblue .header-icon:hover {
+  color: var(--accent);
+}
+
+.theme-darkblue :deep(.ant-badge-status-dot) {
+  background: var(--accent);
+}
+
+/* 企业简约白（纯白风格） */
+.theme-simple-white {
+  --page-bg: #f5f5f5;
+  --sider-bg: #ffffff;
+  --sider-logo-border: #f0f0f0;
+  --accent: #1677ff;
+  --accent-hover: #4096ff;
+  --accent-soft: rgba(22, 119, 255, 0.1);
+  --header-bg: #ffffff;
+  --header-border: #f0f0f0;
+  --content-surface: #ffffff;
+  --content-border: #f0f0f0;
+  --text-strong: rgba(0, 0, 0, 0.88);
+  --text-muted: rgba(0, 0, 0, 0.45);
+  --footer-text: rgba(0, 0, 0, 0.45);
+  --header-icon-color: rgba(0, 0, 0, 0.45);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.25);
+  --danger: #ff4d4f;
+}
+
+.theme-simple-white .logo-text {
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.theme-simple-white .trigger,
+.theme-simple-white .user-name {
+  color: var(--text-strong);
+}
+
+.theme-simple-white .trigger:hover {
+  color: var(--accent);
+}
+
+.theme-simple-white .header-icon {
+  color: var(--header-icon-color);
+}
+
+.theme-simple-white .header-icon:hover {
+  color: var(--accent);
+}
+
+.theme-simple-white :deep(.ant-menu-light) {
+  background: transparent !important;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.theme-simple-white :deep(.ant-menu-light .ant-menu-item:hover) {
+  background: var(--accent-soft) !important;
+}
+
+.theme-simple-white :deep(.ant-menu-light .ant-menu-item-selected) {
+  background: var(--accent-soft) !important;
+  color: var(--accent) !important;
+}
+
+.theme-simple-white :deep(.ant-menu-light .ant-menu-submenu-title:hover) {
+  background: var(--accent-soft) !important;
+}
+
+.theme-simple-white :deep(.ant-menu-light .ant-menu-sub.ant-menu-inline) {
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+.theme-simple-white :deep(.ant-menu-light .ant-menu-submenu-title) {
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.theme-simple-white .sider {
+  border-right: 1px solid #f0f0f0 !important;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+}
+
+.theme-simple-white .menu-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.theme-simple-white .menu-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.theme-simple-white :deep(.ant-badge-status-dot) {
+  background: var(--accent);
 }
 
 /* 主题预览色块 */
@@ -193,6 +352,11 @@
   background: linear-gradient(135deg, #0d1b2a 50%, #1677ff 50%);
 }
 
+.theme-preview.theme-simple-white {
+  background: linear-gradient(135deg, #ffffff 50%, #1677ff 50%);
+  border: 1px solid #d9d9d9;
+}
+
 .theme-option {
   display: flex;
   align-items: center;
@@ -201,4 +365,13 @@
 .theme-switch-button {
   display: flex;
   align-items: center;
+}
+
+/* 全局主题样式 - 确保header图标颜色生效 */
+.layout-container .header-icon {
+  color: var(--header-icon-color) !important;
+}
+
+.layout-container .header-icon:hover {
+  color: var(--accent) !important;
 }

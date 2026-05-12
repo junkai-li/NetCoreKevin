@@ -246,13 +246,13 @@
 }
 
 .search-input .ant-input-search-button {
-  background: #1677ff;
-  border-color: #1677ff;
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .search-input .ant-input-search-button:hover {
-  background: #0958d9;
-  border-color: #0958d9;
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 /* 分页样式见 pagination-enterprise.css（main.js 全局引入） */

@@ -20,7 +20,7 @@
         <a-menu
           v-model:selectedKeys="selectedKeys"
           v-model:openKeys="openKeys"
-          theme="dark"
+          :theme="menuTheme"
           mode="inline"
           @click="handleMenuClick"
         >
@@ -156,6 +156,12 @@
                     <span>深海蓝</span>
                   </div>
                 </a-menu-item>
+                <a-menu-item key="simple-white" @click="switchTheme('simple-white')">
+                  <div class="theme-option">
+                    <div class="theme-preview theme-simple-white"></div>
+                    <span>企业简约白</span>
+                  </div>
+                </a-menu-item>
               </a-menu>
             </template>
           </a-dropdown>
@@ -243,7 +249,11 @@ const collapsed = ref(false);
 const selectedKeys = ref(["dashboard"]);
 const openKeys = ref(["user-management"]);
 
-const currentTheme = ref("theme-enterprise");
+const currentTheme = ref("theme-simple-white");
+
+const menuTheme = computed(() => {
+  return currentTheme.value === "theme-simple-white" ? "light" : "dark";
+});
 
 // 用户信息
 const userInfo = reactive({
@@ -361,15 +371,15 @@ const handleUserInfo = () => {
   selectedKeys.value = ["handleUserInfo"];
   router.push("/home/user/profile");
 };
-const ALLOWED_THEMES = ["enterprise", "blackblue", "default", "green", "purple", "darkblue"];
+const ALLOWED_THEMES = ["enterprise", "blackblue", "default", "green", "purple", "darkblue", "simple-white"];
 
 onMounted(() => {
   const savedTheme = localStorage.getItem("app-theme");
   if (savedTheme && ALLOWED_THEMES.includes(savedTheme)) {
     currentTheme.value = `theme-${savedTheme}`;
   } else {
-    currentTheme.value = "theme-enterprise";
-    localStorage.setItem("app-theme", "enterprise");
+    currentTheme.value = "theme-simple-white";
+    localStorage.setItem("app-theme", "simple-white");
   }
 
   const raw = localStorage.getItem("user");

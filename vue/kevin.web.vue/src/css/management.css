@@ -98,13 +98,13 @@
   height: 36px;
   width: 40px;
   border-radius: 0 8px 8px 0;
-  background: #1677ff;
-  border-color: #1677ff;
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .toolbar .ant-input-search-button:hover {
-  background: #0958d9;
-  border-color: #0958d9;
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 .toolbar-button {
