@@ -24,20 +24,26 @@ namespace Kevin.SignalR.Service
 
         public List<string> GetTenantConnIds(int TenantId)
         {
-            var data = _cacheService.GetObject<SignalRCacheDto>(_config.cacheMySignalRKeyName);
-            if (data != default && data.Items != default)
+            if (!string.IsNullOrEmpty(_cacheService.GetString(_config.cacheMySignalRKeyName)))
             {
-                return data.Items.FirstOrDefault(t => t.TenantId == TenantId)?.Connections?.Select(t => t.ConnectionId).ToList() ?? new List<string>();
+                var data = _cacheService.GetObject<SignalRCacheDto>(_config.cacheMySignalRKeyName);
+                if (data != default && data.Items != default)
+                {
+                    return data.Items.FirstOrDefault(t => t.TenantId == TenantId)?.Connections?.Select(t => t.ConnectionId).ToList() ?? new List<string>();
+                }
             }
             return new List<string>();
         }
 
         public List<string> GetTenantIdentityIds(int TenantId)
         {
-            var data = _cacheService.GetObject<SignalRCacheDto>(_config.cacheMySignalRKeyName);
-            if (data != default && data.Items != default)
+            if (!string.IsNullOrEmpty(_cacheService.GetString(_config.cacheMySignalRKeyName)))
             {
-                return data.Items.FirstOrDefault(t => t.TenantId == TenantId)?.Connections?.Select(t => t.IdentityId).ToList() ?? new List<string>();
+                var data = _cacheService.GetObject<SignalRCacheDto>(_config.cacheMySignalRKeyName);
+                if (data != default && data.Items != default)
+                {
+                    return data.Items.FirstOrDefault(t => t.TenantId == TenantId)?.Connections?.Select(t => t.IdentityId).ToList() ?? new List<string>();
+                }
             }
             return new List<string>();
         }
@@ -45,15 +51,18 @@ namespace Kevin.SignalR.Service
         public string GetIdentityConnId(string identityId)
         {
             string id = "";
-            var data = _cacheService.GetObject<SignalRCacheDto>(_config.cacheMySignalRKeyName);
-            if (data != default)
+            if (!string.IsNullOrEmpty(_cacheService.GetString(_config.cacheMySignalRKeyName)))
             {
-                foreach (var item in data.Items)
+                var data = _cacheService.GetObject<SignalRCacheDto>(_config.cacheMySignalRKeyName);
+                if (data != default)
                 {
-                    if (item.Connections.Where(t => t.IdentityId == identityId).FirstOrDefault() != default)
+                    foreach (var item in data.Items)
                     {
-                        id = item.Connections.Where(t => t.IdentityId == identityId).FirstOrDefault()?.ConnectionId ?? "";
-                        return id;
+                        if (item.Connections.Where(t => t.IdentityId == identityId).FirstOrDefault() != default)
+                        {
+                            id = item.Connections.Where(t => t.IdentityId == identityId).FirstOrDefault()?.ConnectionId ?? "";
+                            return id;
+                        }
                     }
                 }
             }
@@ -85,16 +94,20 @@ namespace Kevin.SignalR.Service
 
         private List<string> GetIdentityIdConnIds(List<string> identityId)
         {
-            var data = _cacheService.GetObject<SignalRCacheDto>(_config.cacheMySignalRKeyName);
-            var ids = new List<string>();
-            if (data != default)
+            if (!string.IsNullOrEmpty(_cacheService.GetString(_config.cacheMySignalRKeyName)))
             {
-                foreach (var item in data.Items)
+                var data = _cacheService.GetObject<SignalRCacheDto>(_config.cacheMySignalRKeyName);
+                var ids = new List<string>();
+                if (data != default)
                 {
-                    ids.AddRange(item.Connections.Where(t => identityId.Contains(t.IdentityId)).Select(t => t.ConnectionId).ToList());
+                    foreach (var item in data.Items)
+                    {
+                        ids.AddRange(item.Connections.Where(t => identityId.Contains(t.IdentityId)).Select(t => t.ConnectionId).ToList());
+                    }
                 }
+                return ids;
             }
-            return ids;
+            return new List<string>();
         }
     }
 }
