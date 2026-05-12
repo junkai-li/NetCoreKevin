@@ -79,12 +79,14 @@
 .toolbar .ant-input-wrapper {
   border-radius: 8px;
   overflow: hidden;
+  border: 1px solid #d9d9d9;
 }
 
 .toolbar .ant-input {
   border-radius: 8px 0 0 8px;
   height: 36px;
   padding: 0 12px;
+  border-right: none;
 }
 
 .toolbar .ant-input-group-addon {
@@ -96,6 +98,13 @@
   height: 36px;
   width: 40px;
   border-radius: 0 8px 8px 0;
+  background: #1677ff;
+  border-color: #1677ff;
+}
+
+.toolbar .ant-input-search-button:hover {
+  background: #0958d9;
+  border-color: #0958d9;
 }
 
 .toolbar-button {

@@ -90,6 +90,67 @@
   color: rgba(0, 0, 0, 0.88) !important;
 }
 
+.content-wrapper .search-input.ant-input-wrapper {
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+}
+
+.content-wrapper .search-input .ant-input {
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+}
+
+.content-wrapper .search-input .ant-input::placeholder {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.content-wrapper .search-input .ant-input:focus {
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.15);
+  border-color: #1677ff;
+}
+
+.content-wrapper .search-input .ant-input-search-button {
+  background: #1677ff !important;
+  border-color: #1677ff !important;
+  color: #fff !important;
+}
+
+.content-wrapper .search-input .ant-input-search-button:hover {
+  background: #0958d9 !important;
+  border-color: #0958d9 !important;
+}
+
+.content-wrapper .search-input .ant-input-search-button .anticon {
+  color: #fff !important;
+}
+
+.content-wrapper .ant-input-group-addon {
+  background: #1677ff !important;
+  border-color: #1677ff !important;
+  color: #fff !important;
+}
+
+.content-wrapper .ant-input-group-addon .anticon {
+  color: #fff !important;
+}
+
+.content-wrapper .ant-input-search .ant-input-group-addon {
+  background: #1677ff !important;
+  border-color: #1677ff !important;
+  color: #fff !important;
+}
+
+.content-wrapper .ant-input-search .ant-input-group-addon .ant-btn-icon-only {
+  background: #1677ff !important;
+  border-color: #1677ff !important;
+  color: #fff !important;
+}
+
+.content-wrapper .ant-input-search .ant-input-group-addon .ant-btn-icon-only:hover {
+  background: #0958d9 !important;
+  border-color: #0958d9 !important;
+}
+
 .content-wrapper .custom-select .ant-select-selector {
   background: #fff !important;
   border-color: #d9d9d9 !important;

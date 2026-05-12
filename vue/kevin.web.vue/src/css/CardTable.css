@@ -226,12 +226,15 @@
 .search-input {
   border-radius: 8px;
   overflow: hidden;
+  border: 1px solid #d9d9d9;
 }
 
 .search-input .ant-input {
   background: #fff;
   border-color: #d9d9d9;
   color: rgba(0, 0, 0, 0.88);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
 }
 
 .search-input .ant-input::placeholder {
@@ -245,6 +248,11 @@
 .search-input .ant-input-search-button {
   background: #1677ff;
   border-color: #1677ff;
+}
+
+.search-input .ant-input-search-button:hover {
+  background: #0958d9;
+  border-color: #0958d9;
 }
 
 /* 分页样式见 pagination-enterprise.css（main.js 全局引入） */
