@@ -46,7 +46,7 @@
 
 -   第一步
 -   `json配置文件请配置好数据库链接默认使用MySQL（可自行更改）EFCore框架(不熟悉的可以看看微软官网文档) 其他需要调整和配置json:'ConnectionStrings'，'HangfireRedisSetting'，'SignalrRdisSetting' `
--   第二步
+-   第二步（默认账户admin，密钥：123456，租户1000）
 -   `执行初始化数据库命令：在vs中“程序包管理控制台”选择Kevin.EntityFrameworkCore项目 执行NuGet命令  Add-Migration "初始化数据库"  在执行=》 Update-Database  执行完成后开始第三步`
 -   第三步
 -   `启动App.WebApi第一次启动会初始化种子数据 种子数据配置可以在kevin.Domain.BaseDatas下面查看和更改 启动后通过http://localhost:9901/swagger/index.html路由查看接口页面和如下页面`
