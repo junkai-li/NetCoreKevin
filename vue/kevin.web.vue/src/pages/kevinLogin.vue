@@ -332,7 +332,7 @@ const loadSavedLoginInfo = () => {
     }
   }else{ 
       passwordForm.username = 'admin';
-  passwordForm.password = 'admin123';
+  passwordForm.password = '123456';
   passwordForm.tenantId = '1000';
   passwordForm.remember = true;
   } 

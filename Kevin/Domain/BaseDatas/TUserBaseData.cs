@@ -11,7 +11,7 @@ namespace kevin.Domain.Configuration
     {
         public static List<TUser> TUsers { get; set; } = new List<TUser>()
         {
-           new TUser { Id =4514140314251222771, Name = "admin",NickName="admin", PasswordHash = new HashHelper().SHA256Hash("admin"),Email="admin",Phone="admin", CreateTime = DateTime.Parse("2020-01-01 00:00:01"),IsSuperAdmin=true,TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32()}
+           new TUser { Id =4514140314251222771, Name = "admin",NickName="admin", PasswordHash = new HashHelper().SHA256Hash("123456"),Email="admin",Phone="admin", CreateTime = DateTime.Parse("2020-01-01 00:00:01"),IsSuperAdmin=true,TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32()}
         };
     }
 }
