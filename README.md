@@ -45,7 +45,7 @@
 # 🧰上手教程
 
 -   第一步
--   `json配置文件请配置好数据库链接默认使用MySQL（可自行更改）EFCore框架 不熟悉的可以看看微软官网文档`
+-   `json配置文件请配置好数据库链接默认使用MySQL（可自行更改）EFCore框架(不熟悉的可以看看微软官网文档) 其他需要调整和配置json:'ConnectionStrings'，'HangfireRedisSetting'，'SignalrRdisSetting' `
 -   第二步
 -   `执行初始化数据库命令：在vs中“程序包管理控制台”选择Kevin.EntityFrameworkCore项目 执行NuGet命令  Add-Migration "初始化数据库"  在执行=》 Update-Database  执行完成后开始第三步`
 -   第三步
