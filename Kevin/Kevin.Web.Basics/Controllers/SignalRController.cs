@@ -1,4 +1,5 @@
-﻿using Kevin.SignalR.Service;
+﻿using kevin.Permission.Permisson.Attributes;
+using Kevin.SignalR.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -11,6 +12,7 @@ namespace Kevin.Web.Basics.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
+    [SkipAuthority]
     public class SignalRController : ApiControllerBase
     {
         [IocProperty]
