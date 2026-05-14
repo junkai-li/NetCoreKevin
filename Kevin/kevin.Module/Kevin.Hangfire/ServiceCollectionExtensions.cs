@@ -22,34 +22,43 @@ namespace Kevin.Hangfire
         {
             lock (lockObject)
             {
-                if (isAdd)
+                try
                 {
-                    throw new ArgumentException("Hangfire已通过其他方式注入");
-                }
-                services.Configure(action);
-                var hangfireRedisSetting = new HangfireRedisSetting();
-                action.Invoke(hangfireRedisSetting);
-                if (hangfireRedisSetting != default)
-                {
-                    if (string.IsNullOrWhiteSpace(hangfireRedisSetting.RedisConnectionString))
+                    if (isAdd)
                     {
-                        throw new ArgumentException("Redis连接字符串不能为空", nameof(hangfireRedisSetting.RedisConnectionString));
+                        throw new ArgumentException("Hangfire已通过其他方式注入");
                     }
-                    //注册 HangFire(Redis)
-                    services.AddHangfire(configuration => configuration
-                    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-                    .UseSimpleAssemblyNameTypeSerializer()
-                    .UseRecommendedSerializerSettings()
-                    // 2. 配置Redis存储
-                    .UseRedisStorage(hangfireRedisSetting.RedisConnectionString, new RedisStorageOptions
+                    services.Configure(action);
+                    var hangfireRedisSetting = new HangfireRedisSetting();
+                    action.Invoke(hangfireRedisSetting);
+                    if (hangfireRedisSetting != default)
                     {
-                        Db = hangfireRedisSetting.Db, // 指定Redis数据库编号
-                        Prefix = hangfireRedisSetting.Prefix // 避免Key冲突的命名空间[reference:5]
-                    }));
-                    // 注册 HangFire 服务
-                    services.AddHangfireServer(options => options.SchedulePollingInterval = TimeSpan.FromSeconds(15));
-                    isAdd = true;
+                        if (string.IsNullOrWhiteSpace(hangfireRedisSetting.RedisConnectionString))
+                        {
+                            throw new ArgumentException("Redis连接字符串不能为空", nameof(hangfireRedisSetting.RedisConnectionString));
+                        }
+                        //注册 HangFire(Redis)
+                        services.AddHangfire(configuration => configuration
+                        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                        .UseSimpleAssemblyNameTypeSerializer()
+                        .UseRecommendedSerializerSettings()
+                        // 2. 配置Redis存储
+                        .UseRedisStorage(hangfireRedisSetting.RedisConnectionString, new RedisStorageOptions
+                        {
+                            Db = hangfireRedisSetting.Db, // 指定Redis数据库编号
+                            Prefix = hangfireRedisSetting.Prefix // 避免Key冲突的命名空间[reference:5]
+                        }));
+                        // 注册 HangFire 服务
+                        services.AddHangfireServer(options => options.SchedulePollingInterval = TimeSpan.FromSeconds(15));
+                        isAdd = true;
+                    }
                 }
+                catch (Exception ex)
+                { 
+                    throw new ArgumentException("Hangfire自动任务注入失败，请检查你的HangfireRedisSetting配置是否正确", ex);
+                }
+                        
+             
             }
         }
 
