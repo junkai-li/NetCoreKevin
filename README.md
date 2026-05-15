@@ -11,6 +11,10 @@
 |  ![输入图片说明](Doc/aizhinnegti01.png)  | ![输入图片说明](Doc/aijineng04.png) | ![输入图片说明](Doc/zhinnegti03.png) |
 |---|---|---|
 
+#  :zap: AI+hangfire自动任务智能体效果图 
+| ![输入图片说明](Doc/xg_hangfire_01.png)  | ![输入图片说明](Doc/xg_hangfire_02.png) | 
+|---|---|---|
+
 # 🌐后台管理系统效果图（基于VUE3-AntDesign） 
 
 | ![输入图片说明](Doc/cf218b0549ca43120dca3d1ea0cd11eb.png)  |  ![输入图片说明](Doc/6271341ceebc25c93a2ae361008937f6.png) | ![输入图片说明](Doc/xg3.png)   |  ![输入图片说明](Doc/xg4.png) |
