@@ -38,7 +38,7 @@ namespace kevin.AI.AgentFramework.Tools
                    new AIFunctionFactoryOptions { Name = "GetNetCoreKevinInfo", Description = "获取NetCoreKevin框架的介绍信息" }
                ));
             } 
-            var iKevinAITasksService = serviceProvider.GetService<IKevinAITasksService>();
+            var iKevinAITasksService = serviceProvider.GetService<IKevinAITaskService>();
             if (iKevinAITasksService != default)
             { 
                 tools.Add(

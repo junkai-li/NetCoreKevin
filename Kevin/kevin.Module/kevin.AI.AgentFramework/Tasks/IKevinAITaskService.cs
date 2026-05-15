@@ -12,7 +12,7 @@ namespace kevin.AI.AgentFramework.Tasks
     /// 用于给AI使用的自动任务服务接口，提供自动任务相关的功能和操作 你可以让它在每天、每周、每月，或者某个固定时间自动运行，帮助你完成常见的日常工作。 
     /// </summary>
     [Description("用于给AI使用的自动任务服务接口，提供自动任务相关的功能和操作 你可以让它在每天、每周、每月，或者某个固定时间自动运行，帮助你完成常见的日常工作。")]
-    public interface IKevinAITasksService
+    public interface IKevinAITaskService
     { 
 
         /// <summary>

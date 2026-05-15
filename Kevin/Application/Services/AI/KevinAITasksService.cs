@@ -6,7 +6,7 @@ using System.ComponentModel;
 
 namespace kevin.Application.Services.AI
 {
-    public class KevinAITasksService : BaseService, IKevinAITasksService
+    public class KevinAITasksService : BaseService, IKevinAITaskService
     {
         private readonly IRecurringJobManager _recurringJobManager;
         private readonly JobStorage _jobStorage;
@@ -17,7 +17,7 @@ namespace kevin.Application.Services.AI
         }
         public Task<string> AddOrUpdateCronTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")] string name, [Description("content：可传入具体的任务内容，不可为空 比如：自动搜索并总结AI领域的热门资讯，包括技术突破、产品发布、行业动态等")] string content, [Description("cron表达式：用于定义任务的执行周期，不可为空 比如用户需要每六分钟执行一次则传入：0 0/6 0/1 * * ?  ")] string cronExpression)
         {
-            _recurringJobManager.AddOrUpdate<IKevinAITasksService>(
+            _recurringJobManager.AddOrUpdate<IKevinAITaskService>(
                recurringJobId: CurrentUser.UserId + name,      // 唯一的 ID，用于后续修改或删除
                (s) => s.RunTask(name, content),    // 要执行的任务
                cronExpression, new RecurringJobOptions
