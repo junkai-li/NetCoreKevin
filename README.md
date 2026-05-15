@@ -12,8 +12,8 @@
 |---|---|---|
 
 #  :zap: AI+hangfire自动任务智能体效果图 
-| ![输入图片说明](Doc/xg_hangfire_01.png)  | ![输入图片说明](Doc/xg_hangfire_02.png) | 
-|---|---|---|
+| ![输入图片说明](Doc/xg_hangfire_01.png)  |  ![输入图片说明](Doc/xg_hangfire_02.png) |
+|---|---|
 
 # 🌐后台管理系统效果图（基于VUE3-AntDesign） 
 
