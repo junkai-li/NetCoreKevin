@@ -139,7 +139,7 @@ namespace kevin.Application.Services.AI
             if (par.IsOnlineSearch)
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在联网搜索....");
-                var http = new HttpClientFunction(aIAgentService);
+                var http = new HttpClientFunction(aIAgentService, _serviceProvider);
                 systemPrompt += await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey);
 
             }
@@ -154,7 +154,7 @@ namespace kevin.Application.Services.AI
                 case Domain.Share.Enums.AIType.AzureOpenAI:
                 default:
                     await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在结合相关信息思考....");
-                    addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
+                    addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(_serviceProvider,add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
                     {
                         Name = aiapp.Name,
                         Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",

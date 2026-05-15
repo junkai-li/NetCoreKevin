@@ -1,4 +1,5 @@
 ﻿using HttpMataki.NET.Auto;
+using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.ScriptRunners;
 using kevin.AI.AgentFramework.SkillClass;
@@ -6,12 +7,17 @@ using kevin.AI.AgentFramework.Tools;
 using Kevin.AI.Dto;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ModelContextProtocol.Server;
 using OpenAI;
+using OpenAI.Responses;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.ComponentModel;
+using System.Reflection;
+using kevin.AI.AgentFramework.Interfaces;
 namespace kevin.AI.AgentFramework
 {
     /// <summary>
@@ -49,7 +55,19 @@ namespace kevin.AI.AgentFramework
             var ai = new OpenAIClient(new ApiKeyCredential(model), openAIClientOptions);
             return ai.GetChatClient(keySecret).AsIChatClient();
         }
-        public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, bool isStreame = false, Action<string> streameCallback = default)
+        /// <summary>
+        /// 创建代理并发送消息
+        /// </summary>
+        /// <param name="_serviceProvider"></param>
+        /// <param name="msg"></param>
+        /// <param name="url"></param>
+        /// <param name="model"></param>
+        /// <param name="keySecret"></param>
+        /// <param name="chatClientAgentOptions"></param>
+        /// <param name="isStreame"></param>
+        /// <param name="streameCallback"></param>
+        /// <returns></returns>
+        public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(IServiceProvider _serviceProvider, string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, bool isStreame = false, Action<string> streameCallback = default)
         {
             if (aISetting.IsHttpLog)
             {
@@ -66,13 +84,17 @@ namespace kevin.AI.AgentFramework
             };
             // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示 
             var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(keySecret) ? "local" : keySecret), openAIClientOptions);
-            if (chatClientAgentOptions.ChatOptions != default && (chatClientAgentOptions.ChatOptions?.Tools == default || chatClientAgentOptions.ChatOptions?.Tools.Count == 0))
+
+            #region AI工具
+            if (aISetting.IsAITools)
             {
-                if (aISetting.IsAITools)
+                if (chatClientAgentOptions.ChatOptions != default)
                 {
-                    // 🔑 能力层：工具
-                    chatClientAgentOptions.ChatOptions.Tools = new List<AITool>() {
-                    AIFunctionFactory.Create(KevinBasicAI.GetNetCoreKevinInfo,new AIFunctionFactoryOptions{ Name = "GetNetCoreKevinInfo",Description = "获取NetCoreKevin框架的介绍信息" }),
+                    var service = _serviceProvider.GetService<IAIToolUserInfoServer>();
+                    var userId = service is not null ? (await service.GetUserIdAsync()) ?? "" : "";
+
+                    chatClientAgentOptions.ChatOptions.Tools ??= new List<AITool>();
+                    var tools = new List<AITool>() {
                     AIFunctionFactory.Create(AgentHttpClientTools.GetAsync,new AIFunctionFactoryOptions{ Name = "GetAsync",Description = "通用 HTTP 工具 发送 GET 请求" }),
                     AIFunctionFactory.Create(AgentHttpClientTools.PostAsync,new AIFunctionFactoryOptions{ Name = "PostAsync",Description = "通用 HTTP 工具 发送 POST 请求" }),
                     AIFunctionFactory.Create(AgentHttpClientTools.PutAsync,new AIFunctionFactoryOptions{ Name = "PutAsync",Description = "通用 HTTP 工具 发送 PUT 请求" }),
@@ -84,13 +106,37 @@ namespace kevin.AI.AgentFramework
                     AIFunctionFactory.Create(CommonTools.GetDesktopPath,new AIFunctionFactoryOptions{ Name = "GetDesktopPath",Description = "获取当前系统桌面路径。 用于获取当前用户的桌面路径" }),
                     AIFunctionFactory.Create(CommonTools.WriteTextToDesktop,new AIFunctionFactoryOptions{ Name = "WriteTextToDesktop",Description = "输出文件到系统桌面。 用于把各种文件输出到桌面" }),
                     };
+                    var iKevinBasicAI = _serviceProvider.GetService<IKevinBasicAI>();
+                    if (iKevinBasicAI != default)
+                    {
+                        tools.Add(
+                           AIFunctionFactory.Create(() => iKevinBasicAI.GetNetCoreKevinInfo(userId),
+                           new AIFunctionFactoryOptions { Name = "GetNetCoreKevinInfo", Description = "获取NetCoreKevin框架的介绍信息" }
+                       ));
+                    }
+                    // 🔑 能力层：工具
+                    foreach (var item in tools)
+                    {
+                        chatClientAgentOptions.ChatOptions.Tools.Add(item);
+                    }
+                }
+            }
+            else
+            {
+                if (chatClientAgentOptions.ChatOptions != default)
+                {
+                    chatClientAgentOptions.ChatOptions.Tools = new List<AITool>();
                 }
 
             }
-            if (chatClientAgentOptions.AIContextProviders == default)
+            #endregion
+
+            #region AI技能
+            if (aISetting.IsAISkills)
             {
-                if (aISetting.IsAISkills)
+                if (chatClientAgentOptions.AIContextProviders == default)
                 {
+
 #pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
                     var skill = new UnitConverterSkill();
                     var skillGetWeather = new GetWeatherSkill();
@@ -104,55 +150,7 @@ namespace kevin.AI.AgentFramework
                                         })
                                         .UseSkill(skill)
                                         .UseSkill(skillGetWeather)
-                                        .UsePromptTemplate("""
-                                                                            # Skills Instruction Prompt    
-                                                                            ## 可用技能列表 
-                                                                            {skills}
-
-                                                                           ## 每个技能包含：
-                                                                            - **名称**：技能的唯一标识
-                                                                            - **描述**：技能的功能说明
-                                                                            - **参数**：调用时所需的输入字段（类型、含义）
-
-                                                                            ##技能相关instructions
-                                                                            {resource_instructions}
-
-                                                                            ##技能脚本说明相关instructions
-                                                                            {script_instructions}
-
-                                                                           ##自动化工作流程：
-                                                                                    1.自动使用load_skill、read_skill_resource来获取技能指令和资源内容，理解后再决定是否调用工具执行脚本。
-                                                                                    2.每个技能提供专业指令、参考文档和可执行脚本 
-                                                                                    3.技能指令中会标明可用脚本及其执行命令 
-                                                                                    4.重要原则：先加载知识，再执行操作 
-                                                                                    5.**需求分析**：自动识别用户问题是否需要工具支持。
-                                                                                    6.**工具选择**：优先选择最匹配的工具
-                                                                                    7.**工具调用**：根据工具描述构造输入参数，调用工具
-                                                                                    8.**自主调用**：直接执行，无需用户干预。若失败，需根据错误信息调整或给出友好提示。
-                                                                                    9.根据技能返回结果生成最终答案：将技能返回的数据整合为自然语言回复用户。  
-                                                 
-
-                                                                            ##重要规则技能优先级
-                                                                             1.能优先使用自带的脚本文件或者当技能需要使用Tools工具时，优先使用通用 HTTP 工具，优先级大于RunShell、RunPythonPy、RunPythonCode。
-                                                                             2.当技能需要使用RunShell、RunPythonPy、RunPythonCode时，RunPythonCode优先级大于RunPythonPy。
-                                                                             3.RunShell优先级最小，只有在技能指令中明确说明需要使用RunShell来执行且不适合使用RunPythonCode和RunPythonPy来执行时才使用RunShell。
-                                                                              
-                                                                            示例
-                                                                            用户：北京今天天气怎么样？
-                                                                            思考：用户需要实时天气，必须调用天气查询技能。
-                                                                            输出：
-
-                                                                            json
-                                                                            " 
-                                                                              "action": "get-weather",
-                                                                              "action_input":  
-                                                                                "city": "北京"
-                                           
-                                                                             "
-                                                                            技能返回：晴，25℃，微风
-                                                                            最终回答：北京今天晴天，气温25摄氏度，微风。
-                        
-                                                            """)
+                                        .UsePromptTemplate(UseSkillPromptTemplate.UseSkillPrompt)
                                         .UseOptions(options => options.DisableCaching = true)
                                         .Build();
 #pragma warning restore MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。 
@@ -160,7 +158,11 @@ namespace kevin.AI.AgentFramework
                     Console.WriteLine();
                 }
             }
-
+            else
+            {
+                chatClientAgentOptions.AIContextProviders = default;
+            }
+            #endregion 
             var aiAgent = ai.GetChatClient(model).AsIChatClient().AsAIAgent(chatClientAgentOptions);
             var reslut = new AgentResponse();
             var resultText = string.Empty;

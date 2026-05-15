@@ -1,5 +1,6 @@
 ﻿using kevin.AI.AgentFramework;
 using kevin.AI.AgentFramework.Interfaces;
+using kevin.AI.AgentFramework.Tools;
 using Kevin.AI.Dto;
 using Microsoft.Extensions.DependencyInjection;
 namespace Kevin.AI
@@ -10,6 +11,7 @@ namespace Kevin.AI
         {
             services.Configure(action);
             services.AddTransient<IAIAgentService, AIAgentService>();
+            services.AddSingleton<IKevinBasicAI, KevinBasicAI>();
         }
     }
 }

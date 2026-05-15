@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 namespace kevin.AI.AgentFramework.Tools
 {
 
-    public class HttpClientFunction(IAIAgentService aIAgentService)
+    public class HttpClientFunction(IAIAgentService aIAgentService, IServiceProvider? _serviceProvider)
     {
         private Dictionary<string, string> SeoTemplates = new Dictionary<string, string>() {
             { "https://cn.bing.com/search?q={0}","必应搜索"},
@@ -95,7 +95,7 @@ namespace kevin.AI.AgentFramework.Tools
                     Console.WriteLine(ex.Message);
                 }
             }
-            result = (await aIAgentService.CreateOpenAIAgentAndSendMSG($"用户搜索意图问题:{value} \n 互联网搜索信息如下：" + string.Join("\n", htmls) + "\n" + " 请你根据用户搜索意图问题来进行提取总结", aiEndPoint, aiModelName, aiModelKey, new ChatClientAgentOptions
+            result = (await aIAgentService.CreateOpenAIAgentAndSendMSG(_serviceProvider, $"用户搜索意图问题:{value} \n 互联网搜索信息如下：" + string.Join("\n", htmls) + "\n" + " 请你根据用户搜索意图问题来进行提取总结", aiEndPoint, aiModelName, aiModelKey, new ChatClientAgentOptions
             {
                 Name = " 你是一款专业的搜索引擎助手，专门负责将HTML内容转换为结构化的Markdown格式。你的核心职责是精确提取HTML标签中的关键信息，并将其转换为清晰、规范的Markdown文档，同时保持内容的完整性和准确性。",
 

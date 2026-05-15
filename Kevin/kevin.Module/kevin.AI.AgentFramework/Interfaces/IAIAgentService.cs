@@ -21,7 +21,7 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="loggerFactory"></param>
         /// <param name="services"></param>
         /// <returns></returns> 
-        Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, bool isStreame = false, Action<string> streameCallback = default);
+        Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(IServiceProvider? _serviceProvider, string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, bool isStreame = false, Action<string> streameCallback = default);
         /// <summary>
         /// 智能体转换为McpServerTool
         /// </summary>
