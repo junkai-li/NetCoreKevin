@@ -7,7 +7,7 @@ namespace App.WebApi.Controllers.v1
     /// 版本控制器
     /// </summary> 
     [ApiVersion("1.0")]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [SkipAuthority]
     public class VersionController : ApiControllerBase
     {
@@ -15,7 +15,7 @@ namespace App.WebApi.Controllers.v1
         /// 我是版本
         /// </summary> 
         /// <returns></returns>
-        [HttpGet("GetVersion")]
+        [HttpGet]
         public string GetVersion()
         {
             return "我是版本1";
