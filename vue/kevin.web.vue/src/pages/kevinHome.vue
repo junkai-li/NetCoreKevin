@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <a-layout class="layout-container" :class="currentTheme">
     <!-- 左侧导航栏 -->
     <a-layout-sider
@@ -38,6 +38,7 @@
             <template #title>我的</template>
             <a-menu-item key="my-message">我的消息</a-menu-item>
             <a-menu-item key="my-ai-chat">我的AI对话</a-menu-item>
+            <a-menu-item key="my-ai-tasks">我的AI自动任务</a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="aimanagement">
             <template #icon>
@@ -279,6 +280,7 @@ const currentRouteTitle = computed(() => {
     "ai-modelmg": "模型配置管理",
     "my-message": "我的消息",
     "my-ai-chat": "我的AI对话",
+    "my-ai-tasks": "我的AI自动任务",
     "organizational-position": "岗位管理",
     "organizational-department": "部门管理",
     "system-tenant": "租户管理",
@@ -319,6 +321,9 @@ const handleMenuClick = ({ key }) => {
       break;
     case "my-ai-chat":
       router.push("/home/my/ai-chat");
+      break;
+    case "my-ai-tasks":
+      router.push("/home/my/ai-tasks");
       break;
     case "log-management":
       router.push("/home/system/log");

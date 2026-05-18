@@ -126,7 +126,7 @@ namespace kevin.Application.Services.AI
                 {
                     var next = r.NextExecution?.ToLocalTime().ToString("u") ?? "null";
                     var last = r.LastExecution?.ToLocalTime().ToString("u") ?? "null";
-                    return $"name:{r.Id} | Cron:{r.Cron} | Next:{next} | Last:{last} | TimeZone:{r.TimeZoneId}";
+                    return $"name:{r.Id.Replace(CurrentUser.UserId.ToString(), "")} | Cron:{r.Cron} | Next:{next} | Last:{last} | TimeZone:{r.TimeZoneId}";
                 }).ToList();
                 return Task.FromResult(result);
             }

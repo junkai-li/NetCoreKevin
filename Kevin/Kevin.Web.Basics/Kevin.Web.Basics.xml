@@ -184,6 +184,29 @@
             岗位管理
             </summary>
         </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.AITasksController">
+            <summary>
+            AI自动任务管理
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.AITasksController.GetTaskList">
+            <summary>
+            获取我的AI任务列表
+            </summary> 
+            <returns></returns>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.AITasksController.RemoveCronTask(System.String)">
+            <summary>
+            删除我的AI任务
+            </summary> 
+            <returns></returns>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.AITasksController.TriggerCronTask(System.String)">
+             <summary>
+            执行我的AI任务
+             </summary> 
+             <returns></returns>
+        </member>
         <member name="T:Kevin.Web.Basics.Controllers.AuthorizeController">
             <summary>
             系统访问授权模块

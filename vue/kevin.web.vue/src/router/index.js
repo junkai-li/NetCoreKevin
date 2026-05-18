@@ -23,6 +23,7 @@ import AiPromptsMg from '@/pages/ai/PromptManagement.vue';
 import AiKmssMg from '@/pages/ai/KnowledgeBaseManagement.vue'; // 添加知识库管理页面组件
 import AiModelMg from '@/pages/ai/ModelManagement.vue';
 import MyAIChat from '@/pages/ai/MyAIChat.vue'; // 添加AI对话界面组件
+import MyAITasks from '@/pages/ai/MyAITasks.vue'; // 添加AI自动任务页面组件
 //组织架构相关页面
 import PositionManagement from '@/pages/organizational/PositionManagement.vue';
 import DepartmentManagement from '@/pages/organizational/DepartmentManagement.vue';
@@ -109,6 +110,11 @@ const routes = [
         path: 'my/ai-chat',
         name: 'MyAIChat',
         component: MyAIChat
+      },
+      {
+        path: 'my/ai-tasks',
+        name: 'MyAITasks',
+        component: MyAITasks
       },
       {
         path: 'underdevelopment',
