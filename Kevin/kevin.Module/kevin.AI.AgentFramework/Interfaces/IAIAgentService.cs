@@ -16,10 +16,11 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="keySecret"></param>
         /// <param name="chatClientAgentOptions"></param>
         /// <param name="data">传递自定义数据</param>
+        /// <param name="isOpenTask">是否开启任务</param>
         /// <param name="isStreame"></param>
         /// <param name="streameCallback"></param>
         /// <returns></returns>
-        Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(IServiceProvider? _serviceProvider, string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, object data = default, bool isStreame = false, Action<string> streameCallback = default);
+        Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(IServiceProvider? _serviceProvider, string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, object data = default, bool isOpenTaskTool = true, bool isStreame = false, Action<string> streameCallback = default);
         /// <summary>
         /// 智能体转换为McpServerTool
         /// </summary>

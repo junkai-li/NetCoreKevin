@@ -16,7 +16,7 @@ namespace kevin.AI.AgentFramework.Tools
         /// 获取kevin框架AI框架内置的所有工具列表，包含工具名称、描述、输入参数等信息，供智能体调用使用
         /// </summary>
         /// <returns></returns>
-        public async Task<List<AITool>> GetKevinAIAllTools(IServiceProvider serviceProvider, object data)
+        public async Task<List<AITool>> GetKevinAIAllTools(IServiceProvider serviceProvider, object data,bool isOpenTaskTool = true)
         {
             var tools = new List<AITool>() {
                     AIFunctionFactory.Create(AgentHttpClientTools.GetAsync,new AIFunctionFactoryOptions{ Name = "GetAsync",Description = "通用 HTTP 工具 发送 GET 请求" }),
@@ -38,27 +38,30 @@ namespace kevin.AI.AgentFramework.Tools
                    new AIFunctionFactoryOptions { Name = "GetNetCoreKevinInfo", Description = "获取NetCoreKevin框架的介绍信息" }
                ));
             }
-            var iKevinAITasksService = serviceProvider.GetService<IKevinAITaskService>();
-            if (iKevinAITasksService != default)
+            if (isOpenTaskTool)
             {
-                iKevinAITasksService.InitData(data);
-                tools.Add(
-                   AIFunctionFactory.Create(iKevinAITasksService.AddOrUpdateCronTask,
-                   new AIFunctionFactoryOptions { Name = "AddOrUpdateCronTask", Description = "创建或更新一个周期性自动任务" }
-               ));
-                tools.Add(
-                 AIFunctionFactory.Create(iKevinAITasksService.RemoveCronTask,
-                 new AIFunctionFactoryOptions { Name = "RemoveCronTask", Description = "移除周期性任务" }
-             ));
-                tools.Add(
-                 AIFunctionFactory.Create(iKevinAITasksService.TriggerCronTask,
-                 new AIFunctionFactoryOptions { Name = "TriggerCronTask", Description = "立即触发某个周期性任务一次" }
-             ));
-                tools.Add(
-                 AIFunctionFactory.Create(iKevinAITasksService.GetTaskList,
-                 new AIFunctionFactoryOptions { Name = "GetTaskList", Description = "获取我的所有周期性任务列表" }
-             ));
-            }
+                var iKevinAITasksService = serviceProvider.GetService<IKevinAITaskService>();
+                if (iKevinAITasksService != default)
+                {
+                    iKevinAITasksService.InitData(data);
+                    tools.Add(
+                       AIFunctionFactory.Create(iKevinAITasksService.AddOrUpdateCronTask,
+                       new AIFunctionFactoryOptions { Name = "AddOrUpdateCronTask", Description = "创建或更新一个周期性自动任务" }
+                   ));
+                    tools.Add(
+                     AIFunctionFactory.Create(iKevinAITasksService.RemoveCronTask,
+                     new AIFunctionFactoryOptions { Name = "RemoveCronTask", Description = "移除周期性任务" }
+                 ));
+                    tools.Add(
+                     AIFunctionFactory.Create(iKevinAITasksService.TriggerCronTask,
+                     new AIFunctionFactoryOptions { Name = "TriggerCronTask", Description = "立即触发某个周期性任务一次" }
+                 ));
+                    tools.Add(
+                     AIFunctionFactory.Create(iKevinAITasksService.GetTaskList,
+                     new AIFunctionFactoryOptions { Name = "GetTaskList", Description = "获取我的所有周期性任务列表" }
+                 ));
+                }
+            } 
             return tools;
         }
     }

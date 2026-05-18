@@ -6,6 +6,8 @@ using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
+using kevin.RepositorieRps.Repositories.AI;
+using Kevin.Common.Extension;
 using Kevin.RAG.Interfaces;
 using Kevin.RAG.Ollama;
 using Kevin.SignalR.Service;
@@ -169,7 +171,7 @@ namespace kevin.Application.Services.AI
                     }, isStreame: aiapp.MsgType == 2, streameCallback: async (msg) =>
                     {
                         await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
-                    }, data: par)).Item2;
+                    }, data: new { AIChatsId = add.AIChatsId })).Item2;
                     break;
             }
             aIChatHistorysRp.Add(addAi);

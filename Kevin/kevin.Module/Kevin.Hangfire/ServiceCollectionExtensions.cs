@@ -75,7 +75,11 @@ namespace Kevin.Hangfire
                     throw new ArgumentException("Hangfire已通过其他方式注入");
                 }
                 //注册 HangFire(Redis)
-                services.AddHangfire(options => options.UseMemoryStorage());
+                services.AddHangfire(configuration => configuration
+                        .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                        .UseSimpleAssemblyNameTypeSerializer()
+                        .UseRecommendedSerializerSettings()
+                        .UseMemoryStorage()); // 使用内存存储
 
                 // 注册 HangFire 服务
                 services.AddHangfireServer(options => options.SchedulePollingInterval = TimeSpan.FromSeconds(15));

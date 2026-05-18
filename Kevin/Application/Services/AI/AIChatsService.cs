@@ -92,35 +92,35 @@ namespace kevin.Application.Services.AI
             addHist.TenantId = CurrentUser.TenantId;
             addHist.IsSend = false;
             addHist.AIChatsId = add.Id;
-            addHist.Content = "请使用load_skill、read_skill_resource来获取技能指令和资源内容 加载技能然后,开始你的简单自我介绍";
+            addHist.Content = "你好,请开始你的对话...";
             aIChatHistorysRp.Add(addHist);
-            string systemPrompt = SystemPrompt.SystemPromptText;
+            //string systemPrompt = SystemPrompt.SystemPromptText;
             await aIChatHistorysRp.SaveChangesAsync();
-            switch (aIModels.AIType)
-            {
-                case Domain.Share.Enums.AIType.OpenAI:
-                case Domain.Share.Enums.AIType.ZhiPuAI:
-                case Domain.Share.Enums.AIType.AzureOpenAI:
-                default:
-                    addHist.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(_serviceProvider,"请使用load_skill、read_skill_resource来获取技能指令和资源内容 加载技能然后,开始你的简单自我介绍", aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
-                    {
-                        Name = aiapp.Name,
-                        Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
-                        ChatOptions = new Microsoft.Extensions.AI.ChatOptions
-                        {
-                            MaxOutputTokens = aiapp.MaxAskPromptSize,
-                            Temperature = (float)(aiapp.Temperature / 100),
-                            ResponseFormat = ChatResponseFormat.Text,
-                            Instructions = aIPrompts.Prompt + systemPrompt,
-                        },
-                        ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, add.Id.ToString())
-                    }, isStreame: aiapp.MsgType == 2, streameCallback: async (msg) =>
-                    {
-                        await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
-                    }, data: par)).Item2;
-                    //addHist.Content = aIClient.SendMsg("请开始你的自我介绍", aIModels.EndPoint, aIModels.ModelKey, aIModels.ModelName, aIPrompts.Prompt + (aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答")).choices.FirstOrDefault().message.content;
-                    break;
-            }
+            //switch (aIModels.AIType)
+            //{
+            //    case Domain.Share.Enums.AIType.OpenAI:
+            //    case Domain.Share.Enums.AIType.ZhiPuAI:
+            //    case Domain.Share.Enums.AIType.AzureOpenAI:
+            //    default:
+            //        addHist.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(_serviceProvider,"请使用load_skill、read_skill_resource来获取技能指令和资源内容 加载技能然后,开始你的简单自我介绍", aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
+            //        {
+            //            Name = aiapp.Name,
+            //            Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
+            //            ChatOptions = new Microsoft.Extensions.AI.ChatOptions
+            //            {
+            //                MaxOutputTokens = aiapp.MaxAskPromptSize,
+            //                Temperature = (float)(aiapp.Temperature / 100),
+            //                ResponseFormat = ChatResponseFormat.Text,
+            //                Instructions = aIPrompts.Prompt + systemPrompt,
+            //            },
+            //            ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, add.Id.ToString())
+            //        }, isStreame: aiapp.MsgType == 2, streameCallback: async (msg) =>
+            //        {
+            //            await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
+            //        }, data: par)).Item2;
+            //        //addHist.Content = aIClient.SendMsg("请开始你的自我介绍", aIModels.EndPoint, aIModels.ModelKey, aIModels.ModelName, aIPrompts.Prompt + (aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答")).choices.FirstOrDefault().message.content;
+            //        break;
+            //}
             return addHist.MapTo<AIChatHistorysDto>();
         }
 

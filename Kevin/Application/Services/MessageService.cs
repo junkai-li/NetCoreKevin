@@ -71,7 +71,7 @@ namespace kevin.Application.Services
             }
 
             dataPage.total = await data.CountAsync();
-            var dbdata = await data.Skip(skip).Take(par.pageSize).OrderByDescending(x => x.CreateTime).Include(t => t.CreateUser).ToListAsync();
+            var dbdata = await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(par.pageSize).Include(t => t.CreateUser).ToListAsync();
             dataPage.data = dbdata.MapToList<TMessage, MessageDto>();
             var ids = dataPage.data.Select(m => m.Id).ToList();
             if (dataPage.total > 0)

@@ -7,7 +7,6 @@ using kevin.AI.AgentFramework.Tools;
 using Kevin.AI.Dto;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ModelContextProtocol.Server;
@@ -15,9 +14,6 @@ using OpenAI;
 using OpenAI.Responses;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.ComponentModel;
-using System.Reflection;
-using kevin.AI.AgentFramework.Interfaces;
 namespace kevin.AI.AgentFramework
 {
     /// <summary>
@@ -68,7 +64,7 @@ namespace kevin.AI.AgentFramework
         /// <param name="isStreame"></param>
         /// <param name="streameCallback"></param>
         /// <returns></returns>
-        public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(IServiceProvider _serviceProvider, string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, object data = default, bool isStreame = false, Action<string> streameCallback = default)
+        public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(IServiceProvider _serviceProvider, string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, object data = default, bool isOpenTaskTool = true, bool isStreame = false, Action<string> streameCallback = default)
         {
             if (aISetting.IsHttpLog)
             {
@@ -92,7 +88,7 @@ namespace kevin.AI.AgentFramework
                 if (chatClientAgentOptions.ChatOptions != default)
                 {
                     chatClientAgentOptions.ChatOptions.Tools ??= new List<AITool>();
-                    var tools = await new KevinAIAllTools().GetKevinAIAllTools(_serviceProvider, data);
+                    var tools = await new KevinAIAllTools().GetKevinAIAllTools(_serviceProvider, data, isOpenTaskTool);
                     // 🔑 能力层：工具
                     foreach (var item in tools)
                     {

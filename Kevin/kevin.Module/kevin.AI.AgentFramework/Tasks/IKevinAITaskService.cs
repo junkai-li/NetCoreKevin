@@ -54,7 +54,7 @@ namespace kevin.AI.AgentFramework.Tasks
         /// <param name="taskName">任务名称</param>
         /// <param name="taskContent">任务内容</param>
         /// <returns></returns>
-        public Task<string> RunTask(string userId, string taskName, string taskContent, object data);
+        public Task<string> RunTask(string userId, string taskName, string taskContent, object taskdata);
     }
 
 }

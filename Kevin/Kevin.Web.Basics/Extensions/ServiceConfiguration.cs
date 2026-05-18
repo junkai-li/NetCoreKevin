@@ -258,16 +258,17 @@ namespace Web.Extension
             #endregion
 
             #region Hangfire服务注入 
-            services.AddKevinHangfireRedis(options =>
-            {
-                var newoptions = Configuration.GetRequiredSection("HangfireRedisSetting").Get<HangfireRedisSetting>();
-                if (newoptions != default)
-                {
-                    options.Db = newoptions.Db;
-                    options.RedisConnectionString = newoptions.RedisConnectionString;
-                    options.Prefix = newoptions.Prefix;
-                }
-            });
+            //services.AddKevinHangfireRedis(options =>
+            //{
+            //    var newoptions = Configuration.GetRequiredSection("HangfireRedisSetting").Get<HangfireRedisSetting>();
+            //    if (newoptions != default)
+            //    {
+            //        options.Db = newoptions.Db;
+            //        options.RedisConnectionString = newoptions.RedisConnectionString;
+            //        options.Prefix = newoptions.Prefix;
+            //    }
+            //});
+            services.AddKevinHangfireMemoryStorage();
             #endregion
 
             return services;
