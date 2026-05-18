@@ -206,7 +206,7 @@ const fetchPrivateSystemData = async () => {
   try {
     privateSystemLoading.value = true
     const params = {
-      page: privateSystemPagination.current,
+      pageNum: privateSystemPagination.current,
       pageSize: privateSystemPagination.pageSize,
       searchKey:searchKey.value,
       parameter: {
@@ -236,7 +236,7 @@ const fetchPrivateUserData = async () => {
   try {
     privateUserLoading.value = true
     const params = {
-      page: privateUserPagination.current,
+      pageNum: privateUserPagination.current,
       pageSize: privateUserPagination.pageSize,
       parameter: {
         searchKey: searchKey.value
@@ -260,13 +260,13 @@ const fetchPrivateUserData = async () => {
   }
 }
 
-// 获取AI私信数据
+// 获取AI消息数据
 const fetchAIUserData = async () => {
   try {
-    privateUserLoading.value = true
+    aiUserLoading.value = true
     const params = {
-      page: privateUserPagination.current,
-      pageSize: privateUserPagination.pageSize,
+      pageNum: aiUserPagination.current,
+      pageSize: aiUserPagination.pageSize,
       parameter: {
         searchKey: searchKey.value
       }
@@ -275,9 +275,7 @@ const fetchAIUserData = async () => {
     const response = await getAIUserPageData(params)
     if (response.code === 200) {
       aiUserData.value = response.data.data
-      aiUserPagination.total = response.data.total
-      aiUserPagination.current = response.data.pageNum
-      aiUserPagination.pageSize = response.data.pageSize
+      aiUserPagination.total = response.data.total 
     } else {
       message.error(response.data.msg || '获取AI消息数据失败')
     }
@@ -294,7 +292,7 @@ const fetchAnnouncementData = async () => {
   try {
     announcementLoading.value = true
     const params = {
-      page: announcementPagination.current,
+      pageNum: announcementPagination.current,
       pageSize: announcementPagination.pageSize,
       parameter: {
         searchKey: searchKey.value
@@ -323,7 +321,7 @@ const fetchSystemData = async () => {
   try {
     systemLoading.value = true
     const params = {
-      page: systemPagination.current,
+      pageNum: systemPagination.current,
       pageSize: systemPagination.pageSize,
       parameter: {
         searchKey: searchKey.value
@@ -404,6 +402,13 @@ const handleSystemTableChange = (pager) => {
   systemPagination.current = pager.current
   systemPagination.pageSize = pager.pageSize
   fetchSystemData()
+}
+
+// 处理AI消息表格分页变化
+const handleAIUserTableChange = (pager) => {
+  aiUserPagination.current = pager.current
+  aiUserPagination.pageSize = pager.pageSize
+  fetchAIUserData()
 }
 
 // 显示详情
