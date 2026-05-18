@@ -38,6 +38,18 @@ namespace kevin.AI.AgentFramework.Tools
                    new AIFunctionFactoryOptions { Name = "GetNetCoreKevinInfo", Description = "获取NetCoreKevin框架的介绍信息" }
                ));
             }
+            var aiToolUserInfoServer = serviceProvider.GetService<IAIToolUserInfoServer>();
+            if (aiToolUserInfoServer != default)
+            {
+                tools.Add(
+                   AIFunctionFactory.Create(() => aiToolUserInfoServer.GetUserInfo(),
+                   new AIFunctionFactoryOptions { Name = "GetUserInfo", Description = "获取当前登录用户信息，获取当前用户信息" }
+               ));
+                tools.Add(
+             AIFunctionFactory.Create(() => aiToolUserInfoServer.GetUserIdAsync(),
+             new AIFunctionFactoryOptions { Name = "GetUserIdAsync", Description = "获取当前登录用户Id" }
+         ));
+            }
             if (isOpenTaskTool)
             {
                 var iKevinAITasksService = serviceProvider.GetService<IKevinAITaskService>();

@@ -20,9 +20,14 @@ namespace kevin.AI.AgentFramework.SkillClass
 
         [AgentSkillScript("GetWeather")]
         [Description("获取查询地点的天气信息。")]
-        public static string GetWeather([Required][Description("需要查询天气信息的地点。")] string location)
+        public static string GetWeather([Required][Description("需要查询天气信息的地点。")] string location, [Required][Description("需要传入当前用户Id")] string UserId)
         {
-            Console.WriteLine($"获取天气信息：{location}");
+
+            if (string.IsNullOrEmpty(UserId))
+            {
+                throw new ArgumentNullException("UserId", "用户Id不能为空");
+            }
+            Console.WriteLine($"{UserId}：获取天气信息：{location}");
             return $"当前天气信息：{location} 气温 21°C、湿度 60%、风速 3 m/s";
         }
     }
