@@ -117,7 +117,7 @@ namespace kevin.Application.Services.AI
                     }, isStreame: aiapp.MsgType == 2, streameCallback: async (msg) =>
                     {
                         await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
-                    })).Item2;
+                    }, data: par)).Item2;
                     //addHist.Content = aIClient.SendMsg("请开始你的自我介绍", aIModels.EndPoint, aIModels.ModelKey, aIModels.ModelName, aIPrompts.Prompt + (aIPrompts.Description ?? "你是一个智能体,请根据你的提示词进行相关回答")).choices.FirstOrDefault().message.content;
                     break;
             }

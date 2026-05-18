@@ -9,12 +9,15 @@ namespace kevin.Application.Services
 
         public IMessageReadRp messageReadRp { get; set; }
 
+        public IUserRp userRp { get; set; }
+
         public IFileService fileService { get; set; }
-        public MessageService(IHttpContextAccessor _httpContextAccessor, IMessageRp _messageRp, IMessageReadRp messageReadRp, IFileService fileService) : base(_httpContextAccessor)
+        public MessageService(IHttpContextAccessor _httpContextAccessor, IMessageRp _messageRp, IMessageReadRp messageReadRp, IFileService fileService, IUserRp _userRp) : base(_httpContextAccessor)
         {
             messageRp = _messageRp;
             this.messageReadRp = messageReadRp;
             this.fileService = fileService;
+            userRp = _userRp;
         }
         /// <summary>
         /// 获取我的未读消息数量
@@ -146,6 +149,19 @@ namespace kevin.Application.Services
             }
             await messageRp.SaveChangesAsync();
 
+            return true;
+        }
+
+        public async Task<bool> AddAIMessage(MessageDto message)
+        {
+            var add = message.MapTo<TMessage>();
+            add.Id = message.Id == default ? SnowflakeIdService.GetNextId() : message.Id;
+            add.IsDelete = false;
+            add.CreateTime = DateTime.Now;
+            add.CreateUserId = message.SendUserId.ToTryInt64();
+            add.TenantId = userRp.FirstOrDefault(u=>u.Id== message.SendUserId.ToTryInt64()).TenantId;
+            messageRp.Add(add);
+            await messageRp.SaveChangesAsync(); 
             return true;
         }
 

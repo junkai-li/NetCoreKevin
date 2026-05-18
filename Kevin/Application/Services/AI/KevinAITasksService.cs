@@ -2,6 +2,8 @@
 using Hangfire;
 using Hangfire.Storage;
 using kevin.AI.AgentFramework.Tasks;
+using kevin.Domain.Share.Enums;
+using Kevin.Common.Extension;
 using System.ComponentModel;
 
 namespace kevin.Application.Services.AI
@@ -10,16 +12,27 @@ namespace kevin.Application.Services.AI
     {
         private readonly IRecurringJobManager _recurringJobManager;
         private readonly JobStorage _jobStorage;
-        public KevinAITasksService(IHttpContextAccessor _httpContextAccessor, IRecurringJobManager recurringJobManager, JobStorage jobStorage) : base(_httpContextAccessor)
+
+        private readonly IMessageService _messageService;
+
+        private object _data; // 用于存储初始化数据
+
+        public void InitData(object data)
+        {
+            _data = data;
+        }
+
+        public KevinAITasksService(IHttpContextAccessor _httpContextAccessor, IRecurringJobManager recurringJobManager, JobStorage jobStorage, IMessageService messageService) : base(_httpContextAccessor)
         {
             _recurringJobManager = recurringJobManager;
             _jobStorage = jobStorage; // 可通过 DI 注入；若为 null，会回退到 JobStorage.Current
+            _messageService = messageService;
         }
-        public Task<string> AddOrUpdateCronTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")] string name, [Description("content：可传入具体的任务内容，不可为空 比如：自动搜索并总结AI领域的热门资讯，包括技术突破、产品发布、行业动态等")] string content, [Description("cron表达式：用于定义任务的执行周期，不可为空 比如用户需要每六分钟执行一次则传入：0 0/6 0/1 * * ?  ")] string cronExpression)
+        public Task<string> AddOrUpdateCronTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")] string name, [Description("content：可传入具体的任务内容，不可为空 比如：第一步：搜索并总结AI领域的热门资讯，包括技术突破、产品发布、行业动态等，第二步：生成总结报告为MkD格式")] string content, [Description("cron表达式：用于定义任务的执行周期，不可为空 比如用户需要每六分钟执行一次则传入：0 0/6 0/1 * * ?  ")] string cronExpression)
         {
             _recurringJobManager.AddOrUpdate<IKevinAITaskService>(
                recurringJobId: CurrentUser.UserId + name,      // 唯一的 ID，用于后续修改或删除
-               (s) => s.RunTask(name, content),    // 要执行的任务
+               (s) => s.RunTask(CurrentUser.UserId.ToString(), name, content, _data),    // 要执行的任务
                cronExpression, new RecurringJobOptions
                {
                    TimeZone = TimeZoneInfo.Local,        // 指定时区（默认UTC） 
@@ -70,14 +83,21 @@ namespace kevin.Application.Services.AI
         /// <param name="taskName">任务名称</param>
         /// <param name="taskContent">任务内容</param>
         /// <returns></returns>
-        public Task<string> RunTask(string taskName, string taskContent)
+        public Task<string> RunTask(string userId, string taskName, string taskContent, object data)
         {
             //这里可以根据任务名称和内容执行具体的业务逻辑，比如调用AI接口、处理数据等。当前示例仅打印日志并返回结果。 自行处理
-            if (CurrentUser != default)
+            Console.WriteLine(userId + "：执行任务" + taskName + taskContent+ data);
+            _messageService.AddAIMessage(new Domain.Share.Dtos.Msg.MessageDto
             {
-                Console.WriteLine(CurrentUser.UserId + "：执行任务" + taskName + taskContent);
-            } 
-            return Task.FromResult($"执行任务：{taskName}，内容：{taskContent}");
+                SendUserId = userId,
+                Title = "AI:RunTask：执行任务" + taskName,
+                MessageContent = "AI:RunTask：执行任务" + taskName + taskContent+ data.ToJson(),
+                SysMsgType= MessageType.AI, 
+                RecipientUserId= userId
+            });
+            return Task.FromResult($"执行任务：{taskName}，内容：{taskContent} 返回结果：成功 执行结果：成功");
         }
+
+
     }
 }

@@ -26,6 +26,13 @@ namespace kevin.Domain.Interfaces.IServices
         Task<bool> AddEdit(MessageDto message);
 
         /// <summary>
+        /// AI发送消息
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        Task<bool> AddAIMessage(MessageDto message);
+
+        /// <summary>
         /// 删除标记
         /// </summary> 
         /// <returns></returns>  

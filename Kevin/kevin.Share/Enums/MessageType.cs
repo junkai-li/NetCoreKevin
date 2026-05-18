@@ -14,6 +14,8 @@ namespace kevin.Domain.Share.Enums
         [Description("私人系统消息")]
         PrivateUserSystem = 4,
         [Description("所有消息")]//只用于筛选
-        All = 5
+        All = 5,
+        [Description("AI消息")]//只用于筛选
+        AI = 6
     }
 }

@@ -31,3 +31,7 @@ export const getPrivateUserPageData = (params) => {
 export const getAnnouncementPageData = (params) => {
   return http.post('/api/Message/GetAnnouncementPageData', params);
 };
+
+export const getAIUserPageData = (params) => {
+  return http.post('/api/Message/GetAIUserPageData', params);
+};

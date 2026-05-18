@@ -64,10 +64,11 @@ namespace kevin.AI.AgentFramework
         /// <param name="model"></param>
         /// <param name="keySecret"></param>
         /// <param name="chatClientAgentOptions"></param>
+        /// <param name="data">传递自定义数据</param>
         /// <param name="isStreame"></param>
         /// <param name="streameCallback"></param>
         /// <returns></returns>
-        public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(IServiceProvider _serviceProvider, string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, bool isStreame = false, Action<string> streameCallback = default)
+        public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(IServiceProvider _serviceProvider, string msg, string url, string model, string keySecret, ChatClientAgentOptions chatClientAgentOptions, object data = default, bool isStreame = false, Action<string> streameCallback = default)
         {
             if (aISetting.IsHttpLog)
             {
@@ -89,9 +90,9 @@ namespace kevin.AI.AgentFramework
             if (aISetting.IsAITools)
             {
                 if (chatClientAgentOptions.ChatOptions != default)
-                { 
+                {
                     chatClientAgentOptions.ChatOptions.Tools ??= new List<AITool>();
-                    var tools = await new KevinAIAllTools().GetKevinAIAllTools(_serviceProvider); 
+                    var tools = await new KevinAIAllTools().GetKevinAIAllTools(_serviceProvider, data);
                     // 🔑 能力层：工具
                     foreach (var item in tools)
                     {

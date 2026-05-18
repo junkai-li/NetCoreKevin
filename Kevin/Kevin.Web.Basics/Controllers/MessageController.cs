@@ -53,6 +53,18 @@ namespace Kevin.Web.Basics.Controllers
             return result;
         }
 
+        [HttpPost("GetAIUserPageData")]
+        [ActionDescription("获取我的AI消息数据")]
+        [HttpLog("消息管理", "获取我的AI消息数据")]
+        public async Task<dtoPageData<MessageDto>> GetAIUserPageData([FromBody] dtoPagePar<MsgGetPageDataParDto> dtoPage)
+        {
+            dtoPage.Parameter = dtoPage.Parameter == default ? new MsgGetPageDataParDto() : dtoPage.Parameter;
+            dtoPage.Parameter.SysMsgType = MessageType.AI;
+            dtoPage.Parameter.UserId = CurrentUser.UserId.ToString();
+            var result = await _messageService.GetPageData(dtoPage);
+            return result;
+        }
+
         [HttpPost("GetPrivateUserSystemPageData")]
         [ActionDescription("获取我的系统私信消息")]
         [HttpLog("消息管理", "获取我的系统私信消息")]

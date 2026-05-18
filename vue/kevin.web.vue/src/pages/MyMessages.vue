@@ -77,6 +77,18 @@
               />
             </div>
           </a-tab-pane>
+            <a-tab-pane key="6" tab="AI消息">
+            <div class="tab-content">
+              <message-table 
+                message-type="ai-user"
+                :data-source="aiUserData" 
+                :loading="aiUserLoading"
+                :pagination="aiUserPagination"
+                @change="handleAIUserTableChange"
+                @show-detail="showDetail"
+              />
+            </div>
+          </a-tab-pane>
         </a-tabs>
       </div>
     </a-card>
@@ -117,7 +129,8 @@ import {
   getPrivateUserPageData,
   getAnnouncementPageData,
   getSystemPageData,
-  readMessage
+  readMessage,
+  getAIUserPageData
 } from '@/api/message.js'
 import { MailOutlined } from '@ant-design/icons-vue'
 import MessageTable from '@/components/MessageTable.vue'
@@ -168,6 +181,18 @@ const announcementPagination = reactive({
 const systemData = ref([])
 const systemLoading = ref(false)
 const systemPagination = reactive({
+  current: 1,
+  pageSize: 10,
+  total: 0,
+  showSizeChanger: true,
+  showQuickJumper: true,
+  showTotal: (total) => `共 ${total} 条记录`
+})
+
+// AI消息相关
+const aiUserData = ref([])
+const aiUserLoading = ref(false)
+const aiUserPagination = reactive({
   current: 1,
   pageSize: 10,
   total: 0,
@@ -232,6 +257,35 @@ const fetchPrivateUserData = async () => {
     message.error('获取私人私信数据失败: ' + (error.message || '未知错误'))
   } finally {
     privateUserLoading.value = false
+  }
+}
+
+// 获取AI私信数据
+const fetchAIUserData = async () => {
+  try {
+    privateUserLoading.value = true
+    const params = {
+      page: privateUserPagination.current,
+      pageSize: privateUserPagination.pageSize,
+      parameter: {
+        searchKey: searchKey.value
+      }
+    }
+    
+    const response = await getAIUserPageData(params)
+    if (response.code === 200) {
+      aiUserData.value = response.data.data
+      aiUserPagination.total = response.data.total
+      aiUserPagination.current = response.data.pageNum
+      aiUserPagination.pageSize = response.data.pageSize
+    } else {
+      message.error(response.data.msg || '获取AI消息数据失败')
+    }
+  } catch (error) {
+    console.error('获取AI消息数据失败:', error)
+    message.error('获取AI消息数据失败: ' + (error.message || '未知错误')) 
+  } finally {
+    aiUserLoading.value = false
   }
 }
 
@@ -316,6 +370,11 @@ const handleTabChange = (key) => {
         fetchSystemData()
       }
       break
+       case '6':
+      if (!aiUserData.value || aiUserData.value.length === 0) {
+        fetchAIUserData()
+      }
+      break
   }
 }
 
@@ -397,6 +456,14 @@ const onSearch = (value) => {
         fetchSystemData();
       } else {
         fetchSystemData();
+      }
+      break;
+    case '6':
+      aiUserPagination.current = 1;
+      if (!aiUserData.value || aiUserData.value.length === 0) {
+        fetchAIUserData();
+      } else {
+        fetchAIUserData();
       }
       break;
   }
