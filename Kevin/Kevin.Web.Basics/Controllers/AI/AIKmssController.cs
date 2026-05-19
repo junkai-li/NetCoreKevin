@@ -33,7 +33,7 @@ namespace Kevin.Web.Basics.AI
         /// <param name="par"></param>
         /// <returns></returns>
         [HttpPost("GetMyPageData")]
-        [ActionDescription("获取AI知识库列表")]
+        [ActionDescription("获取AI知识库分页列表")]
         [HttpLog("AI知识库管理", "获取AI知识库分页列表")]
         public async Task<dtoPageData<AIKmssDto>> GetPageData([FromBody] dtoPagePar<string> par)
         {
