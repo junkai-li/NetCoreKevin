@@ -15,7 +15,7 @@ namespace kevin.Permission.Permisson
         {
             get
             {
-                if (_allControllers == null)
+                if (_allControllers==default || _allControllers.Count == 0)
                 {
                     _allControllers = FrameworkServiceExtension.GetAllControllers(AllAssembly);
                 }
@@ -30,7 +30,7 @@ namespace kevin.Permission.Permisson
         {
             get
             {
-                if (_allAssembly == null)
+                if (_allAssembly == default || _allAssembly.Count == 0)
                 {
                     _allAssembly = Utils.GetAllAssembly();
                 }
@@ -48,7 +48,7 @@ namespace kevin.Permission.Permisson
         {
             get
             {
-                if (_allAccessUrls == null)
+                if (_allAccessUrls == default || _allAccessUrls.Count == 0)
                 {
                     _allAccessUrls = FrameworkServiceExtension.GetAllAccessUrls(AllControllers);
                 }
@@ -64,7 +64,7 @@ namespace kevin.Permission.Permisson
         {
             get
             {
-                if (_allModules == null)
+                if (_allModules == default || _allModules.Count == 0)
                 {
                     _allModules = FrameworkServiceExtension.GetAllModules(AllControllers);
                 }
@@ -79,7 +79,7 @@ namespace kevin.Permission.Permisson
         {
             get
             {
-                if (_allModule == null)
+                if (_allModule == default || _allModule.Count == 0)
                 {
                     _allModule = FrameworkServiceExtension.GetAllMenus(AllModule);
                 }
