@@ -5,11 +5,16 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
+# 强制将监听端口设置为 8080
+ENV ASPNETCORE_URLS=http://+:8080
 
 
 # 此阶段用于生成服务项目
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
+# 添加下面两行 ↓
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 WORKDIR /src
 COPY ["App/WebApi/App.WebApi.csproj", "App/WebApi/"]
 COPY ["App/Application/App.Application.csproj", "App/Application/"]
@@ -47,9 +52,12 @@ COPY ["Kevin/kevin.Module/Kevin.SMS/Kevin.SMS.csproj", "Kevin/kevin.Module/Kevin
 COPY ["Kevin/kevin.Module/Kevin.Versioning.Swagger/Kevin.Api.Versioning.csproj", "Kevin/kevin.Module/Kevin.Versioning.Swagger/"]
 COPY ["Kevin/RepositorieRps/kevin.RepositorieRps.csproj", "Kevin/RepositorieRps/"]
 COPY ["App/RepositorieRps/App.RepositorieRps.csproj", "App/RepositorieRps/"]
-RUN dotnet restore "./App/WebApi/App.WebApi.csproj"
+RUN dotnet restore --disable-parallel "App/WebApi/App.WebApi.csproj"
 COPY . .
 WORKDIR "/src/App/WebApi"
+# 强制将监听端口设置为 8080
+ENV ASPNETCORE_URLS=http://+:8080
+
 RUN dotnet build "./App.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # 此阶段用于发布要复制到最终阶段的服务项目
@@ -60,5 +68,7 @@ RUN dotnet publish "./App.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish
 # 此阶段在生产中使用，或在常规模式下从 VS 运行时使用(在不使用调试配置时为默认值)
 FROM base AS final
 WORKDIR /app
+# 添加这一行：让应用监听所有网络接口的 8080 端口
+ENV ASPNETCORE_URLS=http://+:8080
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "App.WebApi.dll"]
