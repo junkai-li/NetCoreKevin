@@ -13,7 +13,7 @@ namespace kevin.Domain.Entities
         /// 主键标识ID
         /// </summary>
         [Description("主键标识ID")]
-        [MaxLength(255)]
+        [MaxLength(100)]
         public string Id { get; set; }
 
 
