@@ -125,7 +125,7 @@ namespace kevin.AI.AgentFramework
                                         })
                                         .UseSkill(skill)
                                         .UseSkill(skillGetWeather)
-                                        .UsePromptTemplate(UseSkillPromptTemplate.UseSkillPrompt)
+                                        //.UsePromptTemplate(UseSkillPromptTemplate.UseSkillPrompt)
                                         .UseOptions(options => options.DisableCaching = true)
                                         .Build();
 #pragma warning restore MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。 
