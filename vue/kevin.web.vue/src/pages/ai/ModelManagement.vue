@@ -71,6 +71,12 @@
                     <span class="info-value">{{ model.modelDescription }}</span>
                   </div>
                 </div>
+                <div class="model-info horizontal-layout" v-if="model.aiModelType === 2">
+                  <div class="info-item horizontal">
+                    <span class="info-label">矢量精度:</span>
+                    <span class="info-value">{{ model.embeddingValueSize }}</span>
+                  </div>
+                </div>
               </div>
             </a-card>
           </a-col>
@@ -131,6 +137,9 @@
         <a-form-item label="部署名" v-bind="validateInfos.modelDescription">
           <a-input v-model:value="modelForm.modelDescription" placeholder="请输入部署名" />
         </a-form-item>
+        <a-form-item v-if="modelForm.aiModelType === 2" label="矢量精度" v-bind="validateInfos.embeddingValueSize">
+          <a-input-number v-model:value="modelForm.embeddingValueSize" :min="1" :default-value="2048" placeholder="请输入矢量精度" style="width: 100%" />
+        </a-form-item>
       </a-form>
     </a-modal>
   </div>
@@ -183,7 +192,8 @@ const modelForm = reactive({
   endPoint: '',
   modelName: '',
   modelKey: '',
-  modelDescription: ''
+  modelDescription: '',
+  embeddingValueSize: 2048
 });
 
 // 表单验证规则
@@ -202,6 +212,9 @@ const modelRules = reactive({
   ], 
   modelDescription: [
     { required: true, message: '请输入部署名' }
+  ],
+  embeddingValueSize: [
+    { required: true, message: '请输入矢量精度' }
   ]
 });
 
@@ -269,7 +282,6 @@ const loadModelData = async () => {
 const showAddModelModal = () => {
   modelModalTitle.value = '添加模型配置';
   currentModel.value = null;
-  // 重置表单
   Object.assign(modelForm, {
     id: '',
     aiType: undefined,
@@ -277,7 +289,8 @@ const showAddModelModal = () => {
     endPoint: '',
     modelName: '',
     modelKey: '',
-    modelDescription: ''
+    modelDescription: '',
+    embeddingValueSize: 2048
   }); 
   modelModalVisible.value = true;
 };
@@ -286,14 +299,14 @@ const showAddModelModal = () => {
 const showEditModelModal = (record) => {
   modelModalTitle.value = '编辑模型配置';
   currentModel.value = record;
-  // 填充表单数据，确保数字类型正确转换
   modelForm.id = record.id || '';
   modelForm.aiType = record.aiType !== undefined ? record.aiType : undefined;
   modelForm.aiModelType = record.aiModelType !== undefined ? record.aiModelType : undefined;
   modelForm.endPoint = record.endPoint || '';
   modelForm.modelName = record.modelName || '';
   modelForm.modelKey = record.modelKey || '';
-  modelForm.modelDescription = record.modelDescription || ''; 
+  modelForm.modelDescription = record.modelDescription || '';
+  modelForm.embeddingValueSize = record.embeddingValueSize || 2048;
   modelModalVisible.value = true;
 };
 
@@ -339,14 +352,16 @@ const handleModelModalOk = () => {
         endPoint: modelForm.endPoint,
         modelName: modelForm.modelName,
         modelKey: modelForm.modelKey,
-        modelDescription: modelForm.modelDescription
+        modelDescription: modelForm.modelDescription,
+        embeddingValueSize: modelForm.embeddingValueSize
       }:{ 
         aiType: modelForm.aiType,
         aiModelType: modelForm.aiModelType,
         endPoint: modelForm.endPoint,
         modelName: modelForm.modelName,
         modelKey: modelForm.modelKey,
-        modelDescription: modelForm.modelDescription
+        modelDescription: modelForm.modelDescription,
+        embeddingValueSize: modelForm.embeddingValueSize
       });
       
       message.success(currentModel.value ? '模型信息更新成功' : '模型信息添加成功');
