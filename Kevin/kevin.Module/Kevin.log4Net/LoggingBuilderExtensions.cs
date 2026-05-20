@@ -9,7 +9,7 @@ namespace Kevin.log4Net
         public static void UseKevinLog4Net(this ILoggingBuilder log, string log4NetConfigFile = "")
         {
             // 默认相对路径（平台无关）
-            var relativeDefault = Path.Combine("Configs", "_", "log4.config");
+            var relativeDefault = Path.Combine("LogConfigs", $"log4.{EnvironmentConfigHelper.GetEnvironment()}.config");
 
             // 采用传入路径或默认路径
             var relativePath = string.IsNullOrWhiteSpace(log4NetConfigFile) ? relativeDefault : log4NetConfigFile;
@@ -28,6 +28,7 @@ namespace Kevin.log4Net
             {
                 // 在 Linux/容器中常见：config 未复制到输出目录或路径写法问题
                 logger.Warn($"log4net config file not found: {configPath}. Skipping AddLog4Net.");
+                Console.WriteLine($"log4net config file not found: {configPath}. Skipping AddLog4Net.");
                 return;
             }
 
