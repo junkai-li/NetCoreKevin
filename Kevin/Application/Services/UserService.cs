@@ -287,13 +287,18 @@ namespace kevin.Application
                 NickName = t.NickName,
                 Status = t.Status,
                 RecentLoginTime = t.RecentLoginTime,
-                HeadImgs = fileRp.Query(true, false).Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && f.TableId == t.Id.ToString()).OrderByDescending(x => x.CreateTime).Select(f => new dtoKeyValue
-                {
-                    Key = f.Id,
-                    Value = f.Url ?? ""
-                }).Take(1).ToList(),
                 CreateTime = t.CreateTime
             }).ToList();
+            var listflie = fileRp.Query(true, false).Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && dtoPage.data.Select(t => t.Id.ToString()).ToList().Contains(f.TableId)).OrderByDescending(x => x.CreateTime).Select(f => new FileDto
+            {
+                Id = f.Id,
+                TableId = f.TableId,
+                Url = f.Url ?? ""
+            }).ToList();
+            foreach (var item in dtoPage.data)
+            {
+                item.HeadImgs = listflie.Where(t => t.TableId == item.Id.ToString()).Select(t => new dtoKeyValue { Key = t.Id, Value = t.Url ?? "" }).Take(1).ToList();
+            }
             var roleData = userBindRoleRp.Query().Where(t => dtoPage.data.Select(d => d.Id).ToList().Contains(t.UserId) && t.IsDelete == false).Include(u => u.Role).ToList();
             foreach (var item in dtoPage.data)
             {
@@ -770,13 +775,13 @@ namespace kevin.Application
         public async Task<List<long>> GetMyAndChildrenDepartmentUserIds()
         {
             return await Task.Run(() =>
-             {
-                 if (CurrentUser.UserInfo == default)
-                 {
-                     return new List<long>();
-                 }
-                 return departmentService.GetDepartmentChildUserIds(CurrentUser.UserInfo.DepartmentId);
-             });
+            {
+                if (CurrentUser.UserInfo == default)
+                {
+                    return new List<long>();
+                }
+                return departmentService.GetDepartmentChildUserIds(CurrentUser.UserInfo.DepartmentId);
+            });
 
         }
 
