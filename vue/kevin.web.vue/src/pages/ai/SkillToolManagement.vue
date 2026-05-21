@@ -54,6 +54,9 @@
                   </a>
                   <template #overlay>
                     <a-menu>
+                      <a-menu-item @click="showViewModal(item)">
+                        <eye-outlined /> 预览
+                      </a-menu-item>
                       <a-menu-item @click="showEditModal(item)" :disabled="item.isSystem">
                         <edit-outlined /> 编辑
                       </a-menu-item>
@@ -129,7 +132,7 @@
         <a-form-item label="方法" v-bind="validateInfos.classMethod">
           <a-input v-model:value="form.classMethod" placeholder="请输入方法" />
         </a-form-item>
-        <a-form-item label="路径">
+        <a-form-item label="路径" v-bind="validateInfos.url">
           <a-input v-model:value="form.url" placeholder="请输入路径" />
         </a-form-item>
         <a-form-item label="描述">
@@ -143,6 +146,31 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <a-modal
+      v-model:open="viewModalVisible"
+      title="预览技能工具"
+      :footer="null"
+      width="600px"
+    >
+      <a-descriptions :column="1" bordered>
+        <a-descriptions-item label="名称">{{ viewItem?.name }}</a-descriptions-item>
+        <a-descriptions-item label="类型">{{ getSkillToolTypeName(viewItem?.skillToolType) }}</a-descriptions-item>
+        <a-descriptions-item label="方法">{{ viewItem?.classMethod }}</a-descriptions-item>
+        <a-descriptions-item label="路径">{{ viewItem?.url }}</a-descriptions-item>
+        <a-descriptions-item label="描述">{{ viewItem?.description }}</a-descriptions-item>
+        <a-descriptions-item label="启用状态">
+          <a-tag :color="viewItem?.activeStatus === 1 ? 'green' : 'red'">
+            {{ viewItem?.activeStatus === 1 ? '启用' : '禁用' }}
+          </a-tag>
+        </a-descriptions-item>
+        <a-descriptions-item label="系统内置">
+          <a-tag :color="viewItem?.isSystem ? 'blue' : 'default'">
+            {{ viewItem?.isSystem ? '是' : '否' }}
+          </a-tag>
+        </a-descriptions-item>
+      </a-descriptions>
+    </a-modal>
   </div>
 </template>
 
@@ -155,6 +183,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   EllipsisOutlined,
+  EyeOutlined,
 } from "@ant-design/icons-vue";
 import { message, Modal } from "ant-design-vue";
 import { Form } from "ant-design-vue";
@@ -179,6 +208,9 @@ const confirmLoading = ref(false);
 const modalTitle = ref("添加技能工具");
 
 const currentRecord = ref(null);
+
+const viewModalVisible = ref(false);
+const viewItem = ref(null);
 
 const form = reactive({
   id: "",
@@ -263,6 +295,11 @@ const showAddModal = () => {
     skillToolType: undefined,
   });
   modalVisible.value = true;
+};
+
+const showViewModal = (record) => {
+  viewItem.value = record;
+  viewModalVisible.value = true;
 };
 
 const showEditModal = (record) => {
