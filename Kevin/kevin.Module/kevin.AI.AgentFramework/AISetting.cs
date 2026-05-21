@@ -1,4 +1,6 @@
-﻿namespace Kevin.AI.Dto
+﻿using Microsoft.Agents.AI;
+
+namespace Kevin.AI.Dto
 {
     public class AISetting
     {
@@ -24,11 +26,11 @@
         /// <summary>
         /// 是否启用AI技能
         /// </summary>
-        public bool IsAISkills { get; set; } = false;
+        public bool IsAISkills { get; set; } = true;
         /// <summary>
         /// 是否启用AI工具
         /// </summary>
-        public bool IsAITools { get; set; } = false;
+        public bool IsAITools { get; set; } = true;
 
         /// <summary>
         /// 最大重试次数
@@ -38,6 +40,21 @@
         /// AI请求超时时间，单位分钟
         /// </summary>
         public int NetworkTimeout { get; set; } = 10;
+
+        /// <summary>
+        /// 是否开启流式请求
+        /// </summary>
+        public bool IsStreame { get; set; } = true; 
+
+        /// <summary>
+        /// 流式请求回调
+        /// </summary>
+        public Action<string> StreameCallback { get; set; } = default;
+
+        /// <summary>
+        /// ai请求参数 ，提供给外部使用，框架内不做处理如：token、cookie、其他传入ai工具的参数等
+        /// </summary>
+        public object AIParData { get; set; } = default;
 
     }
 }

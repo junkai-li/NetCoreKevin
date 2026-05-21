@@ -1,5 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Wordprocessing;
-using kevin.AI.AgentFramework.Tasks;
+using kevin.AI.AgentFramework.Interfaces.Tasks;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Attributes;
 using kevin.Domain.Share.Dtos;

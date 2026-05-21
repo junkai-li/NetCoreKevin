@@ -218,18 +218,7 @@ namespace Web.Extension
             #region AI相关注入
 
             //services.AddAIClient();
-            services.AddAIAgentClient(options =>
-            {
-                var settings = Configuration.GetRequiredSection("AISetting").Get<AISetting>()!;
-                options.AIUrl = settings.AIUrl;
-                options.AIKeySecret = settings.AIKeySecret;
-                options.AIDefaultModel = settings.AIDefaultModel;
-                options.IsHttpLog = settings.IsHttpLog;
-                options.IsAISkills = settings.IsAISkills;
-                options.IsAITools = settings.IsAITools;
-                options.NetworkTimeout = settings.NetworkTimeout;
-                options.MaxRetries = settings.MaxRetries;
-            });
+            services.AddAIAgentClient();
 
             services.AddRAGQdrantAndOllama(options =>
             {

@@ -4,16 +4,20 @@ using Cronos;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Hangfire;
 using Hangfire.Storage;
+using HarmonyLib;
 using kevin.AI.AgentFramework;
 using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
-using kevin.AI.AgentFramework.Tasks;
+using kevin.AI.AgentFramework.Interfaces.Tasks;
+using kevin.AI.AgentFramework.ScriptRunners;
+using kevin.AI.AgentFramework.SkillClass;
 using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Enums;
 using kevin.RepositorieRps.Repositories.AI;
+using Kevin.AI.Dto;
 using Kevin.Common.Extension;
 using Kevin.log4Net;
 using Kevin.RAG.Ollama;
@@ -23,6 +27,7 @@ using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
+using static Qdrant.Client.Grpc.BinaryQuantizationQueryEncoding.Types;
 
 namespace kevin.Application.Services.AI
 {
@@ -38,7 +43,7 @@ namespace kevin.Application.Services.AI
         private readonly IAIAppsRp _aIAppsRp;
         private readonly IAIChatsRp aIChatsRp;
         private readonly IAIModelsRp _aIModelsRp;
-        private readonly IAIPromptsRp _aIPromptsRp;
+        private readonly IAIPromptsRp _aIPromptsRp; 
 
         private IDistributedLockProvider distLock { get; set; }
 
@@ -50,7 +55,8 @@ namespace kevin.Application.Services.AI
         }
 
         public KevinAITasksService(IHttpContextAccessor _httpContextAccessor, IRecurringJobManager recurringJobManager, JobStorage jobStorage, IMessageService messageService,
-            IAIAgentService aIAgentService, IAIAppsRp aIAppsRp, IAIModelsRp aIModelsRp, IAIPromptsRp aIPromptsRp, IAIChatsRp aIChatsRp, IServiceProvider serviceProvider, IDistributedLockProvider distLock) : base(_httpContextAccessor)
+            IAIAgentService aIAgentService, IAIAppsRp aIAppsRp, IAIModelsRp aIModelsRp, IAIPromptsRp aIPromptsRp, IAIChatsRp aIChatsRp, IServiceProvider serviceProvider,
+            IDistributedLockProvider distLock) : base(_httpContextAccessor)
         {
             _serviceProvider = serviceProvider;
             _recurringJobManager = recurringJobManager;
@@ -61,7 +67,7 @@ namespace kevin.Application.Services.AI
             this._aIModelsRp = aIModelsRp;
             this._aIPromptsRp = aIPromptsRp;
             this.aIChatsRp = aIChatsRp;
-            this.distLock = distLock;
+            this.distLock = distLock; 
         }
         public static bool IsValidCronExpression(string cronExpression)
         {
@@ -191,24 +197,31 @@ namespace kevin.Application.Services.AI
                         var aIModels = _aIModelsRp.FirstOrDefault(t => t.Id == aiapp.ChatModelID.ToTryInt64(), isDataPer: false, isTenant: false);
                         var aIPrompts = _aIPromptsRp.FirstOrDefault(t => t.Id == aiapp.AIPromptID, isDataPer: false, isTenant: false);
                         string systemPrompt = SystemPrompt.SystemPromptText;
+                        var chatAgOs = new ChatClientAgentOptions
+                        {
+                            Name = aiapp.Name,
+                            Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
+                            ChatOptions = new Microsoft.Extensions.AI.ChatOptions
+                            {
+                                MaxOutputTokens = aiapp.MaxAskPromptSize,
+                                Temperature = (float)(aiapp.Temperature / 100),
+                                ResponseFormat = ChatResponseFormat.Text,
+                                Instructions = (aIPrompts.Prompt + systemPrompt),
+                            },
+                        }; 
                         switch (aIModels.AIType)
                         {
                             case Domain.Share.Enums.AIType.OpenAI:
                             case Domain.Share.Enums.AIType.ZhiPuAI:
                             case Domain.Share.Enums.AIType.AzureOpenAI:
                             default:
-                                messageContent = _aIAgentService.CreateOpenAIAgentAndSendMSG(_serviceProvider, taskContent, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
+                                messageContent = _aIAgentService.CreateOpenAIAgentAndSendMSG(new AISetting
                                 {
-                                    Name = aiapp.Name,
-                                    Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
-                                    ChatOptions = new Microsoft.Extensions.AI.ChatOptions
-                                    {
-                                        MaxOutputTokens = aiapp.MaxAskPromptSize,
-                                        Temperature = (float)(aiapp.Temperature / 100),
-                                        ResponseFormat = ChatResponseFormat.Text,
-                                        Instructions = (aIPrompts.Prompt + systemPrompt),
-                                    },
-                                }, isOpenTaskTool: false).Result.Item2;
+                                    AIUrl = aIModels.EndPoint,
+                                    AIKeySecret = aIModels.ModelKey,
+                                    AIDefaultModel = aIModels.ModelName,
+                                    IsStreame = false,
+                                }, chatAgOs, taskContent).Result.Item2;
                                 break;
                         }
                     }

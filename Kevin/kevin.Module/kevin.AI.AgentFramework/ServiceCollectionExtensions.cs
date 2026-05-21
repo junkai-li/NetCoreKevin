@@ -7,11 +7,9 @@ namespace Kevin.AI
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddAIAgentClient(this IServiceCollection services, Action<AISetting> action)
-        {
-            services.Configure(action);
-            services.AddTransient<IAIAgentService, AIAgentService>();
-            services.AddSingleton<IKevinBasicAI, KevinBasicAI>();
+        public static void AddAIAgentClient(this IServiceCollection services)
+        { 
+            services.AddTransient<IAIAgentService, AIAgentService>(); 
         }
     }
 }

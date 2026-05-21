@@ -296,6 +296,8 @@ namespace Repository.Database
             modelBuilder.ApplyConfiguration(new TPositionConfig());
             modelBuilder.ApplyConfiguration(new TDepartmentConfig());
             modelBuilder.ApplyConfiguration(new TUserInfoConfig());
+            modelBuilder.ApplyConfiguration(new TAISkillToolManagementConfig());
+            modelBuilder.ApplyConfiguration(new TAIPromptsConfig());
             ConsoleHelper.Print("初始化种子数据成功！");
             #endregion
 

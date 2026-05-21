@@ -1,12 +1,15 @@
-﻿using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
+﻿using kevin.AI.AgentFramework;
+using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
+using kevin.AI.AgentFramework.ScriptRunners;
 using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using kevin.RepositorieRps.Repositories.AI;
+using Kevin.AI.Dto;
 using Kevin.Common.Extension;
 using Kevin.RAG.Interfaces;
 using Kevin.RAG.Ollama;
@@ -35,10 +38,13 @@ namespace kevin.Application.Services.AI
         public IHttpClientFactory httpClientFactory { get; set; }
 
         private IOllamaApiService ollamaApiService;
+
+        private readonly IAIAgentToolSkillService _aIAgentToolSkillService;
         public AIChatHistorysService(IHttpContextAccessor _httpContextAccessor, IAIChatHistorysRp _aIChatHistorysRp,
             IAIAgentService _aIAgentService, IAIModelsService _aIModelsService, IAIPromptsService _aIPromptsService,
             IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore,
-            IRAGService _rAGService, IAIKmssService _aIKmssService, IOllamaApiService _ollamaApiService, ISignalRMsgService _signalRMsgService, IHttpClientFactory _httpClientFactory) : base(_httpContextAccessor)
+            IRAGService _rAGService, IAIKmssService _aIKmssService, IOllamaApiService _ollamaApiService, ISignalRMsgService _signalRMsgService,
+            IHttpClientFactory _httpClientFactory, IAIAgentToolSkillService _aIAgentToolSkillService) : base(_httpContextAccessor)
         {
             this.aIChatHistorysRp = _aIChatHistorysRp;
             this.aIChatsService = _aIChatsService;
@@ -52,6 +58,7 @@ namespace kevin.Application.Services.AI
             this.ollamaApiService = _ollamaApiService;
             this.signalRMsgService = _signalRMsgService;
             this.httpClientFactory = _httpClientFactory;
+            this._aIAgentToolSkillService = _aIAgentToolSkillService;
         }
 
         /// <summary>
@@ -149,6 +156,55 @@ namespace kevin.Application.Services.AI
             {
                 systemPrompt += "\n互联网查询信息:\n无相关信息";
             }
+
+            #region AI配置
+            var chatAgOs = new ChatClientAgentOptions
+            {
+                Name = aiapp.Name,
+                Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
+                ChatOptions = new Microsoft.Extensions.AI.ChatOptions
+                {
+                    MaxOutputTokens = aiapp.MaxAskPromptSize,
+                    Temperature = (float)(aiapp.Temperature / 100),
+                    ResponseFormat = ChatResponseFormat.Text,
+                    Instructions = (aIPrompts.Prompt + systemPrompt),
+                },
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString())
+            };
+            if (aiapp.IsAITools)
+            {
+                if (chatAgOs.ChatOptions != default)
+                {
+                    // 🔑 能力层：工具
+                    chatAgOs.ChatOptions.Tools ??= new List<AITool>();
+                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(new { AIChatsId = add.AIChatsId }, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result);
+                }
+            }
+            if (aiapp.IsSkill)
+            {
+                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(new { AIChatsId = add.AIChatsId }, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result;
+#pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。 
+
+                var aiContextProviders = new List<AIContextProvider>();
+                foreach (var skillPath in skillPaths)
+                {
+                    var skillsProvider = new AgentSkillsProviderBuilder()
+                                                                   .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)
+                                                                  .UseFileSkill(Path.Combine(AppContext.BaseDirectory + skillPath),//"/Skills/all-skills"
+                                                                  new AgentFileSkillsSourceOptions
+                                                                  {
+                                                                      AllowedScriptExtensions = [".py", ".sh", ".ps1", ".sh"],
+                                                                      ScriptDirectories = ["scripts", "tools", "templates"],
+                                                                  })
+                                                                  .UseOptions(options => options.DisableCaching = true)
+                                                                  .Build();
+                    aiContextProviders.Add(skillsProvider);
+                }
+                chatAgOs.AIContextProviders = aiContextProviders;
+#pragma warning restore MAAI001
+            }
+            #endregion
+             
             switch (aIModels.AIType)
             {
                 case Domain.Share.Enums.AIType.OpenAI:
@@ -156,22 +212,18 @@ namespace kevin.Application.Services.AI
                 case Domain.Share.Enums.AIType.AzureOpenAI:
                 default:
                     await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在结合相关信息思考....");
-                    addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(_serviceProvider, add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey, new ChatClientAgentOptions
+                    addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(new AISetting
                     {
-                        Name = aiapp.Name,
-                        Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
-                        ChatOptions = new Microsoft.Extensions.AI.ChatOptions
+                        AIUrl = aIModels.EndPoint,
+                        AIKeySecret = aIModels.ModelKey,
+                        AIDefaultModel = aIModels.ModelName,
+                        IsStreame = aiapp.MsgType == 2,
+                        AIParData = new { AIChatsId = add.AIChatsId },
+                        StreameCallback = async (msg) =>
                         {
-                            MaxOutputTokens = aiapp.MaxAskPromptSize,
-                            Temperature = (float)(aiapp.Temperature / 100),
-                            ResponseFormat = ChatResponseFormat.Text,
-                            Instructions = (aIPrompts.Prompt + systemPrompt),
-                        },
-                        ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString())
-                    }, isStreame: aiapp.MsgType == 2, streameCallback: async (msg) =>
-                    {
-                        await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
-                    }, data: new { AIChatsId = add.AIChatsId })).Item2;
+                            await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
+                        }
+                    }, chatAgOs, add.Content)).Item2;
                     break;
             }
             aIChatHistorysRp.Add(addAi);

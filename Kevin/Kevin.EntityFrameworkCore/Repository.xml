@@ -4,6 +4,30 @@
         <name>Kevin.EntityFrameworkCore</name>
     </assembly>
     <members>
+        <member name="T:Kevin.EntityFrameworkCore.Migrations.新增AI技能管理模块">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增AI技能管理模块.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增AI技能管理模块.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增AI技能管理模块.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:Kevin.EntityFrameworkCore.Migrations.新增aiapp字段">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增aiapp字段.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增aiapp字段.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增aiapp字段.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="T:Kevin.EntityFrameworkCore._.Data.Repository`2">
             <summary>
             仓储类与类型Id

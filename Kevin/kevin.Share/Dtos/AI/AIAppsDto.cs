@@ -105,5 +105,17 @@ namespace kevin.Domain.Share.Dtos.AI
                 throw new Exception("提示词不能为空");
             }
         }
+
+        /// <summary>
+        /// 是否开启ai工具，开启后可以使用AI工具类技能，关闭后只能使用普通技能
+        /// </summary>
+        [Description("是否开启ai工具，开启后可以使用AI工具类技能")]
+        public bool IsAITools { get; set; } = true;
+
+        /// <summary>
+        /// 是否开启Skill技能，开启后可以使用Skill技能
+        /// </summary>
+        [Description("是否开启Skill技能，开启后可以使用Skill技能")]
+        public bool IsSkill { get; set; } = true;
     }
 }

@@ -1,25 +1,20 @@
-﻿using System;
+﻿using kevin.AI.AgentFramework.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kevin.AI.AgentFramework.Tasks
+namespace kevin.AI.AgentFramework.Interfaces.Tasks
 {
 
     /// <summary>
     /// 用于给AI使用的自动任务服务接口，提供自动任务相关的功能和操作 你可以让它在每天、每周、每月，或者某个固定时间自动运行，帮助你完成常见的日常工作。 
     /// </summary>
     [Description("用于给AI使用的自动任务服务接口，提供自动任务相关的功能和操作 你可以让它在每天、每周、每月，或者某个固定时间自动运行，帮助你完成常见的日常工作。")]
-    public interface IKevinAITaskService
-    {
-
-        /// <summary>
-        /// 初始化数据 用于AI前传递数据
-        /// </summary>
-        /// <param name="data"></param>
-        public void InitData(object data);
+    public interface IKevinAITaskService: IBaseAIToolService
+    { 
 
         /// <summary>
         /// 创建或更新一个周期性自动任务 

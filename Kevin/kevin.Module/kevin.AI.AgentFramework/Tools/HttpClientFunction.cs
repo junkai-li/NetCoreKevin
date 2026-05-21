@@ -1,4 +1,5 @@
 ﻿using kevin.AI.AgentFramework.Interfaces;
+using Kevin.AI.Dto;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using System.Net;
@@ -95,8 +96,15 @@ namespace kevin.AI.AgentFramework.Tools
                     Console.WriteLine(ex.Message);
                 }
             }
-            result = (await aIAgentService.CreateOpenAIAgentAndSendMSG(_serviceProvider, $"用户搜索意图问题:{value} \n 互联网搜索信息如下：" + string.Join("\n", htmls) + "\n" + " 请你根据用户搜索意图问题来进行提取总结", aiEndPoint, aiModelName, aiModelKey, new ChatClientAgentOptions
+            result = (await aIAgentService.CreateOpenAIAgentAndSendMSG(new AISetting
             {
+                AIUrl = aiEndPoint,
+                AIKeySecret = aiModelName,
+                AIDefaultModel = aiModelKey,
+                IsStreame = false,
+            }, new ChatClientAgentOptions
+            {
+
                 Name = " 你是一款专业的搜索引擎助手，专门负责将HTML内容转换为结构化的Markdown格式。你的核心职责是精确提取HTML标签中的关键信息，并将其转换为清晰、规范的Markdown文档，同时保持内容的完整性和准确性。",
 
                 Description = SystemTemplate,
@@ -106,8 +114,7 @@ namespace kevin.AI.AgentFramework.Tools
                     ResponseFormat = ChatResponseFormat.Text,
                     Instructions = SystemTemplate
                 },
-            })).Item2;
-
+            }, $"用户搜索意图问题:{value} \n 互联网搜索信息如下：" + string.Join("\n", htmls) + "\n" + " 请你根据用户搜索意图问题来进行提取总结")).Item2;
             return "互联网查询信息:" + "\n" + (result ?? "无相关信息");
         }
 
