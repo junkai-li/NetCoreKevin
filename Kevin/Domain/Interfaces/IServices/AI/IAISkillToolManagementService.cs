@@ -1,4 +1,5 @@
 ﻿using kevin.Domain.Entities.AI;
+using kevin.Domain.Share.Dtos.AI;
 namespace kevin.Domain.Interfaces.IServices.AI
 {
     /// <summary>
@@ -11,14 +12,14 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// </summary>
         /// <param name="dtoPagePar"></param>
         /// <returns></returns>
-        Task<dtoPageData<TAISkillToolManagement>> GetPageData(dtoPagePar<string> dtoPagePar);
+        Task<dtoPageData<AISkillToolManagementDto>> GetPageData(dtoPagePar<string> dtoPagePar);
 
         /// <summary>
         /// ������༭
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        Task<bool> AddEdit(TAISkillToolManagement data);
+        Task<bool> AddEdit(AISkillToolManagementDto data);
 
         /// <summary>
         /// ɾ��

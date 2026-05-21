@@ -274,6 +274,41 @@
             描述
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.Name">
+            <summary>
+            名称
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.ClassMethod">
+            <summary>
+            方法 Tools 
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.Url">
+             <summary>
+            路径 Skills  
+             </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.Description">
+            <summary>
+            描述
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.IsSystem">
+            <summary>
+            是否系统内置工具（系统内置工具不允许删除和修改）
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.ActiveStatus">
+            <summary>
+            是否启用
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.SkillToolType">
+            <summary>
+            技能工具类型
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.Bases.CD_Dto">
             <summary>
             创建，删除

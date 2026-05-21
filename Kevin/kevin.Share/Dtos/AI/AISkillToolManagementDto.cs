@@ -1,18 +1,16 @@
-﻿using kevin.Domain.Share.Enums;
+﻿using kevin.Domain.Share.Dtos.Bases;
+using kevin.Domain.Share.Enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kevin.Domain.Entities.AI
+namespace kevin.Domain.Share.Dtos.AI
 {
-    /// <summary>
-    /// AI智能体技能工具管理
-    /// </summary>
-    [Table("TAISkillToolManagement")]
-    [Description("AI智能体技能工具管理")]
-    public class TAISkillToolManagement : CUD_User
+    public class AISkillToolManagementDto : CUD_User_Dto
     {
         /// <summary>
         /// 名称
@@ -61,8 +59,5 @@ namespace kevin.Domain.Entities.AI
         /// </summary>
         [Description("技能工具类型")]
         public AISkillToolTypeEnums SkillToolType { get; set; } = AISkillToolTypeEnums.Tool;
-
-
-
     }
 }

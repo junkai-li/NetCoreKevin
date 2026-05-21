@@ -184,6 +184,32 @@
             岗位管理
             </summary>
         </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.AISkillToolManagementController">
+            <summary>
+            AI技能工具管理
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.AISkillToolManagementController.GetPageData(kevin.Domain.Share.Dtos.dtoPagePar{System.String})">
+            <summary>
+            获取AI技能工具列表
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.AISkillToolManagementController.AddEdit(kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto)">
+            <summary>
+            新增或编辑AI技能工具
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.AISkillToolManagementController.Delete(System.Int64)">
+            <summary>
+            删除AI技能工具
+            </summary>
+            <param name="Id"></param>
+            <returns></returns>
+        </member>
         <member name="T:Kevin.Web.Basics.Controllers.AI.AITasksController">
             <summary>
             AI自动任务管理

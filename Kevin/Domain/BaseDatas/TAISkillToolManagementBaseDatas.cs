@@ -181,6 +181,29 @@ namespace kevin.Domain.BaseDatas
                SkillToolType=AISkillToolTypeEnums.Tool,
                CreateUserId=TUserBaseData.TUsers[0].Id
            },
+                new TAISkillToolManagement() {
+               Id=4514141254257227725,
+               Name="费用报销Skill",
+               ClassMethod="",
+               Url="/Skills/all-skills/system-ops",
+               Description="费用报销Skill",
+               TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
+               CreateTime = DateTime.Parse("2020-01-01 00:00:01"),
+               IsSystem=true,
+               SkillToolType=AISkillToolTypeEnums.Skill,
+               CreateUserId=TUserBaseData.TUsers[0].Id
+           },  new TAISkillToolManagement() {
+               Id=4514141254257227726,
+               Name="系统运维诊断Skill",
+               ClassMethod="",
+               Url="/Skills/all-skills/system-ops",
+               Description="系统运维诊断Skill",
+               TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
+               CreateTime = DateTime.Parse("2020-01-01 00:00:01"),
+               IsSystem=true,
+               SkillToolType=AISkillToolTypeEnums.Skill,
+               CreateUserId=TUserBaseData.TUsers[0].Id
+           },
         };
     }
 }
