@@ -157,7 +157,19 @@
                 <a-select-option  :value="2">流式文本</a-select-option> 
               </a-select>
           </a-form-item>
-        </a-col> 
+        </a-col>
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="12">
+          <a-form-item label="AI工具">
+            <a-switch v-model:checked="form.isAITools" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="Skill技能">
+            <a-switch v-model:checked="form.isSkill" />
+          </a-form-item>
+        </a-col>
       </a-row>
     </a-form>
   </a-modal>
@@ -200,8 +212,8 @@ const form = reactive({
   icon: 'windows',
   type: '',
   chatModelID: undefined,
-  kmsId: undefined, // 知识库ID
-   embeddingModelID: undefined,
+  kmsId: undefined,
+  embeddingModelID: undefined,
   rerankModelID: '',
   imageModelID: '',
   temperature: 70,
@@ -211,7 +223,9 @@ const form = reactive({
   maxMatchesCount: 3,
   rerankCount: 20,
   aiPromptID: undefined,
-  msgType:1
+  msgType: 1,
+  isAITools: true,
+  isSkill: true
 });
 
 // 表单验证规则
@@ -302,7 +316,7 @@ watch(() => props.open, (newVal) => {
         type: '',
         chatModelID: undefined,
         embeddingModelID: undefined,
-         kmsId: undefined, // 知识库ID
+        kmsId: undefined,
         rerankModelID: '',
         imageModelID: '',
         temperature: 70,
@@ -312,7 +326,9 @@ watch(() => props.open, (newVal) => {
         maxMatchesCount: 3,
         rerankCount: 20,
         aiPromptID: undefined,
-        msgType:1
+        msgType: 1,
+        isAITools: true,
+        isSkill: true
       });
     }
   }
@@ -338,8 +354,8 @@ const handleOk = () => {
         icon: form.icon,
         type: form.type,
         chatModelID: form.chatModelID,
-        kmsId: form.kmsId, // 知识库ID
-         embeddingModelID: form.embeddingModelID,
+        kmsId: form.kmsId,
+        embeddingModelID: form.embeddingModelID,
         rerankModelID: form.rerankModelID,
         imageModelID: form.imageModelID,
         temperature: form.temperature,
@@ -349,7 +365,9 @@ const handleOk = () => {
         maxMatchesCount: form.maxMatchesCount,
         rerankCount: form.rerankCount,
         aiPromptID: form.aiPromptID,
-        msgType: form.msgType
+        msgType: form.msgType,
+        isAITools: form.isAITools,
+        isSkill: form.isSkill
       };
       
       emit('ok', params);

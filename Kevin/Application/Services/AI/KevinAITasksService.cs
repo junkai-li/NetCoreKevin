@@ -25,6 +25,7 @@ using Kevin.SignalR.Service;
 using Medallion.Threading;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using static Qdrant.Client.Grpc.BinaryQuantizationQueryEncoding.Types;
@@ -43,7 +44,7 @@ namespace kevin.Application.Services.AI
         private readonly IAIAppsRp _aIAppsRp;
         private readonly IAIChatsRp aIChatsRp;
         private readonly IAIModelsRp _aIModelsRp;
-        private readonly IAIPromptsRp _aIPromptsRp; 
+        private readonly IAIPromptsRp _aIPromptsRp;
 
         private IDistributedLockProvider distLock { get; set; }
 
@@ -67,7 +68,7 @@ namespace kevin.Application.Services.AI
             this._aIModelsRp = aIModelsRp;
             this._aIPromptsRp = aIPromptsRp;
             this.aIChatsRp = aIChatsRp;
-            this.distLock = distLock; 
+            this.distLock = distLock;
         }
         public static bool IsValidCronExpression(string cronExpression)
         {
@@ -208,7 +209,39 @@ namespace kevin.Application.Services.AI
                                 ResponseFormat = ChatResponseFormat.Text,
                                 Instructions = (aIPrompts.Prompt + systemPrompt),
                             },
-                        }; 
+                        };
+                        var _aIAgentToolSkillService = _serviceProvider.GetService<IAIAgentToolSkillService>();
+                        if (aiapp.IsAITools && _aIAgentToolSkillService != default)
+                        {
+                            if (chatAgOs.ChatOptions != default)
+                            {
+                                // 🔑 能力层：工具
+                                chatAgOs.ChatOptions.Tools ??= new List<AITool>();
+                                chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(taskdata, aiapp.Id.ToString(), userId).Result);
+                            }
+                        }
+                        if (aiapp.IsSkill)
+                        {
+                            var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(taskdata, aiapp.Id.ToString(), userId).Result;
+#pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。 
+
+                            var aiContextProviders = new List<AIContextProvider>();
+                            foreach (var skillPath in skillPaths)
+                            {
+                                var skillsProvider = new AgentSkillsProviderBuilder()
+                                                                               .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)
+                                                                              .UseFileSkill(Path.Combine(AppContext.BaseDirectory + skillPath),//"/Skills/all-skills"
+                                                                              new AgentFileSkillsSourceOptions
+                                                                              {
+                                                                                  AllowedScriptExtensions = [".py", ".sh", ".ps1", ".sh"],
+                                                                                  ScriptDirectories = ["scripts", "tools", "templates"],
+                                                                              })
+                                                                              .UseOptions(options => options.DisableCaching = true)
+                                                                              .Build();
+                                aiContextProviders.Add(skillsProvider);
+                            }
+                            chatAgOs.AIContextProviders = aiContextProviders;
+                        }
                         switch (aIModels.AIType)
                         {
                             case Domain.Share.Enums.AIType.OpenAI:

@@ -111,6 +111,8 @@ namespace kevin.Application.Services.AI
                     msg.RerankCount = par.RerankCount;
                     msg.AnswerTokens = par.AnswerTokens;
                     msg.AIPromptID = par.AIPromptID;
+                    msg.IsAITools= par.IsAITools;
+                    msg.IsSkill= par.IsSkill;
                 }
                 else
                 {
