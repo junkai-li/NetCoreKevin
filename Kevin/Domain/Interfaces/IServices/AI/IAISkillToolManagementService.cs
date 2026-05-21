@@ -12,7 +12,7 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// </summary>
         /// <param name="dtoPagePar"></param>
         /// <returns></returns>
-        Task<dtoPageData<AISkillToolManagementDto>> GetPageData(dtoPagePar<string> dtoPagePar);
+        Task<dtoPageData<AISkillToolManagementDto>> GetPageData(dtoPagePar<int> dtoPagePar);
 
         /// <summary>
         /// ������༭

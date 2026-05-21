@@ -20,10 +20,11 @@ import CodeGenerator from '@/pages/CodeGenerator.vue';
 // AI管理相关页面
 import AiAppsMg from '@/pages/ai/AgentManagement.vue';
 import AiPromptsMg from '@/pages/ai/PromptManagement.vue';
-import AiKmssMg from '@/pages/ai/KnowledgeBaseManagement.vue'; // 添加知识库管理页面组件
+import AiKmssMg from '@/pages/ai/KnowledgeBaseManagement.vue';
 import AiModelMg from '@/pages/ai/ModelManagement.vue';
-import MyAIChat from '@/pages/ai/MyAIChat.vue'; // 添加AI对话界面组件
-import MyAITasks from '@/pages/ai/MyAITasks.vue'; // 添加AI自动任务页面组件
+import AiSkillToolMg from '@/pages/ai/SkillToolManagement.vue';
+import MyAIChat from '@/pages/ai/MyAIChat.vue';
+import MyAITasks from '@/pages/ai/MyAITasks.vue';
 //组织架构相关页面
 import PositionManagement from '@/pages/organizational/PositionManagement.vue';
 import DepartmentManagement from '@/pages/organizational/DepartmentManagement.vue';
@@ -145,7 +146,13 @@ const routes = [
         path: 'aimanagement/aimodelmg',
         name: 'aimodelmg',
         component: AiModelMg
-      },{
+      },
+      {
+        path: 'aimanagement/aiskilltoolmg',
+        name: 'aiskilltoolmg',
+        component: AiSkillToolMg
+      },
+      {
         path: 'position/management',
         name: 'positionManagement',
         component: PositionManagement

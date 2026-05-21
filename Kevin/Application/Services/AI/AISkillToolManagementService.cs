@@ -2,6 +2,7 @@
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
+using kevin.Domain.Share.Enums;
 
 namespace kevin.Application.Services.AI
 {
@@ -16,7 +17,7 @@ namespace kevin.Application.Services.AI
             this.AISkillToolManagementRp = _AISkillToolManagementRp;
         }
 
-        public async Task<dtoPageData<AISkillToolManagementDto>> GetPageData(dtoPagePar<string> dtoPagePar)
+        public async Task<dtoPageData<AISkillToolManagementDto>> GetPageData(dtoPagePar<int> dtoPagePar)
         {
             int skip = dtoPagePar.GetSkip();
             var result = new dtoPageData<AISkillToolManagementDto>();
@@ -24,7 +25,11 @@ namespace kevin.Application.Services.AI
             if (!string.IsNullOrEmpty(dtoPagePar.searchKey))
             {
                 data = data.Where(t => (t.Name ?? "").Contains(dtoPagePar.searchKey));
-            }   
+            }
+            if (dtoPagePar.Parameter != null && dtoPagePar.Parameter > 0)
+            {
+                data = data.Where(t => t.SkillToolType == (AISkillToolTypeEnums)dtoPagePar.Parameter);
+            }
             result.total = await data.CountAsync();
             result.data = (await data.Skip(skip).Take(dtoPagePar.pageSize).OrderByDescending(x => x.CreateTime).ToListAsync()).MapTo<List<AISkillToolManagementDto>>();
             result.pageSize = dtoPagePar.pageSize;
@@ -51,7 +56,7 @@ namespace kevin.Application.Services.AI
                 add.IsSystem = false;
                 add.CreateTime = DateTime.Now;
                 add.CreateUserId = CurrentUser.UserId;
-                add.TenantId = CurrentUser.TenantId; 
+                add.TenantId = CurrentUser.TenantId;
                 AISkillToolManagementRp.Add(add);
             }
             else
@@ -62,8 +67,13 @@ namespace kevin.Application.Services.AI
                     if (upData.IsSystem)
                     {
                         throw new UserFriendlyException("系统内置工具不允许修改");
-                    }
-                    upData = data.MapTo(upData);
+                    } 
+                    upData.Name = data.Name;
+                    upData.SkillToolType = data.SkillToolType;
+                    upData.Url = data.Url;
+                    upData.ActiveStatus = data.ActiveStatus;
+                    upData.ClassMethod = data.ClassMethod;
+                    upData.Description = data.Description; 
                     upData.UpdateTime = DateTime.Now;
                     upData.UpdateUserId = CurrentUser.UserId;
                     upData.TenantId = CurrentUser.TenantId;

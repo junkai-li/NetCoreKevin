@@ -189,7 +189,7 @@
             AI技能工具管理
             </summary>
         </member>
-        <member name="M:Kevin.Web.Basics.Controllers.AI.AISkillToolManagementController.GetPageData(kevin.Domain.Share.Dtos.dtoPagePar{System.String})">
+        <member name="M:Kevin.Web.Basics.Controllers.AI.AISkillToolManagementController.GetPageData(kevin.Domain.Share.Dtos.dtoPagePar{System.Int32})">
             <summary>
             获取AI技能工具列表
             </summary>

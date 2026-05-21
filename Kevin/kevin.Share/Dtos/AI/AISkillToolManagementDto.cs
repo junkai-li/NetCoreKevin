@@ -22,8 +22,7 @@ namespace kevin.Domain.Share.Dtos.AI
 
         /// <summary>
         /// 方法 Tools 
-        /// </summary>
-        [Required]
+        /// </summary> 
         [Description("方法")]
         [StringLength(100)]
         public String? ClassMethod { get; set; } = "";

@@ -282,7 +282,7 @@
         <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.ClassMethod">
             <summary>
             方法 Tools 
-            </summary>
+            </summary> 
         </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.Url">
              <summary>

@@ -49,6 +49,7 @@
             <a-menu-item key="ai-promptsmg">提示词管理</a-menu-item>
             <a-menu-item key="ai-kmssmg">知识库管理</a-menu-item>
             <a-menu-item key="ai-modelmg">模型配置管理</a-menu-item>
+            <a-menu-item key="ai-skilltoolmg">AI技能工具管理</a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="organizational-management">
             <template #icon>
@@ -278,6 +279,7 @@ const currentRouteTitle = computed(() => {
     "ai-promptsmg": "提示词管理",
     "ai-kmssmg": "知识库管理",
     "ai-modelmg": "模型配置管理",
+    "ai-skilltoolmg": "AI技能工具管理",
     "my-message": "我的消息",
     "my-ai-chat": "我的AI对话",
     "my-ai-tasks": "我的AI自动任务",
@@ -345,6 +347,9 @@ const handleMenuClick = ({ key }) => {
       break;
     case "ai-modelmg":
       router.push("/home/aimanagement/aimodelmg");
+      break;
+    case "ai-skilltoolmg":
+      router.push("/home/aimanagement/aiskilltoolmg");
       break;
     case "organizational-position":
       router.push("/home/position/management");
