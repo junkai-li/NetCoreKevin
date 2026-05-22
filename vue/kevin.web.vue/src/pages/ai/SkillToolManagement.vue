@@ -77,13 +77,7 @@
                     <span class="info-label">方法:</span>
                     <span class="info-value">{{ item.classMethod }}</span>
                   </div>
-                </div>
-                <div class="model-info horizontal-layout">
-                  <div class="info-item horizontal">
-                    <span class="info-label">路径:</span>
-                    <span class="info-value url-value">{{ item.url }}</span>
-                  </div>
-                </div>
+                </div> 
                 <div class="model-info horizontal-layout">
                   <div class="info-item horizontal">
                     <span class="info-label">描述:</span>
@@ -167,8 +161,7 @@
       <a-descriptions :column="1" bordered>
         <a-descriptions-item label="名称">{{ viewItem?.name }}</a-descriptions-item>
         <a-descriptions-item label="类型">{{ getSkillToolTypeName(viewItem?.skillToolType) }}</a-descriptions-item>
-        <a-descriptions-item label="方法">{{ viewItem?.classMethod }}</a-descriptions-item>
-        <a-descriptions-item label="路径">{{ viewItem?.url }}</a-descriptions-item>
+        <a-descriptions-item label="方法">{{ viewItem?.classMethod }}</a-descriptions-item> 
         <a-descriptions-item label="描述">{{ viewItem?.description }}</a-descriptions-item>
         <a-descriptions-item label="启用状态">
           <a-tag :color="viewItem?.activeStatus === 1 ? 'green' : 'red'">
