@@ -219,6 +219,9 @@ namespace kevin.Application.Services.AI
                         AIDefaultModel = aIModels.ModelName,
                         IsStreame = aiapp.MsgType == 2,
                         AIParData = new { AIChatsId = add.AIChatsId },
+                        IsHttpLog= aiapp.IsHttpLog,
+                        MaxRetries = aiapp.MaxRetries,
+                        NetworkTimeout = aiapp.NetworkTimeout, 
                         StreameCallback = async (msg) =>
                         {
                             await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);

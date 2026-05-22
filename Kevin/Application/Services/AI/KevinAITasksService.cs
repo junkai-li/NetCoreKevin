@@ -254,6 +254,9 @@ namespace kevin.Application.Services.AI
                                     AIKeySecret = aIModels.ModelKey,
                                     AIDefaultModel = aIModels.ModelName,
                                     IsStreame = false,
+                                    IsHttpLog = aiapp.IsHttpLog,
+                                    MaxRetries = aiapp.MaxRetries,
+                                    NetworkTimeout = aiapp.NetworkTimeout,
                                 }, chatAgOs, taskContent).Result.Item2;
                                 break;
                         }

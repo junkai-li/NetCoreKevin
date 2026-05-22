@@ -115,5 +115,22 @@
         /// </summary>
         [Description("是否开启Skill技能，开启后可以使用Skill技能")]
         public bool IsSkill { get; set; } = true;
+        /// <summary>
+        /// 是否开启AI请求日志
+        /// </summary>
+        [Description("是否开启AI请求日志")]
+        public bool IsHttpLog { get; set; } = false;
+
+        /// <summary>
+        /// AI请求最大重试次数
+        /// </summary>
+        [Description("AI请求最大重试次数")]
+        public int MaxRetries { get; set; } = 3;
+        /// <summary>
+        /// AI请求超时时间，单位分钟
+        /// </summary>
+        [Description("AI请求超时时间，单位分钟")]
+        public int NetworkTimeout { get; set; } = 10;
+
     }
 }

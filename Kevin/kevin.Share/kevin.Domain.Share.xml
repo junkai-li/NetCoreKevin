@@ -84,6 +84,21 @@
             是否开启Skill技能，开启后可以使用Skill技能
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.IsHttpLog">
+            <summary>
+            是否开启AI请求日志
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.MaxRetries">
+            <summary>
+            AI请求最大重试次数
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.NetworkTimeout">
+            <summary>
+            AI请求超时时间，单位分钟
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto">
             <summary>
             聊天记录
