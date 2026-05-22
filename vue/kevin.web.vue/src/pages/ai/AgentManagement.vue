@@ -134,7 +134,8 @@ import {
   getAIAppsPageData,
   addEditAIApp,
   deleteAIApp,
-  getAIAppsDetails
+  getAIAppsDetails,
+  NewInitialization
 } from '@/api/ai/aiapps';
 import AgentAddEdit from '@/components/ai/AgentAddEdit.vue';
 
@@ -205,9 +206,20 @@ const loadAgentData = async () => {
 };
 
 // 显示添加智能体模态框
-const showAddAgentModal = () => {
+const showAddAgentModal =async () => {
   agentModalType.value = 'add';
-  currentAgent.value = null;
+  currentAgent.value = {};
+    try {
+    const response =  await NewInitialization();
+    if (response && response.code === 200) {
+      currentAgent.value.id = response.data.id;
+       currentAgent.value.skills = response.data.skills;
+       currentAgent.value.tools = response.data.tools;
+    }
+  } catch (error) {
+    console.error('获取智能体详情失败:', error);
+    message.error('获取智能体详情失败');
+  }
   agentModalVisible.value = true;
 };
 
@@ -255,15 +267,11 @@ const handlePageChange = (page, pageSize) => {
   pagination.pageSize = pageSize;
   loadAgentData();
 };
-
-import { GetSnowflakeId } from "../../api/baseapi"; 
+ 
 // 智能体模态框确认
 const handleAgentModalOk = async (params) => {
   confirmLoading.value = true;
-  try {
-    if(!(agentModalType.value === 'edit')){
-    params.id= await GetSnowflakeId().data;
-    } 
+  try { 
     await addEditAIApp(params);
     
     message.success(agentModalType.value === 'edit' ? '智能体信息更新成功' : '智能体信息添加成功');

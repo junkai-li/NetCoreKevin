@@ -65,6 +65,19 @@ namespace Kevin.Web.Basics.AI
             var result = await _service.AddEdit(par);
             return result;
         }
+        /// <summary>
+        /// 智能体初始化
+        /// </summary> 
+        /// <returns></returns>
+        [HttpGet("NewInitialization")]
+        [ActionDescription("智能体初始化")] 
+        [SkipAuthority]
+
+        public async Task<AIAppsDto> NewInitialization()
+        {
+            var result = await _service.NewInitialization();
+            return result;
+        }
 
         /// <summary>
         /// 获取AI应用详情

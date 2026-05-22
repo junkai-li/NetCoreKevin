@@ -147,6 +147,37 @@ namespace kevin.Application.Services.AI
             await aISkillToolBindIdService.BatchAddIds(par.Id.ToString(), ids);
             return true;
         }
+        
+
+        /// <summary>
+        ///新增初始化
+        /// </summary>
+        /// <param name="par"></param>
+        /// <returns></returns>
+        /// <exception cref="UserFriendlyException"></exception>
+        public async Task<AIAppsDto> NewInitialization()
+        {
+            var data = new AIAppsDto();
+            data.Id= SnowflakeIdService.GetNextId();
+            data.CreateTime = DateTime.Now;
+            data.CreateUserId= CurrentUser.UserId;
+            var skills = await aISkillToolManagementService.GetAllSkills();
+            var tools = await aISkillToolManagementService.GetAllTools();
+            var myIds = await aISkillToolBindIdService.GetListById(data.Id.ToString());
+            data.Skills = skills.Select(t => new AIAppsBindSkillToolsDto
+            {
+                IsSelect = myIds.Any(x => x.AISkillToolManagementId == t.Id),
+                AISkillToolManagementName = t.Name,
+                AISkillToolManagementId = t.Id
+            }).ToList();
+            data.Tools = tools.Select(t => new AIAppsBindSkillToolsDto
+            {
+                IsSelect = myIds.Any(x => x.AISkillToolManagementId == t.Id),
+                AISkillToolManagementName = t.Name,
+                AISkillToolManagementId = t.Id
+            }).ToList();
+            return data;
+        }
 
         /// <summary>
         /// 删除ai应用

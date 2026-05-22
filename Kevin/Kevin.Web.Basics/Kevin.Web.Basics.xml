@@ -23,6 +23,12 @@
             <param name="par"></param>
             <returns></returns>
         </member>
+        <member name="M:Kevin.Web.Basics.AI.AIAppsController.NewInitialization">
+            <summary>
+            智能体初始化
+            </summary> 
+            <returns></returns>
+        </member>
         <member name="M:Kevin.Web.Basics.AI.AIAppsController.GetDetails(System.Int64)">
             <summary>
             获取AI应用详情

@@ -6,6 +6,8 @@ namespace kevin.Domain.Interfaces.IServices.AI
     {
         Task<dtoPageData<AIAppsDto>> GetPageData(dtoPagePar<string> dtoPage);
         Task<AIAppsDto> GetDetails(long id);
+
+          Task<AIAppsDto> NewInitialization();
         Task<List<AIAppsDto>> GetALLList();
         Task<bool> AddEdit(AIAppsDto par);
         Task<bool> Delete(long id);

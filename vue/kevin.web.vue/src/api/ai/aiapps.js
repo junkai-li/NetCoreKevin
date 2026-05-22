@@ -15,3 +15,6 @@ export const getAIAppsALLList = () => {
 export const getAIAppsDetails = (id) => {
   return http.get('/api/AIApps/GetDetails?Id=' + id);
 };
+export const NewInitialization = () => {
+  return http.get('/api/AIApps/NewInitialization');
+};

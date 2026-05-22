@@ -171,34 +171,34 @@
           </a-form-item>
         </a-col>
       </a-row>
-      <a-row :gutter="16" v-if="form.isAITools">
-        <a-col :span="24">
-          <a-form-item label="Tools">
+      <a-row :gutter="16">
+        <a-col :span="12">
+          <a-form-item label="Tools工具" v-show="form.isAITools">
             <a-checkbox-group v-model:value="form.tools">
-              <a-checkbox
-                v-for="item in (props.agentData?.tools || [])"
-                :key="item.aiSkillToolManagementId"
-                :value="item.aiSkillToolManagementId"
-                style="margin-bottom: 8px"
-              >
-                {{ item.aiSkillToolManagementName }}
-              </a-checkbox>
+              <div class="checkbox-grid">
+                <a-checkbox
+                  v-for="item in (props.agentData?.tools || [])"
+                  :key="item.aiSkillToolManagementId"
+                  :value="item.aiSkillToolManagementId"
+                >
+                  {{ item.aiSkillToolManagementName }}
+                </a-checkbox>
+              </div>
             </a-checkbox-group>
           </a-form-item>
         </a-col>
-      </a-row>
-      <a-row :gutter="16" v-if="form.isSkill">
-        <a-col :span="24">
-          <a-form-item label="Skills">
+        <a-col :span="12">
+          <a-form-item label="Skills技能" v-show="form.isSkill">
             <a-checkbox-group v-model:value="form.skills">
-              <a-checkbox
-                v-for="item in (props.agentData?.skills || [])"
-                :key="item.aiSkillToolManagementId"
-                :value="item.aiSkillToolManagementId"
-                style="margin-bottom: 8px"
-              >
-                {{ item.aiSkillToolManagementName }}
-              </a-checkbox>
+              <div class="checkbox-grid">
+                <a-checkbox
+                  v-for="item in (props.agentData?.skills || [])"
+                  :key="item.aiSkillToolManagementId"
+                  :value="item.aiSkillToolManagementId"
+                >
+                  {{ item.aiSkillToolManagementName }}
+                </a-checkbox>
+              </div>
             </a-checkbox-group>
           </a-form-item>
         </a-col>
@@ -505,6 +505,36 @@ defineExpose({
 </script>
 
 <style scoped>
+.checkbox-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+.checkbox-grid :deep(.ant-checkbox-wrapper) {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  padding: 6px 12px;
+  margin: 0;
+  transition: all 0.3s;
+}
+
+.checkbox-grid :deep(.ant-checkbox-wrapper:hover) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #1890ff;
+}
+
+.checkbox-grid :deep(.ant-checkbox-wrapper-checked) {
+  background: rgba(24, 144, 255, 0.15);
+  border-color: #1890ff;
+}
+
 .slider-container {
   display: flex;
   flex-direction: column;
