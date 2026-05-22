@@ -135,7 +135,7 @@
         <a-form-item label="路径" v-bind="validateInfos.url">
           <a-input v-model:value="form.url" placeholder="请输入路径" />
         </a-form-item>
-        <a-form-item v-if="form.skillToolType === 2" label="技能文件">
+        <a-form-item v-if="form.skillToolType === 2" label="技能文件">  
           <FileUpload
             business="AISkillToolManagement"
             :keyValue="form.id"
@@ -143,6 +143,7 @@
             accept=".zip"
             :multiple="false"
             :maxCount="1"
+            :initialFiles="form.skillFile"
             uploadButtonText="上传技能压缩包"
             @upload-success="onFileUploadSuccess"
             @upload-error="onFileUploadError"
@@ -181,6 +182,12 @@
           <a-tag :color="viewItem?.isSystem ? 'blue' : 'default'">
             {{ viewItem?.isSystem ? '是' : '否' }}
           </a-tag>
+        </a-descriptions-item>
+        <a-descriptions-item label="技能文件">
+          <a v-if="viewItem?.skillFile" :href="viewItem?.skillFile.url" target="_blank">
+            {{ viewItem?.skillFile.name }}
+          </a>
+          <span v-else>无</span>
         </a-descriptions-item>
       </a-descriptions>
     </a-modal>
@@ -330,8 +337,13 @@ const showAddModal = async () => {
 };
 
 const onFileUploadSuccess = (data) => {
-  form.skillFile = data;
-  console.log(data);
+  form.skillFile = {
+    id: data.fileId,
+    name: data.fileName,
+    path: data.path || "",
+    url: data.url || "",  
+    size: data.fileSize || 0
+  };
   message.success("技能文件上传成功");
 };
 
@@ -406,6 +418,7 @@ const handleModalOk = () => {
           skillToolType: form.skillToolType,
           skillFile: form.skillFile,
         } : {
+            id: form.id,
           name: form.name,
           classMethod: form.classMethod,
           url: form.url,

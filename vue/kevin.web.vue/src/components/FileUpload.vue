@@ -24,9 +24,9 @@
         class="uploaded-file-item"
       >
         <div class="file-info">
-          <PaperClipOutlined class="file-icon" />
+          <PaperClipOutlined class="file-icon" />   
           <span class="file-name">{{ file.name }}</span>
-          <span class="file-size">({{ formatFileSize(file.size) }})</span>
+          <span class="file-size" v-if="file.size">({{ formatFileSize(file.size) }})</span>
         </div>
         <div class="file-actions">
           <a-tooltip title="删除文件">
@@ -98,6 +98,11 @@ const props = defineProps({
   uploadButtonText: {
     type: String,
     default: '上传文件'
+  },
+  // 初始已上传的文件数据
+  initialFiles: {
+    type: Array,
+    default: () => []
   }
 });
 
@@ -108,6 +113,32 @@ const emit = defineEmits(['upload-success', 'upload-error', 'delete-success', 'd
 const fileList = ref([]);
 // 已上传的文件列表
 const uploadedFiles = ref([]);
+
+const normalizeFile = (fileObj) => {
+  if (!fileObj) return null;
+  return {
+    id: fileObj.id || fileObj.fileId || '',
+    name: fileObj.name || fileObj.fileName || '未知文件',
+    size: fileObj.size || fileObj.fileSize || 0,
+    url: fileObj.url || '',
+    rawFile: fileObj.rawFile || null
+  };
+};
+
+const initUploadedFiles = () => {
+  if (!props.initialFiles) {
+    uploadedFiles.value = [];
+    return;
+  }
+  const files = Array.isArray(props.initialFiles) ? props.initialFiles : [props.initialFiles];
+  uploadedFiles.value = files.map(normalizeFile).filter(f => f.id);
+};
+
+initUploadedFiles();
+
+watch(() => props.initialFiles, () => {
+  initUploadedFiles();
+}, { deep: true });
 
 // 自定义上传请求
 const customRequest = async (options) => {
