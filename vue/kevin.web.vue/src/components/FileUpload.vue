@@ -24,8 +24,16 @@
         class="uploaded-file-item"
       >
         <div class="file-info">
-          <PaperClipOutlined class="file-icon" />   
-          <span class="file-name">{{ file.name }}</span>
+          <PaperClipOutlined class="file-icon" />
+          <a
+            v-if="file.url"
+            :href="file.url"
+            target="_blank"
+            class="file-name-link"
+          >
+            {{ file.name }}
+          </a>
+          <span v-else class="file-name">{{ file.name }}</span>
           <span class="file-size" v-if="file.size">({{ formatFileSize(file.size) }})</span>
         </div>
         <div class="file-actions">
@@ -291,6 +299,19 @@ defineExpose({
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.file-name-link {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #1890ff;
+  text-decoration: none;
+}
+
+.file-name-link:hover {
+  text-decoration: underline;
 }
 
 .file-size {
