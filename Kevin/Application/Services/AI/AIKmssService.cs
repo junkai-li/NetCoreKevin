@@ -326,47 +326,56 @@ namespace kevin.Application.Services.AI
                                     // 清理文档
                                     var cleanedContent = documentProcessor.CleanDocument(content);
                                     // 分块
-                                    var chunks = documentProcessor.ChunkByParagraph(cleanedContent);
+                                    var chunks = documentProcessor.ChunkByParagraph(cleanedContent).Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
                                     Console.WriteLine($"文档 '{FileName}' 分成了 {chunks.Count} 个块");
-                                    // 创建文档块对象
-                                    for (int i = 0; i < chunks.Count; i++)
-                                    {
-                                        allChunks.Add(new DocumentChunkDto
+                                    if (chunks.Count > 0)
+                                    {    // 创建文档块对象
+                                        for (int i = 0; i < chunks.Count; i++)
                                         {
-                                            Content = chunks[i],
-                                            SourceFile = FileName ?? "",
-                                            Id = SnowflakeIdService.GetNextId(),
-                                            CreatedAt = DateTime.Now,
-                                            Title = (FileName ?? "").ToLower().Replace(".txt", "").Replace(".word", "").Replace(".pdf", "").Replace(".markdown", "").Replace(".html", ""),
+                                            allChunks.Add(new DocumentChunkDto
+                                            {
+                                                Content = chunks[i],
+                                                SourceFile = FileName ?? "",
+                                                Id = SnowflakeIdService.GetNextId(),
+                                                CreatedAt = DateTime.Now,
+                                                Title = (FileName ?? "").ToLower().Replace(".txt", "").Replace(".word", "").Replace(".pdf", "").Replace(".markdown", "").Replace(".html", ""),
 
-                                            Category = kmss.Name,
-                                            ChunkIndex = i
-                                        });
-                                    }
-                                    ulong embeddingValueSize = 2048;
-                                    if (kmss.aIModelsId != default)
-                                    {
-                                        var aimode = AIModelsRp.Query().Where(t => t.IsDelete == false && t.Id == kmss.aIModelsId).FirstOrDefault();
-                                        if (aimode?.AIModelType == AIModelType.Embedding)
-                                        {
-                                            OllamaApiService = new OllamaApiService(aimode.EndPoint, aimode.ModelName, aimode.ModelKey);
-                                            embeddingValueSize = (ulong)aimode.EmbeddingValueSize;
+                                                Category = kmss.Name,
+                                                ChunkIndex = i
+                                            });
                                         }
+                                        ulong embeddingValueSize = 2048;
+                                        if (kmss.aIModelsId != default)
+                                        {
+                                            var aimode = AIModelsRp.Query().Where(t => t.IsDelete == false && t.Id == kmss.aIModelsId).FirstOrDefault();
+                                            if (aimode?.AIModelType == AIModelType.Embedding)
+                                            {
+                                                OllamaApiService = new OllamaApiService(aimode.EndPoint, aimode.ModelName, aimode.ModelKey);
+                                                embeddingValueSize = (ulong)aimode.EmbeddingValueSize;
+                                            }
+                                        }
+                                        // 生成嵌入向量
+                                        foreach (var chunk in allChunks)
+                                        {
+                                            chunk.ContentVector = await OllamaApiService.GetEmbedding(chunk.Content);
+                                        }
+                                        Console.WriteLine($"\n正在上传 {allChunks.Count} 个文档块到向量数据库...");
+                                        // 上传到向量数据库
+                                        var isaddok = await QdrantClientService.AddData("AIKmss-" + kmss.Id, allChunks, embeddingValueSize);
+                                        if (isaddok)
+                                        {
+                                            item.Status = ImportKmsStatus.Success;
+                                            item.UpdateTime = DateTime.Now;
+                                            item.ContentName = FileName ?? "";
+                                        }
+
                                     }
-                                    // 生成嵌入向量
-                                    foreach (var chunk in allChunks)
-                                    {
-                                        chunk.ContentVector = await OllamaApiService.GetEmbedding(chunk.Content);
-                                    }
-                                    Console.WriteLine($"\n正在上传 {allChunks.Count} 个文档块到向量数据库...");
-                                    // 上传到向量数据库
-                                    var isaddok = await QdrantClientService.AddData("AIKmss-" + kmss.Id, allChunks, embeddingValueSize);
-                                    if (isaddok)
-                                    {
+                                    else {
                                         item.Status = ImportKmsStatus.Success;
                                         item.UpdateTime = DateTime.Now;
                                         item.ContentName = FileName ?? "";
                                     }
+                                
                                 }
                                 else
                                 {

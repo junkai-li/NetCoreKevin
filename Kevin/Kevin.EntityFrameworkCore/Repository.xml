@@ -4,52 +4,16 @@
         <name>Kevin.EntityFrameworkCore</name>
     </assembly>
     <members>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.新增AI技能管理模块">
+        <member name="T:Kevin.EntityFrameworkCore.Migrations.初始化数据库">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增AI技能管理模块.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化数据库.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增AI技能管理模块.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化数据库.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增AI技能管理模块.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.新增aiapp字段">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增aiapp字段.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增aiapp字段.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增aiapp字段.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.工具是否启用">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.工具是否启用.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.工具是否启用.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.工具是否启用.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.调整智能体字段">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.调整智能体字段.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.调整智能体字段.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.调整智能体字段.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化数据库.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
         <member name="T:Kevin.EntityFrameworkCore._.Data.Repository`2">
