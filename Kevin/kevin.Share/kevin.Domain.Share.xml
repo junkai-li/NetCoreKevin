@@ -299,11 +299,6 @@
             方法 Tools 
             </summary> 
         </member>
-        <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.Url">
-             <summary>
-            路径 Skills  
-             </summary>
-        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.Description">
             <summary>
             描述

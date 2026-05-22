@@ -132,9 +132,6 @@
         <a-form-item label="方法" v-bind="validateInfos.classMethod">
           <a-input v-model:value="form.classMethod" placeholder="请输入方法" />
         </a-form-item>
-        <a-form-item label="路径" v-bind="validateInfos.url">
-          <a-input v-model:value="form.url" placeholder="请输入路径" />
-        </a-form-item>
         <a-form-item v-if="form.skillToolType === 2" label="技能文件" v-bind="validateInfos.skillFile">  
           <FileUpload
             business="AISkillToolManagement"
@@ -238,26 +235,11 @@ const form = reactive({
   id: "",
   name: "",
   classMethod: "",
-  url: "",
   description: "",
   activeStatus: 1,
   skillToolType: undefined,
   skillFile: null,
 });
-
-const validatePath = (rule, value) => {
-  if (form.skillToolType !== 2) {
-    return Promise.resolve();
-  }
-  if (!value || !value.trim()) {
-    return Promise.reject("请输入路径");
-  }
-  const pathPattern = /^[a-zA-Z]+(\/[a-zA-Z]+)*$/;
-  if (!pathPattern.test(value)) {
-    return Promise.reject("路径只能输入字母，多个字段用斜杠分隔（如：abc/def/ghi）");
-  }
-  return Promise.resolve();
-};
 
 const validateSkillFile = (rule, value) => {
   if (form.skillToolType !== 2) {
@@ -274,14 +256,13 @@ const rules = computed(() => ({
   classMethod: form.skillToolType === 1 ? [{ required: true, message: "请输入方法" }] : [],
   skillToolType: [{ required: true, message: "请选择技能工具类型" }],
   activeStatus: [{ required: true, message: "请选择启用状态" }],
-  url: form.skillToolType === 2 ? [{ required: true, validator: validatePath, trigger: "change" }] : [],
   skillFile: form.skillToolType === 2 ? [{ required: true, validator: validateSkillFile, trigger: "change" }] : [],
 }));
 
 const { validate: validateForm, validateInfos, clearValidate } = useForm(form, rules);
 
 watch(() => form.skillToolType, () => {
-  clearValidate(["classMethod", "url", "skillFile"]);
+  clearValidate(["classMethod", "skillFile"]);
 });
 
 const searchKeyword = ref("");
@@ -339,7 +320,6 @@ const showAddModal = async () => {
       id: snowflakeId.data,
       name: "",
       classMethod: "",
-      url: "",
       description: "",
       activeStatus: 1,
       skillToolType: undefined,
@@ -351,7 +331,6 @@ const showAddModal = async () => {
       id: "",
       name: "",
       classMethod: "",
-      url: "",
       description: "",
       activeStatus: 1,
       skillToolType: undefined,
@@ -389,7 +368,6 @@ const showEditModal = (record) => {
   form.id = record.id || "";
   form.name = record.name || "";
   form.classMethod = record.classMethod || "";
-  form.url = record.url || "";
   form.description = record.description || "";
   form.activeStatus = record.activeStatus !== undefined ? record.activeStatus : 1;
   form.skillToolType = record.skillToolType !== undefined ? record.skillToolType : undefined;
@@ -437,7 +415,6 @@ const handleModalOk = () => {
           id: form.id,
           name: form.name,
           classMethod: form.classMethod,
-          url: form.url,
           description: form.description,
           activeStatus: form.activeStatus,
           skillToolType: form.skillToolType, 
@@ -445,7 +422,6 @@ const handleModalOk = () => {
             id: form.id,
           name: form.name,
           classMethod: form.classMethod,
-          url: form.url,
           description: form.description,
           activeStatus: form.activeStatus,
           skillToolType: form.skillToolType, 

@@ -27,14 +27,7 @@ namespace kevin.Domain.Entities.AI
         /// </summary> 
         [Description("方法")]
         [StringLength(100)]
-        public String? ClassMethod { get; set; } = "";
-
-        /// <summary>
-        ///路径 Skills  
-        /// </summary>
-        [Description("路径")]
-        [StringLength(500)]
-        public String? Url { get; set; } = "";
+        public String? ClassMethod { get; set; } = ""; 
 
         /// <summary>
         /// 描述

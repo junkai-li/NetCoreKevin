@@ -19,13 +19,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Skills\all-skills\expense-report\assets\expense-report-template.md">
+    <None Update="Skills\expense-report\assets\expense-report-template.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\all-skills\expense-report\references\POLICY_FAQ.md">
+    <None Update="Skills\expense-report\references\POLICY_FAQ.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\all-skills\expense-report\SKILL.md">
+    <None Update="Skills\expense-report\SKILL.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

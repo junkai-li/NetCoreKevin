@@ -3,7 +3,9 @@ using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
+using kevin.FileStorage;
 using kevin.RepositorieRps.Repositories;
+using Kevin.Common;
 
 namespace kevin.Application.Services.AI
 {
@@ -14,10 +16,13 @@ namespace kevin.Application.Services.AI
     {
         public readonly IAISkillToolManagementRp AISkillToolManagementRp;
         public readonly IFileRp _FileRp;
-        public AISkillToolManagementService(IHttpContextAccessor _httpContextAccessor, IAISkillToolManagementRp _AISkillToolManagementRp, IFileRp _IFileRp) : base(_httpContextAccessor)
+
+        public readonly IFileStorage _FileStorage;
+        public AISkillToolManagementService(IHttpContextAccessor _httpContextAccessor, IAISkillToolManagementRp _AISkillToolManagementRp, IFileRp _IFileRp, IFileStorage _IFileStorage) : base(_httpContextAccessor)
         {
             this.AISkillToolManagementRp = _AISkillToolManagementRp;
             this._FileRp = _IFileRp;
+            this._FileStorage = _IFileStorage;
         }
 
         public async Task<dtoPageData<AISkillToolManagementDto>> GetPageData(dtoPagePar<int> dtoPagePar)
@@ -77,8 +82,7 @@ namespace kevin.Application.Services.AI
                         throw new UserFriendlyException("系统内置工具不允许修改");
                     }
                     upData.Name = data.Name;
-                    upData.SkillToolType = data.SkillToolType;
-                    upData.Url = data.Url;
+                    upData.SkillToolType = data.SkillToolType; 
                     upData.ActiveStatus = data.ActiveStatus;
                     upData.ClassMethod = data.ClassMethod;
                     upData.Description = data.Description;
@@ -93,16 +97,36 @@ namespace kevin.Application.Services.AI
                     throw new UserFriendlyException("数据不存在或已删除");
                 }
             }
-            //处理skill技能附件包
-            var flieData = _FileRp.Query().Where(t => t.IsDelete == false && t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && data.Id.ToString() == t.TableId).ToList();
-            if (flieData.Count > 0)
+            if (data.SkillToolType == AISkillToolTypeEnums.Skill)
             {
+               
+                //处理skill技能附件包
+                var flieData = _FileRp.Query().Where(t => t.IsDelete == false && t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && data.Id.ToString() == t.TableId).FirstOrDefault();
+                if (flieData != default && !string.IsNullOrEmpty(flieData.Url))
+                {
+                    //拼接路径
+                    var path = Path.Combine(AppContext.BaseDirectory, "Skills", data.Name);
 
+                    //如果目录存在则删除目录下的所有文件  
+                    if (Directory.Exists(path))
+                    {
+                        Directory.Delete(path, true);
+                    }
+                    Directory.CreateDirectory(path);
+                    _FileStorage.FileDownload(flieData.Url, path + flieData.Name);
+                    //将zip文件流解压到写入磁盘
+                    using (var fileStream = File.OpenRead(path + flieData.Name))
+                    {
+                        FileZipHelper.ExtractZipStreamToDirectory(fileStream, path);
+                    }
+                    File.Delete(path + flieData.Name);
+                }
+                else
+                {
+                    throw new UserFriendlyException("请上传skill技能附件包");
+                }
             }
-            else
-            {
-                throw new UserFriendlyException("请上传skill技能附件包");
-            }
+
             await AISkillToolManagementRp.SaveChangesAsync();
             return true;
 

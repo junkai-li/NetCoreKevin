@@ -3,14 +3,64 @@ using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 
-namespace NetCore.Util
+namespace Kevin.Common
 {
     /// <summary>
     /// 文件压缩帮助类
     /// </summary>
     public class FileZipHelper
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="zipStream"></param>
+        /// <param name="destinationDir"></param>
+        /// <exception cref="IOException"></exception>
+        public static void ExtractZipStreamToDirectory(Stream zipStream, string destinationDir)
+        {
+            //using (var fileStream = File.OpenRead("example.zip"))
+            //{
+            //    ExtractZipStreamToDirectory(fileStream, @"C:\MyExtractedFiles");
+            //}
+
+            //// 或者从网络流、内存流等
+            //using (var memoryStream = new MemoryStream(zipBytes))
+            //{
+            //    ExtractZipStreamToDirectory(memoryStream, @"C:\MyExtractedFiles");
+            //}
+            // 确保目标目录存在
+            Directory.CreateDirectory(destinationDir);
+
+            // 从流中创建 ZipArchive
+            using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Read))
+            {
+                foreach (var entry in archive.Entries)
+                {
+                    // 组合目标文件路径
+                    string fullPath = Path.GetFullPath(Path.Combine(destinationDir, entry.FullName));
+
+                    // 防止路径遍历攻击：确保解压路径仍在目标目录内
+                    if (!fullPath.StartsWith(Path.GetFullPath(destinationDir) + Path.DirectorySeparatorChar))
+                        throw new IOException("试图解压到目标目录之外！");
+
+                    // 如果是目录（条目名以 '/' 结尾），创建目录
+                    if (entry.FullName.EndsWith("/") || entry.FullName.EndsWith("\\"))
+                    {
+                        Directory.CreateDirectory(fullPath);
+                        continue;
+                    }
+
+                    // 确保文件的父目录存在
+                    string directory = Path.GetDirectoryName(fullPath);
+                    Directory.CreateDirectory(directory);
+
+                    // 解压文件到磁盘
+                    entry.ExtractToFile(fullPath, overwrite: true);
+                }
+            }
+        }
         /// <summary>
         /// 压缩一个文件
         /// </summary>
