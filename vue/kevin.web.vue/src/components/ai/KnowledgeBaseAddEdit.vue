@@ -70,7 +70,7 @@
         sign="AIKmssDetailFlies"
         :accept="'.txt,.pdf,.md,.docx'"
         :multiple="true"
-        :max-count="5"
+        :max-count="30"
         @upload-success="beforeUpload"
         @upload-error="handleUploadError"
         @delete-success="handleRemoveFile"

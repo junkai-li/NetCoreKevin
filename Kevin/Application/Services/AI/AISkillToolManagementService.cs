@@ -3,6 +3,7 @@ using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
+using kevin.RepositorieRps.Repositories;
 
 namespace kevin.Application.Services.AI
 {
@@ -11,10 +12,12 @@ namespace kevin.Application.Services.AI
     /// </summary>
     public class AISkillToolManagementService : BaseService, IAISkillToolManagementService
     {
-        public IAISkillToolManagementRp AISkillToolManagementRp { get; set; }
-        public AISkillToolManagementService(IHttpContextAccessor _httpContextAccessor, IAISkillToolManagementRp _AISkillToolManagementRp) : base(_httpContextAccessor)
+        public readonly IAISkillToolManagementRp AISkillToolManagementRp;
+        public readonly IFileRp _FileRp;
+        public AISkillToolManagementService(IHttpContextAccessor _httpContextAccessor, IAISkillToolManagementRp _AISkillToolManagementRp, IFileRp _IFileRp) : base(_httpContextAccessor)
         {
             this.AISkillToolManagementRp = _AISkillToolManagementRp;
+            this._FileRp = _IFileRp;
         }
 
         public async Task<dtoPageData<AISkillToolManagementDto>> GetPageData(dtoPagePar<int> dtoPagePar)
@@ -32,6 +35,11 @@ namespace kevin.Application.Services.AI
             }
             result.total = await data.CountAsync();
             result.data = (await data.Skip(skip).Take(dtoPagePar.pageSize).OrderByDescending(x => x.CreateTime).ToListAsync()).MapTo<List<AISkillToolManagementDto>>();
+            var flieData = _FileRp.Query().Where(t => t.IsDelete == false && t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && result.data.Select(a => a.Id.ToString()).ToList().Contains(t.TableId)).ToList().MapToList<TFile, FileDto>().ToList();
+            foreach (var item in result.data)
+            {
+                item.SkillFile = flieData.Where(t => t.TableId == item.Id.ToString()).FirstOrDefault();
+            }
             result.pageSize = dtoPagePar.pageSize;
             result.pageNum = dtoPagePar.pageNum;
             return result;
@@ -67,13 +75,13 @@ namespace kevin.Application.Services.AI
                     if (upData.IsSystem)
                     {
                         throw new UserFriendlyException("系统内置工具不允许修改");
-                    } 
+                    }
                     upData.Name = data.Name;
                     upData.SkillToolType = data.SkillToolType;
                     upData.Url = data.Url;
                     upData.ActiveStatus = data.ActiveStatus;
                     upData.ClassMethod = data.ClassMethod;
-                    upData.Description = data.Description; 
+                    upData.Description = data.Description;
                     upData.UpdateTime = DateTime.Now;
                     upData.UpdateUserId = CurrentUser.UserId;
                     upData.TenantId = CurrentUser.TenantId;

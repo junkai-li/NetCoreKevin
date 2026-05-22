@@ -111,11 +111,14 @@ const uploadedFiles = ref([]);
 
 // 自定义上传请求
 const customRequest = async (options) => {
-  const { file, onSuccess, onError } = options;
+  const { file, onSuccess, onError } = options;   
   
   try {
+    if (props.maxCount && uploadedFiles.value.length >= props.maxCount) {
+      throw new Error(`最多只能上传${props.maxCount}个文件`);
+    }
     // 上传文件
-    const fileId = await uploadFile(props.business, props.keyValue, props.sign, file);
+    const fileId = (await uploadFile(props.business, props.keyValue, props.sign, file)).data;
     
     // 添加到已上传文件列表
     uploadedFiles.value.push({

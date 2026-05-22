@@ -1,4 +1,5 @@
 ﻿using kevin.Domain.Share.Dtos.Bases;
+using kevin.Domain.Share.Dtos.System;
 using kevin.Domain.Share.Enums;
 using System;
 using System.Collections.Generic;
@@ -58,5 +59,10 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary>
         [Description("技能工具类型")]
         public AISkillToolTypeEnums SkillToolType { get; set; } = AISkillToolTypeEnums.Tool;
+
+        /// <summary>
+        /// skill工具关联的文件信息
+        /// </summary>
+        public FileDto? SkillFile { get; set; }
     }
 }

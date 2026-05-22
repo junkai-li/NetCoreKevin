@@ -135,6 +135,19 @@
         <a-form-item label="路径" v-bind="validateInfos.url">
           <a-input v-model:value="form.url" placeholder="请输入路径" />
         </a-form-item>
+        <a-form-item v-if="form.skillToolType === 2" label="技能文件">
+          <FileUpload
+            business="AISkillToolManagement"
+            :keyValue="form.id"
+            sign="SkillZip"
+            accept=".zip"
+            :multiple="false"
+            :maxCount="1"
+            uploadButtonText="上传技能压缩包"
+            @upload-success="onFileUploadSuccess"
+            @upload-error="onFileUploadError"
+          />
+        </a-form-item>
         <a-form-item label="描述">
           <a-textarea v-model:value="form.description" :rows="4" placeholder="请输入描述" :maxlength="500" show-count />
         </a-form-item>
@@ -192,6 +205,8 @@ import {
   addEditAISkillToolManagement,
   deleteAISkillToolManagement,
 } from "@/api/ai/aiskilltoolManagement";
+import { GetSnowflakeId } from "@/api/baseapi";
+import FileUpload from "@/components/FileUpload.vue";
 
 const useForm = Form.useForm;
 
@@ -220,6 +235,7 @@ const form = reactive({
   description: "",
   activeStatus: 1,
   skillToolType: undefined,
+  skillFile: null,
 });
 
 const rules = computed(() => ({
@@ -282,19 +298,46 @@ const loadData = async () => {
   }
 };
 
-const showAddModal = () => {
+const showAddModal = async () => {
   modalTitle.value = "添加技能工具";
   currentRecord.value = null;
-  Object.assign(form, {
-    id: "",
-    name: "",
-    classMethod: "",
-    url: "",
-    description: "",
-    activeStatus: 1,
-    skillToolType: undefined,
-  });
+  try {
+       const snowflakeId = await GetSnowflakeId(); 
+    Object.assign(form, {
+      id: snowflakeId.data,
+      name: "",
+      classMethod: "",
+      url: "",
+      description: "",
+      activeStatus: 1,
+      skillToolType: undefined,
+      skillFile: null,
+    });
+  } catch (error) {
+    console.error("获取ID失败:", error);
+    Object.assign(form, {
+      id: "",
+      name: "",
+      classMethod: "",
+      url: "",
+      description: "",
+      activeStatus: 1,
+      skillToolType: undefined,
+      skillFile: null,
+    });
+  }
   modalVisible.value = true;
+};
+
+const onFileUploadSuccess = (data) => {
+  form.skillFile = data;
+  console.log(data);
+  message.success("技能文件上传成功");
+};
+
+const onFileUploadError = (data) => {
+  console.error("文件上传失败:", data.error);
+  message.error("文件上传失败: " + (data.error?.message || "未知错误"));
 };
 
 const showViewModal = (record) => {
@@ -313,6 +356,7 @@ const showEditModal = (record) => {
   form.description = record.description || "";
   form.activeStatus = record.activeStatus !== undefined ? record.activeStatus : 1;
   form.skillToolType = record.skillToolType !== undefined ? record.skillToolType : undefined;
+  form.skillFile = record.skillFile || null;
   modalVisible.value = true;
 };
 
@@ -360,6 +404,7 @@ const handleModalOk = () => {
           description: form.description,
           activeStatus: form.activeStatus,
           skillToolType: form.skillToolType,
+          skillFile: form.skillFile,
         } : {
           name: form.name,
           classMethod: form.classMethod,
@@ -367,6 +412,7 @@ const handleModalOk = () => {
           description: form.description,
           activeStatus: form.activeStatus,
           skillToolType: form.skillToolType,
+          skillFile: form.skillFile,
         });
 
         message.success(currentRecord.value ? "更新成功" : "添加成功");
