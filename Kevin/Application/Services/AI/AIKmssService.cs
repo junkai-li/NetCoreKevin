@@ -92,6 +92,20 @@ namespace kevin.Application.Services.AI
                 throw new UserFriendlyException("不存在或已删除");
             }
             data.AIKmssDetailsList = (await AIKmsDetailsRp.Query().Where(t => t.IsDelete == false && t.KmsId == id).ToListAsync()).MapToList<TAIKmsDetails, AIKmsDetailsDto>();
+             var flieData = FileRp.Query().Where(t => t.IsDelete == false && data.AIKmssDetailsList.Select(a => a.FileId.ToTryInt64()).ToList().Contains(t.Id)).ToList().MapToList<TFile, FileDto>().ToList();
+            foreach (var itemDetails in data.AIKmssDetailsList)
+            {
+                if (itemDetails.FileId != default)
+                {
+                    var file = flieData.Where(t => t.Id == itemDetails.FileId.ToTryInt64()).FirstOrDefault();
+                    if (file != default)
+                    {
+                        itemDetails.Url = file.Url ?? "";
+                        itemDetails.ContentName = file.Name ?? "";
+                    }
+                }
+
+            }
             return data;
         }
         public async Task<bool> AddEdit(AIKmssDto data)
@@ -105,6 +119,10 @@ namespace kevin.Application.Services.AI
                 {
                     isAdd = true;
                 }
+            }
+            if (data.aIModelsId == default)
+            {
+                throw new UserFriendlyException("矢量化模型必填");
             }
             if (isAdd)
             {

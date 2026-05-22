@@ -71,7 +71,7 @@
         :accept="'.txt,.pdf,.md,.docx'"
         :multiple="true"
         :max-count="30"
-        @upload-success="beforeUpload"
+        @upload-success="beforeUploadSuccess"
         @upload-error="handleUploadError"
         @delete-success="handleRemoveFile"
         @file-ids-change="handleFileIdsChange"
@@ -80,7 +80,7 @@
           </a-form-item>
         </a-col>
           <a-col :span="12">       
-          <a-form-item label="模型" >
+          <a-form-item label="模型" v-bind="validateInfos.aIModelsId">
             <a-select 
               v-model:value="form.aIModelsId" 
               placeholder="请选择会话模型"
@@ -277,6 +277,9 @@ const urlForm = reactive({
 const rules = reactive({
   name: [
     { required: true, message: '请输入知识库名称' }
+  ],
+  aIModelsId: [
+    { required: true, message: '请选择模型' }
   ]
 });
 
@@ -410,13 +413,13 @@ const handleCancel = () => {
 };
 
 // 上传文件成功
-const beforeUpload = (file) => {
+const beforeUploadSuccess = (file) => {
   console.log('上传文件:', file);
   // 创建知识库详情对象
   const detailItem = {
     id: Date.now(),
     kmsId: form.id || 0,
-    fileId: file.fileId.data,
+    fileId: file.fileId,
     file: {
       fileName: file.fileName,
       size: file.fileSize
