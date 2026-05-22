@@ -9,7 +9,7 @@ namespace Kevin.log4Net
         public static void UseKevinLog4Net(this ILoggingBuilder log, string log4NetConfigFile = "")
         {
             // 默认相对路径（平台无关）
-            var relativeDefault = Path.Combine("LogConfigs", $"log4.{EnvironmentConfigHelper.GetEnvironment()}.config");
+            var relativeDefault = Path.Combine("LogConfigs", $"log4.{(!string.IsNullOrEmpty(EnvironmentConfigHelper.GetEnvironment()) ? EnvironmentConfigHelper.GetEnvironment() + "." : "")}config");
 
             // 采用传入路径或默认路径
             var relativePath = string.IsNullOrWhiteSpace(log4NetConfigFile) ? relativeDefault : log4NetConfigFile;
