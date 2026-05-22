@@ -1,7 +1,7 @@
-#  :dizzy: NetCoreKevin介绍
-|  ![输入图片说明](Doc/fe381882-f0d6-457f-8b87-974a6e6a8f21.png) | ![输入图片说明](Doc/4344f17d-26d4-41ea-a235-1b9d67a633ce.png)  |  ![输入图片说明](Doc/3e146090-58a6-44bf-8cff-2b6b6323ef11.png)  |
+#  :dizzy: 动态管理AI智能体技能工具
+|  ![输入图片说明](Doc/dtai1.png) | ![输入图片说明](Doc/dtai2.png)  |  ![输入图片说明](Doc/dtai3.png) |
 |---|---|---|
-| ![输入图片说明](Doc/bd2a60ce-2f32-46df-8bd6-9ffa5da515b4.png)  |  ![输入图片说明](Doc/3482bece-3f43-4ace-9337-283eb8a42903.png)|  ![输入图片说明](Doc/39c1ee78-3814-4e27-a158-2934317a2666.png) |
+
 
 #  :barber: 知识库AI智能体效果图 
 |  ![输入图片说明](Doc/aixg1.png) | ![输入图片说明](Doc/aixg2.png)  | ![输入图片说明](Doc/aixg3.png)  |
