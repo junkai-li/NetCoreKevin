@@ -1,4 +1,5 @@
 ﻿using Common.Json;
+using kevin.Domain.Share;
 using Kevin.Common.Extension;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -24,7 +25,7 @@ namespace Kevin.Common.App.Global
                 errMsg = "Global internal exception of the system"
             };
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            if (error is UserFriendlyException)
+            if (error is UserFriendlyException || error is FieldValidationException)
             {
                 ret = new
                 {

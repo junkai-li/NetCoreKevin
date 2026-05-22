@@ -1,4 +1,6 @@
-﻿namespace kevin.Share.Dtos
+﻿using kevin.Domain.Share;
+
+namespace kevin.Share.Dtos
 {
 
 
@@ -33,7 +35,7 @@
                     return false;
 
                 if (FileContent != null && FileContent.Length > 0 && string.IsNullOrWhiteSpace(FileName))
-                    throw new Exception("上传文件时 FileName 属性值不能为空");
+                    throw new FieldValidationException("上传文件时 FileName 属性值不能为空");
                 return true;
             }
         }

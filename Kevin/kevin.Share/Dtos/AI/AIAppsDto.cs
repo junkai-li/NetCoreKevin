@@ -98,19 +98,19 @@ namespace kevin.Domain.Share.Dtos.AI
         {
             if (string.IsNullOrEmpty(this.ChatModelID))
             {
-                throw new Exception("请选择会话模型");
+                throw new FieldValidationException("请选择会话模型");
             }
             if (this.AIPromptID == default || this.AIPromptID == 0)
             {
-                throw new Exception("提示词不能为空");
+                throw new FieldValidationException("提示词不能为空");
             }
             if (this.MaxRetries < 1)
             {
-                throw new Exception("AI请求最大重试次数最小为1");
+                throw new FieldValidationException("AI请求最大重试次数最小为1");
             }
             if (this.NetworkTimeout < 1)
             {
-                throw new Exception("AI请求超时时间最小为1分钟");
+                throw new FieldValidationException("AI请求超时时间最小为1分钟");
             }
         }
 

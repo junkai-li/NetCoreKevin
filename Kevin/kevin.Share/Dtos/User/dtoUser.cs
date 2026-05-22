@@ -101,7 +101,7 @@ namespace kevin.Domain.Share.Dtos.User
         {
             if (!this.Status)
             {
-                throw new Exception("用户已失效");
+                throw new FieldValidationException("用户已失效");
             }
         }
 
