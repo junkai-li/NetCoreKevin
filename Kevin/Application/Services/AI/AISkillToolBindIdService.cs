@@ -1,4 +1,5 @@
-﻿using kevin.Domain.Entities.AI;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 
@@ -42,7 +43,7 @@ namespace kevin.Application.Services.AI
             {
                 var add = data.MapTo<TAISkillToolBindId>();
                 add.Id = data.Id == default ? SnowflakeIdService.GetNextId() : data.Id;
-                add.IsDelete = false; 
+                add.IsDelete = false;
                 add.CreateTime = DateTime.Now;
                 add.CreateUserId = CurrentUser.UserId;
                 add.TenantId = CurrentUser.TenantId;
@@ -53,26 +54,26 @@ namespace kevin.Application.Services.AI
                 var upData = AISkillToolBindIdRp.Query().Where(t => t.IsDelete == false && t.Id == data.Id).FirstOrDefault();
                 if (upData != default)
                 {
-                    upData= data.MapTo(upData);
+                    upData = data.MapTo(upData);
                     upData.UpdateTime = DateTime.Now;
                     upData.UpdateUserId = CurrentUser.UserId;
-                    upData.TenantId = CurrentUser.TenantId; 
+                    upData.TenantId = CurrentUser.TenantId;
                 }
                 else
                 {
                     throw new UserFriendlyException("数据不存在或已删除");
-                } 
+                }
             }
-            await AISkillToolBindIdRp.SaveChangesAsync(); 
+            await AISkillToolBindIdRp.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> Delete(long id)
         {
-            var data = await AISkillToolBindIdRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync(); 
+            var data = await AISkillToolBindIdRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
             if (data != default)
             {
-                
+
                 data.IsDelete = true;
                 data.DeleteTime = DateTime.Now;
                 AISkillToolBindIdRp.SaveChangesWithSaveLog();
@@ -81,6 +82,49 @@ namespace kevin.Application.Services.AI
             {
                 throw new UserFriendlyException("数据不存在或已删除");
             }
+            return true;
+        }
+
+        public async Task<List<TAISkillToolBindId>> GetListById(string Id)
+        {
+            return await AISkillToolBindIdRp.Query().Where(t => t.IsDelete == false && t.BindId == Id).ToListAsync();
+        }
+
+        public async Task<bool> BatchAddIds(string Id, List<long> ids)
+        {
+            var data = await AISkillToolBindIdRp.Query().Where(t => t.IsDelete == false && t.BindId == Id).ToListAsync();
+            var addItems = new List<TAISkillToolBindId>();
+            foreach (var item in data)
+            {
+                if (!ids.Contains(item.AISkillToolManagementId))
+                {
+                    item.IsDelete = true;
+                    item.DeleteTime = DateTime.Now;
+                    item.DeleteUserId = CurrentUser.UserId;
+                }
+                else
+                {
+                    ids.Remove(item.AISkillToolManagementId);
+                }
+            }
+            foreach (var item in ids)
+            {
+                addItems.Add(new TAISkillToolBindId
+                {
+                    Id = SnowflakeIdService.GetNextId(),
+                    AISkillToolManagementId = item,
+                    BindId = Id,
+                    IsDelete = false,
+                    CreateTime = DateTime.Now,
+                    CreateUserId = CurrentUser.UserId,
+                    TenantId = CurrentUser.TenantId
+                });
+            }
+            if (addItems.Count > 0)
+            {
+                AISkillToolBindIdRp.AddRange(addItems);
+            }
+            await AISkillToolBindIdRp.SaveChangesAsync();
             return true;
         }
     }

@@ -6,6 +6,7 @@ using kevin.Domain.Share.Enums;
 using kevin.FileStorage;
 using kevin.RepositorieRps.Repositories;
 using Kevin.Common;
+using System;
 
 namespace kevin.Application.Services.AI
 {
@@ -82,7 +83,7 @@ namespace kevin.Application.Services.AI
                         throw new UserFriendlyException("系统内置工具不允许修改");
                     }
                     upData.Name = data.Name;
-                    upData.SkillToolType = data.SkillToolType; 
+                    upData.SkillToolType = data.SkillToolType;
                     upData.ActiveStatus = data.ActiveStatus;
                     upData.ClassMethod = data.ClassMethod;
                     upData.Description = data.Description;
@@ -99,7 +100,7 @@ namespace kevin.Application.Services.AI
             }
             if (data.SkillToolType == AISkillToolTypeEnums.Skill)
             {
-               
+
                 //处理skill技能附件包
                 var flieData = _FileRp.Query().Where(t => t.IsDelete == false && t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && data.Id.ToString() == t.TableId).FirstOrDefault();
                 if (flieData != default && !string.IsNullOrEmpty(flieData.Url))
@@ -151,6 +152,18 @@ namespace kevin.Application.Services.AI
                 throw new UserFriendlyException("数据不存在或已删除");
             }
             return true;
+        }
+
+        public async Task<List<AISkillToolManagementDto>> GetAllSkills()
+        {
+             return (await AISkillToolManagementRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Skill && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement,AISkillToolManagementDto>();
+        
+        }
+
+        public async Task<List<AISkillToolManagementDto>> GetAllTools()
+        {
+            return (await AISkillToolManagementRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Tool && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
+
         }
     }
 }

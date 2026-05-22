@@ -4,6 +4,21 @@
         <name>kevin.Domain.Share</name>
     </assembly>
     <members>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsBindSkillToolsDto.AISkillToolManagementId">
+             <summary>
+            技能工具ID
+             </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsBindSkillToolsDto.AISkillToolManagementName">
+            <summary>
+            技能工具名称
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsBindSkillToolsDto.IsSelect">
+            <summary>
+            是否选中
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.Name">
             <summary>
             名称
@@ -79,9 +94,19 @@
             是否开启ai工具，开启后可以使用AI工具类技能，关闭后只能使用普通技能
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.Tools">
+            <summary>
+            工具绑定列表
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.IsSkill">
             <summary>
             是否开启Skill技能，开启后可以使用Skill技能
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.Skills">
+            <summary>
+            Skill技能绑定列表
             </summary>
         </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.IsHttpLog">

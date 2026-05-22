@@ -23,6 +23,13 @@
             <param name="par"></param>
             <returns></returns>
         </member>
+        <member name="M:Kevin.Web.Basics.AI.AIAppsController.GetDetails(System.Int64)">
+            <summary>
+            获取AI应用详情
+            </summary>
+            <param name="Id"></param>
+            <returns></returns>
+        </member>
         <member name="M:Kevin.Web.Basics.AI.AIAppsController.Delete(System.Int64)">
             <summary>
             删除AI应用

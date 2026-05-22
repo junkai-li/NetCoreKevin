@@ -7,9 +7,15 @@ namespace kevin.Application.Services.AI
     public class AIAppsService : BaseService, IAIAppsService
     {
         public IAIAppsRp aIAppsRp { get; set; }
-        public AIAppsService(IHttpContextAccessor _httpContextAccessor, IAIAppsRp _aIAppsRp) : base(_httpContextAccessor)
+
+        public readonly IAISkillToolManagementService aISkillToolManagementService;
+
+        public readonly IAISkillToolBindIdService aISkillToolBindIdService; 
+        public AIAppsService(IHttpContextAccessor _httpContextAccessor, IAIAppsRp _aIAppsRp, IAISkillToolManagementService aISkillToolManagementService, IAISkillToolBindIdService aISkillToolBindIdService) : base(_httpContextAccessor)
         {
             this.aIAppsRp = _aIAppsRp;
+            this.aISkillToolManagementService = aISkillToolManagementService;
+            this.aISkillToolBindIdService = aISkillToolBindIdService;
         }
 
         /// <summary>
@@ -44,6 +50,21 @@ namespace kevin.Application.Services.AI
             {
                 throw new UserFriendlyException("ai应用数据不存在或已删除");
             }
+            var skills = await aISkillToolManagementService.GetAllSkills();
+            var tools = await aISkillToolManagementService.GetAllTools();
+            var myIds = await aISkillToolBindIdService.GetListById(data.Id.ToString());
+            data.Skills = skills.Select(t => new AIAppsBindSkillToolsDto
+            {
+                IsSelect = myIds.Any(x => x.AISkillToolManagementId == t.Id),
+                AISkillToolManagementName = t.Name,
+                AISkillToolManagementId = t.Id
+            }).ToList();
+            data.Tools = tools.Select(t => new AIAppsBindSkillToolsDto
+            {
+                IsSelect = myIds.Any(x => x.AISkillToolManagementId == t.Id),
+                AISkillToolManagementName = t.Name,
+                AISkillToolManagementId = t.Id
+            }).ToList();
             return data;
         }
         /// <summary>
@@ -111,8 +132,8 @@ namespace kevin.Application.Services.AI
                     msg.RerankCount = par.RerankCount;
                     msg.AnswerTokens = par.AnswerTokens;
                     msg.AIPromptID = par.AIPromptID;
-                    msg.IsAITools= par.IsAITools;
-                    msg.IsSkill= par.IsSkill;
+                    msg.IsAITools = par.IsAITools;
+                    msg.IsSkill = par.IsSkill;
                 }
                 else
                 {
@@ -121,7 +142,9 @@ namespace kevin.Application.Services.AI
 
             }
             await aIAppsRp.SaveChangesAsync();
-
+            var ids = par.Skills.Where(t => t.IsSelect).Select(t => t.AISkillToolManagementId).ToList();
+            ids.AddRange(par.Tools.Where(t => t.IsSelect).Select(t => t.AISkillToolManagementId).ToList());
+            await aISkillToolBindIdService.BatchAddIds(par.Id.ToString(), ids);
             return true;
         }
 

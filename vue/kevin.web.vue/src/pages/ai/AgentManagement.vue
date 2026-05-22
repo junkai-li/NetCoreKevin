@@ -130,10 +130,11 @@ import {
   EllipsisOutlined
 } from '@ant-design/icons-vue';
 import { message, Modal } from 'ant-design-vue';
-import { 
-  getAIAppsPageData, 
-  addEditAIApp, 
-  deleteAIApp 
+import {
+  getAIAppsPageData,
+  addEditAIApp,
+  deleteAIApp,
+  getAIAppsDetails
 } from '@/api/ai/aiapps';
 import AgentAddEdit from '@/components/ai/AgentAddEdit.vue';
 
@@ -211,9 +212,17 @@ const showAddAgentModal = () => {
 };
 
 // 显示编辑智能体模态框
-const showEditAgentModal = (record) => {
+const showEditAgentModal = async (record) => {
   agentModalType.value = 'edit';
-  currentAgent.value = record;
+  try {
+    const response = await getAIAppsDetails(record.id);
+    if (response && response.code === 200) {
+      currentAgent.value = response.data;
+    }
+  } catch (error) {
+    console.error('获取智能体详情失败:', error);
+    message.error('获取智能体详情失败');
+  }
   agentModalVisible.value = true;
 };
 

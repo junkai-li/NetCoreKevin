@@ -113,10 +113,20 @@ namespace kevin.Domain.Share.Dtos.AI
         public bool IsAITools { get; set; } = true;
 
         /// <summary>
+        /// 工具绑定列表
+        /// </summary>
+        public List<AIAppsBindSkillToolsDto> Tools { get; set; } = new List<AIAppsBindSkillToolsDto>();
+
+        /// <summary>
         /// 是否开启Skill技能，开启后可以使用Skill技能
         /// </summary>
         [Description("是否开启Skill技能，开启后可以使用Skill技能")]
         public bool IsSkill { get; set; } = true;
+
+        /// <summary>
+        /// Skill技能绑定列表
+        /// </summary>
+        public List<AIAppsBindSkillToolsDto> Skills { get; set; } = new List<AIAppsBindSkillToolsDto>();
 
         /// <summary>
         /// 是否开启AI请求日志

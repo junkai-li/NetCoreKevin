@@ -171,6 +171,38 @@
           </a-form-item>
         </a-col>
       </a-row>
+      <a-row :gutter="16" v-if="form.isAITools">
+        <a-col :span="24">
+          <a-form-item label="Tools">
+            <a-checkbox-group v-model:value="form.tools">
+              <a-checkbox
+                v-for="item in (props.agentData?.tools || [])"
+                :key="item.aiSkillToolManagementId"
+                :value="item.aiSkillToolManagementId"
+                style="margin-bottom: 8px"
+              >
+                {{ item.aiSkillToolManagementName }}
+              </a-checkbox>
+            </a-checkbox-group>
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row :gutter="16" v-if="form.isSkill">
+        <a-col :span="24">
+          <a-form-item label="Skills">
+            <a-checkbox-group v-model:value="form.skills">
+              <a-checkbox
+                v-for="item in (props.agentData?.skills || [])"
+                :key="item.aiSkillToolManagementId"
+                :value="item.aiSkillToolManagementId"
+                style="margin-bottom: 8px"
+              >
+                {{ item.aiSkillToolManagementName }}
+              </a-checkbox>
+            </a-checkbox-group>
+          </a-form-item>
+        </a-col>
+      </a-row>
     </a-form>
   </a-modal>
 </template>
@@ -195,7 +227,7 @@ const props = defineProps({
   },
   modalType: {
     type: String,
-    default: 'add' // 'add' 或 'edit'
+    default: 'add'
   }
 });
 
@@ -225,7 +257,9 @@ const form = reactive({
   aiPromptID: undefined,
   msgType: 1,
   isAITools: true,
-  isSkill: true
+  isSkill: true,
+  tools: [],
+  skills: []
 });
 
 // 表单验证规则
@@ -286,6 +320,8 @@ const promptOptions = computed(() => {
     value: prompt.id
   }));
 });
+ 
+ 
 
 // 模态框标题
 const modalTitle = computed(() => {
@@ -303,7 +339,17 @@ watch(() => props.open, (newVal) => {
     if (props.modalType === 'edit' && props.agentData) {
       Object.keys(form).forEach(key => {
         if (props.agentData[key] !== undefined) {
-          form[key] = props.agentData[key];
+          if (key === 'tools' && Array.isArray(props.agentData[key])) {
+            form.tools = props.agentData[key]
+              .filter(t => t.isSelect)
+              .map(t => t.aiSkillToolManagementId);
+          } else if (key === 'skills' && Array.isArray(props.agentData[key])) {
+            form.skills = props.agentData[key]
+              .filter(s => s.isSelect)
+              .map(s => s.aiSkillToolManagementId);
+          } else {
+            form[key] = props.agentData[key];
+          }
         }
       });
     } else {
@@ -328,7 +374,9 @@ watch(() => props.open, (newVal) => {
         aiPromptID: undefined,
         msgType: 1,
         isAITools: true,
-        isSkill: true
+        isSkill: true,
+        tools: [],
+        skills: []
       });
     }
   }
@@ -346,7 +394,13 @@ const handleOk = () => {
   validate().then(async () => {
     confirmLoading.value = true;
     try {
-      // 构造参数
+      const buildSelectedData = (selectedIds, originalData) => {
+        return originalData.map(item => ({
+          ...item,
+          isSelect: selectedIds.includes(item.aiSkillToolManagementId)
+        }));
+      };
+
       const params = {
         id: form.id,
         name: form.name,
@@ -367,7 +421,9 @@ const handleOk = () => {
         aiPromptID: form.aiPromptID,
         msgType: form.msgType,
         isAITools: form.isAITools,
-        isSkill: form.isSkill
+        isSkill: form.isSkill,
+        tools: form.isAITools ? buildSelectedData(form.tools || [], props.agentData?.tools || []) : [],
+        skills: form.isSkill ? buildSelectedData(form.skills || [], props.agentData?.skills || []) : []
       };
       
       emit('ok', params);
@@ -415,7 +471,6 @@ const loadKmsList = async () => {
   try {
     const response = await getAIKmssList({});
     if (response && response.code === 200) {
-      // 根据API响应调整数据结构，通常POST类型的列表接口会将数据放在data.result或类似属性下
       if(response.data && Array.isArray(response.data)) {
         kmsList.value = response.data;
       } else if(response.data && response.data.list && Array.isArray(response.data.list)) {

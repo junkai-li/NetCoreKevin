@@ -65,6 +65,21 @@ namespace Kevin.Web.Basics.AI
             var result = await _service.AddEdit(par);
             return result;
         }
+
+        /// <summary>
+        /// 获取AI应用详情
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        [HttpGet("GetDetails")]
+        [ActionDescription("获取AI应用详情")]
+        [HttpLog("AI应用管理", "获取AI应用详情")]
+
+        public async Task<AIAppsDto> GetDetails([FromQuery][Required] long Id)
+        {
+            var result = await _service.GetDetails(Id);
+            return result;
+        }
         /// <summary>
         /// 删除AI应用
         /// </summary>

@@ -6,7 +6,22 @@ namespace kevin.Domain.Interfaces.IServices.AI
     /// </summary>
     public interface IAISkillToolBindIdService : IBaseService
     {
-         /// <summary>
+ 
+        /// <summary>
+        /// 获取管理Id的所有列表
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        Task<List<TAISkillToolBindId>> GetListById(string Id);
+        /// <summary>
+        /// 批量绑定管理哦工具
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="Id"></param>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        Task<bool> BatchAddIds(string Id, List<long> ids);
+        /// <summary>
         /// ��ȡ��ҳ����
         /// </summary>
         /// <param name="dtoPagePar"></param>
