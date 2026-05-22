@@ -215,6 +215,9 @@ const showAddAgentModal =async () => {
       currentAgent.value.id = response.data.id;
        currentAgent.value.skills = response.data.skills;
        currentAgent.value.tools = response.data.tools;
+       currentAgent.value.isHttpLog = response.data.isHttpLog;
+       currentAgent.value.maxRetries = response.data.maxRetries;
+       currentAgent.value.networkTimeout = response.data.networkTimeout;
     }
   } catch (error) {
     console.error('获取智能体详情失败:', error);

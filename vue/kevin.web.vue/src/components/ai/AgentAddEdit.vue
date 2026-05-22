@@ -203,6 +203,25 @@
           </a-form-item>
         </a-col>
       </a-row>
+      <a-row :gutter="16">
+        <a-col :span="12">
+          <a-form-item label="AI请求日志">
+            <a-switch v-model:checked="form.isHttpLog" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="最大重试次数">
+            <a-input-number v-model:value="form.maxRetries" :min="0" style="width: 100%" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="12">
+          <a-form-item label="请求超时(分钟)">
+            <a-input-number v-model:value="form.networkTimeout" :min="1" style="width: 100%" />
+          </a-form-item>
+        </a-col>
+      </a-row>
     </a-form>
   </a-modal>
 </template>
@@ -259,7 +278,10 @@ const form = reactive({
   isAITools: true,
   isSkill: true,
   tools: [],
-  skills: []
+  skills: [],
+  isHttpLog: false,
+  maxRetries: 3,
+  networkTimeout: 10
 });
 
 // 表单验证规则
@@ -355,7 +377,7 @@ watch(() => props.open, (newVal) => {
     } else {
       // 添加模式，设置默认值
       Object.assign(form, {
-        id: '',
+        id: props.agentData?.id || '',
         name: '',
         describe: '',
         icon: 'windows',
@@ -376,7 +398,10 @@ watch(() => props.open, (newVal) => {
         isAITools: true,
         isSkill: true,
         tools: [],
-        skills: []
+        skills: [],
+        isHttpLog: false,
+        maxRetries: 3,
+        networkTimeout: 10
       });
     }
   }
@@ -423,7 +448,10 @@ const handleOk = () => {
         isAITools: form.isAITools,
         isSkill: form.isSkill,
         tools: form.isAITools ? buildSelectedData(form.tools || [], props.agentData?.tools || []) : [],
-        skills: form.isSkill ? buildSelectedData(form.skills || [], props.agentData?.skills || []) : []
+        skills: form.isSkill ? buildSelectedData(form.skills || [], props.agentData?.skills || []) : [],
+        isHttpLog: form.isHttpLog,
+        maxRetries: form.maxRetries,
+        networkTimeout: form.networkTimeout
       };
       
       emit('ok', params);

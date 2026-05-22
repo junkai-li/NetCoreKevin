@@ -104,6 +104,14 @@ namespace kevin.Domain.Share.Dtos.AI
             {
                 throw new Exception("提示词不能为空");
             }
+            if (this.MaxRetries < 1)
+            {
+                throw new Exception("AI请求最大重试次数最小为1");
+            }
+            if (this.NetworkTimeout < 1)
+            {
+                throw new Exception("AI请求超时时间最小为1分钟");
+            }
         }
 
         /// <summary>

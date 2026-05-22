@@ -134,6 +134,9 @@ namespace kevin.Application.Services.AI
                     msg.AIPromptID = par.AIPromptID;
                     msg.IsAITools = par.IsAITools;
                     msg.IsSkill = par.IsSkill;
+                    msg.MaxAskPromptSize= par.MaxAskPromptSize;
+                    msg.NetworkTimeout = par.NetworkTimeout;
+                    msg.IsHttpLog = par.IsHttpLog;
                 }
                 else
                 {
