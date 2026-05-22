@@ -135,7 +135,7 @@
         <a-form-item label="路径" v-bind="validateInfos.url">
           <a-input v-model:value="form.url" placeholder="请输入路径" />
         </a-form-item>
-        <a-form-item v-if="form.skillToolType === 2" label="技能文件">  
+        <a-form-item v-if="form.skillToolType === 2" label="技能文件" v-bind="validateInfos.skillFile">  
           <FileUpload
             business="AISkillToolManagement"
             :keyValue="form.id"
@@ -245,22 +245,47 @@ const form = reactive({
   skillFile: null,
 });
 
+const validatePath = (rule, value) => {
+  if (form.skillToolType !== 2) {
+    return Promise.resolve();
+  }
+  if (!value || !value.trim()) {
+    return Promise.reject("请输入路径");
+  }
+  const pathPattern = /^[a-zA-Z]+(\/[a-zA-Z]+)*$/;
+  if (!pathPattern.test(value)) {
+    return Promise.reject("路径只能输入字母，多个字段用斜杠分隔（如：abc/def/ghi）");
+  }
+  return Promise.resolve();
+};
+
+const validateSkillFile = (rule, value) => {
+  if (form.skillToolType !== 2) {
+    return Promise.resolve();
+  }
+  if (!value || !value.id) {
+    return Promise.reject("请上传技能压缩包");
+  }
+  return Promise.resolve();
+};
+
 const rules = computed(() => ({
   name: [{ required: true, message: "请输入名称" }],
   classMethod: form.skillToolType === 1 ? [{ required: true, message: "请输入方法" }] : [],
   skillToolType: [{ required: true, message: "请选择技能工具类型" }],
   activeStatus: [{ required: true, message: "请选择启用状态" }],
-  url: form.skillToolType === 2 ? [{ required: true, message: "请输入路径" }] : [],
+  url: form.skillToolType === 2 ? [{ required: true, validator: validatePath, trigger: "change" }] : [],
+  skillFile: form.skillToolType === 2 ? [{ required: true, validator: validateSkillFile, trigger: "change" }] : [],
 }));
 
 const { validate: validateForm, validateInfos, clearValidate } = useForm(form, rules);
 
 watch(() => form.skillToolType, () => {
-  clearValidate(['classMethod', 'url']);
+  clearValidate(["classMethod", "url", "skillFile"]);
 });
 
 const searchKeyword = ref("");
-const filterType = ref(undefined);
+const filterType = ref(2);
 
 const getSkillToolTypeName = (type) => {
   const types = { 1: "Tool", 2: "Skill" };
@@ -415,8 +440,7 @@ const handleModalOk = () => {
           url: form.url,
           description: form.description,
           activeStatus: form.activeStatus,
-          skillToolType: form.skillToolType,
-          skillFile: form.skillFile,
+          skillToolType: form.skillToolType, 
         } : {
             id: form.id,
           name: form.name,
@@ -424,8 +448,7 @@ const handleModalOk = () => {
           url: form.url,
           description: form.description,
           activeStatus: form.activeStatus,
-          skillToolType: form.skillToolType,
-          skillFile: form.skillFile,
+          skillToolType: form.skillToolType, 
         });
 
         message.success(currentRecord.value ? "更新成功" : "添加成功");

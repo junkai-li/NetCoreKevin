@@ -93,8 +93,20 @@ namespace kevin.Application.Services.AI
                     throw new UserFriendlyException("数据不存在或已删除");
                 }
             }
+            //处理skill技能附件包
+            var flieData = _FileRp.Query().Where(t => t.IsDelete == false && t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && data.Id.ToString() == t.TableId).ToList();
+            if (flieData.Count > 0)
+            {
+
+            }
+            else
+            {
+                throw new UserFriendlyException("请上传skill技能附件包");
+            }
             await AISkillToolManagementRp.SaveChangesAsync();
             return true;
+
+
         }
 
         public async Task<bool> Delete(long id)
