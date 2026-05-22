@@ -19,14 +19,32 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Skills\expense-report\assets\expense-report-template.md">
+    <None Update="Skills\expense-report\expense-report\assets\expense-report-template.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\expense-report\references\POLICY_FAQ.md">
+    <None Update="Skills\expense-report\expense-report\references\POLICY_FAQ.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Skills\expense-report\SKILL.md">
+    <None Update="Skills\expense-report\expense-report\SKILL.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\system-ops\system-ops\assets\template.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\system-ops\system-ops\references\troubleshooting-guide.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\system-ops\system-ops\scripts\check-disk-usage.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\system-ops\system-ops\scripts\check-system-info.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\system-ops\system-ops\scripts\check-top-processes.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\system-ops\system-ops\SKILL.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

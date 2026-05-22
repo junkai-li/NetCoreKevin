@@ -7,7 +7,7 @@
         /// </summary>
         public const string SystemPromptText = @"# 
                                                  ##初始化
-                                                1.自动使用load_skill、read_skill_resource来获取技能指令和资源内容； 
+                                                1.自动获取技能指令和资源内容； 
 
                                                 # 重要规则：
                                                 # 1. 只使用文档中的信息或者互联网查询信息来回答

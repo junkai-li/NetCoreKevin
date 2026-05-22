@@ -106,7 +106,7 @@ namespace kevin.Application.Services.AI
                 if (flieData != default && !string.IsNullOrEmpty(flieData.Url))
                 {
                     //拼接路径
-                    var path = Path.Combine(AppContext.BaseDirectory, "Skills", data.Name);
+                    var path = Path.Combine(AppContext.BaseDirectory, "Skills", data.Name, data.Name);
 
                     //如果目录存在则删除目录下的所有文件  
                     if (Directory.Exists(path))

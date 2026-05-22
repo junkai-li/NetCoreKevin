@@ -183,28 +183,27 @@ namespace kevin.Application.Services.AI
             if (aiapp.IsSkill)
             {
                 var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(new { AIChatsId = add.AIChatsId }, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result;
-#pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。 
-
-                var aiContextProviders = new List<AIContextProvider>();
+#pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。  
+                var skillsProvider = new AgentSkillsProviderBuilder()
+                                               .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)
+                                               .UseOptions(options => options.DisableCaching = true);
                 foreach (var skillPath in skillPaths)
                 {
-                    var skillsProvider = new AgentSkillsProviderBuilder()
-                                                                   .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)
-                                                                  .UseFileSkill(Path.Combine(AppContext.BaseDirectory + skillPath),//"/Skills/all-skills"
+                    skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath),
                                                                   new AgentFileSkillsSourceOptions
                                                                   {
                                                                       AllowedScriptExtensions = [".py", ".sh", ".ps1", ".sh"],
                                                                       ScriptDirectories = ["scripts", "tools", "templates"],
-                                                                  })
-                                                                  .UseOptions(options => options.DisableCaching = true)
-                                                                  .Build();
-                    aiContextProviders.Add(skillsProvider);
+                                                                  });
+
+
                 }
-                chatAgOs.AIContextProviders = aiContextProviders;
+                var sk = skillsProvider.Build();
+                chatAgOs.AIContextProviders = [sk];
 #pragma warning restore MAAI001
             }
             #endregion
-             
+
             switch (aIModels.AIType)
             {
                 case Domain.Share.Enums.AIType.OpenAI:
@@ -219,9 +218,9 @@ namespace kevin.Application.Services.AI
                         AIDefaultModel = aIModels.ModelName,
                         IsStreame = aiapp.MsgType == 2,
                         AIParData = new { AIChatsId = add.AIChatsId },
-                        IsHttpLog= aiapp.IsHttpLog,
+                        IsHttpLog = aiapp.IsHttpLog,
                         MaxRetries = aiapp.MaxRetries,
-                        NetworkTimeout = aiapp.NetworkTimeout, 
+                        NetworkTimeout = aiapp.NetworkTimeout,
                         StreameCallback = async (msg) =>
                         {
                             await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
