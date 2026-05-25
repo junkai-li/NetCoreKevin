@@ -24,64 +24,22 @@
           mode="inline"
           @click="handleMenuClick"
         >
-          <a-sub-menu key="dashboard">
-            <template #icon>
-              <DashboardOutlined />
-            </template>
-            <template #title>首页</template>
-            <a-menu-item key="">首页</a-menu-item>
-          </a-sub-menu>
-          <a-sub-menu key="my">
-            <template #icon>
-              <RobotOutlined />
-            </template>
-            <template #title>我的</template>
-            <a-menu-item key="my-message">我的消息</a-menu-item>
-            <a-menu-item key="my-ai-chat">我的AI对话</a-menu-item>
-            <a-menu-item key="my-ai-tasks">我的AI自动任务</a-menu-item>
-            <a-menu-item key="my-ai-agents">我的可用智能体</a-menu-item>
-          </a-sub-menu>
-          <a-sub-menu key="aimanagement">
-            <template #icon>
-              <GitlabOutlined />
-            </template>
-            <template #title>AI管理</template>
-            <a-menu-item key="ai-appsmg">智能体管理</a-menu-item>
-            <a-menu-item key="ai-promptsmg">提示词管理</a-menu-item>
-            <a-menu-item key="ai-kmssmg">知识库管理</a-menu-item>
-            <a-menu-item key="ai-modelmg">模型配置管理</a-menu-item>
-            <a-menu-item key="ai-skilltoolmg">AI技能工具管理</a-menu-item>
-          </a-sub-menu>
-          <a-sub-menu key="organizational-management">
-            <template #icon>
-              <UserOutlined />
-            </template>
-            <template #title>组织架构</template>
-            <a-menu-item key="organizational-position">岗位管理</a-menu-item>
-            <a-menu-item key="organizational-department">部门管理</a-menu-item>
-          </a-sub-menu>
-          <a-sub-menu key="user-management">
-            <template #icon>
-              <UserOutlined />
-            </template>
-            <template #title>用户管理</template>
-            <a-menu-item key="user-list">用户管理</a-menu-item>
-            <a-menu-item key="user-role">角色管理</a-menu-item>
-            <a-menu-item key="user-permission">权限管理</a-menu-item>
-          </a-sub-menu>
-
-          <a-sub-menu key="system-settings">
-            <template #icon>
-              <SettingOutlined />
-            </template>
-            <template #title>系统管理</template>
-            <a-menu-item key="system-announcement">系统公告</a-menu-item>
-            <a-menu-item key="system-dic">系统配置</a-menu-item>
-            <a-menu-item key="system-tenant">租户管理</a-menu-item>
-            <a-menu-item key="system-code-generator">代码生成器</a-menu-item>
-            <a-menu-item key="log-management">日志管理</a-menu-item>
-            <a-menu-item key="oslog">关键数据变动日志</a-menu-item>
-          </a-sub-menu>
+          <template v-for="menu in menuList" :key="menu.key">
+            <a-sub-menu :key="menu.key" v-if="hasPermission(menu.permission) && menu.children">
+              <template #icon>
+                <component :is="menu.icon" />
+              </template>
+              <template #title>{{ menu.title }}</template>
+              <template v-for="child in menu.children" :key="child.key">
+                <a-menu-item :key="child.key" v-if="hasPermission(child.permission)">
+                  <template #icon>
+                    <component :is="child.icon" />
+                  </template>
+                  {{ child.title }}
+                </a-menu-item>
+              </template>
+            </a-sub-menu>
+          </template>
         </a-menu>
       </div>
     </a-layout-sider>
@@ -239,6 +197,20 @@ import {
   BgColorsOutlined,
   GitlabOutlined,
   RobotOutlined,
+  MessageOutlined,
+  ScheduleOutlined,
+  AppstoreOutlined,
+  FileTextOutlined,
+  BookOutlined,
+  ToolOutlined,
+  AuditOutlined,
+  TeamOutlined,
+  SafetyOutlined,
+  KeyOutlined,
+  NotificationOutlined,
+  BankOutlined,
+  CodeOutlined,
+  HistoryOutlined,
 } from "@ant-design/icons-vue";
 //import { Button } from 'ant-design-vue';
 import { useRouter } from "vue-router";
@@ -263,6 +235,90 @@ const userInfo = reactive({
   name: "管理员",
   avatar: hedeImage, // 使用导入的图片
 });
+
+// 用户权限列表
+const userPermissions = ref([]);
+
+// 权限检查函数
+const hasPermission = (permission) => {
+  if (!permission) return true;
+  // 如果没有权限数据（本地存储为空或无效），默认显示所有菜单
+  if (!userPermissions.value || userPermissions.value.length === 0) return true;
+  return userPermissions.value.includes(permission);
+};
+
+// 菜单列表
+const menuList = ref([
+  {
+    key: 'dashboard',
+    title: '首页',
+    icon: DashboardOutlined,
+    permission: 'Dashboard',
+    children: [
+      { key: '', title: '首页', permission: 'Dashboard', icon: DashboardOutlined }
+    ]
+  },
+  {
+    key: 'my',
+    title: '我的',
+    icon: RobotOutlined,
+    permission: 'MyMenu',
+    children: [
+      { key: 'my-message', title: '我的消息', permission: 'MyMessage', icon: MessageOutlined },
+      { key: 'my-ai-chat', title: '我的AI对话', permission: 'MyAiChat', icon: RobotOutlined },
+      { key: 'my-ai-tasks', title: '我的AI自动任务', permission: 'MyAiTasks', icon: ScheduleOutlined },
+      { key: 'my-ai-agents', title: '我的可用智能体', permission: 'MyAiAgents', icon: AppstoreOutlined }
+    ]
+  },
+  {
+    key: 'aimanagement',
+    title: 'AI管理',
+    icon: GitlabOutlined,
+    permission: 'AIManagement',
+    children: [
+      { key: 'ai-appsmg', title: '智能体管理', permission: 'AIAppsManagement', icon: RobotOutlined },
+      { key: 'ai-promptsmg', title: '提示词管理', permission: 'AIPromptsManagement', icon: FileTextOutlined },
+      { key: 'ai-kmssmg', title: '知识库管理', permission: 'AIKmssManagement', icon: BookOutlined },
+      { key: 'ai-modelmg', title: '模型配置管理', permission: 'AIModelManagement', icon: SettingOutlined },
+      { key: 'ai-skilltoolmg', title: 'AI技能工具管理', permission: 'AISkillToolManagement', icon: ToolOutlined }
+    ]
+  },
+  {
+    key: 'organizational-management',
+    title: '组织架构',
+    icon: UserOutlined,
+    permission: 'OrganizationalManagement',
+    children: [
+      { key: 'organizational-position', title: '岗位管理', permission: 'PositionManagement', icon: AuditOutlined },
+      { key: 'organizational-department', title: '部门管理', permission: 'DepartmentManagement', icon: TeamOutlined }
+    ]
+  },
+  {
+    key: 'user-management',
+    title: '用户管理',
+    icon: UserOutlined,
+    permission: 'UserManagement',
+    children: [
+      { key: 'user-list', title: '用户管理', permission: 'UserList', icon: UserOutlined },
+      { key: 'user-role', title: '角色管理', permission: 'UserRole', icon: SafetyOutlined },
+      { key: 'user-permission', title: '权限管理', permission: 'UserPermission', icon: KeyOutlined }
+    ]
+  },
+  {
+    key: 'system-settings',
+    title: '系统管理',
+    icon: SettingOutlined,
+    permission: 'SystemSettings',
+    children: [
+      { key: 'system-announcement', title: '系统公告', permission: 'SystemAnnouncement', icon: NotificationOutlined },
+      { key: 'system-dic', title: '系统配置', permission: 'SystemDic', icon: SettingOutlined },
+      { key: 'system-tenant', title: '租户管理', permission: 'SystemTenant', icon: BankOutlined },
+      { key: 'system-code-generator', title: '代码生成器', permission: 'SystemCodeGenerator', icon: CodeOutlined },
+      { key: 'log-management', title: '日志管理', permission: 'LogManagement', icon: FileTextOutlined },
+      { key: 'oslog', title: '关键数据变动日志', permission: 'OsLog', icon: HistoryOutlined }
+    ]
+  }
+]);
 
 // 当前路由标题
 const currentRouteTitle = computed(() => {
@@ -406,6 +462,36 @@ onMounted(() => {
       /* ignore */
     }
   }
+
+  // 加载用户权限
+  const permissionsRaw = localStorage.getItem("UserPermissions");
+  if (permissionsRaw) {
+    try {
+      const permissions = JSON.parse(permissionsRaw);
+      if (Array.isArray(permissions)) {
+        userPermissions.value = permissions;
+        userPermissions.value = getAllPermissions();
+      }
+    } catch {
+      // 如果本地存储的权限数据无效，使用模拟数据
+      userPermissions.value = getAllPermissions();
+    }
+  } else {
+    // 模拟权限数据（开发阶段使用）
+    userPermissions.value = getAllPermissions();
+  }
 });
+
+// 获取所有权限（用于默认显示全部菜单）
+const getAllPermissions = () => {
+  return [
+    'Dashboard',
+    'MyMenu', 'MyMessage', 'MyAiChat', 'MyAiTasks', 'MyAiAgents',
+    'AIManagement', 'AIAppsManagement', 'AIPromptsManagement', 'AIKmssManagement', 'AIModelManagement', 'AISkillToolManagement',
+    'OrganizationalManagement', 'PositionManagement', 'DepartmentManagement',
+    'UserManagement', 'UserList', 'UserRole', 'UserPermission',
+    'SystemSettings', 'SystemAnnouncement', 'SystemDic', 'SystemTenant', 'SystemCodeGenerator', 'LogManagement', 'OsLog'
+  ];
+};
 </script>
 
