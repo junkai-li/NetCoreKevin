@@ -11,11 +11,15 @@ namespace kevin.Application.Services.AI
         public readonly IAISkillToolManagementService aISkillToolManagementService;
 
         public readonly IAISkillToolBindIdService aISkillToolBindIdService; 
-        public AIAppsService(IHttpContextAccessor _httpContextAccessor, IAIAppsRp _aIAppsRp, IAISkillToolManagementService aISkillToolManagementService, IAISkillToolBindIdService aISkillToolBindIdService) : base(_httpContextAccessor)
+
+        public readonly IAIAppsBindIdService aIAppsBindIdService;
+        public AIAppsService(IHttpContextAccessor _httpContextAccessor, IAIAppsRp _aIAppsRp, 
+            IAISkillToolManagementService aISkillToolManagementService, IAISkillToolBindIdService aISkillToolBindIdService, IAIAppsBindIdService aIAppsBindIdService) : base(_httpContextAccessor)
         {
             this.aIAppsRp = _aIAppsRp;
             this.aISkillToolManagementService = aISkillToolManagementService;
             this.aISkillToolBindIdService = aISkillToolBindIdService;
+            this.aIAppsBindIdService = aIAppsBindIdService;
         }
 
         /// <summary>
@@ -65,6 +69,7 @@ namespace kevin.Application.Services.AI
                 AISkillToolManagementName = t.Name,
                 AISkillToolManagementId = t.Id
             }).ToList();
+            data.BindIds = (await aIAppsBindIdService.GetListById(data.Id.ToString())).Select(t=>t.BindId).ToList();
             return data;
         }
         /// <summary>
@@ -147,7 +152,8 @@ namespace kevin.Application.Services.AI
             await aIAppsRp.SaveChangesAsync();
             var ids = par.Skills.Where(t => t.IsSelect).Select(t => t.AISkillToolManagementId).ToList();
             ids.AddRange(par.Tools.Where(t => t.IsSelect).Select(t => t.AISkillToolManagementId).ToList());
-            await aISkillToolBindIdService.BatchAddIds(par.Id.ToString(), ids);
+            await aISkillToolBindIdService.BatchAddIds(par.Id.ToString(), ids); 
+            await aIAppsBindIdService.BatchAddIds(par.Id.ToString(), par.BindIds);
             return true;
         }
         

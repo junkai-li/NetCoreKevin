@@ -152,5 +152,10 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary>
         [Description("AI请求超时时间，单位分钟")]
         public int NetworkTimeout { get; set; } = 10;
+
+        /// <summary>
+        /// 关联的绑定ID
+        /// </summary>
+        public List<string> BindIds { get; set; } = new List<string>(); 
     }
 }

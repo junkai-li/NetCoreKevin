@@ -40,18 +40,17 @@ namespace Kevin.Web.Basics.AI
         {
             var result = await _service.GetPageData(par);
             return result;
-        }
-
+        } 
 
         [HttpGet("GetALLList")]
         [ActionDescription("获取AI应用列表")]
-        [HttpLog("AI应用管理", "获取AI应用列表")]
-        [CacheDataFilter<List<AIAppsDto>>(TTL = 60, UseToken = false)]
+        [HttpLog("AI应用管理", "获取AI应用列表")] 
         public async Task<List<AIAppsDto>> GetALLList()
         {
             var result = await _service.GetALLList();
             return result;
         }
+
         /// <summary>
         /// 新增或编辑AI应用
         /// </summary>

@@ -124,6 +124,11 @@
             AI请求超时时间，单位分钟
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.BindIds">
+            <summary>
+            关联的绑定ID
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto">
             <summary>
             聊天记录

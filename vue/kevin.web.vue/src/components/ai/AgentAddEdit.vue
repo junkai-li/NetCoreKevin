@@ -5,9 +5,11 @@
     @ok="handleOk"
     @cancel="handleCancel"
     :confirm-loading="confirmLoading"
-    width="800px"
+    width="900px"
   >
-    <a-form :model="form" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+    <a-tabs v-model:activeKey="mainTabKey">
+      <a-tab-pane key="info" tab="智能体信息">
+        <a-form :model="form" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
       <a-row :gutter="16">
         <a-col :span="12">
           <a-form-item label="名称" v-bind="validateInfos.name">
@@ -159,50 +161,7 @@
           </a-form-item>
         </a-col>
       </a-row>
-      <a-row :gutter="16">
-        <a-col :span="12">
-          <a-form-item label="AI工具">
-            <a-switch v-model:checked="form.isAITools" />
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label="Skill技能">
-            <a-switch v-model:checked="form.isSkill" />
-          </a-form-item>
-        </a-col>
-      </a-row>
-      <a-row :gutter="16">
-        <a-col :span="12">
-          <a-form-item label="Tools工具" v-show="form.isAITools">
-            <a-checkbox-group v-model:value="form.tools">
-              <div class="checkbox-grid">
-                <a-checkbox
-                  v-for="item in (props.agentData?.tools || [])"
-                  :key="item.aiSkillToolManagementId"
-                  :value="item.aiSkillToolManagementId"
-                >
-                  {{ item.aiSkillToolManagementName }}
-                </a-checkbox>
-              </div>
-            </a-checkbox-group>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label="Skills技能" v-show="form.isSkill">
-            <a-checkbox-group v-model:value="form.skills">
-              <div class="checkbox-grid">
-                <a-checkbox
-                  v-for="item in (props.agentData?.skills || [])"
-                  :key="item.aiSkillToolManagementId"
-                  :value="item.aiSkillToolManagementId"
-                >
-                  {{ item.aiSkillToolManagementName }}
-                </a-checkbox>
-              </div>
-            </a-checkbox-group>
-          </a-form-item>
-        </a-col>
-      </a-row>
+      
       <a-row :gutter="16">
         <a-col :span="12">
           <a-form-item label="AI请求日志">
@@ -222,7 +181,78 @@
           </a-form-item>
         </a-col>
       </a-row>
-    </a-form>
+        </a-form>
+      </a-tab-pane>
+      <a-tab-pane key="skillTool" tab="技能工具">
+        <a-row :gutter="16">
+          <a-col :span="8">
+            <a-form-item label="AI工具">
+              <a-switch v-model:checked="form.isAITools" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item label="Skill技能">
+              <a-switch v-model:checked="form.isSkill" />
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-tabs v-model:activeKey="skillToolTabKey">
+          <a-tab-pane key="tools" tab="Tools工具" :disabled="!form.isAITools">
+            <a-table
+              :columns="skillToolColumns"
+              :data-source="props.agentData?.tools || []"
+              :row-selection="toolsRowSelection"
+              :scroll="{ y: 250 }"
+              row-key="aiSkillToolManagementId"
+              size="small"
+            />
+          </a-tab-pane>
+          <a-tab-pane key="skills" tab="Skills技能" :disabled="!form.isSkill">
+            <a-table
+              :columns="skillToolColumns"
+              :data-source="props.agentData?.skills || []"
+              :row-selection="skillsRowSelection"
+              :scroll="{ y: 250 }"
+              row-key="aiSkillToolManagementId"
+              size="small"
+            />
+          </a-tab-pane>
+        </a-tabs>
+      </a-tab-pane>
+      <a-tab-pane key="bind" tab="用户角色绑定">
+        <a-tabs v-model:activeKey="bindTabKey">
+          <a-tab-pane key="users" tab="绑定用户">
+          <a-table
+            :columns="userColumns"
+            :data-source="userList"
+            :pagination="userPagination"
+            :row-selection="userRowSelection"
+            :loading="userLoading"
+            :scroll="{ y: 300 }"
+            row-key="id"
+            size="small"
+            @change="handleUserTableChange"
+          />
+        </a-tab-pane>
+        <a-tab-pane key="roles" tab="绑定角色">
+          <a-table
+            :columns="roleColumns"
+            :data-source="roleList"
+            :pagination="rolePagination"
+            :row-selection="roleRowSelection"
+            :loading="roleLoading"
+            :scroll="{ y: 300 }"
+            row-key="id"
+            size="small"
+            @change="handleRoleTableChange"
+          />
+        </a-tab-pane>
+      </a-tabs>
+      <div class="selected-summary" v-if="selectedBindCount > 0">
+        已选择 {{ selectedBindCount }} 个用户/角色
+      </div>
+      </a-tab-pane>
+    </a-tabs>
   </a-modal>
 </template>
 
@@ -233,6 +263,8 @@ import { Form } from 'ant-design-vue';
 import { getAIModelsALLList } from '@/api/ai/aiModels';
 import { getAIPromptsALLList } from '@/api/ai/aiPrompts';
 import { getAIKmssList } from '@/api/ai/aikmss';
+import { getUserList } from '@/api/userapi';
+import { getRolePage } from '@/api/roleapi';
 const emit = defineEmits(['ok', 'cancel']);
 
 const props = defineProps({
@@ -281,7 +313,8 @@ const form = reactive({
   skills: [],
   isHttpLog: false,
   maxRetries: 3,
-  networkTimeout: 10
+  networkTimeout: 10,
+  bindIds: []
 });
 
 // 表单验证规则
@@ -315,6 +348,110 @@ const { validate, validateInfos, resetFields } = useForm(form, rules);
 const modelList = ref([]);
 const promptList = ref([]);
 const kmsList = ref([]); // 知识库列表
+const userList = ref([]);
+const roleList = ref([]);
+
+// 绑定Tab
+const bindTabKey = ref('users');
+const mainTabKey = ref('info');
+const skillToolTabKey = ref('tools');
+
+// 技能工具表格列
+const skillToolColumns = [
+  { title: '名称', dataIndex: 'aiSkillToolManagementName', key: 'aiSkillToolManagementName' },
+  { title: '类型', dataIndex: 'type', key: 'type' }
+];
+
+// Tools行选择
+const toolsRowSelection = computed(() => ({
+  selectedRowKeys: form.tools,
+  onChange: (selectedRowKeys) => {
+    form.tools = [...selectedRowKeys];
+  },
+  preserveSelectedRows: true
+}));
+
+// Skills行选择
+const skillsRowSelection = computed(() => ({
+  selectedRowKeys: form.skills,
+  onChange: (selectedRowKeys) => {
+    form.skills = [...selectedRowKeys];
+  },
+  preserveSelectedRows: true
+}));
+
+// 用户表格列
+const userColumns = [
+  { title: '用户名', dataIndex: 'name', key: 'name' },
+  { title: '账号', dataIndex: 'account', key: 'account' }
+];
+
+// 角色表格列
+const roleColumns = [
+  { title: '角色名称', dataIndex: 'name', key: 'name' }
+];
+
+// 用户分页
+const userPagination = reactive({
+  current: 1,
+  pageSize: 50,
+  total: 0,
+  showSizeChanger: true,
+  showTotal: (total) => `共 ${total} 条`
+});
+
+// 角色分页
+const rolePagination = reactive({
+  current: 1,
+  pageSize: 50,
+  total: 0,
+  showSizeChanger: true,
+  showTotal: (total) => `共 ${total} 条`
+});
+
+const userLoading = ref(false);
+const roleLoading = ref(false);
+
+// 用户行选择
+const userRowSelection = computed(() => ({
+  selectedRowKeys: form.bindIds
+    .filter(id => String(id).startsWith('user_'))
+    .map(id => String(id).replace('user_', '')),
+  onChange: (selectedRowKeys) => {
+    const roleIds = form.bindIds.filter(id => String(id).startsWith('role_'));
+    form.bindIds = [...roleIds, ...selectedRowKeys.map(id => `user_${id}`)];
+  },
+  preserveSelectedRows: true
+}));
+
+// 角色行选择
+const roleRowSelection = computed(() => ({
+  selectedRowKeys: form.bindIds
+    .filter(id => String(id).startsWith('role_'))
+    .map(id => String(id).replace('role_', '')),
+  onChange: (selectedRowKeys) => {
+    const userIds = form.bindIds.filter(id => String(id).startsWith('user_'));
+    form.bindIds = [...userIds, ...selectedRowKeys.map(id => `role_${id}`)];
+  },
+  preserveSelectedRows: true
+}));
+
+// 已选择数量
+const selectedBindCount = computed(() => form.bindIds?.length || 0);
+
+// 用户表格变化
+const handleUserTableChange = (pagination) => {
+  userPagination.current = pagination.current;
+  userPagination.pageSize = pagination.pageSize;
+  loadUserList();
+};
+
+// 角色表格变化
+const handleRoleTableChange = (pagination) => {
+  rolePagination.current = pagination.current;
+  rolePagination.pageSize = pagination.pageSize;
+  loadRoleList();
+};
 
 // 模型选项
 const modelOptions = computed(() => {
@@ -342,6 +479,45 @@ const promptOptions = computed(() => {
     value: prompt.id
   }));
 });
+
+
+// 加载用户列表
+const loadUserList = async () => {
+  try {
+    userLoading.value = true;
+    const response = await getUserList({
+      pageNum: userPagination.current,
+      pageSize: userPagination.pageSize
+    });
+    if (response && response.code === 200 && response.data) {
+      userList.value = response.data.data || response.data.list || [];
+      userPagination.total = response.data.total || 0;
+    }
+  } catch (error) {
+    console.error('加载用户列表失败:', error);
+  } finally {
+    userLoading.value = false;
+  }
+};
+
+// 加载角色列表
+const loadRoleList = async () => {
+  try {
+    roleLoading.value = true;
+    const response = await getRolePage({
+      pageNum: rolePagination.current,
+      pageSize: rolePagination.pageSize
+    });
+    if (response && response.code === 200) {
+      roleList.value = response.data.data || response.data.list || response.data || [];
+      rolePagination.total = response.data.total || 0;
+    }
+  } catch (error) {
+    console.error('加载角色列表失败:', error);
+  } finally {
+    roleLoading.value = false;
+  }
+};
  
  
 
@@ -401,7 +577,8 @@ watch(() => props.open, (newVal) => {
         skills: [],
         isHttpLog: false,
         maxRetries: 3,
-        networkTimeout: 10
+        networkTimeout: 10,
+        bindIds: []
       });
     }
   }
@@ -451,7 +628,8 @@ const handleOk = () => {
         skills: form.isSkill ? buildSelectedData(form.skills || [], props.agentData?.skills || []) : [],
         isHttpLog: form.isHttpLog,
         maxRetries: form.maxRetries,
-        networkTimeout: form.networkTimeout
+        networkTimeout: form.networkTimeout,
+        bindIds: form.bindIds || []
       };
       
       emit('ok', params);
@@ -524,6 +702,8 @@ onMounted(() => {
   loadModelList();
   loadPromptList();
   loadKmsList();
+  loadUserList();
+  loadRoleList();
 });
 
 // 暴露方法给父组件
@@ -573,5 +753,13 @@ defineExpose({
   text-align: center;
   font-size: 12px;
   color: rgba(255, 255, 255, 0.75);
+}
+.selected-summary {
+  margin-top: 8px;
+  padding: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #1890ff;
 }
 </style>
