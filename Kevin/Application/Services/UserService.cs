@@ -263,7 +263,7 @@ namespace kevin.Application
             var data = userRp.Query().Where(t => t.IsDelete == false && t.IsSystem == true);
             if (!string.IsNullOrEmpty(par.searchKey))
             {
-                data = data.Where(t => ((t.Name ?? "") ?? "").Contains(dtoPage.searchKey) || (t.Phone ?? "").Contains(dtoPage.searchKey) || (t.NickName ?? "").Contains(dtoPage.searchKey) || (t.Email ?? "").Contains(dtoPage.searchKey));
+                data = data.Where(t => ((t.Name ?? "") ?? "").Contains(par.searchKey) || (t.Phone ?? "").Contains(par.searchKey) || (t.NickName ?? "").Contains(par.searchKey) || (t.Email ?? "").Contains(par.searchKey));
             }
             if (par.Parameter?.PositionId > 0)
             {

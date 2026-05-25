@@ -231,6 +231,15 @@
       <a-tab-pane key="bind" tab="用户角色绑定" v-if="!props.hideBindTab">
         <a-tabs v-model:activeKey="bindTabKey">
           <a-tab-pane key="users" tab="绑定用户">
+            <div style="margin-bottom: 8px;">
+              <a-input-search
+                v-model:value="userSearchValue"
+                placeholder="搜索用户名或账号"
+                style="width: 250px;"
+                @search="handleUserSearch"
+                allowClear
+              />
+            </div>
           <a-table
             :columns="userColumns"
             :data-source="userList"
@@ -244,6 +253,15 @@
           />
         </a-tab-pane>
         <a-tab-pane key="roles" tab="绑定角色">
+          <div style="margin-bottom: 8px;">
+            <a-input-search
+              v-model:value="roleSearchValue"
+              placeholder="搜索角色名称"
+              style="width: 250px;"
+              @search="handleRoleSearch"
+              allowClear
+            />
+          </div>
           <a-table
             :columns="roleColumns"
             :data-source="roleList"
@@ -397,6 +415,12 @@ const skillsRowSelection = computed(() => {
   };
 });
 
+// 用户搜索状态
+const userSearchValue = ref('');
+
+// 角色搜索状态
+const roleSearchValue = ref('');
+
 // 用户表格列
 const userColumns = [
   { title: '用户名', dataIndex: 'name', key: 'name' },
@@ -456,6 +480,18 @@ const roleRowSelection = computed(() => ({
 // 已选择数量
 const selectedBindCount = computed(() => form.bindIds?.length || 0);
 
+// 用户搜索
+const handleUserSearch = () => {
+  userPagination.current = 1;
+  loadUserList();
+};
+
+// 角色搜索
+const handleRoleSearch = () => {
+  rolePagination.current = 1;
+  loadRoleList();
+};
+
 // 用户表格变化
 const handleUserTableChange = (pagination) => {
   userPagination.current = pagination.current;
@@ -504,7 +540,8 @@ const loadUserList = async () => {
     userLoading.value = true;
     const response = await getUserList({
       pageNum: userPagination.current,
-      pageSize: userPagination.pageSize
+      pageSize: userPagination.pageSize,
+      searchKey: userSearchValue.value || undefined
     });
     if (response && response.code === 200 && response.data) {
       userList.value = response.data.data || response.data.list || [];
@@ -523,7 +560,8 @@ const loadRoleList = async () => {
     roleLoading.value = true;
     const response = await getRolePage({
       pageNum: rolePagination.current,
-      pageSize: rolePagination.pageSize
+      pageSize: rolePagination.pageSize,
+      searchKey: roleSearchValue.value || undefined
     });
     if (response && response.code === 200) {
       roleList.value = response.data.data || response.data.list || response.data || [];
