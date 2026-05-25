@@ -1,4 +1,5 @@
-﻿using kevin.AI.AgentFramework;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using kevin.AI.AgentFramework;
 using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
@@ -96,6 +97,10 @@ namespace kevin.Application.Services.AI
             var count = aIChatHistorysRp.Query().Where(t => t.IsDelete == false && t.AIChatsId == par.AIChatsId).Count();
             var aichas = await aIChatsService.GetDetails(par.AIChatsId);
             var aiapp = await aIAppsService.GetDetails(aichas.AppId);
+            if ((await aIAppsService.GetMyALLList()).Any(t => t.Id == aichas.AppId) == false)
+            {
+                throw new UserFriendlyException("智能体权限不足，无法使用");
+            }
             var aIModels = await aIModelsService.GetDetails(aiapp.ChatModelID.ToTryInt64());
             var aIPrompts = await aIPromptsService.GetDetails(aiapp.AIPromptID);
             var add = par.MapTo<TAIChatHistorys>();

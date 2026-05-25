@@ -1,11 +1,12 @@
 <template>
-  <a-modal 
+  <a-modal
     v-model:open="visible"
     :title="modalTitle"
     @ok="handleOk"
     @cancel="handleCancel"
     :confirm-loading="confirmLoading"
     width="900px"
+    :footer="isViewMode ? null : undefined"
   >
     <a-tabs v-model:activeKey="mainTabKey">
       <a-tab-pane key="info" tab="智能体信息">
@@ -13,30 +14,31 @@
       <a-row :gutter="16">
         <a-col :span="12">
           <a-form-item label="名称" v-bind="validateInfos.name">
-            <a-input v-model:value="form.name" placeholder="请输入名称" />
+            <a-input v-model:value="form.name" placeholder="请输入名称" :disabled="isViewMode" />
           </a-form-item>
         </a-col>
         <a-col :span="12">
           <a-form-item label="类型" v-bind="validateInfos.type">
-            <a-input v-model:value="form.type" placeholder="请输入类型" />
+            <a-input v-model:value="form.type" placeholder="请输入类型" :disabled="isViewMode" />
           </a-form-item>
         </a-col>
       </a-row> 
       <a-row :gutter="16">
         <a-col :span="12">
           <a-form-item label="描述" v-bind="validateInfos.describe">
-        <a-textarea v-model:value="form.describe" :rows="2" placeholder="请输入描述" />
+        <a-textarea v-model:value="form.describe" :rows="2" placeholder="请输入描述" :disabled="isViewMode" />
       </a-form-item>
         </a-col>
         <a-col :span="12">
           <a-form-item label="提示词" v-bind="validateInfos.aiPromptID">
-            <a-select 
-              v-model:value="form.aiPromptID" 
+            <a-select
+              v-model:value="form.aiPromptID"
               placeholder="请选择提示词"
               :options="promptOptions"
               allow-clear
               show-search
               optionFilterProp="label"
+              :disabled="isViewMode"
             >
               <a-select-option 
                 v-for="prompt in promptList" 
@@ -52,13 +54,14 @@
       <a-row :gutter="16">
         <a-col :span="12">
           <a-form-item label="模型" v-bind="validateInfos.chatModelID">
-            <a-select 
-              v-model:value="form.chatModelID" 
+            <a-select
+              v-model:value="form.chatModelID"
               placeholder="请选择会话模型"
               :options="modelOptions"
               allow-clear
               show-search
               optionFilterProp="label"
+              :disabled="isViewMode"
             >
               <a-select-option 
                 v-for="model in modelList" 
@@ -72,13 +75,14 @@
         </a-col>
         <a-col :span="12">
           <a-form-item label="知识库" v-bind="validateInfos.kmsId">
-            <a-select 
-              v-model:value="form.kmsId" 
+            <a-select
+              v-model:value="form.kmsId"
               placeholder="请选择知识库"
               :options="kmsOptions"
               allow-clear
               show-search
               optionFilterProp="label"
+              :disabled="isViewMode"
             >
               <a-select-option 
                 v-for="kms in kmsList" 
@@ -95,11 +99,12 @@
         <a-col :span="12">
           <a-form-item label="温度" v-bind="validateInfos.temperature">
             <div class="slider-container">
-              <a-slider 
-                v-model:value="form.temperature" 
-                :min="0" 
-                :max="100" 
+              <a-slider
+                v-model:value="form.temperature"
+                :min="0"
+                :max="100"
                 :step="1"
+                :disabled="isViewMode"
               />
               <div class="slider-value">{{ form.temperature }}°</div>
             </div>
@@ -108,11 +113,12 @@
         <a-col :span="12">
           <a-form-item label="相似度" v-bind="validateInfos.relevance">
             <div class="slider-container">
-              <a-slider 
-                v-model:value="form.relevance" 
-                :min="0" 
-                :max="100" 
+              <a-slider
+                v-model:value="form.relevance"
+                :min="0"
+                :max="100"
                 :step="1"
+                :disabled="isViewMode"
               />
               <div class="slider-value">{{ form.relevance }}%</div>
             </div>
@@ -122,21 +128,23 @@
       <a-row :gutter="16">
         <a-col :span="12">
           <a-form-item label="提问Token" v-bind="validateInfos.maxAskPromptSize">
-            <a-input-number 
-              v-model:value="form.maxAskPromptSize" 
-              :min="0" 
+            <a-input-number
+              v-model:value="form.maxAskPromptSize"
+              :min="0"
               style="width: 100%"
               placeholder="请输入最大Token数"
+              :disabled="isViewMode"
             />
           </a-form-item>
         </a-col>
         <a-col :span="12">
           <a-form-item label="回答Token" v-bind="validateInfos.answerTokens">
-            <a-input-number 
-              v-model:value="form.answerTokens" 
-              :min="0" 
+            <a-input-number
+              v-model:value="form.answerTokens"
+              :min="0"
               style="width: 100%"
               placeholder="请输入最大Token数"
+              :disabled="isViewMode"
             />
           </a-form-item>
         </a-col>
@@ -144,40 +152,41 @@
       <a-row :gutter="16">
         <a-col :span="12">
           <a-form-item label="向量匹配数" v-bind="validateInfos.maxMatchesCount">
-            <a-input-number 
-              v-model:value="form.maxMatchesCount" 
-              :min="0" 
+            <a-input-number
+              v-model:value="form.maxMatchesCount"
+              :min="0"
               style="width: 100%"
               placeholder="请输入匹配数量"
+              :disabled="isViewMode"
             />
           </a-form-item>
         </a-col> 
           <a-col :span="12">
           <a-form-item label="消息输出类型" v-bind="validateInfos.msgType">
-            <a-select v-model:value="form.msgType" placeholder="消息输出类型">
+            <a-select v-model:value="form.msgType" placeholder="消息输出类型" :disabled="isViewMode">
                 <a-select-option   :value="1">非流式文本</a-select-option>
-                <a-select-option  :value="2">流式文本</a-select-option> 
+                <a-select-option  :value="2">流式文本</a-select-option>
               </a-select>
           </a-form-item>
         </a-col>
       </a-row>
-      
+
       <a-row :gutter="16">
         <a-col :span="12">
           <a-form-item label="AI请求日志">
-            <a-switch v-model:checked="form.isHttpLog" />
+            <a-switch v-model:checked="form.isHttpLog" :disabled="isViewMode" />
           </a-form-item>
         </a-col>
         <a-col :span="12">
           <a-form-item label="最大重试次数">
-            <a-input-number v-model:value="form.maxRetries" :min="0" style="width: 100%" />
+            <a-input-number v-model:value="form.maxRetries" :min="0" style="width: 100%" :disabled="isViewMode" />
           </a-form-item>
         </a-col>
       </a-row>
       <a-row :gutter="16">
         <a-col :span="12">
           <a-form-item label="请求超时(分钟)">
-            <a-input-number v-model:value="form.networkTimeout" :min="1" style="width: 100%" />
+            <a-input-number v-model:value="form.networkTimeout" :min="1" style="width: 100%" :disabled="isViewMode" />
           </a-form-item>
         </a-col>
       </a-row>
@@ -187,12 +196,12 @@
         <a-row :gutter="16">
           <a-col :span="8">
             <a-form-item label="AI工具">
-              <a-switch v-model:checked="form.isAITools" />
+              <a-switch v-model:checked="form.isAITools" :disabled="isViewMode" />
             </a-form-item>
           </a-col>
           <a-col :span="8">
             <a-form-item label="Skill技能">
-              <a-switch v-model:checked="form.isSkill" />
+              <a-switch v-model:checked="form.isSkill" :disabled="isViewMode" />
             </a-form-item>
           </a-col>
         </a-row>
@@ -219,7 +228,7 @@
           </a-tab-pane>
         </a-tabs>
       </a-tab-pane>
-      <a-tab-pane key="bind" tab="用户角色绑定">
+      <a-tab-pane key="bind" tab="用户角色绑定" v-if="!props.hideBindTab">
         <a-tabs v-model:activeKey="bindTabKey">
           <a-tab-pane key="users" tab="绑定用户">
           <a-table
@@ -279,6 +288,10 @@ const props = defineProps({
   modalType: {
     type: String,
     default: 'add'
+  },
+  hideBindTab: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -363,22 +376,26 @@ const skillToolColumns = [
 ];
 
 // Tools行选择
-const toolsRowSelection = computed(() => ({
-  selectedRowKeys: form.tools,
-  onChange: (selectedRowKeys) => {
-    form.tools = [...selectedRowKeys];
-  },
-  preserveSelectedRows: true
-}));
+const toolsRowSelection = computed(() => {
+  return {
+    selectedRowKeys: form.tools,
+    onChange: isViewMode.value ? () => {} : (selectedRowKeys) => {
+      form.tools = [...selectedRowKeys];
+    },
+    preserveSelectedRows: true
+  };
+});
 
 // Skills行选择
-const skillsRowSelection = computed(() => ({
-  selectedRowKeys: form.skills,
-  onChange: (selectedRowKeys) => {
-    form.skills = [...selectedRowKeys];
-  },
-  preserveSelectedRows: true
-}));
+const skillsRowSelection = computed(() => {
+  return {
+    selectedRowKeys: form.skills,
+    onChange: isViewMode.value ? () => {} : (selectedRowKeys) => {
+      form.skills = [...selectedRowKeys];
+    },
+    preserveSelectedRows: true
+  };
+});
 
 // 用户表格列
 const userColumns = [
@@ -523,8 +540,11 @@ const loadRoleList = async () => {
 
 // 模态框标题
 const modalTitle = computed(() => {
+  if (props.modalType === 'view') return '智能体详情';
   return props.modalType === 'edit' ? '编辑智能体' : '添加智能体';
 });
+
+const isViewMode = computed(() => props.modalType === 'view');
 
 // 监听open属性变化
 watch(() => props.open, (newVal) => {
@@ -532,9 +552,9 @@ watch(() => props.open, (newVal) => {
   if (newVal) {
     // 重置表单
     resetFields();
-    
-    // 如果是编辑模式，填充表单数据
-    if (props.modalType === 'edit' && props.agentData) {
+
+    // 如果是编辑或预览模式，填充表单数据
+    if ((props.modalType === 'edit' || props.modalType === 'view') && props.agentData) {
       Object.keys(form).forEach(key => {
         if (props.agentData[key] !== undefined) {
           if (key === 'tools' && Array.isArray(props.agentData[key])) {

@@ -25,6 +25,7 @@ import AiModelMg from '@/pages/ai/ModelManagement.vue';
 import AiSkillToolMg from '@/pages/ai/SkillToolManagement.vue';
 import MyAIChat from '@/pages/ai/MyAIChat.vue';
 import MyAITasks from '@/pages/ai/MyAITasks.vue';
+import MyAgentList from '@/pages/ai/MyAgentList.vue';
 //组织架构相关页面
 import PositionManagement from '@/pages/organizational/PositionManagement.vue';
 import DepartmentManagement from '@/pages/organizational/DepartmentManagement.vue';
@@ -116,6 +117,11 @@ const routes = [
         path: 'my/ai-tasks',
         name: 'MyAITasks',
         component: MyAITasks
+      },
+      {
+        path: 'my/ai-agents',
+        name: 'MyAgentList',
+        component: MyAgentList
       },
       {
         path: 'underdevelopment',

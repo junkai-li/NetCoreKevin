@@ -48,12 +48,12 @@ namespace kevin.Application.Services.AI
         /// <param name="id"></param> 
         /// <returns></returns> 
         public async Task<AIAppsDto> GetDetails(long id)
-        {
+        { 
             var data = (await aIAppsRp.Query(isDataPer: false).FirstOrDefaultAsync(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId && t.Id == id)).MapTo<AIAppsDto>();
             if (data == default)
             {
                 throw new UserFriendlyException("ai应用数据不存在或已删除");
-            }
+            } 
             var skills = await aISkillToolManagementService.GetAllSkills();
             var tools = await aISkillToolManagementService.GetAllTools();
             var myIds = await aISkillToolBindIdService.GetListById(data.Id.ToString());

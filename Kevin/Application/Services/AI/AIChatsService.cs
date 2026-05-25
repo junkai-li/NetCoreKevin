@@ -72,6 +72,10 @@ namespace kevin.Application.Services.AI
         public async Task<AIChatHistorysDto> Add(AIChatsDto par)
         {
             var aiapp = await aIAppsService.GetDetails(par.AppId);
+            if ((await aIAppsService.GetMyALLList()).Any(t => t.Id == par.AppId) == false)
+            {
+                throw new UserFriendlyException("智能体权限不足，无法使用");
+            }
             var aIModels = await aIModelsService.GetDetails(aiapp.ChatModelID.ToTryInt64());
             var aIPrompts = await aIPromptsService.GetDetails(aiapp.AIPromptID);
             var add = par.MapTo<TAIChats>();
