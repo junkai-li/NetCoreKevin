@@ -21,21 +21,25 @@ namespace Kevin.Common.App
 
             try
             {
-                var jwt = ConfigHelper.GetSection("Jwt");
-                var Authorization = httpContext.Current().Request.Headers["Authorization"].ToString();
-                if (string.IsNullOrEmpty(Authorization) || !IsBearerValidJwt(Authorization))
+                if (httpContext != default && httpContext.HttpContext != default )
                 {
-                    Authorization = httpContext.Current().Request.Query["Authorization"].ToString();
-                } 
-                var securityToken = new JwtSecurityToken(Authorization.Replace("Bearer ", ""));
+                    var jwt = ConfigHelper.GetSection("Jwt");
+                    var Authorization = httpContext.Current().Request.Headers["Authorization"].ToString();
+                    if (string.IsNullOrEmpty(Authorization) || !IsBearerValidJwt(Authorization))
+                    {
+                        Authorization = httpContext.Current().Request.Query["Authorization"].ToString();
+                    }
+                    var securityToken = new JwtSecurityToken(Authorization.Replace("Bearer ", ""));
 
-                var value = securityToken.Claims.ToList().Where(t => t.Type.ToLower() == key.ToLower()).FirstOrDefault().Value;
+                    var value = securityToken.Claims.ToList().Where(t => t.Type.ToLower() == key.ToLower()).FirstOrDefault().Value;
 
-                return value;
+                    return value;
+                }
+                return  default;
             }
             catch
             {
-                return null;
+                return default;
             }
         }
         /// <summary>

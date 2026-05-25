@@ -14,12 +14,21 @@ namespace Kevin.Common.App
         public static HttpContext Current(this IHttpContextAccessor httpContext)
         {
             var httpContextAccessor = httpContext;
-            if (httpContextAccessor.HttpContext.Request.Body.Length > 0)
+            if (httpContextAccessor != default && httpContextAccessor.HttpContext != default)
             {
-                httpContextAccessor.HttpContext.Request.Body.Position = 0;
+                if (httpContextAccessor.HttpContext.Request.Body.Length > 0)
+                {
+                    httpContextAccessor.HttpContext.Request.Body.Position = 0;
+                }
+
+                return httpContextAccessor.HttpContext;
+
+            }
+            else
+            {
+                return default;
             }
 
-            return httpContextAccessor.HttpContext;
         }
 
 
@@ -29,7 +38,11 @@ namespace Kevin.Common.App
         /// <returns></returns>
         public static string GetUrl(this IHttpContextAccessor httpContext)
         {
-            return httpContext.GetBaseUrl() + $"{httpContext.Current().Request.Path}{httpContext.Current().Request.QueryString}";
+            if (httpContext != default && httpContext.HttpContext != default)
+            {
+                return httpContext.GetBaseUrl() + $"{httpContext.Current().Request.Path}{httpContext.Current().Request.QueryString}";
+            }
+            return "";
         }
 
 
@@ -39,15 +52,18 @@ namespace Kevin.Common.App
         /// <returns></returns>
         public static string GetBaseUrl(this IHttpContextAccessor httpContext)
         {
-
-            var url = $"{httpContext.Current().Request.Scheme}://{httpContext.Current().Request.Host.Host}";
-
-            if (httpContext.Current().Request.Host.Port != null)
+            if (httpContext != default && httpContext.HttpContext != default)
             {
-                url = url + $":{httpContext.Current().Request.Host.Port}";
-            }
 
-            return url;
+                var url = $"{httpContext.Current().Request.Scheme}://{httpContext.Current().Request.Host.Host}";
+
+                if (httpContext.Current().Request.Host.Port != null)
+                {
+                    url = url + $":{httpContext.Current().Request.Host.Port}";
+                }
+                return url;
+            }
+            return "";
         }
 
 
@@ -57,26 +73,30 @@ namespace Kevin.Common.App
         /// </summary>
         public static string GetRequestBody(this IHttpContextAccessor httpContext)
         {
-            var requestContent = "";
-
-            using (Stream requestBody = new MemoryStream())
+            if (httpContext != default && httpContext.HttpContext != default)
             {
-                if (httpContext.Current().Request.Body.Length > 0)
+                var requestContent = "";
+
+                using (Stream requestBody = new MemoryStream())
                 {
-                    httpContext.Current().Request.Body.CopyTo(requestBody);
-                    httpContext.Current().Request.Body.Position = 0;
-
-                    requestBody.Position = 0;
-
-                    using (var requestReader = new StreamReader(requestBody))
+                    if (httpContext.Current().Request.Body.Length > 0)
                     {
-                        requestContent = requestReader.ReadToEnd();
+                        httpContext.Current().Request.Body.CopyTo(requestBody);
+                        httpContext.Current().Request.Body.Position = 0;
+
+                        requestBody.Position = 0;
+
+                        using (var requestReader = new StreamReader(requestBody))
+                        {
+                            requestContent = requestReader.ReadToEnd();
+                        }
                     }
+
                 }
 
+                return requestContent;
             }
-
-            return requestContent;
+            return "";
         }
 
 
@@ -86,6 +106,10 @@ namespace Kevin.Common.App
         /// </summary>
         public static List<dtoKeyValue> GetParameter(this IHttpContextAccessor httpContext)
         {
+            if (httpContext == default ||   httpContext.HttpContext == default)
+            {
+                return new List<dtoKeyValue>();
+            }
             var context = httpContext.Current();
 
             var parameters = new List<dtoKeyValue>();
@@ -125,6 +149,10 @@ namespace Kevin.Common.App
         /// <returns></returns>
         public static string GetIpAddress(this IHttpContextAccessor httpContext)
         {
+            if (httpContext == default || httpContext.HttpContext == default)
+            {
+                return "";
+            }
             try
             {
                 var ip = httpContext.Current().Request.Headers["X-Forwarded-For"].FirstOrDefault();
@@ -146,6 +174,10 @@ namespace Kevin.Common.App
         /// <returns></returns>
         public static string GetUrlAction(this IHttpContextAccessor httpContext)
         {
+            if (httpContext == default || httpContext.HttpContext == default)
+            {
+                return "";
+            }
             try
             {
                 return GetBaseUrl(httpContext) + $"{httpContext.Current().Request.Path}";
@@ -164,6 +196,10 @@ namespace Kevin.Common.App
         /// <returns></returns>
         public static string GetDevice(this IHttpContextAccessor httpContext)
         {
+            if (httpContext == default || httpContext.HttpContext == default)
+            {
+                return "";
+            }
 
             try
             {
@@ -183,6 +219,10 @@ namespace Kevin.Common.App
         /// <returns></returns>
         public static string GetHeader(this IHttpContextAccessor httpContext, string key)
         {
+            if (httpContext == default || httpContext.HttpContext == default)
+            {
+                return "";
+            }
             var query = httpContext.Current().Request.Headers.Where(t => t.Key.ToLower() == key.ToLower()).Select(t => t.Value);
 
             var ishave = query.Count();
