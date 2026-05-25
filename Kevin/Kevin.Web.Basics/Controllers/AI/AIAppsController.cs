@@ -51,6 +51,15 @@ namespace Kevin.Web.Basics.AI
             return result;
         }
 
+        [HttpGet("GetMyALLList")]
+        [ActionDescription("获取我可用的AI应用列表")]
+        [HttpLog("AI应用管理", "获取我可用的AI应用列表")]
+        public async Task<List<AIAppsDto>> GetMyALLList()
+        {
+            var result = await _service.GetMyALLList();
+            return result;
+        }
+
         /// <summary>
         /// 新增或编辑AI应用
         /// </summary>

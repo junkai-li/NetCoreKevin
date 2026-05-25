@@ -32,5 +32,7 @@ namespace Web.Global.User
         /// </summary>
         Task<List<long>> GetModuleDataPermissionsUserIds();
 
+        List<long>? RoleIds { get; }
+
     }
 }

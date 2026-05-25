@@ -18,5 +18,7 @@ namespace kevin.Permission.Interfaces
         /// <param name="userId"></param>
         /// <returns></returns>
         Dictionary<string, bool> GetUserPermissions(string userId);
+
+        List<long> GetUserRoleIds(string userId);
     }
 }

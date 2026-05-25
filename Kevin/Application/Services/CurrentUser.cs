@@ -1,4 +1,5 @@
 ﻿using kevin.Domain.Share.Dtos.User;
+using kevin.Permission.Interfaces;
 using kevin.Permission.Permission.Action;
 using Kevin.Common.App;
 using Kevin.log4Net;
@@ -63,5 +64,7 @@ namespace kevin.Application
         }
 
         public virtual dtoUserInfo? UserInfo => _serviceProvider.GetService<IUserService>()?.GetUserInfo(UserId);
+
+        public virtual List<long>? RoleIds => _serviceProvider.GetService<IKevinPermissionService>()?.GetUserRoleIds(UserId.ToString());
     }
 }

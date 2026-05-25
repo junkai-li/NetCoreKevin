@@ -10,10 +10,10 @@ namespace kevin.Application.Services.AI
 
         public readonly IAISkillToolManagementService aISkillToolManagementService;
 
-        public readonly IAISkillToolBindIdService aISkillToolBindIdService; 
+        public readonly IAISkillToolBindIdService aISkillToolBindIdService;
 
         public readonly IAIAppsBindIdService aIAppsBindIdService;
-        public AIAppsService(IHttpContextAccessor _httpContextAccessor, IAIAppsRp _aIAppsRp, 
+        public AIAppsService(IHttpContextAccessor _httpContextAccessor, IAIAppsRp _aIAppsRp,
             IAISkillToolManagementService aISkillToolManagementService, IAISkillToolBindIdService aISkillToolBindIdService, IAIAppsBindIdService aIAppsBindIdService) : base(_httpContextAccessor)
         {
             this.aIAppsRp = _aIAppsRp;
@@ -49,7 +49,7 @@ namespace kevin.Application.Services.AI
         /// <returns></returns> 
         public async Task<AIAppsDto> GetDetails(long id)
         {
-            var data = (await aIAppsRp.Query(isDataPer: true).FirstOrDefaultAsync(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId && t.Id == id)).MapTo<AIAppsDto>();
+            var data = (await aIAppsRp.Query(isDataPer: false).FirstOrDefaultAsync(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId && t.Id == id)).MapTo<AIAppsDto>();
             if (data == default)
             {
                 throw new UserFriendlyException("ai应用数据不存在或已删除");
@@ -69,7 +69,7 @@ namespace kevin.Application.Services.AI
                 AISkillToolManagementName = t.Name,
                 AISkillToolManagementId = t.Id
             }).ToList();
-            data.BindIds = (await aIAppsBindIdService.GetListById(data.Id.ToString())).Select(t=>t.BindId).ToList();
+            data.BindIds = (await aIAppsBindIdService.GetListByBindId(data.Id.ToString())).Select(t => t.BindId).ToList();
             return data;
         }
         /// <summary>
@@ -83,6 +83,36 @@ namespace kevin.Application.Services.AI
             var data = aIAppsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
             result = (await data.OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIApps, AIAppsDto>();
             return result;
+        }
+
+        /// <summary>
+        /// 获取我可用的ai应用列表
+        /// </summary>
+        /// <param name="dtoPage"></param> 
+        /// <returns></returns> 
+        public async Task<List<AIAppsDto>> GetMyALLList()
+        {
+            if (!CurrentUser.IsSuperAdmin)
+            {
+                var result = new List<AIAppsDto>();
+                List<string> bingIds = new List<string> {
+            "user_"+CurrentUser.UserId.ToString()
+            };
+                if (CurrentUser.RoleIds?.Count > 0)
+                {
+                    bingIds.AddRange(CurrentUser.RoleIds.Select(t => "role_" + t.ToString()).ToList());
+                }
+                var appIds = (await aIAppsBindIdService.GetListById(bingIds)).Select(t => t.TAIAppsId).ToList();
+                var data = aIAppsRp.Query(isDataPer: false).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId && appIds.Contains(t.Id));
+                result = (await data.OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIApps, AIAppsDto>();
+                return result;
+            }
+            else
+            {
+                return await GetALLList();
+            }
+
+
         }
 
         /// <summary>
@@ -139,7 +169,7 @@ namespace kevin.Application.Services.AI
                     msg.AIPromptID = par.AIPromptID;
                     msg.IsAITools = par.IsAITools;
                     msg.IsSkill = par.IsSkill;
-                    msg.MaxAskPromptSize= par.MaxAskPromptSize;
+                    msg.MaxAskPromptSize = par.MaxAskPromptSize;
                     msg.NetworkTimeout = par.NetworkTimeout;
                     msg.IsHttpLog = par.IsHttpLog;
                 }
@@ -152,11 +182,11 @@ namespace kevin.Application.Services.AI
             await aIAppsRp.SaveChangesAsync();
             var ids = par.Skills.Where(t => t.IsSelect).Select(t => t.AISkillToolManagementId).ToList();
             ids.AddRange(par.Tools.Where(t => t.IsSelect).Select(t => t.AISkillToolManagementId).ToList());
-            await aISkillToolBindIdService.BatchAddIds(par.Id.ToString(), ids); 
+            await aISkillToolBindIdService.BatchAddIds(par.Id.ToString(), ids);
             await aIAppsBindIdService.BatchAddIds(par.Id.ToString(), par.BindIds);
             return true;
         }
-        
+
 
         /// <summary>
         ///新增初始化
@@ -167,9 +197,9 @@ namespace kevin.Application.Services.AI
         public async Task<AIAppsDto> NewInitialization()
         {
             var data = new AIAppsDto();
-            data.Id= SnowflakeIdService.GetNextId();
+            data.Id = SnowflakeIdService.GetNextId();
             data.CreateTime = DateTime.Now;
-            data.CreateUserId= CurrentUser.UserId;
+            data.CreateUserId = CurrentUser.UserId;
             var skills = await aISkillToolManagementService.GetAllSkills();
             var tools = await aISkillToolManagementService.GetAllTools();
             var myIds = await aISkillToolBindIdService.GetListById(data.Id.ToString());

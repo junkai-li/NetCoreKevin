@@ -12,6 +12,9 @@ export const deleteAIApp = (id) => {
 export const getAIAppsALLList = () => {
   return http.get('/api/AIApps/GetALLList');
 };
+export const getMyAIAppsALLList = () => {
+  return http.get('/api/AIApps/GetMyALLList');
+};
 export const getAIAppsDetails = (id) => {
   return http.get('/api/AIApps/GetDetails?Id=' + id);
 };

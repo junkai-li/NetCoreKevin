@@ -180,7 +180,7 @@ import {
   LoadingOutlined,
 } from "@ant-design/icons-vue";
 import { message, Modal, Select } from "ant-design-vue";
-import { getAIAppsALLList } from "../../api/ai/aiapps.js";
+import { getMyAIAppsALLList } from "../../api/ai/aiapps.js";
 import { getAIChatsMyPageData, addAIChats, deleteAIChats } from "../../api/ai/aichats.js";
 import {
   getAIChatHistorysPageData,
@@ -260,7 +260,7 @@ const loadConversations = async () => {
 // 加载智能体列表
 const loadAIApps = async () => {
   try {
-    const response = await getAIAppsALLList();
+    const response = await getMyAIAppsALLList();
     if (response && response.code === 200 && response.data) {
       // 格式化数据以适应Select组件
       aiApps.value = response.data.map((app) => ({
