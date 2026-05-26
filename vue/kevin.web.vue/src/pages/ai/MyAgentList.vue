@@ -27,10 +27,7 @@
                   <span class="agent-name">{{ agent.name }}</span>
                 </div>
               </template>
-              <div @click="showPreviewModal(agent)" class="card-content">
-                <div class="agent-icon">
-                  <component :is="agent.icon" class="icon-element" />
-                </div>
+              <div @click="showPreviewModal(agent)" class="card-content"> 
                 <div class="agent-info">
                   <div class="info-item horizontal">
                     <span class="info-label">描述:</span>
