@@ -130,7 +130,7 @@
              <div class="message-text">{{ aimessage2 }}</div>
               <div class="message-time">  {{ aimessage}}</div> 
                 <a-collapse v-model:active-key="reasoningActiveKey" class="message-collapse" ghost v-if="aIReasoningContentMsg">
-                <a-collapse-panel header="思考过程">
+                <a-collapse-panel key="reasoning" header="思考过程">
                   <div class="collapse-content">
                     <div v-if="aIReasoningContentMsg.length > 200">{{ truncateContent(aIReasoningContentMsg) }}<a @click="showDetailModal('思考过程详情', aIReasoningContentMsg)">点击查看详情</a></div>
                     <div v-else>{{ aIReasoningContentMsg }}</div>
@@ -138,7 +138,7 @@
                 </a-collapse-panel>
               </a-collapse>
               <a-collapse v-model:active-key="toolsActiveKey" class="message-collapse" ghost v-if="aIToolsContentMsg">
-                <a-collapse-panel header="工具调用">
+                <a-collapse-panel key="tools" header="工具调用">
                   <div class="collapse-content">
                     <div v-if="aIToolsContentMsg.length > 200">{{ truncateContent(aIToolsContentMsg) }}<a @click="showDetailModal('工具调用详情', aIToolsContentMsg)">点击查看详情</a></div>
                     <div v-else>{{ aIToolsContentMsg }}</div>
@@ -239,8 +239,8 @@ const aimessage=ref("");
 const aimessage2=ref("");
 const aIToolsContentMsg=ref("");
 const aIReasoningContentMsg=ref("");
-const reasoningActiveKey = ref([]);
-const toolsActiveKey = ref([]);
+const reasoningActiveKey = ref(['reasoning']);
+const toolsActiveKey = ref(['tools']);
 const currentReceivingMsgId = ref(null);
 const expandedReasoning = ref(false);
 const expandedTools = ref(false);
@@ -541,9 +541,7 @@ const sendMessage = async () => {
   aimessage.value='正在思考....'
   aimessage2.value='';
   aIToolsContentMsg.value='';
-  aIReasoningContentMsg.value='';
-  reasoningActiveKey.value = [];
-  toolsActiveKey.value = [];
+  aIReasoningContentMsg.value='';  
     // 使用nextTick确保DOM更新
   nextTick(() => {
      newMessage.value = "";
