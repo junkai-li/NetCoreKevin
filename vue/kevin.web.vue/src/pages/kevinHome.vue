@@ -127,15 +127,20 @@
             </template>
           </a-dropdown>
 
+          <a-button type="text" class="theme-switch-button" @click="toggleFullScreen">
+            <FullscreenOutlined v-if="!isFullScreen" />
+            <FullscreenExitOutlined v-else />
+          </a-button>
+
           <a-dropdown>
-            <a-badge dot>
+            <a-badge :dot="noReadCount > 0">
               <BellOutlined class="header-icon" />
             </a-badge>
             <template #overlay>
               <a-menu class="notification-menu">
-                <a-menu-item>您有3条未读消息</a-menu-item>
-                <a-menu-item>系统维护通知</a-menu-item>
-                <a-menu-item>新版本更新提醒</a-menu-item>
+                <a-menu-item>{{ noReadCount > 0 ? `您有${noReadCount}条未读消息` : '暂无未读消息' }}</a-menu-item>
+                <!-- <a-menu-item>系统维护通知</a-menu-item>
+                <a-menu-item>新版本更新提醒</a-menu-item> -->
               </a-menu>
             </template>
           </a-dropdown>
@@ -211,7 +216,10 @@ import {
   BankOutlined,
   CodeOutlined,
   HistoryOutlined,
+  FullscreenOutlined,
+  FullscreenExitOutlined,
 } from "@ant-design/icons-vue";
+import { GetMyNoReadCount } from "@/api/message";
 //import { Button } from 'ant-design-vue';
 import { useRouter } from "vue-router";
 import "../css/kevinHome.css";
@@ -233,8 +241,34 @@ const menuTheme = computed(() => {
 // 用户信息
 const userInfo = reactive({
   name: "管理员",
-  avatar: hedeImage, // 使用导入的图片
+  avatar: hedeImage,
 });
+
+const noReadCount = ref(0);
+const isFullScreen = ref(false);
+
+const toggleFullScreen = () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+    isFullScreen.value = true;
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+      isFullScreen.value = false;
+    }
+  }
+};
+
+const fetchNoReadCount = async () => {
+  try {
+    const response = await GetMyNoReadCount();
+    if (response.code === 200) {
+      noReadCount.value = response.data || 0;
+    }
+  } catch (error) {
+    console.error("获取未读消息数量失败:", error);
+  }
+};
 
 // 用户权限列表
 const userPermissions = ref([]);
@@ -461,7 +495,7 @@ onMounted(() => {
     } catch {
       /* ignore */
     }
-  } 
+  }
   const permissionsRaw = localStorage.getItem("UserPermissions");
   if (permissionsRaw) {
     try {
@@ -481,6 +515,12 @@ onMounted(() => {
     // 模拟权限数据（开发阶段使用）
     userPermissions.value = getAllPermissions();
   }
+
+  fetchNoReadCount();
+
+  document.addEventListener('fullscreenchange', () => {
+    isFullScreen.value = !!document.fullscreenElement;
+  });
 });
 
 // 获取所有权限（用于默认显示全部菜单）
