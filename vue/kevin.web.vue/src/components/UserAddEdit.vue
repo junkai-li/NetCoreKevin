@@ -34,31 +34,29 @@
         </a-select>
       </a-form-item>
       <a-form-item label="部门" v-bind="validateInfos.departmentId">
-        <a-select
+        <a-tree-select
           v-model:value="form.dtoUserInfo.departmentId"
-         ref="select"
           show-search
           placeholder="请选择部门"
-          
-          :loading="roleLoading"
-        >
-          <a-select-option v-for="dept in departmentList" :key="dept.id" :value="dept.id">
-            {{ dept.name }}
-          </a-select-option>
-        </a-select>
-      </a-form-item> 
-        <a-form-item label="岗位" v-bind="validateInfos.positions">
-        <a-select
+          :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+          :tree-data="departmentTreeData"
+          :filterTreeNode="filterTreeNode"
+          tree-default-expand-all
+          style="width: 100%"
+        />
+      </a-form-item>
+      <a-form-item label="岗位" v-bind="validateInfos.positions">
+        <a-tree-select
           v-model:value="form.positions"
-          mode="multiple"
+          multiple
+          show-search
           placeholder="请选择岗位"
-          class="custom-select"
-          :loading="roleLoading"
-        >
-          <a-select-option v-for="pos in positionList" :key="pos.id" :value="pos.id">
-            {{ pos.name }}
-          </a-select-option>
-        </a-select>
+          :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+          :tree-data="positionTreeData"
+          :filterTreeNode="filterTreeNode"
+          tree-default-expand-all
+          style="width: 100%"
+        />
       </a-form-item> 
       <a-form-item label="状态">
         <a-switch
@@ -106,8 +104,8 @@ import { message } from "ant-design-vue";
 import { Form } from "ant-design-vue"; 
 import { GetSnowflakeId } from "../api/baseapi"; 
 import { createUser, updateUser, getUserRoleList } from "../api/userapi";
-import { getPositionALLList } from "../api/organizational/position";
-import { getDepartmentALLList } from "../api/organizational/department";
+import { getPositionTree } from "../api/organizational/position";
+import { getDepartmentTree } from "../api/organizational/department";
 const emit = defineEmits(['ok', 'cancel']);
 
 const useForm = Form.useForm;
@@ -184,8 +182,8 @@ const modalTitle = ref("用户管理");
 const confirmLoading = ref(false);
 const roleLoading = ref(false);
 const roleList = ref([]);
-const positionList = ref([]);
-const departmentList = ref([]);
+const positionTreeData = ref([]);
+const departmentTreeData = ref([]);
 // 监听props变化
 watch(() => props.visible, (newVal) => {
   modalVisible.value = newVal;
@@ -279,13 +277,9 @@ const loadRoleList = async () => {
 const loadPositionList = async () => {
   roleLoading.value = true;
   try {
-    const response = await getPositionALLList();
-    if (response && response.code === 200 && response.data&&response.code==200) {
-      positionList.value = response.data.map((role) => ({
-        id: role.id,
-        name: role.name+'-'+role.code,
-        value: role.id,
-      }));
+    const response = await getPositionTree();
+    if (response && response.code === 200 && response.data) {
+      positionTreeData.value = convertToTreeData(response.data);
     }
   } catch (error) {
     console.error("获取岗位列表失败:", error);
@@ -297,13 +291,9 @@ const loadPositionList = async () => {
 const loadDepartmentList = async () => {
   roleLoading.value = true;
   try {
-    const response = await getDepartmentALLList();
-    if (response && response.code === 200 && response.data&&response.code==200) {
-      departmentList.value = response.data.map((role) => ({
-        id: role.id,
-        name: role.name+'-'+role.code,
-        value: role.id,
-      }));
+    const response = await getDepartmentTree();
+    if (response && response.code === 200 && response.data) {
+      departmentTreeData.value = convertToTreeData(response.data);
     }
   } catch (error) {
     console.error("获取部门列表失败:", error);
@@ -311,6 +301,41 @@ const loadDepartmentList = async () => {
   } finally {
     roleLoading.value = false;
   }
+};
+
+const convertToTreeData = (data) => {
+  if (!data) return [];
+  const traverse = (node) => {
+    if (!node) return null;
+    const treeNode = {
+      value: node.id,
+      title: `${node.name} - ${node.code}`,
+      key: node.id
+    };
+    if (node.children && node.children.length > 0) {
+      treeNode.children = node.children.map(child => traverse(child)).filter(child => child !== null);
+    }
+    return treeNode;
+  };
+  return traverse(data) ? [traverse(data)] : [];
+};
+
+const filterTreeNode = (inputValue, treeNode) => {
+  return treeNode.title.toLowerCase().indexOf(inputValue.toLowerCase()) >= 0;
+};
+
+const findPositionNameById = (id, treeData) => {
+  if (!treeData || !Array.isArray(treeData)) return null;
+  for (const node of treeData) {
+    if (node.value === id) {
+      return node.title.split(' - ')[0];
+    }
+    if (node.children && node.children.length > 0) {
+      const found = findPositionNameById(id, node.children);
+      if (found) return found;
+    }
+  }
+  return null;
 }; 
 
 // 处理确认
@@ -318,13 +343,21 @@ const handleOk = () => {
   validateForm()
     .then(async () => {
       if(!form.dtoUserInfo.departmentId){
-           message.error("请选择部门！");  
+           message.error("请选择部门！");
             return;
       }
       try {
         confirmLoading.value = true;
         var roles = roleList.value.filter((role) => form.roles.includes(role.id));
-          var positions = positionList.value.filter((role) => form.positions.includes(role.id));
+        var positions = [];
+        if (form.positions && form.positions.length > 0) {
+          form.positions.forEach(posId => {
+            var posName = findPositionNameById(posId, positionTreeData.value);
+            if (posName) {
+              positions.push({ id: posId, name: posName });
+            }
+          });
+        }
         const userData = {
           id: form.id,
           name: form.username,
@@ -334,7 +367,7 @@ const handleOk = () => {
           email: form.email,
           dtoUserInfo:form.dtoUserInfo,
           roles: roles.map((role) => ({ id: role.id, name: role.name })),
-          positions: positions.map((role) => ({ id: role.id, name: role.name })),
+          positions: positions,
           status: form.status,
           headImgs: form.avatarUrl
             ? [{ key: "avatar", value: form.avatarUrl }]
