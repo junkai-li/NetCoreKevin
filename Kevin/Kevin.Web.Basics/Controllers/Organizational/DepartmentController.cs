@@ -38,9 +38,8 @@ namespace Kevin.Web.Basics.AI.Organizational
         }
 
         [HttpGet("GetALLList")]
-        [ActionDescription("获取岗位列表")]
-        [HttpLog("部门管理", "获取岗位列表")]
-        [CacheDataFilter<List<DepartmentDto>>(TTL = 60, UseToken = false)]
+        [ActionDescription("获取部门列表")]
+        [HttpLog("部门管理", "获取部门列表")] 
         public async Task<List<DepartmentDto>> GetALLlist()
         {
             var result = await _departmentService.GetALLList();
@@ -49,8 +48,7 @@ namespace Kevin.Web.Basics.AI.Organizational
 
         [HttpGet("GetDepartmentTree")]
         [ActionDescription("获取部门树形结构")]
-        [HttpLog("部门管理", "获取部门树形结构")]
-        [CacheDataFilter<DepartmentDto>(TTL = 60, UseToken = false)]
+        [HttpLog("部门管理", "获取部门树形结构")] 
         public async Task<DepartmentDto> GetDepartmentTree()
         {
             var result = await _departmentService.GetDepartmentTree();
