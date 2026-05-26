@@ -24,10 +24,10 @@ namespace Kevin.Common.Helper
         /// <returns>配置实例</returns>
         public static T GetSection<T>(string sectionKey) where T : class, new()
         {
-            if (_configuration == null)
+            if (Configuration == null)
                 throw new InvalidOperationException("配置未初始化，请先调用Initialize方法");
 
-            return _configuration.GetSection(sectionKey).Get<T>();
+            return Configuration.GetSection(sectionKey).Get<T>();
         }
 
         /// <summary>
@@ -38,10 +38,10 @@ namespace Kevin.Common.Helper
         /// <returns>配置实例</returns>
         public static IConfigurationSection GetSection(string sectionKey)
         {
-            if (_configuration == null)
+            if (Configuration == null)
                 throw new InvalidOperationException("配置未初始化，请先调用Initialize方法");
 
-            return _configuration.GetSection(sectionKey);
+            return Configuration.GetSection(sectionKey);
         }
 
         /// <summary>
@@ -51,10 +51,10 @@ namespace Kevin.Common.Helper
         /// <returns>配置值</returns>
         public static string GetValue(string key)
         {
-            if (_configuration == null)
+            if (Configuration == null)
                 throw new InvalidOperationException("配置未初始化，请先调用Initialize方法");
 
-            return _configuration?[key];
+            return Configuration?[key];
         }
     }
 }
