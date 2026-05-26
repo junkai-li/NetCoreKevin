@@ -86,10 +86,26 @@
             </div>
             <div class="message-content">
               <div class="message-text">{{ message.content }}</div>
+              <a-collapse v-if="message.aiReasoningContent" class="message-collapse" ghost :default-active-key="expandedReasoning ? ['reasoning'] : []">
+                <a-collapse-panel key="reasoning" header="思考过程">
+                  <div class="collapse-content">
+                    <div v-if="message.aiReasoningContent.length > 200">{{ truncateContent(message.aiReasoningContent) }}<a @click="showDetailModal('思考过程详情', message.aiReasoningContent)">点击查看详情</a></div>
+                    <div v-else>{{ message.aiReasoningContent }}</div>
+                  </div>
+                </a-collapse-panel>
+              </a-collapse>
+              <a-collapse v-if="message.aiToolsContent" class="message-collapse" ghost :default-active-key="expandedTools ? ['tools'] : []">
+                <a-collapse-panel key="tools" header="工具调用">
+                  <div class="collapse-content">
+                    <div v-if="message.aiToolsContent.length > 200">{{ truncateContent(message.aiToolsContent) }}<a @click="showDetailModal('工具调用详情', message.aiToolsContent)">点击查看详情</a></div>
+                    <div v-else>{{ message.aiToolsContent }}</div>
+                  </div>
+                </a-collapse-panel>
+              </a-collapse>
               <div class="message-actions" v-if="!message.isSend">
-                <a-button 
-                  type="text" 
-                  size="small" 
+                <a-button
+                  type="text"
+                  size="small"
                   @click="copyMessageContent(message.content)"
                   class="copy-button">
                   <template #icon>
@@ -113,6 +129,22 @@
               </div>
              <div class="message-text">{{ aimessage2 }}</div>
               <div class="message-time">  {{ aimessage}}</div> 
+                <a-collapse v-model:active-key="reasoningActiveKey" class="message-collapse" ghost v-if="aIReasoningContentMsg">
+                <a-collapse-panel header="思考过程">
+                  <div class="collapse-content">
+                    <div v-if="aIReasoningContentMsg.length > 200">{{ truncateContent(aIReasoningContentMsg) }}<a @click="showDetailModal('思考过程详情', aIReasoningContentMsg)">点击查看详情</a></div>
+                    <div v-else>{{ aIReasoningContentMsg }}</div>
+                  </div>
+                </a-collapse-panel>
+              </a-collapse>
+              <a-collapse v-model:active-key="toolsActiveKey" class="message-collapse" ghost v-if="aIToolsContentMsg">
+                <a-collapse-panel header="工具调用">
+                  <div class="collapse-content">
+                    <div v-if="aIToolsContentMsg.length > 200">{{ truncateContent(aIToolsContentMsg) }}<a @click="showDetailModal('工具调用详情', aIToolsContentMsg)">点击查看详情</a></div>
+                    <div v-else>{{ aIToolsContentMsg }}</div>
+                  </div>
+                </a-collapse-panel>
+              </a-collapse>
             </div>
           </div>
         </div>
@@ -162,6 +194,12 @@
             </a-button>
           </div>
         </div>
+
+        <a-modal v-model:open="detailModalVisible" :title="detailModalTitle" :footer="null" width="800px">
+          <div style="max-height: 500px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">
+            {{ detailModalContent }}
+          </div>
+        </a-modal>
       </div>
     </div>
   </div>
@@ -197,8 +235,18 @@ const newMessage = ref("");
 const loadingConversations = ref(false);
 const isSending = ref(false);
 const messagesContainer = ref(null);
-const aimessage=ref("");//提示消息  
-const aimessage2=ref("");//提示消息  
+const aimessage=ref("");
+const aimessage2=ref("");
+const aIToolsContentMsg=ref("");
+const aIReasoningContentMsg=ref("");
+const reasoningActiveKey = ref([]);
+const toolsActiveKey = ref([]);
+const currentReceivingMsgId = ref(null);
+const expandedReasoning = ref(false);
+const expandedTools = ref(false);
+const detailModalVisible = ref(false);
+const detailModalContent = ref("");
+const detailModalTitle = ref("");
 // 添加联网搜索开关变量
 const isOnlineSearch = ref(false); // 默认为关闭状态
 // 分页相关变量
@@ -405,6 +453,8 @@ const loadChatHistory = async (chatId, page) => {
         conversationId: item.aIChatsId,
         isSend: item.isSend,
         content: item.content,
+        aiReasoningContent: item.aiReasoningContent,
+        aiToolsContent: item.aiToolsContent,
         createdAt: item.creationTime || new Date().toISOString(),
       }));
 
@@ -482,13 +532,20 @@ const handlePressEnter = (e) => {
 
 // 发送消息
 const sendMessage = async () => {
-  if (!newMessage.value.trim() || isSending.value) return; 
-  const messageToSend = newMessage.value.trim(); 
-  isSending.value = true; 
+  if (!newMessage.value.trim() || isSending.value) return;
+  const messageToSend = newMessage.value.trim();
+  isSending.value = true;
+  expandedReasoning.value = false;
+  expandedTools.value = false;
+  currentReceivingMsgId.value = null;
   aimessage.value='正在思考....'
   aimessage2.value='';
+  aIToolsContentMsg.value='';
+  aIReasoningContentMsg.value='';
+  reasoningActiveKey.value = [];
+  toolsActiveKey.value = [];
     // 使用nextTick确保DOM更新
-  nextTick(() => { 
+  nextTick(() => {
      newMessage.value = "";
      // 滚动到底部以显示最新内容
         scrollToBottom();
@@ -503,7 +560,7 @@ const sendMessage = async () => {
       content: messageToSend,
       createdAt: new Date().toISOString(),
     };
-    messages.value.push(userMessage); 
+    messages.value.push(userMessage);
      // 滚动到底部以显示最新内容
         scrollToBottom();
          //监听流式输出
@@ -530,16 +587,25 @@ const sendMessage = async () => {
         conversation.title =
           messageToSend.substring(0, 20) + (messageToSend.length > 20 ? "..." : "");
       }
-    }   
-     messages.value.push({
+    }
+    const aiMessage = {
       id: reulst.data.id,
       conversationId: activeConversationId.value,
       isSend: reulst.data.isSend,
       content: reulst.data.content,
+      aiToolsContent: reulst.data.aiToolsContent,
+      aiReasoningContent: reulst.data.aiReasoningContent,
       createdAt: reulst.data.createTime,
-    }); 
-      stopAiMySignalRHubMsg(snowflakeId);
-        isSending.value = false;  
+    };
+    if (aiMessage.aiReasoningContent) {
+      expandedReasoning.value = true;
+    }
+    if (aiMessage.aiToolsContent) {
+      expandedTools.value = true;
+    }
+    messages.value.push(aiMessage);
+    currentReceivingMsgId.value = aiMessage.id;
+    isSending.value = false;
     scrollToBottom();
   } catch (error) {
     stopAiMySignalRHubMsg(snowflakeId);
@@ -557,7 +623,21 @@ const scrollToBottom = () => {
     }
   });
 };
+
+const showDetailModal = (title, content) => {
+  detailModalTitle.value = title;
+  detailModalContent.value = content;
+  detailModalVisible.value = true;
+};
+
+const truncateContent = (content, maxLength = 200) => {
+  if (!content || content.length <= maxLength) return content;
+  return content.substring(0, maxLength) + '...';
+};
+
 var connectionServer=null;
+let connectionTimeout = null;
+
 const getAiMySignalRHubMsg=(id)=>{
    connectionServer=new signalR.HubConnectionBuilder().withUrl(`${process.env.VUE_APP_API_BASE_URL}/api/MySignalRHub?IdentityId=${id}&Authorization=${localStorage.getItem('token')}`,{
  
@@ -586,15 +666,42 @@ connectionServer.on('aimsg', (msg) => {
   });
 }) 
 // 接收AI消息
-connectionServer.on('processmsg', (msg) => {    
-    aimessage.value=msg 
+connectionServer.on('processmsg', (msg) => {
+    aimessage.value=msg
+})
+// 接收AI工具调用内容（叠加）
+connectionServer.on('aIToolsContentMsg', (msg) => {
+ // 使用nextTick确保DOM更新
+  nextTick(() => {
+    // 实现逐字显示效果
+    aIToolsContentMsg.value+=msg;
+     // 滚动到底部以显示最新内容
+        scrollToBottom();
+  });
+})
+// 接收AI思考过程内容（叠加）
+connectionServer.on('aIReasoningContentMsg', (msg) => { 
+ // 使用nextTick确保DOM更新
+  nextTick(() => {
+    // 实现逐字显示效果
+    aIReasoningContentMsg.value+=msg;
+     // 滚动到底部以显示最新内容
+        scrollToBottom();
+  });
 }) 
 }
 
 const stopAiMySignalRHubMsg=(id)=>{
   aimessage.value='';
   aimessage2.value='';
-connectionServer?.stop();
+  expandedReasoning.value = false;
+  expandedTools.value = false;
+  currentReceivingMsgId.value = null;
+  if (connectionTimeout) {
+    clearTimeout(connectionTimeout);
+    connectionTimeout = null;
+  }
+  connectionServer?.stop();
 }
    
 
@@ -618,6 +725,13 @@ const formatDate = (dateString) => {
 };
 
 // 格式化时间
+const getCollapseHeader = (message) => {
+  const parts = [];
+  if (message.aiReasoningContent) parts.push('思考过程');
+  if (message.aiToolsContent) parts.push('工具调用');
+  return parts.join(' + ') || 'AI详情';
+};
+
 const formatTime = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -1072,6 +1186,40 @@ const deleteConversation = async (conversationId, event) => {
   border: none;
   padding: 6px 20px;
   width: auto;
+}
+
+.message-collapse {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.message-collapse :deep(.ant-collapse-header) {
+  padding: 4px 12px !important;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.message-collapse :deep(.ant-collapse-content-box) {
+  padding: 8px !important;
+}
+
+.ai-reasoning,
+.ai-tools {
+  margin-bottom: 0;
+}
+
+.ai-reasoning:last-child,
+.ai-tools:last-child {
+  margin-bottom: 0;
+}
+
+.collapse-content {
+  color: #595959;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 .chat-placeholder {

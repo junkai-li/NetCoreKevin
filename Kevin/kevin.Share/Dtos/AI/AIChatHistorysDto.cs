@@ -44,5 +44,16 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary>
         [Description("是否联网搜索")]
         public Boolean IsOnlineSearch { get; set; } = false;
+        /// <summary>
+        ///AI思考过程
+        /// </summary>
+        [Description("思考过程")]
+        public String? AIReasoningContent { get; set; }
+
+        /// <summary>
+        ///AI工具调用过程
+        /// </summary>
+        [Description("AI工具调用过程")]
+        public String? AIToolsContent { get; set; }
     }
 }

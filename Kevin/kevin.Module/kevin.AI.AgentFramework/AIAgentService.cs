@@ -9,11 +9,17 @@ using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.VisualBasic;
+using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
+using Newtonsoft.Json;
 using OpenAI;
 using OpenAI.Responses;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Text;
+using System.Text.Json;
+using static HarmonyLib.Code;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace kevin.AI.AgentFramework
 {
@@ -55,32 +61,69 @@ namespace kevin.AI.AgentFramework
                 {
                     chatClientAgentOptions.ChatOptions.Tools = new List<AITool>();
                 }
-            } 
+            }
             #endregion
 
             #region AI技能
             if (!aISetting.IsAISkills)
             {
-                chatClientAgentOptions.AIContextProviders = default; 
-            } 
-            #endregion 
+                chatClientAgentOptions.AIContextProviders = default;
+            }
+            #endregion
             // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示 
-            var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(aISetting.AIKeySecret) ? "local" : aISetting.AIKeySecret), openAIClientOptions); 
+            var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(aISetting.AIKeySecret) ? "local" : aISetting.AIKeySecret), openAIClientOptions);
             var aiAgent = ai.GetChatClient(aISetting.AIDefaultModel).AsIChatClient().AsAIAgent(chatClientAgentOptions);
             var reslut = new AgentResponse();
             var resultText = string.Empty;
+
             if (aISetting.IsStreame)
             {
                 if (aISetting.StreameCallback != default)
                 {
                     await foreach (var update in aiAgent.RunStreamingAsync(msg))
                     {
-                        if (!string.IsNullOrEmpty(update.Text))
+                        foreach (var content in update.Contents)
                         {
-                            aISetting.StreameCallback.Invoke(update.Text);
-                            resultText += update.Text;
+                            switch (content)
+                            {
+                                case FunctionCallContent funcCall:
+                                    // 1. 模型决定调用工具 
+                                    if (aISetting.ToolStreameCallback != default)
+                                    {
+                                        aISetting.ToolStreameCallback.Invoke($"\n [工具调用] 名称：{funcCall.Name}，调用ID：{funcCall.CallId}，参数：{JsonConvert.SerializeObject(funcCall.Arguments).ToString()}");
+                                    }
+                                    break;
+
+                                case FunctionResultContent funcResult:
+                                    // 2. 工具执行完毕返回结果 
+                                    if (aISetting.ToolStreameCallback != default)
+                                    {
+                                        aISetting.ToolStreameCallback.Invoke($"\n [工具返回] 调用ID：{funcResult.CallId}，结果：{funcResult.Result}");
+                                    }
+                                    break;
+
+                                case TextContent textContent:
+                                    // 3. 普通文本输出 
+                                    break;
+                            }
+
+                            if (!string.IsNullOrEmpty(update.Text))
+                            {
+                                aISetting.StreameCallback.Invoke(update.Text);
+                                resultText += update.Text;
+                            }
+                            else
+                            {
+                                if (aISetting.ReasoningStreameCallback != default)
+                                {
+                                    aISetting.ReasoningStreameCallback.Invoke($"{await GetReasoningTextAsync(update)}");
+                                }
+
+                            }
                         }
+
                     }
+
                 }
             }
             else
@@ -93,6 +136,91 @@ namespace kevin.AI.AgentFramework
                 HttpClientAutoInterceptor.StopInterception();
             }
             return (aiAgent, resultText);
+        }
+
+        /// <summary>
+        ///获取模型思考过程文本（适用于流式输出时从原始响应中提取reasoning字段）
+        /// </summary>
+        /// <param name="update">流式更新对象</param>
+        /// <returns>思考过程文本</returns>
+        private async Task<string> GetReasoningTextAsync(AgentResponseUpdate update)
+        {
+            var reasoningBuilder = new StringBuilder();
+            // 仅处理无文本输出、包含原始响应的更新
+            if (update.RawRepresentation is Microsoft.Extensions.AI.ChatResponseUpdate streamingChatCompletionUpdate
+                && streamingChatCompletionUpdate.RawRepresentation is OpenAI.Chat.StreamingChatCompletionUpdate chatCompletionUpdate)
+            {
+                // 从原始JSON中提取 reasoning 字段
+#pragma warning disable SCME0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+                ref JsonPatch patch = ref chatCompletionUpdate.Patch;
+#pragma warning restore SCME0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。  
+                // 1. 从 patch 中获取更上层的 choices 片段，然后遍历每个 choice 的 delta 查找 reasoning
+                var jsonPathBytes = System.Text.Encoding.UTF8.GetBytes("$.choices");
+                var jsonPathSpan = new ReadOnlySpan<byte>(jsonPathBytes);
+                // 2. 调用 TryGetJson（获取 choices 数组片段）
+                if (patch.TryGetJson(jsonPathSpan, out var data))
+                {
+                    // 将 ReadOnlyMemory<byte> 转为字符串，便于调试输出
+                    var jsonString = System.Text.Encoding.UTF8.GetString(data.ToArray());
+
+                    using var doc = JsonDocument.Parse(jsonString);
+                    var root = doc.RootElement;
+
+                    // 遍历 choices 数组，查找 delta 下的 reasoning 字段（兼容字符串或对象）
+                    if (root.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var choice in root.EnumerateArray())
+                        {
+                            if (choice.TryGetProperty("delta", out var delta))
+                            {
+                                // 支持两种字段名：reasoning 或 reasoning_content
+                                if (!delta.TryGetProperty("reasoning", out var reasoningProp)
+                                    && !delta.TryGetProperty("reasoning_content", out reasoningProp))
+                                {
+                                    continue;
+                                }
+
+                                string reasoningText = reasoningProp.ValueKind == JsonValueKind.String
+                                    ? reasoningProp.GetString() ?? string.Empty
+                                    : reasoningProp.GetRawText();
+
+                                if (!string.IsNullOrEmpty(reasoningText))
+                                {
+                                    reasoningBuilder.Append(reasoningText);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // 如果返回的不是数组，尝试按对象结构解析（兼容性保护）
+                        if (root.TryGetProperty("choices", out var choices) && choices.ValueKind == JsonValueKind.Array)
+                        {
+                            foreach (var choice in choices.EnumerateArray())
+                            {
+                                if (choice.TryGetProperty("delta", out var delta))
+                                {
+                                    // 支持两种字段名：reasoning 或 reasoning_content
+                                    if (!delta.TryGetProperty("reasoning", out var reasoningProp)
+                                        && !delta.TryGetProperty("reasoning_content", out reasoningProp))
+                                    {
+                                        continue;
+                                    }
+
+                                    string reasoningText = reasoningProp.ValueKind == JsonValueKind.String
+                                        ? reasoningProp.GetString() ?? string.Empty
+                                        : reasoningProp.GetRawText();
+                                    if (!string.IsNullOrEmpty(reasoningText))
+                                    {
+                                        reasoningBuilder.Append(reasoningText);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return (reasoningBuilder?.ToString() ?? "").Replace("null", "\n");
         }
     }
 }

@@ -29,5 +29,17 @@
         /// </summary>
         [Description("文件名")]
         public String? FileName { get; set; }
+
+        /// <summary>
+        ///AI思考过程
+        /// </summary>
+        [Description("思考过程")]
+        public String? AIReasoningContent { get; set; }
+
+        /// <summary>
+        ///AI工具调用过程
+        /// </summary>
+        [Description("AI工具调用过程")]
+        public String? AIToolsContent { get; set; }
     }
 }

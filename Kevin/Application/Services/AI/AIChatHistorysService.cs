@@ -229,7 +229,17 @@ namespace kevin.Application.Services.AI
                         StreameCallback = async (msg) =>
                         {
                             await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
-                        }
+                        },
+                        ToolStreameCallback = async (msg) =>
+                        { 
+                            addAi.AIToolsContent += msg;
+                            await signalRMsgService.SendIdentityIdMsg("aIToolsContentMsg", add.Id.ToString(), msg);
+                        },
+                        ReasoningStreameCallback = async (msg) =>
+                        { 
+                            addAi.AIReasoningContent += msg;
+                            await signalRMsgService.SendIdentityIdMsg("aIReasoningContentMsg", add.Id.ToString(), msg);
+                        },
                     }, chatAgOs, add.Content)).Item2;
                     break;
             }

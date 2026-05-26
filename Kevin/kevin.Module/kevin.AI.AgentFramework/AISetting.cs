@@ -52,6 +52,15 @@ namespace Kevin.AI.Dto
         public Action<string> StreameCallback { get; set; } = default;
 
         /// <summary>
+        /// 工具流式请求回调
+        /// </summary>
+        public Action<string> ToolStreameCallback { get; set; } = default;
+
+        /// <summary>
+        /// 思考过程流式请求回调
+        /// </summary>
+        public Action<string> ReasoningStreameCallback { get; set; } = default;
+        /// <summary>
         /// ai请求参数 ，提供给外部使用，框架内不做处理如：token、cookie、其他传入ai工具的参数等
         /// </summary>
         public object AIParData { get; set; } = default;

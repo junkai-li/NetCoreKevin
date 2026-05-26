@@ -164,6 +164,16 @@
             是否联网搜索
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.AIReasoningContent">
+             <summary>
+            AI思考过程
+             </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.AIToolsContent">
+             <summary>
+            AI工具调用过程
+             </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIChatsDto">
             <summary>
             对话
