@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace NetCore.Util.EncryptHelper
+namespace Kevin.Common
 {
     /// <summary>
     /// 不可逆加密

@@ -4,7 +4,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace NetCore.Util.EncryptHelper
+namespace Kevin.Common
 {
     public class AESEncryptor
     {
