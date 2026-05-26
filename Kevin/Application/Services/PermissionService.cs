@@ -418,8 +418,8 @@ namespace kevin.Application
         /// </summary>
         public List<string> GetUserPermissions()
         {
-            var user = userRp.Query().Where(x => x.IsDelete == false).FirstOrDefault();
-            if (user != null)
+            var user = userRp.Query().Where(x => x.IsDelete == false && CurrentUser.UserId == x.Id).FirstOrDefault();
+            if (user != default)
             {
                 if (user.IsSuperAdmin)
                 {

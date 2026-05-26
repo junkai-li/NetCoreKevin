@@ -253,69 +253,69 @@ const menuList = ref([
     key: 'dashboard',
     title: '首页',
     icon: DashboardOutlined,
-    permission: 'Dashboard',
+    permission: 'Menu/Home',
     children: [
-      { key: '', title: '首页', permission: 'Dashboard', icon: DashboardOutlined }
+      { key: 'dashboard', title: '首页', permission: 'Menu/Home/Index', icon: DashboardOutlined }
     ]
   },
   {
     key: 'my',
     title: '我的',
     icon: RobotOutlined,
-    permission: 'MyMenu',
+    permission: 'Menu/MyMenu',
     children: [
-      { key: 'my-message', title: '我的消息', permission: 'MyMessage', icon: MessageOutlined },
-      { key: 'my-ai-chat', title: '我的AI对话', permission: 'MyAiChat', icon: RobotOutlined },
-      { key: 'my-ai-tasks', title: '我的AI自动任务', permission: 'MyAiTasks', icon: ScheduleOutlined },
-      { key: 'my-ai-agents', title: '我的可用智能体', permission: 'MyAiAgents', icon: AppstoreOutlined }
+      { key: 'my-message', title: '我的消息', permission: 'Menu/MyMenu/MyMessage', icon: MessageOutlined },
+      { key: 'my-ai-chat', title: '我的AI对话', permission: 'Menu/MyMenu/MyAiChat', icon: RobotOutlined },
+      { key: 'my-ai-tasks', title: '我的AI自动任务', permission: 'Menu/MyMenu/MyAiTasks', icon: ScheduleOutlined },
+      { key: 'my-ai-agents', title: '我的可用智能体', permission: 'Menu/MyMenu/MyAiAgents', icon: AppstoreOutlined }
     ]
   },
   {
     key: 'aimanagement',
     title: 'AI管理',
     icon: GitlabOutlined,
-    permission: 'AIManagement',
+    permission: 'Menu/AIManagement',
     children: [
-      { key: 'ai-appsmg', title: '智能体管理', permission: 'AIAppsManagement', icon: RobotOutlined },
-      { key: 'ai-promptsmg', title: '提示词管理', permission: 'AIPromptsManagement', icon: FileTextOutlined },
-      { key: 'ai-kmssmg', title: '知识库管理', permission: 'AIKmssManagement', icon: BookOutlined },
-      { key: 'ai-modelmg', title: '模型配置管理', permission: 'AIModelManagement', icon: SettingOutlined },
-      { key: 'ai-skilltoolmg', title: 'AI技能工具管理', permission: 'AISkillToolManagement', icon: ToolOutlined }
+      { key: 'ai-appsmg', title: '智能体管理', permission: 'Menu/AIManagement/AIAppsManagement', icon: RobotOutlined },
+      { key: 'ai-promptsmg', title: '提示词管理', permission: 'Menu/AIManagement/AIPromptsManagement', icon: FileTextOutlined },
+      { key: 'ai-kmssmg', title: '知识库管理', permission: 'Menu/AIManagement/AIKmssManagement', icon: BookOutlined },
+      { key: 'ai-modelmg', title: '模型配置管理', permission: 'Menu/AIManagement/AIModelManagement', icon: SettingOutlined },
+      { key: 'ai-skilltoolmg', title: 'AI技能工具管理', permission: 'Menu/AIManagement/AISkillToolManagement', icon: ToolOutlined }
     ]
   },
   {
     key: 'organizational-management',
     title: '组织架构',
     icon: UserOutlined,
-    permission: 'OrganizationalManagement',
+    permission: 'Menu/OrganizationalManagement',
     children: [
-      { key: 'organizational-position', title: '岗位管理', permission: 'PositionManagement', icon: AuditOutlined },
-      { key: 'organizational-department', title: '部门管理', permission: 'DepartmentManagement', icon: TeamOutlined }
+      { key: 'organizational-position', title: '岗位管理', permission: 'Menu/OrganizationalManagement/PositionManagement', icon: AuditOutlined },
+      { key: 'organizational-department', title: '部门管理', permission: 'Menu/OrganizationalManagement/DepartmentManagement', icon: TeamOutlined }
     ]
   },
   {
     key: 'user-management',
     title: '用户管理',
     icon: UserOutlined,
-    permission: 'UserManagement',
+    permission: 'Menu/UserManagement',
     children: [
-      { key: 'user-list', title: '用户管理', permission: 'UserList', icon: UserOutlined },
-      { key: 'user-role', title: '角色管理', permission: 'UserRole', icon: SafetyOutlined },
-      { key: 'user-permission', title: '权限管理', permission: 'UserPermission', icon: KeyOutlined }
+      { key: 'user-list', title: '用户列表', permission: 'Menu/UserManagement/UserList', icon: UserOutlined },
+      { key: 'user-role', title: '角色管理', permission: 'Menu/UserManagement/UserRole', icon: SafetyOutlined },
+      { key: 'user-permission', title: '权限管理', permission: 'Menu/UserManagement/UserPermission', icon: KeyOutlined }
     ]
   },
   {
     key: 'system-settings',
     title: '系统管理',
     icon: SettingOutlined,
-    permission: 'SystemSettings',
+    permission: 'Menu/SystemSettings',
     children: [
-      { key: 'system-announcement', title: '系统公告', permission: 'SystemAnnouncement', icon: NotificationOutlined },
-      { key: 'system-dic', title: '系统配置', permission: 'SystemDic', icon: SettingOutlined },
-      { key: 'system-tenant', title: '租户管理', permission: 'SystemTenant', icon: BankOutlined },
-      { key: 'system-code-generator', title: '代码生成器', permission: 'SystemCodeGenerator', icon: CodeOutlined },
-      { key: 'log-management', title: '日志管理', permission: 'LogManagement', icon: FileTextOutlined },
-      { key: 'oslog', title: '关键数据变动日志', permission: 'OsLog', icon: HistoryOutlined }
+      { key: 'system-announcement', title: '系统公告', permission: 'Menu/SystemSettings/SystemAnnouncement', icon: NotificationOutlined },
+      { key: 'system-dic', title: '系统配置', permission: 'Menu/SystemSettings/SystemDic', icon: SettingOutlined },
+      { key: 'system-tenant', title: '租户管理', permission: 'Menu/SystemSettings/SystemTenant', icon: BankOutlined },
+      { key: 'system-code-generator', title: '代码生成器', permission: 'Menu/SystemSettings/SystemCodeGenerator', icon: CodeOutlined },
+      { key: 'log-management', title: '日志管理', permission: 'Menu/SystemSettings/Log/Management', icon: FileTextOutlined }, 
+      { key: 'oslog', title: '关键数据变动日志', permission: 'Menu/SystemSettings/OsLog', icon: HistoryOutlined }
     ]
   }
 ]);
@@ -432,8 +432,8 @@ const handleMenuClick = ({ key }) => {
 // 退出登录
 const handleLogout = () => {
   console.log("用户退出登录");
-  // 清除认证状态并跳转到登录页
   localStorage.removeItem("token");
+  localStorage.removeItem("UserPermissions");
   router.push("/login");
 };
 // 个人中心
@@ -461,16 +461,17 @@ onMounted(() => {
     } catch {
       /* ignore */
     }
-  }
-
-  // 加载用户权限
+  } 
   const permissionsRaw = localStorage.getItem("UserPermissions");
   if (permissionsRaw) {
     try {
       const permissions = JSON.parse(permissionsRaw);
-      if (Array.isArray(permissions)) {
-        userPermissions.value = permissions;
-        userPermissions.value = getAllPermissions();
+       const user = JSON.parse(raw);
+      if (Array.isArray(permissions)) { 
+         permissions.forEach((item, index) => { 
+          permissions[index] = item.replace(String(user.tenantId+'/'), "");
+        });     
+        userPermissions.value = permissions;   
       }
     } catch {
       // 如果本地存储的权限数据无效，使用模拟数据
@@ -485,12 +486,12 @@ onMounted(() => {
 // 获取所有权限（用于默认显示全部菜单）
 const getAllPermissions = () => {
   return [
-    'Dashboard',
-    'MyMenu', 'MyMessage', 'MyAiChat', 'MyAiTasks', 'MyAiAgents',
-    'AIManagement', 'AIAppsManagement', 'AIPromptsManagement', 'AIKmssManagement', 'AIModelManagement', 'AISkillToolManagement',
-    'OrganizationalManagement', 'PositionManagement', 'DepartmentManagement',
-    'UserManagement', 'UserList', 'UserRole', 'UserPermission',
-    'SystemSettings', 'SystemAnnouncement', 'SystemDic', 'SystemTenant', 'SystemCodeGenerator', 'LogManagement', 'OsLog'
+    'Menu/Home','Menu/Home/Index',
+    'Menu/MyMenu', 'Menu/MyMenu/MyMessage', 'Menu/MyMenu/MyAiChat', 'Menu/MyMenu/MyAiTasks', 'Menu/MyMenu/MyAiAgents',
+    'Menu/AIManagement', 'Menu/AIManagement/AIAppsManagement', 'Menu/AIManagement/AIPromptsManagement', 'Menu/AIManagement/AIKmssManagement', 'Menu/AIManagement/AIModelManagement', 'Menu/AIManagement/AISkillToolManagement',
+    'Menu/OrganizationalManagement', 'Menu/OrganizationalManagement/PositionManagement', 'Menu/OrganizationalManagement/DepartmentManagement',
+    'Menu/UserManagement', 'Menu/UserManagement/UserList', 'Menu/UserManagement/UserRole', 'Menu/UserManagement/UserPermission',
+    'Menu/SystemSettings', 'Menu/SystemSettings/SystemAnnouncement', 'Menu/SystemSettings/SystemDic', 'Menu/SystemSettings/SystemTenant', 'Menu/SystemSettings/SystemCodeGenerator', 'Menu/SystemSettings/Log/Management', 'Menu/SystemSettings/OsLog'
   ];
 };
 </script>
