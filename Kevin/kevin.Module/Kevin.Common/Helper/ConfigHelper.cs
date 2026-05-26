@@ -5,7 +5,7 @@ namespace Kevin.Common.Helper
 {
     public static class ConfigHelper
     {
-        private static IConfiguration _configuration;
+        public static IConfiguration Configuration;
 
         /// <summary>
         /// 初始化配置（通常在Program.cs中调用一次）
@@ -13,7 +13,7 @@ namespace Kevin.Common.Helper
         /// <param name="config">配置实例</param>
         public static void Initialize(IConfiguration config)
         {
-            _configuration = config;
+            Configuration = config;
         }
 
         /// <summary>
