@@ -63,8 +63,12 @@ namespace kevin.Application.Services
                 string path = Kevin.Common.App.IO.Path.ContentRootPath() + file.Path;
                 if (!string.IsNullOrEmpty(file.Url))
                 {
-                    //下载文件
-                    fileStorage.FileDownload(file.Url, path);
+                    //下载文件 
+                    if (!fileStorage.FileDownload(file.Url, path))
+                    {
+                        throw new UserFriendlyException("文件下载失败{" + file.Url + "}");
+                    }
+
                 }
                 //读取文件入流
                 var stream = System.IO.File.OpenRead(path);
