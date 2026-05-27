@@ -207,11 +207,13 @@ namespace kevin.Application.Services.AI
             {
                 IsSelect = myIds.Any(x => x.AISkillToolManagementId == t.Id),
                 AISkillToolManagementName = t.Name,
+                AISkillToolManagementDescription=t.Description,
                 AISkillToolManagementId = t.Id
             }).ToList();
             data.Tools = tools.Select(t => new AIAppsBindSkillToolsDto
             {
                 IsSelect = myIds.Any(x => x.AISkillToolManagementId == t.Id),
+                AISkillToolManagementDescription = t.Description,
                 AISkillToolManagementName = t.Name,
                 AISkillToolManagementId = t.Id
             }).ToList();

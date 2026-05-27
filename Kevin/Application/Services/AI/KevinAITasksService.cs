@@ -233,7 +233,7 @@ namespace kevin.Application.Services.AI
                                                                               .UseFileSkill(Path.Combine(AppContext.BaseDirectory + skillPath),//"/Skills/all-skills"
                                                                               new AgentFileSkillsSourceOptions
                                                                               {
-                                                                                  AllowedScriptExtensions = [".py", ".sh", ".ps1", ".sh"],
+                                                                                  AllowedScriptExtensions = [".py", ".sh", ".ps1"],
                                                                                   ScriptDirectories = ["scripts", "tools", "templates"],
                                                                               })
                                                                               .UseOptions(options => options.DisableCaching = true)

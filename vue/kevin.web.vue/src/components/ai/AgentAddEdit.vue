@@ -390,7 +390,7 @@ const skillToolTabKey = ref('tools');
 // 技能工具表格列
 const skillToolColumns = [
   { title: '名称', dataIndex: 'aiSkillToolManagementName', key: 'aiSkillToolManagementName' },
-  { title: '类型', dataIndex: 'type', key: 'type' }
+  { title: '描述', dataIndex: 'aISkillToolManagementDescription', key: 'aISkillToolManagementDescription' }
 ];
 
 // Tools行选择

@@ -7,9 +7,10 @@
           <h3>我的对话</h3>
           <a-button
             type="primary"
-            @click="showAgentSelectionModal"
+            @click="() => showAgentSelectionModal()"
             size="small"
             class="add-button"
+            :disabled="isSending"
           >
             <template #icon>
               <PlusOutlined />
@@ -26,8 +27,8 @@
             <template #renderItem="{ item }">
               <a-list-item
                 class="conversation-item"
-                :class="{ active: item.id === activeConversationId }"
-                @click="selectConversation(item)"
+                :class="{ active: item.id === activeConversationId, disabled: isSending }"
+                @click="!isSending && selectConversation(item)"
               >
                 <div class="conversation-content">
                   <div class="conversation-title">{{ item.title || "新对话" }}</div>
@@ -186,7 +187,7 @@
           <div class="placeholder-content">
             <MessageOutlined class="placeholder-icon" />
             <p>选择一个对话或创建新对话开始聊天</p>
-            <a-button type="primary"  @click="showAgentSelectionModal" class="add-button-large">
+            <a-button type="primary"  @click="() => showAgentSelectionModal()" class="add-button-large" :disabled="isSending">
               <template #icon>
                 <PlusOutlined />
               </template>
@@ -323,9 +324,9 @@ const loadAIApps = async () => {
 };
 
 // 显示智能体选择模态框
-const showAgentSelectionModal = () => {
-  // 重置选中的智能体
-  selectedAiApp.value = null;
+const showAgentSelectionModal = (defaultAppId = null) => {
+  // 设置默认选中的智能体：优先使用传入的appId，其次使用当前对话的appId，最后使用第一个智能体
+  selectedAiApp.value = defaultAppId || activeConversation.value?.appId || (aiApps.value.length > 0 ? aiApps.value[0].value : null);
 
   // 创建模态框
   const modal = Modal.confirm({
@@ -563,16 +564,33 @@ const sendMessage = async () => {
         scrollToBottom();
          //监听流式输出
     getAiMySignalRHubMsg(snowflakeId); 
-    var reulst = await addAIChatHistorys({
-      aIChatsId: activeConversationId.value,
-      id:snowflakeId,
-      content: messageToSend,
-      isOnlineSearch: isOnlineSearch.value  // 添加联网搜索字段
-    });
-    if (reulst && reulst.code != 200) {
-      message.error("发送失败");
+    var reulst;
+    try {
+      reulst = await addAIChatHistorys({
+        aIChatsId: activeConversationId.value,
+        id:snowflakeId,
+        content: messageToSend,
+        isOnlineSearch: isOnlineSearch.value
+      });
+    } catch (error) {
+      const errorMsg = error.message || '';
+      if (errorMsg.includes('聊天记录已达上限')) {
+        Modal.confirm({
+          title: '提示',
+          content: '聊天记录已达上限，为了更好的体验，请新建对话？',
+          okText: '新建对话',
+          cancelText: '取消',
+          onOk: () => {
+            showAgentSelectionModal(activeConversation.value?.appId);
+          }
+        });
+      } else {
+        message.error(errorMsg || "发送失败");
+      }
       stopAiMySignalRHubMsg(snowflakeId);
-    }
+      isSending.value = false;
+      return;
+    } 
     scrollToBottom();
     // 更新对话列表中的预览
     const conversation = conversations.value.find(
@@ -887,6 +905,11 @@ const deleteConversation = async (conversationId, event) => {
 .conversation-item.active {
   background: rgba(22, 119, 255, 0.3);
   border: 1px solid rgba(22, 119, 255, 0.5);
+}
+
+.conversation-item.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .conversation-content {

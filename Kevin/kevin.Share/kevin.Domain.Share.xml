@@ -14,6 +14,11 @@
             技能工具名称
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsBindSkillToolsDto.AISkillToolManagementDescription">
+            <summary>
+            描述
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsBindSkillToolsDto.IsSelect">
             <summary>
             是否选中

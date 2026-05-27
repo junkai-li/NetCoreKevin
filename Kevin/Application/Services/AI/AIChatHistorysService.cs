@@ -94,7 +94,12 @@ namespace kevin.Application.Services.AI
         /// <exception cref="UserFriendlyException"></exception>
         public async Task<AIChatHistorysDto> Add(AIChatHistorysDto par)
         {
+
             var count = aIChatHistorysRp.Query().Where(t => t.IsDelete == false && t.AIChatsId == par.AIChatsId).Count();
+            if (count >= 100)
+            {
+                throw new UserFriendlyException($"聊天记录已达上限{count}，为了更好的体验，建议新建聊天对话噢！");
+            }
             var aichas = await aIChatsService.GetDetails(par.AIChatsId);
             var aiapp = await aIAppsService.GetDetails(aichas.AppId);
             if ((await aIAppsService.GetMyALLList()).Any(t => t.Id == aichas.AppId) == false)
@@ -197,7 +202,7 @@ namespace kevin.Application.Services.AI
                     skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath),
                                                                   new AgentFileSkillsSourceOptions
                                                                   {
-                                                                      AllowedScriptExtensions = [".py", ".sh", ".ps1", ".sh"],
+                                                                      AllowedScriptExtensions = [".py", ".sh", ".ps1"],
                                                                       ScriptDirectories = ["scripts", "tools", "templates"],
                                                                   });
 
@@ -231,12 +236,12 @@ namespace kevin.Application.Services.AI
                             await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
                         },
                         ToolStreameCallback = async (msg) =>
-                        { 
+                        {
                             addAi.AIToolsContent += msg;
                             await signalRMsgService.SendIdentityIdMsg("aIToolsContentMsg", add.Id.ToString(), msg);
                         },
                         ReasoningStreameCallback = async (msg) =>
-                        { 
+                        {
                             addAi.AIReasoningContent += msg;
                             await signalRMsgService.SendIdentityIdMsg("aIReasoningContentMsg", add.Id.ToString(), msg);
                         },
