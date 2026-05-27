@@ -61,12 +61,14 @@ namespace kevin.Application.Services.AI
             {
                 IsSelect = myIds.Any(x => x.AISkillToolManagementId == t.Id),
                 AISkillToolManagementName = t.Name,
+                AISkillToolManagementDescription = t.Description,
                 AISkillToolManagementId = t.Id
             }).ToList();
             data.Tools = tools.Select(t => new AIAppsBindSkillToolsDto
             {
                 IsSelect = myIds.Any(x => x.AISkillToolManagementId == t.Id),
                 AISkillToolManagementName = t.Name,
+                AISkillToolManagementDescription = t.Description,
                 AISkillToolManagementId = t.Id
             }).ToList();
             data.BindIds = (await aIAppsBindIdService.GetListByBindId(data.Id.ToString())).Select(t => t.BindId).ToList();
