@@ -130,7 +130,7 @@
               </div>
              <div class="message-text">{{ aimessage2 }}</div>
               <div class="message-time">  {{ aimessage}}</div> 
-                <a-collapse v-model:active-key="reasoningActiveKey" class="message-collapse" ghost v-if="aIReasoningContentMsg">
+                <a-collapse :active-key="reasoningActiveKey" class="message-collapse" ghost v-if="aIReasoningContentMsg">
                 <a-collapse-panel key="reasoning" header="思考过程">
                   <div class="collapse-content">
                     <div v-if="aIReasoningContentMsg.length > 350">{{ truncateContent(aIReasoningContentMsg) }}<a @click="showDetailModal('思考过程详情', aIReasoningContentMsg)">点击查看详情</a></div>
@@ -138,7 +138,7 @@
                   </div>
                 </a-collapse-panel>
               </a-collapse>
-              <a-collapse v-model:active-key="toolsActiveKey" class="message-collapse" ghost v-if="aIToolsContentMsg">
+              <a-collapse :active-key="toolsActiveKey" class="message-collapse" ghost v-if="aIToolsContentMsg">
                 <a-collapse-panel key="tools" header="工具调用">
                   <div class="collapse-content">
                     <div v-if="aIToolsContentMsg.length > 350">{{ truncateContent(aIToolsContentMsg) }}<a @click="showDetailModal('工具调用详情', aIToolsContentMsg)">点击查看详情</a></div>
@@ -208,7 +208,7 @@
 
 <script setup>
 /* eslint-disable */
-import { ref, onMounted, nextTick, watch, h, onUnmounted } from "vue";
+import { ref, computed, onMounted, nextTick, watch, h, onUnmounted } from "vue";
 import {
   PlusOutlined,
   UserOutlined,
@@ -240,8 +240,8 @@ const aimessage=ref("");
 const aimessage2=ref("");
 const aIToolsContentMsg=ref("");
 const aIReasoningContentMsg=ref("");
-const reasoningActiveKey = ref(['reasoning']);
-const toolsActiveKey = ref(['tools']);
+const reasoningActiveKey = computed(() => aIReasoningContentMsg.value && aIReasoningContentMsg.value.length <= 350 ? ['reasoning'] : []);
+const toolsActiveKey = computed(() => aIToolsContentMsg.value && aIToolsContentMsg.value.length <= 350 ? ['tools'] : []);
 const currentReceivingMsgId = ref(null);
 const expandedReasoning = ref(false);
 const expandedTools = ref(false);
@@ -278,7 +278,7 @@ const loadConversations = async () => {
     // 调用真实API获取对话列表
     const response = await getAIChatsMyPageData({
       pageNum: 1,
-      pageSize: 10000, // 获取足够多的对话记录
+      pageSize: 200, // 获取足够多的对话记录
     });
 
     if (response && response.code === 200 && response.data) {
@@ -694,6 +694,8 @@ connectionServer.on('aIToolsContentMsg', (msg) => {
      // 滚动到底部以显示最新内容
      if (aIToolsContentMsg.length<350) {
      scrollToBottom();
+    }else{
+        toolsActiveKey = [''];
     }
        
   });
