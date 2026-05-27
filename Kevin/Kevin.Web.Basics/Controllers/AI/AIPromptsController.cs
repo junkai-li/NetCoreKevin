@@ -43,8 +43,7 @@ namespace Kevin.Web.Basics.AI
 
         [HttpGet("GetALLList")]
         [ActionDescription("获取提示词列表")]
-        [HttpLog("提示词管理", "获取提示词列表")]
-        [CacheDataFilter<List<AIPromptsDto>>(TTL = 60, UseToken = false)]
+        [HttpLog("提示词管理", "获取提示词列表")] 
         public async Task<List<AIPromptsDto>> GetALLList()
         {
             var result = await _service.GetALLList();

@@ -42,25 +42,25 @@ namespace kevin.Application.Services.AI
                     {
                         switch (item)
                         {
-                            case "AddOrUpdateCronTask":
+                            case "iKevinAITasksService.AddOrUpdateCronTask":
                                 aiTools.Add(
                                     AIFunctionFactory.Create(_kevinAITaskService.AddOrUpdateCronTask,
                                     new AIFunctionFactoryOptions { Name = "AddOrUpdateCronTask", Description = "创建或更新一个周期性自动任务" }
                                 ));
                                 break;
-                            case "RemoveCronTask":
+                            case "iKevinAITasksService.RemoveCronTask":
                                 aiTools.Add(
                                     AIFunctionFactory.Create(_kevinAITaskService.RemoveCronTask,
                                     new AIFunctionFactoryOptions { Name = "RemoveCronTask", Description = "移除周期性任务" }
                                 ));
                                 break;
-                            case "TriggerCronTask":
+                            case "iKevinAITasksService.TriggerCronTask":
                                 aiTools.Add(
                                     AIFunctionFactory.Create(_kevinAITaskService.TriggerCronTask,
                                     new AIFunctionFactoryOptions { Name = "TriggerCronTask", Description = "立即触发某个周期性任务一次" }
                                 ));
                                 break;
-                            case "GetTaskList":
+                            case "iKevinAITasksService.GetTaskList":
                                 aiTools.Add(
                                 AIFunctionFactory.Create(_kevinAITaskService.GetTaskList,
                                 new AIFunctionFactoryOptions { Name = "GetTaskList", Description = "获取我的所有周期性任务列表" }
