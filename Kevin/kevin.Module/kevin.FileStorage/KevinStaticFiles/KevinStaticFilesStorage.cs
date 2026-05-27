@@ -106,7 +106,7 @@ namespace kevin.FileStorage.KevinStaticFiles
             return true;
         }
 
-        public bool FileUpload(string localPath, string remotePath, string? fileName = null)
+        public (bool, string) FileUpload(string localPath, string remotePath, string? fileName = null)
         {
             remotePath = fileStorageSetting.Endpoint + remotePath.Replace("\\", "/");
             if (fileName != null)
@@ -119,7 +119,7 @@ namespace kevin.FileStorage.KevinStaticFiles
                 Directory.CreateDirectory(remoteDir);
                 File.Copy(localPath, remotePath, true);
             }
-            return true;
+            return (true, "");
         }
 
         public string? GetFileTempUrl(string remotePath, TimeSpan expiry, string? fileName = null)

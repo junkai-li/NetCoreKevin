@@ -9,7 +9,7 @@
         /// <param name="remotePath">远程文件路径</param>
         /// <param name="fileName">自定义下载文件名</param>
         /// <returns></returns>
-        public bool FileUpload(string localPath, string remotePath, string? fileName = null);
+        public (bool, string) FileUpload(string localPath, string remotePath, string? fileName = null);
 
 
 

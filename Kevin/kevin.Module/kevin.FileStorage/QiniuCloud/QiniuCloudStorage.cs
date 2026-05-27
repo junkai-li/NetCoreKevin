@@ -32,7 +32,7 @@ namespace kevin.FileStorage.QiniuCloud
             Qiniuconfig.ChunkSize = ChunkUnit.U512K;
         }
 
-        public bool FileUpload(string localPath, string remotePath, string? fileName = null)
+        public (bool, string) FileUpload(string localPath, string remotePath, string? fileName = null)
         {
             remotePath = remotePath.Replace("\\", "/");
 
@@ -46,7 +46,7 @@ namespace kevin.FileStorage.QiniuCloud
             var uploadManager = new UploadManager(Qiniuconfig);
             var result = uploadManager.UploadFile(localPath, remotePath + fileName, token, new PutExtra());
             var url = CreatePublishUrl(remotePath + fileName);
-            return result.Code == (int)HttpCode.OK;
+            return (result.Code == (int)HttpCode.OK, url);
         }
 
         public bool FileDownload(string remotePath, string localPath)

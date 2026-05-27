@@ -63,12 +63,8 @@ namespace kevin.Application.Services
                 string path = Kevin.Common.App.IO.Path.ContentRootPath() + file.Path;
                 if (!string.IsNullOrEmpty(file.Url))
                 {
-                    //下载文件 
-                    if (!fileStorage.FileDownload(file.Url, path))
-                    {
-                        throw new UserFriendlyException("文件下载失败{" + file.Url + "}");
-                    }
-
+                    //下载文件
+                    fileStorage.FileDownload(file.Url, path);
                 }
                 //读取文件入流
                 var stream = System.IO.File.OpenRead(path);
@@ -130,7 +126,7 @@ namespace kevin.Application.Services
                 if (fileStorage != default)
                 {
                     var upload = fileStorage.FileUpload(dlPath, basepath, (fileInfo.Value ?? "").ToString());
-                    if (upload)
+                    if (upload.Item1)
                     {
                         Common.IO.IOHelper.DeleteFile(dlPath);
                     }
@@ -184,12 +180,16 @@ namespace kevin.Application.Services
                 if (fileStorage != default)
                 {
                     var upload = fileStorage.FileUpload(path, "/Files/" + DateTime.Now.ToString("yyyy/MM/dd"), fullFileName);
-                    if (upload)
+                    if (upload.Item1)
                     {
                         Common.IO.IOHelper.DeleteFile(path);
                         path = "/Files/" + DateTime.Now.ToString("yyyy/MM/dd") + "/" + fullFileName;
                         isSuccess = true;
                         url = await fileStorage.GetUrl() + path;
+                        if (!string.IsNullOrEmpty(upload.Item2))
+                        {
+                            url = upload.Item2;
+                        }
                     }
                 }
                 else

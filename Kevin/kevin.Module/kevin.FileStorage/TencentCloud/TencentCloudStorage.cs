@@ -87,7 +87,7 @@ namespace kevin.FileStorage.TencentCloud
 
 
 
-        public bool FileUpload(string localPath, string remotePath, string? fileName = null)
+        public (bool, string) FileUpload(string localPath, string remotePath, string? fileName = null)
         {
             try
             {
@@ -110,11 +110,11 @@ namespace kevin.FileStorage.TencentCloud
 
                 _ = transferManager.UploadAsync(uploadTask).Result;
 
-                return true;
+                return (true, "");
             }
             catch
             {
-                return false;
+                return (false, "");
             }
         }
 

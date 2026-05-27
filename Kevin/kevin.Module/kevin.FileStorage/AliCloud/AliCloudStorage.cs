@@ -64,7 +64,7 @@ namespace kevin.FileStorage.AliCloud
 
 
 
-        public bool FileUpload(string localPath, string remotePath, string? fileName = null)
+        public (bool,string) FileUpload(string localPath, string remotePath, string? fileName = null)
         {
             try
             {
@@ -89,11 +89,11 @@ namespace kevin.FileStorage.AliCloud
                     client.PutObject(fileStorageSetting.BucketName, objectName, localPath);
                 }
 
-                return true;
+                return (true,"");
             }
             catch
             {
-                return false;
+                return (false,"");
             }
         }
 

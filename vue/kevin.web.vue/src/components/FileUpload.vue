@@ -7,10 +7,10 @@
       :accept="accept"
       :multiple="multiple"
       :max-count="maxCount"
-      :disabled="disabled"
+      :disabled="disabled || uploading"
       :show-upload-list="showUploadList"
     >
-      <a-button :disabled="disabled">
+      <a-button :disabled="disabled || uploading" :loading="uploading">
         <UploadOutlined />
         {{ uploadButtonText }}
       </a-button>
@@ -56,7 +56,7 @@
 <script setup>
 /* eslint-disable no-undef */
 import { ref, watch } from 'vue';
-import { UploadOutlined, PaperClipOutlined, DeleteOutlined } from '@ant-design/icons-vue';
+import { UploadOutlined, PaperClipOutlined, DeleteOutlined } from '@ant-design/icons-vue'; 
 import { message } from 'ant-design-vue';
 import { uploadFile, deleteFileById } from '@/api/file';
 
@@ -119,6 +119,7 @@ const emit = defineEmits(['upload-success', 'upload-error', 'delete-success', 'd
 
 // 文件列表
 const fileList = ref([]);
+const uploading = ref(false);
 // 已上传的文件列表
 const uploadedFiles = ref([]);
 
@@ -150,7 +151,8 @@ watch(() => props.initialFiles, () => {
 
 // 自定义上传请求
 const customRequest = async (options) => {
-  const { file, onSuccess, onError } = options;   
+  const { file, onSuccess, onError } = options;
+  uploading.value = true;
   
   try {
     if (props.maxCount && uploadedFiles.value.length >= props.maxCount) {
@@ -189,6 +191,8 @@ const customRequest = async (options) => {
       error: error,
       fileName: file.name
     });
+  } finally {
+    uploading.value = false;
   }
 };
 
