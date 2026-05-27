@@ -44,18 +44,17 @@ namespace kevin.FileStorage.QiniuCloud
             string token = Auth.CreateUploadToken(_mac, putPolicy.ToJsonString());
 
             var uploadManager = new UploadManager(Qiniuconfig);
-            var result = uploadManager.UploadFile(localPath, remotePath + "/" + fileName, token, new PutExtra());
-            var url = CreatePublishUrl(remotePath + "/" + fileName);
+            var result = uploadManager.UploadFile(localPath, remotePath + fileName, token, new PutExtra());
+            var url = CreatePublishUrl(remotePath + fileName);
             return result.Code == (int)HttpCode.OK;
         }
 
         public bool FileDownload(string remotePath, string localPath)
         {
             remotePath = remotePath.Replace("\\", "/");
-            remotePath= remotePath.Replace(GetUrl().Result + "/", GetUrl().Result + "//");
             var dir = Path.GetDirectoryName(localPath);
             if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
-                Directory.CreateDirectory(dir); 
+                Directory.CreateDirectory(dir);
             var result = DownloadManager.Download(remotePath, localPath);
 
             return result.Code == (int)HttpCode.OK;
