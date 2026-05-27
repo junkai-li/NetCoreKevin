@@ -90,7 +90,7 @@
               <a-collapse v-if="message.aiReasoningContent" class="message-collapse" ghost :default-active-key="expandedReasoning ? ['reasoning'] : []">
                 <a-collapse-panel key="reasoning" header="思考过程">
                   <div class="collapse-content">
-                    <div v-if="message.aiReasoningContent.length > 500">{{ truncateContent(message.aiReasoningContent) }}<a @click="showDetailModal('思考过程详情', message.aiReasoningContent)">点击查看详情</a></div>
+                    <div v-if="message.aiReasoningContent.length > 350">{{ truncateContent(message.aiReasoningContent) }}<a @click="showDetailModal('思考过程详情', message.aiReasoningContent)">点击查看详情</a></div>
                     <div v-else>{{ message.aiReasoningContent }}</div>
                   </div>
                 </a-collapse-panel>
@@ -98,7 +98,7 @@
               <a-collapse v-if="message.aiToolsContent" class="message-collapse" ghost :default-active-key="expandedTools ? ['tools'] : []">
                 <a-collapse-panel key="tools" header="工具调用">
                   <div class="collapse-content">
-                    <div v-if="message.aiToolsContent.length > 500">{{ truncateContent(message.aiToolsContent) }}<a @click="showDetailModal('工具调用详情', message.aiToolsContent)">点击查看详情</a></div>
+                    <div v-if="message.aiToolsContent.length > 350">{{ truncateContent(message.aiToolsContent) }}<a @click="showDetailModal('工具调用详情', message.aiToolsContent)">点击查看详情</a></div>
                     <div v-else>{{ message.aiToolsContent }}</div>
                   </div>
                 </a-collapse-panel>
@@ -133,7 +133,7 @@
                 <a-collapse v-model:active-key="reasoningActiveKey" class="message-collapse" ghost v-if="aIReasoningContentMsg">
                 <a-collapse-panel key="reasoning" header="思考过程">
                   <div class="collapse-content">
-                    <div v-if="aIReasoningContentMsg.length > 500">{{ truncateContent(aIReasoningContentMsg) }}<a @click="showDetailModal('思考过程详情', aIReasoningContentMsg)">点击查看详情</a></div>
+                    <div v-if="aIReasoningContentMsg.length > 350">{{ truncateContent(aIReasoningContentMsg) }}<a @click="showDetailModal('思考过程详情', aIReasoningContentMsg)">点击查看详情</a></div>
                     <div v-else>{{ aIReasoningContentMsg }}</div>
                   </div>
                 </a-collapse-panel>
@@ -141,7 +141,7 @@
               <a-collapse v-model:active-key="toolsActiveKey" class="message-collapse" ghost v-if="aIToolsContentMsg">
                 <a-collapse-panel key="tools" header="工具调用">
                   <div class="collapse-content">
-                    <div v-if="aIToolsContentMsg.length > 500">{{ truncateContent(aIToolsContentMsg) }}<a @click="showDetailModal('工具调用详情', aIToolsContentMsg)">点击查看详情</a></div>
+                    <div v-if="aIToolsContentMsg.length > 350">{{ truncateContent(aIToolsContentMsg) }}<a @click="showDetailModal('工具调用详情', aIToolsContentMsg)">点击查看详情</a></div>
                     <div v-else>{{ aIToolsContentMsg }}</div>
                   </div>
                 </a-collapse-panel>
@@ -197,7 +197,7 @@
         </div>
 
         <a-modal v-model:open="detailModalVisible" :title="detailModalTitle" :footer="null" width="800px">
-          <div style="max-height: 500px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">
+          <div style="max-height: 350px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">
             {{ detailModalContent }}
           </div>
         </a-modal>
@@ -646,7 +646,7 @@ const showDetailModal = (title, content) => {
   detailModalVisible.value = true;
 };
 
-const truncateContent = (content, maxLength = 500) => {
+const truncateContent = (content, maxLength = 350) => {
   if (!content || content.length <= maxLength) return content;
   return content.substring(0, maxLength) + '...';
 };
@@ -692,7 +692,10 @@ connectionServer.on('aIToolsContentMsg', (msg) => {
     // 实现逐字显示效果
     aIToolsContentMsg.value+=msg;
      // 滚动到底部以显示最新内容
-        scrollToBottom();
+     if (aIToolsContentMsg.length<350) {
+     scrollToBottom();
+    }
+       
   });
 })
 // 接收AI思考过程内容（叠加）
@@ -700,9 +703,11 @@ connectionServer.on('aIReasoningContentMsg', (msg) => {
  // 使用nextTick确保DOM更新
   nextTick(() => {
     // 实现逐字显示效果
-    aIReasoningContentMsg.value+=msg;
-     // 滚动到底部以显示最新内容
-        scrollToBottom();
+    aIReasoningContentMsg.value+=msg; 
+       // 滚动到底部以显示最新内容
+     if (aIReasoningContentMsg.length<350) {
+     scrollToBottom();
+    }
   });
 }) 
 }
@@ -843,7 +848,7 @@ const deleteConversation = async (conversationId, event) => {
   margin: 0;
   color: rgba(0, 0, 0, 0.88);
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 350;
 }
 
 .add-button {
@@ -989,7 +994,7 @@ const deleteConversation = async (conversationId, event) => {
   margin: 0;
   color: rgba(0, 0, 0, 0.88);
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 350;
 }
 
 .agent-info {
@@ -1414,7 +1419,7 @@ const deleteConversation = async (conversationId, event) => {
 :deep(.online-search-switch .ant-switch-inner) {
   color: white;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 350;
 }
 
 :deep(.online-search-switch.ant-switch-checked) {
