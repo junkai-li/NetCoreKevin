@@ -90,7 +90,7 @@
               <a-collapse v-if="message.aiReasoningContent" class="message-collapse" ghost :default-active-key="expandedReasoning ? ['reasoning'] : []">
                 <a-collapse-panel key="reasoning" header="思考过程">
                   <div class="collapse-content">
-                    <div v-if="message.aiReasoningContent.length > 200">{{ truncateContent(message.aiReasoningContent) }}<a @click="showDetailModal('思考过程详情', message.aiReasoningContent)">点击查看详情</a></div>
+                    <div v-if="message.aiReasoningContent.length > 500">{{ truncateContent(message.aiReasoningContent) }}<a @click="showDetailModal('思考过程详情', message.aiReasoningContent)">点击查看详情</a></div>
                     <div v-else>{{ message.aiReasoningContent }}</div>
                   </div>
                 </a-collapse-panel>
@@ -98,7 +98,7 @@
               <a-collapse v-if="message.aiToolsContent" class="message-collapse" ghost :default-active-key="expandedTools ? ['tools'] : []">
                 <a-collapse-panel key="tools" header="工具调用">
                   <div class="collapse-content">
-                    <div v-if="message.aiToolsContent.length > 200">{{ truncateContent(message.aiToolsContent) }}<a @click="showDetailModal('工具调用详情', message.aiToolsContent)">点击查看详情</a></div>
+                    <div v-if="message.aiToolsContent.length > 500">{{ truncateContent(message.aiToolsContent) }}<a @click="showDetailModal('工具调用详情', message.aiToolsContent)">点击查看详情</a></div>
                     <div v-else>{{ message.aiToolsContent }}</div>
                   </div>
                 </a-collapse-panel>
@@ -133,7 +133,7 @@
                 <a-collapse v-model:active-key="reasoningActiveKey" class="message-collapse" ghost v-if="aIReasoningContentMsg">
                 <a-collapse-panel key="reasoning" header="思考过程">
                   <div class="collapse-content">
-                    <div v-if="aIReasoningContentMsg.length > 200">{{ truncateContent(aIReasoningContentMsg) }}<a @click="showDetailModal('思考过程详情', aIReasoningContentMsg)">点击查看详情</a></div>
+                    <div v-if="aIReasoningContentMsg.length > 500">{{ truncateContent(aIReasoningContentMsg) }}<a @click="showDetailModal('思考过程详情', aIReasoningContentMsg)">点击查看详情</a></div>
                     <div v-else>{{ aIReasoningContentMsg }}</div>
                   </div>
                 </a-collapse-panel>
@@ -141,7 +141,7 @@
               <a-collapse v-model:active-key="toolsActiveKey" class="message-collapse" ghost v-if="aIToolsContentMsg">
                 <a-collapse-panel key="tools" header="工具调用">
                   <div class="collapse-content">
-                    <div v-if="aIToolsContentMsg.length > 200">{{ truncateContent(aIToolsContentMsg) }}<a @click="showDetailModal('工具调用详情', aIToolsContentMsg)">点击查看详情</a></div>
+                    <div v-if="aIToolsContentMsg.length > 500">{{ truncateContent(aIToolsContentMsg) }}<a @click="showDetailModal('工具调用详情', aIToolsContentMsg)">点击查看详情</a></div>
                     <div v-else>{{ aIToolsContentMsg }}</div>
                   </div>
                 </a-collapse-panel>
@@ -646,7 +646,7 @@ const showDetailModal = (title, content) => {
   detailModalVisible.value = true;
 };
 
-const truncateContent = (content, maxLength = 200) => {
+const truncateContent = (content, maxLength = 500) => {
   if (!content || content.length <= maxLength) return content;
   return content.substring(0, maxLength) + '...';
 };
