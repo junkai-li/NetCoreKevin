@@ -12,7 +12,8 @@ namespace Kevin.AI
         {
             services.AddTransient<ICommonToolsService, CommonToolsService>();
             services.AddTransient<IPythonToolsService, PythonToolsService>();
-            services.AddTransient<IShellToolsService, ShellToolsService>();
+            services.AddTransient<IShellToolsService, ShellToolsService>(); 
+            services.AddTransient<IAgentHttpClientToolsService, AgentHttpClientToolsService>();
             services.AddTransient<IAIAgentService, AIAgentService>();  
         }
     }

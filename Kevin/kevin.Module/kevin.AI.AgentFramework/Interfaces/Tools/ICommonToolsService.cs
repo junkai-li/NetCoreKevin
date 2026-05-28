@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace kevin.AI.AgentFramework.Interfaces.Tools
 {
+    /// <summary>
+    /// 常用工具类，包含一些常用的静态方法和属性，可以被智能体调用的用于提供一些常用的功能。
+    /// </summary>
     public interface ICommonToolsService : IBaseAIToolService
     {
         /// <summary>

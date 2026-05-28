@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace kevin.AI.AgentFramework.Interfaces.Tools
 {
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // RunPython — 一个 执行Python脚本的工具
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     public interface IPythonToolsService : IBaseAIToolService
     {
         [Description("执行Python脚本。通过System.Diagnostics.Process类来启动一个新的进程，并运行Python.py的脚本。这种方法适用于Windows和Linux系统。")]

@@ -130,7 +130,7 @@
               </div>
              <div class="message-text">{{ aimessage2 }}</div>
               <div class="message-time">  {{ aimessage}}</div> 
-                <a-collapse :active-key="reasoningActiveKey" class="message-collapse" ghost v-if="aIReasoningContentMsg">
+                <a-collapse v-model:active-key="reasoningActiveKey" class="message-collapse" ghost v-if="aIReasoningContentMsg">
                 <a-collapse-panel key="reasoning" header="思考过程">
                   <div class="collapse-content">
                     <div v-if="aIReasoningContentMsg.length > 350">{{ truncateContent(aIReasoningContentMsg) }}<a @click="showDetailModal('思考过程详情', aIReasoningContentMsg)">点击查看详情</a></div>
@@ -138,7 +138,7 @@
                   </div>
                 </a-collapse-panel>
               </a-collapse>
-              <a-collapse :active-key="toolsActiveKey" class="message-collapse" ghost v-if="aIToolsContentMsg">
+              <a-collapse v-model:active-key="toolsActiveKey" class="message-collapse" ghost v-if="aIToolsContentMsg">
                 <a-collapse-panel key="tools" header="工具调用">
                   <div class="collapse-content">
                     <div v-if="aIToolsContentMsg.length > 350">{{ truncateContent(aIToolsContentMsg) }}<a @click="showDetailModal('工具调用详情', aIToolsContentMsg)">点击查看详情</a></div>
@@ -208,7 +208,7 @@
 
 <script setup>
 /* eslint-disable */
-import { ref, computed, onMounted, nextTick, watch, h, onUnmounted } from "vue";
+import { ref, onMounted, nextTick, watch, h, onUnmounted } from "vue";
 import {
   PlusOutlined,
   UserOutlined,
@@ -240,11 +240,46 @@ const aimessage=ref("");
 const aimessage2=ref("");
 const aIToolsContentMsg=ref("");
 const aIReasoningContentMsg=ref("");
-const reasoningActiveKey = computed(() => aIReasoningContentMsg.value && aIReasoningContentMsg.value.length <= 350 ? ['reasoning'] : []);
-const toolsActiveKey = computed(() => aIToolsContentMsg.value && aIToolsContentMsg.value.length <= 350 ? ['tools'] : []);
+const reasoningActiveKey = ref([]);
+const toolsActiveKey = ref([]);
 const currentReceivingMsgId = ref(null);
 const expandedReasoning = ref(false);
 const expandedTools = ref(false);
+
+// 自动收起标志位
+const reasoningAutoCollapsed = ref(false);
+const toolsAutoCollapsed = ref(false);
+
+// 监听思考过程内容长度
+watch(aIReasoningContentMsg, (newVal, oldVal) => {
+  if (!newVal) return;
+  // 内容首次出现且不超过300字，自动展开
+  if (!oldVal && newVal.length <= 300) {
+    reasoningActiveKey.value = ['reasoning'];
+    reasoningAutoCollapsed.value=false;
+  }
+  // 内容超过300字且之前没超过，自动收起一次
+  if (newVal.length > 300 && oldVal && oldVal.length <= 300 && !reasoningAutoCollapsed.value) {
+    reasoningActiveKey.value = [];
+    reasoningAutoCollapsed.value = true;
+  }
+});
+
+// 监听工具调用内容长度
+watch(aIToolsContentMsg, (newVal, oldVal) => {
+  if (!newVal) return;
+  // 内容首次出现且不超过350字，自动展开
+  if (!oldVal && newVal.length <= 300) {
+    toolsActiveKey.value = ['tools'];
+    toolsAutoCollapsed.value=false;
+  }
+  // 内容超过300字且之前没超过，自动收起一次
+  if (newVal.length > 300 && oldVal && oldVal.length <= 300 && !toolsAutoCollapsed.value) {
+    toolsActiveKey.value = [];
+    toolsAutoCollapsed.value = true;
+  }
+});
+
 const detailModalVisible = ref(false);
 const detailModalContent = ref("");
 const detailModalTitle = ref("");
@@ -694,10 +729,7 @@ connectionServer.on('aIToolsContentMsg', (msg) => {
      // 滚动到底部以显示最新内容
      if (aIToolsContentMsg.length<350) {
      scrollToBottom();
-    }else{
-        toolsActiveKey = [''];
-    }
-       
+    }  
   });
 })
 // 接收AI思考过程内容（叠加）
@@ -709,7 +741,7 @@ connectionServer.on('aIReasoningContentMsg', (msg) => {
        // 滚动到底部以显示最新内容
      if (aIReasoningContentMsg.length<350) {
      scrollToBottom();
-    }
+    } 
   });
 }) 
 }
