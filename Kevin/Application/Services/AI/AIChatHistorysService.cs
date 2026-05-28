@@ -92,16 +92,16 @@ namespace kevin.Application.Services.AI
         /// <param name="message"></param>
         /// <returns></returns>
         /// <exception cref="UserFriendlyException"></exception>
-        public async Task<AIChatHistorysDto> Add(AIChatHistorysDto par)
+        public async Task<AIChatHistorysDto> Add(AIChatHistorysDto par, CancellationToken cancellationToken)
         {
 
-            var count = aIChatHistorysRp.Query().Where(t => t.IsDelete == false && t.AIChatsId == par.AIChatsId).Count();
+            var count = await aIChatHistorysRp.Query().Where(t => t.IsDelete == false && t.AIChatsId == par.AIChatsId).CountAsync(cancellationToken);
             if (count >= 100)
             {
                 throw new UserFriendlyException($"聊天记录已达上限{count}，为了更好的体验，建议新建聊天对话噢！");
             }
             var aichas = await aIChatsService.GetDetails(par.AIChatsId);
-            var aiapp = await aIAppsService.GetDetails(aichas.AppId);
+            var aiapp = await aIAppsService.GetDetails(aichas.AppId);   
             if ((await aIAppsService.GetMyALLList()).Any(t => t.Id == aichas.AppId) == false)
             {
                 throw new UserFriendlyException("智能体权限不足，无法使用");
@@ -116,7 +116,7 @@ namespace kevin.Application.Services.AI
             add.TenantId = CurrentUser.TenantId;
             add.IsSend = true;
             aIChatHistorysRp.Add(add);
-            await aIChatHistorysRp.SaveChangesAsync();
+            await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
             //回复消息
             var addAi = new TAIChatHistorys();
             addAi.Id = SnowflakeIdService.GetNextId();
@@ -249,8 +249,8 @@ namespace kevin.Application.Services.AI
                     break;
             }
             aIChatHistorysRp.Add(addAi);
-            await aIChatHistorysRp.SaveChangesAsync();
-            await aIChatsService.UpdateNameAndMsg(par.AIChatsId, count == 1 ? par.Content : "", addAi.Content);
+            await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
+            await aIChatsService.UpdateNameAndMsg(par.AIChatsId, count == 1 ? par.Content : "", addAi.Content, cancellationToken);
             return addAi.MapTo<AIChatHistorysDto>();
         }
 

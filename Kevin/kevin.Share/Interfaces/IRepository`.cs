@@ -26,7 +26,7 @@ namespace kevin.Domain.Interface
         int SaveChangesWithSaveLog();
         T FirstOrDefault(Expression<Func<T, bool>> predicate, bool isTenant = true, bool isDataPer = false);
         bool Any(Expression<Func<T, bool>> predicate, bool isTenant = true, bool isDataPer = false);
-        Task SaveChangesAsync();
+        Task SaveChangesAsync(CancellationToken cancellationToken = default);
 
         void Remove(T entity);
 

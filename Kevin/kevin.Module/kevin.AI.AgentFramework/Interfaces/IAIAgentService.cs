@@ -12,6 +12,6 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// </summary> 
         /// <param name="chatClientAgentOptions"></param> 
         /// <returns></returns>
-        Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, string msg); 
+        Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, string msg, CancellationToken cancellationToken = default);
     }
 }

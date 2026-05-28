@@ -135,9 +135,9 @@ namespace kevin.Application.Services.AI
         /// <param name="Name"></param>
         /// <param name="LastMessage"></param>
         /// <returns></returns>
-        public async Task<bool> UpdateNameAndMsg(long Id, string Name = "", string LastMessage = "")
+        public async Task<bool> UpdateNameAndMsg(long Id, string Name = "", string LastMessage = "", CancellationToken cancellationToken = default)
         {
-            var ai = await aIChatsRp.Query().Where(t => t.IsDelete == false && t.Id == Id).FirstOrDefaultAsync();
+            var ai = await aIChatsRp.Query().Where(t => t.IsDelete == false && t.Id == Id).FirstOrDefaultAsync(cancellationToken);
             if (ai != null)
             {
                 if (!string.IsNullOrEmpty(Name))
@@ -150,7 +150,7 @@ namespace kevin.Application.Services.AI
                 }
                 ai.UpdateTime = DateTime.Now;
                 ai.UpdateUserId = CurrentUser.UserId;
-                await aIChatsRp.SaveChangesAsync();
+                await aIChatsRp.SaveChangesAsync(cancellationToken);
             }
             return true;
         }

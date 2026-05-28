@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Repository.Database;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Web.Global.User;
 
@@ -146,9 +147,9 @@ namespace Kevin.EntityFrameworkCore._.Data
         {
             return Context.SaveChangesWithSaveLog();
         }
-        public Task SaveChangesAsync()
+        public Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            return Context.SaveChangesAsync(false);
+            return Context.SaveChangesAsync(false, cancellationToken);
         }
 
         /// <summary>

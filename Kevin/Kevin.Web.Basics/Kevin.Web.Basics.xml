@@ -55,11 +55,12 @@
             <param name="par"></param>
             <returns></returns>
         </member>
-        <member name="M:Kevin.Web.Basics.AI.AIChatHistorysController.Add(kevin.Domain.Share.Dtos.AI.AIChatHistorysDto)">
+        <member name="M:Kevin.Web.Basics.AI.AIChatHistorysController.Add(kevin.Domain.Share.Dtos.AI.AIChatHistorysDto,System.Threading.CancellationToken)">
             <summary>
             新增AI对话聊天记录
             </summary>
             <param name="par"></param>
+            <param name="cancellationToken"></param>
             <returns></returns>
         </member>
         <member name="M:Kevin.Web.Basics.AI.AIChatHistorysController.Delete(System.Int64)">

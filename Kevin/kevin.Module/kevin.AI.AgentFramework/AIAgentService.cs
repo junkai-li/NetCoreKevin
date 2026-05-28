@@ -39,7 +39,7 @@ namespace kevin.AI.AgentFramework
         /// <param name="msg"></param> 
         /// <param name="chatClientAgentOptions"></param> 
         /// <returns></returns>
-        public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, string msg)
+        public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, string msg,CancellationToken cancellationToken=default)
         {
             if (aISetting.IsHttpLog)
             {
@@ -80,7 +80,7 @@ namespace kevin.AI.AgentFramework
             {
                 if (aISetting.StreameCallback != default)
                 {
-                    await foreach (var update in aiAgent.RunStreamingAsync(msg))
+                    await foreach (var update in aiAgent.RunStreamingAsync(msg, cancellationToken: cancellationToken))
                     {
                         foreach (var content in update.Contents)
                         {
@@ -128,7 +128,7 @@ namespace kevin.AI.AgentFramework
             }
             else
             {
-                reslut = await aiAgent.RunAsync(msg);
+                reslut = await aiAgent.RunAsync(msg, cancellationToken: cancellationToken);
                 resultText = reslut.Text;
             }
             if (aISetting.IsHttpLog)

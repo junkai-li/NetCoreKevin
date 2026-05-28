@@ -9,6 +9,6 @@ namespace kevin.Domain.Interfaces.IServices.AI
         Task<AIChatHistorysDto> Add(AIChatsDto par);
         Task<bool> Delete(long id);
 
-        Task<bool> UpdateNameAndMsg(long Id, string Name, string LastMessage);
+        Task<bool> UpdateNameAndMsg(long Id, string Name, string LastMessage, CancellationToken cancellationToken = default);
     }
 }

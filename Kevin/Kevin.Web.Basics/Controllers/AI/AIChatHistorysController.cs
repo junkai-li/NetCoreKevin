@@ -46,6 +46,7 @@ namespace Kevin.Web.Basics.AI
         /// 新增AI对话聊天记录
         /// </summary>
         /// <param name="par"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
 
         [HttpPost("Add")]
@@ -53,9 +54,9 @@ namespace Kevin.Web.Basics.AI
         [HttpLog("AI对话聊天记录管理", "新增AI对话聊天记录")]
         [Transactional]
         [SkipAuthority]
-        public async Task<AIChatHistorysDto> Add([FromBody] AIChatHistorysDto par)
+        public async Task<AIChatHistorysDto> Add([FromBody] AIChatHistorysDto par, CancellationToken cancellationToken)
         {
-            var result = await _service.Add(par);
+            var result = await _service.Add(par, cancellationToken: cancellationToken);
             return result;
         }
         /// <summary>

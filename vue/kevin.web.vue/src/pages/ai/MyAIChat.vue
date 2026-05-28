@@ -168,16 +168,14 @@
               </a-switch>
               <a-button
                 type="primary"
-                @click="sendMessage"
-                :loading="isSending"
-                :disabled="!newMessage.trim() || isSending"
-                :class="{ 'loading': isSending }"
+                @click="isSending ? stopMessage() : sendMessage()"
+                :disabled="!newMessage.trim() && !isSending"
                 class="send-button"
               >
                 <template #icon v-if="isSending">
-                  <LoadingOutlined />
+                  <StopOutlined />
                 </template>
-                {{ isSending ? '发送中...' : '发送' }}
+                {{ isSending ? '中止' : '发送' }}
               </a-button>
             </div>
           </div>
@@ -217,6 +215,7 @@ import {
   DeleteOutlined,
   CopyOutlined,
   LoadingOutlined,
+  StopOutlined,
 } from "@ant-design/icons-vue";
 import { message, Modal, Select } from "ant-design-vue";
 import { getMyAIAppsALLList } from "../../api/ai/aiapps.js";
@@ -245,6 +244,9 @@ const toolsActiveKey = ref([]);
 const currentReceivingMsgId = ref(null);
 const expandedReasoning = ref(false);
 const expandedTools = ref(false);
+const lastSentMessage = ref("");
+const lastSentMessageId = ref(null);
+let abortController = null;
 
 // 自动收起标志位
 const reasoningAutoCollapsed = ref(false);
@@ -577,7 +579,9 @@ const sendMessage = async () => {
   aimessage.value='正在思考....'
   aimessage2.value='';
   aIToolsContentMsg.value='';
-  aIReasoningContentMsg.value='';  
+  aIReasoningContentMsg.value='';
+  lastSentMessage.value = messageToSend;
+  abortController = new AbortController();
     // 使用nextTick确保DOM更新
   nextTick(() => {
      newMessage.value = "";
@@ -594,6 +598,7 @@ const sendMessage = async () => {
       content: messageToSend,
       createdAt: new Date().toISOString(),
     };
+    lastSentMessageId.value = userMessage.id;
     messages.value.push(userMessage);
      // 滚动到底部以显示最新内容
         scrollToBottom();
@@ -606,8 +611,14 @@ const sendMessage = async () => {
         id:snowflakeId,
         content: messageToSend,
         isOnlineSearch: isOnlineSearch.value
-      });
+      }, abortController.signal);
     } catch (error) {
+      if (error.name === 'AbortError' || error.name === 'CanceledError' || error.message?.includes('cancel')) {
+        message.info('已中止发送');
+        stopAiMySignalRHubMsg(snowflakeId);
+        isSending.value = false;
+        return;
+      }
       const errorMsg = error.message || '';
       if (errorMsg.includes('聊天记录已达上限')) {
         Modal.confirm({
@@ -627,6 +638,8 @@ const sendMessage = async () => {
       return;
     } 
     scrollToBottom();
+    lastSentMessage.value = "";
+    lastSentMessageId.value = null;
     // 更新对话列表中的预览
     const conversation = conversations.value.find(
       (c) => c.id === activeConversationId.value
@@ -659,6 +672,12 @@ const sendMessage = async () => {
     isSending.value = false;
     scrollToBottom();
   } catch (error) {
+    if (error.name === 'AbortError' || error.name === 'CanceledError' || error.message?.includes('cancel')) {
+      message.info('已中止发送');
+      stopAiMySignalRHubMsg(snowflakeId);
+      isSending.value = false;
+      return;
+    }
     stopAiMySignalRHubMsg(snowflakeId);
     console.error("发送消息失败:", error);
     message.error("发送消息失败");
@@ -757,6 +776,31 @@ const stopAiMySignalRHubMsg=(id)=>{
     connectionTimeout = null;
   }
   connectionServer?.stop();
+}
+
+const stopMessage = () => {
+  if (!isSending.value) return;
+  if (abortController) {
+    abortController.abort();
+    abortController = null;
+  }
+  stopAiMySignalRHubMsg();
+  if (lastSentMessageId.value !== null) {
+    const index = messages.value.findIndex(m => m.id === lastSentMessageId.value);
+    if (index !== -1) {
+      messages.value.splice(index, 1);
+    }
+    lastSentMessageId.value = null;
+  }
+  if (lastSentMessage.value) {
+    newMessage.value = lastSentMessage.value;
+    lastSentMessage.value = "";
+  }
+  isSending.value = false;
+  aimessage.value='';
+  aimessage2.value='';
+  aIToolsContentMsg.value='';
+  aIReasoningContentMsg.value=''; 
 }
    
 
