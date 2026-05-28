@@ -670,6 +670,7 @@ const sendMessage = async () => {
     messages.value.push(aiMessage);
     currentReceivingMsgId.value = aiMessage.id;
     isSending.value = false;
+    stopAiMySignalRHubMsg(snowflakeId);
     scrollToBottom();
   } catch (error) {
     if (error.name === 'AbortError' || error.name === 'CanceledError' || error.message?.includes('cancel')) {

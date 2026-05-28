@@ -245,7 +245,7 @@ namespace kevin.Application.Services.AI
                             addAi.AIReasoningContent += msg;
                             await signalRMsgService.SendIdentityIdMsg("aIReasoningContentMsg", add.Id.ToString(), msg);
                         },
-                    }, chatAgOs, add.Content)).Item2;
+                    }, chatAgOs, add.Content, cancellationToken)).Item2;
                     break;
             }
             aIChatHistorysRp.Add(addAi);
