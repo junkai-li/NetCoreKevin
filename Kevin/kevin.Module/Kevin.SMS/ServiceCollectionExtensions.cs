@@ -11,14 +11,14 @@ namespace Kevin.SMS
         {
             services.Configure(action);
 
-            services.AddTransient<ISMS, AliCloudSMS>();
+            services.AddSingleton<ISMS, AliCloudSMS>();
         }
 
         public static void AddTencentCloudSMS(this IServiceCollection services, Action<Kevin.SMS.TencentCloud.Models.SMSSetting> action)
         {
             services.Configure(action);
 
-            services.AddTransient<ISMS, TencentCloudSMS>();
+            services.AddSingleton<ISMS, TencentCloudSMS>();
         }
     }
 }

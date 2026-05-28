@@ -4,6 +4,7 @@ using Kevin.RAG.Ollama.Models;
 using Kevin.RAG.Qdrant;
 using Kevin.RAG.Qdrant.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Kevin.RAG
 {
@@ -19,9 +20,9 @@ namespace Kevin.RAG
         {
             services.Configure(actionOllamaApi);
             services.Configure(actionQdrantClient);
-            services.AddTransient<IOllamaApiService, OllamaApiService>();
-            services.AddTransient<IRAGStorageService, QdrantClientService>();
-            services.AddTransient<IRAGService, RAGService>();
+            services.TryAddScoped<IOllamaApiService, OllamaApiService>();
+            services.TryAddScoped<IRAGStorageService, QdrantClientService>();
+            services.TryAddScoped<IRAGService, RAGService>();
         }
     }
 }

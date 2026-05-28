@@ -1,5 +1,6 @@
 ﻿using kevin.CodeGenerator.Dto;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace kevin.CodeGenerator
 {
@@ -8,7 +9,7 @@ namespace kevin.CodeGenerator
         public static void AddKevinCodeGenerator(this IServiceCollection services, Action<CodeGeneratorSetting> action)
         {
             services.Configure(action);
-            services.AddSingleton<ICodeGeneratorService, CodeGeneratorService>();
+            services.TryAddScoped<ICodeGeneratorService, CodeGeneratorService>();
         }
     }
 }
