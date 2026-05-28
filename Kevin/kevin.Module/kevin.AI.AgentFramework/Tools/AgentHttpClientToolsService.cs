@@ -18,13 +18,20 @@ namespace kevin.AI.AgentFramework.Tools
         {
             _data = data;
         }
-        private HttpClient CreateHttpClient(int timeoutSeconds)
+        /// <summary>
+        /// 请求
+        /// </summary>
+        /// <param name="timeoutSeconds">超时时间（秒）</param>
+        /// <param name="isSkipSSL">是否跳过 SSL 验证</param>
+        /// <returns></returns>
+        private HttpClient CreateHttpClient(int timeoutSeconds, bool isSkipSSL = true)
         {
             var handler = new HttpClientHandler
             {
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli,
                 AllowAutoRedirect = true
             };
+            if (isSkipSSL) handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
             var client = new HttpClient(handler)
             {
                 Timeout = TimeSpan.FromSeconds(Math.Max(1, timeoutSeconds))
@@ -50,6 +57,10 @@ namespace kevin.AI.AgentFramework.Tools
         private void ApplyHeaders(HttpClient client, IDictionary<string, string>? headers)
         {
             if (headers == null) return;
+            client.DefaultRequestVersion = new Version("2.0");
+            client.DefaultRequestHeaders.Add("Accept", "*/*");
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
+            client.DefaultRequestHeaders.Add("Accept-Language", "zh-CN,zh;q=0.9");
             foreach (var kv in headers)
             {
                 try
@@ -72,7 +83,7 @@ namespace kevin.AI.AgentFramework.Tools
             {
                 // 将对象转为 JsonElement 或 Dictionary
                 var jsonDoc = JsonDocument.Parse(JsonSerializer.Serialize(_data));
-                var authorizedDomains = jsonDoc.RootElement.GetProperty("AuthorizedDomains").GetString(); 
+                var authorizedDomains = jsonDoc.RootElement.GetProperty("AuthorizedDomains").GetString();
                 if (string.IsNullOrWhiteSpace(authorizedDomains) || authorizedDomains.Trim() == "*")
                     return; // 允许所有域名
                 var allowedPrefixes = authorizedDomains.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
@@ -81,7 +92,7 @@ namespace kevin.AI.AgentFramework.Tools
                 var isAllowed = allowedPrefixes.Any(prefix => url.Contains(prefix, StringComparison.OrdinalIgnoreCase));
                 if (!isAllowed)
                     throw new UnauthorizedAccessException($"URL '{url}' 不在授权域名单中。");
-            } 
+            }
         }
 
         [Description("发送 GET 请求。参数：url, queryParams, headers, timeoutSeconds, cancellationToken。")]
@@ -93,7 +104,7 @@ namespace kevin.AI.AgentFramework.Tools
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default)
         {
             Console.WriteLine();
-            Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.GetAsync -> {url}"); 
+            Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.GetAsync -> {url}");
             try
             {
                 AuthorizedDomainsCheck(url);
@@ -122,7 +133,7 @@ namespace kevin.AI.AgentFramework.Tools
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default)
         {
             Console.WriteLine();
-            Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.PostAsync -> {url}"); 
+            Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.PostAsync -> {url}");
             try
             {
                 AuthorizedDomainsCheck(url);
@@ -157,7 +168,7 @@ namespace kevin.AI.AgentFramework.Tools
             [Description("自定义请求头字典（可为 null），Key/Value 均为字符串")] IDictionary<string, string>? headers = null,
             [Description("请求超时（秒），最小为 1 秒")] int timeoutSeconds = 30,
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default)
-        { 
+        {
             Console.WriteLine();
             Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.PutAsync -> {url}");
             try
@@ -193,7 +204,7 @@ namespace kevin.AI.AgentFramework.Tools
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default)
         {
             Console.WriteLine();
-            Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.DeleteAsync -> {url}"); 
+            Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.DeleteAsync -> {url}");
             try
             {
                 AuthorizedDomainsCheck(url);
