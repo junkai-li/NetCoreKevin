@@ -39,8 +39,7 @@ namespace Kevin.Web.Basics.Controllers.AI
         /// <returns></returns>
         [HttpPost("GetPageData")]
         [ActionDescription("获取AI技能工具列表")]
-        [HttpLog("AI技能工具管理", "获取AI技能工具列表")]
-        [SkipAuthority]
+        [HttpLog("AI技能工具管理", "获取AI技能工具列表")] 
         public async Task<dtoPageData<AISkillToolManagementDto>> GetPageData([FromBody] dtoPagePar<int> par)
         {
             var result = await _service.GetPageData(par);
