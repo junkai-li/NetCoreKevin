@@ -29,6 +29,7 @@ namespace Kevin.Web.Basics.Controllers
         [HttpPost("GetRolePage")]
         [ActionDescription("获取分页角色数据")]
         [HttpLog("角色管理", "获取分页角色数据")]
+        [SkipAuthority]
         public async Task<dtoPageData<dtoRole>> GetRolePage([FromBody] dtoPageData<dtoRole> dtoPage)
         {
             var result = await _roleService.GetRolePage(dtoPage);
