@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using kevin.AI.AgentFramework.Interfaces.Tools;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 namespace kevin.AI.AgentFramework.Tools
@@ -6,10 +7,16 @@ namespace kevin.AI.AgentFramework.Tools
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // RunPython — 一个 执行Python脚本的工具
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    public class PythonTools
+    public class PythonToolsService: IPythonToolsService
     {
+        private object? _data { get; set; }
+        public void InitData(object data)
+        {
+            _data = data;
+        } 
+
         [Description("执行Python脚本。通过System.Diagnostics.Process类来启动一个新的进程，并运行Python.py的脚本。这种方法适用于Windows和Linux系统。")]
-        public static string RunPythonPy([Description("需要执行的python脚本路径。例如：'Skills\\python-skills\\hello-python\\scripts\\hello-python.py'")]
+        public async Task<string> RunPythonPy([Description("需要执行的python脚本路径。例如：'Skills\\python-skills\\hello-python\\scripts\\hello-python.py'")]
                                         string scriptPath,
             [Description("需要传入python脚本的参数。例如：['你好','word']")]
             List<string> args = default
@@ -65,7 +72,7 @@ namespace kevin.AI.AgentFramework.Tools
         }
 
         [Description("用于执行Python代码")]
-        public static string RunPythonCode([Description("需要执行的python代码。例如：'def main(name): return 'Hello ' + name.title() + '!'")]
+        public async Task<string> RunPythonCode([Description("需要执行的python代码。例如：'def main(name): return 'Hello ' + name.title() + '!'")]
                                         string code)
         {
             try
@@ -111,7 +118,7 @@ namespace kevin.AI.AgentFramework.Tools
         }
 
         [Description("把传入的python代码保存为 .py 文件，返回保存的完整路径，失败返回以 ❌ 开头的错误信息")]
-        public static string SavePythonToFile(string code, string relativeDir = "Skills/python-skills/tmp", string fileName = null)
+        public async Task<string> SavePythonToFile(string code, string relativeDir = "Skills/python-skills/tmp", string fileName = null)
         {
             try
             {
@@ -154,5 +161,7 @@ namespace kevin.AI.AgentFramework.Tools
                 return $"❌ 保存失败: {ex.Message}";
             }
         }
+
+    
     }
 }

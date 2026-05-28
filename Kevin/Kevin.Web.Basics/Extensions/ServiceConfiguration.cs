@@ -125,9 +125,7 @@ namespace Web.Extension
             services.AddKevinDistributedLockRedis(Configuration.GetConnectionString("redisConnection"));
             #endregion
 
-            //把控制器作为服务注册，然后使用它内置的ioc来替换原来的控制器的创建器
-            services.AddControllersWithViews().AddControllersAsServices();
-            services.ReplaceIocControllerActivator();
+       
             //App服务注册
             RegisterAppServices(services, Configuration);
             services.AddKevinCors(Configuration.GetSection("CorsSetting").Get<CorsSetting>());
@@ -259,6 +257,12 @@ namespace Web.Extension
             //});
             services.AddKevinHangfireMemoryStorage();
             #endregion
+
+            #region 反射统一注入，最后注入可以替换掉之前注册的服务，达到全局替换的目的
+            //把控制器作为服务注册，然后使用它内置的ioc来替换原来的控制器的创建器
+            services.AddControllersWithViews().AddControllersAsServices();
+            services.ReplaceIocControllerActivator();
+            #endregion  
 
             return services;
         }

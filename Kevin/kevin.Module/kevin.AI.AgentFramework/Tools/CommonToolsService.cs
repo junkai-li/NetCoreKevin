@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using kevin.AI.AgentFramework.Interfaces.Tools;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -7,14 +8,19 @@ namespace kevin.AI.AgentFramework.Tools
     /// <summary>
     /// 常用工具类，包含一些常用的静态方法和属性，可以被智能体调用的用于提供一些常用的功能。
     /// </summary>
-    public class CommonTools
+    public class CommonToolsService : ICommonToolsService
     {
+        private object? _data { get; set; }
+        public void InitData(object data)
+        {
+            _data = data;
+        }
 
         /// <summary>
         /// 获取当前系统。返回运行时平台的友好名称（例如 "Windows"、"Linux"、"macOS"、"Unknown"）。
         /// </summary>
         [Description("获取当前系统,返回运行时平台的友好名称（例如 \"Windows\"、\"Linux\"、\"macOS\"、\"Unknown\"）。")]
-        public static string GetRuntimePlatform()
+        public async Task<string> GetRuntimePlatform()
         {
             Console.WriteLine();
             Console.WriteLine($"🔧 正在调用 GetRuntimePlatform ");
@@ -40,7 +46,7 @@ namespace kevin.AI.AgentFramework.Tools
         /// 获取当前系统桌面路径。 用于获取当前用户的桌面路径
         /// </summary>
         [Description("获取当前系统桌面路径。 用于获取当前用户的桌面路径，若 ensureExists 为 true 则确保目录存在。")]
-        public static string GetDesktopPath([Description("ensureExists 默认为 true 则确保目录存在。")] bool ensureExists = true)
+        public async Task<string> GetDesktopPath([Description("ensureExists 默认为 true 则确保目录存在。")] bool ensureExists = true)
         {
             Console.WriteLine();
             Console.WriteLine($"🔧 正在调用 GetDesktopPath ");
@@ -81,7 +87,7 @@ namespace kevin.AI.AgentFramework.Tools
         /// 输出文件到系统桌面。 用于把各种文件输出到桌面
         /// </summary>
         [Description("输出文件到系统桌面。 用于把各种文件输出到桌面，返回完整路径或以 ❌ 开头的错误信息。")]
-        public static string WriteTextToDesktop([Description("文件名称如（xx.html,xx.txt）支持各种文件类型")] string fileName, [Description("内容")] string content, [Description("文件是否不存在 默认是")] bool overwrite = true)
+        public async Task<string> WriteTextToDesktop([Description("文件名称如（xx.html,xx.txt）支持各种文件类型")] string fileName, [Description("内容")] string content, [Description("文件是否不存在 默认是")] bool overwrite = true)
         {
             try
             {
@@ -92,7 +98,7 @@ namespace kevin.AI.AgentFramework.Tools
 
                 var encoding = new UTF8Encoding(false); // 默认 UTF-8 无 BOM
 
-                string desktop = GetDesktopPath(true);
+                string desktop = await GetDesktopPath(true);
                 string safeName = MakeSafeFileName(fileName);
                 // 若 fileName 包含目录分隔符，则按子目录处理
                 string combined = Path.IsPathRooted(safeName) ? safeName : Path.Combine(desktop, safeName);
@@ -115,7 +121,7 @@ namespace kevin.AI.AgentFramework.Tools
         /// 将字节数组保存到桌面指定文件，返回完整路径或以 "❌" 开头的错误信息。
         /// </summary>
         [Description("将字节数组保存到桌面指定文件，返回完整路径或以 ❌ 开头的错误信息。")]
-        public static string WriteBytesToDesktop(string fileName, byte[] data, bool overwrite = true)
+        public async Task<string> WriteBytesToDesktop(string fileName, byte[] data, bool overwrite = true)
         {
             try
             {
@@ -124,7 +130,7 @@ namespace kevin.AI.AgentFramework.Tools
                 if (data == null)
                     return "❌ 保存失败: data 不能为空。";
 
-                string desktop = GetDesktopPath(true);
+                string desktop = await GetDesktopPath(true);
                 string safeName = MakeSafeFileName(fileName);
                 string combined = Path.IsPathRooted(safeName) ? safeName : Path.Combine(desktop, safeName);
                 string dir = Path.GetDirectoryName(combined) ?? desktop;
@@ -146,7 +152,7 @@ namespace kevin.AI.AgentFramework.Tools
         /// 将流内容保存到桌面指定文件，返回完整路径或以 "❌" 开头的错误信息。
         /// </summary>
         [Description("将流内容保存到桌面指定文件，返回完整路径或以 ❌ 开头的错误信息。")]
-        public static string WriteStreamToDesktop(string fileName, Stream stream, bool overwrite = true)
+        public async Task<string> WriteStreamToDesktop(string fileName, Stream stream, bool overwrite = true)
         {
             try
             {
@@ -155,7 +161,7 @@ namespace kevin.AI.AgentFramework.Tools
                 if (stream == null)
                     return "❌ 保存失败: stream 不能为空。";
 
-                string desktop = GetDesktopPath(true);
+                string desktop = await GetDesktopPath(true);
                 string safeName = MakeSafeFileName(fileName);
                 string combined = Path.IsPathRooted(safeName) ? safeName : Path.Combine(desktop, safeName);
                 string dir = Path.GetDirectoryName(combined) ?? desktop;
@@ -182,14 +188,14 @@ namespace kevin.AI.AgentFramework.Tools
         /// 从源路径复制文件到桌面（可重命名），返回目标完整路径或以 "❌" 开头的错误信息。
         /// </summary>
         [Description("从源路径复制文件到桌面（可重命名），返回目标完整路径或以 ❌ 开头的错误信息。")]
-        public static string CopyFileToDesktop(string sourcePath, string fileName = null, bool overwrite = true)
+        public async Task<string> CopyFileToDesktop(string sourcePath, string fileName = null, bool overwrite = true)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(sourcePath) || !File.Exists(sourcePath))
                     return "❌ 复制失败: 源文件不存在。";
 
-                string desktop = GetDesktopPath(true);
+                string desktop = await GetDesktopPath(true);
                 string targetName = string.IsNullOrWhiteSpace(fileName) ? Path.GetFileName(sourcePath) : MakeSafeFileName(fileName);
                 string targetPath = Path.Combine(desktop, targetName);
 
@@ -206,7 +212,7 @@ namespace kevin.AI.AgentFramework.Tools
         }
 
         // 将文件名或相对路径做最基本的安全化处理（移除非法字符）
-        private static string MakeSafeFileName(string fileName)
+        private string MakeSafeFileName(string fileName)
         {
             if (string.IsNullOrEmpty(fileName))
                 return fileName ?? string.Empty;

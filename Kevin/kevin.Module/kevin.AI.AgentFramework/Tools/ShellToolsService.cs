@@ -1,10 +1,11 @@
-﻿using System.ComponentModel;
+﻿using kevin.AI.AgentFramework.Interfaces.Tools;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 
 namespace kevin.AI.AgentFramework.Tools
 {
-    public class ShellTools
+    public class ShellToolsService : IShellToolsService
     {
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // run_shell — 一个 Shell 工具做一切（含安全护栏）
@@ -22,9 +23,14 @@ namespace kevin.AI.AgentFramework.Tools
         "format ",                      // Windows 格式化
         "del /f /s /q",                 // Windows 递归删除
     ];
+        private object? _data { get; set; }
+        public void InitData(object data)
+        {
+            _data = data;
+        }
 
         [Description("执行 Shell 命令。通过操作系统原生 Shell 执行命令（Windows 用 cmd，Linux/Mac 用 bash）。包含安全护栏：危险命令阻止、输出截断（50KB）、超时控制（60秒）。")]
-        public static string RunShell(
+        public async Task<string> RunShell(
             [Description("要执行的 Shell 命令。例如：'pwsh -File /path/to/script.ps1' 或 'dir'")] string command,
             [Description("命令执行的工作目录（可选）。如果不指定，使用当前目录。")] string? workingDirectory = null)
         {
