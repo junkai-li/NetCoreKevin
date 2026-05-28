@@ -170,10 +170,10 @@
                 type="primary"
                 @click="isSending ? stopMessage() : sendMessage()"
                 :disabled="!newMessage.trim() && !isSending"
-                class="send-button"
+                :class="['send-button', { stopping: isSending }]"
               >
-                <template #icon v-if="isSending">
-                  <StopOutlined />
+                <template #icon>
+                  <StopOutlined v-if="isSending" />
                 </template>
                 {{ isSending ? '中止' : '发送' }}
               </a-button>
@@ -1528,6 +1528,17 @@ const deleteConversation = async (conversationId, event) => {
   text-align: center;
   width: auto;
   min-width: 100px;
+}
+
+/* 中止按钮样式 */
+.send-button.stopping {
+  background: #ff4d4f;
+  box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
+}
+
+.send-button.stopping:hover:not(:disabled) {
+  background: #ff7875;
+  box-shadow: 0 4px 12px rgba(255, 77, 79, 0.4);
 }
 
 :deep(.send-button .ant-btn) {

@@ -41,6 +41,7 @@ namespace kevin.AI.AgentFramework
         /// <returns></returns>
         public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, string msg,CancellationToken cancellationToken=default)
         {
+            cancellationToken.ThrowIfCancellationRequested();//是否已经中止，若已请求取消则抛出异常
             if (aISetting.IsHttpLog)
             {
                 HttpClientAutoInterceptor.StartInterception();

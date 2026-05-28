@@ -99,7 +99,7 @@ namespace kevin.Application.Services.AI
             if (count >= 100)
             {
                 throw new UserFriendlyException($"聊天记录已达上限{count}，为了更好的体验，建议新建聊天对话噢！");
-            }
+            } 
             var aichas = await aIChatsService.GetDetails(par.AIChatsId);
             var aiapp = await aIAppsService.GetDetails(aichas.AppId);   
             if ((await aIAppsService.GetMyALLList()).Any(t => t.Id == aichas.AppId) == false)
@@ -115,7 +115,7 @@ namespace kevin.Application.Services.AI
             add.CreateUserId = CurrentUser.UserId;
             add.TenantId = CurrentUser.TenantId;
             add.IsSend = true;
-            aIChatHistorysRp.Add(add);
+            aIChatHistorysRp.Add(add); 
             await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
             //回复消息
             var addAi = new TAIChatHistorys();

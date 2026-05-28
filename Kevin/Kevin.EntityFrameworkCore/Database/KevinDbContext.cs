@@ -443,7 +443,10 @@ namespace Repository.Database
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess = false, CancellationToken cancellationToken = default)
         {
-
+            if (cancellationToken != default)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+            }
             KevinDbContext db = this;
 
             #region 发布领域事件
