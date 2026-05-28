@@ -44,8 +44,7 @@ namespace Kevin.Web.Basics.AI
 
         [HttpGet("GetALLList")]
         [ActionDescription("获取AI应用列表")]
-        [HttpLog("AI应用管理", "获取AI应用列表")]
-        [SkipAuthority]
+        [HttpLog("AI应用管理", "获取AI应用列表")] 
         public async Task<List<AIAppsDto>> GetALLList()
         {
             var result = await _service.GetALLList();
