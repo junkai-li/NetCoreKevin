@@ -156,6 +156,13 @@ namespace kevin.Domain.Share.Dtos.AI
         /// <summary>
         /// 关联的绑定ID
         /// </summary>
-        public List<string> BindIds { get; set; } = new List<string>(); 
+        public List<string> BindIds { get; set; } = new List<string>();
+        /// <summary>
+        /// AI请求授权白名单 *为所有，逗号分隔多个域名前缀
+        /// </summary>
+        [Description("AI请求授权白名单 *为所有，逗号分隔多个域名前缀")]
+        [DefaultValue("*")]
+        [MaxLength(500)]
+        public string AuthorizedDomains { get; set; } = "*";
     }
 }

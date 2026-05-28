@@ -134,6 +134,11 @@
             关联的绑定ID
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.AuthorizedDomains">
+            <summary>
+            AI请求授权白名单 *为所有，逗号分隔多个域名前缀
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto">
             <summary>
             聊天记录

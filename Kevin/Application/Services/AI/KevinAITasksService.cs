@@ -252,6 +252,7 @@ namespace kevin.Application.Services.AI
                                 {
                                     AIUrl = aIModels.EndPoint,
                                     AIKeySecret = aIModels.ModelKey,
+                                    AIParData = new {  AppId = aiapp.Id, AuthorizedDomains = aiapp.AuthorizedDomains },
                                     AIDefaultModel = aIModels.ModelName,
                                     IsStreame = false,
                                     IsHttpLog = aiapp.IsHttpLog,

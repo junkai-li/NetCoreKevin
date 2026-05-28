@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Net;
 using System.Text;
+using System.Text.Json;
 
 namespace kevin.AI.AgentFramework.Tools
 {
@@ -65,6 +66,24 @@ namespace kevin.AI.AgentFramework.Tools
             }
         }
 
+        private void AuthorizedDomainsCheck(string url)
+        {
+            if (_data != default)
+            {
+                // 将对象转为 JsonElement 或 Dictionary
+                var jsonDoc = JsonDocument.Parse(JsonSerializer.Serialize(_data));
+                var authorizedDomains = jsonDoc.RootElement.GetProperty("AuthorizedDomains").GetString(); 
+                if (string.IsNullOrWhiteSpace(authorizedDomains) || authorizedDomains.Trim() == "*")
+                    return; // 允许所有域名
+                var allowedPrefixes = authorizedDomains.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
+                if (allowedPrefixes.Count == 0)
+                    return; // 没有有效的前缀，等同于允许所有
+                var isAllowed = allowedPrefixes.Any(prefix => url.Contains(prefix, StringComparison.OrdinalIgnoreCase));
+                if (!isAllowed)
+                    throw new UnauthorizedAccessException($"URL '{url}' 不在授权域名单中。");
+            } 
+        }
+
         [Description("发送 GET 请求。参数：url, queryParams, headers, timeoutSeconds, cancellationToken。")]
         public async Task<string> GetAsync(
             [Description("目标完整 URL 或相对 URL")] string url,
@@ -74,9 +93,10 @@ namespace kevin.AI.AgentFramework.Tools
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default)
         {
             Console.WriteLine();
-            Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.GetAsync -> {url}");
+            Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.GetAsync -> {url}"); 
             try
             {
+                AuthorizedDomainsCheck(url);
                 var fullUrl = BuildUrlWithQuery(url, queryParams);
                 using var http = CreateHttpClient(timeoutSeconds);
                 ApplyHeaders(http, headers);
@@ -102,9 +122,10 @@ namespace kevin.AI.AgentFramework.Tools
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default)
         {
             Console.WriteLine();
-            Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.PostAsync -> {url}");
+            Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.PostAsync -> {url}"); 
             try
             {
+                AuthorizedDomainsCheck(url);
                 var fullUrl = BuildUrlWithQuery(url, queryParams);
                 using var http = CreateHttpClient(timeoutSeconds);
                 ApplyHeaders(http, headers);
@@ -136,11 +157,12 @@ namespace kevin.AI.AgentFramework.Tools
             [Description("自定义请求头字典（可为 null），Key/Value 均为字符串")] IDictionary<string, string>? headers = null,
             [Description("请求超时（秒），最小为 1 秒")] int timeoutSeconds = 30,
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default)
-        {
+        { 
             Console.WriteLine();
             Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.PutAsync -> {url}");
             try
             {
+                AuthorizedDomainsCheck(url);
                 var fullUrl = BuildUrlWithQuery(url, queryParams);
                 using var http = CreateHttpClient(timeoutSeconds);
                 ApplyHeaders(http, headers);
@@ -171,9 +193,10 @@ namespace kevin.AI.AgentFramework.Tools
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default)
         {
             Console.WriteLine();
-            Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.DeleteAsync -> {url}");
+            Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.DeleteAsync -> {url}"); 
             try
             {
+                AuthorizedDomainsCheck(url);
                 var fullUrl = BuildUrlWithQuery(url, queryParams);
                 using var http = CreateHttpClient(timeoutSeconds);
                 ApplyHeaders(http, headers);

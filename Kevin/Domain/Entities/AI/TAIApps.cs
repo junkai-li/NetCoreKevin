@@ -132,5 +132,13 @@
         [Description("AI请求超时时间，单位分钟")]
         public int NetworkTimeout { get; set; } = 10;
 
+        /// <summary>
+        /// AI请求授权白名单 *为所有，逗号分隔多个域名前缀
+        /// </summary>
+        [Description("AI请求授权白名单 *为所有，逗号分隔多个域名前缀")]
+        [DefaultValue("*")]
+        [MaxLength(500)]
+        public string AuthorizedDomains { get; set; }= "*";
+
     }
 }

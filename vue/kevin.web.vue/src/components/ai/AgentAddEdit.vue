@@ -189,7 +189,12 @@
             <a-input-number v-model:value="form.networkTimeout" :min="1" style="width: 100%" :disabled="isViewMode" />
           </a-form-item>
         </a-col>
-      </a-row>
+        <a-col :span="12">
+          <a-form-item label="请求白名单">
+            <a-textarea v-model:value="form.authorizedDomains" placeholder="*为所有，逗号分隔多个域名前缀" :rows="3" :maxlength="300" :disabled="isViewMode" />
+          </a-form-item>
+        </a-col>
+      </a-row> 
         </a-form>
       </a-tab-pane>
       <a-tab-pane key="skillTool" tab="技能工具">
@@ -347,6 +352,7 @@ const form = reactive({
   isHttpLog: false,
   maxRetries: 3,
   networkTimeout: 10,
+  authorizedDomains: '*',
   bindIds: []
 });
 
@@ -371,6 +377,9 @@ const rules = reactive({
     { required: true, message: '请选择会话模型' }
   ] , msgType: [
     { required: true, message: '请选择消息输出类型' }
+  ],
+  authorizedDomains: [
+    { required: true, message: '请输入AI请求授权白名单' }
   ]
 });
 
@@ -638,6 +647,7 @@ watch(() => props.open, (newVal) => {
         isHttpLog: false,
         maxRetries: 3,
         networkTimeout: 10,
+        authorizedDomains: '*',
         bindIds: []
       });
     }
@@ -689,6 +699,7 @@ const handleOk = () => {
         isHttpLog: form.isHttpLog,
         maxRetries: form.maxRetries,
         networkTimeout: form.networkTimeout,
+        authorizedDomains: form.authorizedDomains,
         bindIds: form.bindIds || []
       };
       

@@ -174,6 +174,7 @@ namespace kevin.Application.Services.AI
                     msg.MaxAskPromptSize = par.MaxAskPromptSize;
                     msg.NetworkTimeout = par.NetworkTimeout;
                     msg.IsHttpLog = par.IsHttpLog;
+                    msg.AuthorizedDomains = par.AuthorizedDomains;
                 }
                 else
                 {
