@@ -86,6 +86,12 @@
                       </a-tag>
                     </div>
                   </div>
+                  <div class="kb-section horizontal" v-if="kb.createUser || kb.updateUser">
+                    <div class="section-label" v-if="kb.createUser">创建人:</div>
+                    <div class="section-content" v-if="kb.createUser">{{ kb.createUser }}</div>
+                    <div class="section-label" v-if="kb.updateUser" style="margin-left: 16px;">更新人:</div>
+                    <div class="section-content" v-if="kb.updateUser">{{ kb.updateUser }}</div>
+                  </div>
                 </div>
               </div>
             </a-card>
@@ -357,7 +363,7 @@ onMounted(() => {
 }
 
 .knowledge-base-card {
-  height: 240px;
+  min-height: 240px;
   display: flex;
   flex-direction: column;
 }
@@ -370,24 +376,31 @@ onMounted(() => {
 .kb-name {
   font-weight: 600;
   color: rgba(0, 0, 0, 0.88);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .kb-info {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 8px;
   width: 100%;
+  overflow: hidden;
 }
 
 .kb-section {
-  margin-bottom: 8px;
+  margin-bottom: 0;
 }
 
 .kb-section.horizontal {
   display: flex;
   gap: 12px;
   align-items: flex-start;
+  flex-shrink: 0;
 }
 
 .section-label {
@@ -408,9 +421,9 @@ onMounted(() => {
   font-size: 14px;
   line-height: 1.5;
   display: -webkit-box;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
-  white-space: normal;
-  word-break: break-word;
+  white-space: nowrap;
   margin: 0;
   padding: 0;
 }

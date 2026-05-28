@@ -60,6 +60,12 @@
                     <div class="section-label">描述:</div>
                     <div class="section-content">{{ prompt.description }}</div>
                   </div>
+                  <div class="prompt-section horizontal" v-if="prompt.createUser || prompt.updateUser">
+                    <div class="section-label" v-if="prompt.createUser">创建人:</div>
+                    <div class="section-content" v-if="prompt.createUser">{{ prompt.createUser }}</div>
+                    <div class="section-label" v-if="prompt.updateUser" style="margin-left: 16px;">更新人:</div>
+                    <div class="section-content" v-if="prompt.updateUser">{{ prompt.updateUser }}</div>
+                  </div>
                 </div>
               </div>
             </a-card>

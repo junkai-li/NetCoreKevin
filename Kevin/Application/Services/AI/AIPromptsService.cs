@@ -1,6 +1,7 @@
 ﻿using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
+using System;
 
 namespace kevin.Application.Services.AI
 {
@@ -27,7 +28,13 @@ namespace kevin.Application.Services.AI
                 data = data.Where(t => (t.Name ?? "").Contains(dtoPage.searchKey));
             }
             result.total = await data.CountAsync();
-            result.data = (await data.Skip(skip).Take(dtoPage.pageSize).OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIPrompts, AIPromptsDto>();
+            var dbdata = await data.Skip(skip).Take(dtoPage.pageSize).OrderByDescending(x => x.CreateTime).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
+            result.data = dbdata.MapToList<TAIPrompts, AIPromptsDto>();
+            result.data.ForEach(t =>
+            {
+                t.CreateUser = dbdata.FirstOrDefault(d => d.Id == t.Id)?.CreateUser?.Name;
+                t.UpdateUser = dbdata.FirstOrDefault(d => d.Id == t.Id)?.UpdateUser?.Name;
+            }); 
             return result;
         }
 

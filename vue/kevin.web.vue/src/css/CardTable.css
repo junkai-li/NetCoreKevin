@@ -74,6 +74,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-width: 0;
 }
 
 .card-content {
@@ -125,6 +126,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
   color: rgba(0, 0, 0, 0.88);
 }
 
@@ -199,7 +201,7 @@
 .section-content {
   color: rgba(0, 0, 0, 0.88);
   flex: 1;
-  word-break: break-word;
+  word-break: normal;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: left;

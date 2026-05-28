@@ -85,6 +85,12 @@
                       />
                     </div>
                   </div>
+                  <div class="info-item horizontal" v-if="agent.createUser || agent.updateUser">
+                    <span class="info-label" v-if="agent.createUser">创建人:</span>
+                    <span class="info-value" v-if="agent.createUser">{{ agent.createUser }}</span>
+                    <span class="info-label" v-if="agent.updateUser" style="margin-left: 16px;">更新人:</span>
+                    <span class="info-value" v-if="agent.updateUser">{{ agent.updateUser }}</span>
+                  </div>
                 </div>
               </div>
             </a-card>

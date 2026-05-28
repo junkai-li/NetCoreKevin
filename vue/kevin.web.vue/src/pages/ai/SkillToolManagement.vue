@@ -84,6 +84,14 @@
                     <span class="info-value">{{ item.description }}</span>
                   </div>
                 </div>
+                <div class="model-info horizontal-layout" v-if="item.createUser || item.updateUser">
+                  <div class="info-item horizontal">
+                    <span class="info-label" v-if="item.createUser">创建人:</span>
+                    <span class="info-value" v-if="item.createUser">{{ item.createUser }}</span>
+                    <span class="info-label" v-if="item.updateUser" style="margin-left: 16px;">更新人:</span>
+                    <span class="info-value" v-if="item.updateUser">{{ item.updateUser }}</span>
+                  </div>
+                </div>
               </div>
             </a-card>
           </a-col>

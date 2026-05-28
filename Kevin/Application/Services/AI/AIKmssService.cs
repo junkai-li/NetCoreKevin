@@ -11,6 +11,7 @@ using Kevin.RAG.Ollama;
 using Kevin.RAG.Tools;
 using Medallion.Threading;
 using NetCore.Util;
+using NPOI.SS.Formula.Functions;
 
 namespace kevin.Application.Services.AI
 {
@@ -59,8 +60,9 @@ namespace kevin.Application.Services.AI
             int skip = dtoPagePar.GetSkip();
             var result = new dtoPageData<AIKmssDto>();
             var data = AIKmssRp.Query(isDataPer: true).Where(t => t.IsDelete == false);
-            result.total = await data.CountAsync();
-            result.data = (await data.Skip(skip).Take(dtoPagePar.pageSize).OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIKmss, AIKmssDto>();
+            result.total = await data.CountAsync(); 
+            var dbdata = await data.Skip(skip).Take(dtoPagePar.pageSize).OrderByDescending(x => x.CreateTime).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
+            result.data = dbdata.MapToList<TAIKmss, AIKmssDto>(); 
             var aikmsData = await AIKmsDetailsRp.Query().Where(t => t.IsDelete == false && result.data.Select(t => t.Id).ToList().Contains(t.KmsId)).ToListAsync();
             var flieData = FileRp.Query().Where(t => t.IsDelete == false && aikmsData.Select(a => a.FileId.ToTryInt64()).ToList().Contains(t.Id)).ToList().MapToList<TFile, FileDto>().ToList();
             foreach (var item in result.data)
@@ -79,7 +81,9 @@ namespace kevin.Application.Services.AI
                     }
 
                 }
-            }
+                item.CreateUser = dbdata.FirstOrDefault(d => d.Id == item.Id)?.CreateUser?.Name;
+                item.UpdateUser = dbdata.FirstOrDefault(d => d.Id == item.Id)?.UpdateUser?.Name;
+            } 
             result.pageSize = dtoPagePar.pageSize;
             result.pageNum = dtoPagePar.pageNum;
             return result;

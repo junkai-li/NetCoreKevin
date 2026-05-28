@@ -6,6 +6,7 @@ using kevin.Domain.Share.Enums;
 using kevin.FileStorage;
 using kevin.RepositorieRps.Repositories;
 using Kevin.Common;
+using NPOI.SS.Formula.Functions;
 using System;
 
 namespace kevin.Application.Services.AI
@@ -39,12 +40,15 @@ namespace kevin.Application.Services.AI
             {
                 data = data.Where(t => t.SkillToolType == (AISkillToolTypeEnums)dtoPagePar.Parameter);
             }
-            result.total = await data.CountAsync();
-            result.data = (await data.Skip(skip).Take(dtoPagePar.pageSize).OrderByDescending(x => x.CreateTime).ToListAsync()).MapTo<List<AISkillToolManagementDto>>();
+            result.total = await data.CountAsync(); 
+            var dbdata = await data.Skip(skip).Take(dtoPagePar.pageSize).OrderByDescending(x => x.CreateTime).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
+            result.data = dbdata.MapToList<TAISkillToolManagement, AISkillToolManagementDto>();  
             var flieData = _FileRp.Query().Where(t => t.IsDelete == false && t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && result.data.Select(a => a.Id.ToString()).ToList().Contains(t.TableId)).ToList().MapToList<TFile, FileDto>().ToList();
             foreach (var item in result.data)
             {
                 item.SkillFile = flieData.Where(t => t.TableId == item.Id.ToString()).FirstOrDefault();
+                item.CreateUser = dbdata.FirstOrDefault(d => d.Id == item.Id)?.CreateUser?.Name;
+                item.UpdateUser = dbdata.FirstOrDefault(d => d.Id == item.Id)?.UpdateUser?.Name;
             }
             result.pageSize = dtoPagePar.pageSize;
             result.pageNum = dtoPagePar.pageNum;

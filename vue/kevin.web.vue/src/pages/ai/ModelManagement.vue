@@ -77,6 +77,14 @@
                     <span class="info-value">{{ model.embeddingValueSize }}</span>
                   </div>
                 </div>
+                <div class="model-info horizontal-layout" v-if="model.createUser || model.updateUser">
+                  <div class="info-item horizontal">
+                    <span class="info-label" v-if="model.createUser">创建人:</span>
+                    <span class="info-value" v-if="model.createUser">{{ model.createUser }}</span>
+                    <span class="info-label" v-if="model.updateUser" style="margin-left: 16px;">更新人:</span>
+                    <span class="info-value" v-if="model.updateUser">{{ model.updateUser }}</span>
+                  </div>
+                </div>
               </div>
             </a-card>
           </a-col>
