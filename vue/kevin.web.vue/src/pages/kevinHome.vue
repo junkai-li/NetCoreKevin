@@ -65,11 +65,6 @@
             class="trigger"
             @click="() => (collapsed = !collapsed)"
           />
-
-          <a-breadcrumb class="breadcrumb">
-            <a-breadcrumb-item>首页</a-breadcrumb-item>
-            <a-breadcrumb-item>{{ currentRouteTitle }}</a-breadcrumb-item>
-          </a-breadcrumb>
         </div>
 
         <div class="header-right">
@@ -139,8 +134,6 @@
             <template #overlay>
               <a-menu class="notification-menu">
                 <a-menu-item>{{ noReadCount > 0 ? `您有${noReadCount}条未读消息` : '暂无未读消息' }}</a-menu-item>
-                <!-- <a-menu-item>系统维护通知</a-menu-item>
-                <a-menu-item>新版本更新提醒</a-menu-item> -->
               </a-menu>
             </template>
           </a-dropdown>
@@ -171,11 +164,57 @@
         </div>
       </a-layout-header>
 
+      <!-- 标签页导航 -->
+      <div class="tab-navigation" v-if="openTabs.length > 0">
+        <div class="tab-list">
+          <div
+            v-for="tab in openTabs"
+            :key="tab.key"
+            class="tab-item"
+            :class="{ active: activeTabKey === tab.key }"
+            @click="handleTabClick(tab.key)"
+          >
+            <span class="tab-title">{{ tab.title }}</span>
+            <span
+              v-if="tab.closable"
+              class="tab-close"
+              @click.stop="closeTab(tab.key)"
+            >
+              <CloseOutlined />
+            </span>
+            <a-dropdown class="tab-action" :trigger="['hover']" @click.stop>
+              <MoreOutlined />
+              <template #overlay>
+                <a-menu>
+                  <a-menu-item key="refresh" @click="refreshTab(tab.key)">
+                    <ReloadOutlined /> 刷新当前页
+                  </a-menu-item>
+                  <a-menu-item key="closeOther" @click="closeOtherTabs(tab.key)" v-if="openTabs.length > 1">
+                    <CloseSquareOutlined /> 关闭其他
+                  </a-menu-item>
+                  <a-menu-item key="closeAll" @click="closeAllTabs" v-if="openTabs.length > 1">
+                    <MinusSquareOutlined /> 关闭所有
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
+          </div>
+        </div>
+      </div>
+
       <!-- 主要内容 -->
       <a-layout-content class="content">
         <div class="content-wrapper">
-          <!-- 将静态内容替换为动态路由加载区域 -->
-          <router-view />
+          <!-- 标签页内容区域 -->
+          <div v-if="openTabs.length > 0" class="tab-content">
+            <template v-for="tab in openTabs" :key="tab.key">
+              <div v-show="activeTabKey === tab.key" class="tab-pane">
+                <router-view :key="tab.refreshKey" />
+              </div>
+            </template>
+          </div>
+          <!-- 无标签页时显示默认内容 -->
+          <router-view v-else />
         </div>
       </a-layout-content>
 
@@ -218,6 +257,11 @@ import {
   HistoryOutlined,
   FullscreenOutlined,
   FullscreenExitOutlined,
+  CloseOutlined,
+  ReloadOutlined,
+  MoreOutlined,
+  CloseSquareOutlined,
+  MinusSquareOutlined,
 } from "@ant-design/icons-vue";
 import { GetMyNoReadCount } from "@/api/message";
 //import { Button } from 'ant-design-vue';
@@ -231,6 +275,146 @@ const router = useRouter();
 const collapsed = ref(false);
 const selectedKeys = ref(["dashboard"]);
 const openKeys = ref(["user-management"]);
+
+// 标签页相关
+const openTabs = ref([]);
+const activeTabKey = ref('');
+const tabIndex = ref(1);
+
+// 路由页面缓存
+const pageCache = reactive({});
+
+// 页面标题映射
+const pageTitleMap = {
+  'user-list': '用户列表',
+  'user-role': '角色管理',
+  'user-permission': '权限管理',
+  'system-dic': '系统配置',
+  'system-announcement': '系统公告',
+  'log-management': '日志管理',
+  'oslog': '关键数据变动日志',
+  'ai-appsmg': '智能体管理',
+  'ai-promptsmg': '提示词管理',
+  'ai-kmssmg': '知识库管理',
+  'ai-modelmg': '模型配置管理',
+  'ai-skilltoolmg': 'AI技能工具管理',
+  'my-message': '我的消息',
+  'my-ai-chat': '我的AI对话',
+  'my-ai-tasks': '我的AI自动任务',
+  'my-ai-agents': '我的可用智能体',
+  'organizational-position': '岗位管理',
+  'organizational-department': '部门管理',
+  'system-tenant': '租户管理',
+  'system-code-generator': '代码生成器',
+};
+
+// 打开标签页
+const openTab = (key, title) => {
+  // 如果页面已经打开，则激活并刷新
+  const existingTab = openTabs.value.find(tab => tab.key === key);
+  if (existingTab) {
+    activeTabKey.value = key;
+    // 刷新页面
+    refreshTab(key);
+    return;
+  }
+
+  // 添加新标签页
+  const newTab = {
+    key: key,
+    title: title,
+    closable: true,
+    cacheKey: `page_cache_${tabIndex.value++}`,
+    refreshKey: Date.now()
+  };
+  openTabs.value.push(newTab);
+  activeTabKey.value = key;
+
+  // 创建页面容器
+  pageCache[newTab.cacheKey] = {
+    component: null,
+    key: key
+  };
+};
+
+// 关闭标签页
+const closeTab = (key) => {
+  const index = openTabs.value.findIndex(tab => tab.key === key);
+  if (index === -1) return;
+
+  // 如果关闭的是当前激活的标签，切换到上一个或下一个
+  if (activeTabKey.value === key) {
+    const nextTab = openTabs.value[index + 1] || openTabs.value[index - 1];
+    if (nextTab) {
+      activeTabKey.value = nextTab.key;
+      // 路由到下一个页面
+      router.push(getRoutePath(nextTab.key));
+    } else {
+      activeTabKey.value = '';
+    }
+  }
+
+  // 移除标签页
+  const tab = openTabs.value[index];
+  delete pageCache[tab.cacheKey];
+  openTabs.value.splice(index, 1);
+};
+
+// 根据key获取路由路径
+const getRoutePath = (key) => {
+  const paths = {
+    'user-list': '/home/user/list',
+    'user-role': '/home/user/role',
+    'user-permission': '/home/user/permission',
+    'system-dic': '/home/system/dic',
+    'system-announcement': '/home/system/announcement',
+    'log-management': '/home/system/log',
+    'oslog': '/home/system/oslog',
+    'ai-appsmg': '/home/aimanagement/aiappsmg',
+    'ai-promptsmg': '/home/aimanagement/aipromptsmg',
+    'ai-kmssmg': '/home/aimanagement/aikmssmg',
+    'ai-modelmg': '/home/aimanagement/aimodelmg',
+    'ai-skilltoolmg': '/home/aimanagement/aiskilltoolmg',
+    'my-message': '/home/my/message',
+    'my-ai-chat': '/home/my/ai-chat',
+    'my-ai-tasks': '/home/my/ai-tasks',
+    'my-ai-agents': '/home/my/ai-agents',
+    'organizational-position': '/home/position/management',
+    'organizational-department': '/home/department/management',
+    'system-tenant': '/home/system/tenant',
+    'system-code-generator': '/home/system/code-generator',
+    'handleUserInfo': '/home/user/profile',
+  };
+  return paths[key] || '/home';
+};
+
+// 刷新单个标签页
+const refreshTab = (key) => {
+  const tab = openTabs.value.find(t => t.key === key);
+  if (tab) {
+    // 更新refreshKey来触发组件重新渲染
+    tab.refreshKey = Date.now();
+    activeTabKey.value = key;
+  }
+};
+
+// 关闭其他标签页
+const closeOtherTabs = (key) => {
+  openTabs.value = openTabs.value.filter(tab => tab.key === key || !tab.closable);
+  activeTabKey.value = key;
+};
+
+// 关闭所有标签页
+const closeAllTabs = () => {
+  openTabs.value = openTabs.value.filter(tab => !tab.closable);
+  activeTabKey.value = '';
+};
+
+// Tab点击事件
+const handleTabClick = (key) => {
+  activeTabKey.value = key;
+  router.push(getRoutePath(key));
+};
 
 const currentTheme = ref("theme-simple-white");
 
@@ -354,35 +538,6 @@ const menuList = ref([
   }
 ]);
 
-// 当前路由标题
-const currentRouteTitle = computed(() => {
-  const titles = {
-    dashboard: "首页",
-    "user-list": "用户列表",
-    "user-role": "角色管理",
-    "user-permission": "权限管理",
-    "system-dic": "系统配置",
-    "system-announcement": "系统公告",
-    "log-management": "日志管理",
-    oslog: "关键数据变动日志",
-    handleUserInfo: "个人中心",
-    "ai-appsmg": "智能体管理",
-    "ai-promptsmg": "提示词管理",
-    "ai-kmssmg": "知识库管理",
-    "ai-modelmg": "模型配置管理",
-    "ai-skilltoolmg": "AI技能工具管理",
-    "my-message": "我的消息",
-    "my-ai-chat": "我的AI对话",
-    "my-ai-tasks": "我的AI自动任务",
-    "my-ai-agents": "我的可用智能体",
-    "organizational-position": "岗位管理",
-    "organizational-department": "部门管理",
-    "system-tenant": "租户管理",
-    "system-code-generator": "代码生成器",
-  };
-  return titles[selectedKeys.value[0]] || "系统页面";
-});
-
 // 切换主题
 const switchTheme = (theme) => {
   currentTheme.value = `theme-${theme}`;
@@ -393,6 +548,13 @@ const switchTheme = (theme) => {
 // 菜单点击事件
 const handleMenuClick = ({ key }) => {
   selectedKeys.value = [key];
+
+  // 获取页面标题
+  const title = pageTitleMap[key] || key;
+
+  // 打开标签页
+  openTab(key, title);
+
   // 根据key跳转到对应路由
   switch (key) {
     case "user-list":
@@ -474,6 +636,7 @@ const handleLogout = () => {
 const handleUserInfo = () => {
   console.log("个人中心");
   selectedKeys.value = ["handleUserInfo"];
+  openTab("handleUserInfo", "个人中心");
   router.push("/home/user/profile");
 };
 const ALLOWED_THEMES = ["enterprise", "blackblue", "default", "green", "purple", "darkblue", "simple-white"];

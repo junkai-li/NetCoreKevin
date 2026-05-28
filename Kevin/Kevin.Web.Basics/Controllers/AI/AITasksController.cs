@@ -38,6 +38,7 @@ namespace Kevin.Web.Basics.Controllers.AI
         [HttpPost("GetTaskList")]
         [ActionDescription("获取我的AI任务列表")]
         [HttpLog("AI自动任务管理", "获取我的AI任务列表")]
+        [SkipAuthority]
         public async Task<dtoPageList<string>> GetTaskList()
         {
             var result = (await _service.GetTaskList());
@@ -51,6 +52,7 @@ namespace Kevin.Web.Basics.Controllers.AI
         [HttpDelete("RemoveCronTask")]
         [ActionDescription("删除我的AI任务")]
         [HttpLog("AI自动任务管理", "删除我的AI任务")]
+        [SkipAuthority]
         public async Task<bool> RemoveCronTask([FromQuery] string name)
         {
             var result = (await _service.RemoveCronTask(name));
@@ -64,6 +66,7 @@ namespace Kevin.Web.Basics.Controllers.AI
         [HttpGet("TriggerCronTask")]
         [ActionDescription("执行我的AI任务")]
         [HttpLog("AI自动任务管理", "执行我的AI任务")]
+        [SkipAuthority]
         public async Task<bool> TriggerCronTask([FromQuery] string name)
         {
             var result = (await _service.TriggerCronTask(name));

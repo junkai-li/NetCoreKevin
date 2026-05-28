@@ -44,7 +44,8 @@ namespace Kevin.Web.Basics.AI
 
         [HttpGet("GetALLList")]
         [ActionDescription("获取AI应用列表")]
-        [HttpLog("AI应用管理", "获取AI应用列表")] 
+        [HttpLog("AI应用管理", "获取AI应用列表")]
+        [SkipAuthority]
         public async Task<List<AIAppsDto>> GetALLList()
         {
             var result = await _service.GetALLList();
@@ -54,6 +55,7 @@ namespace Kevin.Web.Basics.AI
         [HttpGet("GetMyALLList")]
         [ActionDescription("获取我可用的AI应用列表")]
         [HttpLog("AI应用管理", "获取我可用的AI应用列表")]
+        [SkipAuthority]
         public async Task<List<AIAppsDto>> GetMyALLList()
         {
             var result = await _service.GetMyALLList();
@@ -95,6 +97,7 @@ namespace Kevin.Web.Basics.AI
         [HttpGet("GetDetails")]
         [ActionDescription("获取AI应用详情")]
         [HttpLog("AI应用管理", "获取AI应用详情")]
+        [SkipAuthority]
 
         public async Task<AIAppsDto> GetDetails([FromQuery][Required] long Id)
         {

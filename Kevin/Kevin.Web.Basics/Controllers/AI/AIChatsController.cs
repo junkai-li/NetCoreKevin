@@ -36,6 +36,7 @@ namespace Kevin.Web.Basics.AI
         [HttpPost("GetMyPageData")]
         [ActionDescription("获取我的AI对话列表")]
         [HttpLog("AI对话管理", "获取我的AI对话列表")]
+        [SkipAuthority]
         public async Task<dtoPageData<AIChatsDto>> GetMyPageData([FromBody] dtoPagePar<string> par)
         {
             var result = await _service.GetMyPageData(par);
@@ -52,6 +53,7 @@ namespace Kevin.Web.Basics.AI
         [ActionDescription("新增AI对话")]
         [HttpLog("AI对话管理", "新增AI对话")]
         [Transactional]
+        [SkipAuthority]
         public async Task<AIChatHistorysDto> Add([FromBody] AIChatsDto par)
         {
             var result = await _service.Add(par);
@@ -66,6 +68,7 @@ namespace Kevin.Web.Basics.AI
         [HttpLog("AI对话管理", "删除AI对话")]
         [HttpDelete("Delete")]
         [Transactional]
+        [SkipAuthority]
         public async Task<bool> Delete([FromQuery][Required] long Id)
         {
             var result = await _service.Delete(Id);

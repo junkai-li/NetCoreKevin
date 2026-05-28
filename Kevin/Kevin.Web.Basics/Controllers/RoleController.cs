@@ -56,6 +56,7 @@ namespace Kevin.Web.Basics.Controllers
         [ActionDescription("获取指定角色数据")]
         [HttpLog("角色管理", "获取指定角色数据")]
         [HttpGet("GetRoleById")]
+        [SkipAuthority]
         public async Task<dtoRole> GetRoleById([FromQuery][Required] long roleId)
         {
             var result = await _roleService.GetRoleById(roleId);
@@ -65,6 +66,7 @@ namespace Kevin.Web.Basics.Controllers
         [ActionDescription("获取所有角色数据")]
         [HttpLog("角色管理", "获取所有角色数据")]
         [HttpGet("GetAllRoles")]
+        [SkipAuthority]
         public async Task<List<dtoRole>> GetAllRoles()
         {
             var result = await _roleService.GetAllRoles();

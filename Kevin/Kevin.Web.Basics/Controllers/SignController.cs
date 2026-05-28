@@ -18,6 +18,7 @@ namespace Kevin.Web.Basics.Controllers
     [ApiController]
     [MyArea("标记管理", "Sign")]
     [MyModule("标记管理", "Sign")]
+    [SkipAuthority]
     public class SignController : ApiControllerBase
     {
         private ISignService _signService { get; set; }

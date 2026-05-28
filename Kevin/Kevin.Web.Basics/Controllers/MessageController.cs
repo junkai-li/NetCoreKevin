@@ -33,6 +33,7 @@ namespace Kevin.Web.Basics.Controllers
         [HttpPost("GetAnnouncementPageData")]
         [ActionDescription("获取公司公告数据")]
         [HttpLog("消息管理", "获取公司公告数据")]
+        [SkipAuthority]
         public async Task<dtoPageData<MessageDto>> GetAnnouncementPageData([FromBody] dtoPagePar<MsgGetPageDataParDto> dtoPage)
         {
             dtoPage.Parameter = dtoPage.Parameter == default ? new MsgGetPageDataParDto() : dtoPage.Parameter;
@@ -44,6 +45,7 @@ namespace Kevin.Web.Basics.Controllers
         [HttpPost("GetPrivateUserPageData")]
         [ActionDescription("获取我的私人私信数据")]
         [HttpLog("消息管理", "获取我的私人私信数据")]
+        [SkipAuthority]
         public async Task<dtoPageData<MessageDto>> GetPrivateUserPageData([FromBody] dtoPagePar<MsgGetPageDataParDto> dtoPage)
         {
             dtoPage.Parameter = dtoPage.Parameter == default ? new MsgGetPageDataParDto() : dtoPage.Parameter;
@@ -56,6 +58,7 @@ namespace Kevin.Web.Basics.Controllers
         [HttpPost("GetAIUserPageData")]
         [ActionDescription("获取我的AI消息数据")]
         [HttpLog("消息管理", "获取我的AI消息数据")]
+        [SkipAuthority]
         public async Task<dtoPageData<MessageDto>> GetAIUserPageData([FromBody] dtoPagePar<MsgGetPageDataParDto> dtoPage)
         {
             dtoPage.Parameter = dtoPage.Parameter == default ? new MsgGetPageDataParDto() : dtoPage.Parameter;
@@ -68,6 +71,7 @@ namespace Kevin.Web.Basics.Controllers
         [HttpPost("GetPrivateUserSystemPageData")]
         [ActionDescription("获取我的系统私信消息")]
         [HttpLog("消息管理", "获取我的系统私信消息")]
+        [SkipAuthority]
         public async Task<dtoPageData<MessageDto>> GetPrivateUserSystemPageData([FromBody] dtoPagePar<MsgGetPageDataParDto> dtoPage)
         {
             dtoPage.Parameter = dtoPage.Parameter == default ? new MsgGetPageDataParDto() : dtoPage.Parameter;
@@ -79,6 +83,7 @@ namespace Kevin.Web.Basics.Controllers
         [HttpPost("GetSystemPageData")]
         [ActionDescription("获取系统消息")]
         [HttpLog("消息管理", "获取系统消息")]
+        [SkipAuthority]
         public async Task<dtoPageData<MessageDto>> GetSystemPageData([FromBody] dtoPagePar<MsgGetPageDataParDto> dtoPage)
         {
             dtoPage.Parameter = dtoPage.Parameter == default ? new MsgGetPageDataParDto() : dtoPage.Parameter;

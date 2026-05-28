@@ -111,6 +111,7 @@ namespace Kevin.Web.Basics.Controllers
         /// <returns></returns>
         [HttpGet("GetAllPermissions")]
         [ActionDescription("查看所有权限")]
+        [SkipAuthority]
         public List<PermissionDto> GetAllPermissions()
         {
             return _permissionService.GetAllPermissions();

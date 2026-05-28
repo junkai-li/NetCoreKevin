@@ -39,7 +39,8 @@ namespace Kevin.Web.Basics.AI.Organizational
 
         [HttpGet("GetALLList")]
         [ActionDescription("获取部门列表")]
-        [HttpLog("部门管理", "获取部门列表")] 
+        [HttpLog("部门管理", "获取部门列表")]
+        [SkipAuthority]
         public async Task<List<DepartmentDto>> GetALLlist()
         {
             var result = await _departmentService.GetALLList();
@@ -48,7 +49,8 @@ namespace Kevin.Web.Basics.AI.Organizational
 
         [HttpGet("GetDepartmentTree")]
         [ActionDescription("获取部门树形结构")]
-        [HttpLog("部门管理", "获取部门树形结构")] 
+        [HttpLog("部门管理", "获取部门树形结构")]
+        [SkipAuthority]
         public async Task<DepartmentDto> GetDepartmentTree()
         {
             var result = await _departmentService.GetDepartmentTree();

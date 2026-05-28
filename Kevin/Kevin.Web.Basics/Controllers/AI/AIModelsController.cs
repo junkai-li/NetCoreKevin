@@ -45,6 +45,7 @@ namespace Kevin.Web.Basics.AI
         [ActionDescription("获取AI模型列表")]
         [HttpLog("AI模型管理", "获取AI模型列表")]
         [CacheDataFilter<List<AIModelsDto>>(TTL = 60, UseToken = false)]
+        [SkipAuthority]
         public async Task<List<AIModelsDto>> GetALLList([FromQuery] int Type = 1)
         {
             var result = await _service.GetALLList(Type);

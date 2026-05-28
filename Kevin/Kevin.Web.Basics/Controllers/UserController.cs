@@ -93,6 +93,7 @@ namespace Kevin.Web.Basics.Controllers
         [HttpPost("GetSysUserList")]
         [ActionDescription("获取系统用户列表信息")]
         [HttpLog("用户管理", "获取系统用户列表信息")]
+        [SkipAuthority]
         public async Task<dtoPageData<dtoUser>> GetSysUserList(dtoPagePar<dtoUserPar> dtoPage)
         {
             return await _userService.GetSysUserList(dtoPage);
@@ -167,6 +168,7 @@ namespace Kevin.Web.Basics.Controllers
         [HttpPost("ChangePasswordTokenUser")]
         [Transactional]
         [ActionDescription("更改当前用户密码")]
+        [SkipAuthority]
         public async Task<bool> ChangePasswordTokenUser([FromBody] ChangePasswordTokenUserDto user, CancellationToken cancellationToken)
         {
             return await _userService.ChangePasswordTokenUser(user.OldPwd, user.NewPwd, cancellationToken);

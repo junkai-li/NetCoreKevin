@@ -18,6 +18,7 @@ namespace Kevin.Web.Basics.Controllers
     [MyModule("代码生成器", "CodeGenerator")]
     [Authorize]
     [ApiVersionNeutral]
+    [SkipAuthority]
     public class CodeGeneratorController : ApiControllerBase
     {
         private ICodeGeneratorService _codeGeneratorService;

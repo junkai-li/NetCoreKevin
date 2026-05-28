@@ -5,6 +5,7 @@
   min-height: 100vh;
   background: var(--page-bg);
   position: relative;
+  overflow: hidden;
 }
 
 .main-layout {
@@ -12,6 +13,9 @@
   z-index: 1;
   min-height: 100vh;
   background: var(--page-bg) !important;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .sider {
@@ -91,10 +95,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 9;
   height: 64px;
+  flex-shrink: 0;
+  z-index: 9;
   line-height: 64px;
 }
 
@@ -186,6 +189,10 @@
   position: relative;
   z-index: 1;
   background: transparent !important;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 :deep(.ant-layout-content) {
@@ -193,14 +200,14 @@
 }
 
 .content-wrapper {
+  flex: 1;
   padding: 24px;
   background: var(--content-surface);
   border: 1px solid var(--content-border);
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  min-height: calc(100vh - 64px - 32px - 57px);
-  position: relative;
   color: var(--text-strong);
+  overflow: auto;
 }
 
 .footer {
@@ -210,6 +217,7 @@
   margin-top: 0;
   position: relative;
   z-index: 1;
+  flex-shrink: 0;
 }
 
 :deep(.ant-layout-footer) {
@@ -268,4 +276,111 @@
   .content-wrapper {
     padding: 16px;
   }
+}
+
+/* 标签页导航样式 */
+.tab-navigation {
+  background: var(--content-surface);
+  border-bottom: 1px solid var(--content-border);
+  padding: 8px 16px 0;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.tab-list {
+  display: flex;
+  overflow-x: auto;
+  gap: 2px;
+  padding: 0;
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: var(--content-surface);
+  border: 1px solid var(--content-border);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 0 1 140px;
+  min-width: 80px;
+  max-width: 180px;
+  position: relative;
+  margin-right: -1px;
+}
+
+.tab-item:hover {
+  background: var(--hover-bg);
+  z-index: 1;
+}
+
+.tab-item.active {
+  background: var(--page-bg);
+  border-bottom: 1px solid var(--page-bg);
+  z-index: 2;
+}
+
+.tab-item.active .tab-title {
+  color: #000000;
+  font-weight: 500;
+}
+
+.tab-title {
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.tab-close {
+  margin-left: 6px;
+  padding: 2px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+}
+
+.tab-item:hover .tab-close {
+  opacity: 1;
+}
+
+.tab-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.tab-action {
+  margin-left: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.tab-item:hover .tab-action {
+  opacity: 1;
+}
+
+.tab-content {
+  min-height: calc(100vh - 64px - 48px - 57px - 32px);
+}
+
+.tab-pane {
+  width: 100%;
+  height: 100%;
+}
+
+/* 隐藏滚动条但保持功能 */
+.tab-list::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tab-list::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, rgba(0, 0, 0, 0.2));
+  border-radius: 2px;
+}
+
+.tab-list::-webkit-scrollbar-track {
+  background: transparent;
 }
