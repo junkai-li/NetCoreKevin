@@ -581,7 +581,7 @@ const menuList = ref([
       { key: 'system-dic', title: '系统配置', permission: 'Menu/SystemSettings/SystemDic', icon: SettingOutlined },
       { key: 'system-tenant', title: '租户管理', permission: 'Menu/SystemSettings/SystemTenant', icon: BankOutlined },
       { key: 'system-code-generator', title: '代码生成器', permission: 'Menu/SystemSettings/SystemCodeGenerator', icon: CodeOutlined },
-      { key: 'log-management', title: '日志管理', permission: 'Menu/SystemSettings/Log/Management', icon: FileTextOutlined }, 
+      { key: 'log-management', title: '日志管理', permission: 'Menu/SystemSettings/LogManagement', icon: FileTextOutlined }, 
       { key: 'oslog', title: '关键数据变动日志', permission: 'Menu/SystemSettings/OsLog', icon: HistoryOutlined }
     ]
   }
@@ -743,7 +743,7 @@ const getAllPermissions = () => {
     'Menu/AIManagement', 'Menu/AIManagement/AIAppsManagement', 'Menu/AIManagement/AIPromptsManagement', 'Menu/AIManagement/AIKmssManagement', 'Menu/AIManagement/AIModelManagement', 'Menu/AIManagement/AISkillToolManagement',
     'Menu/OrganizationalManagement', 'Menu/OrganizationalManagement/PositionManagement', 'Menu/OrganizationalManagement/DepartmentManagement',
     'Menu/UserManagement', 'Menu/UserManagement/UserList', 'Menu/UserManagement/UserRole', 'Menu/UserManagement/UserPermission',
-    'Menu/SystemSettings', 'Menu/SystemSettings/SystemAnnouncement', 'Menu/SystemSettings/SystemDic', 'Menu/SystemSettings/SystemTenant', 'Menu/SystemSettings/SystemCodeGenerator', 'Menu/SystemSettings/Log/Management', 'Menu/SystemSettings/OsLog'
+    'Menu/SystemSettings', 'Menu/SystemSettings/SystemAnnouncement', 'Menu/SystemSettings/SystemDic', 'Menu/SystemSettings/SystemTenant', 'Menu/SystemSettings/SystemCodeGenerator', 'Menu/SystemSettings/LogManagement', 'Menu/SystemSettings/OsLog'
   ];
 };
 </script>
