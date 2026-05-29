@@ -1,5 +1,6 @@
 ﻿using kevin.Domain.Entities;
 using kevin.Domain.Interfaces.IServices;
+using kevin.Domain.Share.Dtos.System;
 using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -106,6 +107,18 @@ namespace Kevin.Web.Basics.Controllers
         }
 
 
+        /// <summary>
+        /// 通过文件ID获取文件信息
+        /// </summary>
+        /// <param name="Id">文件ID</param>
+        /// <param name="cancellationToken">cancellationToken</param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpGet("GetById")]
+        public async Task<FileDto> GetById([Required][FromQuery] long Id, CancellationToken cancellationToken)
+        {
+           return await _fileService.GetByIdDto(Id); 
+        }
 
 
         /// <summary>

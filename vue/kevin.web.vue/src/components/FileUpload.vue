@@ -37,6 +37,24 @@
           <span class="file-size" v-if="file.size">({{ formatFileSize(file.size) }})</span>
         </div>
         <div class="file-actions">
+          <a-tooltip v-if="enablePreview && canPreview(file)" title="预览">
+            <a-button
+              type="text"
+              @click="handlePreview(file)"
+              :disabled="disabled"
+            >
+              <template #icon><EyeOutlined /></template>
+            </a-button>
+          </a-tooltip>
+          <a-tooltip v-if="enableZipEdit && isZipFile(file.name)" title="编辑压缩包">
+            <a-button
+              type="text"
+              @click="handleZipEdit(file)"
+              :disabled="disabled"
+            >
+              <template #icon><EditOutlined /></template>
+            </a-button>
+          </a-tooltip>
           <a-tooltip title="删除文件">
             <a-button
               type="text"
@@ -50,77 +68,184 @@
         </div>
       </div>
     </div>
+
+    <!-- 文件预览Modal -->
+    <a-modal
+      v-model:open="previewModalVisible"
+      :title="previewFile?.name"
+      :footer="null"
+      width="800px"
+    >
+      <div v-if="previewLoading" class="preview-loading">
+        <a-spin tip="加载中..." />
+      </div>
+      <div v-else-if="previewContent" class="preview-content">
+        <img v-if="isImageFile(previewFile?.name)" :src="previewFile.url" :alt="previewFile?.name" class="preview-image" />
+        <pre v-else class="preview-text">{{ previewContent }}</pre>
+      </div>
+      <a-empty v-else description="暂不支持预览此文件" />
+    </a-modal>
+
+    <!-- Zip编辑Modal -->
+    <a-modal
+      v-model:open="zipEditModalVisible"
+      :title="'编辑: ' + (zipEditFile?.name || '')"
+      width="90%"
+      style="top: 20px"
+      @cancel="handleZipEditCancel"
+      :footer="null"
+      :maskClosable="false"
+    >
+      <div class="zip-edit-container">
+        <div class="zip-edit-header">
+          <div class="zip-edit-actions">
+            <a-button
+              type="primary"
+              :loading="zipEditSaving"
+              :disabled="!hasZipChanges"
+              @click="handleSaveZip"
+            >
+              <template #icon><SaveOutlined /></template>
+              保存并上传
+            </a-button>
+            <a-button @click="handleDownloadZip" :disabled="zipEditLoading">
+              <template #icon><DownloadOutlined /></template>
+              下载Zip
+            </a-button>
+            <a-button @click="handleZipEditCancel">
+              <template #icon><CloseOutlined /></template>
+              关闭
+            </a-button>
+          </div>
+        </div>
+        <div class="zip-edit-content">
+          <div class="zip-file-tree">
+            <div class="tree-header">
+              <span>文件列表</span>
+              <a-badge v-if="hasZipChanges" status="warning" text="已修改" />
+            </div>
+            <div class="tree-content">
+              <a-empty v-if="zipFileTree.length === 0 && !zipEditLoading" description="暂无文件" />
+              <a-spin v-if="zipEditLoading" tip="加载中..." />
+              <div v-else>
+                <div
+                  v-for="item in zipFileTree"
+                  :key="item.path"
+                  class="tree-item"
+                  :class="{
+                    'file-item-directory': item.isDirectory,
+                    'selected': selectedZipFile?.path === item.path
+                  }"
+                  :style="{ paddingLeft: (item.level * 16 + 12) + 'px' }"
+                  @click="handleFileItemClick(item)"
+                >
+                  <component
+                    :is="item.isDirectory ? (item.isExpanded ? FolderOpenOutlined : FolderOutlined) : getFileIcon(item.name)"
+                    :class="['file-icon', { 'icon-directory': item.isDirectory }]"
+                  />
+                  <span class="file-name" :title="item.path">{{ item.name }}</span>
+                  <span v-if="zipContent[item.path]?.modified" class="modified-dot"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="zip-editor-area">
+            <div class="editor-header" v-if="selectedZipFile">
+              <span class="editor-file-name">{{ selectedZipFile.path }}</span>
+              <a-tag v-if="hasZipChanges && zipContent[selectedZipFile.path]?.modified" color="orange">已修改</a-tag>
+            </div>
+            <div class="editor-content" ref="zipEditorContainer">
+              <a-empty v-if="!selectedZipFile" description="请选择要编辑的文件" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script setup>
 /* eslint-disable no-undef */
-import { ref, watch } from 'vue';
-import { UploadOutlined, PaperClipOutlined, DeleteOutlined } from '@ant-design/icons-vue'; 
+import { ref, watch, nextTick } from 'vue';
+import {
+  UploadOutlined,
+  PaperClipOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+  EditOutlined,
+  SaveOutlined,
+  CloseOutlined,
+  DownloadOutlined,
+  FolderOutlined,
+  FolderOpenOutlined,
+  FileOutlined,
+  FileTextOutlined
+} from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
-import { uploadFile, deleteFileById } from '@/api/file';
+import { uploadFile, deleteFileById, getFileInfoById } from '@/api/file';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+import { EditorView, basicSetup } from 'codemirror';
+import { EditorState } from '@codemirror/state';
+import { javascript } from '@codemirror/lang-javascript';
+import { markdown } from '@codemirror/lang-markdown';
+import { oneDark } from '@codemirror/theme-one-dark';
 
-// 定义组件属性
 const props = defineProps({
-  // 业务领域
   business: {
     type: String,
     required: true
   },
-  // 记录值
   keyValue: {
     type: String,
     required: true
   },
-  // 自定义标记
   sign: {
     type: String,
     required: true
   },
-  // 接受的文件类型
   accept: {
     type: String,
     default: ''
   },
-  // 是否允许多文件上传
   multiple: {
     type: Boolean,
     default: false
   },
-  // 最大上传数量
   maxCount: {
     type: Number,
     default: undefined
   },
-  // 是否禁用
   disabled: {
     type: Boolean,
     default: false
   },
-  // 是否显示上传列表
   showUploadList: {
     type: Boolean,
     default: false
   },
-  // 上传按钮文字
   uploadButtonText: {
     type: String,
     default: '上传文件'
   },
-  // 初始已上传的文件数据
   initialFiles: {
     type: Array,
     default: () => []
+  },
+  enablePreview: {
+    type: Boolean,
+    default: true
+  },
+  enableZipEdit: {
+    type: Boolean,
+    default: true
   }
 });
 
-// 定义事件
-const emit = defineEmits(['upload-success', 'upload-error', 'delete-success', 'delete-error']);
+const emit = defineEmits(['upload-success', 'upload-error', 'delete-success', 'delete-error', 'zip-updated']);
 
-// 文件列表
 const fileList = ref([]);
 const uploading = ref(false);
-// 已上传的文件列表
 const uploadedFiles = ref([]);
 
 const normalizeFile = (fileObj) => {
@@ -149,19 +274,16 @@ watch(() => props.initialFiles, () => {
   initUploadedFiles();
 }, { deep: true });
 
-// 自定义上传请求
 const customRequest = async (options) => {
   const { file, onSuccess, onError } = options;
   uploading.value = true;
-  
+
   try {
     if (props.maxCount && uploadedFiles.value.length >= props.maxCount) {
       throw new Error(`最多只能上传${props.maxCount}个文件`);
     }
-    // 上传文件
     const fileId = (await uploadFile(props.business, props.keyValue, props.sign, file)).data;
-    
-    // 添加到已上传文件列表
+
     uploadedFiles.value.push({
       id: fileId,
       name: file.name,
@@ -169,14 +291,12 @@ const customRequest = async (options) => {
       rawFile: file
     });
 
-    // 触发上传成功的事件
     emit('upload-success', {
       fileId: fileId,
       fileName: file.name,
       fileSize: file.size
     });
 
-    // 如果是单文件上传，清空文件列表
     if (!props.multiple) {
       fileList.value = [];
     }
@@ -185,8 +305,7 @@ const customRequest = async (options) => {
   } catch (error) {
     console.error('文件上传失败:', error);
     onError(error);
-    
-    // 触发上传失败的事件
+
     emit('upload-error', {
       error: error,
       fileName: file.name
@@ -196,45 +315,39 @@ const customRequest = async (options) => {
   }
 };
 
-// 上传前的钩子
 const beforeUpload = () => {
-  return true; // 允许上传
+  return true;
 };
 
-// 删除文件
 const handleDeleteFile = async (file) => {
   try {
     const result = await deleteFileById(file.id);
-    
+
     if (result) {
-      // 从已上传文件列表中移除
       uploadedFiles.value = uploadedFiles.value.filter(f => f.id !== file.id);
-      
-      // 触发删除成功的事件
+
       emit('delete-success', {
         fileId: file.id,
         fileName: file.name
       });
-      
+
       message.success('文件删除成功');
     } else {
       throw new Error('删除失败');
     }
   } catch (error) {
     console.error('文件删除失败:', error);
-    
-    // 触发删除失败的事件
+
     emit('delete-error', {
       error: error,
       fileId: file.id,
       fileName: file.name
     });
-    
+
     message.error('文件删除失败: ' + error.message);
   }
 };
 
-// 格式化文件大小
 const formatFileSize = (size) => {
   if (size === 0) return '0 Bytes';
   const k = 1024;
@@ -243,21 +356,385 @@ const formatFileSize = (size) => {
   return parseFloat((size / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
-// 监听已上传文件列表的变化，向外暴露文件ID
+const getFileExtension = (filename) => {
+  const parts = filename.split('.');
+  return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : '';
+};
+
+const isImageFile = (filename) => {
+  const ext = getFileExtension(filename);
+  return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(ext);
+};
+
+const isTextFile = (filename) => {
+  const ext = getFileExtension(filename);
+  return ['txt', 'md', 'markdown', 'json', 'xml', 'html', 'css', 'js', 'ts', 'py', 'java', 'c', 'cpp', 'h', 'cs', 'go', 'rb', 'php', 'sh', 'yaml', 'yml', 'ini', 'conf', 'log'].includes(ext);
+};
+
+const isZipFile = (filename) => {
+  const ext = getFileExtension(filename);
+  return ext === 'zip';
+};
+
+const canPreview = (file) => {
+  return isImageFile(file.name) || isTextFile(file.name) || isZipFile(file.name);
+};
+
+const previewModalVisible = ref(false);
+const previewFile = ref(null);
+const previewContent = ref('');
+const previewLoading = ref(false);
+
+const handlePreview = async (file) => {
+  previewFile.value = file;
+
+  if (isImageFile(file.name)) {
+    previewModalVisible.value = true;
+    return;
+  }
+
+  if (isZipFile(file.name)) {
+    handleZipEdit(file);
+    return;
+  }
+
+  if (isTextFile(file.name) && file.url) {
+    previewLoading.value = true;
+    previewModalVisible.value = true;
+
+    try {
+      const response = await fetch(file.url);
+      previewContent.value = await response.text();
+    } catch (error) {
+      console.error('预览加载失败:', error);
+      previewContent.value = null;
+    } finally {
+      previewLoading.value = false;
+    }
+    return;
+  }
+
+  previewModalVisible.value = true;
+  previewContent.value = null;
+};
+
+const zipEditModalVisible = ref(false);
+const zipEditLoading = ref(false);
+const zipEditSaving = ref(false);
+const zipEditFile = ref(null);
+const zipFileTree = ref([]);
+const zipFileTreeOriginal = ref([]);
+const expandedFolders = ref(new Set());
+const zipContent = ref({});
+const selectedZipFile = ref(null);
+const zipEditorContainer = ref(null);
+const zipEditorView = ref(null);
+const hasZipChanges = ref(false);
+const currentZipBlob = ref(null);
+
+const getFileIcon = (fileName) => {
+  const ext = getFileExtension(fileName);
+  if (['md', 'markdown'].includes(ext)) return FileTextOutlined;
+  return FileOutlined;
+};
+
+const handleFileItemClick = (item) => {
+  if (item.isDirectory) {
+    const newExpanded = new Set(expandedFolders.value);
+    if (newExpanded.has(item.path)) {
+      newExpanded.delete(item.path);
+    } else {
+      newExpanded.add(item.path);
+    }
+    expandedFolders.value = newExpanded;
+    rebuildZipFileTree();
+  } else {
+    selectZipFile(item);
+  }
+};
+
+const rebuildZipFileTree = () => {
+  const result = [];
+  const processedPaths = new Set();
+
+  const flatten = (items, level) => {
+    items.forEach((item) => {
+      if (processedPaths.has(item.path)) return;
+      processedPaths.add(item.path);
+
+      const isExpanded = expandedFolders.value.has(item.path);
+      result.push({ ...item, level, isExpanded });
+
+      if (item.isDirectory && isExpanded && item.children && item.children.length > 0) {
+        flatten(item.children, level + 1);
+      }
+    });
+  };
+
+  flatten(zipFileTreeOriginal.value, 0);
+
+  zipFileTree.value = result;
+};
+
+const handleZipEdit = async (file) => {
+  zipEditFile.value = file;
+  zipEditModalVisible.value = true;
+  zipEditLoading.value = true;
+  zipFileTree.value = [];
+  zipContent.value = {};
+  selectedZipFile.value = null;
+  hasZipChanges.value = false;
+  currentZipBlob.value = null;
+
+  try {
+    const response = await fetch(file.url);
+    const blob = await response.blob();
+    currentZipBlob.value = blob;
+    const zip = await JSZip.loadAsync(blob);
+
+    const filePromises = [];
+    const contentMap = {};
+    const folderSet = new Set();
+
+    zip.forEach((relativePath, zipFile) => {
+      const parts = relativePath.split('/');
+      for (let i = 1; i < parts.length - 1; i++) {
+        folderSet.add(parts.slice(0, i).join('/'));
+      }
+
+      if (!zipFile.dir) {
+        const filePromise = zipFile.async('string').then((content) => {
+          contentMap[relativePath] = {
+            content: content,
+            originalContent: content,
+            modified: false,
+          };
+        });
+        filePromises.push(filePromise);
+      }
+    });
+
+    await Promise.all(filePromises);
+
+    const treeData = [];
+
+    folderSet.forEach((folderPath) => {
+      const parts = folderPath.split('/');
+      const name = parts[parts.length - 1];
+      const parentPath = parts.length > 1 ? parts.slice(0, -1).join('/') : '';
+      treeData.push({
+        name: name,
+        path: folderPath,
+        isDirectory: true,
+        isExpanded: false,
+        children: [],
+        parentPath: parentPath,
+      });
+    });
+
+    zip.forEach((relativePath, zipFile) => {
+      if (!zipFile.dir) {
+        const name = relativePath.split('/').pop();
+        const parts = relativePath.split('/');
+        const parentPath = parts.length > 1 ? parts.slice(0, -1).join('/') : '';
+
+        treeData.push({
+          name: name,
+          path: relativePath,
+          isDirectory: false,
+          modified: false,
+          parentPath: parentPath,
+          children: null,
+        });
+      }
+    });
+
+    const pathToItem = new Map();
+
+    treeData.forEach((item) => {
+      pathToItem.set(item.path, { ...item, children: [] });
+    });
+
+    const rootItems = [];
+
+    pathToItem.forEach((item) => {
+      if (item.parentPath && pathToItem.has(item.parentPath)) {
+        pathToItem.get(item.parentPath).children.push(item);
+      } else {
+        rootItems.push(item);
+      }
+    });
+
+    zipFileTreeOriginal.value = rootItems;
+    rebuildZipFileTree();
+    zipContent.value = contentMap;
+
+    if (zipFileTree.value.length > 0) {
+      await nextTick();
+      const firstFile = zipFileTree.value.find((item) => !item.isDirectory);
+      if (firstFile) {
+        selectZipFile(firstFile);
+      }
+    }
+  } catch (error) {
+    console.error('加载压缩包失败:', error);
+    message.error('加载压缩包失败: ' + (error.message || '未知错误'));
+  } finally {
+    zipEditLoading.value = false;
+  }
+};
+
+const selectZipFile = async (file) => {
+  if (selectedZipFile.value?.path === file.path) return;
+
+  selectedZipFile.value = file;
+
+  await nextTick();
+
+  if (zipEditorView.value) {
+    zipEditorView.value.destroy();
+    zipEditorView.value = null;
+  }
+
+  if (zipEditorContainer.value) {
+    zipEditorContainer.value.innerHTML = '';
+  }
+
+  const fileData = zipContent.value[file.path];
+  if (!fileData) return;
+
+  const isMarkdown = ['md', 'markdown'].includes(getFileExtension(file.name));
+  const language = isMarkdown ? markdown() : javascript();
+
+  const state = EditorState.create({
+    doc: fileData.content,
+    extensions: [
+      basicSetup,
+      language,
+      oneDark,
+      EditorView.updateListener.of((update) => {
+        if (update.docChanged) {
+          const newContent = update.state.doc.toString();
+          zipContent.value[file.path].content = newContent;
+          zipContent.value[file.path].modified = newContent !== zipContent.value[file.path].originalContent;
+          hasZipChanges.value = Object.values(zipContent.value).some((f) => f.modified);
+        }
+      }),
+      EditorView.theme({
+        '&': { height: '100%' },
+        '.cm-scroller': { overflow: 'auto' },
+      }),
+    ],
+  });
+
+  zipEditorView.value = new EditorView({
+    state,
+    parent: zipEditorContainer.value,
+  });
+};
+
+const handleSaveZip = async () => {
+  if (!hasZipChanges.value) return;
+
+  zipEditSaving.value = true;
+
+  try {
+    const zip = new JSZip();
+
+    Object.entries(zipContent.value).forEach(([path, data]) => {
+      zip.file(path, data.content);
+    });
+
+    const blob = await zip.generateAsync({ type: 'blob' });
+
+    const fileName = zipEditFile.value.name;
+    const newFile = new File([blob], fileName, { type: 'application/zip' });
+
+    const oldFileId = zipEditFile.value.id;
+
+    await deleteFileById(oldFileId);
+
+    const newFileId = (await uploadFile(props.business, props.keyValue, props.sign, newFile)).data;
+
+    const fileInfoResponse = await getFileInfoById(newFileId);
+    const fileInfo = fileInfoResponse.data;
+
+    const updatedFile = {
+      id: newFileId,
+      name: fileInfo.name || fileName,
+      size: fileInfo.size || blob.size,
+      url: fileInfo.url,
+    };
+
+    const index = uploadedFiles.value.findIndex((f) => f.id === oldFileId);
+    if (index !== -1) {
+      uploadedFiles.value[index] = { ...uploadedFiles.value[index], ...updatedFile };
+    }
+
+    hasZipChanges.value = false;
+    zipEditModalVisible.value = false;
+    currentZipBlob.value = null;
+
+    message.success('文件保存成功');
+    emit('zip-updated', { oldFileId, newFileId, file: updatedFile });
+  } catch (error) {
+    console.error('保存失败:', error);
+    message.error('保存失败: ' + (error.message || '未知错误'));
+  } finally {
+    zipEditSaving.value = false;
+  }
+};
+
+const handleDownloadZip = () => {
+  if (!currentZipBlob.value) {
+    message.warning('请先加载压缩包');
+    return;
+  }
+
+  const zip = new JSZip();
+
+  Object.entries(zipContent.value).forEach(([path, data]) => {
+    zip.file(path, data.content);
+  });
+
+  zip.generateAsync({ type: 'blob' }).then((blob) => {
+    saveAs(blob, zipEditFile.value?.name || 'modified.zip');
+  });
+};
+
+const handleZipEditCancel = () => {
+  if (hasZipChanges.value) {
+    zipEditModalVisible.value = false;
+    zipFileTree.value = [];
+    zipFileTreeOriginal.value = [];
+    expandedFolders.value = new Set();
+    zipContent.value = {};
+    selectedZipFile.value = null;
+    currentZipBlob.value = null;
+    hasZipChanges.value = false;
+
+    if (zipEditorView.value) {
+      zipEditorView.value.destroy();
+      zipEditorView.value = null;
+    }
+  } else {
+    zipEditModalVisible.value = false;
+  }
+};
+
 watch(uploadedFiles, (newFiles) => {
   if (newFiles.length > 0) {
-    const fileIds = newFiles.map(file => file.id);
+    const fileIds = newFiles.map((file) => file.id);
     emit('file-ids-change', fileIds);
   }
 }, { deep: true });
 
-// 提供获取已上传文件ID的方法
 defineExpose({
-  getUploadedFileIds: () => uploadedFiles.value.map(file => file.id),
+  getUploadedFileIds: () => uploadedFiles.value.map((file) => file.id),
   getUploadedFiles: () => [...uploadedFiles.value],
   clearUploadedFiles: () => {
     uploadedFiles.value = [];
-  }
+  },
 });
 </script>
 
@@ -327,5 +804,169 @@ defineExpose({
 .file-actions {
   display: flex;
   align-items: center;
+}
+
+.preview-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.preview-content {
+  max-height: 60vh;
+  overflow: auto;
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+}
+
+.preview-text {
+  background: #f5f5f5;
+  padding: 16px;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 60vh;
+  overflow: auto;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.zip-edit-container {
+  display: flex;
+  flex-direction: column;
+  height: 70vh;
+}
+
+.zip-edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.zip-edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.zip-edit-content {
+  display: flex;
+  flex: 1;
+  margin-top: 16px;
+  min-height: 0;
+}
+
+.zip-file-tree {
+  width: 280px;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  margin-right: 16px;
+}
+
+.tree-header {
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tree-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.tree-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.tree-item:hover {
+  background-color: #f5f5f5;
+}
+
+.tree-item.selected {
+  background-color: #e6f7ff;
+}
+
+.tree-item.file-item-directory {
+  font-weight: 500;
+}
+
+.file-icon {
+  margin-right: 8px;
+  color: #1890ff;
+}
+
+.file-icon.icon-directory {
+  color: #faad14;
+}
+
+.file-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modified-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #faad14;
+  margin-left: 4px;
+}
+
+.zip-editor-area {
+  flex: 1;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.editor-header {
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editor-file-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+}
+
+.editor-content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.editor-content :deep(.cm-editor) {
+  height: 100%;
+}
+
+.editor-content :deep(.cm-scroller) {
+  overflow: auto;
 }
 </style>

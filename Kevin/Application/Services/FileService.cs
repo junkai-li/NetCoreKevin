@@ -36,6 +36,15 @@ namespace kevin.Application.Services
             return (await fileRp.Query().Where(t => t.IsDelete == false && tableid.Contains(t.TableId) && t.Table == table).ToListAsync()).MapToList<TFile, FileDto>().ToList();
         }
 
+        /// <summary>
+        /// 根据文件ID获取文件信息
+        /// </summary>
+        /// <param name="Id">文件ID</param> 
+        public async Task<FileDto> GetByIdDto(long Id)
+        {
+            return (await fileRp.Query().Where(t => t.IsDelete == false && Id == t.Id).FirstOrDefaultAsync()).MapTo<FileDto>();
+        }
+
         public Task<bool> DeleteFile(long id, CancellationToken cancellationToken)
         {
             try

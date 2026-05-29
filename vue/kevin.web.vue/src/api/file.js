@@ -111,6 +111,11 @@ export const getFilePathById = (fileId, options = {}) => {
   return http.get(`/api/File/GetFilePath?fileid=${fileId}`, options);
 };
 
+// 获取文件信息（包含URL）
+export const getFileInfoById = (fileId, options = {}) => {
+  return http.get(`/api/File/GetById?Id=${fileId}`, options);
+};
+
 // 删除文件
 export const deleteFileById = (id, options = {}) => {
   return http.delete(`/api/File/DeleteFile?id=${id}`, options);
@@ -140,6 +145,7 @@ export default {
   getFileById,
   getImageById,
   getFilePathById,
+  getFileInfoById,
   deleteFileById,
   upload
 };

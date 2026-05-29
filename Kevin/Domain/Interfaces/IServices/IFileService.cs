@@ -15,6 +15,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// <returns></returns>
         Task<List<FileDto>> GetFileDtos(List<string> tableid, string table);
 
+        Task<FileDto> GetByIdDto(long Id);
 
         /// <summary>
         /// 远程单文件上传接口
