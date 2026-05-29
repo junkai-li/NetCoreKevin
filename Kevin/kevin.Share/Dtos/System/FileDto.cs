@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using kevin.Domain.Share.Dtos.Bases;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace kevin.Domain.Share.Dtos.System
@@ -6,7 +7,7 @@ namespace kevin.Domain.Share.Dtos.System
     /// <summary>
     /// 附件dto
     /// </summary>
-    public class FileDto
+    public class FileDto: CD_User_Dto
     {
         public long Id { get; set; }
 

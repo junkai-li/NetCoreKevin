@@ -3,6 +3,10 @@ import http from '../../utils/http';
 export const getAISkillToolManagementPageData = (params) => {
   return http.post('/api/AISkillToolManagement/GetPageData', params);
 };
+//获取AI技能工具详情
+export const getAISkillToolManagementById = (id) => {
+  return http.get('/api/AISkillToolManagement/GetById?Id=' + id);
+};
 //添加/编辑AI技能工具
 export const addEditAISkillToolManagement = (data) => {
   return http.post('/api/AISkillToolManagement/AddEdit', data);

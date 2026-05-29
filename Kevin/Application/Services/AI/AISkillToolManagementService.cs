@@ -43,12 +43,27 @@ namespace kevin.Application.Services.AI
             var flieData = _FileRp.Query().Where(t => t.IsDelete == false && t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && result.data.Select(a => a.Id.ToString()).ToList().Contains(t.TableId)).ToList().MapToList<TFile, FileDto>().ToList();
             foreach (var item in result.data)
             {
-                item.SkillFile = flieData.Where(t => t.TableId == item.Id.ToString()).FirstOrDefault();
+                item.SkillFile = flieData.Where(t => t.TableId == item.Id.ToString()).OrderByDescending(t => t.CreateTime).FirstOrDefault();
                 item.CreateUser = dbdata.FirstOrDefault(d => d.Id == item.Id)?.CreateUser?.Name;
                 item.UpdateUser = dbdata.FirstOrDefault(d => d.Id == item.Id)?.UpdateUser?.Name;
             }
             result.pageSize = dtoPagePar.pageSize;
             result.pageNum = dtoPagePar.pageNum;
+            return result;
+        }
+        /// <summary>
+        /// 根据id获取数据
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<AISkillToolManagementDto> GetById(long id)
+        { 
+            var data = await AISkillToolManagementRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == id).Include(t => t.CreateUser).Include(t => t.UpdateUser).FirstOrDefaultAsync();
+            var result = data.MapTo<AISkillToolManagementDto>();
+            var flieData = _FileRp.Query().Where(t => t.IsDelete == false && t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && id.ToString() == t.TableId).ToList().MapToList<TFile, FileDto>().ToList();
+            result.SkillFile = flieData.OrderByDescending(t => t.CreateTime).FirstOrDefault();
+            result.CreateUser = data?.CreateUser?.Name;
+            result.UpdateUser = data?.UpdateUser?.Name; 
             return result;
         }
 

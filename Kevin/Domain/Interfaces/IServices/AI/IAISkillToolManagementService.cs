@@ -11,6 +11,13 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// </summary> 
         /// <returns></returns>
         Task<List<AISkillToolManagementDto>> GetAllSkills();
+
+        /// <summary>
+        /// 根据Id获取Skill技能
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<AISkillToolManagementDto> GetById(long id);
         /// <summary>
         ///   获取所有Tool工具
         /// </summary> 

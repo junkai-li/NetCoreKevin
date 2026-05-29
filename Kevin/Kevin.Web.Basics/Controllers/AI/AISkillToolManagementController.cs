@@ -39,6 +39,21 @@ namespace Kevin.Web.Basics.Controllers.AI
             var result = await _service.GetPageData(par);
             return result;
         }
+
+        /// <summary>
+        /// 获取AI技能工具详情
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        [HttpGet("GetById")]
+        [ActionDescription("获取AI技能工具详情")]
+        [HttpLog("AI技能工具管理", "获取AI技能工具详情")]
+        [SkipAuthority]
+        public async Task<AISkillToolManagementDto> GetById([FromQuery][Required] long Id)
+        {
+            var result = await _service.GetById(Id);
+            return result;
+        }
         /// <summary>
         /// 新增或编辑AI技能工具
         /// </summary>

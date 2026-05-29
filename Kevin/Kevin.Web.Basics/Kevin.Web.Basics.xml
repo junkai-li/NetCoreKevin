@@ -210,6 +210,13 @@
             <param name="par"></param>
             <returns></returns>
         </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.AISkillToolManagementController.GetById(System.Int64)">
+            <summary>
+            获取AI技能工具详情
+            </summary>
+            <param name="Id"></param>
+            <returns></returns>
+        </member>
         <member name="M:Kevin.Web.Basics.Controllers.AI.AISkillToolManagementController.AddEdit(kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto)">
             <summary>
             新增或编辑AI技能工具
