@@ -213,22 +213,21 @@ namespace kevin.Application.Services.AI
                             var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(taskdata, aiapp.Id.ToString(), userId).Result;
 #pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。 
 
-                            var aiContextProviders = new List<AIContextProvider>();
+                            var skillsProvider = new AgentSkillsProviderBuilder()
+                                                .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)
+                                                .UseOptions(options => options.DisableCaching = true);
                             foreach (var skillPath in skillPaths)
                             {
-                                var skillsProvider = new AgentSkillsProviderBuilder()
-                                                                               .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)
-                                                                              .UseFileSkill(Path.Combine(AppContext.BaseDirectory + skillPath),//"/Skills/all-skills"
-                                                                              new AgentFileSkillsSourceOptions
-                                                                              {
-                                                                                  AllowedScriptExtensions = [".py", ".sh", ".ps1"],
-                                                                                  ScriptDirectories = ["scripts", "tools", "templates"],
-                                                                              })
-                                                                              .UseOptions(options => options.DisableCaching = true)
-                                                                              .Build();
-                                aiContextProviders.Add(skillsProvider);
+                                skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath),
+                                                                       options: new AgentFileSkillsSourceOptions
+                                                                       {
+                                                                           AllowedResourceExtensions = [".md", ".txt"],
+                                                                           AllowedScriptExtensions = [".py", ".sh", ".ps1"],
+                                                                           ScriptFilter = ctx => ctx.RelativeFilePath.StartsWith("scripts"), 
+                                                                       });
                             }
-                            chatAgOs.AIContextProviders = aiContextProviders;
+                            var sk = skillsProvider.Build();
+                            chatAgOs.AIContextProviders = [sk]; 
                         }
                         switch (aIModels.AIType)
                         {

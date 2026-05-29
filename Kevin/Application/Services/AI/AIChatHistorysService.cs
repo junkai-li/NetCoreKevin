@@ -197,11 +197,12 @@ namespace kevin.Application.Services.AI
                 foreach (var skillPath in skillPaths)
                 {
                     skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath),
-                                                                  new AgentFileSkillsSourceOptions
-                                                                  {
-                                                                      AllowedScriptExtensions = [".py", ".sh", ".ps1"],
-                                                                      ScriptDirectories = ["scripts", "tools", "templates"],
-                                                                  });
+                                                                    options: new AgentFileSkillsSourceOptions
+                                                                    {
+                                                                        AllowedResourceExtensions = [".md", ".txt"],
+                                                                        AllowedScriptExtensions = [".py", ".sh", ".ps1"],
+                                                                        ScriptFilter = ctx => ctx.RelativeFilePath.StartsWith("scripts")
+                                                                    });
 
 
                 }
