@@ -68,9 +68,16 @@ public class ImageReader
             description.AppendLine("## 图片内容");
             description.AppendLine();
 
-            if (!string.IsNullOrWhiteSpace(text))
+            if (!string.IsNullOrWhiteSpace(text) && !text.Contains("暂不可用"))
             {
                 description.AppendLine("### 识别文本 (OCR)");
+                description.AppendLine();
+                description.AppendLine(text);
+                description.AppendLine();
+            }
+            else if (text.Contains("暂不可用"))
+            {
+                description.AppendLine("### 图片文字识别 (OCR)");
                 description.AppendLine();
                 description.AppendLine(text);
                 description.AppendLine();
@@ -112,6 +119,12 @@ public class ImageReader
 
     private static string TesseractOcr(byte[] imageBytes, string language = "eng")
     {
+        var tessdataPath = GetTessdataPath();
+        if (!Directory.Exists(tessdataPath) || !File.Exists(Path.Combine(tessdataPath, $"{language}.traineddata")))
+        {
+            return "OCR功能暂不可用：缺少语言训练数据文件。请确保tessdata文件夹中包含相应的.traineddata文件。";
+        }
+
         try
         {
             var tempFile = Path.Combine(Path.GetTempPath(), $"tess_{Guid.NewGuid()}.png");
@@ -119,7 +132,7 @@ public class ImageReader
 
             try
             {
-                using var engine = new Tesseract.TesseractEngine(GetTessdataPath(), language, Tesseract.EngineMode.Default);
+                using var engine = new Tesseract.TesseractEngine(tessdataPath, language, Tesseract.EngineMode.Default);
                 using var img = Tesseract.Pix.LoadFromFile(tempFile);
                 using var page = engine.Process(img);
 
