@@ -9,11 +9,15 @@ using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using Kevin.AI.Dto;
 using Kevin.Common.Extension;
+using Kevin.RAG;
 using Kevin.RAG.Interfaces;
 using Kevin.RAG.Ollama;
+using Kevin.RAG.Tools;
 using Kevin.SignalR.Service;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
+using NetCore.Util;
+using System.Text;
 
 namespace kevin.Application.Services.AI
 {
@@ -123,7 +127,7 @@ namespace kevin.Application.Services.AI
             addAi.TenantId = CurrentUser.TenantId;
             addAi.IsSend = false;
             addAi.AIChatsId = par.AIChatsId;
-            string systemPrompt = SystemPrompt.SystemPromptText;
+            string systemPrompt = SystemPrompt.SystemPromptText; 
             if (aiapp.KmsId != default)
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在查询知识库....");
@@ -152,6 +156,71 @@ namespace kevin.Application.Services.AI
             {
                 systemPrompt += "\n文档信息列表：\n无相关信息";
             }
+
+            #region 文件处理
+            if (!string.IsNullOrWhiteSpace(add.ContentFileUrls))
+            {
+                var fileUrls = add.ContentFileUrls.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                var fileNames = !string.IsNullOrWhiteSpace(add.FileNames) 
+                    ? add.FileNames.Split(',', StringSplitOptions.RemoveEmptyEntries) 
+                    : new string[fileUrls.Length];
+
+                await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"正在处理 {fileUrls.Length} 个上传文件...");
+
+                var fileContents = new StringBuilder();
+                fileContents.AppendLine("\n用户上传文件内容：");
+                
+                for (int i = 0; i < fileUrls.Length; i++)
+                {
+                    var fileUrl = fileUrls[i].Trim();
+                    var fileName = i < fileNames.Length ? fileNames[i].Trim() : Path.GetFileName(fileUrl);
+                    
+                    try
+                    {
+                        await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"正在提取文件内容: {fileName}");
+                        
+                        var stream = await FileHelper.GetRemoteFileStreamAsync(fileUrl);
+                        var fileType = DetermineFileType(fileName);
+                        
+                        string content = "";
+                        switch (fileType)
+                        {
+                            case "image":
+                                content = ImageReader.DescribeImage(stream);
+                                break;
+                            case "excel":
+                                content = ExcelReader.ReadExcelToMarkdown(stream, fileName);
+                                break;
+                            case "pdf":
+                                content = PDFReader.ReadPdfToMarkdown(stream);
+                                break;
+                            case "word":
+                                content = WordReader.ReadParagraphs(stream);
+                                break;
+                            case "html":
+                                content = await HtmlReader.ExtractTextFromStreamAsync(stream);
+                                break;
+                            case "markdown":
+                                content = TextStreamReader.ReadMarkdownFromStream(stream).RawContent;
+                                break;
+                            case "text":
+                            default:
+                                content = TextStreamReader.ReadTextFromStream(stream);
+                                break;
+                        }
+                        
+                        fileContents.AppendLine($"\n【{fileName}】内容如下：");
+                        fileContents.AppendLine(content);
+                    }
+                    catch (Exception ex)
+                    {
+                        fileContents.AppendLine($"\n【{fileName}】(读取失败: {ex.Message})");
+                    }
+                }
+                
+                systemPrompt += fileContents.ToString();
+            }
+            #endregion 
             if (par.IsOnlineSearch)
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在联网搜索....");
@@ -273,6 +342,25 @@ namespace kevin.Application.Services.AI
                 throw new UserFriendlyException("数据不存在或已删除");
             }
             return true;
+        }
+
+        private static string DetermineFileType(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+                return "text";
+
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            return extension switch
+            {
+                ".png" or ".jpg" or ".jpeg" or ".gif" or ".bmp" or ".webp" or ".tiff" or ".tif" => "image",
+                ".xlsx" or ".xls" => "excel",
+                ".pdf" => "pdf",
+                ".doc" or ".docx" => "word",
+                ".html" or ".htm" => "html",
+                ".md" or ".markdown" => "markdown",
+                ".txt" or ".csv" or ".json" or ".xml" or ".log" => "text",
+                _ => "text"
+            };
         }
     }
 }

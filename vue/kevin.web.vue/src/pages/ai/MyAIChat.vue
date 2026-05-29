@@ -182,6 +182,7 @@
                   sign="chat"
                   :multiple="true"
                   :disabled="isSending"
+                  :accept="'.txt,.pdf,.md,.docx,.html,.doc,.xls,.xlsx'"
                   :show-upload-list="false"
                   upload-button-text="上传文件"
                   @upload-success="handleFileUploadSuccess"
