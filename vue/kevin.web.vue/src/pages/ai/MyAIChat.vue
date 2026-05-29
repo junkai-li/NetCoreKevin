@@ -103,6 +103,18 @@
                   </div>
                 </a-collapse-panel>
               </a-collapse>
+              <a-collapse v-if="message.fileNames && message.contentFileUrls" class="message-collapse" ghost>
+                <a-collapse-panel key="files" header="附件">
+                  <div class="collapse-content file-list-content">
+                    <div v-for="(fileName, index) in message.fileNames.split(',')" :key="index" class="file-item">
+                      <FileTextOutlined />
+                      <a :href="message.contentFileUrls.split(',')[index]" target="_blank" class="file-link">
+                        {{ fileName }}
+                      </a>
+                    </div>
+                  </div>
+                </a-collapse-panel>
+              </a-collapse>
               <div class="message-actions" v-if="!message.isSend">
                 <a-button
                   type="text"
@@ -162,21 +174,48 @@
               allow-clear
             />
             <div class="input-options">
-              <a-switch v-model:checked="isOnlineSearch" class="online-search-switch">
-                <template #checkedChildren>联网搜索</template>
-                <template #unCheckedChildren>联网搜索</template>
-              </a-switch>
+              <div class="input-options-left">
+                <FileUpload
+                  ref="fileUploadRef"
+                  business="AIChat"
+                  :key-value="activeConversationId || ''"
+                  sign="chat"
+                  :multiple="true"
+                  :disabled="isSending"
+                  :show-upload-list="false"
+                  upload-button-text="上传文件"
+                  @upload-success="handleFileUploadSuccess"
+                  @upload-error="handleFileUploadError"
+                />
+                <a-switch v-model:checked="isOnlineSearch" class="online-search-switch">
+                  <template #checkedChildren>联网搜索</template>
+                  <template #unCheckedChildren>联网搜索</template>
+                </a-switch>
+              </div>
               <a-button
                 type="primary"
                 @click="isSending ? stopMessage() : sendMessage()"
-                :disabled="!newMessage.trim() && !isSending"
+                :disabled="!newMessage.trim() && !isSending && uploadedFileList.length === 0"
                 :class="['send-button', { stopping: isSending }]"
               >
                 <template #icon>
-                  <StopOutlined v-if="isSending" />
+                  <SendOutlined v-if="!isSending" />
+                  <StopOutlined v-else />
                 </template>
-                {{ isSending ? '中止' : '发送' }}
               </a-button>
+            </div>
+            <div v-if="uploadedFileList.length > 0" class="uploaded-files-bar">
+              <a-tag
+                v-for="(file, index) in uploadedFileList"
+                :key="index"
+                closable
+                @close="removeUploadedFile(index)"
+              >
+                <a :href="file.url" target="_blank" download="{{ file.name }}" class="file-download-link">
+                  <FileTextOutlined />
+                  {{ file.name }}
+                </a>
+              </a-tag>
             </div>
           </div>
         </div>
@@ -216,7 +255,12 @@ import {
   CopyOutlined,
   LoadingOutlined,
   StopOutlined,
+  FileTextOutlined,
+  LinkOutlined,
+  UploadOutlined,
+  SendOutlined,
 } from "@ant-design/icons-vue";
+import FileUpload from "../../components/FileUpload.vue";
 import { message, Modal, Select } from "ant-design-vue";
 import { getMyAIAppsALLList } from "../../api/ai/aiapps.js";
 import { getAIChatsMyPageData, addAIChats, deleteAIChats } from "../../api/ai/aichats.js";
@@ -247,6 +291,13 @@ const expandedTools = ref(false);
 const lastSentMessage = ref("");
 const lastSentMessageId = ref(null);
 let abortController = null;
+
+// 文件上传相关
+const uploadedFileList = ref([]);
+const pendingFileNames = ref([]);
+const pendingFileUrls = ref([]);
+const fileBackups = ref([]);
+const fileUploadRef = ref(null);
 
 // 自动收起标志位
 const reasoningAutoCollapsed = ref(false);
@@ -305,6 +356,55 @@ const copyMessageContent = async (content) => {
   } catch (err) {
     console.error('复制失败:', err);
     message.error('复制失败');
+  }
+};
+
+// 文件上传成功处理
+const handleFileUploadSuccess = (result) => {
+  uploadedFileList.value.push({
+    id: result.fileId,
+    name: result.fileName,
+    url: result.url,
+    path: result.path
+  });
+  pendingFileNames.value.push(result.fileName);
+  pendingFileUrls.value.push(result.url);
+  nextTick(() => {
+    if (fileUploadRef.value) {
+      fileUploadRef.value.clearUploadedFiles();
+    }
+  });
+  message.success('文件上传成功');
+};
+
+// 文件上传失败处理
+const handleFileUploadError = (error) => {
+  console.error('文件上传失败:', error);
+  message.error('文件上传失败');
+};
+
+// 移除已上传文件
+const removeUploadedFile = (index) => {
+  uploadedFileList.value.splice(index, 1);
+  pendingFileNames.value.splice(index, 1);
+  pendingFileUrls.value.splice(index, 1);
+};
+
+// 清空文件列表
+const clearUploadedFiles = () => {
+  fileBackups.value = [...uploadedFileList.value];
+  uploadedFileList.value = [];
+  pendingFileNames.value = [];
+  pendingFileUrls.value = [];
+};
+
+// 恢复文件列表（中止时）
+const restoreUploadedFiles = () => {
+  if (fileBackups.value.length > 0) {
+    uploadedFileList.value = [...fileBackups.value];
+    pendingFileNames.value = uploadedFileList.value.map(f => f.name);
+    pendingFileUrls.value = uploadedFileList.value.map(f => f.url);
+    fileBackups.value = [];
   }
 };
 
@@ -493,6 +593,8 @@ const loadChatHistory = async (chatId, page) => {
         content: item.content,
         aiReasoningContent: item.aiReasoningContent,
         aiToolsContent: item.aiToolsContent,
+        fileNames: item.fileNames || '',
+        contentFileUrls: item.contentFileUrls || '',
         createdAt: item.creationTime || new Date().toISOString(),
       }));
 
@@ -582,6 +684,11 @@ const sendMessage = async () => {
   aIReasoningContentMsg.value='';
   lastSentMessage.value = messageToSend;
   abortController = new AbortController();
+
+  const currentFileNames = [...pendingFileNames.value];
+  const currentFileUrls = [...pendingFileUrls.value];
+  clearUploadedFiles();
+
     // 使用nextTick确保DOM更新
   nextTick(() => {
      newMessage.value = "";
@@ -596,6 +703,8 @@ const sendMessage = async () => {
       conversationId: activeConversationId.value,
       isSend: true,
       content: messageToSend,
+      fileNames: currentFileNames.join(','),
+      contentFileUrls: currentFileUrls.join(','),
       createdAt: new Date().toISOString(),
     };
     lastSentMessageId.value = userMessage.id;
@@ -610,13 +719,16 @@ const sendMessage = async () => {
         aIChatsId: activeConversationId.value,
         id:snowflakeId,
         content: messageToSend,
-        isOnlineSearch: isOnlineSearch.value
+        isOnlineSearch: isOnlineSearch.value,
+        fileNames: currentFileNames.join(','),
+        contentFileUrls: currentFileUrls.join(',')
       }, abortController.signal);
     } catch (error) {
       if (error.name === 'AbortError' || error.name === 'CanceledError' || error.message?.includes('cancel')) {
         message.info('已中止发送');
         stopAiMySignalRHubMsg(snowflakeId);
         isSending.value = false;
+        restoreUploadedFiles();
         return;
       }
       const errorMsg = error.message || '';
@@ -635,6 +747,7 @@ const sendMessage = async () => {
       }
       stopAiMySignalRHubMsg(snowflakeId);
       isSending.value = false;
+      restoreUploadedFiles();
       return;
     } 
     scrollToBottom();
@@ -677,12 +790,14 @@ const sendMessage = async () => {
       message.info('已中止发送');
       stopAiMySignalRHubMsg(snowflakeId);
       isSending.value = false;
+      restoreUploadedFiles();
       return;
     }
     stopAiMySignalRHubMsg(snowflakeId);
     console.error("发送消息失败:", error);
     message.error("发送消息失败");
     isSending.value = false;
+    restoreUploadedFiles();
   }
 };
 
@@ -1150,8 +1265,10 @@ const deleteConversation = async (conversationId, event) => {
 
 .message-content {
   position: relative;
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
+  width: fit-content;
+  max-width: 100%;
 }
 
 .message-actions {
@@ -1176,9 +1293,11 @@ const deleteConversation = async (conversationId, event) => {
 }
 
 .message-content {
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
-  text-align: left; /* 消息内容靠左对齐 */
+  text-align: left;
+  width: fit-content;
+  max-width: 100%;
 }
 
 .message-text {
@@ -1187,7 +1306,9 @@ const deleteConversation = async (conversationId, event) => {
   color: white;
   line-height: 1.5;
   white-space: pre-wrap;
-  text-align: left; /* 文本内容靠左对齐 */
+  text-align: left;
+  display: inline-block;
+  max-width: 100%;
 }
 
 .message-item.user-message .message-text {
@@ -1296,6 +1417,10 @@ const deleteConversation = async (conversationId, event) => {
 .message-collapse {
   margin-top: 8px;
   font-size: 12px;
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  z-index: 10;
 }
 
 .message-collapse :deep(.ant-collapse-header) {
@@ -1325,6 +1450,52 @@ const deleteConversation = async (conversationId, event) => {
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-all;
+}
+
+.file-list-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.file-link {
+  color: #1890ff;
+  text-decoration: none;
+}
+
+.file-link:hover {
+  text-decoration: underline;
+}
+
+.uploaded-files-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.uploaded-files-bar .ant-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.06);
+  border: none;
+  color: #1677ff;
+}
+
+.file-download-link {
+  color: #1677ff;
+  text-decoration: none;
+}
+
+.file-download-link:hover {
+  text-decoration: underline;
 }
 
 .chat-placeholder {
@@ -1485,20 +1656,22 @@ const deleteConversation = async (conversationId, event) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   padding: 8px 0;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   margin-top: 8px;
 }
 
-/* 联网搜索开关样式 */
-:deep(.online-search-switch) {
-  transition: all 0.3s ease;
+.input-options-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-:deep(.online-search-switch .ant-switch-inner) {
-  color: white;
-  font-size: 12px;
-  font-weight: 350;
+/* 联网搜索开关样式 */
+:deep(.online-search-switch) {
+  min-width: 90px;
+  height: 28px;
 }
 
 :deep(.online-search-switch.ant-switch-checked) {
@@ -1512,13 +1685,13 @@ const deleteConversation = async (conversationId, event) => {
 /* 发送按钮样式 */
 .send-button {
   border-radius: 6px;
-  background: #1677ff;
+  background: #22c55e;
   border: none;
   padding: 10px 28px;
   font-size: 14px;
   font-weight: 600;
   color: white;
-  box-shadow: 0 2px 8px rgba(22, 119, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
   transition: all 0.3s ease;
   cursor: pointer;
   display: flex;
@@ -1532,13 +1705,15 @@ const deleteConversation = async (conversationId, event) => {
 
 /* 中止按钮样式 */
 .send-button.stopping {
-  background: #ff4d4f;
-  box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
+  background: #f59e0b !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4) !important;
 }
 
 .send-button.stopping:hover:not(:disabled) {
-  background: #ff7875;
-  box-shadow: 0 4px 12px rgba(255, 77, 79, 0.4);
+  background: #fbbf24 !important;
+  border-color: #fbbf24 !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.5) !important;
 }
 
 :deep(.send-button .ant-btn) {

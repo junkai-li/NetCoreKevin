@@ -159,11 +159,6 @@
             发送是true  接收是false
             </summary>
         </member>
-        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.FileName">
-            <summary>
-            文件名
-            </summary>
-        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.MsgType">
             <summary>
             1非流式 2.流式
@@ -182,6 +177,16 @@
         <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.AIToolsContent">
              <summary>
             AI工具调用过程
+             </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.FileNames">
+            <summary>
+            文件名
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.ContentFileUrls">
+             <summary>
+            发送的文件urls
              </summary>
         </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIChatsDto">
