@@ -1,9 +1,10 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.RegularExpressions;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Actions;
 using UglyToad.PdfPig.Annotations;
 using UglyToad.PdfPig.Content;
+using Kevin.RAG.Tools;
 
 namespace Kevin.RAG;
 /// <summary>
@@ -401,6 +402,15 @@ public class PDFReader
 
         return savedImages;
     }
+
+    public static async Task<string> ReadPdfToMarkdownFromUrlAsync(string url, CancellationToken cancellationToken = default)
+    {
+        var (stream, _, _) = await RemoteDocumentLoader.Default.DownloadWithMetadataAsync(url, cancellationToken);
+        using (stream)
+        {
+            return ReadPdfToMarkdown(stream);
+        }
+    }
 }
 
 /// <summary>
@@ -506,16 +516,20 @@ public class TextBlockAnalyzer
     }
 
     private bool DetectHeading(TextBlock block)
-    {
-        if (!block.Words.Any())
-            return false;
+        {
+            if (!block.Words.Any())
+                return false;
 
-        // 通过字体��小和样式判断是否为标题
-        var averageFontSize = block.Words.SelectMany(w => w.Letters)
-            .Average(l => l.FontSize);
+            var averageFontSize = block.Words.SelectMany(w => w.Letters)
+                .Average(l => l.FontSize);
 
-        return averageFontSize > 14 || (DetectBold(block.Words) && block.Text.Length < 100);
-    }
+            bool isLargeFont = averageFontSize > 14;
+            bool isBoldText = DetectBold(block.Words);
+            bool isShortText = block.Text.Length < 100 && block.Text.Length > 0;
+            bool hasNoPunctuationEnd = !block.Text.TrimEnd().EndsWith(".") && !block.Text.TrimEnd().EndsWith("。");
+
+            return (isLargeFont || (isBoldText && isShortText)) && hasNoPunctuationEnd;
+        }
 
     private bool DetectBulletListItem(TextBlock block)
     {

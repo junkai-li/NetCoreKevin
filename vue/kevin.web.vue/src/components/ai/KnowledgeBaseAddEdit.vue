@@ -68,7 +68,7 @@
         business="AIKmss"
         :keyValue=form.id
         sign="AIKmssDetailFlies"
-        :accept="'.txt,.pdf,.md,.docx,.html,.doc'"
+        :accept="'.txt,.pdf,.md,.docx,.html,.doc,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.bmp,.webp,.svg'"
         :multiple="true"
         :max-count="30"
         @upload-success="beforeUploadSuccess"
@@ -583,9 +583,11 @@ const getFileType = (fileName) => {
   const ext = fileName.split('.').pop()?.toLowerCase();
   if(['pdf'].includes(ext)) return 'PDF';
   if(['doc', 'docx'].includes(ext)) return 'Word';
+  if(['xls', 'xlsx'].includes(ext)) return 'Excel';
   if(['txt'].includes(ext)) return 'Text';
   if(['md'].includes(ext)) return 'Markdown';
   if(['html', 'htm'].includes(ext)) return 'Html';
+  if(['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(ext)) return 'Image';
   return 'Other';
 };
 

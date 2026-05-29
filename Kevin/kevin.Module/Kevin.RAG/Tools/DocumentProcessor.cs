@@ -54,16 +54,25 @@ namespace Kevin.RAG.Tools
             {
                 var paragraphLength = paragraph.Length;
 
-                // 如果当前块加上新段落超过限制，保存当前块
                 if (currentLength + paragraphLength > _chunkSize && currentChunk.Count > 0)
                 {
                     chunks.Add(string.Join("\n\n", currentChunk));
 
-                    // 保留最后一个段落作为重叠
                     if (_chunkOverlap > 0 && currentChunk.Count > 0)
                     {
-                        currentChunk = new List<string> { currentChunk[^1] };
-                        currentLength = currentChunk[0].Length;
+                        var lastParagraph = currentChunk[^1];
+                        var overlapLength = lastParagraph.Length;
+                        var neededLength = _chunkSize - paragraphLength;
+
+                        if (neededLength > 0 && neededLength < overlapLength)
+                        {
+                            currentChunk = new List<string> { lastParagraph.Substring(overlapLength - neededLength) };
+                        }
+                        else
+                        {
+                            currentChunk.Clear();
+                        }
+                        currentLength = currentChunk.Sum(p => p.Length);
                     }
                     else
                     {
@@ -108,8 +117,9 @@ namespace Kevin.RAG.Tools
                     }
                 }
 
+            var effectiveOverlap = Math.Min(_chunkOverlap, length - 1);
                 chunks.Add(content.Substring(start, length).Trim());
-                start += length - _chunkOverlap;
+                start += Math.Max(1, length - effectiveOverlap);
             }
 
             return chunks;

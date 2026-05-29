@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Kevin\Kevin.Web.Basics\Kevin.Web.Basics.csproj" />
+    <ProjectReference Include="..\..\Kevin\kevin.Module\Kevin.RAG\Kevin.RAG.csproj" />
     <ProjectReference Include="..\Testing.Shared\Kevin.Testing.Shared.csproj" />
   </ItemGroup>
 

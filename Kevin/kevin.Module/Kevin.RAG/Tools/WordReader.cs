@@ -1,6 +1,7 @@
-﻿using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Packaging;
 using System.Text;
 using System.Xml;
+using Kevin.RAG.Tools;
 
 namespace Kevin.RAG;
 
@@ -370,6 +371,15 @@ public class WordReader
 
                 markdownBuilder.AppendLine();
             }
+        }
+    }
+
+    public static async Task<string> ReadFromUrlAsync(string url, CancellationToken cancellationToken = default)
+    {
+        var (stream, _, _) = await RemoteDocumentLoader.Default.DownloadWithMetadataAsync(url, cancellationToken);
+        using (stream)
+        {
+            return ReadParagraphs(stream);
         }
     }
 }

@@ -313,6 +313,12 @@ namespace kevin.Application.Services.AI
                                                 case "html":
                                                     content = await HtmlReader.ExtractTextFromStreamAsync(stream);
                                                     break;
+                                                case "image":
+                                                    content = ImageReader.DescribeImage(stream);
+                                                    break;
+                                                case "excel":
+                                                    content = ExcelReader.ReadExcelToMarkdown(stream, FileName);
+                                                    break;
                                                 default:
                                                     content = TextStreamReader.ReadTextFromStream(stream);
                                                     break;

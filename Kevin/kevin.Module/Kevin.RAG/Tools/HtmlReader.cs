@@ -1,4 +1,4 @@
-﻿using HtmlAgilityPack;
+using HtmlAgilityPack;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -12,32 +12,22 @@ namespace Kevin.RAG.Tools
 
             var doc = new HtmlDocument();
 
-            // Ensure we read from stream start when possible
-            if (stream.CanSeek)
+            string content;
+            if (stream.CanSeek && stream.Length > 0)
             {
-                try { stream.Position = 0; } catch { }
-            }
-
-            // Read stream without closing underlying stream
-            using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true);
-            string content = await reader.ReadToEndAsync();
-
-            // If content empty, try loading directly from stream copy (handles some encodings/BOM cases)
-            if (string.IsNullOrWhiteSpace(content))
-            {
-                if (stream.CanSeek)
-                {
-                    try { stream.Position = 0; } catch { }
-                }
+                stream.Position = 0;
                 using var ms = new MemoryStream();
                 await stream.CopyToAsync(ms);
                 ms.Position = 0;
-                doc.Load(ms);
+                content = Encoding.UTF8.GetString(ms.ToArray());
             }
             else
             {
-                doc.LoadHtml(content);
+                using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true);
+                content = await reader.ReadToEndAsync();
             }
+
+            doc.LoadHtml(content);
 
             // Remove scripts and styles
             var scripts = doc.DocumentNode.SelectNodes("//script");
@@ -146,6 +136,15 @@ namespace Kevin.RAG.Tools
         private static bool IsBlockElement(string tagName)
         {
             return Array.IndexOf(BlockElements, tagName) >= 0;
+        }
+
+        public static async Task<string> ExtractTextFromUrlAsync(string url, CancellationToken cancellationToken = default)
+        {
+            var (stream, _, _) = await RemoteDocumentLoader.Default.DownloadWithMetadataAsync(url, cancellationToken);
+            using (stream)
+            {
+                return await ExtractTextFromStreamAsync(stream);
+            }
         }
     }
 }
