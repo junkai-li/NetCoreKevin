@@ -205,13 +205,13 @@
       <!-- 主要内容 -->
       <a-layout-content class="content">
         <div class="content-wrapper">
-          <!-- 标签页内容区域 -->
-          <div v-if="openTabs.length > 0" class="tab-content">
-            <template v-for="tab in openTabs" :key="tab.key">
-              <div v-show="activeTabKey === tab.key" class="tab-pane">
-                <router-view :key="tab.refreshKey" />
-              </div>
-            </template>
+          <!-- 标签页内容区域 - 只渲染当前活跃的标签页 -->
+          <div v-if="openTabs.length > 0 && activeTabKey" class="tab-content">
+            <component
+              v-if="activeTab"
+              :is="getComponentByKey(activeTab.key)"
+              v-bind="getComponentProps(activeTab.key)"
+            />
           </div>
           <!-- 无标签页时显示默认内容 -->
           <router-view v-else />
@@ -270,6 +270,28 @@ import "../css/kevinHome.css";
 import hedeImage from "../assets/hede.png"; // 导入用户头像图片
 import logoImage from "../assets/logo.png"; // 导入logo图片
 
+// 导入页面组件
+import UserList from "./UserList.vue";
+import UserRole from "./UserRole.vue";
+import PermissionMg from "./PermissionMg.vue";
+import DicConfig from "./DicMg.vue";
+import SystemAnnouncement from "./SystemAnnouncement.vue";
+import HttpLogMg from "./HttpLog.vue";
+import OSLogMG from "./OSLog.vue";
+import AiAppsMg from "./ai/AgentManagement.vue";
+import AiPromptsMg from "./ai/PromptManagement.vue";
+import AiKmssMg from "./ai/KnowledgeBaseManagement.vue";
+import AiModelMg from "./ai/ModelManagement.vue";
+import AiSkillToolMg from "./ai/SkillToolManagement.vue";
+import MyMessages from "./MyMessages.vue";
+import MyAIChat from "./ai/MyAIChat.vue";
+import MyAITasks from "./ai/MyAITasks.vue";
+import MyAgentList from "./ai/MyAgentList.vue";
+import PositionManagement from "./organizational/PositionManagement.vue";
+import DepartmentManagement from "./organizational/DepartmentManagement.vue";
+import TenantManagement from "./TenantManagement.vue";
+import CodeGenerator from "./CodeGenerator.vue";
+
 const router = useRouter();
 
 const collapsed = ref(false);
@@ -279,10 +301,45 @@ const openKeys = ref(["user-management"]);
 // 标签页相关
 const openTabs = ref([]);
 const activeTabKey = ref('');
-const tabIndex = ref(1);
 
-// 路由页面缓存
-const pageCache = reactive({});
+// 路由key到组件的映射
+const routeComponentMap = {
+  'user-list': UserList,
+  'user-role': UserRole,
+  'user-permission': PermissionMg,
+  'system-dic': DicConfig,
+  'system-announcement': SystemAnnouncement,
+  'log-management': HttpLogMg,
+  'oslog': OSLogMG,
+  'ai-appsmg': AiAppsMg,
+  'ai-promptsmg': AiPromptsMg,
+  'ai-kmssmg': AiKmssMg,
+  'ai-modelmg': AiModelMg,
+  'ai-skilltoolmg': AiSkillToolMg,
+  'my-message': MyMessages,
+  'my-ai-chat': MyAIChat,
+  'my-ai-tasks': MyAITasks,
+  'my-ai-agents': MyAgentList,
+  'organizational-position': PositionManagement,
+  'organizational-department': DepartmentManagement,
+  'system-tenant': TenantManagement,
+  'system-code-generator': CodeGenerator,
+};
+
+// 计算当前活动的标签页
+const activeTab = computed(() => {
+  return openTabs.value.find(tab => tab.key === activeTabKey.value);
+});
+
+// 根据key获取组件
+const getComponentByKey = (key) => {
+  return routeComponentMap[key] || null;
+};
+
+// 获取组件props
+const getComponentProps = (key) => {
+  return { key: `tab_${key}_${Date.now()}` };
+};
 
 // 页面标题映射
 const pageTitleMap = {
@@ -324,17 +381,11 @@ const openTab = (key, title) => {
     key: key,
     title: title,
     closable: true,
-    cacheKey: `page_cache_${tabIndex.value++}`,
+    cacheKey: routeComponentMap[key] || key,
     refreshKey: Date.now()
   };
   openTabs.value.push(newTab);
   activeTabKey.value = key;
-
-  // 创建页面容器
-  pageCache[newTab.cacheKey] = {
-    component: null,
-    key: key
-  };
 };
 
 // 关闭标签页
@@ -355,8 +406,6 @@ const closeTab = (key) => {
   }
 
   // 移除标签页
-  const tab = openTabs.value[index];
-  delete pageCache[tab.cacheKey];
   openTabs.value.splice(index, 1);
 };
 

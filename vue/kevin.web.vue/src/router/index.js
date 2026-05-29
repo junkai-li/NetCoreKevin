@@ -8,6 +8,13 @@ import UserProfile from '@/pages/UserProfile.vue';
 import UnderDevelopment from '@/pages/UnderDevelopment.vue';
 import { getTokenUser } from "../api/userapi";
 import { message } from 'ant-design-vue';
+
+// 用户信息缓存
+let userCache = {
+  data: null,
+  timestamp: 0
+};
+const USER_CACHE_TIMEOUT = 10 * 60 * 1000; // 10分钟缓存
 import PermissionMg from '@/pages/PermissionMg.vue'; 
 import HttpLogMg from '@/pages/HttpLog.vue'; 
 import OSLogMG from '@/pages/OSLog.vue';   
@@ -181,33 +188,46 @@ router.beforeEach((to, from, next) => {
   console.log("路由守卫");
   // 检查是否需要认证
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-  const isAuthenticated = localStorage.getItem('token'); 
+  const isAuthenticated = localStorage.getItem('token');
+
   if (isAuthenticated) {
-   getTokenUser().then((response) => 
-        {
-          if(response.code==200){ 
-            if (response.code == 200) {
-               localStorage.setItem('user',JSON.stringify(response.data));
-               console.warn(response.data);
-            }
-          }else{
-            message.warning("登录失败");
-            localStorage.removeItem('token');
-              localStorage.removeItem('user');
-            next('/login');
-          }
- });
+    // 检查缓存是否有效
+    const now = Date.now();
+    const isCacheValid = userCache.data && (now - userCache.timestamp < USER_CACHE_TIMEOUT);
+
+    if (isCacheValid) {
+      // 使用缓存的用户信息
+      localStorage.setItem('user', JSON.stringify(userCache.data));
+      console.warn('使用缓存用户信息:', userCache.data);
+    } else {
+      // 缓存失效，重新获取用户信息
+      getTokenUser().then((response) => {
+        if (response.code == 200) {
+          userCache.data = response.data;
+          userCache.timestamp = now;
+          localStorage.setItem('user', JSON.stringify(response.data));
+          console.warn(response.data);
+        } else {
+          message.warning("登录失败");
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          userCache.data = null;
+          userCache.timestamp = 0;
+          next('/login');
+        }
+      });
+    }
   }
-   
+
   if (requiresAuth && !isAuthenticated) {
-     console.log("login");
+    console.log("login");
     next('/login');
   } else if (to.path === '/login' && isAuthenticated) {
     next('/home');
-     console.log("home");
+    console.log("home");
   } else {
     next();
-     console.log("next");
+    console.log("next");
   }
 });
 

@@ -5,8 +5,8 @@
 </template>
 
 <script setup>
-import { theme } from 'ant-design-vue';
 import { ref, onMounted } from 'vue';
+import { theme } from 'ant-design-vue';
 
 const colorPrimary = ref('#1677ff');
 

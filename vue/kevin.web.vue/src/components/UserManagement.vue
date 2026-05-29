@@ -150,7 +150,6 @@
 </template>
 
 <script setup>
-/* eslint-disable no-undef */
 import { ref, computed, onMounted, watch } from "vue";
 import {
   UserOutlined,
@@ -166,6 +165,7 @@ import hedeImage from "../assets/hede.png"; // 导入图片
 import UserAddEdit from "./UserAddEdit.vue";
 
 // Props
+// eslint-disable-next-line no-undef
 const props = defineProps({
   // 组件标题
   title: {
@@ -210,6 +210,7 @@ const props = defineProps({
 });
 
 // Emit事件
+// eslint-disable-next-line no-undef
 const emit = defineEmits(['user-added', 'user-updated', 'user-deleted', 'user-exported', 'load-success', 'load-error']);
 
 // 数据加载状态
@@ -504,6 +505,7 @@ const handleTableChange = (pager, filters, sorter) => {
 };
 
 // 公开方法：重新加载数据
+// eslint-disable-next-line no-undef
 defineExpose({
   reload: fetchUserList
 });
