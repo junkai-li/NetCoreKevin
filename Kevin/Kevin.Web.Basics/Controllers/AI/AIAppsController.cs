@@ -7,7 +7,6 @@ using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using Web.Filters;
 
 namespace Kevin.Web.Basics.AI
 {
@@ -40,11 +39,11 @@ namespace Kevin.Web.Basics.AI
         {
             var result = await _service.GetPageData(par);
             return result;
-        } 
+        }
 
         [HttpGet("GetALLList")]
         [ActionDescription("获取AI应用列表")]
-        [HttpLog("AI应用管理", "获取AI应用列表")] 
+        [HttpLog("AI应用管理", "获取AI应用列表")]
         public async Task<List<AIAppsDto>> GetALLList()
         {
             var result = await _service.GetALLList();
@@ -79,7 +78,7 @@ namespace Kevin.Web.Basics.AI
         /// </summary> 
         /// <returns></returns>
         [HttpGet("NewInitialization")]
-        [ActionDescription("智能体初始化")] 
+        [ActionDescription("智能体初始化")]
         [SkipAuthority]
 
         public async Task<AIAppsDto> NewInitialization()

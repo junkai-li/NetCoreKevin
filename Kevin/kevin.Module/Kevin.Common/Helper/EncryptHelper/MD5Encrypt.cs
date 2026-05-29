@@ -54,27 +54,27 @@ namespace Kevin.Common
             }
             return sb.ToString();
         }
-      
-            public static string CreateMD5(string str)
+
+        public static string CreateMD5(string str)
+        {
+            //创建MD5对象
+            MD5 md5 = MD5.Create();
+            //开始加密
+            //需要将字符处转换成字节数组
+            byte[] buffer = Encoding.UTF8.GetBytes(str);
+            //返回一个加密好的字节数组
+            byte[] MD5Buffer = md5.ComputeHash(buffer);
+            //将字节数组中的每个元素ToString()
+            string strNew = "";
+            for (int i = 0; i < MD5Buffer.Length; i++)
             {
-                //创建MD5对象
-                MD5 md5 = MD5.Create();
-                //开始加密
-                //需要将字符处转换成字节数组
-                byte[] buffer = Encoding.UTF8.GetBytes(str);
-                //返回一个加密好的字节数组
-                byte[] MD5Buffer = md5.ComputeHash(buffer);
-                //将字节数组中的每个元素ToString()
-                string strNew = "";
-                for (int i = 0; i < MD5Buffer.Length; i++)
-                {
-                    strNew += MD5Buffer[i].ToString("x2");
-                }
-                return strNew;
+                strNew += MD5Buffer[i].ToString("x2");
             }
+            return strNew;
+        }
 
 
-       
+
         /// <summary>
         /// MD5加密,和动网上的16/32位MD5加密结果相同,
         /// 使用的UTF8编码
@@ -84,7 +84,7 @@ namespace Kevin.Common
         /// <returns>加密后的字串</returns>
         public static string EncryptMd5(string source, int length = 32)//默认参数
         {
-            if (string.IsNullOrEmpty(source)) return string.Empty; 
+            if (string.IsNullOrEmpty(source)) return string.Empty;
 
             HashAlgorithm provider = CryptoConfig.CreateFromName("MD5") as HashAlgorithm;
             byte[] bytes = Encoding.UTF8.GetBytes(source);//这里需要区别编码的

@@ -7,13 +7,13 @@ namespace kevin.AI.AgentFramework.Tools
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // RunPython — 一个 执行Python脚本的工具
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    public class PythonToolsService: IPythonToolsService
+    public class PythonToolsService : IPythonToolsService
     {
         private object? _data { get; set; }
         public void InitData(object data)
         {
             _data = data;
-        } 
+        }
 
         [Description("执行Python脚本。通过System.Diagnostics.Process类来启动一个新的进程，并运行Python.py的脚本。这种方法适用于Windows和Linux系统。")]
         public async Task<string> RunPythonPy([Description("需要执行的python脚本路径。例如：'Skills\\python-skills\\hello-python\\scripts\\hello-python.py'")]
@@ -162,6 +162,6 @@ namespace kevin.AI.AgentFramework.Tools
             }
         }
 
-    
+
     }
 }

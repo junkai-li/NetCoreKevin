@@ -14,7 +14,7 @@ namespace Kevin.Authentication.Jwt.Service
     {
         private readonly IConfiguration _config;
         private readonly ICacheService _cacheService;
-        private readonly IConfigurationSection jwtSettings; 
+        private readonly IConfigurationSection jwtSettings;
         public TokenService(IConfiguration config, ICacheService cacheService)
         {
             _config = config;
@@ -27,7 +27,7 @@ namespace Kevin.Authentication.Jwt.Service
         /// <param name="user"></param>
         /// <returns></returns>
         public string GenerateAccessToken(UserDto user)
-        { 
+        {
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings["Key"]!));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var claims = new Claim[]
@@ -55,7 +55,7 @@ namespace Kevin.Authentication.Jwt.Service
                 {
                     RefreshExpireTime = expires,
                     User = user
-                }.ToJson(),timeOut: TimeSpan.FromDays(double.Parse(jwtSettings["RefreshTokenExpirationDays"]!)));
+                }.ToJson(), timeOut: TimeSpan.FromDays(double.Parse(jwtSettings["RefreshTokenExpirationDays"]!)));
             }
             return tokens;
         }
@@ -73,7 +73,7 @@ namespace Kevin.Authentication.Jwt.Service
                 {
                     _cacheService.Remove(tokenStr);
                     var refreshTokenInfo = reData.ToObject<RefreshTokenDto>();
-                    var user = refreshTokenInfo.User; 
+                    var user = refreshTokenInfo.User;
                     var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings["Key"]!));
                     var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
                     var claims = new Claim[]

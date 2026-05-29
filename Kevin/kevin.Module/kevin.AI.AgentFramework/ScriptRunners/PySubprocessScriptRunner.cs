@@ -1,17 +1,13 @@
 ﻿using Microsoft.Agents.AI;
-using Microsoft.Extensions.AI;
-using Microsoft.Extensions.Logging;
-using ModelContextProtocol.Protocol;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Runtime.InteropServices;
 
 namespace kevin.AI.AgentFramework.ScriptRunners
 {
     public class PySubprocessScriptRunner
-    {  
+    {
         // 公共的 ProcessStartInfo 构建器，避免重复配置
         private static ProcessStartInfo CreateStartInfo(string fileName, string arguments)
         {
@@ -36,7 +32,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
         }
 
 #pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
-        public static async Task<object?> StaticRunAsync(AgentFileSkill skill,  AgentFileSkillScript script,    JsonElement? arguments, IServiceProvider? serviceProvider, CancellationToken cancellationToken)
+        public static async Task<object?> StaticRunAsync(AgentFileSkill skill, AgentFileSkillScript script, JsonElement? arguments, IServiceProvider? serviceProvider, CancellationToken cancellationToken)
         {
             Console.WriteLine("执行脚本文件: {0}", script.FullPath);
             // 1. 构造脚本文件的完整路径

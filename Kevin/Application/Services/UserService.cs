@@ -345,7 +345,7 @@ namespace kevin.Application
                 CreateTime = t.CreateTime,
                 Status = t.Status,
                 RecentLoginTime = t.RecentLoginTime,
-                TenantId=t.TenantId
+                TenantId = t.TenantId
             }).FirstOrDefault();
             if (user == default)
             {

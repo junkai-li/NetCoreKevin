@@ -1,18 +1,9 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using kevin.AI.AgentFramework.Interfaces.Tasks;
-using kevin.Domain.Interfaces.IServices.AI;
+﻿using kevin.AI.AgentFramework.Interfaces.Tasks;
 using kevin.Domain.Share.Attributes;
-using kevin.Domain.Share.Dtos;
-using kevin.Domain.Share.Dtos.AI;
 using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Kevin.Web.Basics.Controllers.AI
 {

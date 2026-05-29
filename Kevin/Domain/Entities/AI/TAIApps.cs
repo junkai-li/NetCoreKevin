@@ -138,7 +138,7 @@
         [Description("AI请求授权白名单 *为所有，逗号分隔多个域名前缀")]
         [DefaultValue("*")]
         [MaxLength(500)]
-        public string AuthorizedDomains { get; set; }= "*";
+        public string AuthorizedDomains { get; set; } = "*";
 
     }
 }

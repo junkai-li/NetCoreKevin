@@ -1,12 +1,11 @@
-﻿using kevin.Domain.Entities;
-namespace kevin.Domain.Interfaces.IServices
+﻿namespace kevin.Domain.Interfaces.IServices
 {
     /// <summary>
     /// ����ӿ�
     /// </summary>
     public interface ILogService : IBaseService
     {
-         /// <summary>
+        /// <summary>
         /// ��ȡ��ҳ����
         /// </summary>
         /// <param name="dtoPagePar"></param>

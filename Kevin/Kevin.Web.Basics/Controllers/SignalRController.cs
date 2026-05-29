@@ -1,5 +1,4 @@
-﻿using kevin.Domain.Interfaces.IServices.AI;
-using kevin.Permission.Permission.Attributes;
+﻿using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using Kevin.SignalR.Service;
 using Microsoft.AspNetCore.Authorization;
@@ -18,8 +17,8 @@ namespace Kevin.Web.Basics.Controllers
     [MyArea("SignalR管理", "SignalR")]
     [MyModule("SignalR消息管理", "SignalRMsg")]
     public class SignalRController : ApiControllerBase
-    {  
-        private ISignalRMsgService _service { get; set; } 
+    {
+        private ISignalRMsgService _service { get; set; }
         public SignalRController(ISignalRMsgService service)
         {
             this._service = service;
@@ -53,7 +52,7 @@ namespace Kevin.Web.Basics.Controllers
         /// 获取租户所有身份id
         /// </summary> 
         /// <returns></returns>
-        [HttpGet("GetTenantIdentityIds")] 
+        [HttpGet("GetTenantIdentityIds")]
         [ActionDescription("获取租户所有身份id")]
         [SkipAuthority]
         public List<string> GetTenantIdentityIds()
@@ -66,7 +65,7 @@ namespace Kevin.Web.Basics.Controllers
         /// 私发信息
         /// </summary> 
         /// <returns></returns>
-        [HttpGet("SendIdentityIdMsg")] 
+        [HttpGet("SendIdentityIdMsg")]
         [ActionDescription("私发信息")]
         [SkipAuthority]
         public async Task<bool> SendIdentityIdMsg([Required] string method, [Required] string msg, [Required] string identityId)

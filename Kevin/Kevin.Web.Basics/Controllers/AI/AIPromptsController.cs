@@ -7,7 +7,6 @@ using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using Web.Filters;
 
 namespace Kevin.Web.Basics.AI
 {
@@ -43,7 +42,7 @@ namespace Kevin.Web.Basics.AI
 
         [HttpGet("GetALLList")]
         [ActionDescription("获取提示词列表")]
-        [HttpLog("提示词管理", "获取提示词列表")] 
+        [HttpLog("提示词管理", "获取提示词列表")]
         public async Task<List<AIPromptsDto>> GetALLList()
         {
             var result = await _service.GetALLList();

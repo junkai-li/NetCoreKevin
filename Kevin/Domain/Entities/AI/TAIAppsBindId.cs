@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace kevin.Domain.Entities.AI
+﻿namespace kevin.Domain.Entities.AI
 {
     /// <summary>
     /// 智能体用户角色授权绑定-用于权限管理

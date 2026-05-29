@@ -1,5 +1,4 @@
-﻿using kevin.Cache;
-using Kevin.SignalR.Models;
+﻿using Kevin.SignalR.Models;
 using Kevin.SignalR.Service;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -36,7 +35,7 @@ namespace Kevin.SignalR
             {
 
                 throw new ArgumentException("SignalR-Redis注入失败，请检查你的SignalrRdisSetting配置是否正确", ex);
-            } 
+            }
         }
     }
 }

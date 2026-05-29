@@ -1,6 +1,4 @@
-﻿using Microsoft.Agents.AI;
-
-namespace Kevin.AI.Dto
+﻿namespace Kevin.AI.Dto
 {
     public class AISetting
     {
@@ -44,7 +42,7 @@ namespace Kevin.AI.Dto
         /// <summary>
         /// 是否开启流式请求
         /// </summary>
-        public bool IsStreame { get; set; } = true; 
+        public bool IsStreame { get; set; } = true;
 
         /// <summary>
         /// 流式请求回调

@@ -1,13 +1,8 @@
 ﻿using kevin.Domain.Share.Dtos.Bases;
 using kevin.Domain.Share.Dtos.System;
 using kevin.Domain.Share.Enums;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Domain.Share.Dtos.AI
 {
@@ -26,7 +21,7 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary> 
         [Description("方法")]
         [StringLength(100)]
-        public String? ClassMethod { get; set; } = ""; 
+        public String? ClassMethod { get; set; } = "";
 
         /// <summary>
         /// 描述

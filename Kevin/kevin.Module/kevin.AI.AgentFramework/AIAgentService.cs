@@ -1,17 +1,9 @@
 ﻿using HttpMataki.NET.Auto;
-using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
-using kevin.AI.AgentFramework.ScriptRunners;
-using kevin.AI.AgentFramework.SkillClass;
-using kevin.AI.AgentFramework.Tools;
 using Kevin.AI.Dto;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.VisualBasic;
-using ModelContextProtocol.Protocol;
-using ModelContextProtocol.Server;
 using Newtonsoft.Json;
 using OpenAI;
 using OpenAI.Responses;
@@ -19,8 +11,6 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text;
 using System.Text.Json;
-using static HarmonyLib.Code;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace kevin.AI.AgentFramework
 {
     /// <summary>
@@ -39,7 +29,7 @@ namespace kevin.AI.AgentFramework
         /// <param name="msg"></param> 
         /// <param name="chatClientAgentOptions"></param> 
         /// <returns></returns>
-        public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, string msg,CancellationToken cancellationToken=default)
+        public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, string msg, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();//是否已经中止，若已请求取消则抛出异常
             if (aISetting.IsHttpLog)

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace kevin.FileStorage.QiniuCloud.Models
+﻿namespace kevin.FileStorage.QiniuCloud.Models
 {
     /// <summary>
     /// 七牛云存储配置

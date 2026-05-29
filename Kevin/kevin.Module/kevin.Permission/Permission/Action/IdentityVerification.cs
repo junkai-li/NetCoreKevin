@@ -4,13 +4,11 @@ using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using Kevin.Authentication.Jwt.IService;
 using Kevin.Common.App;
-using Kevin.Common.Helper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace kevin.Permission.Permission.Action
 {
@@ -120,7 +118,7 @@ namespace kevin.Permission.Permission.Action
                     var cacheService = httpContext.RequestServices.GetService<ICacheService>();
                     if (cacheService != default)
                     {
-                        var tokenService = httpContext.RequestServices.GetService<ITokenService>(); 
+                        var tokenService = httpContext.RequestServices.GetService<ITokenService>();
                         var resultToken = tokenService.RefreshTokenAccessToken(httpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
                         if (!string.IsNullOrEmpty(resultToken))
                         {
@@ -138,7 +136,7 @@ namespace kevin.Permission.Permission.Action
                 }
             }
 
-        } 
+        }
 
 
         /// <summary>

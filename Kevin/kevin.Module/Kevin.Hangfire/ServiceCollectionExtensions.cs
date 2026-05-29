@@ -54,11 +54,11 @@ namespace Kevin.Hangfire
                     }
                 }
                 catch (Exception ex)
-                { 
+                {
                     throw new ArgumentException("Hangfire自动任务注入失败，请检查你的HangfireRedisSetting配置是否正确", ex);
                 }
-                        
-             
+
+
             }
         }
 

@@ -6,7 +6,7 @@ namespace kevin.Domain.Interfaces.IServices.AI
     /// </summary>
     public interface IAISkillToolBindIdService : IBaseService
     {
- 
+
         /// <summary>
         /// 获取管理Id的所有列表
         /// </summary>

@@ -49,6 +49,6 @@ namespace kevin.Domain.Entities.AI
         /// 矢量值大小
         /// </summary> 
         [Description("矢量值大小")]
-        public int EmbeddingValueSize { get; set; } = 2048; 
+        public int EmbeddingValueSize { get; set; } = 2048;
     }
 }

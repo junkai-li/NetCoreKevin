@@ -4,10 +4,7 @@ using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using kevin.FileStorage;
-using kevin.RepositorieRps.Repositories;
 using Kevin.Common;
-using NPOI.SS.Formula.Functions;
-using System;
 
 namespace kevin.Application.Services.AI
 {
@@ -40,9 +37,9 @@ namespace kevin.Application.Services.AI
             {
                 data = data.Where(t => t.SkillToolType == (AISkillToolTypeEnums)dtoPagePar.Parameter);
             }
-            result.total = await data.CountAsync(); 
+            result.total = await data.CountAsync();
             var dbdata = await data.Skip(skip).Take(dtoPagePar.pageSize).OrderByDescending(x => x.CreateTime).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
-            result.data = dbdata.MapToList<TAISkillToolManagement, AISkillToolManagementDto>();  
+            result.data = dbdata.MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
             var flieData = _FileRp.Query().Where(t => t.IsDelete == false && t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && result.data.Select(a => a.Id.ToString()).ToList().Contains(t.TableId)).ToList().MapToList<TFile, FileDto>().ToList();
             foreach (var item in result.data)
             {
@@ -160,8 +157,8 @@ namespace kevin.Application.Services.AI
 
         public async Task<List<AISkillToolManagementDto>> GetAllSkills()
         {
-             return (await AISkillToolManagementRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Skill && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement,AISkillToolManagementDto>();
-        
+            return (await AISkillToolManagementRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Skill && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
+
         }
 
         public async Task<List<AISkillToolManagementDto>> GetAllTools()

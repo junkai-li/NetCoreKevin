@@ -1,7 +1,6 @@
 ﻿using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
-using Kevin.RepositorieRps.Repositories.AI;
 
 namespace kevin.Application.Services.AI
 {
@@ -64,4 +63,4 @@ namespace kevin.Application.Services.AI
             return true;
         }
     }
-    }
+}

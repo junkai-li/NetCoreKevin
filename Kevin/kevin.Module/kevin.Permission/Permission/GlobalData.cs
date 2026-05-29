@@ -15,7 +15,7 @@ namespace kevin.Permission.Permisson
         {
             get
             {
-                if (_allControllers==default || _allControllers.Count == 0)
+                if (_allControllers == default || _allControllers.Count == 0)
                 {
                     _allControllers = FrameworkServiceExtension.GetAllControllers(AllAssembly);
                 }

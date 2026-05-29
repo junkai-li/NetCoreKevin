@@ -1,34 +1,22 @@
 ﻿using Common.Json;
-using Consul;
-using Cronos;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Hangfire;
 using Hangfire.Storage;
-using HarmonyLib;
-using kevin.AI.AgentFramework;
-using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Interfaces.Tasks;
 using kevin.AI.AgentFramework.ScriptRunners;
-using kevin.AI.AgentFramework.SkillClass;
-using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Interfaces.IRepositories.AI;
-using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Enums;
-using kevin.RepositorieRps.Repositories.AI;
 using Kevin.AI.Dto;
 using Kevin.Common.Extension;
 using Kevin.log4Net;
-using Kevin.RAG.Ollama;
-using Kevin.SignalR.Service;
 using Medallion.Threading;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
-using static Qdrant.Client.Grpc.BinaryQuantizationQueryEncoding.Types;
 
 namespace kevin.Application.Services.AI
 {
@@ -252,7 +240,7 @@ namespace kevin.Application.Services.AI
                                 {
                                     AIUrl = aIModels.EndPoint,
                                     AIKeySecret = aIModels.ModelKey,
-                                    AIParData = new {  AppId = aiapp.Id, AuthorizedDomains = aiapp.AuthorizedDomains },
+                                    AIParData = new { AppId = aiapp.Id, AuthorizedDomains = aiapp.AuthorizedDomains },
                                     AIDefaultModel = aIModels.ModelName,
                                     IsStreame = false,
                                     IsHttpLog = aiapp.IsHttpLog,

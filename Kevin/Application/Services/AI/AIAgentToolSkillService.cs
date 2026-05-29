@@ -1,16 +1,8 @@
-﻿using kevin.AI.AgentFramework.Const;
-using kevin.AI.AgentFramework.Interfaces;
+﻿using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Interfaces.Tasks;
 using kevin.AI.AgentFramework.Interfaces.Tools;
-using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Interfaces.IServices.AI;
-using kevin.Domain.Share.Dtos.AI;
 using Microsoft.Extensions.AI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Application.Services.AI
 {

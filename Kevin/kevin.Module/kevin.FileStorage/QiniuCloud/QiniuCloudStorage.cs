@@ -3,11 +3,6 @@ using Microsoft.Extensions.Options;
 using Qiniu.Http;
 using Qiniu.Storage;
 using Qiniu.Util;
-using System.IO;
-using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
 
 namespace kevin.FileStorage.QiniuCloud
 {

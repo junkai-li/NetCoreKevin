@@ -1,11 +1,8 @@
 ﻿using Kevin.Common.Helper;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Text;
 
 namespace Kevin.Common.App
 {
@@ -21,7 +18,7 @@ namespace Kevin.Common.App
 
             try
             {
-                if (httpContext != default && httpContext.HttpContext != default )
+                if (httpContext != default && httpContext.HttpContext != default)
                 {
                     var jwt = ConfigHelper.GetSection("Jwt");
                     var Authorization = httpContext.Current().Request.Headers["Authorization"].ToString();
@@ -35,7 +32,7 @@ namespace Kevin.Common.App
 
                     return value;
                 }
-                return  default;
+                return default;
             }
             catch
             {
@@ -59,7 +56,7 @@ namespace Kevin.Common.App
 
             string token = authorizationHeader.Substring("Bearer ".Length).Trim();
             if (string.IsNullOrEmpty(token))
-                return false; 
+                return false;
             return true;
         }
 

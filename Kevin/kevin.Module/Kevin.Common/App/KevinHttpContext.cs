@@ -106,7 +106,7 @@ namespace Kevin.Common.App
         /// </summary>
         public static List<dtoKeyValue> GetParameter(this IHttpContextAccessor httpContext)
         {
-            if (httpContext == default ||   httpContext.HttpContext == default)
+            if (httpContext == default || httpContext.HttpContext == default)
             {
                 return new List<dtoKeyValue>();
             }

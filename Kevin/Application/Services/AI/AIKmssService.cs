@@ -11,7 +11,6 @@ using Kevin.RAG.Ollama;
 using Kevin.RAG.Tools;
 using Medallion.Threading;
 using NetCore.Util;
-using NPOI.SS.Formula.Functions;
 
 namespace kevin.Application.Services.AI
 {
@@ -60,9 +59,9 @@ namespace kevin.Application.Services.AI
             int skip = dtoPagePar.GetSkip();
             var result = new dtoPageData<AIKmssDto>();
             var data = AIKmssRp.Query(isDataPer: true).Where(t => t.IsDelete == false);
-            result.total = await data.CountAsync(); 
+            result.total = await data.CountAsync();
             var dbdata = await data.Skip(skip).Take(dtoPagePar.pageSize).OrderByDescending(x => x.CreateTime).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
-            result.data = dbdata.MapToList<TAIKmss, AIKmssDto>(); 
+            result.data = dbdata.MapToList<TAIKmss, AIKmssDto>();
             var aikmsData = await AIKmsDetailsRp.Query().Where(t => t.IsDelete == false && result.data.Select(t => t.Id).ToList().Contains(t.KmsId)).ToListAsync();
             var flieData = FileRp.Query().Where(t => t.IsDelete == false && aikmsData.Select(a => a.FileId.ToTryInt64()).ToList().Contains(t.Id)).ToList().MapToList<TFile, FileDto>().ToList();
             foreach (var item in result.data)
@@ -83,7 +82,7 @@ namespace kevin.Application.Services.AI
                 }
                 item.CreateUser = dbdata.FirstOrDefault(d => d.Id == item.Id)?.CreateUser?.Name;
                 item.UpdateUser = dbdata.FirstOrDefault(d => d.Id == item.Id)?.UpdateUser?.Name;
-            } 
+            }
             result.pageSize = dtoPagePar.pageSize;
             result.pageNum = dtoPagePar.pageNum;
             return result;
@@ -96,7 +95,7 @@ namespace kevin.Application.Services.AI
                 throw new UserFriendlyException("不存在或已删除");
             }
             data.AIKmssDetailsList = (await AIKmsDetailsRp.Query().Where(t => t.IsDelete == false && t.KmsId == id).ToListAsync()).MapToList<TAIKmsDetails, AIKmsDetailsDto>();
-             var flieData = FileRp.Query().Where(t => t.IsDelete == false && data.AIKmssDetailsList.Select(a => a.FileId.ToTryInt64()).ToList().Contains(t.Id)).ToList().MapToList<TFile, FileDto>().ToList();
+            var flieData = FileRp.Query().Where(t => t.IsDelete == false && data.AIKmssDetailsList.Select(a => a.FileId.ToTryInt64()).ToList().Contains(t.Id)).ToList().MapToList<TFile, FileDto>().ToList();
             foreach (var itemDetails in data.AIKmssDetailsList)
             {
                 if (itemDetails.FileId != default)
@@ -392,12 +391,13 @@ namespace kevin.Application.Services.AI
                                         }
 
                                     }
-                                    else {
+                                    else
+                                    {
                                         item.Status = ImportKmsStatus.Success;
                                         item.UpdateTime = DateTime.Now;
                                         item.ContentName = FileName ?? "";
                                     }
-                                
+
                                 }
                                 else
                                 {

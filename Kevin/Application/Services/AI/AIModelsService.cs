@@ -2,7 +2,6 @@
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
-using System;
 
 namespace kevin.Application.Services.AI
 {
@@ -35,7 +34,7 @@ namespace kevin.Application.Services.AI
             {
                 t.CreateUser = dbdata.FirstOrDefault(d => d.Id == t.Id)?.CreateUser?.Name;
                 t.UpdateUser = dbdata.FirstOrDefault(d => d.Id == t.Id)?.UpdateUser?.Name;
-            }); 
+            });
             return result;
         }
         /// <summary>

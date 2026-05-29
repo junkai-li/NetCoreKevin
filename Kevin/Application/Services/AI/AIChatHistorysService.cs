@@ -1,6 +1,4 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
-using kevin.AI.AgentFramework;
-using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
+﻿using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.ScriptRunners;
@@ -9,7 +7,6 @@ using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
-using kevin.RepositorieRps.Repositories.AI;
 using Kevin.AI.Dto;
 using Kevin.Common.Extension;
 using Kevin.RAG.Interfaces;
@@ -99,9 +96,9 @@ namespace kevin.Application.Services.AI
             if (count >= 100)
             {
                 throw new UserFriendlyException($"聊天记录已达上限{count}，为了更好的体验，建议新建聊天对话噢！");
-            } 
+            }
             var aichas = await aIChatsService.GetDetails(par.AIChatsId);
-            var aiapp = await aIAppsService.GetDetails(aichas.AppId);   
+            var aiapp = await aIAppsService.GetDetails(aichas.AppId);
             if ((await aIAppsService.GetMyALLList()).Any(t => t.Id == aichas.AppId) == false)
             {
                 throw new UserFriendlyException("智能体权限不足，无法使用");
@@ -115,7 +112,7 @@ namespace kevin.Application.Services.AI
             add.CreateUserId = CurrentUser.UserId;
             add.TenantId = CurrentUser.TenantId;
             add.IsSend = true;
-            aIChatHistorysRp.Add(add); 
+            aIChatHistorysRp.Add(add);
             await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
             //回复消息
             var addAi = new TAIChatHistorys();

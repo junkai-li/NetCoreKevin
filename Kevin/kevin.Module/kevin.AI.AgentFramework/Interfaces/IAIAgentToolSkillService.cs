@@ -1,9 +1,4 @@
 ﻿using Microsoft.Extensions.AI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.AI.AgentFramework.Interfaces
 {
@@ -15,7 +10,7 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="data">用于传递数据</param>
         /// <param name="agentId"></param>
         /// <returns></returns>
-        Task<List<AITool>> GetAIAgentToolsAsync(object data,string agentId);
+        Task<List<AITool>> GetAIAgentToolsAsync(object data, string agentId);
 
         /// <summary>
         /// 获取用户和智能体的可用工具
@@ -24,7 +19,7 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="agentId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        Task<List<AITool>> GetUserAIAgentToolsAsync(object data, string agentId,string userId);
+        Task<List<AITool>> GetUserAIAgentToolsAsync(object data, string agentId, string userId);
 
         /// <summary>
         /// 获取所有的工具

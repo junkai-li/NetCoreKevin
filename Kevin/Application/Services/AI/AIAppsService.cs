@@ -1,8 +1,6 @@
 ﻿using kevin.Domain.Entities.AI;
-using kevin.Domain.Entities.Organizational;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
-using kevin.Domain.Share.Dtos.Organizational;
 
 namespace kevin.Application.Services.AI
 {
@@ -45,7 +43,7 @@ namespace kevin.Application.Services.AI
             {
                 t.CreateUser = dbdata.FirstOrDefault(d => d.Id == t.Id)?.CreateUser?.Name;
                 t.UpdateUser = dbdata.FirstOrDefault(d => d.Id == t.Id)?.UpdateUser?.Name;
-            });  
+            });
             return result;
         }
 
@@ -56,12 +54,12 @@ namespace kevin.Application.Services.AI
         /// <param name="id"></param> 
         /// <returns></returns> 
         public async Task<AIAppsDto> GetDetails(long id)
-        { 
+        {
             var data = (await aIAppsRp.Query(isDataPer: false).FirstOrDefaultAsync(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId && t.Id == id)).MapTo<AIAppsDto>();
             if (data == default)
             {
                 throw new UserFriendlyException("ai应用数据不存在或已删除");
-            } 
+            }
             var skills = await aISkillToolManagementService.GetAllSkills();
             var tools = await aISkillToolManagementService.GetAllTools();
             var myIds = await aISkillToolBindIdService.GetListById(data.Id.ToString());
@@ -218,7 +216,7 @@ namespace kevin.Application.Services.AI
             {
                 IsSelect = myIds.Any(x => x.AISkillToolManagementId == t.Id),
                 AISkillToolManagementName = t.Name,
-                AISkillToolManagementDescription=t.Description,
+                AISkillToolManagementDescription = t.Description,
                 AISkillToolManagementId = t.Id
             }).ToList();
             data.Tools = tools.Select(t => new AIAppsBindSkillToolsDto

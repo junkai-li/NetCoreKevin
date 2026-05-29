@@ -9,7 +9,6 @@ using kevin.Ioc.TieredServiceRegistration;
 using kevin.Permission;
 using kevin.RabbitMQ;
 using Kevin.AI;
-using Kevin.AI.Dto;
 using Kevin.Api.Versioning;
 using Kevin.Authentication.Jwt;
 using Kevin.Common.App.Global;
@@ -125,7 +124,7 @@ namespace Web.Extension
             services.AddKevinDistributedLockRedis(Configuration.GetConnectionString("redisConnection"));
             #endregion
 
-       
+
             //App服务注册
             RegisterAppServices(services, Configuration);
             services.AddKevinCors(Configuration.GetSection("CorsSetting").Get<CorsSetting>());

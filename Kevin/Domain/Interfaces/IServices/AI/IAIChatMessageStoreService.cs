@@ -6,7 +6,7 @@ namespace kevin.Domain.Interfaces.IServices.AI
     /// </summary>
     public interface IAIChatMessageStoreService : IBaseService
     {
-         /// <summary>
+        /// <summary>
         /// ��ȡ��ҳ����
         /// </summary>
         /// <param name="dtoPagePar"></param>

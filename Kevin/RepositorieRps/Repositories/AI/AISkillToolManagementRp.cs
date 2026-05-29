@@ -1,5 +1,5 @@
 ﻿using kevin.Domain.Entities.AI;
-using  kevin.Domain.Interfaces.IRepositories.AI;
+using kevin.Domain.Interfaces.IRepositories.AI;
 namespace Kevin.RepositorieRps.Repositories.AI
 {
     /// <summary>
@@ -12,4 +12,4 @@ namespace Kevin.RepositorieRps.Repositories.AI
         {
         }
     }
-} 
+}

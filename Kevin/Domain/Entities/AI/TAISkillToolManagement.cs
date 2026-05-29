@@ -1,9 +1,4 @@
 ﻿using kevin.Domain.Share.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kevin.Domain.Entities.AI
 {
@@ -27,7 +22,7 @@ namespace kevin.Domain.Entities.AI
         /// </summary> 
         [Description("方法")]
         [StringLength(100)]
-        public String? ClassMethod { get; set; } = ""; 
+        public String? ClassMethod { get; set; } = "";
 
         /// <summary>
         /// 描述

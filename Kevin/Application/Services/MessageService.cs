@@ -159,9 +159,9 @@ namespace kevin.Application.Services
             add.IsDelete = false;
             add.CreateTime = DateTime.Now;
             add.CreateUserId = message.SendUserId.ToTryInt64();
-            add.TenantId = userRp.FirstOrDefault(u=>u.Id== message.SendUserId.ToTryInt64()).TenantId;
+            add.TenantId = userRp.FirstOrDefault(u => u.Id == message.SendUserId.ToTryInt64()).TenantId;
             messageRp.Add(add);
-            await messageRp.SaveChangesAsync(); 
+            await messageRp.SaveChangesAsync();
             return true;
         }
 

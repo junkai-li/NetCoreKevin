@@ -1,7 +1,5 @@
 ﻿using Kevin.AI.Dto;
 using Microsoft.Agents.AI;
-using Microsoft.Extensions.AI;
-using ModelContextProtocol.Server;
 
 namespace kevin.AI.AgentFramework.Interfaces
 {

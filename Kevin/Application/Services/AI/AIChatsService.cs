@@ -1,13 +1,9 @@
-﻿using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
-using kevin.AI.AgentFramework.Const;
-using kevin.AI.AgentFramework.Interfaces;
+﻿using kevin.AI.AgentFramework.Interfaces;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using Kevin.SignalR.Service;
-using Microsoft.Agents.AI;
-using Microsoft.Extensions.AI;
 
 namespace kevin.Application.Services.AI
 {

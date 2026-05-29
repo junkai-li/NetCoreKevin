@@ -6,13 +6,7 @@ using kevin.Permission.Permission.Attributes;
 using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Web.Filters;
 
 namespace Kevin.Web.Basics.Controllers.AI
 {
@@ -39,12 +33,12 @@ namespace Kevin.Web.Basics.Controllers.AI
         /// <returns></returns>
         [HttpPost("GetPageData")]
         [ActionDescription("获取AI技能工具列表")]
-        [HttpLog("AI技能工具管理", "获取AI技能工具列表")] 
+        [HttpLog("AI技能工具管理", "获取AI技能工具列表")]
         public async Task<dtoPageData<AISkillToolManagementDto>> GetPageData([FromBody] dtoPagePar<int> par)
         {
             var result = await _service.GetPageData(par);
             return result;
-        } 
+        }
         /// <summary>
         /// 新增或编辑AI技能工具
         /// </summary>

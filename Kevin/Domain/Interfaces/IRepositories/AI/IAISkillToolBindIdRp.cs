@@ -6,6 +6,6 @@ namespace kevin.Domain.Interfaces.IRepositories.AI
     /// </summary>
     public interface IAISkillToolBindIdRp : IRepository<TAISkillToolBindId, long>
     {
-        
+
     }
-} 
+}
