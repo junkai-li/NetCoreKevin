@@ -25,11 +25,14 @@ namespace kevin.AI.AgentFramework
         }
         /// <summary>
         /// 创建代理并发送消息
-        /// </summary> 
-        /// <param name="msg"></param> 
-        /// <param name="chatClientAgentOptions"></param> 
+        /// </summary>
+        /// <param name="aISetting"></param>
+        /// <param name="chatClientAgentOptions"></param>
+        /// <param name="msg"></param>
+        /// <param name="fileUrl"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, string msg, CancellationToken cancellationToken = default)
+        public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, string msg, List<string>? fileUrl = default, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();//是否已经中止，若已请求取消则抛出异常
             if (aISetting.IsHttpLog)
@@ -66,12 +69,16 @@ namespace kevin.AI.AgentFramework
             var aiAgent = ai.GetChatClient(aISetting.AIDefaultModel).AsIChatClient().AsAIAgent(chatClientAgentOptions);
             var reslut = new AgentResponse();
             var resultText = string.Empty;
-
+            ChatMessage message = new(ChatRole.User, [new TextContent(msg)]);
+            if (fileUrl != default && fileUrl.Count > 0)
+            {
+                message= new(ChatRole.User, [new TextContent(msg),..fileUrl.Select(t=> new UriContent(t)).ToList()]);
+            }
             if (aISetting.IsStreame)
             {
                 if (aISetting.StreameCallback != default)
                 {
-                    await foreach (var update in aiAgent.RunStreamingAsync(msg, cancellationToken: cancellationToken))
+                    await foreach (var update in aiAgent.RunStreamingAsync(message, cancellationToken: cancellationToken))
                     {
                         foreach (var content in update.Contents)
                         {
@@ -119,7 +126,7 @@ namespace kevin.AI.AgentFramework
             }
             else
             {
-                reslut = await aiAgent.RunAsync(msg, cancellationToken: cancellationToken);
+                reslut = await aiAgent.RunAsync(message, cancellationToken: cancellationToken);
                 resultText = reslut.Text;
             }
             if (aISetting.IsHttpLog)

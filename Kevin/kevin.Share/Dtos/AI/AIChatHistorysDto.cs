@@ -24,13 +24,7 @@ namespace kevin.Domain.Share.Dtos.AI
         /// 发送是true  接收是false
         /// </summary>
         [Description("发送是true  接收是false")]
-        public Boolean IsSend { get; set; } = false;
-
-        /// <summary>
-        /// 文件名
-        /// </summary>
-        [Description("文件名")]
-        public String? FileName { get; set; }
+        public Boolean IsSend { get; set; } = false; 
 
         /// <summary>
         /// 1非流式 2.流式
@@ -55,5 +49,16 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary>
         [Description("AI工具调用过程")]
         public String? AIToolsContent { get; set; }
+
+        /// <summary>
+        /// 文件名
+        /// </summary>
+        [Description("文件名s,多个用,隔开")]
+        public String? FileNames { get; set; }
+        /// <summary>
+        ///发送的文件urls
+        /// </summary>
+        [Description("发送的文件urls,多个用,隔开")]
+        public String? ContentFileUrls { get; set; }
     }
 }

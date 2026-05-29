@@ -243,7 +243,7 @@ namespace kevin.Application.Services.AI
                             addAi.AIReasoningContent += msg;
                             await signalRMsgService.SendIdentityIdMsg("aIReasoningContentMsg", add.Id.ToString(), msg);
                         },
-                    }, chatAgOs, add.Content, cancellationToken)).Item2;
+                    }, chatAgOs, add.Content, cancellationToken: cancellationToken, fileUrl: !string.IsNullOrWhiteSpace(add.ContentFileUrls) ? add.ContentFileUrls.Split(',').ToList() : default)).Item2;
                     break;
             }
             aIChatHistorysRp.Add(addAi);
