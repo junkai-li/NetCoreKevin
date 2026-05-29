@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Kevin.RAG.Tools
 {
@@ -7,12 +8,36 @@ namespace Kevin.RAG.Tools
     {
         public static async Task<string> ExtractTextFromStreamAsync(Stream stream)
         {
+            if (stream == null) return string.Empty;
+
             var doc = new HtmlDocument();
 
-            // Detect encoding and load HTML
-            using var reader = new StreamReader(stream, Encoding.UTF8, true);
+            // Ensure we read from stream start when possible
+            if (stream.CanSeek)
+            {
+                try { stream.Position = 0; } catch { }
+            }
+
+            // Read stream without closing underlying stream
+            using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true);
             string content = await reader.ReadToEndAsync();
-            doc.LoadHtml(content);
+
+            // If content empty, try loading directly from stream copy (handles some encodings/BOM cases)
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                if (stream.CanSeek)
+                {
+                    try { stream.Position = 0; } catch { }
+                }
+                using var ms = new MemoryStream();
+                await stream.CopyToAsync(ms);
+                ms.Position = 0;
+                doc.Load(ms);
+            }
+            else
+            {
+                doc.LoadHtml(content);
+            }
 
             // Remove scripts and styles
             var scripts = doc.DocumentNode.SelectNodes("//script");
@@ -78,9 +103,11 @@ namespace Kevin.RAG.Tools
             switch (node.NodeType)
             {
                 case HtmlNodeType.Text:
-                    string text = node.InnerText.Trim();
+                    string text = HtmlEntity.DeEntitize(node.InnerText ?? string.Empty).Trim();
                     if (!string.IsNullOrEmpty(text))
                     {
+                        // normalize whitespace
+                        text = Regex.Replace(text, "\\s+", " ");
                         sb.Append(text).Append(' ');
                     }
                     break;
@@ -113,7 +140,7 @@ namespace Kevin.RAG.Tools
             "dd", "div", "dl", "dt", "fieldset", "figcaption", "figure",
             "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6",
             "header", "hgroup", "hr", "li", "main", "nav", "ol",
-            "p", "pre", "section", "table", "ul"
+            "p", "pre", "section", "table", "ul", "br"
         };
 
         private static bool IsBlockElement(string tagName)
