@@ -456,7 +456,26 @@ const handlePreview = async (file) => {
 
     try {
       const response = await fetch(file.url);
-      previewContent.value = await response.text();
+      const arrayBuffer = await response.arrayBuffer();
+
+      const tryDecode = (buffer, encodings) => {
+        for (const encoding of encodings) {
+          try {
+            const decoder = new TextDecoder(encoding);
+            const text = decoder.decode(buffer);
+            if (text && !text.includes('\ufffd')) {
+              return { text, encoding };
+            }
+          } catch (e) {
+            // ignore encoding error
+          }
+        }
+        return { text: new TextDecoder('utf-8').decode(buffer), encoding: 'utf-8' };
+      };
+
+      const { text } = tryDecode(arrayBuffer, ['utf-8', 'gbk', 'gb2312', 'gb18030', 'big5']);
+      previewContent.value = text;
+
       if (isMarkdown) {
         previewHtml.value = marked(previewContent.value);
       }
@@ -560,12 +579,48 @@ const handleZipEdit = async (file) => {
       }
 
       if (!zipFile.dir) {
-        const filePromise = zipFile.async('string').then((content) => {
-          contentMap[relativePath] = {
-            content: content,
-            originalContent: content,
-            modified: false,
-          };
+        const filePromise = zipFile.async('uint8array').then((uint8array) => {
+          const ext = relativePath.split('.').pop().toLowerCase();
+          const textExts = [
+            'txt', 'md', 'markdown', 'json', 'xml', 'html', 'css', 'js', 'ts', 'jsx', 'tsx',
+            'py', 'java', 'c', 'cpp', 'h', 'hpp', 'cs', 'go', 'rb', 'php', 'sh', 'bash',
+            'zsh', 'ps1', 'psm1', 'bat', 'cmd', 'yaml', 'yml', 'ini', 'conf', 'log',
+            'sql', 'swift', 'kt', 'scala', 'r', 'lua', 'pl', 'pm', 'groovy', 'gradle',
+            'vue', 'svelte', 'jsx', 'tsx', 'dart', 'ex', 'exs', 'erl', 'hrl',
+            'toml', 'properties', 'env', 'gitignore', 'dockerfile', 'makefile'
+          ];
+
+          if (textExts.includes(ext)) {
+            const tryDecodeText = (buffer) => {
+              const encodings = ['utf-8', 'gbk', 'gb2312', 'gb18030', 'big5'];
+              for (const encoding of encodings) {
+                try {
+                  const decoder = new TextDecoder(encoding);
+                  const text = decoder.decode(buffer);
+                  if (text && !text.includes('\ufffd')) {
+                    return text;
+                  }
+                } catch (e) {
+                  // ignore
+                }
+              }
+              return new TextDecoder('utf-8').decode(buffer);
+            };
+            const content = tryDecodeText(uint8array);
+            contentMap[relativePath] = {
+              content: content,
+              originalContent: content,
+              modified: false,
+            };
+          } else {
+            const base64 = btoa(String.fromCharCode.apply(null, uint8array));
+            contentMap[relativePath] = {
+              content: base64,
+              originalContent: base64,
+              modified: false,
+              isBinary: true,
+            };
+          }
         });
         filePromises.push(filePromise);
       }
@@ -660,6 +715,20 @@ const selectZipFile = async (file) => {
   const fileData = zipContent.value[file.path];
   if (!fileData) return;
 
+  if (fileData.isBinary) {
+    zipEditorContainer.value.innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #999;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+        <p style="margin-top: 16px;">二进制文件不支持在线编辑</p>
+        <p style="font-size: 12px;">${file.name}</p>
+      </div>
+    `;
+    return;
+  }
+
   const isMarkdown = ['md', 'markdown'].includes(getFileExtension(file.name));
   const language = isMarkdown ? markdown() : javascript();
 
@@ -699,7 +768,16 @@ const handleSaveZip = async () => {
     const zip = new JSZip();
 
     Object.entries(zipContent.value).forEach(([path, data]) => {
-      zip.file(path, data.content);
+      if (data.isBinary) {
+        const binaryString = atob(data.content);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        zip.file(path, bytes);
+      } else {
+        zip.file(path, data.content);
+      }
     });
 
     const blob = await zip.generateAsync({ type: 'blob' });
@@ -751,7 +829,16 @@ const handleDownloadZip = () => {
   const zip = new JSZip();
 
   Object.entries(zipContent.value).forEach(([path, data]) => {
-    zip.file(path, data.content);
+    if (data.isBinary) {
+      const binaryString = atob(data.content);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      zip.file(path, bytes);
+    } else {
+      zip.file(path, data.content);
+    }
   });
 
   zip.generateAsync({ type: 'blob' }).then((blob) => {
