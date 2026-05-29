@@ -79,9 +79,21 @@
       <div v-if="previewLoading" class="preview-loading">
         <a-spin tip="加载中..." />
       </div>
+      <div v-else-if="previewType === 'image'" class="preview-content">
+        <img :src="previewFile.url" :alt="previewFile?.name" class="preview-image" />
+      </div>
+      <div v-else-if="previewType === 'pdf'" class="preview-content preview-pdf">
+        <embed :src="previewFile.url" type="application/pdf" class="preview-embed" />
+      </div>
+      <div v-else-if="previewType === 'word'" class="preview-content preview-word">
+        <iframe
+          :src="'https://docs.google.com/gview?url=' + encodeURIComponent(previewFile.url) + '&embedded=true'"
+          class="preview-iframe"
+        />
+      </div>
+      <div v-else-if="previewType === 'markdown'" class="preview-content preview-markdown" v-html="previewHtml"></div>
       <div v-else-if="previewContent" class="preview-content">
-        <img v-if="isImageFile(previewFile?.name)" :src="previewFile.url" :alt="previewFile?.name" class="preview-image" />
-        <pre v-else class="preview-text">{{ previewContent }}</pre>
+        <pre class="preview-text">{{ previewContent }}</pre>
       </div>
       <a-empty v-else description="暂不支持预览此文件" />
     </a-modal>
@@ -185,6 +197,7 @@ import { message } from 'ant-design-vue';
 import { uploadFile, deleteFileById, getFileInfoById } from '@/api/file';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { marked } from 'marked';
 import { EditorView, basicSetup } from 'codemirror';
 import { EditorState } from '@codemirror/state';
 import { javascript } from '@codemirror/lang-javascript';
@@ -284,17 +297,24 @@ const customRequest = async (options) => {
     }
     const fileId = (await uploadFile(props.business, props.keyValue, props.sign, file)).data;
 
+    const fileInfoResponse = await getFileInfoById(fileId);
+    const fileInfo = fileInfoResponse.data || {};
+
     uploadedFiles.value.push({
       id: fileId,
-      name: file.name,
-      size: file.size,
+      name: fileInfo.name || file.name,
+      size: fileInfo.size || file.size,
+      url: fileInfo.url || '',
+      path: fileInfo.path || '',
       rawFile: file
     });
 
     emit('upload-success', {
       fileId: fileId,
-      fileName: file.name,
-      fileSize: file.size
+      fileName: fileInfo.name || file.name,
+      fileSize: fileInfo.size || file.size,
+      url: fileInfo.url || '',
+      path: fileInfo.path || ''
     });
 
     if (!props.multiple) {
@@ -376,19 +396,37 @@ const isZipFile = (filename) => {
   return ext === 'zip';
 };
 
+const isPDFFile = (filename) => {
+  const ext = getFileExtension(filename);
+  return ext === 'pdf';
+};
+
+const isWordFile = (filename) => {
+  const ext = getFileExtension(filename);
+  return ['doc', 'docx'].includes(ext);
+};
+
+const isMarkdownFile = (filename) => {
+  const ext = getFileExtension(filename);
+  return ['md', 'markdown'].includes(ext);
+};
+
 const canPreview = (file) => {
-  return isImageFile(file.name) || isTextFile(file.name) || isZipFile(file.name);
+  return isImageFile(file.name) || isTextFile(file.name) || isZipFile(file.name) || isPDFFile(file.name) || isWordFile(file.name);
 };
 
 const previewModalVisible = ref(false);
 const previewFile = ref(null);
 const previewContent = ref('');
+const previewHtml = ref('');
 const previewLoading = ref(false);
+const previewType = ref('text');
 
 const handlePreview = async (file) => {
   previewFile.value = file;
 
   if (isImageFile(file.name)) {
+    previewType.value = 'image';
     previewModalVisible.value = true;
     return;
   }
@@ -398,22 +436,41 @@ const handlePreview = async (file) => {
     return;
   }
 
+  if (isPDFFile(file.name)) {
+    previewType.value = 'pdf';
+    previewModalVisible.value = true;
+    return;
+  }
+
+  if (isWordFile(file.name)) {
+    previewType.value = 'word';
+    previewModalVisible.value = true;
+    return;
+  }
+
   if (isTextFile(file.name) && file.url) {
     previewLoading.value = true;
+    const isMarkdown = isMarkdownFile(file.name);
+    previewType.value = isMarkdown ? 'markdown' : 'text';
     previewModalVisible.value = true;
 
     try {
       const response = await fetch(file.url);
       previewContent.value = await response.text();
+      if (isMarkdown) {
+        previewHtml.value = marked(previewContent.value);
+      }
     } catch (error) {
       console.error('预览加载失败:', error);
       previewContent.value = null;
+      previewHtml.value = '';
     } finally {
       previewLoading.value = false;
     }
     return;
   }
 
+  previewType.value = 'text';
   previewModalVisible.value = true;
   previewContent.value = null;
 };
@@ -822,6 +879,78 @@ defineExpose({
   max-width: 100%;
   max-height: 60vh;
   object-fit: contain;
+}
+
+.preview-iframe {
+  width: 100%;
+  height: 60vh;
+  border: none;
+}
+
+.preview-embed {
+  width: 100%;
+  height: 60vh;
+  border: none;
+}
+
+.preview-markdown {
+  background: #fff;
+  padding: 16px;
+  max-height: 60vh;
+  overflow: auto;
+}
+
+.preview-markdown :deep(h1),
+.preview-markdown :deep(h2),
+.preview-markdown :deep(h3),
+.preview-markdown :deep(h4),
+.preview-markdown :deep(h5),
+.preview-markdown :deep(h6) {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.preview-markdown :deep(p) {
+  margin-bottom: 8px;
+}
+
+.preview-markdown :deep(code) {
+  background: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.preview-markdown :deep(pre) {
+  background: #f5f5f5;
+  padding: 12px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.preview-markdown :deep(pre code) {
+  background: none;
+  padding: 0;
+}
+
+.preview-markdown :deep(ul),
+.preview-markdown :deep(ol) {
+  padding-left: 24px;
+  margin-bottom: 8px;
+}
+
+.preview-markdown :deep(blockquote) {
+  border-left: 4px solid #ddd;
+  padding-left: 16px;
+  margin-left: 0;
+  color: #666;
+}
+
+.preview-word {
+  width: 100%;
+  height: 60vh;
+  border: none;
 }
 
 .preview-text {
