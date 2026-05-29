@@ -573,8 +573,8 @@ const handleZipEdit = async (file) => {
     const folderSet = new Set();
 
     zip.forEach((relativePath, zipFile) => {
-      const parts = relativePath.split('/');
-      for (let i = 1; i < parts.length - 1; i++) {
+      const parts = relativePath.split('/').filter(p => p);
+      for (let i = 1; i < parts.length; i++) {
         folderSet.add(parts.slice(0, i).join('/'));
       }
 
