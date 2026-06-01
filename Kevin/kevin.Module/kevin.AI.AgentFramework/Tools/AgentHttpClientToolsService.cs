@@ -14,9 +14,14 @@ namespace kevin.AI.AgentFramework.Tools
     public class AgentHttpClientToolsService : IAgentHttpClientToolsService
     {
         private object? _data { get; set; }
+        private int _contentLengthLimit = 0;//  内容长度限制，超过限制后会进行截断
         public void InitData(object data)
         {
             _data = data;
+            if (_data != default)
+            {
+                JsonDocument.Parse(JsonSerializer.Serialize(_data)).RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit);
+            }
         }
         /// <summary>
         /// 请求
@@ -114,7 +119,7 @@ namespace kevin.AI.AgentFramework.Tools
 
                 using var resp = await http.GetAsync(fullUrl, cancellationToken).ConfigureAwait(false);
                 var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-                return text ?? string.Empty;
+                return StringHelper.SubstringText(text, _contentLengthLimit) ?? string.Empty;
             }
             catch (Exception ex)
             {
@@ -151,7 +156,7 @@ namespace kevin.AI.AgentFramework.Tools
 
                 using var resp = await http.PostAsync(fullUrl, content, cancellationToken).ConfigureAwait(false);
                 var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-                return text ?? string.Empty;
+                return StringHelper.SubstringText(text, _contentLengthLimit) ?? string.Empty;
             }
             catch (Exception ex)
             {
@@ -187,7 +192,7 @@ namespace kevin.AI.AgentFramework.Tools
 
                 using var resp = await http.PutAsync(fullUrl, content, cancellationToken).ConfigureAwait(false);
                 var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-                return text ?? string.Empty;
+                return StringHelper.SubstringText(text, _contentLengthLimit) ?? string.Empty;
             }
             catch (Exception ex)
             {
@@ -214,7 +219,7 @@ namespace kevin.AI.AgentFramework.Tools
 
                 using var resp = await http.DeleteAsync(fullUrl, cancellationToken).ConfigureAwait(false);
                 var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-                return text ?? string.Empty;
+                return StringHelper.SubstringText(text, _contentLengthLimit) ?? string.Empty;
             }
             catch (Exception ex)
             {

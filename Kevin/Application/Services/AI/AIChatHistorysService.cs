@@ -19,7 +19,7 @@ using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using NetCore.Util;
 using System.Text;
-
+using StringHelper = kevin.AI.AgentFramework.Tools.StringHelper;
 namespace kevin.Application.Services.AI
 {
 
@@ -86,8 +86,8 @@ namespace kevin.Application.Services.AI
             result.data = (await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPage.pageSize).ToListAsync()).MapToList<TAIChatHistorys, AIChatHistorysDto>();
             foreach (var item in result.data)
             {
-                item.AIReasoningContent = StringHelper.SubstringText(item.AIReasoningContent, 2000);
-                item.AIToolsContent = StringHelper.SubstringText(item.AIToolsContent, 3000);
+                item.AIReasoningContent = kevin.AI.AgentFramework.Tools.StringHelper.SubstringText(item.AIReasoningContent, 2000);
+                item.AIToolsContent = kevin.AI.AgentFramework.Tools.StringHelper.SubstringText(item.AIToolsContent, 3000);
             }
             return result;
         }
@@ -153,7 +153,7 @@ namespace kevin.Application.Services.AI
                     var systemPromptData = await rAGServicevice.GetSystemPrompt("AIKmss-" + kmss.Id.ToString(), await ollamaApiService.GetEmbedding(add.Content), aiapp.MaxMatchesCount, (aiapp.Relevance / 100));
                     if (systemPromptData.Item1)
                     {
-                        OtherContents.Add(StringHelper.SubstringText(systemPromptData.Item2, aiapp.ContentLengthLimit));
+                        OtherContents.Add(kevin.AI.AgentFramework.Tools.StringHelper.SubstringText(systemPromptData.Item2, aiapp.ContentLengthLimit));
                         await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"找到 {systemPromptData.Item3.Count} 个相关文档");
                     }
                 }
@@ -232,7 +232,7 @@ namespace kevin.Application.Services.AI
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在联网搜索....");
                 var http = new HttpClientFunction(aIAgentService, _serviceProvider);
-                OtherContents.Add(StringHelper.SubstringText(await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey), aiapp.ContentLengthLimit));
+                OtherContents.Add(kevin.AI.AgentFramework.Tools.StringHelper.SubstringText(await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey), aiapp.ContentLengthLimit));
 
             }
             else
@@ -301,7 +301,7 @@ namespace kevin.Application.Services.AI
                         AIKeySecret = aIModels.ModelKey,
                         AIDefaultModel = aIModels.ModelName,
                         IsStreame = aiapp.MsgType == 2,
-                        AIParData = new { AIChatsId = add.AIChatsId, AppId = aiapp.Id, UserId = CurrentUser.UserId, AuthorizedDomains = aiapp.AuthorizedDomains },
+                        AIParData = new { AIChatsId = add.AIChatsId, AppId = aiapp.Id, UserId = CurrentUser.UserId, AuthorizedDomains = aiapp.AuthorizedDomains, ContentLengthLimit = aiapp.ContentLengthLimit },
                         IsHttpLog = aiapp.IsHttpLog,
                         MaxRetries = aiapp.MaxRetries,
                         NetworkTimeout = aiapp.NetworkTimeout,

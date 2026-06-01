@@ -156,7 +156,7 @@
         </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.ContentLengthLimit">
             <summary>
-            内容长度限制，超过限制后会进行截断，默认3000字符（知识库，互联网搜索，AI工具内容，文件内容等，）
+            内容长度限制，超过限制后会进行截断，默认30000字符（知识库，互联网搜索，AI工具内容，文件内容等，）
             </summary>
         </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto">

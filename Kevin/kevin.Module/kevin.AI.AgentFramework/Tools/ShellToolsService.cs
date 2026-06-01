@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json;
 
 namespace kevin.AI.AgentFramework.Tools
 {
@@ -24,9 +25,14 @@ namespace kevin.AI.AgentFramework.Tools
         "del /f /s /q",                 // Windows 递归删除
     ];
         private object? _data { get; set; }
+        private int _contentLengthLimit = 0;//  内容长度限制，超过限制后会进行截断
         public void InitData(object data)
         {
             _data = data;
+            if (_data != default)
+            {
+                JsonDocument.Parse(JsonSerializer.Serialize(_data)).RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit);
+            }
         }
 
         [Description("执行 Shell 命令。通过操作系统原生 Shell 执行命令（Windows 用 cmd，Linux/Mac 用 bash）。包含安全护栏：危险命令阻止、输出截断（50KB）、超时控制（60秒）。")]
@@ -99,16 +105,8 @@ namespace kevin.AI.AgentFramework.Tools
                     result.AppendLine($"⚠️ 退出码: {process.ExitCode}");
                 }
 
-                var output = result.Length > 0 ? result.ToString() : "(命令执行成功，无输出)";
-
-                // 🛡️ 安全护栏 2：输出截断（50KB）
-                const int maxOutputLength = 50_000;
-                if (output.Length > maxOutputLength)
-                {
-                    output = output[..maxOutputLength] + "\n... (输出已截断，超过 50KB 上限)";
-                }
-
-                return output;
+                var output = result.Length > 0 ? result.ToString() : "(命令执行成功，无输出)";  
+                return StringHelper.SubstringText(output, _contentLengthLimit);
             }
             catch (Exception ex)
             {

@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace Common
+namespace kevin.AI.AgentFramework.Tools
 {
 
     /// <summary>
@@ -210,7 +210,7 @@ namespace Common
         /// <returns></returns>
         public static string SubstringText(string NeiRong, int length)
         {
-            if (length == 0) return NeiRong;
+            if (length == 0) return NeiRong; 
             if (!string.IsNullOrEmpty(NeiRong))
             {
                 if (NeiRong.Length > length)

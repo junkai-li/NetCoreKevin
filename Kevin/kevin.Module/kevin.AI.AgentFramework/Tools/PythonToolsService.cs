@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json;
 namespace kevin.AI.AgentFramework.Tools
 {
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -10,9 +11,14 @@ namespace kevin.AI.AgentFramework.Tools
     public class PythonToolsService : IPythonToolsService
     {
         private object? _data { get; set; }
+        private int _contentLengthLimit = 0;//  内容长度限制，超过限制后会进行截断
         public void InitData(object data)
         {
             _data = data;
+            if (_data != default)
+            {
+                JsonDocument.Parse(JsonSerializer.Serialize(_data)).RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit);
+            }
         }
 
         [Description("执行Python脚本。通过System.Diagnostics.Process类来启动一个新的进程，并运行Python.py的脚本。这种方法适用于Windows和Linux系统。")]
@@ -63,7 +69,7 @@ namespace kevin.AI.AgentFramework.Tools
                 {
                     output = "Python脚本执行完成，但没有输出结果。";
                 }
-                return output;
+                return StringHelper.SubstringText(output, _contentLengthLimit);
             }
             catch (Exception ex)
             {
@@ -108,7 +114,7 @@ namespace kevin.AI.AgentFramework.Tools
                 {
                     output = "Python脚本执行完成，但没有输出结果。";
                 }
-                return output;
+                return StringHelper.SubstringText(output, _contentLengthLimit);
 
             }
             catch (Exception ex)
@@ -154,7 +160,7 @@ namespace kevin.AI.AgentFramework.Tools
                 // 以 UTF-8 无 BOM 保存，保证跨平台兼容且 Python 能正确识别
                 File.WriteAllText(fullPath, code, new UTF8Encoding(false));
                 Console.WriteLine($"🔧 Python脚本已保存到: {fullPath}");
-                return fullPath;
+                return StringHelper.SubstringText(fullPath, _contentLengthLimit);
             }
             catch (Exception ex)
             {
