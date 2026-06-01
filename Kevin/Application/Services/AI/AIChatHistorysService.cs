@@ -260,12 +260,12 @@ namespace kevin.Application.Services.AI
                 {
                     // 🔑 能力层：工具
                     chatAgOs.ChatOptions.Tools ??= new List<AITool>();
-                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(new { AIChatsId = add.AIChatsId, AppId = aiapp.Id, UserId = CurrentUser.UserId, AuthorizedDomains = aiapp.AuthorizedDomains }, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result);
+                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(new { AIChatsId = add.AIChatsId, AppId = aiapp.Id, UserId = CurrentUser.UserId, AuthorizedDomains = aiapp.AuthorizedDomains, ContentLengthLimit = aiapp.ContentLengthLimit }, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result);
                 }
             }
             if (aiapp.IsSkill)
             {
-                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(new { AIChatsId = add.AIChatsId, AppId = aiapp.Id, UserId = CurrentUser.UserId, AuthorizedDomains = aiapp.AuthorizedDomains }, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result;
+                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(new { AIChatsId = add.AIChatsId, AppId = aiapp.Id, UserId = CurrentUser.UserId, AuthorizedDomains = aiapp.AuthorizedDomains, ContentLengthLimit = aiapp.ContentLengthLimit }, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result;
 #pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。  
                 var skillsProvider = new AgentSkillsProviderBuilder()
                                                .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)

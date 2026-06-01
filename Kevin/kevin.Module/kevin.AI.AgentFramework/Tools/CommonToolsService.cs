@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
 
 namespace kevin.AI.AgentFramework.Tools
 {
@@ -11,9 +12,22 @@ namespace kevin.AI.AgentFramework.Tools
     public class CommonToolsService : ICommonToolsService
     {
         private object? _data { get; set; }
+        private int _contentLengthLimit = 0;//  内容长度限制，超过限制后会进行截断
         public void InitData(object data)
         {
             _data = data;
+            if (_data != default)
+            {
+                try
+                {
+                    JsonDocument.Parse(JsonSerializer.Serialize(_data)).RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit);
+                }
+                catch (Exception)
+                {
+                    _contentLengthLimit = 0; // 解析失败则不限制内容长度
+                }
+
+            }
         }
         /// <summary>
         /// 获取当前时间

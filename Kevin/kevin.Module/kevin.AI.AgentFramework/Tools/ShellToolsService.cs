@@ -31,7 +31,15 @@ namespace kevin.AI.AgentFramework.Tools
             _data = data;
             if (_data != default)
             {
-                JsonDocument.Parse(JsonSerializer.Serialize(_data)).RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit);
+                try
+                {
+                    JsonDocument.Parse(JsonSerializer.Serialize(_data)).RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit);
+                }
+                catch (Exception)
+                {
+                    _contentLengthLimit = 0; // 解析失败则不限制内容长度
+                }
+
             }
         }
 
