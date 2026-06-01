@@ -382,7 +382,7 @@ const form = reactive({
   authorizedDomains: '*',
   bindIds: [],
   chatMessageLimit: 100,
-  contentLengthLimit: 3000,
+  contentLengthLimit: 30000,
   isThinkingLog: true,
   isToolLog: true
 });
@@ -681,7 +681,7 @@ watch(() => props.open, (newVal) => {
         authorizedDomains: '*',
         bindIds: [],
         chatMessageLimit: 100,
-        contentLengthLimit: 3000,
+        contentLengthLimit: 30000,
         isThinkingLog: true,
         isToolLog: true
       });

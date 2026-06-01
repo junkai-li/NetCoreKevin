@@ -186,9 +186,9 @@ namespace kevin.Domain.Share.Dtos.AI
         public bool IsToolLog { get; set; } = true;
 
         /// <summary>
-        /// 内容长度限制，超过限制后会进行截断，默认3000字符（知识库，互联网搜索，AI工具内容，文件内容等，）
+        /// 内容长度限制，超过限制后会进行截断，默认30000字符（知识库，互联网搜索，AI工具内容，文件内容等，）
         /// </summary>
-        [Description(" 内容长度限制，超过限制后会进行截断，默认3000字符（知识库，互联网搜索，AI工具内容，文件内容等，）")] 
-        public int ContentLengthLimit { get; set; } = 3000;
+        [Description(" 内容长度限制，超过限制后会进行截断，默认30000字符（知识库，互联网搜索，AI工具内容，文件内容等，）")] 
+        public int ContentLengthLimit { get; set; } = 30000;
     }
 }
