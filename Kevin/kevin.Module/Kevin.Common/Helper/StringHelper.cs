@@ -201,6 +201,7 @@ namespace Common
 
 
 
+
         /// <summary>
         /// 对文本进行指定长度截取并添加省略号
         /// </summary>
@@ -209,21 +210,22 @@ namespace Common
         /// <returns></returns>
         public static string SubstringText(string NeiRong, int length)
         {
-            //先对字符串做一次HTML解码
-            NeiRong = HttpUtility.HtmlDecode(NeiRong);
-
-            if (NeiRong.Length > length)
+            if (!string.IsNullOrEmpty(NeiRong))
             {
-                NeiRong = NeiRong[0..length];
+                if (NeiRong.Length > length)
+                {
+                    NeiRong = NeiRong[0..length];
 
-                NeiRong = NeiRong + "...";
+                    NeiRong = NeiRong + "...";
 
-                return NeiRong;
+                    return NeiRong;
+                }
+                else
+                {
+                    return NeiRong;
+                }
             }
-            else
-            {
-                return NeiRong;
-            }
+            return "";
         }
 
 
