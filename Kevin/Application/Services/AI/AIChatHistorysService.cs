@@ -86,8 +86,8 @@ namespace kevin.Application.Services.AI
             result.data = (await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPage.pageSize).ToListAsync()).MapToList<TAIChatHistorys, AIChatHistorysDto>();
             foreach (var item in result.data)
             {
-                item.AIReasoningContent = kevin.AI.AgentFramework.Tools.StringHelper.SubstringText(item.AIReasoningContent, 2000);
-                item.AIToolsContent = kevin.AI.AgentFramework.Tools.StringHelper.SubstringText(item.AIToolsContent, 3000);
+                item.AIReasoningContent = item.AIReasoningContent;
+                item.AIToolsContent =item.AIToolsContent;
             }
             return result;
         }
