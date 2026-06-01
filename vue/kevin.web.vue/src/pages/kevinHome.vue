@@ -291,6 +291,8 @@ import PositionManagement from "./organizational/PositionManagement.vue";
 import DepartmentManagement from "./organizational/DepartmentManagement.vue";
 import TenantManagement from "./TenantManagement.vue";
 import CodeGenerator from "./CodeGenerator.vue";
+import KevinDashboard from "./kevinDashboard.vue";
+import UserProfile from "./UserProfile.vue";
 
 const router = useRouter();
 
@@ -304,6 +306,7 @@ const activeTabKey = ref('');
 
 // 路由key到组件的映射
 const routeComponentMap = {
+  'dashboard': KevinDashboard,
   'user-list': UserList,
   'user-role': UserRole,
   'user-permission': PermissionMg,
@@ -324,6 +327,7 @@ const routeComponentMap = {
   'organizational-department': DepartmentManagement,
   'system-tenant': TenantManagement,
   'system-code-generator': CodeGenerator,
+  'handleUserInfo': UserProfile,
 };
 
 // 计算当前活动的标签页
@@ -363,6 +367,8 @@ const pageTitleMap = {
   'organizational-department': '部门管理',
   'system-tenant': '租户管理',
   'system-code-generator': '代码生成器',
+  'dashboard': '首页',
+  'handleUserInfo': '个人中心',
 };
 
 // 打开标签页
@@ -668,6 +674,12 @@ const handleMenuClick = ({ key }) => {
       break;
     case "system-code-generator":
       router.push("/home/system/code-generator");
+      break;
+    case "dashboard":
+      router.push("/home");
+      break;
+    case "handleUserInfo":
+      router.push("/home/user/profile");
       break;
     default:
       router.push("/home");
