@@ -1,6 +1,7 @@
 ﻿using kevin.AI.AgentFramework.Interfaces.Tools;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 namespace kevin.AI.AgentFramework.Tools
@@ -28,6 +29,56 @@ namespace kevin.AI.AgentFramework.Tools
 
             }
         }
+        /// <summary>
+        /// 检测指定命令是否存在于系统 PATH 中
+        /// </summary>
+        private static bool IsCommandAvailable(string command)
+        {
+            try
+            {
+                var checkProcess = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "where" : "which",
+                        Arguments = command,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true
+                    }
+                };
+                checkProcess.Start();
+                checkProcess.WaitForExit();
+                return checkProcess.ExitCode == 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 获取可用的 Python 命令（优先 python3，其次 python）
+        /// 如果都不可用，返回 null
+        /// </summary>
+        private static string? GetAvailablePythonCommand()
+        {
+            // 优先检查 python3
+            if (IsCommandAvailable("python3"))
+            {
+                return "python3";
+            }
+
+            // 其次检查 python
+            if (IsCommandAvailable("python"))
+            {
+                return "python";
+            }
+
+            // 都不存在返回 null
+            return null;
+        }
 
         [Description("执行Python脚本。通过System.Diagnostics.Process类来启动一个新的进程，并运行Python.py的脚本。这种方法适用于Windows和Linux系统。")]
         public async Task<string> RunPythonPy([Description("需要执行的python脚本路径。例如：'Skills\\python-skills\\hello-python\\scripts\\hello-python.py'")]
@@ -48,7 +99,15 @@ namespace kevin.AI.AgentFramework.Tools
                 Console.WriteLine($"🔧 正在执行Py脚本 {scriptPath}");
                 // 设置进程信息
                 ProcessStartInfo start = new ProcessStartInfo();
-                start.FileName = @"python3"; // Python解释器的路径，例如 "python" 或 "python3"
+                // 检测可用的 Python 环境
+                string? pythonCmd = GetAvailablePythonCommand();
+                if (pythonCmd == null)
+                {
+                    throw new InvalidOperationException(
+                        "Python environment is not installed. Please install Python (python3 or python) and ensure it is available in the system PATH."
+                    );
+                }
+                start.FileName = pythonCmd; // Python解释器的路径，例如 "python" 或 "python3"
                 start.Arguments = $"{scriptPath}"; // 传递参数
                 if (args != default)
                 {
@@ -97,12 +156,20 @@ namespace kevin.AI.AgentFramework.Tools
                 }
                 Console.WriteLine();
                 Console.WriteLine($"🔧 正在执行Py代码");
-                var saveResult = SavePythonToFile(code, "Pys", "");
+                var saveResult = await SavePythonToFile(code, "Pys", "");
                 Console.WriteLine($"🔧 正在执行Py脚本: {saveResult}");
                 string output = "";
                 // 设置进程信息
                 ProcessStartInfo start = new ProcessStartInfo();
-                start.FileName = @"python3"; // Python解释器的路径，例如 "python" 或 "python3"
+                // 检测可用的 Python 环境
+                string? pythonCmd = GetAvailablePythonCommand();
+                if (pythonCmd == null)
+                {
+                    throw new InvalidOperationException(
+                        "Python environment is not installed. Please install Python (python3 or python) and ensure it is available in the system PATH."
+                    );
+                }
+                start.FileName = pythonCmd; // Python解释器的路径，例如 "python" 或 "python3"
                 start.Arguments = $"{saveResult}"; // 传递参数 
                 start.UseShellExecute = false; // 不使用操作系统外壳启动
                 start.RedirectStandardOutput = true; // 重定向标准输出
