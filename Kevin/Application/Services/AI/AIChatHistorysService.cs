@@ -135,7 +135,7 @@ namespace kevin.Application.Services.AI
             addAi.AIChatsId = par.AIChatsId;
             string systemPrompt = SystemPrompt.SystemPromptText;
             List<string> OtherContents = new List<string>(); 
-            OtherContents.Add($"\n当前时间信息：\n{DateTime.UtcNow.ToString("yyyy年MM月dd日 HH:mm:ss")} 星期{DateTime.UtcNow.DayOfWeek}");
+            OtherContents.Add($"\n当前时间信息：\n{DateTime.UtcNow.ToString("yyyy年MM月dd日 HH:mm:ss")} 星期{DateTime.UtcNow.DayOfWeek}  0表示星期日，1 表示\r\n   // 星期一，2表示星期二，3表示星期三，4表示\r\n   // 星期四，5表示星期五，6表示星期六");
             if (aiapp.KmsId != default)
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在查询知识库....");
