@@ -134,7 +134,8 @@ namespace kevin.Application.Services.AI
             addAi.IsSend = false;
             addAi.AIChatsId = par.AIChatsId;
             string systemPrompt = SystemPrompt.SystemPromptText;
-            List<string> OtherContents = new List<string>();
+            List<string> OtherContents = new List<string>(); 
+            OtherContents.Add($"\n当前时间信息：\n{DateTime.UtcNow.ToString("yyyy年MM月dd日 HH:mm:ss")} 星期{DateTime.UtcNow.DayOfWeek}");
             if (aiapp.KmsId != default)
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在查询知识库....");
