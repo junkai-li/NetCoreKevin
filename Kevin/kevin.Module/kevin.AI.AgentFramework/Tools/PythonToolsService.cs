@@ -1,4 +1,6 @@
-﻿using kevin.AI.AgentFramework.Interfaces.Tools;
+using Common;
+using kevin.AI.AgentFramework.Interfaces.Tools;
+using Kevin.Common.Helper;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -94,6 +96,12 @@ namespace kevin.AI.AgentFramework.Tools
                 if (!scriptPath.Contains(":"))
                 {
                     scriptPath = AppContext.BaseDirectory + scriptPath.Replace(@"/", @"\");
+                } 
+                var validationResult = PythonSecurityValidator.ValidatePythonFile(scriptPath);
+                if (!validationResult.IsValid)
+                {
+                    var blockedList = string.Join("; ", validationResult.BlockedItems);
+                    return $"❌ 安全校验失败: {blockedList}";
                 }
                 Console.WriteLine();
                 Console.WriteLine($"🔧 正在执行Py脚本 {scriptPath}");
@@ -153,6 +161,13 @@ namespace kevin.AI.AgentFramework.Tools
                 if (string.IsNullOrWhiteSpace(code))
                 {
                     return "执行Py代码为空。";
+                }
+
+                var validationResult = PythonSecurityValidator.ValidatePythonCode(code);
+                if (!validationResult.IsValid)
+                {
+                    var blockedList = string.Join("; ", validationResult.BlockedItems);
+                    return $"❌ 安全校验失败: {blockedList}";
                 }
                 Console.WriteLine();
                 Console.WriteLine($"🔧 正在执行Py代码");

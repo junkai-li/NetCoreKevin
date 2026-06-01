@@ -46,7 +46,7 @@ namespace kevin.Application.Services.AI
                 new AIFunctionFactoryOptions
                 {
                     Name = "GetCurrentTime",
-                    Description = "获取当前时间，返回系统的当前时间。"
+                    Description = "获取当前时间信息，当用户询问当前时间、日期、星期，或需要基于当下时刻进行计算与判断时调用"
                 }
             ));
             foreach (var item in toolNames)

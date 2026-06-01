@@ -1,4 +1,4 @@
-﻿ 
+ 
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -16,6 +16,10 @@
       <PackageReference Include="OpenTelemetry" Version="1.14.0" />
       <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.14.0" />
       <PackageReference Include="System.Linq.Async" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kevin.Common\Kevin.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -18,8 +18,8 @@ using Kevin.SignalR.Service;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using NetCore.Util;
-using System.Text;
-using StringHelper = kevin.AI.AgentFramework.Tools.StringHelper;
+using System.Text; 
+using Kevin.Common.Helper;
 namespace kevin.Application.Services.AI
 {
 
@@ -134,8 +134,7 @@ namespace kevin.Application.Services.AI
             addAi.IsSend = false;
             addAi.AIChatsId = par.AIChatsId;
             string systemPrompt = SystemPrompt.SystemPromptText;
-            List<string> OtherContents = new List<string>(); 
-            OtherContents.Add($"\n当前时间信息：\n{DateTime.UtcNow.ToString("yyyy年MM月dd日 HH:mm:ss")} 星期{DateTime.UtcNow.DayOfWeek}  0表示星期日，1 表示\r\n   // 星期一，2表示星期二，3表示星期三，4表示\r\n   // 星期四，5表示星期五，6表示星期六");
+            List<string> OtherContents = new List<string>();  
             if (aiapp.KmsId != default)
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在查询知识库....");
@@ -154,7 +153,7 @@ namespace kevin.Application.Services.AI
                     var systemPromptData = await rAGServicevice.GetSystemPrompt("AIKmss-" + kmss.Id.ToString(), await ollamaApiService.GetEmbedding(add.Content), aiapp.MaxMatchesCount, (aiapp.Relevance / 100));
                     if (systemPromptData.Item1)
                     {
-                        OtherContents.Add(kevin.AI.AgentFramework.Tools.StringHelper.SubstringText(systemPromptData.Item2, aiapp.ContentLengthLimit));
+                        OtherContents.Add(StringHelper.SubstringText(systemPromptData.Item2, aiapp.ContentLengthLimit));
                         await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"找到 {systemPromptData.Item3.Count} 个相关文档");
                     }
                 }
@@ -233,7 +232,7 @@ namespace kevin.Application.Services.AI
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在联网搜索....");
                 var http = new HttpClientFunction(aIAgentService, _serviceProvider);
-                OtherContents.Add(kevin.AI.AgentFramework.Tools.StringHelper.SubstringText(await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey), aiapp.ContentLengthLimit));
+                OtherContents.Add(StringHelper.SubstringText(await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey), aiapp.ContentLengthLimit));
 
             }
             else

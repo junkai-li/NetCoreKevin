@@ -1,8 +1,9 @@
-﻿using Microsoft.Agents.AI;
+using Microsoft.Agents.AI;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using Kevin.Common.Helper;
 
 namespace kevin.AI.AgentFramework.ScriptRunners
 {
@@ -124,6 +125,12 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                             "Python environment is not installed. Please install Python (python3 or python) and ensure it is available in the system PATH."
                         );
                     }
+                    var validationResult = PythonSecurityValidator.ValidatePythonFile(scriptFullPath);
+                    if (!validationResult.IsValid)
+                    {
+                        var blockedList = string.Join("; ", validationResult.BlockedItems);
+                        return $"❌ 安全校验失败: {blockedList}";
+                    } 
                     startInfo = CreateStartInfo(pythonCmd, $"\"{scriptFullPath}\"");
                     Console.WriteLine($"执行命令 {pythonCmd} \"{scriptFullPath}\"");
                     break;
