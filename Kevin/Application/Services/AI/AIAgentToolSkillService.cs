@@ -41,6 +41,14 @@ namespace kevin.Application.Services.AI
             _iPythonTools.InitData(data);
             _iShellTools.InitData(data);
             _agentHttpClientToolsService.InitData(data);
+            aiTools.Add(
+                AIFunctionFactory.Create(_iCommonTools.GetCurrentTime,
+                new AIFunctionFactoryOptions
+                {
+                    Name = "GetCurrentTime",
+                    Description = "获取当前时间，返回系统的当前时间。"
+                }
+            ));
             foreach (var item in toolNames)
             {
                 if (!string.IsNullOrEmpty(item))

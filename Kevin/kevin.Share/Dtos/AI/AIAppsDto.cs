@@ -151,7 +151,7 @@ namespace kevin.Domain.Share.Dtos.AI
         /// AI请求超时时间，单位分钟
         /// </summary>
         [Description("AI请求超时时间，单位分钟")]
-        public int NetworkTimeout { get; set; } = 10;
+        public int NetworkTimeout { get; set; } = 10; 
 
         /// <summary>
         /// 关联的绑定ID
@@ -164,5 +164,31 @@ namespace kevin.Domain.Share.Dtos.AI
         [DefaultValue("*")]
         [MaxLength(500)]
         public string AuthorizedDomains { get; set; } = "*";
+
+        /// <summary>
+        /// 对话消息数量的限制
+        /// </summary>
+        [Description("对话消息数量的限制，默认100条")]
+        [DefaultValue(100)]
+        public int ChatMessageLimit { get; set; } = 100;
+
+        /// <summary>
+        /// 是否开启AI思考过程流式展示日志，开启后可以记录AI思考过程日志，方便调试和优化
+        /// </summary>
+        [Description("是否开启AI思考过程流式展示日志")] 
+        public bool IsThinkingLog { get; set; } = true;
+
+
+        /// <summary>
+        /// 是否开启AI工具调用流式展示日志 ，开启后可以记录AI工具调用日志，方便调试和优化
+        /// </summary>
+        [Description("是否开启AI工具调用流式展示日志")] 
+        public bool IsToolLog { get; set; } = true;
+
+        /// <summary>
+        /// 内容长度限制，超过限制后会进行截断，默认3000字符（知识库，互联网搜索，AI工具内容，文件内容等，）
+        /// </summary>
+        [Description(" 内容长度限制，超过限制后会进行截断，默认3000字符（知识库，互联网搜索，AI工具内容，文件内容等，）")] 
+        public int ContentLengthLimit { get; set; } = 3000;
     }
 }

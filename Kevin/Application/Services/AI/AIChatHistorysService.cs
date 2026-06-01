@@ -1,4 +1,5 @@
-﻿using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
+﻿using Common;
+using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.ScriptRunners;
@@ -83,6 +84,11 @@ namespace kevin.Application.Services.AI
             }
             result.total = await data.CountAsync();
             result.data = (await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPage.pageSize).ToListAsync()).MapToList<TAIChatHistorys, AIChatHistorysDto>();
+            foreach (var item in result.data)
+            {
+                item.AIReasoningContent = StringHelper.SubstringText(item.AIReasoningContent, 2000);
+                item.AIToolsContent = StringHelper.SubstringText(item.AIToolsContent, 3000);
+            }
             return result;
         }
 
@@ -96,13 +102,13 @@ namespace kevin.Application.Services.AI
         public async Task<AIChatHistorysDto> Add(AIChatHistorysDto par, CancellationToken cancellationToken)
         {
 
-            var count = await aIChatHistorysRp.Query().Where(t => t.IsDelete == false && t.AIChatsId == par.AIChatsId).CountAsync(cancellationToken);
-            if (count >= 100)
-            {
-                throw new UserFriendlyException($"聊天记录已达上限{count}，为了更好的体验，建议新建聊天对话噢！");
-            }
             var aichas = await aIChatsService.GetDetails(par.AIChatsId);
             var aiapp = await aIAppsService.GetDetails(aichas.AppId);
+            var count = await aIChatHistorysRp.Query().Where(t => t.IsDelete == false && t.AIChatsId == par.AIChatsId).CountAsync(cancellationToken);
+            if (count >= aiapp.ChatMessageLimit)
+            {
+                throw new UserFriendlyException($"聊天记录已达上限{aiapp.ChatMessageLimit}条，为了更好的体验，建议新建聊天对话噢！");
+            }
             if ((await aIAppsService.GetMyALLList()).Any(t => t.Id == aichas.AppId) == false)
             {
                 throw new UserFriendlyException("智能体权限不足，无法使用");
@@ -127,7 +133,8 @@ namespace kevin.Application.Services.AI
             addAi.TenantId = CurrentUser.TenantId;
             addAi.IsSend = false;
             addAi.AIChatsId = par.AIChatsId;
-            string systemPrompt = SystemPrompt.SystemPromptText; 
+            string systemPrompt = SystemPrompt.SystemPromptText;
+            List<string> OtherContents = new List<string>();
             if (aiapp.KmsId != default)
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在查询知识库....");
@@ -146,7 +153,7 @@ namespace kevin.Application.Services.AI
                     var systemPromptData = await rAGServicevice.GetSystemPrompt("AIKmss-" + kmss.Id.ToString(), await ollamaApiService.GetEmbedding(add.Content), aiapp.MaxMatchesCount, (aiapp.Relevance / 100));
                     if (systemPromptData.Item1)
                     {
-                        systemPrompt += systemPromptData.Item2;
+                        OtherContents.Add(StringHelper.SubstringText(systemPromptData.Item2, aiapp.ContentLengthLimit));
                         await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"找到 {systemPromptData.Item3.Count} 个相关文档");
                     }
                 }
@@ -154,34 +161,34 @@ namespace kevin.Application.Services.AI
             }
             else
             {
-                systemPrompt += "\n文档信息列表：\n无相关信息";
+                OtherContents.Add("\n文档信息列表：\n无相关信息");
             }
 
             #region 文件处理
             if (!string.IsNullOrWhiteSpace(add.ContentFileUrls))
             {
                 var fileUrls = add.ContentFileUrls.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                var fileNames = !string.IsNullOrWhiteSpace(add.FileNames) 
-                    ? add.FileNames.Split(',', StringSplitOptions.RemoveEmptyEntries) 
+                var fileNames = !string.IsNullOrWhiteSpace(add.FileNames)
+                    ? add.FileNames.Split(',', StringSplitOptions.RemoveEmptyEntries)
                     : new string[fileUrls.Length];
 
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"正在处理 {fileUrls.Length} 个上传文件...");
 
                 var fileContents = new StringBuilder();
                 fileContents.AppendLine("\n用户上传文件内容：");
-                
+
                 for (int i = 0; i < fileUrls.Length; i++)
                 {
                     var fileUrl = fileUrls[i].Trim();
                     var fileName = i < fileNames.Length ? fileNames[i].Trim() : Path.GetFileName(fileUrl);
-                    
+
                     try
                     {
                         await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"正在提取文件内容: {fileName}");
-                        
+
                         var stream = await FileHelper.GetRemoteFileStreamAsync(fileUrl);
                         var fileType = DetermineFileType(fileName);
-                        
+
                         string content = "";
                         switch (fileType)
                         {
@@ -208,7 +215,7 @@ namespace kevin.Application.Services.AI
                                 content = TextStreamReader.ReadTextFromStream(stream);
                                 break;
                         }
-                        
+
                         fileContents.AppendLine($"\n【{fileName}】内容如下：");
                         fileContents.AppendLine(content);
                     }
@@ -217,20 +224,20 @@ namespace kevin.Application.Services.AI
                         fileContents.AppendLine($"\n【{fileName}】(读取失败: {ex.Message})");
                     }
                 }
-                
-                systemPrompt += fileContents.ToString();
+
+                OtherContents.Add(StringHelper.SubstringText(fileContents.ToString(), aiapp.ContentLengthLimit));
             }
             #endregion 
             if (par.IsOnlineSearch)
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在联网搜索....");
                 var http = new HttpClientFunction(aIAgentService, _serviceProvider);
-                systemPrompt += await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey);
+                OtherContents.Add(StringHelper.SubstringText(await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey), aiapp.ContentLengthLimit));
 
             }
             else
             {
-                systemPrompt += "\n互联网查询信息:\n无相关信息";
+                OtherContents.Add("\n互联网查询信息:\n无相关信息");
             }
 
             #region AI配置
@@ -240,7 +247,7 @@ namespace kevin.Application.Services.AI
                 Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
                 ChatOptions = new Microsoft.Extensions.AI.ChatOptions
                 {
-                    MaxOutputTokens = aiapp.MaxAskPromptSize,
+                    MaxOutputTokens = aiapp.AnswerTokens,
                     Temperature = (float)(aiapp.Temperature / 100),
                     ResponseFormat = ChatResponseFormat.Text,
                     Instructions = (aIPrompts.Prompt + systemPrompt),
@@ -305,14 +312,20 @@ namespace kevin.Application.Services.AI
                         ToolStreameCallback = async (msg) =>
                         {
                             addAi.AIToolsContent += msg;
-                            await signalRMsgService.SendIdentityIdMsg("aIToolsContentMsg", add.Id.ToString(), msg);
+                            if (aiapp.IsToolLog)
+                            {
+                                await signalRMsgService.SendIdentityIdMsg("aIToolsContentMsg", add.Id.ToString(), StringHelper.SubstringText(msg, aiapp.ContentLengthLimit));
+                            }
                         },
                         ReasoningStreameCallback = async (msg) =>
                         {
                             addAi.AIReasoningContent += msg;
-                            await signalRMsgService.SendIdentityIdMsg("aIReasoningContentMsg", add.Id.ToString(), msg);
+                            if (aiapp.IsThinkingLog)
+                            {
+                                await signalRMsgService.SendIdentityIdMsg("aIReasoningContentMsg", add.Id.ToString(), StringHelper.SubstringText(msg, aiapp.ContentLengthLimit));
+                            }
                         },
-                    }, chatAgOs, add.Content, cancellationToken: cancellationToken, fileUrl: !string.IsNullOrWhiteSpace(add.ContentFileUrls) ? add.ContentFileUrls.Split(',').ToList() : default)).Item2;
+                    }, chatAgOs, add.Content, cancellationToken: cancellationToken, OtherContents: OtherContents)).Item2;
                     break;
             }
             aIChatHistorysRp.Add(addAi);

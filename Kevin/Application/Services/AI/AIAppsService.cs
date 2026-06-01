@@ -181,6 +181,10 @@ namespace kevin.Application.Services.AI
                     msg.NetworkTimeout = par.NetworkTimeout;
                     msg.IsHttpLog = par.IsHttpLog;
                     msg.AuthorizedDomains = par.AuthorizedDomains;
+                    msg.ChatMessageLimit = par.ChatMessageLimit;
+                    msg.IsToolLog = par.IsToolLog;
+                    msg.IsThinkingLog = par.IsThinkingLog;
+                    msg.ContentLengthLimit = par.ContentLengthLimit;
                 }
                 else
                 {

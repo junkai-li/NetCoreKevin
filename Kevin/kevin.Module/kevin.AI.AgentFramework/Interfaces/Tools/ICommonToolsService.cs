@@ -8,6 +8,11 @@ namespace kevin.AI.AgentFramework.Interfaces.Tools
     public interface ICommonToolsService : IBaseAIToolService
     {
         /// <summary>
+        /// 获取当前时间
+        /// </summary>
+        [Description("获取当前时间，返回系统的当前时间。")]
+        Task<string> GetCurrentTime();
+        /// <summary>
         /// 获取当前系统。返回运行时平台的友好名称（例如 "Windows"、"Linux"、"macOS"、"Unknown"）。
         /// </summary>
         [Description("获取当前系统,返回运行时平台的友好名称（例如 \"Windows\"、\"Linux\"、\"macOS\"、\"Unknown\"）。")]

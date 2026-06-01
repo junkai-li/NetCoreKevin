@@ -15,7 +15,15 @@ namespace kevin.AI.AgentFramework.Tools
         {
             _data = data;
         }
-
+        /// <summary>
+        /// 获取当前时间
+        /// </summary>
+        [Description("获取当前时间，返回系统的当前时间。")]
+        public async Task<string> GetCurrentTime()
+        { 
+             
+            return DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
+        }
         /// <summary>
         /// 获取当前系统。返回运行时平台的友好名称（例如 "Windows"、"Linux"、"macOS"、"Unknown"）。
         /// </summary>

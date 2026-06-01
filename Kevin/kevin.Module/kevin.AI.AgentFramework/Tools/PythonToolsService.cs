@@ -34,7 +34,7 @@ namespace kevin.AI.AgentFramework.Tools
                 Console.WriteLine($"🔧 正在执行Py脚本 {scriptPath}");
                 // 设置进程信息
                 ProcessStartInfo start = new ProcessStartInfo();
-                start.FileName = @"python"; // Python解释器的路径，例如 "python" 或 "python3"
+                start.FileName = @"python3"; // Python解释器的路径，例如 "python" 或 "python3"
                 start.Arguments = $"{scriptPath}"; // 传递参数
                 if (args != default)
                 {
@@ -88,7 +88,7 @@ namespace kevin.AI.AgentFramework.Tools
                 string output = "";
                 // 设置进程信息
                 ProcessStartInfo start = new ProcessStartInfo();
-                start.FileName = @"python"; // Python解释器的路径，例如 "python" 或 "python3"
+                start.FileName = @"python3"; // Python解释器的路径，例如 "python" 或 "python3"
                 start.Arguments = $"{saveResult}"; // 传递参数 
                 start.UseShellExecute = false; // 不使用操作系统外壳启动
                 start.RedirectStandardOutput = true; // 重定向标准输出

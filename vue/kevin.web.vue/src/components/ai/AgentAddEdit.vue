@@ -185,13 +185,40 @@
       </a-row>
       <a-row :gutter="16">
         <a-col :span="12">
+          <a-form-item label="对话消息限制">
+            <a-input-number v-model:value="form.chatMessageLimit" :min="1" style="width: 100%" :disabled="isViewMode" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item
+            label="内容长度限制"
+            extra="超过限制后会进行截断（知识库、互联网搜索、AI工具内容、文件内容等）"
+          >
+            <a-input-number v-model:value="form.contentLengthLimit" :min="1" style="width: 100%" :disabled="isViewMode" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="12">
+          <a-form-item label="流式AI思考过程">
+            <a-switch v-model:checked="form.isThinkingLog" :disabled="isViewMode" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="流式AI工具调用">
+            <a-switch v-model:checked="form.isToolLog" :disabled="isViewMode" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="12">
           <a-form-item label="请求超时(分钟)">
             <a-input-number v-model:value="form.networkTimeout" :min="1" style="width: 100%" :disabled="isViewMode" />
           </a-form-item>
         </a-col>
-        <a-col :span="12">
+            <a-col :span="12">
           <a-form-item label="请求白名单">
-            <a-textarea v-model:value="form.authorizedDomains" placeholder="*为所有，逗号分隔多个域名前缀" :rows="3" :maxlength="300" :disabled="isViewMode" />
+             <a-textarea v-model:value="form.authorizedDomains" placeholder="*为所有，逗号分隔多个域名前缀" :rows="3" :maxlength="300" :disabled="isViewMode" />
           </a-form-item>
         </a-col>
       </a-row> 
@@ -353,7 +380,11 @@ const form = reactive({
   maxRetries: 3,
   networkTimeout: 10,
   authorizedDomains: '*',
-  bindIds: []
+  bindIds: [],
+  chatMessageLimit: 100,
+  contentLengthLimit: 3000,
+  isThinkingLog: true,
+  isToolLog: true
 });
 
 // 表单验证规则
@@ -648,7 +679,11 @@ watch(() => props.open, (newVal) => {
         maxRetries: 3,
         networkTimeout: 10,
         authorizedDomains: '*',
-        bindIds: []
+        bindIds: [],
+        chatMessageLimit: 100,
+        contentLengthLimit: 3000,
+        isThinkingLog: true,
+        isToolLog: true
       });
     }
   }
@@ -700,7 +735,11 @@ const handleOk = () => {
         maxRetries: form.maxRetries,
         networkTimeout: form.networkTimeout,
         authorizedDomains: form.authorizedDomains,
-        bindIds: form.bindIds || []
+        bindIds: form.bindIds || [],
+        chatMessageLimit: form.chatMessageLimit,
+        contentLengthLimit: form.contentLengthLimit,
+        isThinkingLog: form.isThinkingLog,
+        isToolLog: form.isToolLog
       };
       
       emit('ok', params);

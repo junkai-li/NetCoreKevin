@@ -218,11 +218,11 @@ namespace Common
 
                 NeiRong = NeiRong + "...";
 
-                return NoHtml(NeiRong);
+                return NeiRong;
             }
             else
             {
-                return NoHtml(NeiRong);
+                return NeiRong;
             }
         }
 

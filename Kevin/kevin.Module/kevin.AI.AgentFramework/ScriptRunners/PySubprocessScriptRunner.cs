@@ -65,7 +65,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
             {
                 case ".py":
                     // 建议：在实际项目中，最好能从配置中获取 python 路径，而不是硬编码 "python"
-                    startInfo = CreateStartInfo("python", $"\"{scriptFullPath}\"");
+                    startInfo = CreateStartInfo("python3", $"\"{scriptFullPath}\"");
                     break;
 
                 case ".sh":

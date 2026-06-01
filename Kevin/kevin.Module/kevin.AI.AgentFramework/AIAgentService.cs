@@ -29,11 +29,15 @@ namespace kevin.AI.AgentFramework
         /// <param name="aISetting"></param>
         /// <param name="chatClientAgentOptions"></param>
         /// <param name="msg"></param>
-        /// <param name="fileUrl"></param>
+        /// <param name="OtherContents">其他内容：用来存放一些需要传递给代理的内容 比如文件内容 互联网信息等</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, string msg, List<string>? fileUrl = default, CancellationToken cancellationToken = default)
+        public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, string msg, List<string>? OtherContents = default, CancellationToken cancellationToken = default)
         {
+            if (string.IsNullOrEmpty(msg))
+            { 
+                throw  new Exception("msg不能为空");
+            }
             cancellationToken.ThrowIfCancellationRequested();//是否已经中止，若已请求取消则抛出异常
             if (aISetting.IsHttpLog)
             {
@@ -70,9 +74,9 @@ namespace kevin.AI.AgentFramework
             var reslut = new AgentResponse();
             var resultText = string.Empty;
             ChatMessage message = new(ChatRole.User, [new TextContent(msg)]);
-            if (fileUrl != default && fileUrl.Count > 0)
+            if (OtherContents != default && OtherContents.Count > 0)
             {
-                message= new(ChatRole.User, [new TextContent(msg),..fileUrl.Select(t=> new UriContent(t)).ToList()]);
+                message= new(ChatRole.User, [.. OtherContents.Select(t=> new TextContent(t)).ToList(), new TextContent(msg),]);
             }
             if (aISetting.IsStreame)
             {
