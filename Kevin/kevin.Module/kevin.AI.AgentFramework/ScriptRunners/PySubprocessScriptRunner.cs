@@ -37,6 +37,57 @@ namespace kevin.AI.AgentFramework.ScriptRunners
             };
         }
 
+        /// <summary>
+        /// 检测指定命令是否存在于系统 PATH 中
+        /// </summary>
+        private static bool IsCommandAvailable(string command)
+        {
+            try
+            {
+                var checkProcess = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "where" : "which",
+                        Arguments = command,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true
+                    }
+                };
+                checkProcess.Start();
+                checkProcess.WaitForExit();
+                return checkProcess.ExitCode == 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 获取可用的 Python 命令（优先 python3，其次 python）
+        /// 如果都不可用，返回 null
+        /// </summary>
+        private static string? GetAvailablePythonCommand()
+        {
+            // 优先检查 python3
+            if (IsCommandAvailable("python3"))
+            {
+                return "python3";
+            }
+
+            // 其次检查 python
+            if (IsCommandAvailable("python"))
+            {
+                return "python";
+            }
+
+            // 都不存在返回 null
+            return null;
+        }
+
 #pragma warning disable MAAI001
         public static async Task<object?> StaticRunAsync(
             AgentFileSkill skill,
@@ -50,7 +101,8 @@ namespace kevin.AI.AgentFramework.ScriptRunners
             if (!File.Exists(scriptFullPath))
             {
                 throw new FileNotFoundException($"Script not found: {scriptFullPath}");
-            } 
+            }
+
             // 2. 序列化参数为 JSON
             // 如果 arguments 为 null，发送一个空对象或空字符串，避免发送 "null" 字面量导致某些解析器报错
             string inputJson = arguments.HasValue
@@ -64,8 +116,16 @@ namespace kevin.AI.AgentFramework.ScriptRunners
             switch (ext)
             {
                 case ".py":
-                    // 建议：在实际项目中，最好能从配置中获取 python 路径，而不是硬编码 "python"
-                    startInfo = CreateStartInfo("python", $"\"{scriptFullPath}\"");
+                    // 检测可用的 Python 环境
+                    string? pythonCmd = GetAvailablePythonCommand();
+                    if (pythonCmd == null)
+                    {
+                        throw new InvalidOperationException(
+                            "Python environment is not installed. Please install Python (python3 or python) and ensure it is available in the system PATH."
+                        );
+                    }
+                    startInfo = CreateStartInfo(pythonCmd, $"\"{scriptFullPath}\"");
+                    Console.WriteLine($"执行命令 {pythonCmd} \"{scriptFullPath}\"");
                     break;
 
                 case ".sh":
@@ -170,7 +230,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                 );
             }
 
-            Console.WriteLine($"Script {script.Name} executed successfully."); 
+            Console.WriteLine($"Script {script.Name} executed successfully.");
 
             // 6. 尝试解析 JSON 返回结果
             if (string.IsNullOrWhiteSpace(stdOut))
