@@ -216,12 +216,12 @@ namespace kevin.Application.Services.AI
                                 break;
                         }
 
-                        fileContents.AppendLine($"\n【{fileName}】内容如下：");
+                        fileContents.AppendLine($"\n文件名：【{fileName}】\n文件地址：【{fileUrl}】\n文件内容如下：");
                         fileContents.AppendLine(content);
                     }
                     catch (Exception ex)
                     {
-                        fileContents.AppendLine($"\n【{fileName}】(读取失败: {ex.Message})");
+                        fileContents.AppendLine($"\n文件名：【{fileName}】\n文件地址：【{fileUrl}】\n(读取失败: {ex.Message})");
                     }
                 }
 

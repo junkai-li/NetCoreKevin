@@ -35,7 +35,7 @@ namespace kevin.AI.AgentFramework.Tools
         [Description("获取当前时间，返回系统的当前时间。 当用户询问当前时间、日期、星期，或需要基于当下时刻进行计算与判断时调用")]
         public async Task<string> GetCurrentTime()
         {  
-            return $"\n当前时间信息：\n{DateTime.UtcNow.ToString("yyyy年MM月dd日 HH:mm:ss")} 星期{DateTime.UtcNow.DayOfWeek} \n0表示星期日，1 表示星期一，2表示星期二，3表示星期三，4表示星期四，5表示星期五，6表示星期六";
+            return $"\n当前时间信息：\n{DateTime.UtcNow.ToString("yyyy年MM月dd日 HH:mm:ss")} 星期{(int)DateTime.UtcNow.DayOfWeek} \n 0表示星期日，1 表示星期一，2表示星期二，3表示星期三，4表示星期四，5表示星期五，6表示星期六";
         }
         /// <summary>
         /// 获取当前系统。返回运行时平台的友好名称（例如 "Windows"、"Linux"、"macOS"、"Unknown"）。
