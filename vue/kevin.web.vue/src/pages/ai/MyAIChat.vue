@@ -596,7 +596,7 @@ const loadChatHistory = async (chatId, page) => {
         aiToolsContent: item.aiToolsContent,
         fileNames: item.fileNames || '',
         contentFileUrls: item.contentFileUrls || '',
-        createdAt: item.creationTime || new Date().toISOString(),
+        createdAt: item.createTime || new Date().toISOString(),
       }));
 
       // 如果是第一页，直接替换消息列表，否则添加到列表开头（历史消息在前）
