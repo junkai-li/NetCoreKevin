@@ -69,7 +69,7 @@ namespace kevin.AI.AgentFramework
                 chatClientAgentOptions.AIContextProviders = default;
             }
             #endregion
-             
+
             // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示  
             var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(aISetting.AIKeySecret) ? "local" : aISetting.AIKeySecret), openAIClientOptions);
             var aiAgent = ai.GetChatClient(aISetting.AIDefaultModel).AsIChatClient().AsAIAgent(chatClientAgentOptions);
@@ -80,7 +80,7 @@ namespace kevin.AI.AgentFramework
             ChatMessage message = new(ChatRole.User, [new TextContent(msg)]);
             if (OtherContents != default && OtherContents.Count > 0)
             {
-                message = new(ChatRole.User, [.. OtherContents.Select(t => new TextContent(t)).ToList(), new TextContent(msg),]);
+                message = new(ChatRole.User, [.. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(), new TextContent(msg),]);
             }
             if (aISetting.IsStreame)
             {
@@ -128,7 +128,7 @@ namespace kevin.AI.AgentFramework
                             }
                         }
                         if (TryExtractUsageFromUpdate(update, out var usage))
-                        { 
+                        {
                             tokenConsumptionInfo = usage;
                         }
                     }
@@ -163,58 +163,33 @@ namespace kevin.AI.AgentFramework
         /// <returns>思考过程文本</returns>
         private async Task<string> GetReasoningTextAsync(AgentResponseUpdate update)
         {
-            var reasoningBuilder = new StringBuilder();
-            // 仅处理无文本输出、包含原始响应的更新
-            if (update.RawRepresentation is Microsoft.Extensions.AI.ChatResponseUpdate streamingChatCompletionUpdate
-                && streamingChatCompletionUpdate.RawRepresentation is OpenAI.Chat.StreamingChatCompletionUpdate chatCompletionUpdate)
+            try
             {
-                // 从原始JSON中提取 reasoning 字段
-#pragma warning disable SCME0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
-                ref JsonPatch patch = ref chatCompletionUpdate.Patch;
-#pragma warning restore SCME0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。  
-                // 1. 从 patch 中获取更上层的 choices 片段，然后遍历每个 choice 的 delta 查找 reasoning
-                var jsonPathBytes = System.Text.Encoding.UTF8.GetBytes("$.choices");
-                var jsonPathSpan = new ReadOnlySpan<byte>(jsonPathBytes);
-                // 2. 调用 TryGetJson（获取 choices 数组片段）
-                if (patch.TryGetJson(jsonPathSpan, out var data))
+                var reasoningBuilder = new StringBuilder();
+                // 仅处理无文本输出、包含原始响应的更新
+                if (update.RawRepresentation is Microsoft.Extensions.AI.ChatResponseUpdate streamingChatCompletionUpdate
+                    && streamingChatCompletionUpdate.RawRepresentation is OpenAI.Chat.StreamingChatCompletionUpdate chatCompletionUpdate)
                 {
-                    // 将 ReadOnlyMemory<byte> 转为字符串，便于调试输出
-                    var jsonString = System.Text.Encoding.UTF8.GetString(data.ToArray());
-
-                    using var doc = JsonDocument.Parse(jsonString);
-                    var root = doc.RootElement;
-
-                    // 遍历 choices 数组，查找 delta 下的 reasoning 字段（兼容字符串或对象）
-                    if (root.ValueKind == JsonValueKind.Array)
+                    // 从原始JSON中提取 reasoning 字段
+#pragma warning disable SCME0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+                    ref JsonPatch patch = ref chatCompletionUpdate.Patch;
+#pragma warning restore SCME0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。  
+                    // 1. 从 patch 中获取更上层的 choices 片段，然后遍历每个 choice 的 delta 查找 reasoning
+                    var jsonPathBytes = System.Text.Encoding.UTF8.GetBytes("$.choices");
+                    var jsonPathSpan = new ReadOnlySpan<byte>(jsonPathBytes);
+                    // 2. 调用 TryGetJson（获取 choices 数组片段）
+                    if (patch.TryGetJson(jsonPathSpan, out var data))
                     {
-                        foreach (var choice in root.EnumerateArray())
-                        {
-                            if (choice.TryGetProperty("delta", out var delta))
-                            {
-                                // 支持两种字段名：reasoning 或 reasoning_content
-                                if (!delta.TryGetProperty("reasoning", out var reasoningProp)
-                                    && !delta.TryGetProperty("reasoning_content", out reasoningProp))
-                                {
-                                    continue;
-                                }
+                        // 将 ReadOnlyMemory<byte> 转为字符串，便于调试输出
+                        var jsonString = System.Text.Encoding.UTF8.GetString(data.ToArray());
 
-                                string reasoningText = reasoningProp.ValueKind == JsonValueKind.String
-                                    ? reasoningProp.GetString() ?? string.Empty
-                                    : reasoningProp.GetRawText();
+                        using var doc = JsonDocument.Parse(jsonString);
+                        var root = doc.RootElement;
 
-                                if (!string.IsNullOrEmpty(reasoningText))
-                                {
-                                    reasoningBuilder.Append(reasoningText);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // 如果返回的不是数组，尝试按对象结构解析（兼容性保护）
-                        if (root.TryGetProperty("choices", out var choices) && choices.ValueKind == JsonValueKind.Array)
+                        // 遍历 choices 数组，查找 delta 下的 reasoning 字段（兼容字符串或对象）
+                        if (root.ValueKind == JsonValueKind.Array)
                         {
-                            foreach (var choice in choices.EnumerateArray())
+                            foreach (var choice in root.EnumerateArray())
                             {
                                 if (choice.TryGetProperty("delta", out var delta))
                                 {
@@ -228,6 +203,7 @@ namespace kevin.AI.AgentFramework
                                     string reasoningText = reasoningProp.ValueKind == JsonValueKind.String
                                         ? reasoningProp.GetString() ?? string.Empty
                                         : reasoningProp.GetRawText();
+
                                     if (!string.IsNullOrEmpty(reasoningText))
                                     {
                                         reasoningBuilder.Append(reasoningText);
@@ -235,10 +211,43 @@ namespace kevin.AI.AgentFramework
                                 }
                             }
                         }
+                        else
+                        {
+                            // 如果返回的不是数组，尝试按对象结构解析（兼容性保护）
+                            if (root.TryGetProperty("choices", out var choices) && choices.ValueKind == JsonValueKind.Array)
+                            {
+                                foreach (var choice in choices.EnumerateArray())
+                                {
+                                    if (choice.TryGetProperty("delta", out var delta))
+                                    {
+                                        // 支持两种字段名：reasoning 或 reasoning_content
+                                        if (!delta.TryGetProperty("reasoning", out var reasoningProp)
+                                            && !delta.TryGetProperty("reasoning_content", out reasoningProp))
+                                        {
+                                            continue;
+                                        }
+
+                                        string reasoningText = reasoningProp.ValueKind == JsonValueKind.String
+                                            ? reasoningProp.GetString() ?? string.Empty
+                                            : reasoningProp.GetRawText();
+                                        if (!string.IsNullOrEmpty(reasoningText))
+                                        {
+                                            reasoningBuilder.Append(reasoningText);
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
+                return (reasoningBuilder?.ToString() ?? "").Replace("null", "\n");
             }
-            return (reasoningBuilder?.ToString() ?? "").Replace("null", "\n");
+            catch (Exception)
+            {
+
+                return "";
+            }
+
         }
 
         /// <summary>
@@ -249,101 +258,107 @@ namespace kevin.AI.AgentFramework
         /// <returns></returns>
         private static bool TryExtractUsageFromUpdate(AgentResponseUpdate update, out TokenConsumptionInfo info)
         {
-            info = new TokenConsumptionInfo();
-            if (update == null) return false;
-
-            // 1) Common case: wrapper ChatResponseUpdate -> underlying OpenAI streaming update
-            if (update.RawRepresentation is Microsoft.Extensions.AI.ChatResponseUpdate chatResp &&
-                chatResp.RawRepresentation is OpenAI.Chat.StreamingChatCompletionUpdate openAiInner)
-            {
-                if (openAiInner.Usage != null)
-                {
-                    info.InputTokenCount = openAiInner.Usage.InputTokenCount;
-                    info.OutputTokenCount = openAiInner.Usage.OutputTokenCount;
-                    info.TotalTokenCount = openAiInner.Usage.TotalTokenCount;
-                    return true;
-                }
-            }
-
-            // 2) Raw is directly OpenAI streaming update
-            if (update.RawRepresentation is OpenAI.Chat.StreamingChatCompletionUpdate openAiDirect)
-            {
-                if (openAiDirect.Usage != null)
-                {
-                    info.InputTokenCount = openAiDirect.Usage.InputTokenCount;
-                    info.OutputTokenCount = openAiDirect.Usage.OutputTokenCount;
-                    info.TotalTokenCount = openAiDirect.Usage.TotalTokenCount;
-                    return true;
-                }
-            }
-
-            // 3) Try reflection: a Usage property on update or its RawRepresentation
-            object? candidate = null;
-            var usageProp = update.GetType().GetProperty("Usage") ?? update.GetType().GetProperty("usage");
-            if (usageProp != null) candidate = usageProp.GetValue(update);
-            else if (update.RawRepresentation != null)
-            {
-                var rpType = update.RawRepresentation.GetType();
-                var rpUsageProp = rpType.GetProperty("Usage") ?? rpType.GetProperty("usage");
-                if (rpUsageProp != null) candidate = rpUsageProp.GetValue(update.RawRepresentation);
-            }
-
-            if (candidate != null)
-            {
-                int? GetInt(object? o, string name)
-                {
-                    var p = o?.GetType().GetProperty(name);
-                    if (p == null) return null;
-                    var v = p.GetValue(o);
-                    return v switch
-                    {
-                        int i => i,
-                        long l => (int)l,
-                        System.Text.Json.JsonElement je when je.ValueKind == System.Text.Json.JsonValueKind.Number && je.TryGetInt32(out var vi) => vi,
-                        _ => null
-                    };
-                }
-
-                info.InputTokenCount = GetInt(candidate, "InputTokenCount") ?? GetInt(candidate, "PromptTokens") ?? 0;
-                info.OutputTokenCount = GetInt(candidate, "OutputTokenCount") ?? GetInt(candidate, "CompletionTokens") ?? 0;
-                info.TotalTokenCount = GetInt(candidate, "TotalTokenCount") ?? GetInt(candidate, "TotalTokens") ?? (info.InputTokenCount + info.OutputTokenCount);
-                return info.TotalTokenCount > 0;
-            }
-
-            // 4) 最后：尝试把 RawRepresentation 序列化为 JSON 并查找 usage 节点
             try
             {
-                string? json = null;
-                if (update.RawRepresentation is string s) json = s;
-                else if (update.RawRepresentation is System.Text.Json.JsonElement je) json = je.GetRawText();
-                else if (update.RawRepresentation != null) json = System.Text.Json.JsonSerializer.Serialize(update.RawRepresentation);
+                info = new TokenConsumptionInfo();
+                if (update == null) return false;
 
-                if (!string.IsNullOrEmpty(json))
+                // 1) Common case: wrapper ChatResponseUpdate -> underlying OpenAI streaming update
+                if (update.RawRepresentation is Microsoft.Extensions.AI.ChatResponseUpdate chatResp &&
+                    chatResp.RawRepresentation is OpenAI.Chat.StreamingChatCompletionUpdate openAiInner)
                 {
-                    using var doc = System.Text.Json.JsonDocument.Parse(json);
-                    if (TryFindUsageElement(doc.RootElement, out var usageEl))
+                    if (openAiInner.Usage != null)
                     {
-                        int? GetIntFromJson(System.Text.Json.JsonElement el, string name)
-                        {
-                            if (el.ValueKind != System.Text.Json.JsonValueKind.Object) return null;
-                            if (el.TryGetProperty(name, out var p) && p.ValueKind == System.Text.Json.JsonValueKind.Number && p.TryGetInt32(out var v)) return v;
-                            return null;
-                        }
-
-                        info.InputTokenCount = GetIntFromJson(usageEl, "prompt_tokens") ?? GetIntFromJson(usageEl, "input_tokens") ?? 0;
-                        info.OutputTokenCount = GetIntFromJson(usageEl, "completion_tokens") ?? GetIntFromJson(usageEl, "output_tokens") ?? 0;
-                        info.TotalTokenCount = GetIntFromJson(usageEl, "total_tokens") ?? (info.InputTokenCount + info.OutputTokenCount);
-                        return info.TotalTokenCount > 0;
+                        info.InputTokenCount = openAiInner.Usage.InputTokenCount;
+                        info.OutputTokenCount = openAiInner.Usage.OutputTokenCount;
+                        info.TotalTokenCount = openAiInner.Usage.TotalTokenCount;
+                        return true;
                     }
                 }
+
+                // 2) Raw is directly OpenAI streaming update
+                if (update.RawRepresentation is OpenAI.Chat.StreamingChatCompletionUpdate openAiDirect)
+                {
+                    if (openAiDirect.Usage != null)
+                    {
+                        info.InputTokenCount = openAiDirect.Usage.InputTokenCount;
+                        info.OutputTokenCount = openAiDirect.Usage.OutputTokenCount;
+                        info.TotalTokenCount = openAiDirect.Usage.TotalTokenCount;
+                        return true;
+                    }
+                }
+
+                // 3) Try reflection: a Usage property on update or its RawRepresentation
+                object? candidate = null;
+                var usageProp = update.GetType().GetProperty("Usage") ?? update.GetType().GetProperty("usage");
+                if (usageProp != null) candidate = usageProp.GetValue(update);
+                else if (update.RawRepresentation != null)
+                {
+                    var rpType = update.RawRepresentation.GetType();
+                    var rpUsageProp = rpType.GetProperty("Usage") ?? rpType.GetProperty("usage");
+                    if (rpUsageProp != null) candidate = rpUsageProp.GetValue(update.RawRepresentation);
+                }
+
+                if (candidate != null)
+                {
+                    int? GetInt(object? o, string name)
+                    {
+                        var p = o?.GetType().GetProperty(name);
+                        if (p == null) return null;
+                        var v = p.GetValue(o);
+                        return v switch
+                        {
+                            int i => i,
+                            long l => (int)l,
+                            System.Text.Json.JsonElement je when je.ValueKind == System.Text.Json.JsonValueKind.Number && je.TryGetInt32(out var vi) => vi,
+                            _ => null
+                        };
+                    }
+
+                    info.InputTokenCount = GetInt(candidate, "InputTokenCount") ?? GetInt(candidate, "PromptTokens") ?? 0;
+                    info.OutputTokenCount = GetInt(candidate, "OutputTokenCount") ?? GetInt(candidate, "CompletionTokens") ?? 0;
+                    info.TotalTokenCount = GetInt(candidate, "TotalTokenCount") ?? GetInt(candidate, "TotalTokens") ?? (info.InputTokenCount + info.OutputTokenCount);
+                    return info.TotalTokenCount > 0;
+                }
+
+                // 4) 最后：尝试把 RawRepresentation 序列化为 JSON 并查找 usage 节点
+                try
+                {
+                    string? json = null;
+                    if (update.RawRepresentation is string s) json = s;
+                    else if (update.RawRepresentation is System.Text.Json.JsonElement je) json = je.GetRawText();
+                    else if (update.RawRepresentation != null) json = System.Text.Json.JsonSerializer.Serialize(update.RawRepresentation);
+
+                    if (!string.IsNullOrEmpty(json))
+                    {
+                        using var doc = System.Text.Json.JsonDocument.Parse(json);
+                        if (TryFindUsageElement(doc.RootElement, out var usageEl))
+                        {
+                            int? GetIntFromJson(System.Text.Json.JsonElement el, string name)
+                            {
+                                if (el.ValueKind != System.Text.Json.JsonValueKind.Object) return null;
+                                if (el.TryGetProperty(name, out var p) && p.ValueKind == System.Text.Json.JsonValueKind.Number && p.TryGetInt32(out var v)) return v;
+                                return null;
+                            }
+
+                            info.InputTokenCount = GetIntFromJson(usageEl, "prompt_tokens") ?? GetIntFromJson(usageEl, "input_tokens") ?? 0;
+                            info.OutputTokenCount = GetIntFromJson(usageEl, "completion_tokens") ?? GetIntFromJson(usageEl, "output_tokens") ?? 0;
+                            info.TotalTokenCount = GetIntFromJson(usageEl, "total_tokens") ?? (info.InputTokenCount + info.OutputTokenCount);
+                            return info.TotalTokenCount > 0;
+                        }
+                    }
+                }
+                catch
+                {
+                    // ignore parse errors
+                }
+                return false;
             }
-            catch
+            catch (Exception)
             {
-                // ignore parse errors
+                info = new TokenConsumptionInfo();
             }
-
             return false;
-
             static bool TryFindUsageElement(System.Text.Json.JsonElement root, out System.Text.Json.JsonElement usage)
             {
                 if (root.ValueKind == System.Text.Json.JsonValueKind.Object && root.TryGetProperty("usage", out usage)) return true;
