@@ -1,4 +1,5 @@
 ﻿using Common;
+using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces.Tools;
 using System.ComponentModel;
 using System.Net;
@@ -128,7 +129,7 @@ namespace kevin.AI.AgentFramework.Tools
 
                 using var resp = await http.GetAsync(fullUrl, cancellationToken).ConfigureAwait(false);
                 var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-                return StringHelper.SubstringText(text, _contentLengthLimit) ?? string.Empty;
+                return text.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, _contentLengthLimit) : text;
             }
             catch (Exception ex)
             {
@@ -164,8 +165,8 @@ namespace kevin.AI.AgentFramework.Tools
                 }
 
                 using var resp = await http.PostAsync(fullUrl, content, cancellationToken).ConfigureAwait(false);
-                var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-                return StringHelper.SubstringText(text, _contentLengthLimit) ?? string.Empty;
+                var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false) ?? "";
+                return text.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, _contentLengthLimit) : text;
             }
             catch (Exception ex)
             {
@@ -200,8 +201,8 @@ namespace kevin.AI.AgentFramework.Tools
                 }
 
                 using var resp = await http.PutAsync(fullUrl, content, cancellationToken).ConfigureAwait(false);
-                var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-                return StringHelper.SubstringText(text, _contentLengthLimit) ?? string.Empty;
+                var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false) ?? "";
+                return text.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, _contentLengthLimit) : text;
             }
             catch (Exception ex)
             {
@@ -227,8 +228,8 @@ namespace kevin.AI.AgentFramework.Tools
                 ApplyHeaders(http, headers);
 
                 using var resp = await http.DeleteAsync(fullUrl, cancellationToken).ConfigureAwait(false);
-                var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-                return StringHelper.SubstringText(text, _contentLengthLimit) ?? string.Empty;
+                var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false) ?? ""; 
+                return text.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, _contentLengthLimit) : text;
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
 ﻿using Common;
+using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces.Tools;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -114,8 +115,8 @@ namespace kevin.AI.AgentFramework.Tools
                     result.AppendLine($"⚠️ 退出码: {process.ExitCode}");
                 }
 
-                var output = result.Length > 0 ? result.ToString() : "(命令执行成功，无输出)";  
-                return StringHelper.SubstringText(output, _contentLengthLimit);
+                var output = result.Length > 0 ? result.ToString() : "(命令执行成功，无输出)";
+                return output.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(output, _contentLengthLimit) : output;
             }
             catch (Exception ex)
             {

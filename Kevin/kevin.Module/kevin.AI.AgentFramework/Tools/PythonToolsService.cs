@@ -1,4 +1,5 @@
 using Common;
+using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces.Tools;
 using Kevin.Common.Helper;
 using System.ComponentModel;
@@ -96,7 +97,7 @@ namespace kevin.AI.AgentFramework.Tools
                 if (!scriptPath.Contains(":"))
                 {
                     scriptPath = AppContext.BaseDirectory + scriptPath.Replace(@"/", @"\");
-                } 
+                }
                 var validationResult = PythonSecurityValidator.ValidatePythonFile(scriptPath);
                 if (!validationResult.IsValid)
                 {
@@ -144,7 +145,7 @@ namespace kevin.AI.AgentFramework.Tools
                 {
                     output = "Python脚本执行完成，但没有输出结果。";
                 }
-                return StringHelper.SubstringText(output, _contentLengthLimit);
+                return output.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(output, _contentLengthLimit) : output;
             }
             catch (Exception ex)
             {
@@ -204,7 +205,7 @@ namespace kevin.AI.AgentFramework.Tools
                 {
                     output = "Python脚本执行完成，但没有输出结果。";
                 }
-                return StringHelper.SubstringText(output, _contentLengthLimit);
+                return output.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(output, _contentLengthLimit) : output;
 
             }
             catch (Exception ex)
@@ -250,7 +251,7 @@ namespace kevin.AI.AgentFramework.Tools
                 // 以 UTF-8 无 BOM 保存，保证跨平台兼容且 Python 能正确识别
                 File.WriteAllText(fullPath, code, new UTF8Encoding(false));
                 Console.WriteLine($"🔧 Python脚本已保存到: {fullPath}");
-                return StringHelper.SubstringText(fullPath, _contentLengthLimit);
+                return fullPath;
             }
             catch (Exception ex)
             {
