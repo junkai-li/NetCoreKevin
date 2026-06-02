@@ -19,8 +19,7 @@
         /// 提示词
         /// </summary>
         [Description("提示词")]
-        [Required]
-        [StringLength(1500)]
+        [Required] 
         public String Prompt { get; set; } = "";
         /// <summary>
         /// 描述

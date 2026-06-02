@@ -1,4 +1,5 @@
 ﻿using HttpMataki.NET.Auto;
+using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.Interfaces;
 using Kevin.AI.Dto;
 using Microsoft.Agents.AI;
@@ -32,11 +33,11 @@ namespace kevin.AI.AgentFramework
         /// <param name="OtherContents">其他内容：用来存放一些需要传递给代理的内容 比如文件内容 互联网信息等</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<(AIAgent, string)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, string msg, List<string>? OtherContents = default, CancellationToken cancellationToken = default)
+        public async Task<(AIAgent, string, TokenConsumptionInfo)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, string msg, List<string>? OtherContents = default, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(msg))
-            { 
-                throw  new Exception("msg不能为空");
+            {
+                throw new Exception("msg不能为空");
             }
             cancellationToken.ThrowIfCancellationRequested();//是否已经中止，若已请求取消则抛出异常
             if (aISetting.IsHttpLog)
@@ -68,15 +69,18 @@ namespace kevin.AI.AgentFramework
                 chatClientAgentOptions.AIContextProviders = default;
             }
             #endregion
-            // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示 
+             
+            // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示  
             var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(aISetting.AIKeySecret) ? "local" : aISetting.AIKeySecret), openAIClientOptions);
             var aiAgent = ai.GetChatClient(aISetting.AIDefaultModel).AsIChatClient().AsAIAgent(chatClientAgentOptions);
             var reslut = new AgentResponse();
+            var tokenConsumptionInfo = new TokenConsumptionInfo();
             var resultText = string.Empty;
+
             ChatMessage message = new(ChatRole.User, [new TextContent(msg)]);
             if (OtherContents != default && OtherContents.Count > 0)
             {
-                message= new(ChatRole.User, [.. OtherContents.Select(t=> new TextContent(t)).ToList(), new TextContent(msg),]);
+                message = new(ChatRole.User, [.. OtherContents.Select(t => new TextContent(t)).ToList(), new TextContent(msg),]);
             }
             if (aISetting.IsStreame)
             {
@@ -123,7 +127,10 @@ namespace kevin.AI.AgentFramework
 
                             }
                         }
-
+                        if (TryExtractUsageFromUpdate(update, out var usage))
+                        { 
+                            tokenConsumptionInfo = usage;
+                        }
                     }
 
                 }
@@ -132,12 +139,21 @@ namespace kevin.AI.AgentFramework
             {
                 reslut = await aiAgent.RunAsync(message, cancellationToken: cancellationToken);
                 resultText = reslut.Text;
+                if (reslut.Usage != default)
+                {
+                    tokenConsumptionInfo.CachedInputTokenCount = reslut.Usage.CachedInputTokenCount;
+                    tokenConsumptionInfo.InputTokenCount = reslut.Usage.InputTokenCount;
+                    tokenConsumptionInfo.OutputTokenCount = reslut.Usage.OutputTokenCount;
+                    tokenConsumptionInfo.TotalTokenCount = reslut.Usage.TotalTokenCount;
+                    tokenConsumptionInfo.ReasoningTokenCount = reslut.Usage.ReasoningTokenCount;
+                }
             }
             if (aISetting.IsHttpLog)
             {
                 HttpClientAutoInterceptor.StopInterception();
             }
-            return (aiAgent, resultText);
+
+            return (aiAgent, resultText, tokenConsumptionInfo);
         }
 
         /// <summary>
@@ -223,6 +239,144 @@ namespace kevin.AI.AgentFramework
                 }
             }
             return (reasoningBuilder?.ToString() ?? "").Replace("null", "\n");
+        }
+
+        /// <summary>
+        /// 从更新中提取使用信息
+        /// </summary>
+        /// <param name="update"></param>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        private static bool TryExtractUsageFromUpdate(AgentResponseUpdate update, out TokenConsumptionInfo info)
+        {
+            info = new TokenConsumptionInfo();
+            if (update == null) return false;
+
+            // 1) Common case: wrapper ChatResponseUpdate -> underlying OpenAI streaming update
+            if (update.RawRepresentation is Microsoft.Extensions.AI.ChatResponseUpdate chatResp &&
+                chatResp.RawRepresentation is OpenAI.Chat.StreamingChatCompletionUpdate openAiInner)
+            {
+                if (openAiInner.Usage != null)
+                {
+                    info.InputTokenCount = openAiInner.Usage.InputTokenCount;
+                    info.OutputTokenCount = openAiInner.Usage.OutputTokenCount;
+                    info.TotalTokenCount = openAiInner.Usage.TotalTokenCount;
+                    return true;
+                }
+            }
+
+            // 2) Raw is directly OpenAI streaming update
+            if (update.RawRepresentation is OpenAI.Chat.StreamingChatCompletionUpdate openAiDirect)
+            {
+                if (openAiDirect.Usage != null)
+                {
+                    info.InputTokenCount = openAiDirect.Usage.InputTokenCount;
+                    info.OutputTokenCount = openAiDirect.Usage.OutputTokenCount;
+                    info.TotalTokenCount = openAiDirect.Usage.TotalTokenCount;
+                    return true;
+                }
+            }
+
+            // 3) Try reflection: a Usage property on update or its RawRepresentation
+            object? candidate = null;
+            var usageProp = update.GetType().GetProperty("Usage") ?? update.GetType().GetProperty("usage");
+            if (usageProp != null) candidate = usageProp.GetValue(update);
+            else if (update.RawRepresentation != null)
+            {
+                var rpType = update.RawRepresentation.GetType();
+                var rpUsageProp = rpType.GetProperty("Usage") ?? rpType.GetProperty("usage");
+                if (rpUsageProp != null) candidate = rpUsageProp.GetValue(update.RawRepresentation);
+            }
+
+            if (candidate != null)
+            {
+                int? GetInt(object? o, string name)
+                {
+                    var p = o?.GetType().GetProperty(name);
+                    if (p == null) return null;
+                    var v = p.GetValue(o);
+                    return v switch
+                    {
+                        int i => i,
+                        long l => (int)l,
+                        System.Text.Json.JsonElement je when je.ValueKind == System.Text.Json.JsonValueKind.Number && je.TryGetInt32(out var vi) => vi,
+                        _ => null
+                    };
+                }
+
+                info.InputTokenCount = GetInt(candidate, "InputTokenCount") ?? GetInt(candidate, "PromptTokens") ?? 0;
+                info.OutputTokenCount = GetInt(candidate, "OutputTokenCount") ?? GetInt(candidate, "CompletionTokens") ?? 0;
+                info.TotalTokenCount = GetInt(candidate, "TotalTokenCount") ?? GetInt(candidate, "TotalTokens") ?? (info.InputTokenCount + info.OutputTokenCount);
+                return info.TotalTokenCount > 0;
+            }
+
+            // 4) 最后：尝试把 RawRepresentation 序列化为 JSON 并查找 usage 节点
+            try
+            {
+                string? json = null;
+                if (update.RawRepresentation is string s) json = s;
+                else if (update.RawRepresentation is System.Text.Json.JsonElement je) json = je.GetRawText();
+                else if (update.RawRepresentation != null) json = System.Text.Json.JsonSerializer.Serialize(update.RawRepresentation);
+
+                if (!string.IsNullOrEmpty(json))
+                {
+                    using var doc = System.Text.Json.JsonDocument.Parse(json);
+                    if (TryFindUsageElement(doc.RootElement, out var usageEl))
+                    {
+                        int? GetIntFromJson(System.Text.Json.JsonElement el, string name)
+                        {
+                            if (el.ValueKind != System.Text.Json.JsonValueKind.Object) return null;
+                            if (el.TryGetProperty(name, out var p) && p.ValueKind == System.Text.Json.JsonValueKind.Number && p.TryGetInt32(out var v)) return v;
+                            return null;
+                        }
+
+                        info.InputTokenCount = GetIntFromJson(usageEl, "prompt_tokens") ?? GetIntFromJson(usageEl, "input_tokens") ?? 0;
+                        info.OutputTokenCount = GetIntFromJson(usageEl, "completion_tokens") ?? GetIntFromJson(usageEl, "output_tokens") ?? 0;
+                        info.TotalTokenCount = GetIntFromJson(usageEl, "total_tokens") ?? (info.InputTokenCount + info.OutputTokenCount);
+                        return info.TotalTokenCount > 0;
+                    }
+                }
+            }
+            catch
+            {
+                // ignore parse errors
+            }
+
+            return false;
+
+            static bool TryFindUsageElement(System.Text.Json.JsonElement root, out System.Text.Json.JsonElement usage)
+            {
+                if (root.ValueKind == System.Text.Json.JsonValueKind.Object && root.TryGetProperty("usage", out usage)) return true;
+                var stack = new Stack<System.Text.Json.JsonElement>();
+                stack.Push(root);
+                while (stack.Count > 0)
+                {
+                    var node = stack.Pop();
+                    if (node.ValueKind == System.Text.Json.JsonValueKind.Object)
+                    {
+                        foreach (var prop in node.EnumerateObject())
+                        {
+                            if (string.Equals(prop.Name, "usage", StringComparison.OrdinalIgnoreCase))
+                            {
+                                usage = prop.Value;
+                                return true;
+                            }
+                            if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.Object || prop.Value.ValueKind == System.Text.Json.JsonValueKind.Array)
+                                stack.Push(prop.Value);
+                        }
+                    }
+                    else if (node.ValueKind == System.Text.Json.JsonValueKind.Array)
+                    {
+                        foreach (var item in node.EnumerateArray())
+                        {
+                            if (item.ValueKind == System.Text.Json.JsonValueKind.Object || item.ValueKind == System.Text.Json.JsonValueKind.Array)
+                                stack.Push(item);
+                        }
+                    }
+                }
+                usage = default;
+                return false;
+            }
         }
     }
 }

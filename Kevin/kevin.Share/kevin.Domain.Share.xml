@@ -209,6 +209,35 @@
             发送的文件urls
              </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.InputTokenCount">
+            <summary>
+            输入消耗的token数
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.OutputTokenCount">
+            <summary>
+            输出消耗的token数
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.TotalTokenCount">
+            <summary>
+            总消耗的token数
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.CachedInputTokenCount">
+            <summary>
+            缓存中读取的输入标记的数量 缓存的输入标记应计入<see cref="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.InputTokenCount"/>中。
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.ReasoningTokenCount">
+            <summary>
+            “推理”/“思考”标记的数量
+            by the model.
+            </summary>
+            <remarks>
+            推理标记应计入<see cref="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.OutputTokenCount"/>中。
+            </remarks>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIChatsDto">
             <summary>
             对话

@@ -18,7 +18,7 @@ using Kevin.SignalR.Service;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using NetCore.Util;
-using System.Text; 
+using System.Text;
 using Kevin.Common.Helper;
 namespace kevin.Application.Services.AI
 {
@@ -87,7 +87,7 @@ namespace kevin.Application.Services.AI
             foreach (var item in result.data)
             {
                 item.AIReasoningContent = item.AIReasoningContent;
-                item.AIToolsContent =item.AIToolsContent;
+                item.AIToolsContent = item.AIToolsContent;
             }
             return result;
         }
@@ -134,7 +134,7 @@ namespace kevin.Application.Services.AI
             addAi.IsSend = false;
             addAi.AIChatsId = par.AIChatsId;
             string systemPrompt = SystemPrompt.SystemPromptText;
-            List<string> OtherContents = new List<string>();  
+            List<string> OtherContents = new List<string>();
             if (aiapp.KmsId != default)
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在查询知识库....");
@@ -295,7 +295,7 @@ namespace kevin.Application.Services.AI
                 case Domain.Share.Enums.AIType.AzureOpenAI:
                 default:
                     await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在结合相关信息思考....");
-                    addAi.Content = (await aIAgentService.CreateOpenAIAgentAndSendMSG(new AISetting
+                    var reslut = (await aIAgentService.CreateOpenAIAgentAndSendMSG(new AISetting
                     {
                         AIUrl = aIModels.EndPoint,
                         AIKeySecret = aIModels.ModelKey,
@@ -325,7 +325,16 @@ namespace kevin.Application.Services.AI
                                 await signalRMsgService.SendIdentityIdMsg("aIReasoningContentMsg", add.Id.ToString(), StringHelper.SubstringText(msg, aiapp.ContentLengthLimit));
                             }
                         },
-                    }, chatAgOs, add.Content, cancellationToken: cancellationToken, OtherContents: OtherContents)).Item2;
+                    }, chatAgOs, add.Content, cancellationToken: cancellationToken, OtherContents: OtherContents));
+                    addAi.Content = reslut.Item2 ?? "";
+                    if (reslut.Item3 != default)
+                    {
+                        addAi.CachedInputTokenCount = reslut.Item3.CachedInputTokenCount;
+                        addAi.InputTokenCount = reslut.Item3.InputTokenCount;
+                        addAi.OutputTokenCount = reslut.Item3.OutputTokenCount;
+                        addAi.TotalTokenCount = reslut.Item3.TotalTokenCount;
+                        addAi.ReasoningTokenCount = reslut.Item3.ReasoningTokenCount;
+                    }
                     break;
             }
             aIChatHistorysRp.Add(addAi);

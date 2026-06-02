@@ -105,8 +105,8 @@
           <a-textarea 
             v-model:value="promptForm.prompt" 
             :rows="20" 
-            placeholder="参提示词"
-            :maxlength="1500"
+            placeholder="请输入提示词"
+            :maxlength="5000"
             show-count
           />
         </a-form-item>
@@ -115,7 +115,7 @@
             v-model:value="promptForm.description" 
             :rows="4" 
             placeholder="请输入描述"
-            :maxlength="1500"
+            :maxlength="500"
             show-count
           />
         </a-form-item>
@@ -174,12 +174,12 @@ const promptForm = reactive({
 const promptRules = reactive({
   name: [{ required: true, message: "请输入提示词名称" }],
   prompt: [
-    { required: true, message: "请输入入参提示词" },
-    { max: 1500, message: "入参提示词不能超过1500个字符" },
+    { required: true, message: "请输入提示词" },
+    { max: 5000, message: "提示词不能超过5000个字符" },
   ],
   description: [
     { required: true, message: "请输入描述" },
-    { max: 1500, message: "描述不能超过1500个字符" },
+    { max: 500, message: "描述不能超过500个字符" },
   ],
 });
 

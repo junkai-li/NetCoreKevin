@@ -60,5 +60,39 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary>
         [Description("发送的文件urls,多个用,隔开")]
         public String? ContentFileUrls { get; set; }
+
+        /// <summary>
+        /// 输入消耗的token数
+        /// </summary>
+        [Description("输入消耗的token数")]
+        public long? InputTokenCount { get; set; }
+
+        /// <summary>
+        /// 输出消耗的token数
+        /// </summary>
+        [Description("输出消耗的token数")]
+        public long? OutputTokenCount { get; set; }
+
+        /// <summary>
+        /// 总消耗的token数
+        /// </summary>
+        [Description("总消耗的token数")]
+        public long? TotalTokenCount { get; set; }
+
+        /// <summary>
+        /// 缓存中读取的输入标记的数量 缓存的输入标记应计入<see cref="InputTokenCount"/>中。
+        /// </summary>
+        [Description("缓存中读取的输入标记的token数量")]
+        public long? CachedInputTokenCount { get; set; }
+
+        /// <summary>
+        /// “推理”/“思考”标记的数量
+        /// by the model.
+        /// </summary>
+        /// <remarks>
+        /// 推理标记应计入<see cref="OutputTokenCount"/>中。
+        /// </remarks>
+        [Description("“推理”/“思考”token数量")]
+        public long? ReasoningTokenCount { get; set; }
     }
 }

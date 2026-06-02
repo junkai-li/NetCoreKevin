@@ -126,7 +126,10 @@
                   </template>
                 </a-button>
               </div>
-              <div class="message-time">{{ formatTime(message.createdAt) }}</div>
+              <div class="message-time">
+                {{ formatTime(message.createdAt) }}
+                <span v-if="message.totalTokenCount" class="token-count">消耗: {{ formatTokenCount(message.totalTokenCount) }} tokens</span>
+              </div>
             </div>
           </div>
 
@@ -596,6 +599,7 @@ const loadChatHistory = async (chatId, page) => {
         aiToolsContent: item.aiToolsContent,
         fileNames: item.fileNames || '',
         contentFileUrls: item.contentFileUrls || '',
+        totalTokenCount: item.totalTokenCount || 0,
         createdAt: item.createTime || new Date().toISOString(),
       }));
 
@@ -706,6 +710,7 @@ const sendMessage = async () => {
       content: messageToSend,
       fileNames: currentFileNames.join(','),
       contentFileUrls: currentFileUrls.join(','),
+      totalTokenCount: 0,
       createdAt: new Date().toISOString(),
     };
     lastSentMessageId.value = userMessage.id;
@@ -952,6 +957,14 @@ const formatTime = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
   return date.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+};
+
+const formatTokenCount = (count) => {
+  if (!count || count === 0) return "";
+  if (count >= 10000) {
+    return (count / 10000).toFixed(2) + "万";
+  }
+  return count.toString();
 };
 
 // 监听消息变化，自动滚动到底部
@@ -1331,6 +1344,11 @@ const deleteConversation = async (conversationId, event) => {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.6);
   margin-top: 5px;
+}
+
+.token-count {
+  margin-left: 8px;
+  font-size: 11px;
 }
 
 .message-item.user-message .message-time {

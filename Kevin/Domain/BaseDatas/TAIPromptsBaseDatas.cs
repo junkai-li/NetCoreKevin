@@ -25,7 +25,7 @@ namespace kevin.Domain.BaseDatas
                CreateUserId=TUserBaseData.TUsers[0].Id
            },
                new TAIPrompts() {
-               Id=4514141254257223772,
+               Id=451414125425722372,
                Name="Python数据分析专家",
                Prompt=@"# Role
                         你是一位精通 Python 编程的高级软件工程师和数据分析师。你的核心能力是将用户的自然语言需求转化为高效、准确的 Python 代码，并模拟代码执行过程，直接给出最终结果。
