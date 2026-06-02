@@ -80,59 +80,117 @@ namespace kevin.AI.AgentFramework
             ChatMessage message = new(ChatRole.User, [new TextContent(msg)]);
             if (OtherContents != default && OtherContents.Count > 0)
             {
-                message = new(ChatRole.User, [.. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(), new TextContent(msg),]);
+                message = new(ChatRole.User, [.. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(), new TextContent(msg)]);
             }
             if (aISetting.IsStreame)
             {
                 if (aISetting.StreameCallback != default)
                 {
-                    await foreach (var update in aiAgent.RunStreamingAsync(message, cancellationToken: cancellationToken))
+                    try
                     {
-                        foreach (var content in update.Contents)
+                        await foreach (var update in aiAgent.RunStreamingAsync(message, cancellationToken: cancellationToken))
                         {
-                            switch (content)
+                            if (update != default)
                             {
-                                case FunctionCallContent funcCall:
-                                    // 1. 模型决定调用工具 
-                                    if (aISetting.ToolStreameCallback != default)
-                                    {
-                                        aISetting.ToolStreameCallback.Invoke($"\n [工具调用] 名称：{funcCall.Name}，调用ID：{funcCall.CallId}，参数：{JsonConvert.SerializeObject(funcCall.Arguments).ToString()}");
-                                    }
-                                    break;
-
-                                case FunctionResultContent funcResult:
-                                    // 2. 工具执行完毕返回结果 
-                                    if (aISetting.ToolStreameCallback != default)
-                                    {
-                                        aISetting.ToolStreameCallback.Invoke($"\n [工具返回] 调用ID：{funcResult.CallId}，结果：{funcResult.Result}");
-                                    }
-                                    break;
-
-                                case TextContent textContent:
-                                    // 3. 普通文本输出 
-                                    break;
-                            }
-
-                            if (!string.IsNullOrEmpty(update.Text))
-                            {
-                                aISetting.StreameCallback.Invoke(update.Text);
-                                resultText += update.Text;
-                            }
-                            else
-                            {
-                                if (aISetting.ReasoningStreameCallback != default)
+                                if (update.Contents != default)
                                 {
-                                    aISetting.ReasoningStreameCallback.Invoke($"{await GetReasoningTextAsync(update)}");
-                                }
+                                    foreach (var content in update.Contents)
+                                    {
+                                        if (content != default)
+                                        {
+                                            switch (content)
+                                            {
+                                                case FunctionCallContent funcCall:
+                                                    // 1. 模型决定调用工具 
+                                                    if (aISetting.ToolStreameCallback != default)
+                                                    {
+                                                        aISetting.ToolStreameCallback.Invoke($"\n [工具调用] 名称：{funcCall.Name}，调用ID：{funcCall.CallId}，参数：{funcCall.Arguments?.SerializeToJson()}");
+                                                    }
+                                                    break;
 
+                                                case FunctionResultContent funcResult:
+                                                    // 2. 工具执行完毕返回结果 
+                                                    if (aISetting.ToolStreameCallback != default)
+                                                    {
+                                                        aISetting.ToolStreameCallback.Invoke($"\n [工具返回] 调用ID：{funcResult.CallId}，结果：{funcResult.Result?.SerializeToJson()}");
+                                                    }
+                                                    break;
+
+                                                case TextContent textContent:
+                                                    // 3. 普通文本输出 
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (!string.IsNullOrEmpty(update.Text))
+                                {
+                                    aISetting.StreameCallback.Invoke(update.Text);
+                                    resultText += update.Text;
+                                }
+                                else
+                                {
+                                    if (aISetting.ReasoningStreameCallback != default)
+                                    {
+                                        var reasoningStr = await GetReasoningTextAsync(update);
+                                        if (!string.IsNullOrEmpty(reasoningStr))
+                                        {
+                                            aISetting.ReasoningStreameCallback.Invoke(reasoningStr);
+                                        }
+                                    }
+
+                                }
+                                if (TryExtractUsageFromUpdate(update, out var usage))
+                                {
+                                    tokenConsumptionInfo = usage;
+                                }
                             }
-                        }
-                        if (TryExtractUsageFromUpdate(update, out var usage))
-                        {
-                            tokenConsumptionInfo = usage;
                         }
                     }
-
+                    catch (ClientResultException cre)
+                    {
+                        // Log and fall back to non-streaming; this avoids the request failing completely when streaming errors occur
+                        Ailogger?.LogError(cre, "Streaming call failed, falling back to non-streaming RunAsync. Error: {Message}", cre.Message);
+                        try
+                        {
+                            reslut = await aiAgent.RunAsync(message, cancellationToken: cancellationToken);
+                            resultText = reslut.Text;
+                            if (reslut.Usage != default)
+                            {
+                                tokenConsumptionInfo.CachedInputTokenCount = reslut.Usage.CachedInputTokenCount;
+                                tokenConsumptionInfo.InputTokenCount = reslut.Usage.InputTokenCount;
+                                tokenConsumptionInfo.OutputTokenCount = reslut.Usage.OutputTokenCount;
+                                tokenConsumptionInfo.TotalTokenCount = reslut.Usage.TotalTokenCount;
+                                tokenConsumptionInfo.ReasoningTokenCount = reslut.Usage.ReasoningTokenCount;
+                            }
+                        }
+                        catch (Exception ex2)
+                        {
+                            Ailogger?.LogError(ex2, "Fallback RunAsync after streaming failure also failed.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Unexpected exception: try to fallback as well
+                        Ailogger?.LogError(ex, "Unexpected streaming error, falling back to non-streaming RunAsync.");
+                        try
+                        {
+                            reslut = await aiAgent.RunAsync(message, cancellationToken: cancellationToken);
+                            resultText = reslut.Text;
+                            if (reslut.Usage != default)
+                            {
+                                tokenConsumptionInfo.CachedInputTokenCount = reslut.Usage.CachedInputTokenCount;
+                                tokenConsumptionInfo.InputTokenCount = reslut.Usage.InputTokenCount;
+                                tokenConsumptionInfo.OutputTokenCount = reslut.Usage.OutputTokenCount;
+                                tokenConsumptionInfo.TotalTokenCount = reslut.Usage.TotalTokenCount;
+                                tokenConsumptionInfo.ReasoningTokenCount = reslut.Usage.ReasoningTokenCount;
+                            }
+                        }
+                        catch (Exception ex2)
+                        {
+                            Ailogger?.LogError(ex2, "Fallback RunAsync after unexpected streaming error also failed.");
+                        }
+                    }
                 }
             }
             else
