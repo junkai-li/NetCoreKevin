@@ -104,7 +104,7 @@ namespace kevin.AI.AgentFramework
                                                     // 1. 模型决定调用工具 
                                                     if (aISetting.ToolStreameCallback != default)
                                                     {
-                                                        aISetting.ToolStreameCallback.Invoke($"\n [工具调用] 名称：{funcCall.Name}，调用ID：{funcCall.CallId}，参数：{funcCall.Arguments?.SerializeToJson()}");
+                                                        aISetting.ToolStreameCallback.Invoke($"\n [工具调用] 名称：{funcCall.Name}，调用ID：{funcCall.CallId}，参数：{funcCall.Arguments?.ToString()}");
                                                     }
                                                     break;
 
@@ -112,7 +112,7 @@ namespace kevin.AI.AgentFramework
                                                     // 2. 工具执行完毕返回结果 
                                                     if (aISetting.ToolStreameCallback != default)
                                                     {
-                                                        aISetting.ToolStreameCallback.Invoke($"\n [工具返回] 调用ID：{funcResult.CallId}，结果：{funcResult.Result?.SerializeToJson()}");
+                                                        aISetting.ToolStreameCallback.Invoke($"\n [工具返回] 调用ID：{funcResult.CallId}，结果：{funcResult.Result?.ToString()}");
                                                     }
                                                     break;
 
