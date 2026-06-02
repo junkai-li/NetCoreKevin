@@ -59,7 +59,7 @@
         <a-table
           :columns="visibleColumns"
           :data-source="dataSource"
-          :pagination="props.paginationConfig" 
+          :pagination="pagination" 
           :scroll="{ x: 1200 }"
           :loading="loading"
           @change="handleTableChange"
@@ -150,7 +150,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, nextTick } from "vue";
 import {
   UserOutlined,
   PlusOutlined,
@@ -318,8 +318,10 @@ const pagination = ref({
   pageSize: 10,
   total: 0,
   showSizeChanger: true,
+  pageSizeOptions: ['10', '20', '30', '50', '100'],
   showQuickJumper: true,
   showTotal: (total) => `共 ${total} 条记录`,
+  layout: 'total, sizes, prev, pager, next, jumper',
 });
  
 // 搜索关键词
@@ -373,18 +375,27 @@ const onSearch = (value) => {
 const fetchUserList = async () => {
   loading.value = true;
   try {
-    // 构造查询参数，优先使用外部传入的参数，然后是搜索关键字和分页信息
+    // 构造查询参数，分页参数放在最后，确保不会被覆盖
     const params = {
       searchKey: searchKey.value,
+      ...props.queryParams,
       pageSize: pagination.value.pageSize,
-      pageNum: pagination.value.current,
-      ...props.queryParams
+      pageNum: pagination.value.current
     };
     
     const response = await getUserList(params);
-    if (response && response.code == 200 && response.data && response.data) {
+    if (response && response.code == 200 && response.data) {
       // 处理返回的数据
-      dataSource.value = response.data.data.map((user) => ({
+      const listData = response.data.data || response.data.list || response.data;
+      
+      // 更新总数
+      pagination.value.total = response.data.total || listData.length;
+      
+      // 使用 nextTick 确保响应式更新
+      await nextTick();
+      dataSource.value = [];
+      await nextTick();
+      dataSource.value = listData.map((user) => ({
         key: user.id,
         id: user.id,
         name: user.name,
@@ -400,7 +411,7 @@ const fetchUserList = async () => {
         avatar: hedeImage,
       }));
 
-      pagination.value.total = response.data.total;
+      pagination.value.total = response.data.total || listData.length;
       
       // 触发加载成功事件
       emit('load-success', response.data);

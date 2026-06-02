@@ -246,7 +246,7 @@ namespace kevin.Application
                     Value = f.Url ?? ""
                 }).Take(1).ToList(),
                 CreateTime = t.CreateTime
-            }).ToList();
+            }).OrderByDescending(t => t.CreateTime).ToList();
 
             return dtoPage;
         }
@@ -259,7 +259,7 @@ namespace kevin.Application
         public async Task<dtoPageData<dtoUser>> GetSysUserList(dtoPagePar<dtoUserPar> par)
         {
             var dtoPage = new dtoPageData<dtoUser>();
-            int skip = (dtoPage.pageNum - 1) * dtoPage.pageSize;
+            int skip = (par.pageNum - 1) * par.pageSize;
             var data = userRp.Query().Where(t => t.IsDelete == false && t.IsSystem == true);
             if (!string.IsNullOrEmpty(par.searchKey))
             {
@@ -278,7 +278,7 @@ namespace kevin.Application
                 data = data.Where(t => ids.Contains(t.Id));
             }
             dtoPage.total = data.Count();
-            dtoPage.data = data.Skip(skip).Take(dtoPage.pageSize).Select(t => new dtoUser
+            dtoPage.data = data.Skip(skip).Take(par.pageSize).Select(t => new dtoUser
             {
                 Id = t.Id,
                 Name = t.Name,
@@ -288,7 +288,7 @@ namespace kevin.Application
                 Status = t.Status,
                 RecentLoginTime = t.RecentLoginTime,
                 CreateTime = t.CreateTime
-            }).ToList();
+            }).OrderByDescending(t => t.CreateTime).ToList();
             var listflie = fileRp.Query(true, false).Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && dtoPage.data.Select(t => t.Id.ToString()).ToList().Contains(f.TableId)).OrderByDescending(x => x.CreateTime).Select(f => new FileDto
             {
                 Id = f.Id,
