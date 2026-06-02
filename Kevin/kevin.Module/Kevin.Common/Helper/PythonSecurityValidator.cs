@@ -12,59 +12,68 @@ namespace Kevin.Common.Helper
     public class PythonSecurityValidator
     {
         /// <summary>
-        /// 危险命令列表
-        /// 包含Shell特殊字符、文件操作命令等
-        /// </summary>
-        private static readonly string[] DangerousCommands = new[]
-        {
-            ">:", "|", "&&", "||", ";", "$(", "`",
-            "bash -i", "sh -i",
-            "python.*-c", "python.*eval", "exec", "eval(", "system(", "popen",
-            "subprocess.*shell=true", "os.execl", "os.spawn", "os.system", "fork",
-            "pickle", "marshal",
-            "__import__", "compile(", "exec(", "open(.*,.*w",
-            "chmod", "chown", "useradd", "adduser", "passwd", "sudo", "su ",
-            "git clone",
-            "/etc/passwd", "/etc/shadow",
-            "C:\\Windows\\System32", "C:\\Windows\\SysWOW64",
-            "/bin/bash", "/usr/bin/", "/usr/sbin/",
-            "2>&1", "0>&1", "1>&1"
-        };
-
-        /// <summary>
-        /// 危险导入列表
+        /// 危险导入列表 (仅保留真正高危且少用的模块)
         /// </summary>
         private static readonly string[] DangerousImports = new[]
         {
-            "import subprocess",
-            "from pickle import", "from marshal import", "from imp import",
-            "from importlib import", "__import__(", "importlib."
-        };
+        "import subprocess", // 需结合上下文，但作为初步筛选可保留
+        "from pickle import",
+        "from marshal import",
+        "from imp import" // imp 已废弃，通常意味着老旧或不安全代码
+    };
 
         /// <summary>
-        /// 危险正则模式列表
+        /// 危险正则模式列表 (聚焦于直接执行代码和反序列化)
         /// </summary>
         private static readonly string[] DangerousPatterns = new[]
         {
-            @"subprocess\.run\(", @"subprocess\.Popen\(", @"subprocess\.call\(", @"subprocess\.spawn\(",
-            @"os\.system\(", @"os\.popen\(", @"os\.execl\(", @"os\.execv\(", @"os\.spawnl\(", @"os\.spawnv\(",
-            @"os\.fork\(",
-            @"pickle\.load\(", @"pickle\.loads\(", @"marshal\.load\(", @"marshal\.loads\(",
-            @"exec\s*\(", @"eval\s*\(", @"compile\s*\(", @"__import__\s*\(",
-            @"importlib\.\w+",
-            @"eval\s*\(.*input", @"input\s*\(.*\)",
-            @"base64\.b64decode\(", @"codecs\.decode\(", @"str\.decode\(",
-            @"bytes\(.*\.encode\(\)", @"\.encode\([^)]*\)",
-            @"0x[0-9a-fA-F]+", @"\\x[0-9a-fA-F]{2}",
-            @"reverse.?shell", @"pentest", @"exploit", @"privilege.?escalat",
-            @"CVE-\d{4}-\d{4,}", @"backdoor"
-        };
+        // 1. 任意代码执行 (最高危)
+        @"exec\s*\(",
+        @"eval\s*\(",
+        @"compile\s*\(",
+        @"__import__\s*\(",
+        
+        // 2. 系统命令执行 (需警惕 shell=True)
+        @"os\.system\s*\(",
+        @"os\.popen\s*\(",
+        @"os\.execl\s*\(",
+        @"os\.execv\s*\(",
+        @"os\.spawnl\s*\(",
+        @"os\.spawnv\s*\(",
+        @"os\.fork\s*\(",
+        
+        // 3. 不安全的反序列化 (远程代码执行常见入口)
+        @"pickle\.load\s*\(",
+        @"pickle\.loads\s*\(",
+        @"marshal\.load\s*\(",
+        @"marshal\.loads\s*\(",
+        
+        // 4. 动态导入 (视业务情况而定，若允许插件机制则需移除)
+        // @"importlib\.\w+", 
+        
+        // 5. 典型的注入模式: eval(input(...))
+        @"eval\s*\(\s*input\s*\("
+    };
 
         /// <summary>
-        /// 校验Python代码的安全性
+        /// 危险命令/字符串列表 (仅保留明确的 Shell 注入特征或敏感文件访问)
         /// </summary>
-        /// <param name="code">需要校验的Python代码</param>
-        /// <returns>校验结果</returns>
+        private static readonly string[] DangerousCommands = new[]
+        {
+        // Shell 注入特殊字符 (仅在拼接字符串时危险，静态检测难免误报，但比单字符好)
+        "&&", "||", ";", "$(", "`", 
+        
+        // 交互式 Shell 启动 (典型后门特征)
+        "bash -i", "sh -i",
+        
+        // 敏感文件路径 (直接读取/etc/passwd通常是恶意的)
+        "/etc/passwd",
+        "/etc/shadow",
+        
+        // 提权命令 (在服务器端脚本中出现通常异常)
+        "sudo", "su ", "chmod", "chown", "useradd", "adduser", "passwd"
+    };
+
         public static ValidationResult ValidatePythonCode(string code)
         {
             if (string.IsNullOrWhiteSpace(code))
@@ -74,6 +83,7 @@ namespace Kevin.Common.Helper
 
             var result = new ValidationResult();
 
+            // 1. 检查危险导入
             foreach (var import in DangerousImports)
             {
                 if (ContainsIgnoreCase(code, import))
@@ -83,16 +93,22 @@ namespace Kevin.Common.Helper
                 }
             }
 
+            // 2. 检查危险正则模式
             foreach (var pattern in DangerousPatterns)
             {
-                var matches = Regex.Matches(code, pattern, RegexOptions.IgnoreCase);
-                foreach (Match match in matches)
+                try
                 {
-                    result.IsValid = false;
-                    result.BlockedItems.Add($"危险模式: {match.Value}");
+                    var matches = Regex.Matches(code, pattern, RegexOptions.IgnoreCase);
+                    foreach (Match match in matches)
+                    {
+                        result.IsValid = false;
+                        result.BlockedItems.Add($"危险模式: {match.Value}");
+                    }
                 }
+                catch (ArgumentException) { /* 忽略无效正则 */ }
             }
 
+            // 3. 检查危险命令字符串
             foreach (var command in DangerousCommands)
             {
                 if (ContainsIgnoreCase(code, command))
@@ -108,7 +124,6 @@ namespace Kevin.Common.Helper
 
             return result;
         }
-
         /// <summary>
         /// 根据Python脚本路径读取并校验代码
         /// </summary>
@@ -142,12 +157,12 @@ namespace Kevin.Common.Helper
                 return new ValidationResult { IsValid = false, Message = $"读取文件失败: {ex.Message}" };
             }
         }
-
         private static bool ContainsIgnoreCase(string source, string value)
         {
-            return source.Contains(value, StringComparison.OrdinalIgnoreCase);
+            return source.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
         }
     }
+
 
     /// <summary>
     /// 安全校验结果
