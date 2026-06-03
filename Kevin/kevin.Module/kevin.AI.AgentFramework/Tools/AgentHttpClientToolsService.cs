@@ -17,6 +17,7 @@ namespace kevin.AI.AgentFramework.Tools
     {
         private object? _data { get; set; }
         private int _contentLengthLimit = 0;//  内容长度限制，超过限制后会进行截断
+        private List<string> _authorizedDomains = new List<string>(); // 授权域名列表
         public void InitData(object data)
         {
             _data = data;
@@ -24,7 +25,17 @@ namespace kevin.AI.AgentFramework.Tools
             {
                 try
                 {
-                    JsonDocument.Parse(JsonSerializer.Serialize(_data)).RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit);
+                    var jsonDoc = JsonDocument.Parse(JsonSerializer.Serialize(_data));
+                    var authorizedDomains = jsonDoc.RootElement.GetProperty("AuthorizedDomains").GetString();
+                    if (!string.IsNullOrWhiteSpace(authorizedDomains) && authorizedDomains.Trim() != "*")
+                    {
+                        authorizedDomains.Split(',')
+                            .Select(s => s.Trim())
+                            .Where(s => !string.IsNullOrEmpty(s))
+                            .ToList()
+                            .ForEach(domain => this._authorizedDomains.Add(domain));
+                    }
+                    jsonDoc.RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit); 
                 }
                 catch (Exception)
                 {
@@ -96,15 +107,10 @@ namespace kevin.AI.AgentFramework.Tools
         {
             if (_data != default)
             {
-                // 将对象转为 JsonElement 或 Dictionary
-                var jsonDoc = JsonDocument.Parse(JsonSerializer.Serialize(_data));
-                var authorizedDomains = jsonDoc.RootElement.GetProperty("AuthorizedDomains").GetString();
-                if (string.IsNullOrWhiteSpace(authorizedDomains) || authorizedDomains.Trim() == "*")
-                    return; // 允许所有域名
-                var allowedPrefixes = authorizedDomains.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
-                if (allowedPrefixes.Count == 0)
+                // 将对象转为 JsonElement 或 Dictionary 
+                if (_authorizedDomains.Count == 0)
                     return; // 没有有效的前缀，等同于允许所有
-                var isAllowed = allowedPrefixes.Any(prefix => url.Contains(prefix, StringComparison.OrdinalIgnoreCase));
+                var isAllowed = _authorizedDomains.Any(prefix => url.Contains(prefix, StringComparison.OrdinalIgnoreCase));
                 if (!isAllowed)
                     throw new UnauthorizedAccessException($"URL '{url}' 不在授权域名单中。");
             }

@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
+
 namespace kevin.AI.AgentFramework.Tools
 {
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -14,8 +16,12 @@ namespace kevin.AI.AgentFramework.Tools
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     public class PythonToolsService : IPythonToolsService
     {
+        // 用于从代码中提取URL的正则表达式
+        private static readonly Regex UrlRegex = new Regex(@"https?://[\w\-._~:/?#\[\]@!$&'()*+,;=%]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
         private object? _data { get; set; }
         private int _contentLengthLimit = 0;//  内容长度限制，超过限制后会进行截断
+        private List<string> _authorizedDomains = new List<string>(); // 授权域名列表
         public void InitData(object data)
         {
             _data = data;
@@ -23,7 +29,17 @@ namespace kevin.AI.AgentFramework.Tools
             {
                 try
                 {
-                    JsonDocument.Parse(JsonSerializer.Serialize(_data)).RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit);
+                    var jsonDoc = JsonDocument.Parse(JsonSerializer.Serialize(_data));
+                    var authorizedDomains = jsonDoc.RootElement.GetProperty("AuthorizedDomains").GetString();
+                    if (!string.IsNullOrWhiteSpace(authorizedDomains) && authorizedDomains.Trim() != "*")
+                    {
+                        authorizedDomains.Split(',')
+                            .Select(s => s.Trim())
+                            .Where(s => !string.IsNullOrEmpty(s))
+                            .ToList()
+                            .ForEach(domain => this._authorizedDomains.Add(domain));
+                    }
+                    jsonDoc.RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit); 
                 }
                 catch (Exception)
                 {
@@ -32,6 +48,44 @@ namespace kevin.AI.AgentFramework.Tools
 
             }
         }
+
+        /// <summary>
+        /// 检查代码中的URL是否在授权域名白名单中
+        /// 支持授权域名格式：
+        /// - example.com (仅域名)
+        /// - https://example.com (带协议)
+        /// - https://example.com/api (带路径前缀)
+        /// </summary>
+        /// <param name="code">Python代码或脚本路径</param>
+        /// <exception cref="UnauthorizedAccessException"></exception>
+        private void AuthorizedDomainsCheck(string code)
+        {
+            if (_data == default) return;
+
+            try
+            {
+                if (_authorizedDomains.Count == 0)
+                    return; // 没有有效的前缀，等同于允许所有
+
+                // 从代码中提取所有URL
+                var matches = UrlRegex.Matches(code);
+                foreach (Match match in matches)
+                {
+                    var url = match.Value;
+                    var isAllowed = _authorizedDomains.Any(prefix => url.Contains(prefix, StringComparison.OrdinalIgnoreCase)); 
+                    if (!isAllowed)
+                        throw new UnauthorizedAccessException($"URL '{url}' 不在授权域名单中。");
+                }
+            }
+            catch (KeyNotFoundException)
+            {
+                // 如果未配置 AuthorizedDomains，视为允许所有
+                return;
+            }
+        }
+
+
+
         /// <summary>
         /// 检测指定命令是否存在于系统 PATH 中
         /// </summary>
@@ -83,7 +137,7 @@ namespace kevin.AI.AgentFramework.Tools
             return null;
         }
 
-        [Description("执行Python脚本。通过System.Diagnostics.Process类来启动一个新的进程，并运行Python.py的脚本。这种方法适用于Windows和Linux系统。")]
+        [Description("执行Python脚本。通过System.Diagnostics.Process类来启动一个新的进程，并运行Python.py的脚本。这种方法适用于Windows和Linux系统。包含安全护栏：HTTP请求域名白名单。")]
         public async Task<string> RunPythonPy([Description("需要执行的python脚本路径。例如：'Skills\\python-skills\\hello-python\\scripts\\hello-python.py'")]
                                         string scriptPath,
             [Description("需要传入python脚本的参数。例如：['你好','word']")]
@@ -92,12 +146,27 @@ namespace kevin.AI.AgentFramework.Tools
         {
             try
             {
-                string output = "";
                 //传入非完整的路径
                 if (!scriptPath.Contains(":"))
                 {
                     scriptPath = AppContext.BaseDirectory + scriptPath.Replace(@"/", @"\");
                 }
+
+                // 🛡️ 安全护栏：HTTP请求域名白名单检查（检查脚本路径和参数）
+                try
+                {
+                    string fullCommand = scriptPath;
+                    if (args != default)
+                    {
+                        fullCommand += " " + string.Join(" ", args);
+                    }
+                    AuthorizedDomainsCheck(fullCommand);
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    return $"❌ 授权拦截：{ex.Message}";
+                }
+
                 var validationResult = PythonSecurityValidator.ValidatePythonFile(scriptPath);
                 if (!validationResult.IsValid)
                 {
@@ -130,6 +199,7 @@ namespace kevin.AI.AgentFramework.Tools
                 start.UseShellExecute = false; // 不使用操作系统外壳启动
                 start.RedirectStandardOutput = true; // 重定向标准输出
                 start.RedirectStandardError = true; // 重定向标准错误
+                string output = "";
                 using (Process process = Process.Start(start))
                 {
                     // 获取输出
@@ -153,7 +223,7 @@ namespace kevin.AI.AgentFramework.Tools
             }
         }
 
-        [Description("用于执行Python代码")]
+        [Description("用于执行Python代码。包含安全护栏：HTTP请求域名白名单。")]
         public async Task<string> RunPythonCode([Description("需要执行的python代码。例如：'def main(name): return 'Hello ' + name.title() + '!'")]
                                         string code)
         {
@@ -162,6 +232,16 @@ namespace kevin.AI.AgentFramework.Tools
                 if (string.IsNullOrWhiteSpace(code))
                 {
                     return "执行Py代码为空。";
+                }
+
+                // 🛡️ 安全护栏：HTTP请求域名白名单检查
+                try
+                {
+                    AuthorizedDomainsCheck(code);
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    return $"❌ 授权拦截：{ex.Message}";
                 }
 
                 var validationResult = PythonSecurityValidator.ValidatePythonCode(code);
