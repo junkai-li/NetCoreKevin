@@ -118,7 +118,7 @@ namespace kevin.Application.Services.AI
             {
 
                 //处理skill技能附件包
-                var flieData = _FileRp.Query().Where(t => t.IsDelete == false && t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && data.Id.ToString() == t.TableId).FirstOrDefault();
+                var flieData = _FileRp.Query().Where(t => t.IsDelete == false && t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && data.Id.ToString() == t.TableId).OrderByDescending(t => t.CreateTime).FirstOrDefault(); ;
                 if (flieData != default && !string.IsNullOrEmpty(flieData.Url))
                 {
                     //拼接路径
@@ -162,6 +162,16 @@ namespace kevin.Application.Services.AI
                 data.IsDelete = true;
                 data.DeleteTime = DateTime.Now;
                 AISkillToolManagementRp.SaveChangesWithSaveLog();
+                //删除skill技能附件包
+                var flieData = _FileRp.Query().Where(t => t.IsDelete == false && t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && data.Id.ToString() == t.TableId).OrderByDescending(t => t.CreateTime).FirstOrDefault();
+                if (flieData != default && !string.IsNullOrEmpty(flieData.Url))
+                {
+                    var path = Path.Combine(AppContext.BaseDirectory, "Skills", data.Name, data.Name);
+                    if (Directory.Exists(path))
+                    {
+                        Directory.Delete(path, true);
+                    }
+                }
             }
             else
             {
