@@ -466,7 +466,7 @@ const roleSearchValue = ref('');
 // 用户表格列
 const userColumns = [
   { title: '用户名', dataIndex: 'name', key: 'name' },
-  { title: '账号', dataIndex: 'account', key: 'account' }
+  { title: '账号', dataIndex: 'phone', key: 'phone' }
 ];
 
 // 角色表格列
