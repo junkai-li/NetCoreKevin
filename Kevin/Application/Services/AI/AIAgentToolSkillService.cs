@@ -21,8 +21,11 @@ namespace kevin.Application.Services.AI
         private readonly IShellToolsService _iShellTools;
 
         private readonly IAgentHttpClientToolsService _agentHttpClientToolsService;
-        public AIAgentToolSkillService(IKevinAITaskService kevinAITaskService, IAISkillToolBindIdService iAISkillToolBindIdService, IAISkillToolManagementService iAISkillToolManagementService,
-                ICommonToolsService commonTools, IPythonToolsService pythonTools, IShellToolsService shellTools, IAgentHttpClientToolsService agentHttpClientToolsService
+
+        private readonly IUserService _userService;
+        public AIAgentToolSkillService(IKevinAITaskService kevinAITaskService, IAISkillToolBindIdService iAISkillToolBindIdService, 
+            IAISkillToolManagementService iAISkillToolManagementService,ICommonToolsService commonTools, IPythonToolsService pythonTools, 
+            IShellToolsService shellTools, IAgentHttpClientToolsService agentHttpClientToolsService, IUserService userService
             )
         {
             _kevinAITaskService = kevinAITaskService;
@@ -32,6 +35,7 @@ namespace kevin.Application.Services.AI
             _iPythonTools = pythonTools;
             _iShellTools = shellTools;
             _agentHttpClientToolsService = agentHttpClientToolsService;
+            _userService = userService;
         }
         private async Task<List<AITool>> GetAITools(object data, List<string> toolNames)
         {
@@ -49,6 +53,14 @@ namespace kevin.Application.Services.AI
                     Description = "获取当前时间信息，当用户询问当前时间、日期、星期，或需要基于当下时刻进行计算与判断时调用"
                 }
             ));
+            aiTools.Add(
+               AIFunctionFactory.Create(_userService.GetCurrentUserInfo,
+               new AIFunctionFactoryOptions
+               {
+                   Name = "GetCurrentUserInfo",
+                   Description = "获取当前登录用户信息，当用户询问或者其他技能需要当前登录用户信息时调用"
+               }
+           ));
             foreach (var item in toolNames)
             {
                 if (!string.IsNullOrEmpty(item))

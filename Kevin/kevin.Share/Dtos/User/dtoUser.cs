@@ -4,7 +4,7 @@ using kevin.Share.Dtos.System;
 
 namespace kevin.Domain.Share.Dtos.User
 {
-    public class dtoUser
+    public partial class dtoUser
     {
         /// <summary>
         /// Id

@@ -115,6 +115,16 @@ namespace kevin.Application
         }
 
         /// <summary>
+        /// 通过 UserId 获取用户信息 
+        /// </summary>
+        /// <param name="userId">用户ID</param>
+        /// <returns></returns>
+        public dtoUser GetCurrentUserInfo()
+        {
+            return GetSysUserWhereId(CurrentUser.UserId);
+        }
+
+        /// <summary>
         /// 登录用户信息
         /// </summary>
         /// <param name="name"></param>
@@ -334,19 +344,7 @@ namespace kevin.Application
         /// <returns></returns> 
         public dtoUser GetSysUserWhereId(long Id)
         {
-            var user = userRp.Query().Where(t => t.Id == Id && t.IsDelete == false).Select(t => new dtoUser
-            {
-                Id = t.Id,
-                Name = t.Name,
-                NickName = t.NickName,
-                Email = t.Email,
-                Phone = t.Phone,
-                PassWord = t.PasswordHash,
-                CreateTime = t.CreateTime,
-                Status = t.Status,
-                RecentLoginTime = t.RecentLoginTime,
-                TenantId = t.TenantId
-            }).FirstOrDefault();
+            var user = userRp.Query().Where(t => t.Id == Id && t.IsDelete == false).FirstOrDefault().MapTo<dtoUser>();
             if (user == default)
             {
                 return new dtoUser();
@@ -355,7 +353,6 @@ namespace kevin.Application
             user.Roles = roleData.Where(r => r.Role != default).Select(r => new dtoRole { Id = r.RoleId, Name = r.Role?.Name ?? "", Remarks = r.Role?.Remarks ?? "", CreateTime = r.Role?.CreateTime ?? DateTime.Now }).ToList();
             var positionData = userBindPositionRp.Query().Where(t => Id == t.UserId && t.IsDelete == false).Include(u => u.Position).ToList();
             user.Positions = positionData.Where(t => t.UserId == user.Id).Select(t => new PositionDto { Id = t.PositionId, Name = t.Position?.Name ?? "" }).ToList();
-
             var userInfoData = userInfoRp.Query().Where(t => Id == t.UserId && t.IsDelete == false).ToList().MapToList<TUserInfo, dtoUserInfo>().ToList();
             user.dtoUserInfo = userInfoData.FirstOrDefault(t => t.UserId == user.Id);
             if (userInfoData.Select(t => t.DepartmentId).ToList().Count > 0)

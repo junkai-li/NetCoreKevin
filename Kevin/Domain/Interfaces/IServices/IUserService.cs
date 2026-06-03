@@ -13,6 +13,12 @@ namespace kevin.Domain.Interfaces.IServices
         dtoUser GetUser(long userId);
 
         /// <summary>
+        /// 获取当前登录用户信息
+        /// </summary> 
+        /// <returns></returns>
+        dtoUser GetCurrentUserInfo();
+
+        /// <summary>
         /// 登录用户信息
         /// </summary>
         /// <param name="name"></param>
