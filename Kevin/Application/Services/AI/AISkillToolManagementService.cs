@@ -1,9 +1,11 @@
-﻿using kevin.Domain.Entities.AI;
+﻿using Aop.Api.Domain;
+using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using kevin.FileStorage;
+using kevin.RepositorieRps.Repositories;
 using Kevin.Common;
 
 namespace kevin.Application.Services.AI
@@ -57,13 +59,13 @@ namespace kevin.Application.Services.AI
         /// <param name="id"></param>
         /// <returns></returns>
         public async Task<AISkillToolManagementDto> GetById(long id)
-        { 
+        {
             var data = await AISkillToolManagementRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == id).Include(t => t.CreateUser).Include(t => t.UpdateUser).FirstOrDefaultAsync();
             var result = data.MapTo<AISkillToolManagementDto>();
             var flieData = _FileRp.Query().Where(t => t.IsDelete == false && t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && id.ToString() == t.TableId).ToList().MapToList<TFile, FileDto>().ToList();
             result.SkillFile = flieData.OrderByDescending(t => t.CreateTime).FirstOrDefault();
             result.CreateUser = data?.CreateUser?.Name;
-            result.UpdateUser = data?.UpdateUser?.Name; 
+            result.UpdateUser = data?.UpdateUser?.Name;
             return result;
         }
 
@@ -78,8 +80,14 @@ namespace kevin.Application.Services.AI
                     isAdd = true;
                 }
             }
+            var NameData = AISkillToolManagementRp.Query(isTenant: false).Where(t => t.Name == data.Name && t.IsDelete == false && t.SkillToolType == data.SkillToolType).FirstOrDefault();
             if (isAdd)
             {
+                //验证工具名称唯一不允许添加
+                if (NameData != default)
+                {
+                    throw new UserFriendlyException($"{data.Name}:工具技能名称已存在");
+                }
                 var add = data.MapTo<TAISkillToolManagement>();
                 add.Id = data.Id == default ? SnowflakeIdService.GetNextId() : data.Id;
                 add.IsDelete = false;
@@ -91,6 +99,11 @@ namespace kevin.Application.Services.AI
             }
             else
             {
+                //验证工具名称唯一不允许添加
+                if (NameData != default && data.Id != NameData.Id)
+                {
+                    throw new UserFriendlyException($"{data.Name}:工具技能名称已存在");
+                }
                 var upData = AISkillToolManagementRp.Query().Where(t => t.IsDelete == false && t.Id == data.Id).FirstOrDefault();
                 if (upData != default)
                 {
