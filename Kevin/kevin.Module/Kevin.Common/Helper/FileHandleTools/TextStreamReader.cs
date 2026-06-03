@@ -1,6 +1,9 @@
-﻿using System.Text;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Text.Json;
-namespace Kevin.RAG;
+namespace Kevin.Common.Helper.FileHandleTools;
 public class TextStreamReader
 {
     /// <summary>

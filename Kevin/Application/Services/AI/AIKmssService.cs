@@ -4,11 +4,9 @@ using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using kevin.FileStorage;
 using Kevin.log4Net;
-using Kevin.RAG;
 using Kevin.RAG.Dto;
 using Kevin.RAG.Interfaces;
 using Kevin.RAG.Ollama;
-using Kevin.RAG.Tools;
 using Medallion.Threading;
 using NetCore.Util;
 

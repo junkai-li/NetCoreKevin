@@ -1,8 +1,11 @@
 using HtmlAgilityPack;
+using System;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-
-namespace Kevin.RAG.Tools
+using System.Threading;
+using System.Threading.Tasks;
+namespace Kevin.Common.Helper.FileHandleTools
 {
     public static class HtmlReader
     {

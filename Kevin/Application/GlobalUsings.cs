@@ -8,3 +8,4 @@ global using kevin.Share.Dtos;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.EntityFrameworkCore;
 global using Web.Global.Exceptions;
+global using Kevin.Common.Helper.FileHandleTools;

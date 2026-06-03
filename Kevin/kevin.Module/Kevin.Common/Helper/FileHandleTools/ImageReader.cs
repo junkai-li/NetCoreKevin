@@ -1,8 +1,12 @@
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
+using System;
+using System.Collections.Generic; 
+using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Kevin.RAG.Tools;
+namespace Kevin.Common.Helper.FileHandleTools;
 
 public class ImageReader
 {

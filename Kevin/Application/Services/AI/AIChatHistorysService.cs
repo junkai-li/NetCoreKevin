@@ -10,16 +10,13 @@ using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using Kevin.AI.Dto;
 using Kevin.Common.Extension;
-using Kevin.RAG;
 using Kevin.RAG.Interfaces;
 using Kevin.RAG.Ollama;
-using Kevin.RAG.Tools;
 using Kevin.SignalR.Service;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using NetCore.Util;
 using System.Text;
-using Kevin.Common.Helper;
 namespace kevin.Application.Services.AI
 {
 
@@ -187,8 +184,7 @@ namespace kevin.Application.Services.AI
                         await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"正在提取文件内容: {fileName}");
 
                         var stream = await FileHelper.GetRemoteFileStreamAsync(fileUrl);
-                        var fileType = DetermineFileType(fileName);
-
+                        var fileType = FileHelper.DetermineFileType(fileName); 
                         string content = "";
                         switch (fileType)
                         {
@@ -366,23 +362,6 @@ namespace kevin.Application.Services.AI
             return true;
         }
 
-        private static string DetermineFileType(string fileName)
-        {
-            if (string.IsNullOrWhiteSpace(fileName))
-                return "text";
-
-            var extension = Path.GetExtension(fileName).ToLowerInvariant();
-            return extension switch
-            {
-                ".png" or ".jpg" or ".jpeg" or ".gif" or ".bmp" or ".webp" or ".tiff" or ".tif" => "image",
-                ".xlsx" or ".xls" => "excel",
-                ".pdf" => "pdf",
-                ".doc" or ".docx" => "word",
-                ".html" or ".htm" => "html",
-                ".md" or ".markdown" => "markdown",
-                ".txt" or ".csv" or ".json" or ".xml" or ".log" => "text",
-                _ => "text"
-            };
-        }
+    
     }
 }

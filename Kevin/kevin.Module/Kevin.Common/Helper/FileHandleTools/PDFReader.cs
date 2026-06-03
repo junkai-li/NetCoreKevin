@@ -1,12 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Actions;
 using UglyToad.PdfPig.Annotations;
 using UglyToad.PdfPig.Content;
-using Kevin.RAG.Tools;
 
-namespace Kevin.RAG;
+namespace Kevin.Common.Helper.FileHandleTools;
 /// <summary>
 /// PDF文件读取类，提供将PDF内容转换为Markdown的功能
 /// </summary>

@@ -1,11 +1,14 @@
-using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
-using NPOI.XSSF.UserModel;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Kevin.RAG.Tools;
+namespace Kevin.Common.Helper.FileHandleTools;
 
 public class ExcelReader
 {

@@ -1,6 +1,9 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
-namespace Kevin.RAG.Tools
+namespace Kevin.Common.Helper.FileHandleTools
 {
     /// <summary>
     /// 文档处理服务，负责清理和分块

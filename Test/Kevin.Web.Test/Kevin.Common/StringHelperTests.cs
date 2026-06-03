@@ -95,7 +95,7 @@ namespace Kevin.Unit.Test.Kevin.Common
             string result = StringHelper.SubstringText(text, length);
 
             // Assert
-            Assert.Equal("This is a ...", result);
+            Assert.Equal("This is a ...(输出已截断，超过 10 上限)", result);
         }
 
         [Fact]

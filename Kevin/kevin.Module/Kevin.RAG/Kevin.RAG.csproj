@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -6,23 +6,69 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="DocumentFormat.OpenXml" Version="3.5.1" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+  <ItemGroup> 
     <PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="9.7.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="NPOI" Version="2.7.3" />
-    <PackageReference Include="OllamaSharp" Version="5.4.25" />
-    <PackageReference Include="PdfPig" Version="0.1.14" />
-    <PackageReference Include="Qdrant.Client" Version="1.17.0" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-    <PackageReference Include="Tesseract" Version="5.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" /> 
+    <PackageReference Include="OllamaSharp" Version="5.4.25" /> 
+    <PackageReference Include="Qdrant.Client" Version="1.17.0" /> 
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Kevin.Common\Kevin.Common.csproj" />
     <ProjectReference Include="..\Kevin.HttpApiClients\Kevin.HttpApiClients.csproj" />
     <ProjectReference Include="..\Kevin.SnowflakeId\Kevin.SnowflakeId.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Tools\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\vs\packages\tesseract\5.2.0\build\\..\x86\leptonica-1.82.0.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\vs\packages\tesseract\5.2.0\build\\..\x86\tesseract50.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\vs\packages\tesseract\5.2.0\build\\..\x64\leptonica-1.82.0.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\vs\packages\tesseract\5.2.0\build\\..\x64\tesseract50.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\vs\packages\tesseract\5.2.0\build\\..\x64\leptonica-1.82.0.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\vs\packages\tesseract\5.2.0\build\\..\x64\tesseract50.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\vs\packages\tesseract\5.2.0\build\\..\x86\leptonica-1.82.0.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\vs\packages\tesseract\5.2.0\build\\..\x86\tesseract50.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\vs\packages\tesseract\5.2.0\build\\..\x64\leptonica-1.82.0.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\vs\packages\tesseract\5.2.0\build\\..\x64\tesseract50.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\vs\packages\tesseract\5.2.0\build\\..\x64\leptonica-1.82.0.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\vs\packages\tesseract\5.2.0\build\\..\x64\tesseract50.dll" />
   </ItemGroup>
 
 </Project>

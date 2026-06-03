@@ -243,5 +243,24 @@ namespace NetCore.Util
             dir.Delete(true);
         }
         #endregion
+
+        public static string DetermineFileType(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+                return "text";
+
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            return extension switch
+            {
+                ".png" or ".jpg" or ".jpeg" or ".gif" or ".bmp" or ".webp" or ".tiff" or ".tif" => "image",
+                ".xlsx" or ".xls" => "excel",
+                ".pdf" => "pdf",
+                ".doc" or ".docx" => "word",
+                ".html" or ".htm" => "html",
+                ".md" or ".markdown" => "markdown",
+                ".txt" or ".csv" or ".json" or ".xml" or ".log" => "text",
+                _ => "text"
+            };
+        }
     }
 }
