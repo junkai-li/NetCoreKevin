@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
@@ -235,7 +236,90 @@ namespace Kevin.HttpApiClients.Helper
             using var httpResponse = client?.PostAsync(url, formDataContent);
             return httpResponse?.Result.Content.ReadAsStringAsync().Result;
         }
+        public static string CreatePostHttpResponse(string url, string postData)
+        {
+            HttpWebRequest webrequest = (HttpWebRequest)HttpWebRequest.Create(url);
+            webrequest.Method = "post";
+            webrequest.ContentType = "application/json";
+            webrequest.Timeout = 600000;
+            WebResponse httpWebResponse;
+            try
+            {
+                byte[] postdatabyte = Encoding.UTF8.GetBytes(postData);
+                webrequest.ContentLength = postdatabyte.Length;
+                Stream stream;
+                stream = webrequest.GetRequestStream();
+                stream.Write(postdatabyte, 0, postdatabyte.Length);
+                stream.Close();
 
+                httpWebResponse = webrequest.GetResponse();
+            }
+            catch (WebException ex)
+            {
+                return ex.Message;
+                //httpWebResponse = (System.Net.HttpWebResponse)ex.Response;
+            }
+            if (httpWebResponse == null)
+            {
+                return "{status:'Error'}";
+            }
+            using (StreamReader responseStream = new StreamReader(httpWebResponse.GetResponseStream()))
+            {
+
+                String ret = responseStream.ReadToEnd();
+                httpWebResponse.Close();
+                return ret;
+            }
+        }
+
+
+        /// <summary>
+        /// 可传头部参数的post方式
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="headData"></param>
+        /// <param name="postData"></param>
+        /// <returns></returns>
+        public static string CreatePostHttpResponse(string url, IDictionary<string, string> headData, string postData)
+        {
+            WebResponse httpWebResponse;
+            try
+            {
+                HttpWebRequest webrequest = (HttpWebRequest)HttpWebRequest.Create(url);
+                webrequest.Method = "post";
+                webrequest.ContentType = "application/json";
+
+                foreach (var item in headData)
+                {
+                    webrequest.Headers.Add(item.Key, item.Value);
+                }
+
+                byte[] postdatabyte = Encoding.UTF8.GetBytes(postData);
+                webrequest.ContentLength = postdatabyte.Length;
+                Stream stream;
+                stream = webrequest.GetRequestStream();
+                stream.Write(postdatabyte, 0, postdatabyte.Length);
+                stream.Close();
+
+                httpWebResponse = webrequest.GetResponse();
+            }
+            catch (WebException ex)
+            {
+                httpWebResponse = (System.Net.HttpWebResponse)ex.Response;
+            }
+            if (httpWebResponse == null)
+            {
+                return "{status:'Error'}";
+            }
+            using (StreamReader responseStream = new StreamReader(httpWebResponse.GetResponseStream()))
+            {
+
+                String ret = responseStream.ReadToEnd();
+                httpWebResponse.Close();
+                return ret;
+            }
+
+        }
 
 
         /// <summary>

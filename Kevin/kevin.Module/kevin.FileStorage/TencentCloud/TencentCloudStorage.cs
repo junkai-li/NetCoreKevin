@@ -110,7 +110,7 @@ namespace kevin.FileStorage.TencentCloud
 
                 _ = transferManager.UploadAsync(uploadTask).Result;
 
-                return (true, "");
+                return (true, GetUrl().Result + remotePath + "/" + fileName);
             }
             catch
             {

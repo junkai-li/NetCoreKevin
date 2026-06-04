@@ -34,6 +34,7 @@ namespace kevin.AI.AgentFramework.Tools
         private object? _data { get; set; }
         private int _contentLengthLimit = 0;//  内容长度限制，超过限制后会进行截断
         private List<string> _authorizedDomains = new List<string>(); // 授权域名列表
+        private bool _IsSecurityIntercept = true;// 是否启用安全拦截，默认启用
         public void InitData(object data)
         {
             _data = data;
@@ -51,11 +52,12 @@ namespace kevin.AI.AgentFramework.Tools
                             .ToList()
                             .ForEach(domain => this._authorizedDomains.Add(domain));
                     }
-                    jsonDoc.RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit); 
+                    jsonDoc.RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit);
+                    _IsSecurityIntercept = jsonDoc.RootElement.GetProperty("IsSecurityIntercept").GetBoolean();
                 }
                 catch (Exception)
-                {
-                    _contentLengthLimit = 0; // 解析失败则不限制内容长度
+                { 
+                    _IsSecurityIntercept= true; // 解析失败则默认启用安全拦截
                 }
 
             }
@@ -93,48 +95,7 @@ namespace kevin.AI.AgentFramework.Tools
                 // 如果未配置 AuthorizedDomains，视为允许所有
                 return;
             }
-        }
-
-        /// <summary>
-        /// 检查单个URL是否在授权白名单中
-        /// </summary>
-        /// <param name="url">要检查的URL</param>
-        /// <param name="allowedPrefixes">授权的域名前缀列表</param>
-        /// <returns></returns>
-        private bool IsUrlAllowed(string url, List<string> allowedPrefixes)
-        {
-            foreach (var prefix in allowedPrefixes)
-            {
-                // 检查方式1：URL直接包含授权前缀（支持各种格式）
-                if (url.IndexOf(prefix, StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    return true;
-                }
-
-                // 检查方式2：提取URL的域名部分进行匹配
-                // 处理授权域名不带协议的情况，如 "example.com"
-                try
-                {
-                    var uri = new Uri(url);
-                    var host = uri.Host; // 获取域名，如 "example.com"
-
-                    // 如果授权前缀是域名格式（不带协议），直接匹配域名
-                    if (!prefix.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
-                        !prefix.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // 检查域名是否匹配或域名是否以授权前缀结尾（处理子域名情况）
-                        if (host.Equals(prefix, StringComparison.OrdinalIgnoreCase) ||
-                            host.EndsWith($".{prefix}", StringComparison.OrdinalIgnoreCase))
-                        {
-                            return true;
-                        }
-                    }
-                }
-                catch { }
-            }
-
-            return false;
-        }
+        } 
 
         [Description("执行 Shell 命令。通过操作系统原生 Shell 执行命令（Windows 用 cmd，Linux/Mac 用 bash）。包含安全护栏：危险命令阻止、HTTP请求域名白名单、输出截断（50KB）、超时控制（60秒）。")]
         public async Task<string> RunShell(
@@ -143,11 +104,14 @@ namespace kevin.AI.AgentFramework.Tools
         {
             try
             {
-                // 🛡️ 安全护栏 1：危险命令检查
-                if (dangerousPatterns.Any(d => command.Contains(d, StringComparison.OrdinalIgnoreCase)))
+                if (_IsSecurityIntercept)
                 {
-                    return "❌ 安全拦截：检测到危险命令，已阻止执行。";
-                }
+                    // 🛡️ 安全护栏 1：危险命令检查
+                    if (dangerousPatterns.Any(d => command.Contains(d, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return "❌ 安全拦截：检测到危险命令，已阻止执行。";
+                    }
+                } 
 
                 // 🛡️ 安全护栏 2：HTTP请求域名白名单检查
                 try

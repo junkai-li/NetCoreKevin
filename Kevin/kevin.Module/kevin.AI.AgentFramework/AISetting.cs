@@ -57,11 +57,7 @@
         /// <summary>
         /// 思考过程流式请求回调
         /// </summary>
-        public Action<string> ReasoningStreameCallback { get; set; } = default;
-        /// <summary>
-        /// ai请求参数 ，提供给外部使用，框架内不做处理如：token、cookie、其他传入ai工具的参数等
-        /// </summary>
-        public object AIParData { get; set; } = default;
+        public Action<string> ReasoningStreameCallback { get; set; } = default; 
 
     }
 }

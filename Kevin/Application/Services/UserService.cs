@@ -366,6 +366,34 @@ namespace kevin.Application
         }
 
         /// <summary>
+        /// 后台管理通过 UserName 获取用户信息 
+        /// </summary>
+        /// <param name="userName">用户名</param>
+        /// <returns></returns> 
+        public dtoUser GetSysUserWhereUserName(string userName)
+        {
+            var user = userRp.Query().Where(t => t.Name == userName && t.IsDelete == false).FirstOrDefault().MapTo<dtoUser>();
+            if (user == default)
+            {
+                return default;
+            }
+            var roleData = userBindRoleRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).Include(u => u.Role).ToList();
+            user.Roles = roleData.Where(r => r.Role != default).Select(r => new dtoRole { Id = r.RoleId, Name = r.Role?.Name ?? "", Remarks = r.Role?.Remarks ?? "", CreateTime = r.Role?.CreateTime ?? DateTime.Now }).ToList();
+            var positionData = userBindPositionRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).Include(u => u.Position).ToList();
+            user.Positions = positionData.Where(t => t.UserId == user.Id).Select(t => new PositionDto { Id = t.PositionId, Name = t.Position?.Name ?? "" }).ToList();
+            var userInfoData = userInfoRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).ToList().MapToList<TUserInfo, dtoUserInfo>().ToList();
+            user.dtoUserInfo = userInfoData.FirstOrDefault(t => t.UserId == user.Id);
+            if (userInfoData.Select(t => t.DepartmentId).ToList().Count > 0)
+            {
+                if (user.dtoUserInfo != default)
+                {
+                    user.dtoUserInfo.DepartmentName = departmentService.GetALLList(userInfoData.Select(t => t.DepartmentId).ToList()).Result.FirstOrDefault()?.Name;
+                }
+            }
+            return user ?? default;
+        }
+
+        /// <summary>
         /// 新增编辑用户信息 
         /// </summary>
         /// <param name="user">user</param>

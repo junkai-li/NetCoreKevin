@@ -67,6 +67,12 @@ namespace kevin.Domain.Entities
         [Description("是否超级管理员")]
         public virtual bool IsSuperAdmin { get; set; }
 
+        /// <summary>
+        /// 第三方关联Id：钉钉、微信、QQ等
+        /// </summary> 
+        [Description("第三方关联Id：钉钉、微信、QQ等")]
+        public string? CorrelationId { get; set; } = "";
+
         public void ChangePassword(string newPassword)
         {
             PasswordHash = new HashHelper().SHA256Hash(newPassword);

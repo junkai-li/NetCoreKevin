@@ -1,6 +1,7 @@
 ﻿using kevin.Domain.Share.Dtos.Organizational;
 using kevin.Share.Dtos;
 using kevin.Share.Dtos.System;
+using System.ComponentModel;
 
 namespace kevin.Domain.Share.Dtos.User
 {
@@ -104,6 +105,12 @@ namespace kevin.Domain.Share.Dtos.User
                 throw new FieldValidationException("用户已失效");
             }
         }
+
+        /// <summary>
+        /// 第三方关联Id：钉钉、微信、QQ等
+        /// </summary> 
+        [Description("第三方关联Id：钉钉、微信、QQ等")]
+        public string? CorrelationId { get; set; } = "";
 
     }
 }

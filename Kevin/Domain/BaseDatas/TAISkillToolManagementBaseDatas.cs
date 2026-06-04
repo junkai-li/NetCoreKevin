@@ -168,6 +168,18 @@ namespace kevin.Domain.BaseDatas
                SkillToolType=AISkillToolTypeEnums.Tool,
                CreateUserId=TUserBaseData.TUsers[0].Id
            },
+                 new TAISkillToolManagement() {
+               Id=4514143214257227724,
+               Name="发送钉钉消息给其他用户",
+               ClassMethod="AIMsgService.SendDDToUserMsg",
+
+               Description="发送钉钉消息给其他用户",
+               TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
+               CreateTime = DateTime.Parse("2020-01-01 00:00:01"),
+               IsSystem=true,
+               SkillToolType=AISkillToolTypeEnums.Tool,
+               CreateUserId=TUserBaseData.TUsers[0].Id
+           },
                 new TAISkillToolManagement() {
                Id=4514141254257227725,
                Name="expense-report",

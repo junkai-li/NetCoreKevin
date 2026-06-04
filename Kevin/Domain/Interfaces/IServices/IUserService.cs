@@ -13,6 +13,13 @@ namespace kevin.Domain.Interfaces.IServices
         dtoUser GetUser(long userId);
 
         /// <summary>
+        /// 获取用户信息
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        dtoUser GetSysUserWhereUserName(string userName);
+
+        /// <summary>
         /// 获取当前登录用户信息
         /// </summary> 
         /// <returns></returns>
@@ -162,5 +169,6 @@ namespace kevin.Domain.Interfaces.IServices
         /// <param name="UserId"></param>
         /// <returns></returns>
         dtoUserInfo GetUserInfo(long UserId);
+
     }
 }

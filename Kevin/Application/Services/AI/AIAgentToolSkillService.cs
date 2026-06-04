@@ -23,10 +23,14 @@ namespace kevin.Application.Services.AI
         private readonly IAgentHttpClientToolsService _agentHttpClientToolsService;
 
         private readonly IUserService _userService;
-        public AIAgentToolSkillService(IKevinAITaskService kevinAITaskService, IAISkillToolBindIdService iAISkillToolBindIdService, 
-            IAISkillToolManagementService iAISkillToolManagementService,ICommonToolsService commonTools, IPythonToolsService pythonTools, 
-            IShellToolsService shellTools, IAgentHttpClientToolsService agentHttpClientToolsService, IUserService userService
-            )
+
+        private readonly IAIFileToolService _iAIFileToolService;
+
+        private readonly IAIMsgService _IAIMsgService;
+        public AIAgentToolSkillService(IKevinAITaskService kevinAITaskService, IAISkillToolBindIdService iAISkillToolBindIdService,
+            IAISkillToolManagementService iAISkillToolManagementService, ICommonToolsService commonTools, IPythonToolsService pythonTools,
+            IShellToolsService shellTools, IAgentHttpClientToolsService agentHttpClientToolsService, IUserService userService, IAIFileToolService iAIFileToolService,
+            IAIMsgService iAIMsgService)
         {
             _kevinAITaskService = kevinAITaskService;
             _iAISkillToolBindIdService = iAISkillToolBindIdService;
@@ -36,6 +40,8 @@ namespace kevin.Application.Services.AI
             _iShellTools = shellTools;
             _agentHttpClientToolsService = agentHttpClientToolsService;
             _userService = userService;
+            _iAIFileToolService = iAIFileToolService;
+            _IAIMsgService = iAIMsgService;
         }
         private async Task<List<AITool>> GetAITools(object data, List<string> toolNames)
         {
@@ -46,21 +52,38 @@ namespace kevin.Application.Services.AI
             _iShellTools.InitData(data);
             _agentHttpClientToolsService.InitData(data);
             aiTools.Add(
-                AIFunctionFactory.Create(_iCommonTools.GetCurrentTime,
-                new AIFunctionFactoryOptions
-                {
-                    Name = "GetCurrentTime",
-                    Description = "获取当前时间信息，当用户询问当前时间、日期、星期，或需要基于当下时刻进行计算与判断时调用"
-                }
+                    AIFunctionFactory.Create(_iCommonTools.GetCurrentTime,
+                    new AIFunctionFactoryOptions
+                    {
+                        Name = "GetCurrentTime",
+                        Description = "获取当前时间信息，当用户询问当前时间、日期、星期，或需要基于当下时刻进行计算与判断时调用"
+                    }
+             ));
+            aiTools.Add(
+                   AIFunctionFactory.Create(_userService.GetCurrentUserInfo,
+                   new AIFunctionFactoryOptions
+                   {
+                       Name = "GetCurrentUserInfo",
+                       Description = "获取当前登录用户信息，当用户询问或者其他技能需要当前登录用户信息时调用"
+                   }
+             ));
+
+            aiTools.Add(
+                  AIFunctionFactory.Create(_iAIFileToolService.SaveFileContent,
+                  new AIFunctionFactoryOptions
+                  {
+                      Name = "SaveFileContent",
+                      Description = "保存文件内容并返回访问url，当用户需要将内容保存为文件时调用。"
+                  }
             ));
             aiTools.Add(
-               AIFunctionFactory.Create(_userService.GetCurrentUserInfo,
-               new AIFunctionFactoryOptions
-               {
-                   Name = "GetCurrentUserInfo",
-                   Description = "获取当前登录用户信息，当用户询问或者其他技能需要当前登录用户信息时调用"
-               }
-           ));
+                AIFunctionFactory.Create(_IAIMsgService.SendDDToMyMsg,
+                new AIFunctionFactoryOptions
+                {
+                    Name = "SendDDToMyMsg",
+                    Description = "发送消息到（当前用户/我/自己）钉钉，当用户需要发送钉钉消息到（当前用户/我/自己）时调用。"
+                }
+          ));
             foreach (var item in toolNames)
             {
                 if (!string.IsNullOrEmpty(item))
@@ -189,6 +212,13 @@ namespace kevin.Application.Services.AI
                             aiTools.Add(
                             AIFunctionFactory.Create(_kevinAITaskService.GetTaskList,
                             new AIFunctionFactoryOptions { Name = "GetTaskList", Description = "获取我的所有周期性任务列表" }
+                        ));
+                            break;
+
+                        case "AIMsgService.SendDDToUserMsg":
+                            aiTools.Add(
+                            AIFunctionFactory.Create(_IAIMsgService.SendDDToUserMsg,
+                            new AIFunctionFactoryOptions { Name = "SendDDToUserMsg", Description = "发送钉钉消息给其他用户， 用于把消息发送给指定用户的钉钉账户。以 ❌ 开头的错误信息。" }
                         ));
                             break;
                     }

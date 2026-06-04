@@ -89,7 +89,7 @@ namespace kevin.FileStorage.AliCloud
                     client.PutObject(fileStorageSetting.BucketName, objectName, localPath);
                 }
 
-                return (true, "");
+                return (true, GetUrl().Result + remotePath + "/" + fileName);
             }
             catch
             {

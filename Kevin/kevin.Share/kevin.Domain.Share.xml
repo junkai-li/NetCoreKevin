@@ -159,6 +159,11 @@
             内容长度限制，超过限制后会进行截断，默认30000字符（知识库，互联网搜索，AI工具内容，文件内容等，）
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.IsSecurityIntercept">
+            <summary>
+            是否开启安全拦截开启后会对python脚本和shell命令内容进行安全拦截，防止输入敏感信息，默认开启
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto">
             <summary>
             聊天记录
@@ -1036,6 +1041,11 @@
         <member name="M:kevin.Domain.Share.Dtos.User.dtoUser.LoginUserCheck">
             <summary>
             登录用户检查
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.CorrelationId">
+            <summary>
+            第三方关联Id：钉钉、微信、QQ等
             </summary> 
         </member>
         <member name="P:kevin.Domain.Share.Dtos.User.dtoUserInfo.UserId">

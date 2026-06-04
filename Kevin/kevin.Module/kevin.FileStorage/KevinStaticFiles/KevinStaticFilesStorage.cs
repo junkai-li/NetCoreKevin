@@ -119,7 +119,7 @@ namespace kevin.FileStorage.KevinStaticFiles
                 Directory.CreateDirectory(remoteDir);
                 File.Copy(localPath, remotePath, true);
             }
-            return (true, "");
+            return (true, GetUrl().Result + remotePath + "/" + fileName);
         }
 
         public string? GetFileTempUrl(string remotePath, TimeSpan expiry, string? fileName = null)

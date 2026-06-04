@@ -212,6 +212,13 @@
       </a-row>
       <a-row :gutter="16">
         <a-col :span="12">
+          <a-form-item label="安全拦截" extra="开启后会对python脚本和命令进行安全拦截">
+            <a-switch v-model:checked="form.isSecurityIntercept" :disabled="isViewMode" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row :gutter="16">
+        <a-col :span="12">
           <a-form-item label="请求超时(分钟)">
             <a-input-number v-model:value="form.networkTimeout" :min="1" style="width: 100%" :disabled="isViewMode" />
           </a-form-item>
@@ -384,7 +391,8 @@ const form = reactive({
   chatMessageLimit: 100,
   contentLengthLimit: 30000,
   isThinkingLog: true,
-  isToolLog: true
+  isToolLog: true,
+  isSecurityIntercept: true
 });
 
 // 表单验证规则
@@ -408,9 +416,6 @@ const rules = reactive({
     { required: true, message: '请选择会话模型' }
   ] , msgType: [
     { required: true, message: '请选择消息输出类型' }
-  ],
-  authorizedDomains: [
-    { required: true, message: '请输入AI请求授权白名单' }
   ]
 });
 

@@ -218,13 +218,7 @@ namespace kevin.Application.Services.AI
                                                 .UseOptions(options => options.DisableCaching = true);
                             foreach (var skillPath in skillPaths)
                             {
-                                skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath),
-                                                                       options: new AgentFileSkillsSourceOptions
-                                                                       {
-                                                                           AllowedResourceExtensions = [".md", ".txt"],
-                                                                           AllowedScriptExtensions = [".py", ".sh", ".ps1"],
-                                                                           ScriptFilter = ctx => ctx.RelativeFilePath.StartsWith("scripts"), 
-                                                                       });
+                                skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath));
                             }
                             var sk = skillsProvider.Build();
                             chatAgOs.AIContextProviders = [sk]; 
@@ -238,8 +232,7 @@ namespace kevin.Application.Services.AI
                                 messageContent = _aIAgentService.CreateOpenAIAgentAndSendMSG(new AISetting
                                 {
                                     AIUrl = aIModels.EndPoint,
-                                    AIKeySecret = aIModels.ModelKey,
-                                    AIParData = new { AppId = aiapp.Id, AuthorizedDomains = aiapp.AuthorizedDomains, ContentLengthLimit = aiapp.ContentLengthLimit },
+                                    AIKeySecret = aIModels.ModelKey, 
                                     AIDefaultModel = aIModels.ModelName,
                                     IsStreame = false,
                                     IsHttpLog = aiapp.IsHttpLog,

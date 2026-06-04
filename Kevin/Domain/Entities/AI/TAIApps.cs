@@ -170,5 +170,12 @@
         [DefaultValue(30000)]
         public int ContentLengthLimit { get; set; } = 30000;
 
+        /// <summary>
+        /// 是否开启安全拦截开启后会对python脚本和shell命令内容进行安全拦截，防止输入敏感信息，默认开启
+        /// </summary>
+        [Description("是否开启安全拦截，开启后会对python脚本和shell命令内容进行安全拦截，防止输入敏感信息，默认开启")]
+        [DefaultValue(true)]
+        public bool IsSecurityIntercept { get; set; } = true;
+
     }
 }

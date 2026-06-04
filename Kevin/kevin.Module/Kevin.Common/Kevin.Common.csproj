@@ -9,7 +9,7 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup> 
     <PackageReference Include="AlipaySDKNet.Standard" Version="4.9.511" />
     <PackageReference Include="aliyun-net-sdk-alidns" Version="2.6.32" />
     <PackageReference Include="aliyun-net-sdk-core" Version="1.6.2" />

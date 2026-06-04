@@ -86,7 +86,7 @@
               <RobotOutlined v-else />
             </div>
             <div class="message-content">
-              <div class="message-text">{{ message.content }}</div>
+              <div class="message-text" v-html="formatMessageContent(message.content)"></div>
               <a-collapse v-if="message.aiReasoningContent" class="message-collapse" ghost :default-active-key="expandedReasoning ? ['reasoning'] : []">
                 <a-collapse-panel key="reasoning" header="思考过程">
                   <div class="collapse-content">
@@ -115,7 +115,7 @@
                   </div>
                 </a-collapse-panel>
               </a-collapse>
-              <div class="message-actions" v-if="!message.isSend">
+              <div class="message-actions">
                 <a-button
                   type="text"
                   size="small"
@@ -354,13 +354,42 @@ const selectedAiApp = ref(null); // 存储选中的智能体
 
 // 复制功能
 const copyMessageContent = async (content) => {
+  if (!content) {
+    message.warning('没有可复制的内容');
+    return;
+  }
+  
   try {
-    await navigator.clipboard.writeText(content);
-    message.success('内容已复制到剪贴板');
+    // 优先使用 clipboard API
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(content);
+      message.success('内容已复制到剪贴板');
+    } else {
+      // 降级方案：使用 textarea
+      const textarea = document.createElement('textarea');
+      textarea.value = content;
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      message.success('内容已复制到剪贴板');
+    }
   } catch (err) {
     console.error('复制失败:', err);
     message.error('复制失败');
   }
+};
+
+// 将消息内容中的 URL 转换为可点击的链接
+const formatMessageContent = (content) => {
+  if (!content) return '';
+  // 匹配 http 和 https URL
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return content.replace(urlRegex, (url) => {
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="url-link">${url}</a>`;
+  });
 };
 
 // 文件上传成功处理
@@ -1323,6 +1352,13 @@ const deleteConversation = async (conversationId, event) => {
   text-align: left;
   display: inline-block;
   max-width: 100%;
+}
+
+.message-text .url-link {
+  color: #1890ff;
+  text-decoration: underline;
+  cursor: pointer;
+  word-break: break-all;
 }
 
 .message-item.user-message .message-text {

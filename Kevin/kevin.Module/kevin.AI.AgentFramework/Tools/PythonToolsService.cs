@@ -22,6 +22,7 @@ namespace kevin.AI.AgentFramework.Tools
         private object? _data { get; set; }
         private int _contentLengthLimit = 0;//  内容长度限制，超过限制后会进行截断
         private List<string> _authorizedDomains = new List<string>(); // 授权域名列表
+        private bool _IsSecurityIntercept = true;// 是否启用安全拦截，默认启用
         public void InitData(object data)
         {
             _data = data;
@@ -39,11 +40,12 @@ namespace kevin.AI.AgentFramework.Tools
                             .ToList()
                             .ForEach(domain => this._authorizedDomains.Add(domain));
                     }
-                    jsonDoc.RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit); 
+                    jsonDoc.RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit);
+                    _IsSecurityIntercept=jsonDoc.RootElement.GetProperty("IsSecurityIntercept").GetBoolean();
                 }
                 catch (Exception)
-                {
-                    _contentLengthLimit = 0; // 解析失败则不限制内容长度
+                { 
+                    _IsSecurityIntercept=true; // 解析失败默认启用安全拦截
                 }
 
             }
@@ -166,13 +168,15 @@ namespace kevin.AI.AgentFramework.Tools
                 {
                     return $"❌ 授权拦截：{ex.Message}";
                 }
-
-                var validationResult = PythonSecurityValidator.ValidatePythonFile(scriptPath);
-                if (!validationResult.IsValid)
+                if (_IsSecurityIntercept)
                 {
-                    var blockedList = string.Join("; ", validationResult.BlockedItems);
-                    return $"❌ 安全校验失败: {blockedList}";
-                }
+                    var validationResult = PythonSecurityValidator.ValidatePythonFile(scriptPath);
+                    if (!validationResult.IsValid)
+                    {
+                        var blockedList = string.Join("; ", validationResult.BlockedItems);
+                        return $"❌ 安全校验失败: {blockedList}";
+                    }
+                } 
                 Console.WriteLine();
                 Console.WriteLine($"🔧 正在执行Py脚本 {scriptPath}");
                 // 设置进程信息
@@ -243,13 +247,15 @@ namespace kevin.AI.AgentFramework.Tools
                 {
                     return $"❌ 授权拦截：{ex.Message}";
                 }
-
-                var validationResult = PythonSecurityValidator.ValidatePythonCode(code);
-                if (!validationResult.IsValid)
-                {
-                    var blockedList = string.Join("; ", validationResult.BlockedItems);
-                    return $"❌ 安全校验失败: {blockedList}";
-                }
+                if (_IsSecurityIntercept)
+                { 
+                    var validationResult = PythonSecurityValidator.ValidatePythonCode(code);
+                    if (!validationResult.IsValid)
+                    {
+                        var blockedList = string.Join("; ", validationResult.BlockedItems);
+                        return $"❌ 安全校验失败: {blockedList}";
+                    }
+                } 
                 Console.WriteLine();
                 Console.WriteLine($"🔧 正在执行Py代码");
                 var saveResult = await SavePythonToFile(code, "Pys", "");

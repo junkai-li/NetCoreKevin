@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -593,6 +594,33 @@ namespace Common
             length = length < 0 ? 0 : length;
             var reStr = $@"(\S{"{" + startLen + "}"})(\S{"{" + length + "}"})(\S{"{" + endLen + "}"})";
             return Regex.Replace(value, reStr, $"$1{"".PadRight(count ?? length, c)}$3");
+        }
+
+        /// <summary>
+        /// 将文件名或相对路径做最基本的安全化处理（移除非法字符）
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public static string MakeSafeFileName(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+                return fileName ?? string.Empty;
+
+            // 如果传入包含目录分隔符，保留子目录结构但清理每个段
+            char[] seps = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+            var parts = fileName.Split(seps, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < parts.Length; i++)
+            {
+                var part = parts[i];
+                var invalid = Path.GetInvalidFileNameChars();
+                foreach (var c in invalid)
+                {
+                    part = part.Replace(c, '_');
+                }
+                parts[i] = part;
+            }
+
+            return string.Join(Path.DirectorySeparatorChar.ToString(), parts);
         }
     }
 }

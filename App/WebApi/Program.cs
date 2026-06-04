@@ -25,7 +25,7 @@ namespace WebApi
             try
             {
                 //设置环境变量-----如果需要手动切换环境 只需要修改这里即可 
-                Kevin.Common.Helper.EnvironmentConfigHelper.SetEnvironment(Kevin.Common.Helper.EnvironmentConfigHelper.Formal);
+                Kevin.Common.Helper.EnvironmentConfigHelper.SetEnvironment(Kevin.Common.Helper.EnvironmentConfigHelper.GetEnvironment());
                 var builder = WebApplication.CreateBuilder(args);
                 builder.Logging.UseKevinLog4Net();//日志
                 #region Kestrel Https并绑定证书

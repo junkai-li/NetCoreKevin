@@ -190,5 +190,11 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary>
         [Description(" 内容长度限制，超过限制后会进行截断，默认30000字符（知识库，互联网搜索，AI工具内容，文件内容等，）")] 
         public int ContentLengthLimit { get; set; } = 30000;
+
+        /// <summary>
+        /// 是否开启安全拦截开启后会对python脚本和shell命令内容进行安全拦截，防止输入敏感信息，默认开启
+        /// </summary>
+        [Description("是否开启安全拦截，开启后会对python脚本和shell命令内容进行安全拦截，防止输入敏感信息，默认开启")]
+        public bool IsSecurityIntercept { get; set; } = true;
     }
 }
