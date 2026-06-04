@@ -24,7 +24,7 @@ namespace kevin.Application.Services.AI
             var userInfo = userService.GetCurrentUserInfo();
             if (string.IsNullOrEmpty(userInfo?.CorrelationId))
             {
-                throw new UserFriendlyException(userInfo?.Name +"未关联到用户钉钉Id");
+                return userInfo?.Name + "未关联到用户钉钉Id";
             }
             return new DingDingMsgHelper().SendMessage_ByDingDingURLText(userInfo.CorrelationId, $"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}】\n {msgContent}").ToJson();
         }
@@ -34,11 +34,11 @@ namespace kevin.Application.Services.AI
             var userInfo = userService.GetSysUserWhereUserName(userName);
             if (userInfo == default)
             {
-                throw new UserFriendlyException("用户名称不存在");
+                return "用户名称不存在";
             }
             if (string.IsNullOrEmpty(userInfo?.CorrelationId))
             {
-                throw new UserFriendlyException(userInfo?.Name +"未关联到用户钉钉Id");
+                return userInfo?.Name + "未关联到用户钉钉Id";
             }
             return new DingDingMsgHelper().SendMessage_ByDingDingURLText(userInfo.CorrelationId, $"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}】\n {msgContent}").ToJson();
         }
