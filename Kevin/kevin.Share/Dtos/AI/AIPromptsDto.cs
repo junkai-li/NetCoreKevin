@@ -15,7 +15,7 @@ namespace kevin.Domain.Share.Dtos.AI
         /// 提示词
         /// </summary>
         [Required]
-        [StringLength(1500)]
+        [StringLength(5000)]
         public string Prompt { get; set; }
         /// <summary>
         /// 描述
