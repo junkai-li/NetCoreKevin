@@ -298,7 +298,7 @@ namespace kevin.AI.AgentFramework
                         }
                     }
                 }
-                return (reasoningBuilder?.ToString() ?? "").Replace("null", "\n");
+                return (reasoningBuilder?.ToString() ?? "").Replace("null", "\n").Replace("\n", "");
             }
             catch (Exception)
             {
