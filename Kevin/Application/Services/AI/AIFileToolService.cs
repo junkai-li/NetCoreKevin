@@ -13,17 +13,17 @@ namespace kevin.Application.Services.AI
         {
             this._fileStorage = fileStorage;
         }
-        public Task<string> SaveFileContent([Description("文件名称如（xx.html,xx.txt）支持各种文件类型")] string fileName, [Description("内容")] string content)
+        public string SaveFileContent([Description("文件名称如（xx.html,xx.txt）支持各种文件类型")] string fileName, [Description("内容")] string content)
         {
             Console.WriteLine();
             Console.WriteLine($"🔧 正在调用 SaveFileContent 上传远程文件 ");
             try
             {
                 if (string.IsNullOrWhiteSpace(fileName))
-                    return Task.FromResult("❌ 保存失败: fileName 不能为空。");
+                    return "❌ 保存失败: fileName 不能为空。";
 
                 if (string.IsNullOrWhiteSpace(content))
-                    return Task.FromResult("❌ 保存失败: content 不能为空。");
+                    return  "❌ 保存失败: content 不能为空。";
 
                 var encoding = new UTF8Encoding(false); // 默认 UTF-8 无 BOM 
                 string safeName = StringHelper.MakeSafeFileName(fileName);
@@ -37,17 +37,17 @@ namespace kevin.Application.Services.AI
                 if (upload.Item1)
                 {
                     Common.IO.IOHelper.DeleteFile(fullPath);
-                    return Task.FromResult(upload.Item2);
+                    return  upload.Item2;
                 }
                 else
                 {
-                    return Task.FromResult("❌ 文件上传保存失败");
+                    return "❌ 文件上传保存失败";
                 } 
             }
             catch (Exception ex)
             {
 
-                return Task.FromResult("❌ 保存失败: 发生异常。" + ex.Message);
+                return "❌ 保存失败: 发生异常。" + ex.Message;
             }
 
         }
