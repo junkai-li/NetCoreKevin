@@ -744,7 +744,8 @@ const handleOk = () => {
         chatMessageLimit: form.chatMessageLimit,
         contentLengthLimit: form.contentLengthLimit,
         isThinkingLog: form.isThinkingLog,
-        isToolLog: form.isToolLog
+        isToolLog: form.isToolLog,
+        isSecurityIntercept: form.isSecurityIntercept
       };
       
       emit('ok', params);

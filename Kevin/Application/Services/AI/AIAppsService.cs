@@ -185,6 +185,7 @@ namespace kevin.Application.Services.AI
                     msg.IsToolLog = par.IsToolLog;
                     msg.IsThinkingLog = par.IsThinkingLog;
                     msg.ContentLengthLimit = par.ContentLengthLimit;
+                    msg.IsSecurityIntercept= par.IsSecurityIntercept;
                 }
                 else
                 {
