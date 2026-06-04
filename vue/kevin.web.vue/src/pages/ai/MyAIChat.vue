@@ -385,10 +385,12 @@ const copyMessageContent = async (content) => {
 // 将消息内容中的 URL 转换为可点击的链接
 const formatMessageContent = (content) => {
   if (!content) return '';
-  // 匹配 http 和 https URL
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  // 匹配 http 和 https URL，包含点号，排除末尾的标点符号
+  const urlRegex = /https?:\/\/[^\s]+?(?=[.,)'"\]]*$|\s|$)/g;
   return content.replace(urlRegex, (url) => {
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="url-link">${url}</a>`;
+    // 移除末尾的标点符号
+    const cleanUrl = url.replace(/[.,)'"\]]+$/, '');
+    return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="url-link">${cleanUrl}</a>`;
   });
 };
 
