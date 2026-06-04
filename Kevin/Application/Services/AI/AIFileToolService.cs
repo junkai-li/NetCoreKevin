@@ -6,10 +6,10 @@ using System.Text;
 
 namespace kevin.Application.Services.AI
 {
-    public class AIFileToolService : BaseService, IAIFileToolService
+    public class AIFileToolService : IAIFileToolService
     {
         public readonly IFileStorage _fileStorage;
-        public AIFileToolService(IHttpContextAccessor _httpContextAccessor, IFileStorage fileStorage) : base(_httpContextAccessor)
+        public AIFileToolService(IHttpContextAccessor _httpContextAccessor, IFileStorage fileStorage)
         {
             this._fileStorage = fileStorage;
         }
@@ -23,26 +23,26 @@ namespace kevin.Application.Services.AI
                     return "❌ 保存失败: fileName 不能为空。";
 
                 if (string.IsNullOrWhiteSpace(content))
-                    return  "❌ 保存失败: content 不能为空。";
+                    return "❌ 保存失败: content 不能为空。";
 
                 var encoding = new UTF8Encoding(false); // 默认 UTF-8 无 BOM 
                 string safeName = StringHelper.MakeSafeFileName(fileName);
                 string basepath = "/Files/" + DateTime.Now.ToString("yyyy/MM/dd");
                 string filepath = Kevin.Common.App.IO.Path.ContentRootPath() + basepath;
                 Directory.CreateDirectory(filepath);
-                fileName = SnowflakeIdService.GetNextId() + "-" + fileName;
+                fileName = Guid.NewGuid().ToString("N") + "-" + fileName;
                 string fullPath = Path.Combine(filepath, fileName);
                 File.WriteAllText(fullPath, content ?? string.Empty, encoding);
                 var upload = _fileStorage.FileUpload(fullPath, basepath, fileName);
                 if (upload.Item1)
                 {
                     Common.IO.IOHelper.DeleteFile(fullPath);
-                    return  upload.Item2;
+                    return upload.Item2;
                 }
                 else
                 {
                     return "❌ 文件上传保存失败";
-                } 
+                }
             }
             catch (Exception ex)
             {

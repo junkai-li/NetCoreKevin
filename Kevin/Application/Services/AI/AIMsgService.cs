@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 
 namespace kevin.Application.Services.AI
 {
-    public class AIMsgService : BaseService, IAIMsgService
+    public class AIMsgService : IAIMsgService
     {
         public readonly IUserService userService;
-        public AIMsgService(IHttpContextAccessor _httpContextAccessor, IUserService _userService) : base(_httpContextAccessor)
+        public AIMsgService(IHttpContextAccessor _httpContextAccessor, IUserService _userService)
         {
             userService = _userService;
         }

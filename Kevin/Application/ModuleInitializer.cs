@@ -1,4 +1,6 @@
 ﻿using kevin.Application;
+using kevin.Application.Services.AI;
+using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Interfaces;
 using kevin.Ioc;
 using kevin.Ioc.TieredServiceRegistration;
@@ -13,6 +15,8 @@ namespace Kevin.Application
     {
         public void Initialize(IServiceCollection services)
         {
+            services.AddScoped<IAIFileToolService, AIFileToolService>();
+            services.AddScoped<IAIMsgService, AIMsgService>();
             new IocHelper().BatchAddScopeds<IService>(services, t =>
             {
                 GlobalServices.AddIService(t);
