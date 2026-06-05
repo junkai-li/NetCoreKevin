@@ -95,7 +95,7 @@ dotnet run --environment Development
 |------|------|
 | API | http://localhost:9901 |
 | Swagger | http://localhost:9901/swagger |
-| Hangfire | http://localhost:9901/hangfire |
+| Hangfire | http://localhost:9901/pchangfire|
 
 ### 默认账户
 
