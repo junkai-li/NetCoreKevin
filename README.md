@@ -9,27 +9,27 @@
 ### AI 智能体技能工具管理
 | 动态管理 | 智能体配置 | 对话交互 |
 |---------|----------|---------|
-| ![动态管理](Doc/list1/1.png) | ![智能体配置](Doc/list1/2.png) | ![对话交互](Doc/list1/3.png) |
+| ![动态管理](Doc/Img/list1/1.png) | ![智能体配置](Doc/Img/list1/2.png) | ![对话交互](Doc/Img/list1/3.png) |
 
 ### AI 知识库系统
 | 知识库管理 | 文档上传 | 智能问答 |
 |-----------|---------|---------|
-| ![知识库管理](Doc/list2/1.png) | ![文档上传](Doc/list2/2.png) | ![智能问答](Doc/list2/3.png) |
+| ![知识库管理](Doc/Img/list2/1.png) | ![文档上传](Doc/Img/list2/2.png) | ![智能问答](Doc/Img/list2/3.png) |
 
 ### AI 智能体技能
 | 技能列表 | 技能配置 | 技能执行 |
 |---------|---------|---------|
-| ![技能列表](Doc/list3/1.png) | ![技能配置](Doc/list3/2.png) | ![技能执行](Doc/list3/3.png) |
+| ![技能列表](Doc/Img/list3/1.png) | ![技能配置](Doc/Img/list3/2.png) | ![技能执行](Doc/Img/list3/3.png) |
 
 ### Hangfire 任务调度
 | 任务列表 | 任务配置 | 执行记录 |
 |---------|---------|---------|
-| ![任务列表](Doc/list4/1.png) | ![任务配置](Doc/list4/2.png) | ![执行记录](Doc/list4/3.png) |
+| ![任务列表](Doc/Img/list4/1.png) | ![任务配置](Doc/Img/list4/2.png) | ![执行记录](Doc/Img/list4/3.png) |
 
 ### 后台管理系统 (Vue3 + AntDesign)
 | 用户管理 | 角色管理 | 权限管理 | 系统配置 |
 |---------|---------|---------|---------|
-| ![用户管理](Doc/list5/1.png) | ![角色管理](Doc/list5/2.png) | ![权限管理](Doc/list5/3.png) | ![系统配置](Doc/list5/4.png) |
+| ![用户管理](Doc/Img/list5/1.png) | ![角色管理](Doc/Img/list5/2.png) | ![权限管理](Doc/Img/list5/3.png) | ![系统配置](Doc/list5/4.png) |
 
 ---
 
