@@ -711,7 +711,7 @@ public async Task<MyDto> GetData(int id)
 
 ### 13.3 联系方式
 
-- 项目地址：https://gitee.com/netkevin-li/ainet
+- 项目地址：https://gitee.com/netkevin-li/NetCoreKevin
 - 教学文档：https://blog.csdn.net/weixin_42629287/category_13037923.html
 - 交流群：文档中包含微信群二维码
 
