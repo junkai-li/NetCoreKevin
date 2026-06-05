@@ -107,10 +107,68 @@ dotnet run --environment Development
 
 ## 🧠 AI 智能体配置
 
-### AI 配置效果图
-| 模型管理 | 智能体管理 | 对话界面 |
-|---------|----------|---------|
-| ![模型管理](Doc/xg11.png) | ![智能体管理](Doc/xg12.png) | ![对话界面](Doc/dtai3.png) |
+# AI智能体教程
+
+-   第一步
+-   `请先完成上手教程在进行AI智能体教程`
+-   第二步
+-   `下载安装Qdrant--官网有教程 安装后配置json文件QdrantClientSetting 默认是localhost不需要动的`
+-   第三步
+-   `注册AI账户 教程以智谱AI为例 去[官网](https://open.bigmodel.cn)注册登录后获取APIKey`
+-   第四步
+-  `配置向量模型和对话模型默认如下`
+
+|![向量模型](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/7f97a2cb-3707-46f6-a8f7-bc48196ed941.png)|![对话模型](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/e0b7574a-0c47-45e7-b462-2d0e0707fe4d.png)|
+|--|--| 
+
+-   第五步
+-   `新建知识库选择向量模型(如果不选择请在json配置中配置)2048（默认）：最高精度，适合对准确性要求极高的场景===》配置智能体==》新建对话就OK了`
+
+|![输入图片说明](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/image.png)|![输入图片说明](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/a4f1e8c1-7380-4b3f-acca-b01c849730bb.png)|
+
+# 🧰基于Ollama部署本地模型
+
+- Ollama 支持多种操作系统，包括 macOS、Windows、Linux 以及通过 Docker 容器运行。
+- Ollama 对硬件要求不高，旨在让用户能够轻松地在本地运行、管理和与大型语言模型进行交互。
+- CPU：多核处理器（推荐 4 核或以上）。
+- GPU：如果你计划运行大型模型或进行微调，推荐使用具有较高计算能力的 GPU（如 NVIDIA 的 CUDA 支持）。
+- 内存：至少 8GB RAM，运行较大模型时推荐 16GB 或更高。
+- 存储：需要足够的硬盘空间来存储预训练模型，通常需要 10GB 至数百 GB 的空间，具体取决于模型的大小。 
+- Ollama 官方下载地址：[https://ollama.com/download](https://ollama.com/download)
+- 1.安装后运行模型 可根据电脑配置自由选择模型 可以使用qwen3:4b来进行测试
+- ollama run qwen3:4b
+- 系统配置如下
+- ![输入图片说明](Doc/localve.png)
+
+
+# 🌐 自动任务配置（Hangfire）
+默认基于redis方式注册Hangfire可在Kevin.Hangfire.ServiceCollectionExtensions自行添加或调整注入方式
+
+1.继承IModuleConfigTasks类实现ConfigTasks会在项目启动时自动注册任务，并且自动任务可以基于接口类直接调用应用服务
+
+```
+    /// <summary>
+    /// AIKmssTasks配置任务设置
+    /// </summary>
+    public class AIKmssModuleConfigTasks : IModuleConfigTasks
+    {  
+        /// <summary>
+        /// 配置任务
+        /// </summary>
+        public Task<bool> ConfigTasks(IRecurringJobManager recurringJobManager)
+        {
+            recurringJobManager.AddOrUpdate<IAIKmssService>(
+                recurringJobId: "每6分钟检测是否有AI文档知识库需要处理",      // 唯一的 ID，用于后续修改或删除
+                (s) => s.ProcessKmssVectorData(default),
+                "0 0/6 0/1 * * ? ", new RecurringJobOptions
+                {
+                    TimeZone = TimeZoneInfo.Local,        // 指定时区（默认UTC） 
+                }
+            );
+            return Task.FromResult(true);
+        } 
+    }
+```
 
 ### 1. 安装 Qdrant
 
