@@ -140,8 +140,7 @@ dotnet run --environment Development
 - ollama run qwen3:4b
 - 系统配置如下
 - ![输入图片说明](Doc/localve.png)
-
-## 🌐自动任务配置
+ 
 ###  自动任务配置（Hangfire）
 默认基于redis方式注册Hangfire可在Kevin.Hangfire.ServiceCollectionExtensions自行添加或调整注入方式
 
