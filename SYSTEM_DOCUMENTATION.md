@@ -542,7 +542,7 @@ sudo systemctl enable kevin-webapi
 
 ### 10.2 性能监控
 
-- **Hangfire Dashboard**: http://localhost:9901/hangfire
+- **Hangfire Dashboard**: http://localhost:9901/pchangfire 
 - **Redis 监控**: 使用 Redis Insight 或类似工具
 - **MySQL 监控**: 使用 Prometheus + Grafana
 
