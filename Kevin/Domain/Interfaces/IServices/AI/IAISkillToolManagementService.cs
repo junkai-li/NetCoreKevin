@@ -43,5 +43,10 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// <param name="id"></param>
         /// <returns></returns>
         Task<bool> Delete(long id);
+
+        Task<List<AISkillToolManagementDto>> GetNotDataPerAllSkills();
+
+        Task<List<AISkillToolManagementDto>> GetNotDataPerAllTools();
+
     }
 }

@@ -15,3 +15,11 @@ export const addEditAISkillToolManagement = (data) => {
 export const deleteAISkillToolManagement = (id) => {
   return http.delete('/api/AISkillToolManagement/Delete?Id='+id);
 };
+//获取AI工具列表
+export const GetAllTools = () => {
+  return http.get('/api/AISkillToolManagement/GetAllTools');
+};
+//获取AISkill技能列表
+export const GetAllSkills = () => {
+  return http.get('/api/AISkillToolManagement/GetAllSkills');
+};

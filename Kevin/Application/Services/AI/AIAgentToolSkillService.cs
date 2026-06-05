@@ -230,7 +230,7 @@ namespace kevin.Application.Services.AI
         public async Task<List<string>> GetAIAgentSkillsAsync(object data, string agentId)
         {
             var agentBindIds = (await _iAISkillToolBindIdService.GetListById(agentId)).Select(t => t.AISkillToolManagementId).ToList();
-            var skills = (await _iAISkillToolManagementService.GetAllSkills()).Where(t => agentBindIds.Contains(t.Id)).ToList();
+            var skills = (await _iAISkillToolManagementService.GetNotDataPerAllSkills()).Where(t => agentBindIds.Contains(t.Id)).ToList();
             return skills.Where(t => agentBindIds.Contains(t.Id)).Select(t => t.Name).ToList();
         }
 
@@ -238,25 +238,25 @@ namespace kevin.Application.Services.AI
         {
             var aiTools = new List<AITool>();
             var agentBindIds = (await _iAISkillToolBindIdService.GetListById(agentId)).Select(t => t.AISkillToolManagementId).ToList();
-            var tools = (await _iAISkillToolManagementService.GetAllTools()).Where(t => agentBindIds.Contains(t.Id)).ToList();
+            var tools = (await _iAISkillToolManagementService.GetNotDataPerAllTools()).Where(t => agentBindIds.Contains(t.Id)).ToList();
             return await GetAITools(data, tools.Select(t => t.ClassMethod ?? "").ToList());
         }
 
         public async Task<List<string>> GetAllAIAgentSkillsAsync(object data)
         {
-            return (await _iAISkillToolManagementService.GetAllSkills()).Select(t => t.Name).ToList();
+            return (await _iAISkillToolManagementService.GetNotDataPerAllSkills()).Select(t => t.Name).ToList();
         }
 
         public async Task<List<AITool>> GetAllAIAgentToolsAsync(object data)
         {
-            var tools = (await _iAISkillToolManagementService.GetAllTools());
+            var tools = (await _iAISkillToolManagementService.GetNotDataPerAllTools());
             return await GetAITools(data, tools.Select(t => t.ClassMethod ?? "").ToList());
         }
 
         public async Task<List<string>> GetUserAIAgentSkillsAsync(object data, string agentId, string userId)
         {
             var agentBindIds = (await _iAISkillToolBindIdService.GetListById(agentId)).Select(t => t.AISkillToolManagementId).ToList();
-            var skills = (await _iAISkillToolManagementService.GetAllSkills()).Where(t => agentBindIds.Contains(t.Id)).ToList();
+            var skills = (await _iAISkillToolManagementService.GetNotDataPerAllSkills()).Where(t => agentBindIds.Contains(t.Id)).ToList();
             return skills.Where(t => agentBindIds.Contains(t.Id)).Select(t => t.Name).ToList();
         }
 
@@ -264,7 +264,7 @@ namespace kevin.Application.Services.AI
         {
             var aiTools = new List<AITool>();
             var agentBindIds = (await _iAISkillToolBindIdService.GetListById(agentId)).Select(t => t.AISkillToolManagementId).ToList();
-            var tools = (await _iAISkillToolManagementService.GetAllTools()).Where(t => agentBindIds.Contains(t.Id)).ToList();
+            var tools = (await _iAISkillToolManagementService.GetNotDataPerAllTools()).Where(t => agentBindIds.Contains(t.Id)).ToList();
             return await GetAITools(data, tools.Select(t => t.ClassMethod ?? "").ToList());
         }
     }

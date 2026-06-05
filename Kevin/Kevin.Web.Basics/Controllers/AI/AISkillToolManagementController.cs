@@ -67,6 +67,23 @@ namespace Kevin.Web.Basics.Controllers.AI
             var result = await _service.AddEdit(par);
             return result;
         }
+        [HttpGet("GetAllTools")]
+        [ActionDescription("获取AI工具列表")]
+        [HttpLog("AI应用管理", "获取AI工具列表")]
+        public async Task<List<AISkillToolManagementDto>> GetAllTools()
+        {
+            var result = await _service.GetAllTools();
+            return result;
+        }
+
+        [HttpGet("GetAllSkills")]
+        [ActionDescription("获取AISkill技能列表")]
+        [HttpLog("AI应用管理", "获取AISkill技能列表")]
+        public async Task<List<AISkillToolManagementDto>> GetAllSkills()
+        {
+            var result = await _service.GetAllSkills();
+            return result;
+        }
 
         /// <summary>
         /// 删除AI技能工具

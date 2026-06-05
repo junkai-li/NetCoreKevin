@@ -248,22 +248,22 @@
           <a-tab-pane key="tools" tab="Tools工具" :disabled="!form.isAITools">
             <a-table
               :columns="skillToolColumns"
-              :data-source="props.agentData?.tools || []"
+              :data-source="toolsList"
               :row-selection="toolsRowSelection"
               :pagination="false"
               :scroll="{ y: 250 }"
-              row-key="aiSkillToolManagementId"
+              row-key="id"
               size="small"
             />
           </a-tab-pane>
           <a-tab-pane key="skills" tab="Skills技能" :disabled="!form.isSkill">
             <a-table
               :columns="skillToolColumns"
-              :data-source="props.agentData?.skills || []"
+              :data-source="skillsList"
               :row-selection="skillsRowSelection"
               :pagination="false"
               :scroll="{ y: 250 }"
-              row-key="aiSkillToolManagementId"
+              row-key="id"
               size="small"
             />
           </a-tab-pane>
@@ -333,6 +333,7 @@ import { getAIPromptsALLList } from '@/api/ai/aiPrompts';
 import { getAIKmssList } from '@/api/ai/aikmss';
 import { getUserList } from '@/api/userapi';
 import { getRolePage } from '@/api/roleapi';
+import { GetAllTools, GetAllSkills } from '@/api/ai/aiskilltoolManagement';
 const emit = defineEmits(['ok', 'cancel']);
 
 const props = defineProps({
@@ -436,9 +437,14 @@ const skillToolTabKey = ref('tools');
 
 // 技能工具表格列
 const skillToolColumns = [
-  { title: '名称', dataIndex: 'aiSkillToolManagementName', key: 'aiSkillToolManagementName' },
-  { title: '描述', dataIndex: 'aiSkillToolManagementDescription', key: 'aiSkillToolManagementDescription' }
+  { title: '名称', dataIndex: 'name', key: 'name' },
+  { title: '描述', dataIndex: 'description', key: 'description' }
 ];
+
+// 工具列表
+const toolsList = ref([]);
+// 技能列表
+const skillsList = ref([]);
 
 // Tools行选择
 const toolsRowSelection = computed(() => {
@@ -642,19 +648,24 @@ watch(() => props.open, (newVal) => {
     if ((props.modalType === 'edit' || props.modalType === 'view') && props.agentData) {
       Object.keys(form).forEach(key => {
         if (props.agentData[key] !== undefined) {
-          if (key === 'tools' && Array.isArray(props.agentData[key])) {
-            form.tools = props.agentData[key]
-              .filter(t => t.isSelect)
-              .map(t => t.aiSkillToolManagementId);
-          } else if (key === 'skills' && Array.isArray(props.agentData[key])) {
-            form.skills = props.agentData[key]
-              .filter(s => s.isSelect)
-              .map(s => s.aiSkillToolManagementId);
+          if (key === 'bindIds') {
+            // 跳过 bindIds，单独处理
           } else {
             form[key] = props.agentData[key];
           }
         }
       });
+
+      // 从 AISkillsToolsBindIds 中提取工具和技能的 ID
+      const skillsToolsBindIds = props.agentData.aiSkillsToolsBindIds || [];
+      const toolIds = toolsList.value.map(t => t.id);
+      const skillIds = skillsList.value.map(s => s.id);
+
+      form.tools = skillsToolsBindIds.filter(id => toolIds.includes(id));
+      form.skills = skillsToolsBindIds.filter(id => skillIds.includes(id));
+
+      // bindIds 只保留用户和角色
+      form.bindIds = props.agentData.bindIds || [];
     } else {
       // 添加模式，设置默认值
       Object.assign(form, {
@@ -708,10 +719,15 @@ const handleOk = () => {
     try {
       const buildSelectedData = (selectedIds, originalData) => {
         return originalData.map(item => ({
-          ...item,
-          isSelect: selectedIds.includes(item.aiSkillToolManagementId)
+          aiSkillToolManagementId: item.id,
+          aiSkillToolManagementName: item.name,
+          aiSkillToolManagementDescription: item.description,
+          isSelect: selectedIds.includes(item.id)
         }));
       };
+
+      // 构建 bindIds，只包含用户和角色（不包含工具和技能）
+      const userRoleBindIds = (form.bindIds || []).filter(id => !String(id).startsWith('tool_') && !String(id).startsWith('skill_'));
 
       const params = {
         id: form.id,
@@ -734,13 +750,13 @@ const handleOk = () => {
         msgType: form.msgType,
         isAITools: form.isAITools,
         isSkill: form.isSkill,
-        tools: form.isAITools ? buildSelectedData(form.tools || [], props.agentData?.tools || []) : [],
-        skills: form.isSkill ? buildSelectedData(form.skills || [], props.agentData?.skills || []) : [],
+        tools: form.isAITools ? buildSelectedData(form.tools || [], toolsList.value) : [],
+        skills: form.isSkill ? buildSelectedData(form.skills || [], skillsList.value) : [],
         isHttpLog: form.isHttpLog,
         maxRetries: form.maxRetries,
         networkTimeout: form.networkTimeout,
         authorizedDomains: form.authorizedDomains,
-        bindIds: form.bindIds || [],
+        bindIds: userRoleBindIds,
         chatMessageLimit: form.chatMessageLimit,
         contentLengthLimit: form.contentLengthLimit,
         isThinkingLog: form.isThinkingLog,
@@ -813,6 +829,30 @@ const loadKmsList = async () => {
   }
 };
 
+// 加载工具列表
+const loadToolsList = async () => {
+  try {
+    const response = await GetAllTools();
+    if (response && response.code === 200 && response.data) {
+      toolsList.value = response.data;
+    }
+  } catch (error) {
+    console.error('加载工具列表失败:', error);
+  }
+};
+
+// 加载技能列表
+const loadSkillsList = async () => {
+  try {
+    const response = await GetAllSkills();
+    if (response && response.code === 200 && response.data) {
+      skillsList.value = response.data;
+    }
+  } catch (error) {
+    console.error('加载技能列表失败:', error);
+  }
+};
+
 // 组件挂载时加载数据
 onMounted(() => {
   loadModelList();
@@ -820,6 +860,8 @@ onMounted(() => {
   loadKmsList();
   loadUserList();
   loadRoleList();
+  loadToolsList();
+  loadSkillsList();
 });
 
 // 暴露方法给父组件

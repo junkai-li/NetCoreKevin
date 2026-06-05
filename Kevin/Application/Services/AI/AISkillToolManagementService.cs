@@ -31,6 +31,10 @@ namespace kevin.Application.Services.AI
             int skip = dtoPagePar.GetSkip();
             var result = new dtoPageData<AISkillToolManagementDto>();
             var data = AISkillToolManagementRp.Query(isDataPer: true).Where(t => t.IsDelete == false);
+            if ((AISkillToolTypeEnums)dtoPagePar.Parameter== AISkillToolTypeEnums.Tool)
+            {
+                data = AISkillToolManagementRp.Query(isDataPer: false).Where(t => t.IsDelete == false);
+            }
             if (!string.IsNullOrEmpty(dtoPagePar.searchKey))
             {
                 data = data.Where(t => (t.Name ?? "").Contains(dtoPagePar.searchKey));
@@ -201,7 +205,25 @@ namespace kevin.Application.Services.AI
 
         public async Task<List<AISkillToolManagementDto>> GetAllTools()
         {
-            return (await AISkillToolManagementRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Tool && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
+            return (await AISkillToolManagementRp.Query(isDataPer: false).Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Tool && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
+
+        }
+        /// <summary>
+        /// 不受数据权限控制的技能工具列表（主要用于系统管理员等特殊角色使用）
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<AISkillToolManagementDto>> GetNotDataPerAllSkills()
+        {
+            return (await AISkillToolManagementRp.Query().Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Skill && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
+
+        }
+        /// <summary>
+        /// 不受数据权限控制的技能工具列表（主要用于系统管理员等特殊角色使用）
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<AISkillToolManagementDto>> GetNotDataPerAllTools()
+        {
+            return (await AISkillToolManagementRp.Query().Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Tool && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
 
         }
     }

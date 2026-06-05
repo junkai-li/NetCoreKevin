@@ -62,22 +62,9 @@ namespace kevin.Application.Services.AI
             }
             var skills = await aISkillToolManagementService.GetAllSkills();
             var tools = await aISkillToolManagementService.GetAllTools();
-            var myIds = await aISkillToolBindIdService.GetListById(data.Id.ToString());
-            data.Skills = skills.Select(t => new AIAppsBindSkillToolsDto
-            {
-                IsSelect = myIds.Any(x => x.AISkillToolManagementId == t.Id),
-                AISkillToolManagementName = t.Name,
-                AISkillToolManagementDescription = t.Description,
-                AISkillToolManagementId = t.Id
-            }).ToList();
-            data.Tools = tools.Select(t => new AIAppsBindSkillToolsDto
-            {
-                IsSelect = myIds.Any(x => x.AISkillToolManagementId == t.Id),
-                AISkillToolManagementName = t.Name,
-                AISkillToolManagementDescription = t.Description,
-                AISkillToolManagementId = t.Id
-            }).ToList();
+            var myIds = await aISkillToolBindIdService.GetListById(data.Id.ToString()); 
             data.BindIds = (await aIAppsBindIdService.GetListByBindId(data.Id.ToString())).Select(t => t.BindId).ToList();
+            data.AISkillsToolsBindIds= myIds.Select(t => t.AISkillToolManagementId.ToString()).ToList();
             return data;
         }
         /// <summary>

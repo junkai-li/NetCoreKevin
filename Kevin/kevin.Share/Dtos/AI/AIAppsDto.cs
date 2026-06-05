@@ -157,6 +157,11 @@ namespace kevin.Domain.Share.Dtos.AI
         /// 关联的绑定ID
         /// </summary>
         public List<string> BindIds { get; set; } = new List<string>();
+
+        /// <summary>
+        /// 关联的绑定AI工具类技能ID列表
+        /// </summary>
+        public List<string> AISkillsToolsBindIds { get; set; } = new List<string>();
         /// <summary>
         /// AI请求授权白名单 *为所有，逗号分隔多个域名前缀
         /// </summary>
