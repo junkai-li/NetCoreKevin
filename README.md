@@ -107,6 +107,11 @@ dotnet run --environment Development
 
 ## 🧠 AI 智能体配置
 
+### AI 配置效果图
+| 模型管理 | 智能体管理 | 对话界面 |
+|---------|----------|---------|
+| ![模型管理](Doc/xg11.png) | ![智能体管理](Doc/xg12.png) | ![对话界面](Doc/dtai3.png) |
+
 ### 1. 安装 Qdrant
 
 ```bash
