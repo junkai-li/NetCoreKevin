@@ -123,8 +123,9 @@ dotnet run --environment Development
 
 -   第五步
 -   `新建知识库选择向量模型(如果不选择请在json配置中配置)2048（默认）：最高精度，适合对准确性要求极高的场景===》配置智能体==》新建对话就OK了`
-
-|![输入图片说明](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/image.png)|![输入图片说明](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/a4f1e8c1-7380-4b3f-acca-b01c849730bb.png)|
+ 
+|![知识库模型配置](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/image.png)|![智能体配置](Doc/Img/list1/2.png)|
+|--|--| 
 
 # 🧰基于Ollama部署本地模型
 
