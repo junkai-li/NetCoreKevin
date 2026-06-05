@@ -107,7 +107,7 @@ dotnet run --environment Development
 
 ## 🧠 AI 智能体配置
 
-# AI智能体教程
+### AI智能体教程
 
 -   第一步
 -   `请先完成上手教程在进行AI智能体教程`
@@ -127,7 +127,7 @@ dotnet run --environment Development
 |![知识库模型配置](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/image.png)|![智能体配置](Doc/Img/list1/2.png)|
 |--|--| 
 
-# 🧰基于Ollama部署本地模型
+### 🧰基于Ollama部署本地模型
 
 - Ollama 支持多种操作系统，包括 macOS、Windows、Linux 以及通过 Docker 容器运行。
 - Ollama 对硬件要求不高，旨在让用户能够轻松地在本地运行、管理和与大型语言模型进行交互。
