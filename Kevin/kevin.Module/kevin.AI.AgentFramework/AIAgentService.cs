@@ -33,12 +33,9 @@ namespace kevin.AI.AgentFramework
         /// <param name="OtherContents">其他内容：用来存放一些需要传递给代理的内容 比如文件内容 互联网信息等</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<(AIAgent, string, TokenConsumptionInfo)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, string msg, List<string>? OtherContents = default, CancellationToken cancellationToken = default)
+        public async Task<(AIAgent, string, TokenConsumptionInfo)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, ChatMessage messages, CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrEmpty(msg))
-            {
-                throw new Exception("msg不能为空");
-            }
+            
             cancellationToken.ThrowIfCancellationRequested();//是否已经中止，若已请求取消则抛出异常
             if (aISetting.IsHttpLog)
             {
@@ -77,18 +74,18 @@ namespace kevin.AI.AgentFramework
             var tokenConsumptionInfo = new TokenConsumptionInfo();
             var resultText = string.Empty;
 
-            ChatMessage message = new(ChatRole.User, [new TextContent(msg)]);
-            if (OtherContents != default && OtherContents.Count > 0)
-            {
-                message = new(ChatRole.User, [.. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(), new TextContent(msg)]);
-            }
+            //ChatMessage message = new(ChatRole.User, [new TextContent(msg)]);
+            //if (OtherContents != default && OtherContents.Count > 0)
+            //{
+            //    message = new(ChatRole.User, [.. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(), new TextContent(msg)]);
+            //}
             if (aISetting.IsStreame)
             {
                 if (aISetting.StreameCallback != default)
                 {
                     try
                     {
-                        await foreach (var update in aiAgent.RunStreamingAsync(message, cancellationToken: cancellationToken))
+                        await foreach (var update in aiAgent.RunStreamingAsync(messages, cancellationToken: cancellationToken))
                         {
                             if (update != default)
                             {
@@ -104,7 +101,8 @@ namespace kevin.AI.AgentFramework
                                                     // 1. 模型决定调用工具 
                                                     if (aISetting.ToolStreameCallback != default)
                                                     {
-                                                        aISetting.ToolStreameCallback.Invoke($"\n [工具调用] 名称：{funcCall.Name}，调用ID：{funcCall.CallId}，参数：{funcCall.Arguments?.ToString()}");
+                                                       
+                                                        aISetting.ToolStreameCallback.Invoke($"\n [工具调用] 名称：{funcCall.Name}，调用ID：{funcCall.CallId}，参数：（ {string.Join(", ", funcCall.Arguments?.Select(a => $"{a.Key}: {a.Value}") ?? [])}）");
                                                     }
                                                     break;
 
@@ -153,7 +151,7 @@ namespace kevin.AI.AgentFramework
                         Ailogger?.LogError(cre, "Streaming call failed, falling back to non-streaming RunAsync. Error: {Message}", cre.Message);
                         try
                         {
-                            reslut = await aiAgent.RunAsync(message, cancellationToken: cancellationToken);
+                            reslut = await aiAgent.RunAsync(messages, cancellationToken: cancellationToken);
                             resultText = reslut.Text;
                             if (reslut.Usage != default)
                             {
@@ -175,7 +173,7 @@ namespace kevin.AI.AgentFramework
                         Ailogger?.LogError(ex, "Unexpected streaming error, falling back to non-streaming RunAsync.");
                         try
                         {
-                            reslut = await aiAgent.RunAsync(message, cancellationToken: cancellationToken);
+                            reslut = await aiAgent.RunAsync(messages, cancellationToken: cancellationToken);
                             resultText = reslut.Text;
                             if (reslut.Usage != default)
                             {
@@ -195,7 +193,7 @@ namespace kevin.AI.AgentFramework
             }
             else
             {
-                reslut = await aiAgent.RunAsync(message, cancellationToken: cancellationToken);
+                reslut = await aiAgent.RunAsync(messages, cancellationToken: cancellationToken);
                 resultText = reslut.Text;
                 if (reslut.Usage != default)
                 {

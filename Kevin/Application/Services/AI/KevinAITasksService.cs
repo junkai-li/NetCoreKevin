@@ -238,7 +238,7 @@ namespace kevin.Application.Services.AI
                                     IsHttpLog = aiapp.IsHttpLog,
                                     MaxRetries = aiapp.MaxRetries,
                                     NetworkTimeout = aiapp.NetworkTimeout,
-                                }, chatAgOs, taskContent).Result.Item2;
+                                }, chatAgOs, new(ChatRole.User, [new TextContent($"{taskContent}")]) ).Result.Item2;
                                 break;
                         }
                     }

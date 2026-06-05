@@ -155,12 +155,8 @@ namespace kevin.Application.Services.AI
                     }
                 }
 
-            }
-            else
-            {
-                OtherContents.Add("\n文档信息列表：\n无相关信息");
-            }
-
+            } 
+            var ImgUrls = new List<string>();
             #region 文件处理
             if (!string.IsNullOrWhiteSpace(add.ContentFileUrls))
             {
@@ -172,8 +168,6 @@ namespace kevin.Application.Services.AI
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"正在处理 {fileUrls.Length} 个上传文件...");
 
                 var fileContents = new StringBuilder();
-                fileContents.AppendLine("\n用户上传文件内容：");
-
                 for (int i = 0; i < fileUrls.Length; i++)
                 {
                     var fileUrl = fileUrls[i].Trim();
@@ -182,41 +176,51 @@ namespace kevin.Application.Services.AI
                     try
                     {
                         await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"正在提取文件内容: {fileName}");
-
-                        var stream = await FileHelper.GetRemoteFileStreamAsync(fileUrl);
-                        var fileType = FileHelper.DetermineFileType(fileName); 
-                        string content = "";
-                        switch (fileType)
+                        var fileType = FileHelper.DetermineFileType(fileName);
+                        if (fileType != "image")
                         {
-                            case "image":
-                                content = ImageReader.DescribeImage(stream);
-                                break;
-                            case "excel":
-                                content = ExcelReader.ReadExcelToMarkdown(stream, fileName);
-                                break;
-                            case "pdf":
-                                content = PDFReader.ReadPdfToMarkdown(stream);
-                                break;
-                            case "word":
-                                content = WordReader.ReadParagraphs(stream);
-                                break;
-                            case "html":
-                                content = await HtmlReader.ExtractTextFromStreamAsync(stream);
-                                break;
-                            case "markdown":
-                                content = TextStreamReader.ReadMarkdownFromStream(stream).RawContent;
-                                break;
-                            case "text":
-                            default:
-                                content = TextStreamReader.ReadTextFromStream(stream);
-                                break;
+                            var stream = await FileHelper.GetRemoteFileStreamAsync(fileUrl);
+                            string content = "";
+                            switch (fileType)
+                            {
+                                case "excel":
+                                    content = ExcelReader.ReadExcelToMarkdown(stream, fileName);
+                                    break;
+                                case "pdf":
+                                    content = PDFReader.ReadPdfToMarkdown(stream);
+                                    break;
+                                case "word":
+                                    content = WordReader.ReadParagraphs(stream);
+                                    break;
+                                case "html":
+                                    content = await HtmlReader.ExtractTextFromStreamAsync(stream);
+                                    break;
+                                case "markdown":
+                                    content = TextStreamReader.ReadMarkdownFromStream(stream).RawContent;
+                                    break;
+                                case "text":
+                                default:
+                                    content = TextStreamReader.ReadTextFromStream(stream);
+                                    break;
+                            }
+                            if (i == 0)
+                            {
+                                fileContents.AppendLine("\n用户上传文件内容：");
+                            }
+                            fileContents.AppendLine($"\n文件名：【{fileName}】\n文件地址：【{fileUrl}】\n文件内容如下：");
+                            fileContents.AppendLine(content);
                         }
-
-                        fileContents.AppendLine($"\n文件名：【{fileName}】\n文件地址：【{fileUrl}】\n文件内容如下：");
-                        fileContents.AppendLine(content);
+                        else
+                        { 
+                            ImgUrls.Add(fileUrl);
+                        }
                     }
                     catch (Exception ex)
                     {
+                        if (i == 0)
+                        {
+                            fileContents.AppendLine("\n用户上传文件内容：");
+                        }
                         fileContents.AppendLine($"\n文件名：【{fileName}】\n文件地址：【{fileUrl}】\n(读取失败: {ex.Message})");
                     }
                 }
@@ -230,11 +234,7 @@ namespace kevin.Application.Services.AI
                 var http = new HttpClientFunction(aIAgentService, _serviceProvider);
                 OtherContents.Add(StringHelper.SubstringText(await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey), aiapp.ContentLengthLimit));
 
-            }
-            else
-            {
-                OtherContents.Add("\n互联网查询信息:\n无相关信息");
-            }
+            } 
 
             #region AI配置
             var chatAgOs = new ChatClientAgentOptions
@@ -250,25 +250,26 @@ namespace kevin.Application.Services.AI
                 },
                 ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString())
             };
+            var parAi = new { AIChatsId = add.AIChatsId, AppId = aiapp.Id, UserId = CurrentUser.UserId, AuthorizedDomains = aiapp.AuthorizedDomains, ContentLengthLimit = aiapp.ContentLengthLimit, IsSecurityIntercept = aiapp.IsSecurityIntercept };
             if (aiapp.IsAITools)
             {
                 if (chatAgOs.ChatOptions != default)
                 {
                     // 🔑 能力层：工具
                     chatAgOs.ChatOptions.Tools ??= new List<AITool>();
-                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(new { AIChatsId = add.AIChatsId, AppId = aiapp.Id, UserId = CurrentUser.UserId, AuthorizedDomains = aiapp.AuthorizedDomains, ContentLengthLimit = aiapp.ContentLengthLimit, IsSecurityIntercept = aiapp.IsSecurityIntercept }, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result);
+                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(parAi, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result);
                 }
             }
             if (aiapp.IsSkill)
             {
-                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(new { AIChatsId = add.AIChatsId, AppId = aiapp.Id, UserId = CurrentUser.UserId, AuthorizedDomains = aiapp.AuthorizedDomains, ContentLengthLimit = aiapp.ContentLengthLimit, IsSecurityIntercept=aiapp.IsSecurityIntercept }, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result;
+                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(parAi, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result;
 #pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。  
                 var skillsProvider = new AgentSkillsProviderBuilder()
                                                .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)
                                                .UseOptions(options => options.DisableCaching = true);
                 foreach (var skillPath in skillPaths)
                 {
-                    skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath)); 
+                    skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath));
                 }
                 var sk = skillsProvider.Build();
                 chatAgOs.AIContextProviders = [sk];
@@ -288,7 +289,7 @@ namespace kevin.Application.Services.AI
                         AIUrl = aIModels.EndPoint,
                         AIKeySecret = aIModels.ModelKey,
                         AIDefaultModel = aIModels.ModelName,
-                        IsStreame = aiapp.MsgType == 2, 
+                        IsStreame = aiapp.MsgType == 2,
                         IsHttpLog = aiapp.IsHttpLog,
                         MaxRetries = aiapp.MaxRetries,
                         NetworkTimeout = aiapp.NetworkTimeout,
@@ -312,7 +313,10 @@ namespace kevin.Application.Services.AI
                                 await signalRMsgService.SendIdentityIdMsg("aIReasoningContentMsg", add.Id.ToString(), StringHelper.SubstringText(msg, aiapp.ContentLengthLimit));
                             }
                         },
-                    }, chatAgOs, add.Content, cancellationToken: cancellationToken, OtherContents: OtherContents));
+                    }, chatAgOs, new(ChatRole.User, [new TextContent($"{add.Content}"), 
+                        .. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(), 
+                        .. ImgUrls.Select(url => DataContent.LoadFromAsync(FileHelper.GetRemoteFileStreamAsync(url).Result).Result).ToList()]),
+                    cancellationToken: cancellationToken));
                     addAi.Content = reslut.Item2 ?? "";
                     if (reslut.Item3 != default)
                     {
@@ -353,6 +357,6 @@ namespace kevin.Application.Services.AI
             return true;
         }
 
-    
+
     }
 }

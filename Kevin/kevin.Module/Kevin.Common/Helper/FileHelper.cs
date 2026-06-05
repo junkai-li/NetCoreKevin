@@ -252,7 +252,7 @@ namespace NetCore.Util
             var extension = Path.GetExtension(fileName).ToLowerInvariant();
             return extension switch
             {
-                ".png" or ".jpg" or ".jpeg" or ".gif" or ".bmp" or ".webp" or ".tiff" or ".tif" => "image",
+                ".png" or ".jpg" or ".jpeg" or ".gif" or ".bmp" or ".webp" or ".tiff" or ".tif" or ".svg" or ".ico" => "image",
                 ".xlsx" or ".xls" => "excel",
                 ".pdf" => "pdf",
                 ".doc" or ".docx" => "word",
