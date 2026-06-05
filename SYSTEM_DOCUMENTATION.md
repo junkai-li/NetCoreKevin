@@ -174,7 +174,7 @@ dotnet run --environment Development
 |------|------|
 | API 接口 | http://localhost:9901 |
 | Swagger 文档 | http://localhost:9901/swagger |
-| Hangfire 面板 | http://localhost:9901/hangfire |
+| Hangfire 面板 | http://localhost:9901/pchangfire |
 
 ### 5.3 默认账户
 
