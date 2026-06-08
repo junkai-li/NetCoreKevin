@@ -40,7 +40,7 @@
 | **.NET 9** | 最新 LTS 版本，性能更优，支持更多新特性 |
 | **DDD 架构** | 领域驱动设计，模块化结构，便于维护扩展 |
 | **微服务架构** | 基于 Consul、CAP、Hangfire 实现服务解耦 |
-| **AI 集成** | SemanticKernel、MCP 协议、Ollama 本地模型支持 |
+| **AI 集成** | AgentFramework 1.9、Skill 动态管理、Ollama 本地模型支持 |
 | **RAG 检索增强** | Qdrant 向量数据库实现知识库问答 |
 | **多租户支持** | 一库多租户架构，数据隔离 |
 | **分布式缓存** | Redis 缓存层，支持多种缓存策略 |

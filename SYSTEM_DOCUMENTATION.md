@@ -12,7 +12,7 @@
 
 | 模块 | 功能描述 | 技术实现 |
 |------|----------|----------|
-| **AI 智能体** | 基于 AgentFramework 的智能代理系统，支持多步推理与任务自动化 | SemanticKernel、MCP 协议 |
+| **AI 智能体** | 基于 AgentFramework 的智能代理系统，支持多步推理与任务自动化 |  SemanticKernel、OpenAI API 协议 |
 | **知识库系统** | 使用 Qdrant 向量数据库实现 RAG 检索增强 | Qdrant、Ollama |
 | **任务调度** | 基于 Hangfire 的定时任务调度系统 | Hangfire + Redis |
 | **权限管理** | 基于 IdentityServer4 的用户认证与细粒度授权 | IDS4、JWT |
@@ -37,7 +37,9 @@
 | 任务调度 | Hangfire | 1.8+ | 定时任务 |
 | 消息总线 | CAP | 7.0+ | 分布式事件 |
 | 认证授权 | IdentityServer4 | 6.3+ | OAuth2.0/OIDC |
-| AI 框架 | SemanticKernel | 1.0+ | AI 智能体 |
+| AI 框架 | AgentFramework 1.9 | 1.9+ | AI 智能体 |
+| Skill 管理 | SkillManager | 1.0+ | 动态加载和管理 Skill |
+| 模型调用 | Ollama | 1.4+ | 本地离线模型调用 |
 
 ### 2.2 架构设计
 
