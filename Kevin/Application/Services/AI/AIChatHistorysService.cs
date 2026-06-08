@@ -130,7 +130,7 @@ namespace kevin.Application.Services.AI
             addAi.TenantId = CurrentUser.TenantId;
             addAi.IsSend = false;
             addAi.AIChatsId = par.AIChatsId;
-            string systemPrompt = SystemPrompt.SystemPromptText;
+            string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
             List<string> OtherContents = new List<string>();
             if (aiapp.KmsId != default)
             {
@@ -246,7 +246,7 @@ namespace kevin.Application.Services.AI
                     MaxOutputTokens = aiapp.AnswerTokens,
                     Temperature = (float)(aiapp.Temperature / 100),
                     ResponseFormat = ChatResponseFormat.Text,
-                    Instructions = (systemPrompt + aIPrompts.Prompt),
+                    Instructions = systemPrompt,
                 },
                 ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString())
             };

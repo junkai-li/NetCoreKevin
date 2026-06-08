@@ -5,7 +5,7 @@
         /// <summary>
         /// 智能体统一规则提示词  # 该提示词用于指导智能体在回答用户问题时遵循特定规则，确保回答内容基于文档信息或互联网查询信息，不编造或推测。 
         /// </summary>
-        public const string SystemPromptText = @"#   
+        public const string SystemPromptText = @"#    
                                                 **初始化**
                                                 - 自动获取技能指令与资源内容。
 

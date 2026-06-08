@@ -185,7 +185,7 @@ namespace kevin.Application.Services.AI
                         var aiapp = _aIAppsRp.FirstOrDefault(t => t.Id == aichat.AppId, isDataPer: false, isTenant: false);
                         var aIModels = _aIModelsRp.FirstOrDefault(t => t.Id == aiapp.ChatModelID.ToTryInt64(), isDataPer: false, isTenant: false);
                         var aIPrompts = _aIPromptsRp.FirstOrDefault(t => t.Id == aiapp.AIPromptID, isDataPer: false, isTenant: false);
-                        string systemPrompt = SystemPrompt.SystemPromptText;
+                        string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
                         var chatAgOs = new ChatClientAgentOptions
                         {
                             Name = aiapp.Name,
@@ -195,7 +195,7 @@ namespace kevin.Application.Services.AI
                                 MaxOutputTokens = aiapp.MaxAskPromptSize,
                                 Temperature = (float)(aiapp.Temperature / 100),
                                 ResponseFormat = ChatResponseFormat.Text,
-                                Instructions = (systemPrompt + aIPrompts.Prompt),
+                                Instructions = systemPrompt,
                             },
                         };
                         var _aIAgentToolSkillService = _serviceProvider.GetService<IAIAgentToolSkillService>();
