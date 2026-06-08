@@ -195,7 +195,7 @@ namespace kevin.Application.Services.AI
                                 MaxOutputTokens = aiapp.MaxAskPromptSize,
                                 Temperature = (float)(aiapp.Temperature / 100),
                                 ResponseFormat = ChatResponseFormat.Text,
-                                Instructions = (aIPrompts.Prompt + systemPrompt),
+                                Instructions = (systemPrompt + aIPrompts.Prompt),
                             },
                         };
                         var _aIAgentToolSkillService = _serviceProvider.GetService<IAIAgentToolSkillService>();
@@ -221,7 +221,7 @@ namespace kevin.Application.Services.AI
                                 skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath));
                             }
                             var sk = skillsProvider.Build();
-                            chatAgOs.AIContextProviders = [sk]; 
+                            chatAgOs.AIContextProviders = [sk];
                         }
                         switch (aIModels.AIType)
                         {
@@ -232,13 +232,13 @@ namespace kevin.Application.Services.AI
                                 messageContent = _aIAgentService.CreateOpenAIAgentAndSendMSG(new AISetting
                                 {
                                     AIUrl = aIModels.EndPoint,
-                                    AIKeySecret = aIModels.ModelKey, 
+                                    AIKeySecret = aIModels.ModelKey,
                                     AIDefaultModel = aIModels.ModelName,
                                     IsStreame = false,
                                     IsHttpLog = aiapp.IsHttpLog,
                                     MaxRetries = aiapp.MaxRetries,
                                     NetworkTimeout = aiapp.NetworkTimeout,
-                                }, chatAgOs, new(ChatRole.User, [new TextContent($"{taskContent}")]) ).Result.Item2;
+                                }, chatAgOs, new(ChatRole.User, [new TextContent($"{taskContent}")])).Result.Item2;
                                 break;
                         }
                     }

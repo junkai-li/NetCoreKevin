@@ -155,7 +155,7 @@ namespace kevin.Application.Services.AI
                     }
                 }
 
-            } 
+            }
             var ImgUrls = new List<string>();
             #region 文件处理
             if (!string.IsNullOrWhiteSpace(add.ContentFileUrls))
@@ -211,7 +211,7 @@ namespace kevin.Application.Services.AI
                             fileContents.AppendLine(content);
                         }
                         else
-                        { 
+                        {
                             ImgUrls.Add(fileUrl);
                         }
                     }
@@ -234,7 +234,7 @@ namespace kevin.Application.Services.AI
                 var http = new HttpClientFunction(aIAgentService, _serviceProvider);
                 OtherContents.Add(StringHelper.SubstringText(await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey), aiapp.ContentLengthLimit));
 
-            } 
+            }
 
             #region AI配置
             var chatAgOs = new ChatClientAgentOptions
@@ -246,7 +246,7 @@ namespace kevin.Application.Services.AI
                     MaxOutputTokens = aiapp.AnswerTokens,
                     Temperature = (float)(aiapp.Temperature / 100),
                     ResponseFormat = ChatResponseFormat.Text,
-                    Instructions = (aIPrompts.Prompt + systemPrompt),
+                    Instructions = (systemPrompt + aIPrompts.Prompt),
                 },
                 ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString())
             };
@@ -313,8 +313,8 @@ namespace kevin.Application.Services.AI
                                 await signalRMsgService.SendIdentityIdMsg("aIReasoningContentMsg", add.Id.ToString(), StringHelper.SubstringText(msg, aiapp.ContentLengthLimit));
                             }
                         },
-                    }, chatAgOs, new(ChatRole.User, [new TextContent($"{add.Content}"), 
-                        .. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(), 
+                    }, chatAgOs, new(ChatRole.User, [new TextContent($"{add.Content}"),
+                        .. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(),
                         .. ImgUrls.Select(url => DataContent.LoadFromAsync(FileHelper.GetRemoteFileStreamAsync(url).Result).Result).ToList()]),
                     cancellationToken: cancellationToken));
                     addAi.Content = reslut.Item2 ?? "";
