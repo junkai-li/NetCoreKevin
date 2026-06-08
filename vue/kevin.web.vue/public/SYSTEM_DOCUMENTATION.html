@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetCoreKevin 系统开发-运维-使用文档</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 2em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 8px;
+        }
+
+        h3 {
+            font-size: 1.3em;
+        }
+
+        h4 {
+            font-size: 1.1em;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background-color: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        code {
+            font-family: "Courier New", Courier, monospace;
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: 0.9em;
+        }
+
+        blockquote {
+            border-left: 4px solid #667eea;
+            padding-left: 20px;
+            margin: 20px 0;
+            color: #666;
+            font-style: italic;
+        }
+
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .highlight {
+            background-color: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .toc h2 {
+            margin-top: 0;
+            border-bottom: none;
+            color: #667eea;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            margin-bottom: 8px;
+        }
+
+        .toc a {
+            color: #333;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            color: #667eea;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            th, td {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>NetCoreKevin 系统开发-运维-使用文档</h1>
+        <p>基于 .NET 9 构建的企业级 AI中台智能体 SaaS 前后端分离架构</p>
+    </header>
+
+    <div class="container">
+        <div class="content">
+            <div class="toc">
+                <h2>目录</h2>
+                <ul>
+                    <li><a href="#section1">一、项目概述</a></li>
+                    <li><a href="#section2">二、技术架构</a></li>
+                    <li><a href="#section3">三、环境要求</a></li>
+                    <li><a href="#section4">四、安装配置</a></li>
+                    <li><a href="#section5">五、启动运行</a></li>
+                    <li><a href="#section6">六、AI 智能体配置</a></li>
+                    <li><a href="#section7">七、API 接口说明</a></li>
+                    <li><a href="#section8">八、开发规范</a></li>
+                    <li><a href="#section9">九、运维部署</a></li>
+                    <li><a href="#section10">十、监控运维</a></li>
+                    <li><a href="#section11">十一、安全规范</a></li>
+                    <li><a href="#section12">十二、性能优化</a></li>
+                    <li><a href="#section13">十三、附录</a></li>
+                </ul>
+            </div>
+
+            <h1 id="section1">一、项目概述</h1>
+
+            <h2>1.1 项目简介</h2>
+            <p><strong>NetCoreKevin</strong> 是基于 .NET 9 构建的企业级 AI中台智能体 SaaS 前后端分离架构，集成了 AI 知识库智能体、Skill技能管理、本地离线AI模型调用、智能体技能可控加载、AI联网搜索、智能体权限管控、一库多租户、分布式系统、微服务架构等核心能力。</p>
+
+            <h2>1.2 核心功能模块</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>模块</th>
+                        <th>功能描述</th>
+                        <th>技术实现</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>AI 智能体</strong></td>
+                        <td>基于 AgentFramework 的智能代理系统，支持多步推理与任务自动化</td>
+                        <td>SemanticKernel、OpenAI API 协议</td>
+                    </tr>
+                    <tr>
+                        <td><strong>知识库系统</strong></td>
+                        <td>使用 Qdrant 向量数据库实现 RAG 检索增强</td>
+                        <td>Qdrant、Ollama</td>
+                    </tr>
+                    <tr>
+                        <td><strong>任务调度</strong></td>
+                        <td>基于 Hangfire 的定时任务调度系统</td>
+                        <td>Hangfire + Redis</td>
+                    </tr>
+                    <tr>
+                        <td><strong>权限管理</strong></td>
+                        <td>基于 IdentityServer4 的用户认证与细粒度授权</td>
+                        <td>IDS4、JWT</td>
+                    </tr>
+                    <tr>
+                        <td><strong>消息队列</strong></td>
+                        <td>基于 CAP 的分布式事件通信</td>
+                        <td>CAP、RabbitMQ</td>
+                    </tr>
+                    <tr>
+                        <td><strong>文件存储</strong></td>
+                        <td>支持多种云存储服务的文件上传下载</td>
+                        <td>腾讯云 COS、阿里云 OSS、七牛云</td>
+                    </tr>
+                    <tr>
+                        <td><strong>代码生成器</strong></td>
+                        <td>自动化代码生成工具</td>
+                        <td>模板引擎</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h1 id="section2">二、技术架构</h1>
+
+            <h2>2.1 技术栈</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>分类</th>
+                        <th>技术</th>
+                        <th>版本</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>语言</td>
+                        <td>C#</td>
+                        <td>9.0</td>
+                        <td>.NET 9 LTS</td>
+                    </tr>
+                    <tr>
+                        <td>框架</td>
+                        <td>ASP.NET Core</td>
+                        <td>9.0</td>
+                        <td>Web API 框架</td>
+                    </tr>
+                    <tr>
+                        <td>ORM</td>
+                        <td>Entity Framework Core</td>
+                        <td>9.0</td>
+                        <td>数据访问层</td>
+                    </tr>
+                    <tr>
+                        <td>数据库</td>
+                        <td>MySQL</td>
+                        <td>8.0+</td>
+                        <td>主数据库</td>
+                    </tr>
+                    <tr>
+                        <td>缓存</td>
+                        <td>Redis</td>
+                        <td>7.0+</td>
+                        <td>分布式缓存</td>
+                    </tr>
+                    <tr>
+                        <td>向量数据库</td>
+                        <td>Qdrant</td>
+                        <td>1.7+</td>
+                        <td>AI 知识库</td>
+                    </tr>
+                    <tr>
+                        <td>任务调度</td>
+                        <td>Hangfire</td>
+                        <td>1.8+</td>
+                        <td>定时任务</td>
+                    </tr>
+                    <tr>
+                        <td>消息总线</td>
+                        <td>CAP</td>
+                        <td>7.0+</td>
+                        <td>分布式事件</td>
+                    </tr>
+                    <tr>
+                        <td>认证授权</td>
+                        <td>IdentityServer4</td>
+                        <td>6.3+</td>
+                        <td>OAuth2.0/OIDC</td>
+                    </tr>
+                    <tr>
+                        <td>AI 框架</td>
+                        <td>AgentFramework 1.9</td>
+                        <td>1.9+</td>
+                        <td>AI 智能体</td>
+                    </tr>
+                    <tr>
+                        <td>Skill 管理</td>
+                        <td>SkillManager</td>
+                        <td>1.0+</td>
+                        <td>动态加载和管理 Skill</td>
+                    </tr>
+                    <tr>
+                        <td>模型调用</td>
+                        <td>Ollama</td>
+                        <td>1.4+</td>
+                        <td>本地离线模型调用</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>2.2 架构设计</h2>
+            <pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                      前端层 (Vue3)                              │
+├─────────────────────────────────────────────────────────────────┤
+│                      API 网关层                                  │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌───────────┐ │
+│  │  App.WebApi │ │  AI 模块    │ │  任务调度   │ │  其他服务 │ │
+│  └──────┬──────┘ └──────┬──────┘ └──────┬──────┘ └─────┬─────┘ │
+├─────────┼────────────────┼────────────────┼────────────────┼─────┤
+│  ┌──────▼──────┐ ┌──────▼──────┐ ┌──────▼──────┐               │
+│  │  应用服务层 │ │  领域服务层 │ │  仓储层     │               │
+│  └──────┬──────┘ └──────┬──────┘ └──────┬──────┘               │
+├─────────┼────────────────┼────────────────┼─────────────────────┤
+│                      数据访问层                                  │
+├─────────┼────────────────┼────────────────┼─────────────────────┤
+│  MySQL  │    Redis      │    Qdrant     │    RabbitMQ         │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+
+            <h2>2.3 项目结构</h2>
+            <pre><code>kevin.abp.core/
+├── App/                            # 应用模块
+│   ├── AppShare/                   # 共享组件
+│   ├── Application/                # 应用服务层
+│   ├── Domain/                     # 领域层
+│   ├── RepositorieRps/             # 仓储实现
+│   └── WebApi/                     # API 入口
+├── Kevin/                          # 核心模块
+│   ├── Application/                # 核心应用服务
+│   │   └── Services/
+│   │       ├── AI/                 # AI 服务
+│   │       └── ...                 # 其他服务
+│   ├── Domain/                     # 核心领域模型
+│   │   ├── Entities/               # 实体定义
+│   │   ├── Interfaces/             # 接口定义
+│   │   └── Bases/                  # 基类
+│   ├── Kevin.EntityFrameworkCore/  # EF Core 实现
+│   ├── Kevin.Web.Basics/           # Web 基础组件
+│   └── kevin.CodeGenerator/        # 代码生成器
+├── Doc/                            # 文档资源
+└── InitData/                       # 初始化数据</code></pre>
+
+            <h1 id="section3">三、环境要求</h1>
+
+            <h2>3.1 必备依赖</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>依赖</th>
+                        <th>版本要求</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>.NET SDK</td>
+                        <td>9.0+</td>
+                        <td>开发环境</td>
+                    </tr>
+                    <tr>
+                        <td>MySQL</td>
+                        <td>8.0+</td>
+                        <td>数据库</td>
+                    </tr>
+                    <tr>
+                        <td>Redis</td>
+                        <td>7.0+</td>
+                        <td>缓存、Hangfire</td>
+                    </tr>
+                    <tr>
+                        <td>Qdrant</td>
+                        <td>1.7+</td>
+                        <td>向量数据库（AI 功能）</td>
+                    </tr>
+                    <tr>
+                        <td>Node.js</td>
+                        <td>18+</td>
+                        <td>前端开发（可选）</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>3.2 可选依赖</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>依赖</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>RabbitMQ</td>
+                        <td>CAP 消息队列</td>
+                    </tr>
+                    <tr>
+                        <td>Consul</td>
+                        <td>服务发现</td>
+                    </tr>
+                    <tr>
+                        <td>Ollama</td>
+                        <td>本地大语言模型</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h1 id="section4">四、安装配置</h1>
+
+            <h2>4.1 数据库配置</h2>
+            <p><strong>appsettings.json</strong> 中的连接字符串配置：</p>
+            <pre><code>{
+  "ConnectionStrings": {
+    "dbConnection": "server=127.0.0.1;port=3306;database=kevin_app;user id=root;password=admin123;Convert Zero Datetime=True;TreatTinyAsBoolean=false;AllowLoadLocalInfile=true;Charset=utf8;Command Timeout=120;",
+    "redisConnection": "127.0.0.1:6379,DefaultDatabase=0,password=123456"
+  }
+}</code></pre>
+
+            <h2>4.2 数据库迁移</h2>
+            <p>在 <strong>Package Manager Console</strong> 中执行：</p>
+            <pre><code># 1. 选择默认项目为 Kevin.EntityFrameworkCore
+# 2. 创建迁移
+Add-Migration "初始化数据库"
+
+# 3. 应用迁移
+Update-Database</code></pre>
+
+            <h2>4.3 环境变量配置</h2>
+            <p><strong>Windows PowerShell：</strong></p>
+            <pre><code>$env:ASPNETCORE_ENVIRONMENT="Development"</code></pre>
+
+            <p><strong>Linux/macOS：</strong></p>
+            <pre><code>export ASPNETCORE_ENVIRONMENT=Development</code></pre>
+
+            <h1 id="section5">五、启动运行</h1>
+
+            <h2>5.1 开发环境启动</h2>
+            <p><strong>方式一：使用 Visual Studio</strong></p>
+            <ol>
+                <li>打开解决方案 <code>kevin.abp.core.sln</code></li>
+                <li>设置 <code>App.WebApi</code> 为启动项目</li>
+                <li>按 F5 启动调试</li>
+            </ol>
+
+            <p><strong>方式二：使用命令行</strong></p>
+            <pre><code>cd App/WebApi
+dotnet run --environment Development</code></pre>
+
+            <h2>5.2 服务访问</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>服务</th>
+                        <th>地址</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>API 接口</td>
+                        <td>http://localhost:9901</td>
+                    </tr>
+                    <tr>
+                        <td>Swagger 文档</td>
+                        <td>http://localhost:9901/swagger</td>
+                    </tr>
+                    <tr>
+                        <td>Hangfire 面板</td>
+                        <td>http://localhost:9901/pchangfire</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>5.3 默认账户</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>账户</th>
+                        <th>密码</th>
+                        <th>租户</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>admin</td>
+                        <td>123456</td>
+                        <td>1000</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h1 id="section6">六、AI 智能体配置</h1>
+
+            <h2>6.1 Qdrant 配置</h2>
+            <pre><code>{
+  "QdrantClientSetting": {
+    "Url": "localhost"
+  }
+}</code></pre>
+
+            <h2>6.2 模型配置</h2>
+            <p><strong>智谱 AI 配置：</strong></p>
+            <pre><code>{
+  "OllamaApiSetting": {
+    "Url": "https://open.bigmodel.cn/api/paas/v4/embeddings",
+    "DefaultModel": "embedding-3",
+    "ApiKey": "your-api-key"
+  }
+}</code></pre>
+
+            <p><strong>Ollama 本地模型配置：</strong></p>
+            <pre><code>{
+  "OllamaApiSetting": {
+    "Url": "http://localhost:11434/api/embeddings",
+    "DefaultModel": "qwen3:4b",
+    "ApiKey": ""
+  }
+}</code></pre>
+
+            <h2>6.3 智能体白名单配置</h2>
+            <p>白名单是为 AI 智能体配置的 HTTP/HTTPS 请求授权域名列表，用于限制智能体可以访问的外部资源。</p>
+            
+            <h3>6.3.1 配置说明</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>配置项</th>
+                        <th>说明</th>
+                        <th>示例值</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>authorizedDomains</code></td>
+                        <td>AI 请求授权白名单，多个域名用逗号分隔</td>
+                        <td><code>*.example.com, api.test.com</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>6.3.2 配置方式</h3>
+            <p>在智能体管理页面配置：</p>
+            <ol>
+                <li>进入 <strong>智能体管理</strong> 页面</li>
+                <li>新建或编辑智能体</li>
+                <li>在配置表单中找到 <strong>AI请求授权白名单</strong> 字段</li>
+                <li>输入允许访问的域名，多个域名用逗号分隔</li>
+                <li>保存配置</li>
+            </ol>
+
+            <h3>6.3.3 通配符支持</h3>
+            <p>支持使用通配符匹配域名：</p>
+            <ul>
+                <li><code>*</code> - 允许所有域名（默认值）</li>
+                <li><code>*.example.com</code> - 允许 example.com 下的所有子域名</li>
+                <li><code>api.example.com</code> - 允许特定域名</li>
+            </ul>
+
+            <h3>6.3.4 安全拦截功能</h3>
+            <p>智能体还支持安全拦截功能（<code>IsSecurityIntercept</code>）：</p>
+            <ul>
+                <li><strong>开启状态</strong>：对 Python 脚本和 Shell 命令内容进行安全拦截，防止输入敏感信息</li>
+                <li><strong>默认状态</strong>：开启</li>
+                <li><strong>配置位置</strong>：智能体编辑页面的安全拦截开关</li>
+            </ul>
+
+            <h2>6.4 AI 智能体使用流程</h2>
+            <ol>
+                <li><strong>注册 AI 账户</strong> → 获取 API Key</li>
+                <li><strong>配置模型</strong> → 设置向量模型和对话模型</li>
+                <li><strong>新建知识库</strong> → 上传文档，选择向量模型</li>
+                <li><strong>配置智能体</strong> → 绑定技能工具，配置白名单</li>
+                <li><strong>开始对话</strong> → 与 AI 智能体交互</li>
+            </ol>
+
+            <h1 id="section7">七、API 接口说明</h1>
+
+            <h2>7.1 认证接口</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>接口</th>
+                        <th>方法</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/api/Authorize/Login</code></td>
+                        <td>POST</td>
+                        <td>用户登录</td>
+                    </tr>
+                    <tr>
+                        <td><code>/api/Authorize/Logout</code></td>
+                        <td>POST</td>
+                        <td>用户登出</td>
+                    </tr>
+                    <tr>
+                        <td><code>/api/Authorize/RefreshToken</code></td>
+                        <td>POST</td>
+                        <td>刷新 Token</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>登录请求示例：</strong></p>
+            <pre><code>{
+  "userName": "admin",
+  "password": "123456",
+  "tenantId": 1000
+}</code></pre>
+
+            <h2>7.2 AI 接口</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>接口</th>
+                        <th>方法</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/api/AIChats/Chat</code></td>
+                        <td>POST</td>
+                        <td>发送聊天消息</td>
+                    </tr>
+                    <tr>
+                        <td><code>/api/AIKmss/Create</code></td>
+                        <td>POST</td>
+                        <td>创建知识库</td>
+                    </tr>
+                    <tr>
+                        <td><code>/api/AIKmss/UploadFile</code></td>
+                        <td>POST</td>
+                        <td>上传知识库文档</td>
+                    </tr>
+                    <tr>
+                        <td><code>/api/AIModels/GetAll</code></td>
+                        <td>GET</td>
+                        <td>获取模型列表</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>7.3 任务调度接口</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>接口</th>
+                        <th>方法</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/api/AITasks/AddOrUpdateCronTask</code></td>
+                        <td>POST</td>
+                        <td>创建/更新定时任务</td>
+                    </tr>
+                    <tr>
+                        <td><code>/api/AITasks/RemoveCronTask</code></td>
+                        <td>POST</td>
+                        <td>删除定时任务</td>
+                    </tr>
+                    <tr>
+                        <td><code>/api/AITasks/TriggerCronTask</code></td>
+                        <td>POST</td>
+                        <td>立即触发任务</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>7.4 代码生成器接口</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>接口</th>
+                        <th>方法</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/api/CodeGenerator/GetAreaNames</code></td>
+                        <td>GET</td>
+                        <td>获取区域列表</td>
+                    </tr>
+                    <tr>
+                        <td><code>/api/CodeGenerator/GetAreaNameEntityItems</code></td>
+                        <td>GET</td>
+                        <td>获取实体列表</td>
+                    </tr>
+                    <tr>
+                        <td><code>/api/CodeGenerator/BulidCode</code></td>
+                        <td>POST</td>
+                        <td>生成代码</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h1 id="section8">八、开发规范</h1>
+
+            <h2>8.1 代码风格</h2>
+            <ul>
+                <li>使用 <strong>PascalCase</strong> 命名类、接口、方法</li>
+                <li>使用 <strong>camelCase</strong> 命名参数、局部变量</li>
+                <li>文件编码使用 <strong>UTF-8 无 BOM</strong></li>
+                <li>每行代码不超过 120 个字符</li>
+            </ul>
+
+            <h2>8.2 目录结构规范</h2>
+            <pre><code>Application/Services/
+├── [ModuleName]/
+│   ├── [ServiceName]Service.cs      # 服务实现
+│   └── Dto/
+│       ├── [EntityName]Dto.cs       # 数据传输对象
+│       └── [EntityName]Input.cs     # 输入参数
+
+Domain/
+├── Entities/
+│   └── [EntityName].cs              # 实体定义
+├── Interfaces/
+│   ├── IRepositories/
+│   │   └── I[EntityName]Rp.cs       # 仓储接口
+│   └── IServices/
+│       └── I[ServiceName]Service.cs # 服务接口</code></pre>
+
+            <h2>8.3 异常处理</h2>
+            <ul>
+                <li>使用统一的异常处理中间件</li>
+                <li>捕获异常时记录日志（使用 log4net）</li>
+                <li>API 返回统一格式的错误响应</li>
+            </ul>
+
+            <h2>8.4 日志规范</h2>
+            <pre><code>// 使用 log4net 记录日志
+LogHelper&lt;MyService&gt;.logger.Info("信息级别日志");
+LogHelper&lt;MyService&gt;.logger.Warn("警告级别日志");
+LogHelper&lt;MyService&gt;.logger.Error("错误级别日志", exception);</code></pre>
+
+            <h2>8.5 代码生成器使用</h2>
+
+            <h3>8.5.1 功能概述</h3>
+            <p>代码生成器可以根据数据库实体自动生成：</p>
+            <ul>
+                <li>仓储接口（IRepository）</li>
+                <li>仓储实现（Repository）</li>
+                <li>服务接口（IService）</li>
+                <li>服务实现（Service）</li>
+            </ul>
+
+            <h3>8.5.2 配置说明</h3>
+            <p>编辑 <code>appsettings.json</code>：</p>
+            <pre><code>{
+  "CodeGeneratorSetting": {
+    "CodeGeneratorItems": [
+      {
+        "AreaName": "App.WebApi.v1",
+        "AreaPath": "App.Domain.Entities",
+        "IRpBulidPath": "App.Domain.Interfaces.Repositorie.v1",
+        "RpBulidPath": "App.RepositorieRps.Repositories.v1",
+        "IServiceBulidPath": "App.Domain.Interfaces.Services.v1",
+        "ServiceBulidPath": "App.Application.Services.v1"
+      }
+    ]
+  }
+}</code></pre>
+
+            <h3>8.5.3 使用步骤</h3>
+            <p><strong>1. 获取区域列表</strong></p>
+            <pre><code>GET /api/CodeGenerator/GetAreaNames</code></pre>
+
+            <p><strong>2. 获取实体列表</strong></p>
+            <pre><code>GET /api/CodeGenerator/GetAreaNameEntityItems?name=App.WebApi.v1</code></pre>
+
+            <p><strong>3. 生成代码</strong></p>
+            <pre><code>POST /api/CodeGenerator/BulidCode
+Content-Type: application/json
+
+[
+  {
+    "EntityName": "MyEntity",
+    "AreaName": "App.WebApi.v1"
+  }
+]</code></pre>
+
+            <h3>8.5.4 注意事项</h3>
+            <ul>
+                <li>仅超级管理员有权限使用代码生成器</li>
+                <li>生成的代码会覆盖现有文件，请谨慎操作</li>
+                <li>建议在生成前备份相关文件</li>
+            </ul>
+
+            <h2>8.6 自定义AI工具开发</h2>
+
+            <h3>8.6.1 开发步骤</h3>
+            <p><strong>1. 创建工具接口</strong></p>
+            <pre><code>public interface IMyCustomToolService
+{
+    [Description("自定义工具描述")]
+    Task&lt;string&gt; MyToolMethod(
+        [Description("参数1说明")] string param1,
+        [Description("参数2说明")] int param2
+    );
+}</code></pre>
+
+            <p><strong>2. 实现工具服务</strong></p>
+            <pre><code>public class MyCustomToolService : IMyCustomToolService
+{
+    public async Task&lt;string&gt; MyToolMethod(string param1, int param2)
+    {
+        // 实现逻辑
+        return "执行结果";
+    }
+}</code></pre>
+
+            <p><strong>3. 注册工具到容器</strong></p>
+            <p>在模块初始化中注册服务：</p>
+            <pre><code>services.AddTransient&lt;IMyCustomToolService, MyCustomToolService&gt;();</code></pre>
+
+            <p><strong>4. 配置工具到智能体</strong></p>
+            <p>在 <code>AIAgentToolSkillService.cs</code> 中添加工具注册：</p>
+            <pre><code>aiTools.Add(
+    AIFunctionFactory.Create(_myCustomToolService.MyToolMethod,
+    new AIFunctionFactoryOptions
+    {
+        Name = "MyToolMethod",
+        Description = "自定义工具描述"
+    }
+));</code></pre>
+
+            <h3>8.6.2 工具开发规范</h3>
+            <ul>
+                <li>使用 <code>[Description]</code> 属性添加参数说明</li>
+                <li>返回类型推荐使用 <code>Task&lt;string&gt;</code></li>
+                <li>错误返回以 <code>❌</code> 开头的字符串</li>
+                <li>支持的参数类型：string, int, bool, List&lt;string&gt;</li>
+            </ul>
+
+            <h1 id="section9">九、运维部署</h1>
+
+            <h2>9.1 Docker 部署</h2>
+            <p><strong>Dockerfile 示例：</strong></p>
+            <pre><code>FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+COPY ["App/WebApi/App.WebApi.csproj", "App/WebApi/"]
+RUN dotnet restore "App/WebApi/App.WebApi.csproj"
+COPY . .
+WORKDIR "/src/App/WebApi"
+RUN dotnet build "App.WebApi.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "App.WebApi.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "App.WebApi.dll"]</code></pre>
+
+            <p><strong>Docker Compose 示例：</strong></p>
+            <pre><code>version: '3.8'
+services:
+  webapi:
+    build: .
+    ports:
+      - "9901:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__dbConnection=server=mysql;port=3306;database=kevin_app;user id=root;password=admin123
+    depends_on:
+      - mysql
+      - redis
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin123
+      - MYSQL_DATABASE=kevin_app
+
+  redis:
+    image: redis:7.0
+    ports:
+      - "6379:6379"</code></pre>
+
+            <h2>9.2 Linux 系统服务部署</h2>
+            <p><strong>创建 systemd 服务文件 <code>/etc/systemd/system/kevin-webapi.service</code>：</strong></p>
+            <pre><code>[Unit]
+Description=NetCoreKevin Web API
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/kevin
+ExecStart=/usr/bin/dotnet /var/www/kevin/App.WebApi.dll
+Restart=always
+RestartSec=5
+Environment=ASPNETCORE_ENVIRONMENT=Production
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+            <p><strong>启动服务：</strong></p>
+            <pre><code>sudo systemctl daemon-reload
+sudo systemctl start kevin-webapi
+sudo systemctl enable kevin-webapi</code></pre>
+
+            <h1 id="section10">十、监控运维</h1>
+
+            <h2>10.1 日志管理</h2>
+            <p>日志文件位于 <code>App/WebApi/Logs/</code> 目录：</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>日志文件</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>log_*.txt</code></td>
+                        <td>应用日志</td>
+                    </tr>
+                    <tr>
+                        <td><code>error_*.txt</code></td>
+                        <td>错误日志</td>
+                    </tr>
+                    <tr>
+                        <td><code>http_*.txt</code></td>
+                        <td>HTTP 请求日志</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>10.2 性能监控</h2>
+            <ul>
+                <li><strong>Hangfire Dashboard</strong>: http://localhost:9901/pchangfire</li>
+                <li><strong>Redis 监控</strong>: 使用 Redis Insight 或类似工具</li>
+                <li><strong>MySQL 监控</strong>: 使用 Prometheus + Grafana</li>
+            </ul>
+
+            <h2>10.3 常见问题</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>问题</th>
+                        <th>解决方案</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>数据库连接失败</strong></td>
+                        <td>检查 MySQL 服务是否启动，连接字符串配置是否正确</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Redis 连接失败</strong></td>
+                        <td>检查 Redis 服务是否启动，密码配置是否正确</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Qdrant 连接失败</strong></td>
+                        <td>检查 Qdrant 服务是否启动，配置的 URL 是否正确</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AI 工具调用失败</strong></td>
+                        <td>检查工具注册配置，确保 <code>InitData</code> 正确传递参数</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hangfire 任务不执行</strong></td>
+                        <td>检查 Redis 连接，确保服务已启动</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>10.4 故障排查指南</h2>
+
+            <h3>10.4.1 启动失败</h3>
+            <p><strong>症状：</strong> 应用无法启动</p>
+            <p><strong>排查步骤：</strong></p>
+            <ol>
+                <li>检查端口是否被占用
+                    <pre><code>netstat -ano | findstr :9901</code></pre>
+                </li>
+                <li>检查数据库连接
+                    <pre><code># 测试 MySQL 连接
+mysql -h 127.0.0.1 -P 3306 -u root -p</code></pre>
+                </li>
+                <li>检查 Redis 连接
+                    <pre><code>redis-cli -h 127.0.0.1 -p 6379 -a 123456 ping</code></pre>
+                </li>
+            </ol>
+
+            <h3>10.4.2 AI工具调用失败</h3>
+            <p><strong>症状：</strong> Error: Function failed</p>
+            <p><strong>排查步骤：</strong></p>
+            <ol>
+                <li>检查工具注册配置</li>
+                <li>检查 <code>InitData</code> 参数传递</li>
+                <li>查看日志文件 <code>Logs/log_*.txt</code></li>
+                <li>检查工具方法签名是否正确</li>
+            </ol>
+
+            <h3>10.4.3 知识库检索失败</h3>
+            <p><strong>症状：</strong> 问答返回空或错误</p>
+            <p><strong>排查步骤：</strong></p>
+            <ol>
+                <li>检查 Qdrant 服务状态
+                    <pre><code>curl http://localhost:6333/health</code></pre>
+                </li>
+                <li>检查知识库文档是否已上传</li>
+                <li>检查向量模型配置</li>
+            </ol>
+
+            <h1 id="section11">十一、安全规范</h1>
+
+            <h2>11.1 输入验证</h2>
+            <ul>
+                <li>所有用户输入必须进行验证</li>
+                <li>使用数据注解或 FluentValidation</li>
+                <li>防止 SQL 注入、XSS 攻击</li>
+            </ul>
+
+            <h2>11.2 权限控制</h2>
+            <ul>
+                <li>使用基于角色的访问控制（RBAC）</li>
+                <li>敏感接口需要权限验证</li>
+                <li>日志记录所有权限检查失败的请求</li>
+            </ul>
+
+            <h2>11.3 数据加密</h2>
+            <ul>
+                <li>数据库密码使用 AES 加密存储</li>
+                <li>API 密钥等敏感配置使用环境变量</li>
+                <li>传输层使用 HTTPS</li>
+            </ul>
+
+            <h2>11.4 安全防护</h2>
+
+            <h3>11.4.1 危险命令拦截</h3>
+            <p>系统会拦截以下危险命令：</p>
+            <ul>
+                <li><code>rm -rf</code></li>
+                <li><code>del /s /q</code></li>
+                <li>格式化磁盘命令</li>
+                <li>其他破坏性操作</li>
+            </ul>
+
+            <h3>11.4.2 域名白名单</h3>
+            <p>HTTP/HTTPS 请求需要配置授权域名白名单：</p>
+            <pre><code>{
+  "AuthorizedDomains": [
+    "example.com",
+    "api.example.com"
+  ]
+}</code></pre>
+
+            <h1 id="section12">十二、性能优化</h1>
+
+            <h2>12.1 数据库优化</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>优化项</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>索引优化</td>
+                        <td>为常用查询字段创建索引</td>
+                    </tr>
+                    <tr>
+                        <td>分页查询</td>
+                        <td>使用 Skip/Take 避免全表扫描</td>
+                    </tr>
+                    <tr>
+                        <td>批量操作</td>
+                        <td>使用 EF Core 的批量操作 API</td>
+                    </tr>
+                    <tr>
+                        <td>读写分离</td>
+                        <td>配置数据库读写分离</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>12.2 缓存策略</h2>
+            <pre><code>// 使用 Redis 缓存
+[CacheDataFilter(Duration = 60)] // 缓存60秒
+public async Task&lt;MyDto&gt; GetData(int id)
+{
+    // 查询逻辑
+}</code></pre>
+
+            <h2>12.3 异步编程</h2>
+            <ul>
+                <li>使用 <code>async/await</code> 模式</li>
+                <li>避免同步阻塞调用</li>
+                <li>使用 <code>ConfigureAwait(false)</code> 优化性能</li>
+            </ul>
+
+            <h2>12.4 日志优化</h2>
+            <ul>
+                <li>生产环境关闭 Debug 级别日志</li>
+                <li>使用异步日志写入</li>
+                <li>定期清理日志文件</li>
+            </ul>
+
+            <h1 id="section13">十三、附录</h1>
+
+            <h2>13.1 配置项说明</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>配置项</th>
+                        <th>说明</th>
+                        <th>默认值</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>IsOpenPermission</code></td>
+                        <td>是否开启权限验证</td>
+                        <td>true</td>
+                    </tr>
+                    <tr>
+                        <td><code>TenantId</code></td>
+                        <td>默认租户 ID</td>
+                        <td>1000</td>
+                    </tr>
+                    <tr>
+                        <td><code>Jwt:AccessTokenExpirationMinutes</code></td>
+                        <td>Token 过期时间（分钟）</td>
+                        <td>60</td>
+                    </tr>
+                    <tr>
+                        <td><code>HangfireSetting</code></td>
+                        <td>Hangfire 配置</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><code>CorsSetting</code></td>
+                        <td>CORS 跨域配置</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><code>CodeGeneratorSetting</code></td>
+                        <td>代码生成器配置</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>13.2 数据库字段索引</h2>
+            <pre><code>{
+  "DBDefaultHasIndexFields": "tableid,createtime,updatetime,deletetime,tenantid,createuserid,updateuserid,deleteuserid"
+}</code></pre>
+
+            <h2>13.3 联系方式</h2>
+            <ul>
+                <li>项目地址：https://gitee.com/netkevin-li/NetCoreKevin</li>
+                <li>教学文档：https://blog.csdn.net/weixin_42629287/category_13037923.html</li>
+                <li>交流群：文档中包含微信群二维码</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        <p><strong>版本</strong>: v1.0 | <strong>最后更新</strong>: 2026年6月 | <strong>维护团队</strong>: NetCoreKevin 开发团队</p>
+    </footer>
+</body>
+</html>
