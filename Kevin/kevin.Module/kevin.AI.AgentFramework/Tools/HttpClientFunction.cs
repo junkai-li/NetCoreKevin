@@ -99,8 +99,8 @@ namespace kevin.AI.AgentFramework.Tools
             result = (await aIAgentService.CreateOpenAIAgentAndSendMSG(new AISetting
             {
                 AIUrl = aiEndPoint,
-                AIKeySecret = aiModelName,
-                AIDefaultModel = aiModelKey,
+                AIKeySecret = aiModelKey,
+                AIDefaultModel = aiModelName,
                 IsStreame = false,
             }, new ChatClientAgentOptions
             {
