@@ -115,6 +115,19 @@
                   </div>
                 </a-collapse-panel>
               </a-collapse>
+              <a-collapse v-if="message.aIChatHistorysBindLogs && message.aIChatHistorysBindLogs.length > 0" class="message-collapse" ghost>
+                <a-collapse-panel key="logs" header="AI相关日志">
+                  <div class="collapse-content">
+                    <div v-for="(log, index) in message.aIChatHistorysBindLogs" :key="index" class="log-item">
+                      <span class="log-type-tag">{{ getLogTypeName(log.logType) }}</span>
+                      <template v-if="log.logContent && log.logContent.length > 200">
+                        {{ truncateContent(log.logContent) }}<a @click="showDetailModal('AI相关日志详情', log.logContent)">点击查看详情</a>
+                      </template>
+                      <template v-else>{{ log.logContent }}</template>
+                    </div>
+                  </div>
+                </a-collapse-panel>
+              </a-collapse>
               <div class="message-actions">
                 <a-button
                   type="text"
@@ -629,9 +642,15 @@ const loadChatHistory = async (chatId, page) => {
         aiReasoningContent: item.aiReasoningContent,
         aiToolsContent: item.aiToolsContent,
         fileNames: item.fileNames || '',
-        contentFileUrls: item.contentFileUrls || '',
-        totalTokenCount: item.totalTokenCount || 0,
+        contentFileUrls: item.contentFileUrls || '', 
+        aIChatHistorysBindLogs: item.aIChatHistorysBindLogs || [],
         createdAt: item.createTime || new Date().toISOString(),
+        cachedInputTokenCount: item.cachedInputTokenCount || 0,
+         InputTokenCount: item.InputTokenCount || 0,
+         OutputTokenCount: item.OutputTokenCount || 0,  
+         cachedOutputTokenCount: item.cachedOutputTokenCount || 0,
+         totalTokenCount: item.totalTokenCount || 0,
+         reasoningTokenCount: item.reasoningTokenCount || 0,  
       }));
 
       // 如果是第一页，直接替换消息列表，否则添加到列表开头（历史消息在前）
@@ -810,6 +829,13 @@ const sendMessage = async () => {
       aiToolsContent: reulst.data.aiToolsContent,
       aiReasoningContent: reulst.data.aiReasoningContent,
       createdAt: reulst.data.createTime,
+      aIChatHistorysBindLogs: reulst.data.aIChatHistorysBindLogs || [],
+      cachedInputTokenCount: reulst.data.cachedInputTokenCount || 0,
+       InputTokenCount: reulst.data.InputTokenCount || 0,
+       OutputTokenCount: reulst.data.OutputTokenCount || 0,  
+       cachedOutputTokenCount: reulst.data.cachedOutputTokenCount || 0,
+       totalTokenCount: reulst.data.totalTokenCount || 0,
+       reasoningTokenCount: reulst.data.reasoningTokenCount || 0,  
     };
     if (aiMessage.aiReasoningContent) {
       expandedReasoning.value = true;
@@ -856,6 +882,17 @@ const showDetailModal = (title, content) => {
 const truncateContent = (content, maxLength = 350) => {
   if (!content || content.length <= maxLength) return content;
   return content.substring(0, maxLength) + '...';
+};
+
+// 获取日志类型名称
+const getLogTypeName = (logType) => {
+  const types = {
+    1: '知识库',
+    2: '网络搜索',
+    3: '系统提示词',
+    4: '文件内容'
+  };
+  return types[logType] || '未知';
 };
 
 var connectionServer=null;
@@ -1524,6 +1561,26 @@ const deleteConversation = async (conversationId, event) => {
 .file-link {
   color: #1890ff;
   text-decoration: none;
+}
+
+.log-item {
+  margin-bottom: 10px;
+}
+
+.log-item:last-child {
+  margin-bottom: 0;
+}
+
+.log-type-tag {
+  display: inline-block;
+  background: #e6f7ff;
+  color: #1890ff;
+  border: 1px solid #91d5ff;
+  border-radius: 3px;
+  padding: 1px 6px;
+  margin-right: 6px;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .file-link:hover {

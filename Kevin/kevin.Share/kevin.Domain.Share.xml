@@ -169,6 +169,21 @@
             是否开启安全拦截开启后会对python脚本和shell命令内容进行安全拦截，防止输入敏感信息，默认开启
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysBindLogDto.AIChatHistorysId">
+            <summary>
+            对话记录id
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysBindLogDto.LogType">
+            <summary>
+            日志类型
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysBindLogDto.LogContent">
+            <summary>
+            Log内容
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto">
             <summary>
             聊天记录
@@ -247,6 +262,11 @@
             <remarks>
             推理标记应计入<see cref="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.OutputTokenCount"/>中。
             </remarks>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.aIChatHistorysBindLogs">
+            <summary>
+            相关日志记录
+            </summary> 
         </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIChatsDto">
             <summary>

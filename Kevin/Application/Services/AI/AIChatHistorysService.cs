@@ -1,4 +1,5 @@
-﻿using Common;
+﻿
+using Common;
 using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
@@ -10,7 +11,6 @@ using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using Kevin.AI.Dto;
 using Kevin.Common.Extension;
-using Kevin.RAG.Dto;
 using Kevin.RAG.Interfaces;
 using Kevin.RAG.Ollama;
 using Kevin.SignalR.Service;
@@ -41,11 +41,14 @@ namespace kevin.Application.Services.AI
         private IOllamaApiService ollamaApiService;
 
         private readonly IAIAgentToolSkillService _aIAgentToolSkillService;
+
+        private readonly IAIChatHistorysBindLogService _aIChatHistorysBindLogService;
         public AIChatHistorysService(IHttpContextAccessor _httpContextAccessor, IAIChatHistorysRp _aIChatHistorysRp,
             IAIAgentService _aIAgentService, IAIModelsService _aIModelsService, IAIPromptsService _aIPromptsService,
             IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore,
             IRAGService _rAGService, IAIKmssService _aIKmssService, IOllamaApiService _ollamaApiService, ISignalRMsgService _signalRMsgService,
-            IHttpClientFactory _httpClientFactory, IAIAgentToolSkillService _aIAgentToolSkillService) : base(_httpContextAccessor)
+            IHttpClientFactory _httpClientFactory, IAIAgentToolSkillService _aIAgentToolSkillService, IAIChatHistorysBindLogService _aIChatHistorysBindLogService
+            ) : base(_httpContextAccessor)
         {
             this.aIChatHistorysRp = _aIChatHistorysRp;
             this.aIChatsService = _aIChatsService;
@@ -60,6 +63,7 @@ namespace kevin.Application.Services.AI
             this.signalRMsgService = _signalRMsgService;
             this.httpClientFactory = _httpClientFactory;
             this._aIAgentToolSkillService = _aIAgentToolSkillService;
+            this._aIChatHistorysBindLogService = _aIChatHistorysBindLogService;
         }
 
         /// <summary>
@@ -82,10 +86,10 @@ namespace kevin.Application.Services.AI
             }
             result.total = await data.CountAsync();
             result.data = (await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPage.pageSize).ToListAsync()).MapToList<TAIChatHistorys, AIChatHistorysDto>();
+            var logdata = await _aIChatHistorysBindLogService.GetByIds(result.data.Select(t => t.Id).ToList());
             foreach (var item in result.data)
-            {
-                item.AIReasoningContent = item.AIReasoningContent;
-                item.AIToolsContent = item.AIToolsContent;
+            { 
+                item.aIChatHistorysBindLogs = logdata.Where(t => t.AIChatHistorysId == item.Id).ToList();
             }
             return result;
         }
@@ -131,136 +135,36 @@ namespace kevin.Application.Services.AI
             addAi.TenantId = CurrentUser.TenantId;
             addAi.IsSend = false;
             addAi.AIChatsId = par.AIChatsId;
-            string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
+            string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt; 
+            await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = systemPrompt, LogType = AIChatHistorysBindLogEnums.SystemPrompt });
             List<string> OtherContents = new List<string>();
+
             if (aiapp.KmsId != default)
             {
-                await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在查询知识库....");
-                var kmss = await aIKmssService.GetDetails(aiapp.KmsId.GetValueOrDefault());
-                if (kmss != default)
+                var ksmData = await KmsRag(add, aiapp, addAi);
+                if (ksmData.Count > 0)
                 {
-                    if (kmss.aIModelsId != default)
-                    {
-                        var aimode = await aIModelsService.GetDetails(kmss.aIModelsId.GetValueOrDefault());
-                        if (aimode?.AIModelType == AIModelType.Embedding)
-                        {
-                            ollamaApiService = new OllamaApiService(aimode.EndPoint, aimode.ModelName, aimode.ModelKey);
-                        }
-                    }
-                    await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在检索相关文档...");
-                    if (kmss.aIRerankModelsId == default)
-                    {
-                        var systemPromptData = await rAGServicevice.GetRAGSystemPrompt("AIKmss-" + kmss.Id.ToString(),
-                            await ollamaApiService.GetEmbedding(add.Content), add.Content, false, aiapp.MaxMatchesCount, (aiapp.Relevance / 100));
-                        if (systemPromptData.Item1)
-                        {
-                            OtherContents.Add(StringHelper.SubstringText(systemPromptData.Item2, aiapp.ContentLengthLimit));
-                            await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"找到 {systemPromptData.Item3.Count} 个相关文档");
-                        }
-                    }
-                    else
-                    {
-                        var aIReankModels = await aIModelsService.GetDetails(kmss.aIRerankModelsId.ToTryInt64());
-                        if (aIReankModels.AIModelType == AIModelType.Rerank)
-                        {
-                            switch (aIReankModels.AIType)
-                            {
-                                case AIType.AliRerank:
-                                case AIType.BgeRerank:
-                                default:
-                                    var systemPromptData = await rAGServicevice.GetRAGAliReankSystemPrompt("AIKmss-" + kmss.Id.ToString(),
-                                    await ollamaApiService.GetEmbedding(add.Content), add.Content, aiapp.MaxMatchesCount, (aiapp.Relevance / 100), aIReankModels.EndPoint, aIReankModels.ModelKey, aIReankModels.ModelName);
-                                    if (systemPromptData.Item1)
-                                    {
-                                        OtherContents.Add(StringHelper.SubstringText(systemPromptData.Item2, aiapp.ContentLengthLimit));
-                                        await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"找到 {systemPromptData.Item3.Count} 个相关文档");
-                                    }
-                                    break;
-                            }
-                        } 
-                    }
-
+                    OtherContents.AddRange(ksmData);
                 }
-
             }
-            var ImgUrls = new List<string>();
             #region 文件处理
-            if (!string.IsNullOrWhiteSpace(add.ContentFileUrls))
-            {
-                var fileUrls = add.ContentFileUrls.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                var fileNames = !string.IsNullOrWhiteSpace(add.FileNames)
-                    ? add.FileNames.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    : new string[fileUrls.Length];
 
-                await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"正在处理 {fileUrls.Length} 个上传文件...");
+            var ImgUrls = new List<string>();
+            var aiFilData = await AIFileUrlsHandle(add, aiapp, addAi);
+            if (aiFilData.Item1.Count > 0)
+                OtherContents.AddRange(aiFilData.Item1);
 
-                var fileContents = new StringBuilder();
-                for (int i = 0; i < fileUrls.Length; i++)
-                {
-                    var fileUrl = fileUrls[i].Trim();
-                    var fileName = i < fileNames.Length ? fileNames[i].Trim() : Path.GetFileName(fileUrl);
+            if (aiFilData.Item2.Count > 0)
+                ImgUrls.AddRange(aiFilData.Item2);
 
-                    try
-                    {
-                        await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"正在提取文件内容: {fileName}");
-                        var fileType = FileHelper.DetermineFileType(fileName);
-                        if (fileType != "image")
-                        {
-                            var stream = await FileHelper.GetRemoteFileStreamAsync(fileUrl);
-                            string content = "";
-                            switch (fileType)
-                            {
-                                case "excel":
-                                    content = ExcelReader.ReadExcelToMarkdown(stream, fileName);
-                                    break;
-                                case "pdf":
-                                    content = PDFReader.ReadPdfToMarkdown(stream);
-                                    break;
-                                case "word":
-                                    content = WordReader.ReadParagraphs(stream);
-                                    break;
-                                case "html":
-                                    content = await HtmlReader.ExtractTextFromStreamAsync(stream);
-                                    break;
-                                case "markdown":
-                                    content = TextStreamReader.ReadMarkdownFromStream(stream).RawContent;
-                                    break;
-                                case "text":
-                                default:
-                                    content = TextStreamReader.ReadTextFromStream(stream);
-                                    break;
-                            }
-                            if (i == 0)
-                            {
-                                fileContents.AppendLine("\n用户上传文件内容：");
-                            }
-                            fileContents.AppendLine($"\n文件名：【{fileName}】\n文件地址：【{fileUrl}】\n文件内容如下：");
-                            fileContents.AppendLine(content);
-                        }
-                        else
-                        {
-                            ImgUrls.Add(fileUrl);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        if (i == 0)
-                        {
-                            fileContents.AppendLine("\n用户上传文件内容：");
-                        }
-                        fileContents.AppendLine($"\n文件名：【{fileName}】\n文件地址：【{fileUrl}】\n(读取失败: {ex.Message})");
-                    }
-                }
-
-                OtherContents.Add(StringHelper.SubstringText(fileContents.ToString(), aiapp.ContentLengthLimit));
-            }
-            #endregion 
+            #endregion
             if (par.IsOnlineSearch)
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在联网搜索....");
                 var http = new HttpClientFunction(aIAgentService, _serviceProvider);
-                OtherContents.Add(StringHelper.SubstringText(await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey), aiapp.ContentLengthLimit));
-
+                var webseoData = await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey);
+                await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = webseoData, LogType = AIChatHistorysBindLogEnums.WebSeo });
+                OtherContents.Add(StringHelper.SubstringText(webseoData, aiapp.ContentLengthLimit));
             }
 
             #region AI配置
@@ -355,10 +259,149 @@ namespace kevin.Application.Services.AI
                     }
                     break;
             }
+            var logdata = await _aIChatHistorysBindLogService.GetByIds(new List<long> { addAi.Id });
             aIChatHistorysRp.Add(addAi);
-            await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
             await aIChatsService.UpdateNameAndMsg(par.AIChatsId, count == 1 ? par.Content : "", addAi.Content, cancellationToken);
-            return addAi.MapTo<AIChatHistorysDto>();
+            await aIChatHistorysRp.SaveChangesAsync(cancellationToken); 
+            var data = addAi.MapTo<AIChatHistorysDto>();
+            data.aIChatHistorysBindLogs = logdata;
+            return data;
+        }
+
+        /// <summary>
+        /// 知识库搜索
+        /// </summary>
+        private async Task<List<string>> KmsRag(TAIChatHistorys add, AIAppsDto aiapp, TAIChatHistorys addAi)
+        {
+            var OtherContents = new List<string>();
+            await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在查询知识库....");
+            var kmss = await aIKmssService.GetDetails(aiapp.KmsId.GetValueOrDefault());
+            if (kmss != default)
+            {
+                if (kmss.aIModelsId != default)
+                {
+                    var aimode = await aIModelsService.GetDetails(kmss.aIModelsId.GetValueOrDefault());
+                    if (aimode?.AIModelType == AIModelType.Embedding)
+                    {
+                        ollamaApiService = new OllamaApiService(aimode.EndPoint, aimode.ModelName, aimode.ModelKey);
+                    }
+                }
+                await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在检索相关文档...");
+                if (kmss.aIRerankModelsId == default)
+                {
+                    var systemPromptData = await rAGServicevice.GetRAGSystemPrompt("AIKmss-" + kmss.Id.ToString(),
+                        await ollamaApiService.GetEmbedding(add.Content), add.Content, false, aiapp.MaxMatchesCount, (aiapp.Relevance / 100));
+                    if (systemPromptData.Item1)
+                    {
+                        await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = systemPromptData.Item2, LogType = AIChatHistorysBindLogEnums.Kmss });
+                        OtherContents.Add(StringHelper.SubstringText(systemPromptData.Item2, aiapp.ContentLengthLimit));
+                        await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"找到 {systemPromptData.Item3.Count} 个相关文档");
+                    }
+                }
+                else
+                {
+                    var aIReankModels = await aIModelsService.GetDetails(kmss.aIRerankModelsId.ToTryInt64());
+                    if (aIReankModels.AIModelType == AIModelType.Rerank)
+                    {
+                        switch (aIReankModels.AIType)
+                        {
+                            case AIType.AliRerank:
+                            case AIType.BgeRerank:
+                            default:
+                                var systemPromptData = await rAGServicevice.GetRAGAliReankSystemPrompt("AIKmss-" + kmss.Id.ToString(),
+                                await ollamaApiService.GetEmbedding(add.Content), add.Content, aiapp.MaxMatchesCount, (aiapp.Relevance / 100), aIReankModels.EndPoint, aIReankModels.ModelKey, aIReankModels.ModelName);
+                                if (systemPromptData.Item1)
+                                {
+                                    OtherContents.Add(StringHelper.SubstringText(systemPromptData.Item2, aiapp.ContentLengthLimit));
+                                    await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = systemPromptData.Item2, LogType = AIChatHistorysBindLogEnums.Kmss });
+                                    await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"找到 {systemPromptData.Item3.Count} 个相关文档");
+                                }
+                                break;
+                        }
+                    }
+                }
+
+            }
+            return OtherContents;
+
+        }
+        /// <summary>
+        /// AI文件url处理
+        /// </summary>
+        private async Task<(List<string>, List<string>)> AIFileUrlsHandle(TAIChatHistorys add, AIAppsDto aiapp, TAIChatHistorys addAi)
+        {
+            var OtherContents = new List<string>();
+            var ImgUrls = new List<string>();
+            if (!string.IsNullOrWhiteSpace(add.ContentFileUrls))
+            {
+                var fileUrls = add.ContentFileUrls.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                var fileNames = !string.IsNullOrWhiteSpace(add.FileNames)
+                    ? add.FileNames.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    : new string[fileUrls.Length];
+
+                await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"正在处理 {fileUrls.Length} 个上传文件...");
+
+                var fileContents = new StringBuilder();
+                for (int i = 0; i < fileUrls.Length; i++)
+                {
+                    var fileUrl = fileUrls[i].Trim();
+                    var fileName = i < fileNames.Length ? fileNames[i].Trim() : Path.GetFileName(fileUrl);
+
+                    try
+                    {
+                        await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"正在提取文件内容: {fileName}");
+                        var fileType = FileHelper.DetermineFileType(fileName);
+                        if (fileType != "image")
+                        {
+                            var stream = await FileHelper.GetRemoteFileStreamAsync(fileUrl);
+                            string content = "";
+                            switch (fileType)
+                            {
+                                case "excel":
+                                    content = ExcelReader.ReadExcelToMarkdown(stream, fileName);
+                                    break;
+                                case "pdf":
+                                    content = PDFReader.ReadPdfToMarkdown(stream);
+                                    break;
+                                case "word":
+                                    content = WordReader.ReadParagraphs(stream);
+                                    break;
+                                case "html":
+                                    content = await HtmlReader.ExtractTextFromStreamAsync(stream);
+                                    break;
+                                case "markdown":
+                                    content = TextStreamReader.ReadMarkdownFromStream(stream).RawContent;
+                                    break;
+                                case "text":
+                                default:
+                                    content = TextStreamReader.ReadTextFromStream(stream);
+                                    break;
+                            }
+                            if (i == 0)
+                            {
+                                fileContents.AppendLine("\n用户上传文件内容：");
+                            }
+                            fileContents.AppendLine($"\n文件名：【{fileName}】\n文件地址：【{fileUrl}】\n文件内容如下：");
+                            fileContents.AppendLine(content);
+                        }
+                        else
+                        {
+                            ImgUrls.Add(fileUrl);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        if (i == 0)
+                        {
+                            fileContents.AppendLine("\n用户上传文件内容：");
+                        }
+                        fileContents.AppendLine($"\n文件名：【{fileName}】\n文件地址：【{fileUrl}】\n(读取失败: {ex.Message})");
+                    }
+                }
+                await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = fileContents.ToString(), LogType = AIChatHistorysBindLogEnums.FileContent });
+                OtherContents.Add(StringHelper.SubstringText(fileContents.ToString(), aiapp.ContentLengthLimit));
+            }
+            return (OtherContents, ImgUrls);
         }
 
         /// <summary>
