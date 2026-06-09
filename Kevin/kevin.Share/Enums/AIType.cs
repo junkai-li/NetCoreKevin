@@ -21,8 +21,9 @@ namespace kevin.Domain.Share.Enums
         [Display(Name = "Ollama")]
         Ollama = 10,
         [Display(Name = "OllamaEmbedding")]
-        OllamaEmbedding = 11
-
+        OllamaEmbedding = 11,
+        [Display(Name = "Ali Rerank")]
+        AliRerank = 12, 
     }
 
     /// <summary>

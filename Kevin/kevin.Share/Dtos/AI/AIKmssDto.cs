@@ -57,5 +57,11 @@ namespace kevin.Domain.Share.Dtos.AI
         /// 详情列表
         /// </summary>
         public List<AIKmsDetailsDto> AIKmssDetailsList { get; set; } = new List<AIKmsDetailsDto>();
+
+        /// <summary>
+        /// Rerank重排模型Id
+        /// </summary> 
+        [Description("Rerank重排模型Id")]
+        public long? aIRerankModelsId { get; set; } 
     }
 }

@@ -80,10 +80,10 @@
           </a-form-item>
         </a-col>
           <a-col :span="12">       
-          <a-form-item label="模型" v-bind="validateInfos.aIModelsId">
+          <a-form-item label="矢量模型" v-bind="validateInfos.aIModelsId">
             <a-select 
               v-model:value="form.aIModelsId" 
-              placeholder="请选择会话模型"
+              placeholder="请选择矢量化模型"
               :options="modelOptions"
               allow-clear
               show-search
@@ -91,6 +91,24 @@
             >
               <a-select-option 
                 v-for="model in modelList" 
+                :key="model.id" 
+                :value="model.id"
+              >
+                {{ model.modelName }}
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item label="Rerank模型" v-bind="validateInfos.aIRerankModelsId">
+            <a-select 
+              v-model:value="form.aIRerankModelsId" 
+              placeholder="请选择Rerank重排模型"
+              :options="rerankModelOptions"
+              allow-clear
+              show-search
+              optionFilterProp="label"
+            >
+              <a-select-option 
+                v-for="model in rerankModelList" 
                 :key="model.id" 
                 :value="model.id"
               >
@@ -255,7 +273,8 @@ const form = reactive({
   maxTokensPerLine: 99,
   overlappingTokens: 49,
   kmsDetailsList: [],
-  aIModelsId:undefined,
+  aIModelsId: undefined,
+  aIRerankModelsId: undefined,
 });
 
 // 内容添加相关
@@ -279,16 +298,25 @@ const rules = reactive({
     { required: true, message: '请输入知识库名称' }
   ],
   aIModelsId: [
-    { required: true, message: '请选择模型' }
-  ]
-});
+    { required: true, message: '请选择矢量模型' }
+  ],
+  aIRerankModelsId: []
+  });
 
 // 表单验证
 const { validate, validateInfos, resetFields } = useForm(form, rules);
 const modelList = ref([]);
+const rerankModelList = ref([]);
 // 模型选项
 const modelOptions = computed(() => {
   return modelList.value.map(model => ({
+    label: model.modelName,
+    value: model.id
+  }));
+});
+// Rerank 模型选项
+const rerankModelOptions = computed(() => {
+  return rerankModelList.value.map(model => ({
     label: model.modelName,
     value: model.id
   }));
@@ -375,10 +403,24 @@ const loadModelList = async () => {
       modelList.value = response.data;
     }
   } catch (error) {
-    console.error('加载模型列表失败:', error);
+    console.error('加载Embedding模型列表失败:', error);
   }
 };
+
+// 加载 Rerank 模型列表
+const loadRerankModelList = async () => {
+  try {
+    const response = await getAIModelsALLList(4);
+    if (response && response.code === 200 && response.data) {
+      rerankModelList.value = response.data;
+    }
+  } catch (error) {
+    console.error('加载Rerank模型列表失败:', error);
+  }
+};
+
 loadModelList();
+loadRerankModelList();
 // 处理确认
 const handleOk = async () => {
   try {
@@ -393,6 +435,7 @@ const handleOk = async () => {
       maxTokensPerParagraph: form.maxTokensPerParagraph,
       maxTokensPerLine: form.maxTokensPerLine,
       aIModelsId: form.aIModelsId,
+      aIRerankModelsId: form.aIRerankModelsId,
       overlappingTokens: form.overlappingTokens,
       aIKmssDetailsList: form.kmsDetailsList
     };

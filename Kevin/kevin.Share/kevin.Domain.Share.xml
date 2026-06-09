@@ -353,6 +353,11 @@
             详情列表
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIKmssDto.aIRerankModelsId">
+            <summary>
+            Rerank重排模型Id
+            </summary> 
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIModelsDto.AIType">
             <summary>
             AI类型

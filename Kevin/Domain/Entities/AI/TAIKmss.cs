@@ -35,5 +35,12 @@
         [Description("矢量化模型Id")]
         public long? aIModelsId { get; set; }
         public TAIModels? aIModels { get; set; }
+
+        /// <summary>
+        /// Rerank重排模型Id
+        /// </summary> 
+        [Description("Rerank重排模型Id")]
+        public long? aIRerankModelsId { get; set; }
+        public TAIModels? aIRerankModels { get; set; }
     }
 }

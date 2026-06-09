@@ -3,6 +3,8 @@ using Kevin.RAG.Ollama;
 using Kevin.RAG.Ollama.Models;
 using Kevin.RAG.Qdrant;
 using Kevin.RAG.Qdrant.Models;
+using Kevin.RAG.Rerank;
+using Kevin.RAG.Rerank.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -16,13 +18,19 @@ namespace Kevin.RAG
         /// <param name="services"></param>
         /// <param name="actionOllamaApi"></param>
         /// <param name="actionQdrantClient"></param>
-        public static void AddRAGQdrantAndOllama(this IServiceCollection services, Action<OllamaApiSetting> actionOllamaApi, Action<QdrantClientSetting> actionQdrantClient)
+        public static void AddRAGQdrantAndOllama(this IServiceCollection services, Action<OllamaApiSetting> actionOllamaApi, Action<QdrantClientSetting> actionQdrantClient, Action<RerankApiSetting>? actionRerank = default
+            )
         {
             services.Configure(actionOllamaApi);
             services.Configure(actionQdrantClient);
+            if (actionRerank != default)
+            {
+                services.Configure(actionRerank);
+            }
             services.TryAddScoped<IOllamaApiService, OllamaApiService>();
             services.TryAddScoped<IRAGStorageService, QdrantClientService>();
             services.TryAddScoped<IRAGService, RAGService>();
+            services.TryAddScoped<IRerankService, AliRerankService>();
         }
     }
 }

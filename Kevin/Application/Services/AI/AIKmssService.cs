@@ -139,6 +139,7 @@ namespace kevin.Application.Services.AI
                 add.MaxTokensPerLine = data.MaxTokensPerLine;
                 add.OverlappingTokens = data.OverlappingTokens;
                 add.aIModelsId = data.aIModelsId;
+                add.aIRerankModelsId = data.aIRerankModelsId;   
                 AIKmssRp.Add(add);
                 var addTAIKmsDetailss = new List<TAIKmsDetails>();
                 foreach (var item in data.AIKmssDetailsList)
@@ -175,6 +176,7 @@ namespace kevin.Application.Services.AI
                     upData.MaxTokensPerLine = data.MaxTokensPerLine;
                     upData.aIModelsId = data.aIModelsId;
                     upData.OverlappingTokens = data.OverlappingTokens;
+                    upData.aIRerankModelsId = data.aIRerankModelsId;
                     var UpAIKmsDetails = await AIKmsDetailsRp.Query().Where(t => t.IsDelete == false && t.KmsId == data.Id).ToListAsync();
                     var addTAIKmsDetailss = new List<TAIKmsDetails>();
                     UpAIKmsDetails.ForEach(t =>

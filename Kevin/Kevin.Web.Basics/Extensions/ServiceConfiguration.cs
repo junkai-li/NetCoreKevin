@@ -21,6 +21,7 @@ using Kevin.Hangfire.Models;
 using Kevin.RAG;
 using Kevin.RAG.Ollama.Models;
 using Kevin.RAG.Qdrant.Models;
+using Kevin.RAG.Rerank.Models;
 using Kevin.SignalR;
 using Kevin.SignalR.Models;
 using Kevin.SMS;
@@ -229,6 +230,12 @@ namespace Web.Extension
                 options2.Url = settings.Url;
                 options2.ApiKey = settings.ApiKey;
                 options2.CertificateThumbprint = settings.CertificateThumbprint;
+            }, options3 =>
+            {
+                var settings = Configuration.GetRequiredSection("AliRerankApiSetting").Get<RerankApiSetting>()!;
+                options3.Url = settings.Url;
+                options3.ApiKey = settings.ApiKey;
+                options3.DefaultModel = settings.DefaultModel;
             });
             #endregion
 

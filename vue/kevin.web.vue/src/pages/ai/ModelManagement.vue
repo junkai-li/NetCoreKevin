@@ -120,6 +120,7 @@
               <a-select v-model:value="modelForm.aiModelType" placeholder="请选择模型类型">
                 <a-select-option :value="1">Chat</a-select-option>
                 <a-select-option :value="2">Embedding</a-select-option>
+                <a-select-option :value="4">Rerank</a-select-option>
               </a-select>
             </a-form-item>
               <a-form-item label="AI类型" v-bind="validateInfos.aiType">
@@ -128,9 +129,10 @@
                 <a-select-option  v-if="modelForm.aiModelType===1" :value="2">Azure</a-select-option>
                 <a-select-option  v-if="modelForm.aiModelType===1 || modelForm.aiModelType==2" :value="3">智谱AI</a-select-option>
                 <a-select-option v-if="modelForm.aiModelType===2"  :value="7">Bge Embedding</a-select-option>
-                <a-select-option v-if="modelForm.aiModelType===2"  :value="8">Bge Rerank</a-select-option>
-                <a-select-option v-if="modelForm.aiModelType===2"  :value="10">Ollama</a-select-option>
+                <a-select-option v-if="modelForm.aiModelType===4"  :value="8">Bge Rerank</a-select-option>
+                <a-select-option v-if="modelForm.aiModelType===1"  :value="10">Ollama</a-select-option>
                 <a-select-option v-if="modelForm.aiModelType===2"  :value="11">OllamaEmbedding</a-select-option> 
+                   <a-select-option v-if="modelForm.aiModelType===4"  :value="12">Ali Rerank</a-select-option> 
               </a-select>
             </a-form-item>
          <a-form-item label="模型地址" v-bind="validateInfos.aiType">
@@ -237,11 +239,12 @@ const getAITypeName = (type) => {
   const types = {
     1: 'OpenAI',
     2: 'Azure',
-    3:'智谱AI',
+    3: '智谱AI',
     7:'Bge Embedding',
     8:'Bge Rerank',
     10:'Ollama',
-    11:'OllamaEmbedding'
+    11:'OllamaEmbedding',
+    12:'Ali Rerank'
   };
   return types[type] || '未知';
 };

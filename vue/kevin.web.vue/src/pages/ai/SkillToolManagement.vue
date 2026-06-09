@@ -253,18 +253,53 @@ const validateSkillFile = (rule, value) => {
   return Promise.resolve();
 };
 
+// 验证名称不能包含中文
+const validateNoChinese = (rule, value) => {
+  if (!value) return Promise.resolve();
+  const chineseRegex = /[\u4e00-\u9fa5]/;
+  if (chineseRegex.test(value)) {
+    return Promise.reject("名称不能包含中文");
+  }
+  return Promise.resolve();
+};
+
+// 验证技能压缩包文件名与名称一致
+const validateSkillFileName = (rule, value) => {
+  if (form.skillToolType !== 2) return Promise.resolve();
+  if (!value) return Promise.resolve();
+  if (!form.name) return Promise.resolve();
+  const expectedName = form.name + '.zip';
+  if (value.name !== expectedName) {
+    return Promise.reject(`技能压缩包文件名必须为 "${expectedName}"`);
+  }
+  return Promise.resolve();
+};
+
 const rules = computed(() => ({
-  name: [{ required: true, message: "请输入名称" }],
+  name: [
+    { required: true, message: "请输入名称" },
+    { validator: validateNoChinese, trigger: "change" },
+  ],
   classMethod: form.skillToolType === 1 ? [{ required: true, message: "请输入方法" }] : [],
   skillToolType: [{ required: true, message: "请选择技能工具类型" }],
   activeStatus: [{ required: true, message: "请选择启用状态" }],
-  skillFile: form.skillToolType === 2 ? [{ required: true, validator: validateSkillFile, trigger: "change" }] : [],
+  skillFile: form.skillToolType === 2 ? [
+    { required: true, validator: validateSkillFile, trigger: "change" },
+    { validator: validateSkillFileName, trigger: "change" },
+  ] : [],
 }));
 
 const { validate: validateForm, validateInfos, clearValidate } = useForm(form, rules);
 
 watch(() => form.skillToolType, () => {
   clearValidate(["classMethod", "skillFile"]);
+});
+
+// 名称变化时重新校验技能文件
+watch(() => form.name, () => {
+  if (form.skillToolType === 2 && form.skillFile) {
+    clearValidate("skillFile");
+  }
 });
 
 const searchKeyword = ref("");

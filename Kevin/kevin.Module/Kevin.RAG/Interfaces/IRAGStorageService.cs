@@ -23,7 +23,7 @@ namespace Kevin.RAG.Interfaces
         /// <param name="Score">相似度</param> 
         /// <returns></returns>
         Task<List<DocumentChunkDto>> Search(string collectionName,
-            Embedding<float> query, ulong limit = 10, double? Score = null);
+            Embedding<float> query, ulong limit = 20, double? Score = null);
 
     }
 }

@@ -10,6 +10,7 @@ using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using Kevin.AI.Dto;
 using Kevin.Common.Extension;
+using Kevin.RAG.Dto;
 using Kevin.RAG.Interfaces;
 using Kevin.RAG.Ollama;
 using Kevin.SignalR.Service;
@@ -147,12 +148,38 @@ namespace kevin.Application.Services.AI
                         }
                     }
                     await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在检索相关文档...");
-                    var systemPromptData = await rAGServicevice.GetSystemPrompt("AIKmss-" + kmss.Id.ToString(), await ollamaApiService.GetEmbedding(add.Content), aiapp.MaxMatchesCount, (aiapp.Relevance / 100));
-                    if (systemPromptData.Item1)
+                    if (kmss.aIRerankModelsId == default)
                     {
-                        OtherContents.Add(StringHelper.SubstringText(systemPromptData.Item2, aiapp.ContentLengthLimit));
-                        await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"找到 {systemPromptData.Item3.Count} 个相关文档");
+                        var systemPromptData = await rAGServicevice.GetRAGSystemPrompt("AIKmss-" + kmss.Id.ToString(),
+                            await ollamaApiService.GetEmbedding(add.Content), add.Content, false, aiapp.MaxMatchesCount, (aiapp.Relevance / 100));
+                        if (systemPromptData.Item1)
+                        {
+                            OtherContents.Add(StringHelper.SubstringText(systemPromptData.Item2, aiapp.ContentLengthLimit));
+                            await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"找到 {systemPromptData.Item3.Count} 个相关文档");
+                        }
                     }
+                    else
+                    {
+                        var aIReankModels = await aIModelsService.GetDetails(kmss.aIRerankModelsId.ToTryInt64());
+                        if (aIReankModels.AIModelType == AIModelType.Rerank)
+                        {
+                            switch (aIReankModels.AIType)
+                            {
+                                case AIType.AliRerank:
+                                case AIType.BgeRerank:
+                                default:
+                                    var systemPromptData = await rAGServicevice.GetRAGAliReankSystemPrompt("AIKmss-" + kmss.Id.ToString(),
+                                    await ollamaApiService.GetEmbedding(add.Content), add.Content, aiapp.MaxMatchesCount, (aiapp.Relevance / 100), aIReankModels.EndPoint, aIReankModels.ModelKey, aIReankModels.ModelName);
+                                    if (systemPromptData.Item1)
+                                    {
+                                        OtherContents.Add(StringHelper.SubstringText(systemPromptData.Item2, aiapp.ContentLengthLimit));
+                                        await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"找到 {systemPromptData.Item3.Count} 个相关文档");
+                                    }
+                                    break;
+                            }
+                        } 
+                    }
+
                 }
 
             }
