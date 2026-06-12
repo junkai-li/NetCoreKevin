@@ -27,9 +27,16 @@ public class ExcelReader
             throw new ArgumentNullException(nameof(stream));
 
         stream.Position = 0;
-        var workbook = WorkbookFactory.Create(stream);
 
-        return ConvertWorkbookToMarkdown(workbook, fileName);
+        try
+        {
+            var workbook = WorkbookFactory.Create(stream);
+            return ConvertWorkbookToMarkdown(workbook, fileName);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"读取Excel文件失败: {ex.Message}", ex);
+        }
     }
 
     public static async Task<string> ReadExcelToMarkdownAsync(string filePath, CancellationToken cancellationToken = default)

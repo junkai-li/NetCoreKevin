@@ -5,6 +5,7 @@ using Kevin.Common.Helper.DingDing.Msg;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace kevin.Application.Services.AI
             userService = _userService;
         }
 
-        public string SendDDToMyMsg([Description("消息内容")] string msgContent)
+        public string SendDDToMyMsg([Description("消息内容")][Required] string msgContent)
         {
             var userInfo = userService.GetCurrentUserInfo();
             if (string.IsNullOrEmpty(userInfo?.CorrelationId))
@@ -29,7 +30,7 @@ namespace kevin.Application.Services.AI
             return new DingDingMsgHelper().SendMessage_ByDingDingURLText(userInfo.CorrelationId, $"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}】\n {msgContent}").ToJson();
         }
 
-        public string SendDDToUserMsg([Description("消息内容")] string msgContent, [Description("发送用户名称")] string userName)
+        public string SendDDToUserMsg([Description("消息内容")][Required] string msgContent, [Description("发送用户名称")][Required] string userName)
         {
             var userInfo = userService.GetSysUserWhereUserName(userName);
             if (userInfo == default)
