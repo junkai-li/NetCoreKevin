@@ -173,6 +173,7 @@ namespace kevin.Application.Services.AI
                     msg.IsThinkingLog = par.IsThinkingLog;
                     msg.ContentLengthLimit = par.ContentLengthLimit;
                     msg.IsSecurityIntercept= par.IsSecurityIntercept;
+                    msg.MaxRetries= par.MaxRetries;
                 }
                 else
                 {
