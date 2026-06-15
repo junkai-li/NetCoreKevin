@@ -104,6 +104,7 @@ namespace kevin.AI.AgentFramework.Tools
         {
             try
             {
+                workingDirectory ??= "";
                 if (_IsSecurityIntercept)
                 {
                     // 🛡️ 安全护栏 1：危险命令检查

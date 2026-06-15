@@ -224,6 +224,8 @@ namespace kevin.Application.Services.AI
                         IsHttpLog = aiapp.IsHttpLog,
                         MaxRetries = aiapp.MaxRetries,
                         NetworkTimeout = aiapp.NetworkTimeout,
+                        IsAISkills= aiapp.IsSkill,
+                        IsAITools = aiapp.IsAITools,
                         StreameCallback = async (msg) =>
                         {
                             await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
@@ -246,7 +248,7 @@ namespace kevin.Application.Services.AI
                         },
                     }, chatAgOs, new(ChatRole.User, [new TextContent($"{add.Content}"),
                         .. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(),
-                        .. ImgUrls.Select(url => DataContent.LoadFromAsync(FileHelper.GetRemoteFileStreamAsync(url).Result).Result).ToList()]),
+                        .. ImgUrls.Where(t => !string.IsNullOrEmpty(t)).Select(url => DataContent.LoadFromAsync(FileHelper.GetRemoteFileStreamAsync(url).Result).Result).ToList()]),
                     cancellationToken: cancellationToken));
                     addAi.Content = reslut.Item2 ?? "";
                     if (reslut.Item3 != default)

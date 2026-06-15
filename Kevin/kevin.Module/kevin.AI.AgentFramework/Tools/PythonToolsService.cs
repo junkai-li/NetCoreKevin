@@ -3,6 +3,7 @@ using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces.Tools;
 using Kevin.Common.Helper;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -41,11 +42,11 @@ namespace kevin.AI.AgentFramework.Tools
                             .ForEach(domain => this._authorizedDomains.Add(domain));
                     }
                     jsonDoc.RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit);
-                    _IsSecurityIntercept=jsonDoc.RootElement.GetProperty("IsSecurityIntercept").GetBoolean();
+                    _IsSecurityIntercept = jsonDoc.RootElement.GetProperty("IsSecurityIntercept").GetBoolean();
                 }
                 catch (Exception)
-                { 
-                    _IsSecurityIntercept=true; // 解析失败默认启用安全拦截
+                {
+                    _IsSecurityIntercept = true; // 解析失败默认启用安全拦截
                 }
 
             }
@@ -74,7 +75,7 @@ namespace kevin.AI.AgentFramework.Tools
                 foreach (Match match in matches)
                 {
                     var url = match.Value;
-                    var isAllowed = _authorizedDomains.Any(prefix => url.Contains(prefix, StringComparison.OrdinalIgnoreCase)); 
+                    var isAllowed = _authorizedDomains.Any(prefix => url.Contains(prefix, StringComparison.OrdinalIgnoreCase));
                     if (!isAllowed)
                         throw new UnauthorizedAccessException($"URL '{url}' 不在授权域名单中。");
                 }
@@ -141,13 +142,14 @@ namespace kevin.AI.AgentFramework.Tools
 
         [Description("执行Python脚本。通过System.Diagnostics.Process类来启动一个新的进程，并运行Python.py的脚本。这种方法适用于Windows和Linux系统。包含安全护栏：HTTP请求域名白名单。")]
         public async Task<string> RunPythonPy([Description("需要执行的python脚本路径。例如：'Skills\\python-skills\\hello-python\\scripts\\hello-python.py'")]
-                                        string scriptPath,
+                                        [Required]string scriptPath,
             [Description("需要传入python脚本的参数。例如：['你好','word']")]
-            List<string> args = default
+            List<string>? args = default
             )
         {
             try
             {
+                args ??= new List<string>();
                 //传入非完整的路径
                 if (!scriptPath.Contains(":"))
                 {
@@ -176,7 +178,7 @@ namespace kevin.AI.AgentFramework.Tools
                         var blockedList = string.Join("; ", validationResult.BlockedItems);
                         return $"❌ 安全校验失败: {blockedList}";
                     }
-                } 
+                }
                 Console.WriteLine();
                 Console.WriteLine($"🔧 正在执行Py脚本 {scriptPath}");
                 // 设置进程信息
@@ -229,7 +231,7 @@ namespace kevin.AI.AgentFramework.Tools
 
         [Description("用于执行Python代码。包含安全护栏：HTTP请求域名白名单。")]
         public async Task<string> RunPythonCode([Description("需要执行的python代码。例如：'def main(name): return 'Hello ' + name.title() + '!'")]
-                                        string code)
+                                         [Required]string code)
         {
             try
             {
@@ -248,14 +250,14 @@ namespace kevin.AI.AgentFramework.Tools
                     return $"❌ 授权拦截：{ex.Message}";
                 }
                 if (_IsSecurityIntercept)
-                { 
+                {
                     var validationResult = PythonSecurityValidator.ValidatePythonCode(code);
                     if (!validationResult.IsValid)
                     {
                         var blockedList = string.Join("; ", validationResult.BlockedItems);
                         return $"❌ 安全校验失败: {blockedList}";
                     }
-                } 
+                }
                 Console.WriteLine();
                 Console.WriteLine($"🔧 正在执行Py代码");
                 var saveResult = await SavePythonToFile(code, "Pys", "");
@@ -301,7 +303,7 @@ namespace kevin.AI.AgentFramework.Tools
         }
 
         [Description("把传入的python代码保存为 .py 文件，返回保存的完整路径，失败返回以 ❌ 开头的错误信息")]
-        public async Task<string> SavePythonToFile(string code, string relativeDir = "Skills/python-skills/tmp", string fileName = null)
+        public async Task<string> SavePythonToFile([Required][Description("需要保存的python代码。例如：'def main(name): return 'Hello ' + name.title() + '!'\"")] string code, string relativeDir = "Skills/python-skills/tmp", string? fileName = null)
         {
             try
             {

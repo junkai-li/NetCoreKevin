@@ -35,7 +35,7 @@ namespace kevin.AI.AgentFramework.Tools
                             .ToList()
                             .ForEach(domain => this._authorizedDomains.Add(domain));
                     }
-                    jsonDoc.RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit); 
+                    jsonDoc.RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit);
                 }
                 catch (Exception)
                 {
@@ -128,6 +128,8 @@ namespace kevin.AI.AgentFramework.Tools
             Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.GetAsync -> {url}");
             try
             {
+                queryParams ??= new Dictionary<string, string>();
+                headers ??= new Dictionary<string, string>();
                 AuthorizedDomainsCheck(url);
                 var fullUrl = BuildUrlWithQuery(url, queryParams);
                 using var http = CreateHttpClient(timeoutSeconds);
@@ -146,7 +148,7 @@ namespace kevin.AI.AgentFramework.Tools
         [Description("发送 POST 请求。参数：url, body (字符串), contentType, queryParams, headers, timeoutSeconds, cancellationToken。")]
         public async Task<string> PostAsync(
             [Description("目标完整 URL 或相对 URL")] string url,
-            [Description("请求体字符串（通常为 JSON 或表单），可为 null")] string? body = null,
+            [Description("请求体字符串（通常为 JSON 或表单），可为 null")] string body = "",
             [Description("Content-Type，默认 \"application/json; charset=utf-8\"")] string contentType = "application/json; charset=utf-8",
             [Description("查询参数字典，映射为 URL 查询字符串（可为 null）")] IDictionary<string, string>? queryParams = null,
             [Description("自定义请求头字典（可为 null），Key/Value 均为字符串")] IDictionary<string, string>? headers = null,
@@ -157,6 +159,9 @@ namespace kevin.AI.AgentFramework.Tools
             Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.PostAsync -> {url}");
             try
             {
+                body ??= "";
+                queryParams ??= new Dictionary<string, string>();
+                headers ??= new Dictionary<string, string>();
                 AuthorizedDomainsCheck(url);
                 var fullUrl = BuildUrlWithQuery(url, queryParams);
                 using var http = CreateHttpClient(timeoutSeconds);
@@ -194,6 +199,9 @@ namespace kevin.AI.AgentFramework.Tools
             Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.PutAsync -> {url}");
             try
             {
+                body ??= "";
+                queryParams ??= new Dictionary<string, string>();
+                headers ??= new Dictionary<string, string>();
                 AuthorizedDomainsCheck(url);
                 var fullUrl = BuildUrlWithQuery(url, queryParams);
                 using var http = CreateHttpClient(timeoutSeconds);
@@ -227,14 +235,16 @@ namespace kevin.AI.AgentFramework.Tools
             Console.WriteLine();
             Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.DeleteAsync -> {url}");
             try
-            {
+            { 
+                queryParams ??= new Dictionary<string, string>();
+                headers ??= new Dictionary<string, string>();
                 AuthorizedDomainsCheck(url);
                 var fullUrl = BuildUrlWithQuery(url, queryParams);
                 using var http = CreateHttpClient(timeoutSeconds);
                 ApplyHeaders(http, headers);
 
                 using var resp = await http.DeleteAsync(fullUrl, cancellationToken).ConfigureAwait(false);
-                var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false) ?? ""; 
+                var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false) ?? "";
                 return text.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, _contentLengthLimit) : text;
             }
             catch (Exception ex)

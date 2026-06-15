@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace kevin.AI.AgentFramework.Interfaces.Tasks
 {
@@ -14,22 +15,22 @@ namespace kevin.AI.AgentFramework.Interfaces.Tasks
         /// 创建或更新一个周期性自动任务 
         /// <param name="cronExpression">cron表达式：用于定义任务的执行周期，不可为空</param>
         /// </summary>
-        Task<string> AddOrUpdateCronTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")] string name,
-            [Description("content：可传入具体的任务内容，不可为空 比如：第一步：搜索并总结AI领域的热门资讯，包括技术突破、产品发布、行业动态等，第二步：生成总结报告为MkD格式")] string content,
-            [Description("cron表达式：用于定义任务的执行周期，不可为空 比如用户需要每六分钟执行一次则传入：0 0/6 0/1 * * ?  ")] string cronExpression
+        Task<string> AddOrUpdateCronTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")][Required] string name,
+            [Description("content：可传入具体的任务内容，不可为空 比如：第一步：搜索并总结AI领域的热门资讯，包括技术突破、产品发布、行业动态等，第二步：生成总结报告为MkD格式")][Required] string content,
+            [Description("cron表达式：用于定义任务的执行周期，不可为空 比如用户需要每六分钟执行一次则传入：0 0/6 0/1 * * ?  ")][Required] string cronExpression
          );
 
         /// <summary>
         /// 移除周期性任务（如果存在） 
         /// <param name="name">name ：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结"</param>
         /// </summary>
-        Task<string> RemoveCronTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")] string name);
+        Task<string> RemoveCronTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")][Required] string name);
 
         /// <summary>
         /// 立即触发某个周期性任务一次 
         /// <param name="name">name ：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结"</param>
         /// </summary>
-        Task<string> TriggerCronTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")] string name);
+        Task<string> TriggerCronTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")][Required] string name);
 
         /// <summary>
         /// 获取我的所有周期性任务列表，返回任务名称列表 
@@ -43,7 +44,7 @@ namespace kevin.AI.AgentFramework.Interfaces.Tasks
         /// <param name="taskName">任务名称</param>
         /// <param name="taskContent">任务内容</param>
         /// <returns></returns>
-        public Task<string> RunTask(string userId, string taskName, string taskContent, object taskdata);
+        public Task<string> RunTask([Description("用户ID")] [Required] string userId, [Description("任务名称")][Required] string taskName, [Description("任务内容")][Required] string taskContent, [Description("传递参数")][Required] object taskdata);
     }
 
 }

@@ -237,6 +237,8 @@ namespace kevin.Application.Services.AI
                                     IsStreame = false,
                                     IsHttpLog = aiapp.IsHttpLog,
                                     MaxRetries = aiapp.MaxRetries,
+                                    IsAISkills = aiapp.IsSkill,
+                                    IsAITools = aiapp.IsAITools,
                                     NetworkTimeout = aiapp.NetworkTimeout,
                                 }, chatAgOs, new(ChatRole.User, [new TextContent($"{taskContent}")])).Result.Item2;
                                 break;

@@ -35,7 +35,7 @@ namespace kevin.AI.AgentFramework
         /// <returns></returns>
         public async Task<(AIAgent, string, TokenConsumptionInfo)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, ChatMessage messages, CancellationToken cancellationToken = default)
         {
-            
+
             cancellationToken.ThrowIfCancellationRequested();//是否已经中止，若已请求取消则抛出异常
             if (aISetting.IsHttpLog)
             {
@@ -58,6 +58,14 @@ namespace kevin.AI.AgentFramework
                     chatClientAgentOptions.ChatOptions.Tools = new List<AITool>();
                 }
             }
+            if (chatClientAgentOptions.ChatOptions != default)
+            {
+                if (chatClientAgentOptions.ChatOptions.Tools?.Count > 0)
+                {
+                    SanitizeTools(chatClientAgentOptions.ChatOptions.Tools);
+                } 
+            }
+
             #endregion
 
             #region AI技能
@@ -101,7 +109,7 @@ namespace kevin.AI.AgentFramework
                                                     // 1. 模型决定调用工具 
                                                     if (aISetting.ToolStreameCallback != default)
                                                     {
-                                                       
+
                                                         aISetting.ToolStreameCallback.Invoke($"\n [工具调用] 名称：{funcCall.Name}，调用ID：{funcCall.CallId}，参数：（ {string.Join(", ", funcCall.Arguments?.Select(a => $"{a.Key}: {a.Value}") ?? [])}）");
                                                     }
                                                     break;
@@ -143,28 +151,6 @@ namespace kevin.AI.AgentFramework
                                     tokenConsumptionInfo = usage;
                                 }
                             }
-                        }
-                    }
-                    catch (ClientResultException cre)
-                    {
-                        // Log and fall back to non-streaming; this avoids the request failing completely when streaming errors occur
-                        Ailogger?.LogError(cre, "Streaming call failed, falling back to non-streaming RunAsync. Error: {Message}", cre.Message);
-                        try
-                        {
-                            reslut = await aiAgent.RunAsync(messages, cancellationToken: cancellationToken);
-                            resultText = reslut.Text;
-                            if (reslut.Usage != default)
-                            {
-                                tokenConsumptionInfo.CachedInputTokenCount = reslut.Usage.CachedInputTokenCount;
-                                tokenConsumptionInfo.InputTokenCount = reslut.Usage.InputTokenCount;
-                                tokenConsumptionInfo.OutputTokenCount = reslut.Usage.OutputTokenCount;
-                                tokenConsumptionInfo.TotalTokenCount = reslut.Usage.TotalTokenCount;
-                                tokenConsumptionInfo.ReasoningTokenCount = reslut.Usage.ReasoningTokenCount;
-                            }
-                        }
-                        catch (Exception ex2)
-                        {
-                            Ailogger?.LogError(ex2, "Fallback RunAsync after streaming failure also failed.");
                         }
                     }
                     catch (Exception ex)
@@ -447,6 +433,70 @@ namespace kevin.AI.AgentFramework
                 }
                 usage = default;
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// 在发送前对 tools 做防护
+        /// </summary>
+        /// <param name="tools"></param>
+        private void SanitizeTools(IList<AITool>? tools)
+        {
+            if (tools == null) return;
+            var emptyJsonElement = JsonDocument.Parse("{}").RootElement;
+
+            foreach (var tool in tools)
+            {
+                if (tool == null) continue;
+
+                // 保证 name 不为空（如必要可自定义更严格校验）
+                var nameProp = tool.GetType().GetProperty("Name");
+                if (nameProp != null)
+                {
+                    var nameVal = nameProp.GetValue(tool) as string;
+                    if (string.IsNullOrWhiteSpace(nameVal))
+                    {
+                        nameProp.SetValue(tool, "unnamed_tool");
+                    }
+                }
+
+                // 保证 Parameters 不为空：支持多种声明类型（JsonElement / IDictionary / object）
+                var paramsProp = tool.GetType().GetProperty("Parameters") ?? tool.GetType().GetProperty("parameters");
+                if (paramsProp != null)
+                {
+                    var pval = paramsProp.GetValue(tool);
+                    if (pval == null)
+                    {
+                        var pType = paramsProp.PropertyType;
+                        if (pType == typeof(System.Text.Json.JsonElement) || pType == typeof(System.Text.Json.JsonElement?))
+                        {
+                            paramsProp.SetValue(tool, emptyJsonElement);
+                        }
+                        else if (typeof(IDictionary<string, object>).IsAssignableFrom(pType))
+                        {
+                            var dict = Activator.CreateInstance(typeof(Dictionary<string, object>));
+                            paramsProp.SetValue(tool, dict);
+                        }
+                        else if (pType == typeof(object))
+                        {
+                            // 最保守：设置为 JsonElement（大多数 SDK 能序列化）
+                            paramsProp.SetValue(tool, emptyJsonElement);
+                        }
+                        else
+                        {
+                            // 其他类型尝试实例化空实例
+                            try
+                            {
+                                var inst = Activator.CreateInstance(pType);
+                                paramsProp.SetValue(tool, inst);
+                            }
+                            catch
+                            {
+                                // 忽略，SDK 端会报错，仍然比 null 更保险
+                            }
+                        }
+                    }
+                }
             }
         }
     }
