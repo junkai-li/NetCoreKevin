@@ -10,6 +10,7 @@ using OpenAI;
 using OpenAI.Responses;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 namespace kevin.AI.AgentFramework
@@ -56,16 +57,8 @@ namespace kevin.AI.AgentFramework
                 if (chatClientAgentOptions.ChatOptions != default)
                 {
                     chatClientAgentOptions.ChatOptions.Tools = new List<AITool>();
-                } 
+                }
             }
-            if (chatClientAgentOptions.ChatOptions != default)
-            {
-                if (chatClientAgentOptions.ChatOptions.Tools?.Count > 0)
-                {
-                    SanitizeTools(chatClientAgentOptions.ChatOptions.Tools);
-                } 
-            }
-
             #endregion
 
             #region AI技能
@@ -75,24 +68,23 @@ namespace kevin.AI.AgentFramework
             }
             #endregion
 
+            var maxRetries = aISetting.MaxRetries;
+            var retries = 1;
+        aiRun:
+
             // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示  
-            var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(aISetting.AIKeySecret) ? "local" : aISetting.AIKeySecret), openAIClientOptions);
+            var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(aISetting.AIKeySecret) ? "local" : aISetting.AIKeySecret), openAIClientOptions); 
             var aiAgent = ai.GetChatClient(aISetting.AIDefaultModel).AsIChatClient().AsAIAgent(chatClientAgentOptions);
             var reslut = new AgentResponse();
             var tokenConsumptionInfo = new TokenConsumptionInfo();
             var resultText = string.Empty;
 
-            //ChatMessage message = new(ChatRole.User, [new TextContent(msg)]);
-            //if (OtherContents != default && OtherContents.Count > 0)
-            //{
-            //    message = new(ChatRole.User, [.. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(), new TextContent(msg)]);
-            //}
-            if (aISetting.IsStreame)
+            try
             {
-                if (aISetting.StreameCallback != default)
+                if (aISetting.IsStreame)
                 {
-                    try
-                    {
+                    if (aISetting.StreameCallback != default)
+                    { 
                         await foreach (var update in aiAgent.RunStreamingAsync(messages, cancellationToken: cancellationToken))
                         {
                             if (update != default)
@@ -107,9 +99,11 @@ namespace kevin.AI.AgentFramework
                                             {
                                                 case FunctionCallContent funcCall:
                                                     // 1. 模型决定调用工具 
-                                                    if (aISetting.ToolStreameCallback != default)
-                                                    {
+                                                    // 修复 AI 返回的 null 参数问题
+                                                    // FixToolCallNullArguments(funcCall);
 
+                                                    if (aISetting.ToolStreameCallback != default)
+                                                    { 
                                                         aISetting.ToolStreameCallback.Invoke($"\n [工具调用] 名称：{funcCall.Name}，调用ID：{funcCall.CallId}，参数：（ {string.Join(", ", funcCall.Arguments?.Select(a => $"{a.Key}: {a.Value}") ?? [])}）");
                                                     }
                                                     break;
@@ -153,41 +147,30 @@ namespace kevin.AI.AgentFramework
                             }
                         }
                     }
-                    catch (Exception ex)
+                }
+                else
+                {
+                    reslut = await aiAgent.RunAsync(messages, cancellationToken: cancellationToken);
+
+                    resultText = reslut.Text;
+                    if (reslut.Usage != default)
                     {
-                        // Unexpected exception: try to fallback as well
-                        Ailogger?.LogError(ex, "Unexpected streaming error, falling back to non-streaming RunAsync.");
-                        try
-                        {
-                            reslut = await aiAgent.RunAsync(messages, cancellationToken: cancellationToken);
-                            resultText = reslut.Text;
-                            if (reslut.Usage != default)
-                            {
-                                tokenConsumptionInfo.CachedInputTokenCount = reslut.Usage.CachedInputTokenCount;
-                                tokenConsumptionInfo.InputTokenCount = reslut.Usage.InputTokenCount;
-                                tokenConsumptionInfo.OutputTokenCount = reslut.Usage.OutputTokenCount;
-                                tokenConsumptionInfo.TotalTokenCount = reslut.Usage.TotalTokenCount;
-                                tokenConsumptionInfo.ReasoningTokenCount = reslut.Usage.ReasoningTokenCount;
-                            }
-                        }
-                        catch (Exception ex2)
-                        {
-                            Ailogger?.LogError(ex2, "Fallback RunAsync after unexpected streaming error also failed.");
-                        }
+                        tokenConsumptionInfo.CachedInputTokenCount = reslut.Usage.CachedInputTokenCount;
+                        tokenConsumptionInfo.InputTokenCount = reslut.Usage.InputTokenCount;
+                        tokenConsumptionInfo.OutputTokenCount = reslut.Usage.OutputTokenCount;
+                        tokenConsumptionInfo.TotalTokenCount = reslut.Usage.TotalTokenCount;
+                        tokenConsumptionInfo.ReasoningTokenCount = reslut.Usage.ReasoningTokenCount;
                     }
                 }
             }
-            else
+            catch (Exception ex)
             {
-                reslut = await aiAgent.RunAsync(messages, cancellationToken: cancellationToken);
-                resultText = reslut.Text;
-                if (reslut.Usage != default)
+                // Unexpected exception: try to fallback as well
+                Ailogger?.LogError(ex, "Unexpected streaming error, falling back to non-streaming RunAsync.");
+                if (retries <= maxRetries)
                 {
-                    tokenConsumptionInfo.CachedInputTokenCount = reslut.Usage.CachedInputTokenCount;
-                    tokenConsumptionInfo.InputTokenCount = reslut.Usage.InputTokenCount;
-                    tokenConsumptionInfo.OutputTokenCount = reslut.Usage.OutputTokenCount;
-                    tokenConsumptionInfo.TotalTokenCount = reslut.Usage.TotalTokenCount;
-                    tokenConsumptionInfo.ReasoningTokenCount = reslut.Usage.ReasoningTokenCount;
+                    retries++;
+                    goto aiRun;
                 }
             }
             if (aISetting.IsHttpLog)
@@ -291,9 +274,10 @@ namespace kevin.AI.AgentFramework
             }
 
         }
-
+ 
+         
         /// <summary>
-        /// 从更新中提取使用信息
+        /// 尝试从更新中提取 token 使用信息
         /// </summary>
         /// <param name="update"></param>
         /// <param name="info"></param>
@@ -436,68 +420,6 @@ namespace kevin.AI.AgentFramework
             }
         }
 
-        /// <summary>
-        /// 在发送前对 tools 做防护
-        /// </summary>
-        /// <param name="tools"></param>
-        private void SanitizeTools(IList<AITool>? tools)
-        {
-            if (tools == null) return;
-            var emptyJsonElement = JsonDocument.Parse("{}").RootElement;
 
-            foreach (var tool in tools)
-            {
-                if (tool == null) continue;
-
-                // 保证 name 不为空（如必要可自定义更严格校验）
-                var nameProp = tool.GetType().GetProperty("Name");
-                if (nameProp != null)
-                {
-                    var nameVal = nameProp.GetValue(tool) as string;
-                    if (string.IsNullOrWhiteSpace(nameVal))
-                    {
-                        nameProp.SetValue(tool, "unnamed_tool");
-                    }
-                }
-
-                // 保证 Parameters 不为空：支持多种声明类型（JsonElement / IDictionary / object）
-                var paramsProp = tool.GetType().GetProperty("Parameters") ?? tool.GetType().GetProperty("parameters");
-                if (paramsProp != null)
-                {
-                    var pval = paramsProp.GetValue(tool);
-                    if (pval == null)
-                    {
-                        var pType = paramsProp.PropertyType;
-                        if (pType == typeof(System.Text.Json.JsonElement) || pType == typeof(System.Text.Json.JsonElement?))
-                        {
-                            paramsProp.SetValue(tool, emptyJsonElement);
-                        }
-                        else if (typeof(IDictionary<string, object>).IsAssignableFrom(pType))
-                        {
-                            var dict = Activator.CreateInstance(typeof(Dictionary<string, object>));
-                            paramsProp.SetValue(tool, dict);
-                        }
-                        else if (pType == typeof(object))
-                        {
-                            // 最保守：设置为 JsonElement（大多数 SDK 能序列化）
-                            paramsProp.SetValue(tool, emptyJsonElement);
-                        }
-                        else
-                        {
-                            // 其他类型尝试实例化空实例
-                            try
-                            {
-                                var inst = Activator.CreateInstance(pType);
-                                paramsProp.SetValue(tool, inst);
-                            }
-                            catch
-                            {
-                                // 忽略，SDK 端会报错，仍然比 null 更保险
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }

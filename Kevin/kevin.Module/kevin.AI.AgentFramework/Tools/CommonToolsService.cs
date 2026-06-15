@@ -1,5 +1,6 @@
 ﻿using kevin.AI.AgentFramework.Interfaces.Tools;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -108,7 +109,7 @@ namespace kevin.AI.AgentFramework.Tools
         /// 输出文件到系统桌面。 用于把各种文件输出到桌面
         /// </summary>
         [Description("输出文件到系统桌面。 用于把各种文件输出到桌面，返回完整路径或以 ❌ 开头的错误信息。")]
-        public async Task<string> WriteTextToDesktop([Description("文件名称如（xx.html,xx.txt）支持各种文件类型")] string fileName, [Description("内容")] string content, [Description("文件是否不存在 默认是")] bool overwrite = true)
+        public async Task<string> WriteTextToDesktop([Description("文件名称如（xx.html,xx.txt）支持各种文件类型 不能为Null ")][Required] string fileName, [Description("文件数据内容（html代码，文本内容）不能为Null   ")][Required] string content, [Description("文件是否不存在 默认是")][Required] bool overwrite = true)
         {
             try
             {
