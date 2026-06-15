@@ -13,7 +13,7 @@ namespace kevin.Application.Services.AI
         {
             this._fileStorage = fileStorage;
         }
-        public string SaveFileContent([Description("文件名称如（xx.html,xx.txt）支持各种文件类型")] string fileName, [Description("内容")] string content)
+        public string SaveFileContent([Description("文件名称如（xx.html,xx.txt）支持各种文件类型")] string fileName, [Description("文件数据内容")] string content)
         {
             Console.WriteLine();
             Console.WriteLine($"🔧 正在调用 SaveFileContent 上传远程文件 ");

@@ -1,9 +1,11 @@
-﻿using kevin.AI.AgentFramework.Interfaces;
+﻿using Common;
+using kevin.AI.AgentFramework.Interfaces;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using Kevin.SignalR.Service;
+using TencentCloud.Lowcode.V20210108.Models;
 
 namespace kevin.Application.Services.AI
 {
@@ -133,6 +135,8 @@ namespace kevin.Application.Services.AI
         /// <returns></returns>
         public async Task<bool> UpdateNameAndMsg(long Id, string Name = "", string LastMessage = "", CancellationToken cancellationToken = default)
         {
+            Name = StringHelper.SubstringText(Name, 200,"...");
+            LastMessage= StringHelper.SubstringText(Name, 300,"...");
             var ai = await aIChatsRp.Query().Where(t => t.IsDelete == false && t.Id == Id).FirstOrDefaultAsync(cancellationToken);
             if (ai != null)
             {
