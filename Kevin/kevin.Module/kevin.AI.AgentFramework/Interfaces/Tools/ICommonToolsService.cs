@@ -30,24 +30,8 @@ namespace kevin.AI.AgentFramework.Interfaces.Tools
         /// 输出文件到系统桌面。 用于把各种文件输出到桌面
         /// </summary>
         [Description("输出文件到系统桌面。 用于把各种文件输出到桌面，返回完整路径或以 ❌ 开头的错误信息。")]
-        Task<string> WriteTextToDesktop([Description("文件名称如（xx.html,xx.txt）支持各种文件类型")][Required] string fileName, [Description("内容")][Required] string content, [Description("文件是否不存在 默认是")][Required] bool overwrite = true);
+        Task<string> WriteTextToDesktop([Description("文件名称如（xx.html,xx.txt）支持各种文件类型 不能为Null ")][Required] string fileName, [Description("文件数据内容（html代码，文本内容）不能为Null   ")][Required] string content, [Description("文件是否不存在 默认是")][Required] bool overwrite = true);
 
-        /// <summary>
-        /// 将字节数组保存到桌面指定文件，返回完整路径或以 "❌" 开头的错误信息。
-        /// </summary>
-        [Description("将字节数组保存到桌面指定文件，返回完整路径或以 ❌ 开头的错误信息。")]
-        Task<string> WriteBytesToDesktop([Required][Description("文件名称如（xx.html,xx.txt）支持各种文件类型")] string fileName, [Required] byte[] data, bool overwrite = true);
-
-        /// <summary>
-        /// 将流内容保存到桌面指定文件，返回完整路径或以 "❌" 开头的错误信息。
-        /// </summary>
-        [Description("将流内容保存到桌面指定文件，返回完整路径或以 ❌ 开头的错误信息。")]
-        Task<string> WriteStreamToDesktop([Description("文件名称如（xx.html,xx.txt）支持各种文件类型")] [Required] string fileName, Stream stream, bool overwrite = true);
-
-        /// <summary>
-        /// 从源路径复制文件到桌面（可重命名），返回目标完整路径或以 "❌" 开头的错误信息。
-        /// </summary>
-        [Description("从源路径复制文件到桌面（可重命名），返回目标完整路径或以 ❌ 开头的错误信息。")]
-        Task<string> CopyFileToDesktop([Required] string sourcePath, string fileName = null, bool overwrite = true);
+         
     }
 }
