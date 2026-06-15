@@ -44,7 +44,8 @@ namespace kevin.AI.AgentFramework.Interfaces.Tasks
         /// <param name="taskName">任务名称</param>
         /// <param name="taskContent">任务内容</param>
         /// <returns></returns>
-        public Task<string> RunTask([Description("用户ID")] [Required] string userId, [Description("任务名称")][Required] string taskName, [Description("任务内容")][Required] string taskContent, [Description("传递参数")][Required] object taskdata);
+        [Description("执行任务, 返回任务执行结果")]
+        public Task<string> RunTask([Required][Description("用户ID")] string userId, [Required][Description("任务名称")] string taskName, [Required][Description("任务内容")] string taskContent, [Required] object taskdata);
     }
 
 }

@@ -56,7 +56,7 @@ namespace kevin.AI.AgentFramework
                 if (chatClientAgentOptions.ChatOptions != default)
                 {
                     chatClientAgentOptions.ChatOptions.Tools = new List<AITool>();
-                }
+                } 
             }
             if (chatClientAgentOptions.ChatOptions != default)
             {

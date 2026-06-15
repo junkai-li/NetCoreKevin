@@ -4,76 +4,28 @@
         <name>Kevin.EntityFrameworkCore</name>
     </assembly>
     <members>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.初始化数据库">
+        <member name="T:Kevin.EntityFrameworkCore.Migrations.新增智能体部分字段">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化数据库.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增智能体部分字段.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化数据库.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增智能体部分字段.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.初始化数据库.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增智能体部分字段.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.新增消耗token数量">
+        <member name="T:Kevin.EntityFrameworkCore.Migrations.新增部分字段">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增消耗token数量.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增部分字段.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增消耗token数量.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增部分字段.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增消耗token数量.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.新增安全防护和钉钉userid字段">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增安全防护和钉钉userid字段.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增安全防护和钉钉userid字段.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增安全防护和钉钉userid字段.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.新增知识库重排模型">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增知识库重排模型.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增知识库重排模型.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增知识库重排模型.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.新增聊天记录的相关日志存储">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增聊天记录的相关日志存储.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增聊天记录的相关日志存储.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增聊天记录的相关日志存储.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.删除外键">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.删除外键.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.删除外键.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.删除外键.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.新增部分字段.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
         <member name="T:Kevin.EntityFrameworkCore._.Data.Repository`2">
