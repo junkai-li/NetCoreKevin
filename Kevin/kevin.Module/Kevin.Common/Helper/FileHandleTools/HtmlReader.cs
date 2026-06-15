@@ -95,6 +95,14 @@ namespace Kevin.Common.Helper.FileHandleTools
         {
             switch (node.NodeType)
             {
+                case HtmlNodeType.Document:
+                    // Document 节点是根节点，递归处理其子节点
+                    foreach (var child in node.ChildNodes)
+                    {
+                        ProcessNode(child, sb);
+                    }
+                    break;
+
                 case HtmlNodeType.Text:
                     string text = HtmlEntity.DeEntitize(node.InnerText ?? string.Empty).Trim();
                     if (!string.IsNullOrEmpty(text))
@@ -124,6 +132,10 @@ namespace Kevin.Common.Helper.FileHandleTools
                     {
                         sb.AppendLine();
                     }
+                    break;
+
+                case HtmlNodeType.Comment:
+                    // 忽略注释节点
                     break;
             }
         }
