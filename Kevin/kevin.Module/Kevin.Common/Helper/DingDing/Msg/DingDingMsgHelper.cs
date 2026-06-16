@@ -194,13 +194,7 @@ namespace Kevin.Common.Helper.DingDing.Msg
         #endregion
         public string GetAccessToken()
         {
-            string cacheKey = "dingding.accessToken" + appKey;
-            var cacheser = GlobalServices.ServiceProvider.GetService<ICacheService>();
-            var token = cacheser.GetString(cacheKey);
-            if (!string.IsNullOrEmpty(token))
-            {
-                return token;
-            }
+            string cacheKey = "dingding.accessToken" + appKey; 
             appKey = appKey ?? ConfigHelper.Configuration["DingDingMsgInfo:appKey"];
             appSecret = appSecret ?? ConfigHelper.Configuration["DingDingMsgInfo:appSecret"];
             var dictParam = new
@@ -210,11 +204,7 @@ namespace Kevin.Common.Helper.DingDing.Msg
             }.EntityToJson();
             var str_result = HttpClientHelper.CreatePostHttpResponse("https://api.dingtalk.com/v1.0/oauth2/accessToken", dictParam);
             var jresult = str_result.ToObject<JObject>();
-            var accessToken = jresult["accessToken"].ToString();
-            if (!string.IsNullOrWhiteSpace(accessToken))
-            {
-                cacheser.SetString(cacheKey, accessToken, TimeSpan.FromHours(1));
-            }
+            var accessToken = jresult["accessToken"].ToString(); 
             return accessToken;
         }
         /// <summary>
