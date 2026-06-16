@@ -186,11 +186,25 @@ public class ExcelReader
             case CellType.Formula:
                 try
                 {
-                    return cell.NumericCellValue.ToString();
+                    // 先尝试获取公式计算结果类型，避免直接访问错误值
+                    var cachedType = cell.CachedFormulaResultType;
+                    switch (cachedType)
+                    {
+                        case CellType.Numeric:
+                            return cell.NumericCellValue.ToString();
+                        case CellType.String:
+                            return cell.StringCellValue ?? string.Empty;
+                        case CellType.Boolean:
+                            return cell.BooleanCellValue ? "TRUE" : "FALSE";
+                        case CellType.Error:
+                            return $"[Error: {cell.ErrorCellValue}]";
+                        default:
+                            return cell.ToString() ?? string.Empty;
+                    }
                 }
                 catch
                 {
-                    return cell.StringCellValue ?? string.Empty;
+                    return $"[Formula: {cell.CellFormula}]";
                 }
 
             case CellType.Error:
