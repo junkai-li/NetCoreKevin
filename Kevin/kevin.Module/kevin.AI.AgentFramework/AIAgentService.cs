@@ -1,4 +1,4 @@
-﻿using HttpMataki.NET.Auto;
+using HttpMataki.NET.Auto;
 using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.Interfaces;
 using Kevin.AI.Dto;
@@ -73,7 +73,7 @@ namespace kevin.AI.AgentFramework
         aiRun:
 
             // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示  
-            var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(aISetting.AIKeySecret) ? "local" : aISetting.AIKeySecret), openAIClientOptions); 
+            var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(aISetting.AIKeySecret) ? "local" : aISetting.AIKeySecret), openAIClientOptions);
             var aiAgent = ai.GetChatClient(aISetting.AIDefaultModel).AsIChatClient().AsAIAgent(chatClientAgentOptions);
             var reslut = new AgentResponse();
             var tokenConsumptionInfo = new TokenConsumptionInfo();
@@ -84,7 +84,7 @@ namespace kevin.AI.AgentFramework
                 if (aISetting.IsStreame)
                 {
                     if (aISetting.StreameCallback != default)
-                    { 
+                    {
                         await foreach (var update in aiAgent.RunStreamingAsync(messages, cancellationToken: cancellationToken))
                         {
                             if (update != default)
@@ -98,21 +98,20 @@ namespace kevin.AI.AgentFramework
                                             switch (content)
                                             {
                                                 case FunctionCallContent funcCall:
-                                                    // 1. 模型决定调用工具 
-                                                    // 修复 AI 返回的 null 参数问题
-                                                    // FixToolCallNullArguments(funcCall);
-
+                                                    // 1. 模型决定调用工具  
+                                                    var err = funcCall.Exception != default ? ("异常信息：" + funcCall.Exception?.Message) : "";
                                                     if (aISetting.ToolStreameCallback != default)
-                                                    { 
-                                                        aISetting.ToolStreameCallback.Invoke($"\n [工具调用] 名称：{funcCall.Name}，调用ID：{funcCall.CallId}，参数：（ {string.Join(", ", funcCall.Arguments?.Select(a => $"{a.Key}: {a.Value}") ?? [])}）");
+                                                    {
+                                                        aISetting.ToolStreameCallback.Invoke($"\n [工具调用] 名称：{funcCall.Name}，调用ID：{funcCall.CallId}，参数：（ {string.Join(", ", funcCall.Arguments?.Select(a => $"{a.Key}: {a.Value}") ?? [])}） {err}");
                                                     }
                                                     break;
 
                                                 case FunctionResultContent funcResult:
                                                     // 2. 工具执行完毕返回结果 
+                                                    var errr = funcResult.Exception != default ? ("异常信息：" + funcResult.Exception?.Message) : "";
                                                     if (aISetting.ToolStreameCallback != default)
                                                     {
-                                                        aISetting.ToolStreameCallback.Invoke($"\n [工具返回] 调用ID：{funcResult.CallId}，结果：{funcResult.Result?.ToString()}");
+                                                        aISetting.ToolStreameCallback.Invoke($"\n [工具返回] 调用ID：{funcResult.CallId}，结果：{funcResult.Result?.ToString()} {errr} ");
                                                     }
                                                     break;
 
@@ -274,8 +273,8 @@ namespace kevin.AI.AgentFramework
             }
 
         }
- 
-         
+
+
         /// <summary>
         /// 尝试从更新中提取 token 使用信息
         /// </summary>
