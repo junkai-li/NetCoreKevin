@@ -4,94 +4,166 @@
     :title="modalTitle"
     @ok="handleOk"
     @cancel="handleCancel"
-    :width="600"
+    :width="900"
   :confirm-loading="confirmLoading"
   >
     <a-form :model="form" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
-      <a-form-item label="用户名" v-bind="validateInfos.username">
-        <a-input v-model:value="form.username" class="custom-input" />
-      </a-form-item>
-      <a-form-item label="昵称" v-bind="validateInfos.nickName">
-        <a-input v-model:value="form.nickName" class="custom-input" />
-      </a-form-item>
-      <a-form-item label="手机号" v-bind="validateInfos.phone">
-        <a-input v-model:value="form.phone" class="custom-input" />
-      </a-form-item>
-      <a-form-item label="邮箱" v-bind="validateInfos.email">
-        <a-input v-model:value="form.email" class="custom-input" />
-      </a-form-item>
-      <a-form-item label="角色" v-bind="validateInfos.roles">
-        <a-select
-          v-model:value="form.roles"
-          mode="multiple"
-          placeholder="请选择角色"
-          class="custom-select"
-          :loading="roleLoading"
-        >
-          <a-select-option v-for="role in roleList" :key="role.id" :value="role.id">
-            {{ role.name }}
-          </a-select-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item label="部门" v-bind="validateInfos.departmentId">
-        <a-tree-select
-          v-model:value="form.dtoUserInfo.departmentId"
-          show-search
-          placeholder="请选择部门"
-          :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
-          :tree-data="departmentTreeData"
-          :filterTreeNode="filterTreeNode"
-          tree-default-expand-all
-          style="width: 100%"
-        />
-      </a-form-item>
-      <a-form-item label="岗位" v-bind="validateInfos.positions">
-        <a-tree-select
-          v-model:value="form.positions"
-          multiple
-          show-search
-          placeholder="请选择岗位"
-          :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
-          :tree-data="positionTreeData"
-          :filterTreeNode="filterTreeNode"
-          tree-default-expand-all
-          style="width: 100%"
-        />
-      </a-form-item> 
-      <a-form-item label="状态">
-        <a-switch
-          v-model:checked="form.status"
-          checked-children="启用"
-          un-checked-children="禁用"
-        /> 
-      </a-form-item>
-      <a-form-item label="头像">
-        <a-upload
-          v-model:file-list="form.avatar"
-          list-type="picture-card"
-          class="avatar-uploader"
-          :show-upload-list="false"
-          :before-upload="beforeUpload"
-        >
-          <img
-            v-if="form.avatarUrl"
-            :src="form.avatarUrl"
-            alt="avatar"
-            style="width: 100%"
-          />
-          <div v-else>
-            <PlusOutlined />
-            <div style="margin-top: 8px">上传头像</div>
-          </div>
-        </a-upload>
-      </a-form-item>
-      <a-form-item label="密码" v-bind="validateInfos.PassWord">
-        <a-input-password
-          size="middle"
-          placeholder="密码"
-          v-model:value="form.PassWord"
-        />
-      </a-form-item>
+      <a-row :gutter="16">
+        <a-col :span="12">
+          <a-form-item label="用户名" v-bind="validateInfos.username">
+            <a-input v-model:value="form.username" class="custom-input" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="昵称" v-bind="validateInfos.nickName">
+            <a-input v-model:value="form.nickName" class="custom-input" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="手机号" v-bind="validateInfos.phone">
+            <a-input v-model:value="form.phone" class="custom-input" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="邮箱" v-bind="validateInfos.email">
+            <a-input v-model:value="form.email" class="custom-input" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="角色" v-bind="validateInfos.roles">
+            <a-select
+              v-model:value="form.roles"
+              mode="multiple"
+              placeholder="请选择角色"
+              class="custom-select"
+              :loading="roleLoading"
+            >
+              <a-select-option v-for="role in roleList" :key="role.id" :value="role.id">
+                {{ role.name }}
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="部门" v-bind="validateInfos.departmentId">
+            <a-tree-select
+              v-model:value="form.dtoUserInfo.departmentId"
+              show-search
+              placeholder="请选择部门"
+              :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+              :tree-data="departmentTreeData"
+              :filterTreeNode="filterTreeNode"
+              tree-default-expand-all
+              style="width: 100%"
+            />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="岗位" v-bind="validateInfos.positions">
+            <a-tree-select
+              v-model:value="form.positions"
+              multiple
+              show-search
+              placeholder="请选择岗位"
+              :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+              :tree-data="positionTreeData"
+              :filterTreeNode="filterTreeNode"
+              tree-default-expand-all
+              style="width: 100%"
+            />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="员工状态">
+            <a-select v-model:value="form.dtoUserInfo.employeeStatus" placeholder="请选择员工状态">
+              <a-select-option :value="-1">离职</a-select-option>
+              <a-select-option :value="1">在职</a-select-option>
+              <a-select-option :value="2">休假</a-select-option>
+              <a-select-option :value="3">停职</a-select-option>
+              <a-select-option :value="4">退休</a-select-option>
+              <a-select-option :value="5">实习</a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="入职时间">
+            <a-date-picker v-model:value="form.dtoUserInfo.hireDate" placeholder="请选择入职时间" style="width: 100%" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="个性签名">
+            <a-input v-model:value="form.dtoUserInfo.signature" placeholder="请输入个性签名" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="性别">
+            <a-select v-model:value="form.dtoUserInfo.sex" placeholder="请选择性别">
+              <a-select-option :value="true">男</a-select-option>
+              <a-select-option :value="false">女</a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="工号">
+            <a-input v-model:value="form.dtoUserInfo.employeeNo" placeholder="请输入工号" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="上级">
+            <a-input v-model:value="form.dtoUserInfo.supervisorId" placeholder="请输入上级用户ID" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="微信号">
+            <a-input v-model:value="form.dtoUserInfo.weChat" placeholder="请输入微信号" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="QQ">
+            <a-input v-model:value="form.dtoUserInfo.qq" placeholder="请输入QQ号" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="状态">
+            <a-switch
+              v-model:checked="form.status"
+              checked-children="启用"
+              un-checked-children="禁用"
+            /> 
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="密码" v-bind="validateInfos.PassWord">
+            <a-input-password
+              size="middle"
+              placeholder="密码"
+              v-model:value="form.PassWord"
+            />
+          </a-form-item>
+        </a-col>
+        <a-col :span="24">
+          <a-form-item label="头像">
+            <a-upload
+              v-model:file-list="form.avatar"
+              list-type="picture-card"
+              class="avatar-uploader"
+              :show-upload-list="false"
+              :before-upload="beforeUpload"
+            >
+              <img
+                v-if="form.avatarUrl"
+                :src="form.avatarUrl"
+                alt="avatar"
+                style="width: 100%"
+              />
+              <div v-else>
+                <PlusOutlined />
+                <div style="margin-top: 8px">上传头像</div>
+              </div>
+            </a-upload>
+          </a-form-item>
+        </a-col>
+      </a-row>
     </a-form>
   </a-modal>
 </template>
@@ -106,6 +178,7 @@ import { GetSnowflakeId } from "../api/baseapi";
 import { createUser, updateUser, getUserRoleList } from "../api/userapi";
 import { getPositionTree } from "../api/organizational/position";
 import { getDepartmentTree } from "../api/organizational/department";
+import dayjs from 'dayjs';
 const emit = defineEmits(['ok', 'cancel']);
 
 const useForm = Form.useForm;
@@ -123,7 +196,19 @@ const form = reactive({
   status: true,
   avatar: [],
   avatarUrl: "",
- dtoUserInfo:{ departmentId: ""}
+ dtoUserInfo:{ 
+    departmentId: "",
+    departmentName: "",
+    employeeStatus: 1,
+    hireDate: null,
+    signature: "",
+    sex: null,
+    supervisorId: null,
+    employeeNo: "",
+    weChat: "",
+    qq: "",
+    id:""
+  }
 });
 
 // 表单验证规则
@@ -203,6 +288,7 @@ watch(() => props.user, (newVal) => {
   if (newVal.id) {
     console.log('编辑'+newVal);
     // 填充表单数据
+    const userInfo = newVal.dtoUserInfo || {};
     Object.assign(form, {
       id: newVal.id,
       username: newVal.name,
@@ -214,7 +300,19 @@ watch(() => props.user, (newVal) => {
       status: newVal.status == 1,
       avatar: [],
       avatarUrl: newVal.avatar || "",
-      dtoUserInfo:newVal.dtoUserInfo
+      dtoUserInfo:{ 
+        departmentId: userInfo.departmentId || "",
+        departmentName: userInfo.departmentName || "",
+        employeeStatus: userInfo.employeeStatus !== undefined ? userInfo.employeeStatus : 1,
+        hireDate: userInfo.hireDate ? dayjs(userInfo.hireDate) : null,
+        signature: userInfo.signature || "",
+        sex: userInfo.sex,
+        supervisorId: userInfo.supervisorId,
+        employeeNo: userInfo.employeeNo || "",
+        weChat: userInfo.weChat || "",
+        qq: userInfo.qq || "",
+        id: userInfo.id || ""
+      }
     });
   } else {
      console.log('新增'+newVal);
@@ -229,7 +327,19 @@ watch(() => props.user, (newVal) => {
       status: true,
       avatar: [],
       avatarUrl: "",
-      dtoUserInfo:newVal.dtoUserInfo??{}
+      dtoUserInfo:{ 
+        departmentId: "",
+        departmentName: "",
+        employeeStatus: 1,
+        hireDate: null,
+        signature: "",
+        sex: null,
+        supervisorId: null,
+        employeeNo: "",
+        weChat: "",
+        qq: "",
+        id: ""
+      }
     });
   }
 });
@@ -423,7 +533,18 @@ const handleCancel = () => {
       status: true,
       avatar: [],
       avatarUrl: "",
-      dtoUserInfo:{}
+      dtoUserInfo:{ 
+        departmentId: "",
+        departmentName: "",
+        employeeStatus: 1,
+        hireDate: null,
+        signature: "",
+        sex: null,
+        supervisorId: null,
+        employeeNo: "",
+        weChat: "",
+        qq: ""
+      }
     });
   emit('cancel');
 };

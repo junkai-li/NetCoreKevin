@@ -26,6 +26,7 @@
     "axios": "^1.17.0",
     "codemirror": "^6.0.2",
     "core-js": "^3.8.3",
+    "dayjs": "^1.11.21",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
     "marked": "^18.0.4",
