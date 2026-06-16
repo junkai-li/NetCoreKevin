@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\kevin.Module\kevin.AI.AgentFramework\kevin.AI.AgentFramework.csproj" /> 
     <ProjectReference Include="..\kevin.Module\Kevin.Common\Kevin.Common.csproj" />
     <ProjectReference Include="..\kevin.Module\kevin.Domain.EventBus\kevin.Domain.EventBus.csproj" />
   </ItemGroup>

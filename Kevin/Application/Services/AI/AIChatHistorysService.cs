@@ -165,49 +165,9 @@ namespace kevin.Application.Services.AI
                 var webseoData = await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey);
                 await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = webseoData, LogType = AIChatHistorysBindLogEnums.WebSeo });
                 OtherContents.Add(StringHelper.SubstringText(webseoData, aiapp.ContentLengthLimit));
-            }
-
-            #region AI配置
-            var chatAgOs = new ChatClientAgentOptions
-            {
-                Name = aiapp.Name,
-                Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
-                ChatOptions = new Microsoft.Extensions.AI.ChatOptions
-                {
-                    MaxOutputTokens = aiapp.AnswerTokens,
-                    Temperature = (float)(aiapp.Temperature / 100),
-                    ResponseFormat = ChatResponseFormat.Text,
-                    Instructions = systemPrompt,
-                },
-                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString())
-            };
+            }  
             var parAi = new { AIChatsId = add.AIChatsId, AppId = aiapp.Id, UserId = CurrentUser.UserId, AuthorizedDomains = aiapp.AuthorizedDomains, ContentLengthLimit = aiapp.ContentLengthLimit, IsSecurityIntercept = aiapp.IsSecurityIntercept };
-            if (aiapp.IsAITools)
-            {
-                if (chatAgOs.ChatOptions != default)
-                {
-                    // 🔑 能力层：工具
-                    chatAgOs.ChatOptions.Tools ??= new List<AITool>();
-                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(parAi, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result);
-                }
-            }
-            if (aiapp.IsSkill)
-            {
-                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(parAi, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result;
-#pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。  
-                var skillsProvider = new AgentSkillsProviderBuilder()
-                                               .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)
-                                               .UseOptions(options => options.DisableCaching = true);
-                foreach (var skillPath in skillPaths)
-                {
-                    skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath));
-                }
-                var sk = skillsProvider.Build();
-                chatAgOs.AIContextProviders = [sk];
-#pragma warning restore MAAI001
-            }
-            #endregion
-
+             var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par, parAi);  
             switch (aIModels.AIType)
             {
                 case Domain.Share.Enums.AIType.OpenAI:

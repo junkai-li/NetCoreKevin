@@ -14,6 +14,16 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="OtherContents">其他内容：用来存放一些需要传递给代理的内容 比如文件内容 互联网信息等</param>
         /// <returns></returns>
         Task<(AIAgent, string, TokenConsumptionInfo)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, ChatMessage messages, CancellationToken cancellationToken = default);
-   
+
+        /// <summary>
+        /// 创建AI代理 
+        /// </summary>
+        /// <param name="aISetting"></param>
+        /// <param name="chatClientAgentOptions"></param> 
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+         Task<AIAgent> CreateOpenAIAgent(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, CancellationToken cancellationToken = default);
+
+
     }
 }

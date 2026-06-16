@@ -181,6 +181,47 @@ namespace kevin.AI.AgentFramework
         }
 
         /// <summary>
+        /// 创建AI代理 
+        /// </summary>
+        /// <param name="aISetting"></param>
+        /// <param name="chatClientAgentOptions"></param> 
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<AIAgent> CreateOpenAIAgent(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions,CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();//是否已经中止，若已请求取消则抛出异常
+            OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions()
+            {
+                Endpoint = new Uri(aISetting.AIUrl),
+                NetworkTimeout = TimeSpan.FromMinutes(aISetting.NetworkTimeout),// 设置网络超时时间为10分钟，适用于可能需要较长时间处理的请求
+                RetryPolicy = new ClientRetryPolicy(maxRetries: aISetting.MaxRetries)//重试次数和延迟
+                {
+                    // 可自定义延迟，默认指数退避
+                }
+            };
+            #region AI工具
+            if (!aISetting.IsAITools)
+            {
+                if (chatClientAgentOptions.ChatOptions != default)
+                {
+                    chatClientAgentOptions.ChatOptions.Tools = new List<AITool>();
+                }
+            }
+            #endregion
+
+            #region AI技能
+            if (!aISetting.IsAISkills)
+            {
+                chatClientAgentOptions.AIContextProviders = default;
+            }
+            #endregion 
+            // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示  
+            var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(aISetting.AIKeySecret) ? "local" : aISetting.AIKeySecret), openAIClientOptions);
+            var aiAgent = ai.GetChatClient(aISetting.AIDefaultModel).AsIChatClient().AsAIAgent(chatClientAgentOptions);  
+            return aiAgent;
+        }
+
+        /// <summary>
         ///获取模型思考过程文本（适用于流式输出时从原始响应中提取reasoning字段）
         /// </summary>
         /// <param name="update">流式更新对象</param>

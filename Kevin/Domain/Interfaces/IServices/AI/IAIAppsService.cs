@@ -1,5 +1,5 @@
 ﻿using kevin.Domain.Share.Dtos.AI;
-
+using Microsoft.Agents.AI;
 namespace kevin.Domain.Interfaces.IServices.AI
 {
     public interface IAIAppsService : IBaseService
@@ -16,6 +16,17 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// <param name="id"></param>
         /// <returns></returns>
         Task<AIAppsDto> GetDetails(long id);
+
+        /// <summary>
+        /// 获取智能体AI配置
+        /// </summary>
+        /// <param name="aiapp"></param>
+        /// <param name="aIPrompts"></param>
+        /// <param name="systemPrompt"></param>
+        /// <param name="par"></param>
+        /// <param name="parAi"></param>
+        /// <returns></returns>
+        Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, object parAi, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// 新增初始化

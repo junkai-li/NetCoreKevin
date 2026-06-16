@@ -1,6 +1,19 @@
-﻿using kevin.Domain.Entities.AI;
+﻿using kevin.AI.AgentFramework;
+using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
+using kevin.AI.AgentFramework.Const;
+using kevin.AI.AgentFramework.Interfaces;
+using kevin.AI.AgentFramework.ScriptRunners;
+using kevin.Domain.Entities.AI;
+using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
+using Kevin.AI.Dto;
+using Kevin.Common.Extension;
+using Kevin.SignalR.Service;
+using Microsoft.Agents.AI;
+using Microsoft.Extensions.AI;
+using System.Threading;
+using TencentCloud.Lowcode.V20210108.Models;
 
 namespace kevin.Application.Services.AI
 {
@@ -13,13 +26,25 @@ namespace kevin.Application.Services.AI
         public readonly IAISkillToolBindIdService aISkillToolBindIdService;
 
         public readonly IAIAppsBindIdService aIAppsBindIdService;
+        public readonly IAIAgentService aIAgentService;
+        public IAIModelsService aIModelsService { get; set; }
+
+        public IAIPromptsService aIPromptsService { get; set; }
+        public IKevinAIChatMessageStore kevinAIChatMessageStore { get; set; }
+        private readonly IAIAgentToolSkillService _aIAgentToolSkillService;
         public AIAppsService(IHttpContextAccessor _httpContextAccessor, IAIAppsRp _aIAppsRp,
-            IAISkillToolManagementService aISkillToolManagementService, IAISkillToolBindIdService aISkillToolBindIdService, IAIAppsBindIdService aIAppsBindIdService) : base(_httpContextAccessor)
+            IAISkillToolManagementService aISkillToolManagementService, IAISkillToolBindIdService aISkillToolBindIdService, IAIAppsBindIdService aIAppsBindIdService,
+            IKevinAIChatMessageStore kevinAIChatMessageStore, IAIAgentToolSkillService aIAgentToolSkillService, IAIModelsService aIModelsService, IAIPromptsService aIPromptsService, IAIAgentService aIAgentService) : base(_httpContextAccessor)
         {
             this.aIAppsRp = _aIAppsRp;
             this.aISkillToolManagementService = aISkillToolManagementService;
             this.aISkillToolBindIdService = aISkillToolBindIdService;
             this.aIAppsBindIdService = aIAppsBindIdService;
+            this.kevinAIChatMessageStore = kevinAIChatMessageStore;
+            _aIAgentToolSkillService = aIAgentToolSkillService;
+            this.aIModelsService = aIModelsService;
+            this.aIPromptsService = aIPromptsService;
+            this.aIAgentService = aIAgentService;
         }
 
         /// <summary>
@@ -62,9 +87,9 @@ namespace kevin.Application.Services.AI
             }
             var skills = await aISkillToolManagementService.GetAllSkills();
             var tools = await aISkillToolManagementService.GetAllTools();
-            var myIds = await aISkillToolBindIdService.GetListById(data.Id.ToString()); 
+            var myIds = await aISkillToolBindIdService.GetListById(data.Id.ToString());
             data.BindIds = (await aIAppsBindIdService.GetListByBindId(data.Id.ToString())).Select(t => t.BindId).ToList();
-            data.AISkillsToolsBindIds= myIds.Select(t => t.AISkillToolManagementId.ToString()).ToList();
+            data.AISkillsToolsBindIds = myIds.Select(t => t.AISkillToolManagementId.ToString()).ToList();
             return data;
         }
         /// <summary>
@@ -172,8 +197,8 @@ namespace kevin.Application.Services.AI
                     msg.IsToolLog = par.IsToolLog;
                     msg.IsThinkingLog = par.IsThinkingLog;
                     msg.ContentLengthLimit = par.ContentLengthLimit;
-                    msg.IsSecurityIntercept= par.IsSecurityIntercept;
-                    msg.MaxRetries= par.MaxRetries;
+                    msg.IsSecurityIntercept = par.IsSecurityIntercept;
+                    msg.MaxRetries = par.MaxRetries;
                 }
                 else
                 {
@@ -243,6 +268,133 @@ namespace kevin.Application.Services.AI
                 throw new UserFriendlyException("数据不存在或已删除");
             }
             return true;
+        }
+
+        /// <summary>
+        /// 获取ai应用配置
+        /// </summary>
+        /// <param name="aiapp"></param>
+        /// <param name="aIPrompts"></param>
+        /// <param name="systemPrompt"></param>
+        /// <param name="par"></param>
+        /// <param name="parAi"></param>
+        /// <returns></returns>
+        public async Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, object parAi, CancellationToken cancellationToken = default)
+        {
+            var chatAgOs = new ChatClientAgentOptions
+            {
+                Name = aiapp.Name,
+                Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
+                ChatOptions = new Microsoft.Extensions.AI.ChatOptions
+                {
+                    MaxOutputTokens = aiapp.AnswerTokens,
+                    Temperature = (float)(aiapp.Temperature / 100),
+                    ResponseFormat = ChatResponseFormat.Text,
+                    Instructions = systemPrompt,
+                },
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString())
+            };
+            #region AI配置
+            if (aiapp.IsAITools)
+            {
+                if (chatAgOs.ChatOptions != default)
+                {
+                    // 🔑 能力层：工具
+                    chatAgOs.ChatOptions.Tools ??= new List<AITool>();
+                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(parAi, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result);
+                    if (aiapp.BindIds.Where(x => x.Contains("agent_")).Count() > 0)
+                    {
+                        var agentIds = aiapp.BindIds.Select(t => t.Replace("agent_", "")).ToList();
+                        foreach (var item in agentIds)
+                        {
+                            var appitem = await GetDetails(item.ToTryInt64());
+                            var aIAgent = await GetAppAIAgent(appitem, parAi, cancellationToken);
+                            chatAgOs.ChatOptions.Tools.AddRange(aIAgent.AsAIFunction());
+                        }
+                    }
+                }
+            }
+            if (aiapp.IsSkill)
+            {
+                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(parAi, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result;
+#pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。  
+                var skillsProvider = new AgentSkillsProviderBuilder()
+                                               .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)
+                                               .UseOptions(options => options.DisableCaching = true);
+                foreach (var skillPath in skillPaths)
+                {
+                    skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath));
+                }
+                var sk = skillsProvider.Build();
+                chatAgOs.AIContextProviders = [sk];
+#pragma warning restore MAAI001
+            }
+            #endregion
+            return chatAgOs;
+        }
+
+        /// <summary>
+        /// 获取ai应用
+        /// </summary>
+        /// <returns></returns>
+        public async Task<AIAgent> GetAppAIAgent(AIAppsDto aiapp, object parAi, CancellationToken cancellationToken = default)
+        {
+            var aIModels = await aIModelsService.GetDetails(aiapp.ChatModelID.ToTryInt64());
+            var aIPrompts = await aIPromptsService.GetDetails(aiapp.AIPromptID);
+            string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
+            var chatAgOs = new ChatClientAgentOptions
+            {
+                Name = aiapp.Name,
+                Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
+                ChatOptions = new Microsoft.Extensions.AI.ChatOptions
+                {
+                    MaxOutputTokens = aiapp.AnswerTokens,
+                    Temperature = (float)(aiapp.Temperature / 100),
+                    ResponseFormat = ChatResponseFormat.Text,
+                    Instructions = systemPrompt,
+                },
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, Guid.NewGuid().ToString())
+            };
+            #region AI配置
+            if (aiapp.IsAITools)
+            {
+                if (chatAgOs.ChatOptions != default)
+                {
+                    // 🔑 能力层：工具
+                    chatAgOs.ChatOptions.Tools ??= new List<AITool>();
+                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(parAi, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result);
+                }
+            }
+            if (aiapp.IsSkill)
+            {
+                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(parAi, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result;
+#pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。  
+                var skillsProvider = new AgentSkillsProviderBuilder()
+                                               .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)
+                                               .UseOptions(options => options.DisableCaching = true);
+                foreach (var skillPath in skillPaths)
+                {
+                    skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath));
+                }
+                var sk = skillsProvider.Build();
+                chatAgOs.AIContextProviders = [sk];
+#pragma warning restore MAAI001  
+            }
+            #endregion
+
+            return (await aIAgentService.CreateOpenAIAgent(new AISetting
+            {
+                AIUrl = aIModels.EndPoint,
+                AIKeySecret = aIModels.ModelKey,
+                AIDefaultModel = aIModels.ModelName,
+                IsStreame = aiapp.MsgType == 2,
+                IsHttpLog = aiapp.IsHttpLog,
+                MaxRetries = aiapp.MaxRetries,
+                NetworkTimeout = aiapp.NetworkTimeout,
+                IsAISkills = aiapp.IsSkill,
+                IsAITools = aiapp.IsAITools
+            }, chatAgOs,
+          cancellationToken: cancellationToken));
         }
     }
 }

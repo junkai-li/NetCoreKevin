@@ -269,7 +269,7 @@
           </a-tab-pane>
         </a-tabs>
       </a-tab-pane>
-      <a-tab-pane key="bind" tab="用户角色绑定" v-if="!props.hideBindTab">
+      <a-tab-pane key="bind" tab="用户/角色/智能体绑定" v-if="!props.hideBindTab">
         <a-tabs v-model:activeKey="bindTabKey">
           <a-tab-pane key="users" tab="绑定用户">
             <div style="margin-bottom: 8px;">
@@ -315,9 +315,31 @@
             @change="handleRoleTableChange"
           />
         </a-tab-pane>
+        <a-tab-pane key="agents" tab="绑定智能体">
+          <div style="margin-bottom: 8px;">
+            <a-input-search
+              v-model:value="agentSearchValue"
+              placeholder="搜索智能体名称"
+              style="width: 250px;"
+              @search="handleAgentSearch"
+              allowClear
+            />
+          </div>
+          <a-table
+            :columns="agentColumns"
+            :data-source="agentList"
+            :pagination="agentPagination"
+            :row-selection="agentRowSelection"
+            :loading="agentLoading"
+            :scroll="{ y: 300 }"
+            row-key="id"
+            size="small"
+            @change="handleAgentTableChange"
+          />
+        </a-tab-pane>
       </a-tabs>
       <div class="selected-summary" v-if="selectedBindCount > 0">
-        已选择 {{ selectedBindCount }} 个用户/角色
+        已选择 {{ selectedBindCount }} 个用户/角色/智能体
       </div>
       </a-tab-pane>
     </a-tabs>
@@ -334,6 +356,7 @@ import { getAIKmssList } from '@/api/ai/aikmss';
 import { getUserList } from '@/api/userapi';
 import { getRolePage } from '@/api/roleapi';
 import { GetAllTools, GetAllSkills } from '@/api/ai/aiskilltoolManagement';
+import { getAIAppsALLList } from '@/api/ai/aiapps';
 const emit = defineEmits(['ok', 'cancel']);
 
 const props = defineProps({
@@ -429,6 +452,7 @@ const promptList = ref([]);
 const kmsList = ref([]); // 知识库列表
 const userList = ref([]);
 const roleList = ref([]);
+const agentList = ref([]);
 
 // 绑定Tab
 const bindTabKey = ref('users');
@@ -474,6 +498,9 @@ const userSearchValue = ref('');
 // 角色搜索状态
 const roleSearchValue = ref('');
 
+// 智能体搜索状态
+const agentSearchValue = ref('');
+
 // 用户表格列
 const userColumns = [
   { title: '用户名', dataIndex: 'name', key: 'name' },
@@ -483,6 +510,13 @@ const userColumns = [
 // 角色表格列
 const roleColumns = [
   { title: '角色名称', dataIndex: 'name', key: 'name' }
+];
+
+// 智能体表格列
+const agentColumns = [
+  { title: '智能体名称', dataIndex: 'name', key: 'name' },
+  { title: '类型', dataIndex: 'type', key: 'type' },
+  { title: '描述', dataIndex: 'describe', key: 'describe' }
 ];
 
 // 用户分页
@@ -503,8 +537,18 @@ const rolePagination = reactive({
   showTotal: (total) => `共 ${total} 条`
 });
 
+// 智能体分页
+const agentPagination = reactive({
+  current: 1,
+  pageSize: 50,
+  total: 0,
+  showSizeChanger: true,
+  showTotal: (total) => `共 ${total} 条`
+});
+
 const userLoading = ref(false);
 const roleLoading = ref(false);
+const agentLoading = ref(false);
 
 // 用户行选择
 const userRowSelection = computed(() => ({
@@ -513,7 +557,8 @@ const userRowSelection = computed(() => ({
     .map(id => String(id).replace('user_', '')),
   onChange: (selectedRowKeys) => {
     const roleIds = form.bindIds.filter(id => String(id).startsWith('role_'));
-    form.bindIds = [...roleIds, ...selectedRowKeys.map(id => `user_${id}`)];
+    const agentIds = form.bindIds.filter(id => String(id).startsWith('agent_'));
+    form.bindIds = [...roleIds, ...agentIds, ...selectedRowKeys.map(id => `user_${id}`)];
   },
   preserveSelectedRows: true
 }));
@@ -525,9 +570,26 @@ const roleRowSelection = computed(() => ({
     .map(id => String(id).replace('role_', '')),
   onChange: (selectedRowKeys) => {
     const userIds = form.bindIds.filter(id => String(id).startsWith('user_'));
-    form.bindIds = [...userIds, ...selectedRowKeys.map(id => `role_${id}`)];
+    const agentIds = form.bindIds.filter(id => String(id).startsWith('agent_'));
+    form.bindIds = [...userIds, ...agentIds, ...selectedRowKeys.map(id => `role_${id}`)];
   },
   preserveSelectedRows: true
+}));
+
+// 智能体行选择
+const agentRowSelection = computed(() => ({
+  selectedRowKeys: form.bindIds
+    .filter(id => String(id).startsWith('agent_'))
+    .map(id => String(id).replace('agent_', '')),
+  onChange: (selectedRowKeys) => {
+    const userIds = form.bindIds.filter(id => String(id).startsWith('user_'));
+    const roleIds = form.bindIds.filter(id => String(id).startsWith('role_'));
+    form.bindIds = [...userIds, ...roleIds, ...selectedRowKeys.map(id => `agent_${id}`)];
+  },
+  preserveSelectedRows: true,
+  getCheckboxProps: (record) => ({
+    disabled: isViewMode.value || record.id === form.id
+  })
 }));
 
 // 已选择数量
@@ -557,6 +619,19 @@ const handleRoleTableChange = (pagination) => {
   rolePagination.current = pagination.current;
   rolePagination.pageSize = pagination.pageSize;
   loadRoleList();
+};
+
+// 智能体搜索
+const handleAgentSearch = () => {
+  agentPagination.current = 1;
+  loadAgentList();
+};
+
+// 智能体表格变化
+const handleAgentTableChange = (pagination) => {
+  agentPagination.current = pagination.current;
+  agentPagination.pageSize = pagination.pageSize;
+  loadAgentList();
 };
 
 // 模型选项
@@ -626,9 +701,31 @@ const loadRoleList = async () => {
     roleLoading.value = false;
   }
 };
- 
- 
 
+// 加载智能体列表
+const loadAgentList = async () => {
+  try {
+    agentLoading.value = true;
+    const response = await getAIAppsALLList();
+    if (response && response.code === 200 && response.data) {
+      let filteredData = response.data;
+      if (agentSearchValue.value) {
+        filteredData = filteredData.filter(agent => 
+          agent.name && agent.name.includes(agentSearchValue.value)
+        );
+      }
+      filteredData = filteredData.filter(agent => agent.id !== form.id);
+      agentList.value = filteredData;
+      agentPagination.total = filteredData.length;
+    }
+  } catch (error) {
+    console.error('加载智能体列表失败:', error);
+  } finally {
+    agentLoading.value = false;
+  }
+};
+ 
+ 
 // 模态框标题
 const modalTitle = computed(() => {
   if (props.modalType === 'view') return '智能体详情';
@@ -664,7 +761,7 @@ watch(() => props.open, (newVal) => {
       form.tools = skillsToolsBindIds.filter(id => toolIds.includes(id));
       form.skills = skillsToolsBindIds.filter(id => skillIds.includes(id));
 
-      // bindIds 只保留用户和角色
+      // bindIds 包含用户、角色和智能体
       form.bindIds = props.agentData.bindIds || [];
     } else {
       // 添加模式，设置默认值
@@ -702,6 +799,7 @@ watch(() => props.open, (newVal) => {
         isToolLog: true
       });
     }
+    loadAgentList();
   }
 });
 
@@ -860,6 +958,7 @@ onMounted(() => {
   loadKmsList();
   loadUserList();
   loadRoleList();
+  loadAgentList();
   loadToolsList();
   loadSkillsList();
 });
