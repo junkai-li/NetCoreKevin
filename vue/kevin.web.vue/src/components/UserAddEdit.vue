@@ -207,7 +207,7 @@ const form = reactive({
     employeeNo: "",
     weChat: "",
     qq: "",
-    id:""
+    id: 0
   }
 });
 
@@ -338,7 +338,7 @@ watch(() => props.user, (newVal) => {
         employeeNo: "",
         weChat: "",
         qq: "",
-        id: ""
+        id: 0
       }
     });
   }
@@ -543,7 +543,8 @@ const handleCancel = () => {
         supervisorId: null,
         employeeNo: "",
         weChat: "",
-        qq: ""
+        qq: "",
+        id: 0
       }
     });
   emit('cancel');
