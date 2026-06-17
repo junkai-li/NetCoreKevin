@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI智能体后台管理系统 - 使用文档 | AI Agent Admin System - User Guide</title>
+<style>
+:root {
+  --bg: #f5f7fa;
+  --card-bg: #fff;
+  --text: #333;
+  --text-secondary: #666;
+  --border: #e8e8e8;
+  --primary: #4e6ef2;
+  --code-bg: #f0f2f5;
+  --table-stripe: #f9fafb;
+  --header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.8; }
+.header { background: var(--header-bg); color: #fff; padding: 40px 20px; text-align: center; }
+.header h1 { font-size: 2em; margin-bottom: 10px; }
+.header p { opacity: .85; font-size: 1.1em; }
+.lang-switch { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 8px; }
+.lang-btn { padding: 8px 20px; border: 2px solid #fff; border-radius: 20px; background: transparent; color: #fff; cursor: pointer; font-size: 14px; transition: .3s; }
+.lang-btn.active { background: #fff; color: #667eea; font-weight: bold; }
+.lang-btn:hover { opacity: .8; }
+.container { max-width: 1000px; margin: 0 auto; padding: 30px 20px; }
+.section { background: var(--card-bg); border-radius: 12px; padding: 30px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+.section h2 { color: var(--primary); font-size: 1.5em; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border); }
+.section h3 { color: #555; font-size: 1.2em; margin: 20px 0 12px; }
+.section h4 { color: #666; font-size: 1.05em; margin: 16px 0 8px; }
+table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+th, td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
+th { background: #f0f4ff; font-weight: 600; }
+tr:nth-child(even) { background: var(--table-stripe); }
+pre { background: var(--code-bg); padding: 16px 20px; border-radius: 8px; overflow-x: auto; font-size: 14px; margin: 12px 0; }
+code { font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; }
+ul, ol { padding-left: 24px; margin: 8px 0; }
+li { margin: 4px 0; }
+strong { color: #333; }
+.zh { display: block; }
+.en { display: none; }
+body.en .zh { display: none; }
+body.en .en { display: block; }
+.toc { background: var(--card-bg); border-radius: 12px; padding: 24px 30px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+.toc h2 { font-size: 1.3em; margin-bottom: 12px; }
+.toc a { color: var(--primary); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin: 16px 0; }
+.module-card { border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+.module-card h4 { color: var(--primary); margin-bottom: 8px; }
+.module-card .path { color: #999; font-size: 13px; font-family: monospace; margin-bottom: 8px; }
+.footer { text-align: center; padding: 30px; color: #999; font-size: 14px; }
+@media (max-width: 768px) {
+  .container { padding: 16px; }
+  .section { padding: 20px; }
+  .header h1 { font-size: 1.5em; }
+  .lang-switch { top: 10px; right: 10px; }
+  .lang-btn { padding: 6px 14px; font-size: 12px; }
+  .module-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="lang-switch">
+  <button class="lang-btn active" onclick="switchLang('zh')">中文</button>
+  <button class="lang-btn" onclick="switchLang('en')">English</button>
+</div>
+
+<div class="header">
+  <h1>
+    <span class="zh">AI智能体后台管理系统 - 使用文档</span>
+    <span class="en">AI Agent Admin System - User Guide</span>
+  </h1>
+  <p>
+    <span class="zh">基于 Vue 3 + Ant Design Vue 构建的企业级后台管理平台</span>
+    <span class="en">Enterprise admin platform built with Vue 3 + Ant Design Vue</span>
+  </p>
+</div>
+
+<div class="container">
+
+<!-- TOC -->
+<div class="toc">
+  <h2><span class="zh">目录</span><span class="en">Table of Contents</span></h2>
+  <ol>
+    <li><a href="#s1"><span class="zh">系统概述</span><span class="en">Overview</span></a></li>
+    <li><a href="#s2"><span class="zh">项目结构</span><span class="en">Project Structure</span></a></li>
+    <li><a href="#s3"><span class="zh">功能模块</span><span class="en">Features</span></a></li>
+    <li><a href="#s4"><span class="zh">核心功能详解</span><span class="en">Core Features</span></a></li>
+    <li><a href="#s5"><span class="zh">部署说明</span><span class="en">Deployment</span></a></li>
+    <li><a href="#s6"><span class="zh">登录与权限</span><span class="en">Login &amp; Permissions</span></a></li>
+    <li><a href="#s7"><span class="zh">主题切换</span><span class="en">Theme Switching</span></a></li>
+    <li><a href="#s8"><span class="zh">常见问题</span><span class="en">FAQ</span></a></li>
+    <li><a href="#s9"><span class="zh">更新日志</span><span class="en">Changelog</span></a></li>
+  </ol>
+</div>
+
+<!-- 一、系统概述 -->
+<div class="section" id="s1">
+  <h2><span class="zh">一、系统概述</span><span class="en">1. Overview</span></h2>
+  <h3><span class="zh">1.1 系统简介</span><span class="en">1.1 Introduction</span></h3>
+  <p><strong><span class="zh">AI智能体后台管理系统</span><span class="en">AI Agent Admin System</span></strong> <span class="zh">是一款基于 Vue 3 + Ant Design Vue 构建的企业级后台管理平台，主要用于管理AI智能体、用户、权限、知识库等核心业务模块。</span><span class="en">is an enterprise-grade admin platform built with Vue 3 + Ant Design Vue, primarily used for managing AI agents, users, permissions, knowledge bases, and other core business modules.</span></p>
+
+  <h3><span class="zh">1.2 技术架构</span><span class="en">1.2 Architecture</span></h3>
+  <table>
+    <tr><th><span class="zh">层级</span><span class="en">Layer</span></th><th><span class="zh">技术栈</span><span class="en">Technology</span></th><th><span class="zh">说明</span><span class="en">Description</span></th></tr>
+    <tr><td><span class="zh">前端框架</span><span class="en">Frontend Framework</span></td><td>Vue 3</td><td><span class="zh">渐进式 JavaScript 框架</span><span class="en">Progressive JS Framework</span></td></tr>
+    <tr><td><span class="zh">UI组件库</span><span class="en">UI Library</span></td><td>Ant Design Vue 4.x</td><td><span class="zh">企业级UI设计语言</span><span class="en">Enterprise UI Design Language</span></td></tr>
+    <tr><td><span class="zh">路由管理</span><span class="en">Router</span></td><td>Vue Router 4.x</td><td><span class="zh">Vue官方路由管理器</span><span class="en">Official Vue Router</span></td></tr>
+    <tr><td><span class="zh">HTTP客户端</span><span class="en">HTTP Client</span></td><td>Axios</td><td><span class="zh">基于Promise的HTTP库</span><span class="en">Promise-based HTTP library</span></td></tr>
+    <tr><td><span class="zh">实时通信</span><span class="en">Real-time</span></td><td>SignalR</td><td><span class="zh">实时双向通信</span><span class="en">Real-time bidirectional communication</span></td></tr>
+    <tr><td><span class="zh">代码编辑器</span><span class="en">Code Editor</span></td><td>CodeMirror 6</td><td><span class="zh">高性能代码编辑器</span><span class="en">High-performance code editor</span></td></tr>
+    <tr><td><span class="zh">构建工具</span><span class="en">Build Tool</span></td><td>Vue CLI 5</td><td><span class="zh">Vue官方构建工具</span><span class="en">Official Vue Build Tool</span></td></tr>
+  </table>
+
+  <h3><span class="zh">1.3 系统环境要求</span><span class="en">1.3 Requirements</span></h3>
+  <ul>
+    <li><strong>Node.js</strong>: >= 14.0.0</li>
+    <li><strong>npm</strong>: >= 6.0.0</li>
+    <li><strong><span class="zh">浏览器支持</span><span class="en">Browser Support</span></strong>: Chrome >= 80, Firefox >= 75, Safari >= 13, Edge >= 80</li>
+  </ul>
+</div>
+
+<!-- 二、项目结构 -->
+<div class="section" id="s2">
+  <h2><span class="zh">二、项目结构</span><span class="en">2. Project Structure</span></h2>
+  <pre>src/
+├── api/                    <span class="zh"># 接口层</span><span class="en"># API Layer</span>
+│   ├── ai/                 <span class="zh"># AI相关接口</span><span class="en"># AI APIs</span>
+│   ├── organizational/     <span class="zh"># 组织架构接口</span><span class="en"># Org APIs</span>
+│   └── *.js                <span class="zh"># 其他业务接口</span><span class="en"># Other APIs</span>
+├── components/             <span class="zh"># 公共组件</span><span class="en"># Components</span>
+│   ├── ai/                 <span class="zh"># AI模块组件</span><span class="en"># AI Components</span>
+│   └── *.vue               <span class="zh"># 通用组件</span><span class="en"># Common Components</span>
+├── pages/                  <span class="zh"># 页面层</span><span class="en"># Pages</span>
+│   ├── ai/                 <span class="zh"># AI管理页面</span><span class="en"># AI Pages</span>
+│   ├── organizational/     <span class="zh"># 组织架构页面</span><span class="en"># Org Pages</span>
+│   └── *.vue               <span class="zh"># 其他页面</span><span class="en"># Other Pages</span>
+├── router/                 <span class="zh"># 路由配置</span><span class="en"># Router</span>
+├── utils/                  <span class="zh"># 工具函数</span><span class="en"># Utilities</span>
+├── css/                    <span class="zh"># 全局样式</span><span class="en"># Global Styles</span>
+├── assets/                 <span class="zh"># 静态资源</span><span class="en"># Assets</span>
+├── App.vue                 <span class="zh"># 根组件</span><span class="en"># Root Component</span>
+└── main.js                 <span class="zh"># 入口文件</span><span class="en"># Entry Point</span></pre>
+</div>
+
+<!-- 三、功能模块 -->
+<div class="section" id="s3">
+  <h2><span class="zh">三、功能模块</span><span class="en">3. Feature Modules</span></h2>
+
+  <h3><span class="zh">3.1 首页仪表盘</span><span class="en">3.1 Dashboard</span></h3>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home</p>
+  <p><span class="zh">展示系统概览信息、用户数量统计、未读消息数量、系统健康状态、快捷操作入口</span><span class="en">Display system overview, user statistics, unread messages, system health, quick actions</span></p>
+
+  <h3><span class="zh">3.2 用户管理</span><span class="en">3.2 User Management</span></h3>
+  <h4><span class="zh">用户列表</span><span class="en">User List</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/user/list</p>
+  <table>
+    <tr><th><span class="zh">操作</span><span class="en">Action</span></th><th><span class="zh">说明</span><span class="en">Description</span></th></tr>
+    <tr><td><span class="zh">搜索</span><span class="en">Search</span></td><td><span class="zh">支持按用户名、账号搜索</span><span class="en">Search by username or account</span></td></tr>
+    <tr><td><span class="zh">分页</span><span class="en">Pagination</span></td><td><span class="zh">支持自定义每页条数（10/20/30/50/100）</span><span class="en">Customizable page size (10/20/30/50/100)</span></td></tr>
+    <tr><td><span class="zh">添加</span><span class="en">Add</span></td><td><span class="zh">点击添加按钮创建新用户</span><span class="en">Create new user</span></td></tr>
+    <tr><td><span class="zh">编辑</span><span class="en">Edit</span></td><td><span class="zh">修改用户信息</span><span class="en">Edit user info</span></td></tr>
+    <tr><td><span class="zh">删除</span><span class="en">Delete</span></td><td><span class="zh">删除用户</span><span class="en">Delete user</span></td></tr>
+  </table>
+
+  <h4><span class="zh">角色管理</span><span class="en">Role Management</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/user/role</p>
+  <p><span class="zh">角色列表展示、角色权限配置、角色增删改查</span><span class="en">Role list, permission configuration, CRUD</span></p>
+
+  <h4><span class="zh">个人资料</span><span class="en">Profile</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/user/profile</p>
+  <p><span class="zh">用户个人信息展示、头像上传、密码修改</span><span class="en">User info, avatar upload, password change</span></p>
+
+  <h4><span class="zh">权限管理</span><span class="en">Permission Management</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/user/permission</p>
+  <p><span class="zh">权限列表管理、权限分配</span><span class="en">Permission list, permission assignment</span></p>
+
+  <h3><span class="zh">3.3 AI管理</span><span class="en">3.3 AI Management</span></h3>
+  <h4><span class="zh">智能体管理</span><span class="en">Agent Management</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/aimanagement/aiappsmg</p>
+  <p><span class="zh">AI智能体列表展示、智能体配置（名称、描述、图标、类型）、模型配置（聊天模型、嵌入模型、图像模型）、参数配置（温度、相关性、Token限制）、工具和技能绑定、用户角色绑定</span><span class="en">Agent list, agent configuration (name, description, icon, type), model configuration (chat, embedding, image), parameter configuration (temperature, relevance, token limits), tool and skill binding, user role binding</span></p>
+
+  <h4><span class="zh">提示词管理</span><span class="en">Prompt Management</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/aimanagement/aipromptsmg</p>
+
+  <h4><span class="zh">知识库管理</span><span class="en">Knowledge Base</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/aimanagement/aikmssmg</p>
+  <p><span class="zh">知识库列表管理、文件上传、配置</span><span class="en">Knowledge base list, file upload, configuration</span></p>
+
+  <h4><span class="zh">模型管理</span><span class="en">Model Management</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/aimanagement/aimodelmg</p>
+
+  <h4><span class="zh">技能工具管理</span><span class="en">Skill Tool Management</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/aimanagement/aiskilltoolmg</p>
+
+  <h3><span class="zh">3.4 个人中心</span><span class="en">3.4 Personal Center</span></h3>
+  <h4><span class="zh">AI聊天</span><span class="en">AI Chat</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/my/ai-chat</p>
+  <p><span class="zh">与AI智能体对话、文件上传功能（支持多文件）、消息历史记录、链接高亮与点击跳转、消息内容复制、Token消耗展示</span><span class="en">Chat with AI agents, file upload (multi-file), message history, link highlighting, message copy, token consumption display</span></p>
+
+  <h4><span class="zh">AI任务</span><span class="en">AI Tasks</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/my/ai-tasks</p>
+
+  <h4><span class="zh">我的智能体</span><span class="en">My Agents</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/my/ai-agents</p>
+
+  <h3><span class="zh">3.5 系统管理</span><span class="en">3.5 System Management</span></h3>
+  <h4><span class="zh">字典配置</span><span class="en">Dictionary</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/system/dic</p>
+
+  <h4><span class="zh">日志管理</span><span class="en">Log Management</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/system/log</p>
+  <p><span class="zh">HTTP请求日志查看、操作日志记录</span><span class="en">HTTP request logs, operation logs</span></p>
+
+  <h4><span class="zh">系统公告</span><span class="en">Announcement</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/system/announcement</p>
+
+  <h4><span class="zh">租户管理</span><span class="en">Tenant Management</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/system/tenant</p>
+
+  <h4><span class="zh">代码生成器</span><span class="en">Code Generator</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/system/code-generator</p>
+  <p><span class="zh">自动化代码生成、模板配置</span><span class="en">Auto code generation, template configuration</span></p>
+
+  <h3><span class="zh">3.6 组织架构</span><span class="en">3.6 Organization</span></h3>
+  <h4><span class="zh">部门管理</span><span class="en">Department</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/department/management</p>
+  <p><span class="zh">部门树结构展示、部门信息管理</span><span class="en">Department tree, department info management</span></p>
+
+  <h4><span class="zh">岗位管理</span><span class="en">Position</span></h4>
+  <p><strong><span class="zh">路径</span><span class="en">Path</span></strong>: /home/position/management</p>
+  <p><span class="zh">岗位列表管理、岗位信息配置</span><span class="en">Position list, position configuration</span></p>
+</div>
+
+<!-- 四、核心功能详解 -->
+<div class="section" id="s4">
+  <h2><span class="zh">四、核心功能详解</span><span class="en">4. Core Features</span></h2>
+
+  <h3><span class="zh">4.1 文件上传</span><span class="en">4.1 File Upload</span></h3>
+  <p><span class="zh">在AI聊天页面支持文件上传功能：</span><span class="en">File upload in AI chat page:</span></p>
+  <ul>
+    <li><span class="zh">点击上传按钮选择文件</span><span class="en">Click upload button to select files</span></li>
+    <li><span class="zh">发送消息时自动携带文件信息</span><span class="en">Files automatically attached to messages</span></li>
+    <li><span class="zh">消息下方展示文件链接，支持点击下载</span><span class="en">File links below messages, click to download</span></li>
+    <li><span class="zh">发送成功后自动清空上传列表</span><span class="en">Upload list auto-cleared after sending</span></li>
+  </ul>
+
+  <h3><span class="zh">4.2 链接高亮</span><span class="en">4.2 Link Highlighting</span></h3>
+  <p><span class="zh">消息内容中的URL会自动高亮并可点击：支持 http:// 和 https:// 协议，自动识别Markdown格式中的链接，点击后在新窗口打开</span><span class="en">URLs in messages are auto-highlighted and clickable: supports http:// and https://, auto-detects Markdown links, opens in new window</span></p>
+
+  <h3><span class="zh">4.3 消息复制</span><span class="en">4.3 Message Copy</span></h3>
+  <p><span class="zh">所有消息内容都支持复制：点击消息旁的复制按钮，支持现代浏览器剪贴板API，旧浏览器自动降级处理</span><span class="en">All messages support copy: click the copy button, supports modern Clipboard API, graceful degradation for older browsers</span></p>
+
+  <h3><span class="zh">4.4 智能体安全拦截</span><span class="en">4.4 Agent Security Interception</span></h3>
+  <p><span class="zh">智能体支持安全拦截功能：开启状态对Python脚本和Shell命令内容进行安全拦截，默认状态开启，配置位置：智能体编辑页面的 IsSecurityIntercept 开关</span><span class="en">Agents support security interception: enabled by default, intercepts dangerous Python scripts and Shell commands, configured via IsSecurityIntercept toggle on agent edit page</span></p>
+</div>
+
+<!-- 五、部署说明 -->
+<div class="section" id="s5">
+  <h2><span class="zh">五、部署说明</span><span class="en">5. Deployment</span></h2>
+
+  <h3><span class="zh">5.1 环境变量配置</span><span class="en">5.1 Environment Variables</span></h3>
+  <table>
+    <tr><th><span class="zh">文件</span><span class="en">File</span></th><th><span class="zh">说明</span><span class="en">Description</span></th></tr>
+    <tr><td>.env</td><td><span class="zh">默认配置</span><span class="en">Default config</span></td></tr>
+    <tr><td>.env.development</td><td><span class="zh">开发环境</span><span class="en">Development</span></td></tr>
+    <tr><td>.env.pre</td><td><span class="zh">预发布环境</span><span class="en">Pre-release</span></td></tr>
+  </table>
+
+  <h3><span class="zh">5.2 依赖安装</span><span class="en">5.2 Install Dependencies</span></h3>
+  <pre>npm install</pre>
+
+  <h3><span class="zh">5.3 开发模式</span><span class="en">5.3 Development</span></h3>
+  <pre>npm run serve           <span class="zh"># 默认模式</span><span class="en"># Default</span>
+npm run serve:dev       <span class="zh"># 开发环境</span><span class="en"># Dev</span>
+npm run serve:pre       <span class="zh"># 预发布环境</span><span class="en"># Pre-release</span></pre>
+
+  <h3><span class="zh">5.4 生产构建</span><span class="en">5.4 Production Build</span></h3>
+  <pre>npm run build           <span class="zh"># 默认构建</span><span class="en"># Default</span>
+npm run build:dev       <span class="zh"># 开发环境构建</span><span class="en"># Dev build</span>
+npm run build:pre       <span class="zh"># 预发布环境构建</span><span class="en"># Pre-release build</span></pre>
+
+  <h3><span class="zh">5.5 代码检查</span><span class="en">5.5 Lint</span></h3>
+  <pre>npm run lint</pre>
+</div>
+
+<!-- 六、登录与权限 -->
+<div class="section" id="s6">
+  <h2><span class="zh">六、登录与权限</span><span class="en">6. Login &amp; Permissions</span></h2>
+
+  <h3><span class="zh">6.1 登录流程</span><span class="en">6.1 Login Flow</span></h3>
+  <ol>
+    <li><span class="zh">访问系统首页自动跳转至登录页</span><span class="en">Accessing home page auto-redirects to login</span></li>
+    <li><span class="zh">输入账号密码进行登录</span><span class="en">Enter username and password</span></li>
+    <li><span class="zh">登录成功后跳转至仪表盘</span><span class="en">Redirect to dashboard after login</span></li>
+  </ol>
+
+  <h3><span class="zh">6.2 权限验证</span><span class="en">6.2 Permission Verification</span></h3>
+  <ul>
+    <li><span class="zh">系统采用路由守卫进行权限验证</span><span class="en">Route guards for permission verification</span></li>
+    <li><span class="zh">未登录用户自动重定向至登录页</span><span class="en">Unauthenticated users redirect to login</span></li>
+    <li><span class="zh">用户信息缓存有效期为10分钟</span><span class="en">User info cache valid for 10 minutes</span></li>
+  </ul>
+</div>
+
+<!-- 七、主题切换 -->
+<div class="section" id="s7">
+  <h2><span class="zh">七、主题切换</span><span class="en">7. Theme Switching</span></h2>
+  <p><span class="zh">系统支持多种主题风格：</span><span class="en">System supports multiple themes:</span></p>
+  <table>
+    <tr><th><span class="zh">主题</span><span class="en">Theme</span></th><th><span class="zh">说明</span><span class="en">Description</span></th></tr>
+    <tr><td><span class="zh">企业蓝</span><span class="en">Enterprise Blue</span></td><td><span class="zh">蓝色系主题</span><span class="en">Blue theme</span></td></tr>
+    <tr><td><span class="zh">墨黑</span><span class="en">Dark</span></td><td><span class="zh">深色主题</span><span class="en">Dark theme</span></td></tr>
+    <tr><td><span class="zh">灰蓝</span><span class="en">Gray Blue</span></td><td><span class="zh">默认主题</span><span class="en">Default theme</span></td></tr>
+    <tr><td><span class="zh">绿色</span><span class="en">Green</span></td><td><span class="zh">绿色系主题</span><span class="en">Green theme</span></td></tr>
+  </table>
+  <p><strong><span class="zh">切换方式</span><span class="en">How to switch</span></strong>: <span class="zh">点击顶部导航栏的"主题"按钮选择主题</span><span class="en">Click the "Theme" button in the top navigation bar</span></p>
+</div>
+
+<!-- 八、常见问题 -->
+<div class="section" id="s8">
+  <h2><span class="zh">八、常见问题</span><span class="en">8. FAQ</span></h2>
+
+  <h3><span class="zh">页面加载异常</span><span class="en">Page Load Issues</span></h3>
+  <p><span class="zh">页面空白或加载缓慢</span><span class="en">Blank page or slow loading</span></p>
+  <ol>
+    <li><span class="zh">检查网络连接</span><span class="en">Check network connection</span></li>
+    <li><span class="zh">清除浏览器缓存</span><span class="en">Clear browser cache</span></li>
+    <li><span class="zh">检查控制台错误信息</span><span class="en">Check console errors</span></li>
+    <li><span class="zh">联系系统管理员</span><span class="en">Contact system administrator</span></li>
+  </ol>
+
+  <h3><span class="zh">登录失败</span><span class="en">Login Failure</span></h3>
+  <ol>
+    <li><span class="zh">检查账号密码是否正确</span><span class="en">Check username/password</span></li>
+    <li><span class="zh">检查账号是否被禁用</span><span class="en">Check if account is disabled</span></li>
+    <li><span class="zh">联系管理员重置密码</span><span class="en">Contact admin to reset password</span></li>
+  </ol>
+
+  <h3><span class="zh">文件上传失败</span><span class="en">File Upload Failure</span></h3>
+  <ol>
+    <li><span class="zh">检查文件大小（建议不超过10MB）</span><span class="en">Check file size (recommended ≤10MB)</span></li>
+    <li><span class="zh">检查文件格式是否支持</span><span class="en">Check file format support</span></li>
+    <li><span class="zh">检查网络连接</span><span class="en">Check network connection</span></li>
+  </ol>
+
+  <h3><span class="zh">分页功能异常</span><span class="en">Pagination Issues</span></h3>
+  <ol>
+    <li><span class="zh">刷新页面重新加载</span><span class="en">Refresh page</span></li>
+    <li><span class="zh">检查分页参数配置</span><span class="en">Check pagination config</span></li>
+    <li><span class="zh">联系开发人员排查接口问题</span><span class="en">Contact developer to check API</span></li>
+  </ol>
+</div>
+
+<!-- 九、更新日志 -->
+<div class="section" id="s9">
+  <h2><span class="zh">九、更新日志</span><span class="en">9. Changelog</span></h2>
+
+  <h3>v1.0.0</h3>
+  <ul>
+    <li><span class="zh">系统基础框架搭建</span><span class="en">Basic framework setup</span></li>
+    <li><span class="zh">用户管理模块</span><span class="en">User management module</span></li>
+    <li><span class="zh">AI智能体管理模块</span><span class="en">AI agent management module</span></li>
+    <li><span class="zh">知识库管理模块</span><span class="en">Knowledge base module</span></li>
+    <li><span class="zh">消息通知模块</span><span class="en">Message notification module</span></li>
+  </ul>
+
+  <h3>v1.0.1</h3>
+  <ul>
+    <li><span class="zh">修复消息时间显示问题</span><span class="en">Fixed message time display</span></li>
+    <li><span class="zh">添加Token消耗展示</span><span class="en">Added token consumption display</span></li>
+    <li><span class="zh">优化URL链接高亮功能</span><span class="en">Optimized URL link highlighting</span></li>
+    <li><span class="zh">修复文件上传后列表不清空问题</span><span class="en">Fixed upload list not clearing</span></li>
+  </ul>
+
+  <h3>v1.0.2</h3>
+  <ul>
+    <li><span class="zh">添加智能体安全拦截功能</span><span class="en">Added agent security interception</span></li>
+    <li><span class="zh">修复权限验证问题</span><span class="en">Fixed permission verification</span></li>
+    <li><span class="zh">优化分页功能</span><span class="en">Optimized pagination</span></li>
+    <li><span class="zh">添加主题切换功能</span><span class="en">Added theme switching</span></li>
+  </ul>
+</div>
+
+</div>
+
+<div class="footer">
+  <p><span class="zh">版本</span><span class="en">Version</span>: v1.0.2 | <span class="zh">生成日期</span><span class="en">Generated</span>: 2026<span class="zh">年</span><span class="en">/</span>6<span class="zh">月</span></p>
+</div>
+
+<script>
+function switchLang(lang) {
+  document.body.className = lang === 'en' ? 'en' : '';
+  document.querySelectorAll('.lang-btn').forEach(function(btn) {
+    btn.classList.remove('active');
+  });
+  event.target.classList.add('active');
+  localStorage.setItem('doc-lang', lang);
+}
+(function() {
+  var saved = localStorage.getItem('doc-lang');
+  if (saved === 'en') {
+    document.body.className = 'en';
+    document.querySelectorAll('.lang-btn').forEach(function(btn) {
+      btn.classList.remove('active');
+      if (btn.textContent === 'English') btn.classList.add('active');
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
