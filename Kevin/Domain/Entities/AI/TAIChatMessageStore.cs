@@ -16,7 +16,7 @@ namespace kevin.Domain.Entities.AI
         [MaxLength(200)]
         public string Key { get; set; }
 
-        [MaxLength(100)]
+        [MaxLength(150)]
 
         public string ThreadId { get; set; }
 

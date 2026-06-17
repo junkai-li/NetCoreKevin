@@ -308,7 +308,7 @@ namespace kevin.Application.Services.AI
                         foreach (var item in agentIds)
                         {
                             var appitem = await GetDetails(item.ToTryInt64());
-                            var aIAgent = await GetAppAIAgent(appitem, parAi, cancellationToken);
+                            var aIAgent = await GetAppAIAgent(appitem, parAi, par, cancellationToken);
                             chatAgOs.ChatOptions.Tools.AddRange(aIAgent.AsAIFunction());
                         }
                     }
@@ -337,7 +337,7 @@ namespace kevin.Application.Services.AI
         /// 获取ai应用
         /// </summary>
         /// <returns></returns>
-        public async Task<AIAgent> GetAppAIAgent(AIAppsDto aiapp, object parAi, CancellationToken cancellationToken = default)
+        public async Task<AIAgent> GetAppAIAgent(AIAppsDto aiapp, object parAi, AIChatHistorysDto par, CancellationToken cancellationToken = default)
         {
             var aIModels = await aIModelsService.GetDetails(aiapp.ChatModelID.ToTryInt64());
             var aIPrompts = await aIPromptsService.GetDetails(aiapp.AIPromptID);
@@ -353,7 +353,7 @@ namespace kevin.Application.Services.AI
                     ResponseFormat = ChatResponseFormat.Text,
                     Instructions = systemPrompt,
                 },
-                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, Guid.NewGuid().ToString())
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString()+ "_agent_" + aiapp.Id)
             };
             #region AI配置
             if (aiapp.IsAITools)
