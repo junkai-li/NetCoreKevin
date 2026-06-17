@@ -304,7 +304,7 @@ namespace kevin.Application.Services.AI
                     chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(parAi, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result);
                     if (aiapp.BindIds.Where(x => x.Contains("agent_")).Count() > 0)
                     {
-                        var agentIds = aiapp.BindIds.Select(t => t.Replace("agent_", "")).ToList();
+                        var agentIds = aiapp.BindIds.Where(x => x.Contains("agent_")).Select(t => t.Replace("agent_", "")).ToList();
                         foreach (var item in agentIds)
                         {
                             var appitem = await GetDetails(item.ToTryInt64());
