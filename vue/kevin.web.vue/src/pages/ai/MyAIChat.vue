@@ -395,15 +395,43 @@ const copyMessageContent = async (content) => {
   }
 };
 
-// 将消息内容中的 URL 转换为可点击的链接
+// 将消息内容中的 URL 转换为可点击的链接 
 const formatMessageContent = (content) => {
   if (!content) return '';
-  // 匹配 http 和 https URL
-  const urlRegex = /https?:\/\/[^\s<>"'`*()\[\]{}]+/g;
+
+  const urlRegex = /https?:\/\/[^\s<>"']+/gi;
+
+  const escapeHtml = (str) =>
+    str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
   return content.replace(urlRegex, (url) => {
-    // 移除末尾的 Markdown 符号和标点
-    const cleanUrl = url.replace(/[`*()\[\]{}.,'"]+$/, '');
-    return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="url-link">${cleanUrl}</a>`;
+    let cleanUrl = url;
+
+    // 1. 去掉末尾的 .,;:!? 和 Markdown 符号 * _ ~ `
+    cleanUrl = cleanUrl.replace(/[.,;:!?*_~`]+$/, '');
+    // 2. 循环去掉不成对的 ) ] } ' "
+    while (/[)}\]'"`]$/.test(cleanUrl)) {
+      const last = cleanUrl.slice(-1);
+      const openMap = { ')': '(', ']': '[', '}': '{', "'": "'", '"': '"', '`': '`' };
+      if (cleanUrl.includes(openMap[last])) break;
+      cleanUrl = cleanUrl.slice(0, -1);
+    }
+
+    // 必须仍是 http(s) 开头
+    if (!/^https?:\/\//i.test(cleanUrl)) return url;
+
+    const safeUrl = escapeHtml(cleanUrl);
+
+    const docContent = `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><style>body{margin:0;font:14px/1.5 sans-serif;}a{color:#1a73e8;text-decoration:none;word-break:break-all;}a:hover{text-decoration:underline;}</style></head>
+<body><a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeUrl}</a></body>
+</html>`;
+
+    const safeSrcdoc = escapeHtml(docContent);
+
+    // 高度设为 auto，并设最小高度，避免截断
+   return `<iframe srcdoc="${safeSrcdoc}" sandbox="allow-same-origin allow-popups" style="border:none;width:100%;height:1.6em;display:inline-block;vertical-align:middle;" title="URL 预览"></iframe>`;
   });
 };
 
