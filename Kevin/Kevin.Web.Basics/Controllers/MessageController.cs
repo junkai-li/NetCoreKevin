@@ -116,7 +116,7 @@ namespace Kevin.Web.Basics.Controllers
         /// <returns></returns>
         [HttpGet("GetMyNoReadCount")]
         [SkipAuthority]
-        [CacheDataFilter<int>(TTL = 3600, UseToken = true)]
+        [CacheDataFilter<int>(TTL = 600, UseToken = true)]
         public async Task<int> GetMyNoReadCount([FromQuery] MessageType messageType = MessageType.All)
         {
             var result = await _messageService.GetMyNoReadCount(messageType);

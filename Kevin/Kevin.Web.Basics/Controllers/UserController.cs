@@ -279,7 +279,7 @@ namespace Kevin.Web.Basics.Controllers
         /// <returns></returns>
         [HttpGet("GetAllUserCount")]
         [SkipAuthority]
-        [CacheDataFilter<int>(TTL = 3600, UseToken = false)]
+        [CacheDataFilter<int>(TTL = 600, UseToken = false)]
         public async Task<int> GetAllUserCount()
         {
             return await _userService.GetAllUserCount();

@@ -811,6 +811,11 @@
             是否使用 Token
             </summary>
         </member>
+        <member name="P:Web.Filters.CacheDataFilter`1.UseBody">
+            <summary>
+            是否使用 Body
+            </summary>
+        </member>
         <member name="T:Web.Filters.PublicPortAuthorizeFilters">
             <summary>
             对外接口 密钥验证

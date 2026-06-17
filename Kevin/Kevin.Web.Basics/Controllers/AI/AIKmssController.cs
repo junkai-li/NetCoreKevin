@@ -7,6 +7,7 @@ using kevin.Permission.Permisson.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using Web.Filters;
 
 namespace Kevin.Web.Basics.AI
 {
@@ -49,6 +50,7 @@ namespace Kevin.Web.Basics.AI
         [HttpPost("GetList")]
         [ActionDescription("获取AI知识库列表")]
         [HttpLog("AI知识库管理", "获取AI知识库列表")]
+        [CacheDataFilter<dtoPageList<AIAppsDto>>(TTL = 60, UseToken = true)]
         public async Task<dtoPageList<AIKmssDto>> GetList([FromBody] dtoPagePar<string> par)
         {
             var result = await _service.GetList(par);
