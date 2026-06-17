@@ -29,7 +29,7 @@ namespace Web.Filters
             key = "CacheData_" + Common.CryptoHelper.GetMd5(key);
             try
             {
-                var cacheInfo = context.HttpContext.RequestServices.GetService<ICacheService>().GetString(key);
+                var cacheInfo = context.HttpContext.RequestServices.GetService<ICacheService>()?.GetString(key);
                 if (!string.IsNullOrEmpty(cacheInfo))
                 {
                     var data = JsonHelper.GetValueByKeyTry(cacheInfo, "value");
@@ -54,7 +54,7 @@ namespace Web.Filters
                 string key = context.ActionDescriptor.DisplayName + "_" + context.HttpContext.Request.QueryString + "_"
                        + (UseToken ? context.HttpContext.Request.Headers.Where(t => t.Key == "Authorization").Select(t => t.Value).FirstOrDefault() : "");
                 key = "CacheData_" + Common.CryptoHelper.GetMd5(key);
-                context.HttpContext.RequestServices.GetService<ICacheService>().SetString(key, context.Result.ToJson(), TimeSpan.FromSeconds(TTL));
+                context.HttpContext.RequestServices.GetService<ICacheService>()?.SetString(key, context.Result.ToJson(), TimeSpan.FromSeconds(TTL));
             }
             catch (Exception ex)
             {
