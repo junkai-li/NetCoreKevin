@@ -353,7 +353,7 @@ namespace kevin.Application.Services.AI
                     ResponseFormat = ChatResponseFormat.Text,
                     Instructions = systemPrompt,
                 },
-                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString()+ "_agent_" + aiapp.Id)
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString()+ "_agent_" + aiapp.Id.ToString())
             };
             #region AI配置
             if (aiapp.IsAITools)
