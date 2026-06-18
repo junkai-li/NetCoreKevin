@@ -2,6 +2,9 @@
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
+using kevin.RepositorieRps.Repositories.AI;
+using Microsoft.Extensions.AI;
+using TencentCloud.Lke.V20231130.Models;
 
 namespace kevin.Application.Services.AI
 {
@@ -36,18 +39,53 @@ namespace kevin.Application.Services.AI
             await aIChatMessageStoreRp.SaveChangesAsync();
         }
 
-        public Task<List<ChatHistoryItemDto>> GetMessagesAsync(string threadId, CancellationToken cancellationToken)
+        public async Task<List<ChatHistoryItemDto>> GetMessagesAsync(string threadId, CancellationToken cancellationToken, int maxUserTurns = 0)
         {
-            return aIChatMessageStoreRp.Query().Where(t => t.ThreadId == threadId && t.IsDelete == false).Select(t => new ChatHistoryItemDto
+            if (maxUserTurns == 0)
             {
-                Key = t.Key,
-                ThreadId = t.ThreadId,
-                Timestamp = t.Timestamp,
-                SerializedMessage = t.SerializedMessage,
-                MessageText = t.MessageText,
-                Role = t.Role,
-                MessageId = t.MessageId
-            }).ToListAsync();
+                return await aIChatMessageStoreRp.Query().Where(t => t.ThreadId == threadId && t.IsDelete == false).Select(t => new ChatHistoryItemDto
+                {
+                    Key = t.Key,
+                    ThreadId = t.ThreadId,
+                    Timestamp = t.Timestamp,
+                    SerializedMessage = t.SerializedMessage,
+                    MessageText = t.MessageText,
+                    Role = t.Role,
+                    MessageId = t.MessageId
+                }).ToListAsync();
+            }
+            else
+            {
+                var data = await aIChatMessageStoreRp.Query().Where(t => t.ThreadId == threadId && t.IsDelete == false).Select(t => new ChatHistoryItemDto
+                {
+                    Key = t.Key,
+                    ThreadId = t.ThreadId,
+                    Timestamp = t.Timestamp,
+                    SerializedMessage = t.SerializedMessage,
+                    MessageText = t.MessageText,
+                    Role = t.Role,
+                    MessageId = t.MessageId
+                }).OrderByDescending(t => t.Timestamp).ToListAsync();
+                var reslutData = new List<ChatHistoryItemDto>();
+                int userTurns = 0;
+                foreach (var item in data)
+                {
+                    if (userTurns < maxUserTurns)
+                    {
+                        reslutData.Add(item);
+                        if (item.Role == ChatRole.User.Value)
+                        {
+                            userTurns++;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                return reslutData;
+            }
+
         }
     }
 }

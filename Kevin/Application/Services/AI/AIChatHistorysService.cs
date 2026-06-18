@@ -40,14 +40,14 @@ namespace kevin.Application.Services.AI
 
         private IOllamaApiService ollamaApiService;
 
-        private readonly IAIAgentToolSkillService _aIAgentToolSkillService;
-
         private readonly IAIChatHistorysBindLogService _aIChatHistorysBindLogService;
+
+        private readonly IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService;
         public AIChatHistorysService(IHttpContextAccessor _httpContextAccessor, IAIChatHistorysRp _aIChatHistorysRp,
             IAIAgentService _aIAgentService, IAIModelsService _aIModelsService, IAIPromptsService _aIPromptsService,
             IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore,
             IRAGService _rAGService, IAIKmssService _aIKmssService, IOllamaApiService _ollamaApiService, ISignalRMsgService _signalRMsgService,
-            IHttpClientFactory _httpClientFactory, IAIAgentToolSkillService _aIAgentToolSkillService, IAIChatHistorysBindLogService _aIChatHistorysBindLogService
+            IHttpClientFactory _httpClientFactory, IAIChatHistorysBindLogService _aIChatHistorysBindLogService, IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService
             ) : base(_httpContextAccessor)
         {
             this.aIChatHistorysRp = _aIChatHistorysRp;
@@ -62,8 +62,8 @@ namespace kevin.Application.Services.AI
             this.ollamaApiService = _ollamaApiService;
             this.signalRMsgService = _signalRMsgService;
             this.httpClientFactory = _httpClientFactory;
-            this._aIAgentToolSkillService = _aIAgentToolSkillService;
             this._aIChatHistorysBindLogService = _aIChatHistorysBindLogService;
+            this._aIChatMessageStoreCompactionService = _aIChatMessageStoreCompactionService;
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace kevin.Application.Services.AI
             result.data = (await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPage.pageSize).ToListAsync()).MapToList<TAIChatHistorys, AIChatHistorysDto>();
             var logdata = await _aIChatHistorysBindLogService.GetByIds(result.data.Select(t => t.Id).ToList());
             foreach (var item in result.data)
-            { 
+            {
                 item.aIChatHistorysBindLogs = logdata.Where(t => t.AIChatHistorysId == item.Id).ToList();
             }
             return result;
@@ -135,7 +135,7 @@ namespace kevin.Application.Services.AI
             addAi.TenantId = CurrentUser.TenantId;
             addAi.IsSend = false;
             addAi.AIChatsId = par.AIChatsId;
-            string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt; 
+            string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
             await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = systemPrompt, LogType = AIChatHistorysBindLogEnums.SystemPrompt });
             List<string> OtherContents = new List<string>();
 
@@ -158,6 +158,8 @@ namespace kevin.Application.Services.AI
                 ImgUrls.AddRange(aiFilData.Item2);
 
             #endregion
+
+            #region 联网搜索
             if (par.IsOnlineSearch)
             {
                 await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在联网搜索....");
@@ -165,9 +167,13 @@ namespace kevin.Application.Services.AI
                 var webseoData = await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey);
                 await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = webseoData, LogType = AIChatHistorysBindLogEnums.WebSeo });
                 OtherContents.Add(StringHelper.SubstringText(webseoData, aiapp.ContentLengthLimit));
-            }  
+            }
+            #endregion
+            ChatMessage mgs = new(ChatRole.User, [new TextContent($"{add.Content}"),
+                        .. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(),
+                        .. ImgUrls.Where(t => !string.IsNullOrEmpty(t)).Select(url => DataContent.LoadFromAsync(FileHelper.GetRemoteFileStreamAsync(url).Result).Result).ToList()]);
             var parAi = new { AIChatsId = add.AIChatsId, AppId = aiapp.Id, UserId = CurrentUser.UserId, AuthorizedDomains = aiapp.AuthorizedDomains, ContentLengthLimit = aiapp.ContentLengthLimit, IsSecurityIntercept = aiapp.IsSecurityIntercept };
-             var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par, parAi);  
+            var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par, parAi);
             switch (aIModels.AIType)
             {
                 case Domain.Share.Enums.AIType.OpenAI:
@@ -184,7 +190,7 @@ namespace kevin.Application.Services.AI
                         IsHttpLog = aiapp.IsHttpLog,
                         MaxRetries = aiapp.MaxRetries,
                         NetworkTimeout = aiapp.NetworkTimeout,
-                        IsAISkills= aiapp.IsSkill,
+                        IsAISkills = aiapp.IsSkill,
                         IsAITools = aiapp.IsAITools,
                         StreameCallback = async (msg) =>
                         {
@@ -206,10 +212,7 @@ namespace kevin.Application.Services.AI
                                 await signalRMsgService.SendIdentityIdMsg("aIReasoningContentMsg", add.Id.ToString(), StringHelper.SubstringText(msg, aiapp.ContentLengthLimit));
                             }
                         },
-                    }, chatAgOs, new(ChatRole.User, [new TextContent($"{add.Content}"),
-                        .. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(),
-                        .. ImgUrls.Where(t => !string.IsNullOrEmpty(t)).Select(url => DataContent.LoadFromAsync(FileHelper.GetRemoteFileStreamAsync(url).Result).Result).ToList()]),
-                    cancellationToken: cancellationToken));
+                    }, chatAgOs, mgs, cancellationToken: cancellationToken));
                     addAi.Content = reslut.Item2 ?? "";
                     if (reslut.Item3 != default)
                     {
@@ -224,7 +227,8 @@ namespace kevin.Application.Services.AI
             var logdata = await _aIChatHistorysBindLogService.GetByIds(new List<long> { addAi.Id });
             aIChatHistorysRp.Add(addAi);
             await aIChatsService.UpdateNameAndMsg(par.AIChatsId, count == 1 ? par.Content : "", addAi.Content, cancellationToken);
-            await aIChatHistorysRp.SaveChangesAsync(cancellationToken); 
+            await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
+            await aIAppsService.MessageStoreCompaction(aiapp, aIModels, par.AIChatsId.ToString(), cancellationToken);
             var data = addAi.MapTo<AIChatHistorysDto>();
             data.aIChatHistorysBindLogs = logdata;
             return data;

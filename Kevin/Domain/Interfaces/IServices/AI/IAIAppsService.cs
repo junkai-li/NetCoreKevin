@@ -52,5 +52,15 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// </summary>
         /// <returns></returns>
         Task<List<AIAppsDto>> GetMyALLList();
+
+        /// <summary>
+        /// 压缩聊天数据
+        /// </summary>
+        /// <param name="aiapp"></param>
+        /// <param name="aIModels"></param>
+        /// <param name="thread_id"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<bool> MessageStoreCompaction(AIAppsDto aiapp, AIModelsDto aIModels, string thread_id, CancellationToken cancellationToken = default);
     }
 }

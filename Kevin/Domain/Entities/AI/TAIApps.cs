@@ -1,4 +1,6 @@
-﻿namespace kevin.Domain.Entities.AI
+﻿using kevin.AI.AgentFramework.Const;
+
+namespace kevin.Domain.Entities.AI
 {
     /// <summary>
     /// TAIApps
@@ -176,6 +178,29 @@
         [Description("是否开启安全拦截，开启后会对python脚本和shell命令内容进行安全拦截，防止输入敏感信息，默认开启")]
         [DefaultValue(true)]
         public bool IsSecurityIntercept { get; set; } = true;
+
+        [Description(" 用户轮次计数,默认10，超出后其余对话自动压缩")]
+        [DefaultValue(10)]
+        public int ConversationTurnsExceed { get; set; } = 10;
+        /// <summary>
+        /// 是否开启对话自动压缩，开启后会对历史对话，思考过程，工具结果，返回内容，自动压缩，默认不开启"
+        /// </summary>
+        [Description("是否开启对话自动压缩，开启后会对历史对话，思考过程，工具结果，返回内容，自动压缩，默认不开启")]
+        [DefaultValue(false)]
+        public bool IsAIMessageCompaction { get; set; } = false;
+        /// <summary>
+        /// 是否开启自动获取对话自动压缩，开启后会对自动获取压缩对话，默认不开启，不开启则使用智能体工具方式获取对话历史记录"
+        /// </summary>
+        [Description("是否开启自动获取对话自动压缩，开启后会对自动获取压缩对话，默认不开启，不开启则使用智能体工具方式获取对话历史记录")]
+        [DefaultValue(false)]
+        public bool IsAutoGetAIMessageCompaction { get; set; } = false;
+        /// <summary>
+        /// 自动压缩策略提示词
+        /// </summary>
+        [Description("自动压缩策略提示词")]
+        [DefaultValue(SystemPrompt.CompressPromptText)]
+        public String AIMessageCompactionPrompt { get; set; } = SystemPrompt.CompressPromptText;
+
 
     }
 }

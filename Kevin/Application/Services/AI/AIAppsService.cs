@@ -1,19 +1,19 @@
-﻿using kevin.AI.AgentFramework;
-using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
+﻿using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.ScriptRunners;
 using kevin.Domain.Entities.AI;
-using kevin.Domain.Interfaces.IRepositories;
+using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using Kevin.AI.Dto;
 using Kevin.Common.Extension;
-using Kevin.SignalR.Service;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
-using System.Threading;
-using TencentCloud.Lowcode.V20210108.Models;
+using OpenAI;
+using Repository.Database;
+using System.ClientModel;
+using System.ClientModel.Primitives;
 
 namespace kevin.Application.Services.AI
 {
@@ -32,9 +32,14 @@ namespace kevin.Application.Services.AI
         public IAIPromptsService aIPromptsService { get; set; }
         public IKevinAIChatMessageStore kevinAIChatMessageStore { get; set; }
         private readonly IAIAgentToolSkillService _aIAgentToolSkillService;
+        public readonly IAIChatMessageStoreRp _aIChatMessageStoreRp;
+      
+        public readonly IAIChatMessageStoreCompactionRp _aIChatMessageStoreCompactionRp;
+        public readonly IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService;
         public AIAppsService(IHttpContextAccessor _httpContextAccessor, IAIAppsRp _aIAppsRp,
             IAISkillToolManagementService aISkillToolManagementService, IAISkillToolBindIdService aISkillToolBindIdService, IAIAppsBindIdService aIAppsBindIdService,
-            IKevinAIChatMessageStore kevinAIChatMessageStore, IAIAgentToolSkillService aIAgentToolSkillService, IAIModelsService aIModelsService, IAIPromptsService aIPromptsService, IAIAgentService aIAgentService) : base(_httpContextAccessor)
+            IKevinAIChatMessageStore kevinAIChatMessageStore, IAIAgentToolSkillService aIAgentToolSkillService, IAIModelsService aIModelsService, IAIPromptsService aIPromptsService, 
+            IAIAgentService aIAgentService, IAIChatMessageStoreRp aIChatMessageStoreRp, IAIChatMessageStoreCompactionRp aIChatMessageStoreCompactionRp, IAIChatMessageStoreCompactionService aIChatMessageStoreCompactionService) : base(_httpContextAccessor)
         {
             this.aIAppsRp = _aIAppsRp;
             this.aISkillToolManagementService = aISkillToolManagementService;
@@ -45,6 +50,9 @@ namespace kevin.Application.Services.AI
             this.aIModelsService = aIModelsService;
             this.aIPromptsService = aIPromptsService;
             this.aIAgentService = aIAgentService;
+            this._aIChatMessageStoreRp = aIChatMessageStoreRp;
+            this._aIChatMessageStoreCompactionRp = aIChatMessageStoreCompactionRp;
+            this._aIChatMessageStoreCompactionService = aIChatMessageStoreCompactionService;
         }
 
         /// <summary>
@@ -199,6 +207,10 @@ namespace kevin.Application.Services.AI
                     msg.ContentLengthLimit = par.ContentLengthLimit;
                     msg.IsSecurityIntercept = par.IsSecurityIntercept;
                     msg.MaxRetries = par.MaxRetries;
+                    msg.ConversationTurnsExceed = par.ConversationTurnsExceed;
+                    msg.IsAIMessageCompaction = par.IsAIMessageCompaction;
+                    msg.IsAutoGetAIMessageCompaction = par.IsAutoGetAIMessageCompaction;
+                    msg.AIMessageCompactionPrompt = par.AIMessageCompactionPrompt;
                 }
                 else
                 {
@@ -280,7 +292,14 @@ namespace kevin.Application.Services.AI
         /// <param name="parAi"></param>
         /// <returns></returns>
         public async Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, object parAi, CancellationToken cancellationToken = default)
-        {
+        { 
+            #region 获取压缩聊天记录提示词
+            if (aiapp.IsAutoGetAIMessageCompaction)
+            {
+                systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString());
+            }
+            #endregion
+
             var chatAgOs = new ChatClientAgentOptions
             {
                 Name = aiapp.Name,
@@ -292,7 +311,7 @@ namespace kevin.Application.Services.AI
                     ResponseFormat = ChatResponseFormat.Text,
                     Instructions = systemPrompt,
                 },
-                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString())
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.ConversationTurnsExceed)
             };
             #region AI配置
             if (aiapp.IsAITools)
@@ -342,6 +361,12 @@ namespace kevin.Application.Services.AI
             var aIModels = await aIModelsService.GetDetails(aiapp.ChatModelID.ToTryInt64());
             var aIPrompts = await aIPromptsService.GetDetails(aiapp.AIPromptID);
             string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
+            #region 获取压缩聊天记录提示词
+            if (aiapp.IsAutoGetAIMessageCompaction)
+            {
+                systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString());
+            }
+            #endregion
             var chatAgOs = new ChatClientAgentOptions
             {
                 Name = aiapp.Name,
@@ -353,7 +378,7 @@ namespace kevin.Application.Services.AI
                     ResponseFormat = ChatResponseFormat.Text,
                     Instructions = systemPrompt,
                 },
-                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString()+ "_agent_" + aiapp.Id.ToString())
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(),aiapp.ConversationTurnsExceed)
             };
             #region AI配置
             if (aiapp.IsAITools)
@@ -395,6 +420,99 @@ namespace kevin.Application.Services.AI
                 IsAITools = aiapp.IsAITools
             }, chatAgOs,
           cancellationToken: cancellationToken));
+        }
+
+        /// <summary>
+        /// 异步消息压缩
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> MessageStoreCompaction(AIAppsDto aiapp, AIModelsDto aIModels, string thread_id, CancellationToken cancellationToken = default)
+        {
+            //获取是否自动压缩
+            if (!string.IsNullOrEmpty(thread_id) && aiapp.IsAIMessageCompaction)
+            {
+                //获取需要压缩的记录 
+                var msgData = await _aIChatMessageStoreRp.Query().Where(t => t.IsDelete == false && t.ThreadId == thread_id && t.IsCompaction == false).OrderByDescending(t => t.Timestamp).ToListAsync();
+                var comDataDic = new Dictionary<string, List<string>>();
+                var comDataList = new List<TAIChatMessageStore>();
+                int userTurns = aiapp.ConversationTurnsExceed;
+                foreach (var item in msgData)
+                {
+                    if (userTurns > 0)
+                    {
+                        if (item.Role == ChatRole.User.Value)
+                        {
+                            userTurns--;
+                        }
+                    }
+                    else
+                    {
+                        comDataList.Add(item);
+                        if (item.Role == ChatRole.User.Value)
+                        {
+                            item.IsCompaction = true;
+                            item.UpdateTime = DateTime.Now;
+                            comDataDic.Add(item.Timestamp?.ToString() ?? Guid.NewGuid().ToString(), comDataList.Where(t => !string.IsNullOrEmpty(t.SerializedMessage)).Select(t => t.SerializedMessage ?? "").ToList());
+                            comDataList = new List<TAIChatMessageStore>();
+                        }
+                    }
+                }
+                if (comDataDic.Count > 0)
+                {
+                    #region 压缩
+
+                    OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions()
+                    {
+                        Endpoint = new Uri(aIModels.EndPoint),
+                        NetworkTimeout = TimeSpan.FromMinutes(10),// 设置网络超时时间为10分钟，适用于可能需要较长时间处理的请求
+                        RetryPolicy = new ClientRetryPolicy(maxRetries: 2)//重试次数和延迟
+                        {
+                            // 可自定义延迟，默认指数退避
+                        }
+                    };
+                    // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示  
+                    var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(aIModels.ModelKey) ? "local" : aIModels.ModelKey), openAIClientOptions);
+
+                    var aiAgent = ai.GetChatClient(aIModels.ModelName).AsIChatClient().AsAIAgent(new ChatClientAgentOptions
+                    {
+
+                        Name = " 你是一款专业的压缩消息记录工具。",
+                        Description = aiapp.AIMessageCompactionPrompt,
+                        ChatOptions = new Microsoft.Extensions.AI.ChatOptions
+                        {
+                            MaxOutputTokens = aiapp.AnswerTokens,
+                            Temperature = (float)(aiapp.Temperature / 100),
+                            ResponseFormat = ChatResponseFormat.Text,
+                            Instructions = aiapp.AIMessageCompactionPrompt
+                        },
+                    });
+                    var snowflakeIdService1 = new Kevin.SnowflakeId.Service.SnowflakeIdService();
+                    var addList = new List<TAIChatMessageStoreCompaction>();
+                    foreach (var item in comDataDic)
+                    { 
+                        if (item.Value.Count > 0)
+                        {
+                            var reslut = await aiAgent.RunAsync($"内容如下：{comDataDic.Select(t=>t.Value).ToArray().SerializeToJson()}", cancellationToken: cancellationToken);
+                            addList.Add(new TAIChatMessageStoreCompaction
+                            {
+                                Id = snowflakeIdService1.GetNextId(),
+                                IsDelete = false,
+                                CreateTime = DateTime.Now,
+                                CreateUserId = aiapp.CreateUserId,
+                                TenantId = aiapp.TenantId,
+                                ThreadId = thread_id,
+                                CompactionMessageText = item.Value.SerializeToJson(),
+                                CompactionResultMessageText = reslut.Text.ToString(),
+                            });
+                        }
+                    }
+                    _aIChatMessageStoreCompactionRp.AddRange(addList);
+                    _aIChatMessageStoreCompactionRp.SaveChanges();
+                    #endregion
+                }
+
+            }
+            return true;
         }
     }
 }

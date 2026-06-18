@@ -11,21 +11,26 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
 
         private IKevinAIChatMessageStore _chatMessageStore;
         public string ThreadDbKey { get; private set; }
+        /// <summary>
+        /// 最大用户轮次
+        /// </summary>
+        public int MaxUserTurns { get; set; } = 0;
 
         public KevinChatMessageStore(
               IKevinAIChatMessageStore vectorStore,
-                      string AIChatsId)
+                      string aIChatsId, int maxUserTurns = 0)
         {
 
             this._chatMessageStore = vectorStore ?? throw new ArgumentNullException(nameof(vectorStore));
-            this.ThreadDbKey = AIChatsId;
+            this.ThreadDbKey = aIChatsId;
+            this.MaxUserTurns = maxUserTurns; 
             JsonSerializer.SerializeToElement(this.ThreadDbKey);
         }
 
         protected override ValueTask<IEnumerable<ChatMessage>> ProvideChatHistoryAsync(
          InvokingContext context, CancellationToken cancellationToken = default)
         {
-            var data = _chatMessageStore.GetMessagesAsync(this.ThreadDbKey, cancellationToken).Result;
+            var data = _chatMessageStore.GetMessagesAsync(this.ThreadDbKey, cancellationToken, MaxUserTurns).Result;
             var messages = data.OrderByDescending(t => t.Timestamp).ToList().ConvertAll(x => JsonSerializer.Deserialize<ChatMessage>(x.SerializedMessage!)!);
             messages.Reverse();
             messages = messages.ToList();

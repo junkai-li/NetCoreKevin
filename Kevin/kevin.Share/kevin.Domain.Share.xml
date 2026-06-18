@@ -169,6 +169,21 @@
             是否开启安全拦截开启后会对python脚本和shell命令内容进行安全拦截，防止输入敏感信息，默认开启
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.IsAIMessageCompaction">
+            <summary>
+            是否开启对话自动压缩，开启后会对历史对话，思考过程，工具结果，返回内容，自动压缩，默认不开启"
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.IsAutoGetAIMessageCompaction">
+            <summary>
+            是否开启自动获取对话自动压缩，开启后会对自动获取压缩对话，默认不开启，不开启则使用智能体工具方式获取对话历史记录"
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.AIMessageCompactionPrompt">
+            <summary>
+            自动压缩策略提示词
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysBindLogDto.AIChatHistorysId">
             <summary>
             对话记录id

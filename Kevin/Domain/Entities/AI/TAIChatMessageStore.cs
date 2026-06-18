@@ -40,5 +40,12 @@ namespace kevin.Domain.Entities.AI
         [Description("消息id")]
         [MaxLength(100)]
         public string? MessageId { get; set; }
+
+        /// <summary>
+        /// 是否已压缩
+        /// </summary>
+        [Description("是否已压缩")]
+        [DefaultValue(false)]
+        public bool IsCompaction { get; set; } = false;
     }
 }

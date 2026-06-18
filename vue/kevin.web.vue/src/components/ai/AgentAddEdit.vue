@@ -342,6 +342,53 @@
         已选择 {{ selectedBindCount }} 个用户/角色/智能体
       </div>
       </a-tab-pane>
+      <a-tab-pane key="compaction" tab="压缩策略">
+        <a-form :model="form" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }">
+          <a-row :gutter="16">
+            <a-col :span="12">
+              <a-form-item label="对话自动压缩">
+                <a-switch v-model:checked="form.isAIMessageCompaction" :disabled="isViewMode" />
+              </a-form-item>
+            </a-col>
+          </a-row>
+          <template v-if="form.isAIMessageCompaction">
+            <a-row :gutter="16"> 
+              <a-col :span="12">
+                <a-form-item label="自动获取压缩记录">
+                  <a-tooltip title="开启后自动获取压缩对话，不开启则使用智能体工具方式获取对话历史记录">
+                    <a-switch v-model:checked="form.isAutoGetAIMessageCompaction" :disabled="isViewMode" />
+                  </a-tooltip>
+                </a-form-item>
+              </a-col>
+              <a-col :span="12"> 
+                <a-form-item label="用户对话最大轮次">
+                  <a-input-number
+                    v-model:value="form.conversationTurnsExceed"
+                    :min="1"
+                    style="width: 100%"
+                    placeholder="默认10，超出最大轮次后自动压缩"  
+                    :disabled="isViewMode"
+                  />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="16">
+              <a-col :span="4">
+              压缩策略提示词：
+              </a-col>
+              <a-col :span="18">
+                <a-textarea
+                    v-model:value="form.aiMessageCompactionPrompt"
+                    :rows="16"
+                    placeholder="请输入压缩策略提示词"
+                    :disabled="isViewMode"
+                    style="text-align: left;"
+                  />
+              </a-col>
+            </a-row>
+          </template>
+        </a-form>
+      </a-tab-pane>
     </a-tabs>
   </a-modal>
 </template>
@@ -416,7 +463,11 @@ const form = reactive({
   contentLengthLimit: 30000,
   isThinkingLog: true,
   isToolLog: true,
-  isSecurityIntercept: true
+  isSecurityIntercept: true,
+  conversationTurnsExceed: 10,
+  isAIMessageCompaction: false,
+  isAutoGetAIMessageCompaction: false,
+  aiMessageCompactionPrompt: '任务：信息精炼与结构化提取\n请将下方【原始内容】压缩至原文篇幅的20%以内，并**严格按以下四个字段**输出摘要。\n每个字段都必须出现，若原文无对应信息，请标注“无”。\n\n## 必输字段（顺序固定）\n1. **用户对话核心任务**：用户在此次交互中最主要的目标或诉求是什么？（一句话概括）\n2. **核心结论**：从整体内容中提炼出的最终判断、结果或关键事实。\n3. **核心思考过程**：推导出结论所依据的推理链条或关键分析步骤（简要逻辑流）。\n4. **工具返回关键信息**：需要输出工具名称，外部工具、系统或数据源返回的重要信息（如路径、数值、状态等）。\n\n## 输出格式要求\n- 每项内容尽量精简，去除所有修饰性描述、举例和过渡句。\n- 如某字段信息完全缺失，直接写“无”。\n\n## 示例输出（供参考）\n- **用户对话核心任务**：查询文件保存位置。\n- **核心结论**：文件已成功保存至桌面。\n- **核心思考过程**：根据系统反馈，路径存在且写入权限正常。\n- **工具返回关键信息**：调用“查询文件保存位置”工具，结果： `C:\\Users\\XXX\\Desktop`。\n\n---\n\n【原始内容】：'
 });
 
 // 表单验证规则
@@ -796,7 +847,11 @@ watch(() => props.open, (newVal) => {
         chatMessageLimit: 100,
         contentLengthLimit: 30000,
         isThinkingLog: true,
-        isToolLog: true
+        isToolLog: true,
+        conversationTurnsExceed: 10,
+        isAIMessageCompaction: false,
+        isAutoGetAIMessageCompaction: false,
+        aiMessageCompactionPrompt: '任务：信息精炼与结构化提取\n请将下方【原始内容】压缩至原文篇幅的20%以内，并**严格按以下四个字段**输出摘要。\n每个字段都必须出现，若原文无对应信息，请标注“无”。\n\n## 必输字段（顺序固定）\n1. **用户对话核心任务**：用户在此次交互中最主要的目标或诉求是什么？（一句话概括）\n2. **核心结论**：从整体内容中提炼出的最终判断、结果或关键事实。\n3. **核心思考过程**：推导出结论所依据的推理链条或关键分析步骤（简要逻辑流）。\n4. **工具返回关键信息**：需要输出工具名称，外部工具、系统或数据源返回的重要信息（如路径、数值、状态等）。\n\n## 输出格式要求\n- 每项内容尽量精简，去除所有修饰性描述、举例和过渡句。\n- 如某字段信息完全缺失，直接写“无”。\n\n## 示例输出（供参考）\n- **用户对话核心任务**：查询文件保存位置。\n- **核心结论**：文件已成功保存至桌面。\n- **核心思考过程**：根据系统反馈，路径存在且写入权限正常。\n- **工具返回关键信息**：调用“查询文件保存位置”工具，结果： `C:\\Users\\XXX\\Desktop`。\n\n---\n\n【原始内容】：'
       });
     }
     loadAgentList();
@@ -859,7 +914,11 @@ const handleOk = () => {
         contentLengthLimit: form.contentLengthLimit,
         isThinkingLog: form.isThinkingLog,
         isToolLog: form.isToolLog,
-        isSecurityIntercept: form.isSecurityIntercept
+        isSecurityIntercept: form.isSecurityIntercept,
+        conversationTurnsExceed: form.conversationTurnsExceed,
+        isAIMessageCompaction: form.isAIMessageCompaction,
+        isAutoGetAIMessageCompaction: form.isAutoGetAIMessageCompaction,
+        aiMessageCompactionPrompt: form.aiMessageCompactionPrompt
       };
       
       emit('ok', params);
