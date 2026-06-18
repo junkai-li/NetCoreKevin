@@ -33,12 +33,12 @@ namespace kevin.Application.Services.AI
         public IKevinAIChatMessageStore kevinAIChatMessageStore { get; set; }
         private readonly IAIAgentToolSkillService _aIAgentToolSkillService;
         public readonly IAIChatMessageStoreRp _aIChatMessageStoreRp;
-      
+
         public readonly IAIChatMessageStoreCompactionRp _aIChatMessageStoreCompactionRp;
         public readonly IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService;
         public AIAppsService(IHttpContextAccessor _httpContextAccessor, IAIAppsRp _aIAppsRp,
             IAISkillToolManagementService aISkillToolManagementService, IAISkillToolBindIdService aISkillToolBindIdService, IAIAppsBindIdService aIAppsBindIdService,
-            IKevinAIChatMessageStore kevinAIChatMessageStore, IAIAgentToolSkillService aIAgentToolSkillService, IAIModelsService aIModelsService, IAIPromptsService aIPromptsService, 
+            IKevinAIChatMessageStore kevinAIChatMessageStore, IAIAgentToolSkillService aIAgentToolSkillService, IAIModelsService aIModelsService, IAIPromptsService aIPromptsService,
             IAIAgentService aIAgentService, IAIChatMessageStoreRp aIChatMessageStoreRp, IAIChatMessageStoreCompactionRp aIChatMessageStoreCompactionRp, IAIChatMessageStoreCompactionService aIChatMessageStoreCompactionService) : base(_httpContextAccessor)
         {
             this.aIAppsRp = _aIAppsRp;
@@ -292,9 +292,9 @@ namespace kevin.Application.Services.AI
         /// <param name="parAi"></param>
         /// <returns></returns>
         public async Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, object parAi, CancellationToken cancellationToken = default)
-        { 
+        {
             #region 获取压缩聊天记录提示词
-            if (aiapp.IsAutoGetAIMessageCompaction)
+            if (aiapp.IsAutoGetAIMessageCompaction&& aiapp.IsAIMessageCompaction)
             {
                 systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString());
             }
@@ -311,7 +311,7 @@ namespace kevin.Application.Services.AI
                     ResponseFormat = ChatResponseFormat.Text,
                     Instructions = systemPrompt,
                 },
-                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.ConversationTurnsExceed)
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0)
             };
             #region AI配置
             if (aiapp.IsAITools)
@@ -362,8 +362,8 @@ namespace kevin.Application.Services.AI
             var aIPrompts = await aIPromptsService.GetDetails(aiapp.AIPromptID);
             string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
             #region 获取压缩聊天记录提示词
-            if (aiapp.IsAutoGetAIMessageCompaction)
-            {
+            if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
+            { 
                 systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString());
             }
             #endregion
@@ -378,7 +378,7 @@ namespace kevin.Application.Services.AI
                     ResponseFormat = ChatResponseFormat.Text,
                     Instructions = systemPrompt,
                 },
-                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(),aiapp.ConversationTurnsExceed)
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0)
             };
             #region AI配置
             if (aiapp.IsAITools)
@@ -489,10 +489,10 @@ namespace kevin.Application.Services.AI
                     var snowflakeIdService1 = new Kevin.SnowflakeId.Service.SnowflakeIdService();
                     var addList = new List<TAIChatMessageStoreCompaction>();
                     foreach (var item in comDataDic)
-                    { 
+                    {
                         if (item.Value.Count > 0)
                         {
-                            var reslut = await aiAgent.RunAsync($"内容如下：{comDataDic.Select(t=>t.Value).ToArray().SerializeToJson()}", cancellationToken: cancellationToken);
+                            var reslut = await aiAgent.RunAsync($"内容如下：{comDataDic.Select(t => t.Value).ToArray().SerializeToJson()}", cancellationToken: cancellationToken);
                             addList.Add(new TAIChatMessageStoreCompaction
                             {
                                 Id = snowflakeIdService1.GetNextId(),
