@@ -311,7 +311,7 @@ watch(() => props.user, (newVal) => {
         employeeNo: userInfo.employeeNo || "",
         weChat: userInfo.weChat || "",
         qq: userInfo.qq || "",
-        id: userInfo.id || ""
+        id: userInfo.id || 0
       }
     });
   } else {
