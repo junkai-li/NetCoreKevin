@@ -1,7 +1,11 @@
-﻿using kevin.Domain.Entities.AI;
+﻿using kevin.AI.AgentFramework.Interfaces;
+using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos;
+using NPOI.SS.Formula.Functions;
+using System.ComponentModel;
+using System.Text.Json;
 
 namespace kevin.Application.Services.AI
 {
@@ -10,6 +14,12 @@ namespace kevin.Application.Services.AI
     /// </summary>
     public class AIChatMessageStoreCompactionService : BaseService, IAIChatMessageStoreCompactionService
     {
+
+        private string _threadId { get; set; } 
+        public void InitData(object data)
+        {
+            _threadId= (string)data;
+        }
         public IAIChatMessageStoreCompactionRp AIChatMessageStoreCompactionRp { get; set; }
         public AIChatMessageStoreCompactionService(IHttpContextAccessor _httpContextAccessor, IAIChatMessageStoreCompactionRp _AIChatMessageStoreCompactionRp) : base(_httpContextAccessor)
         {
@@ -107,6 +117,25 @@ namespace kevin.Application.Services.AI
                     prompt += "\n " + i + $".时间{data[i-1].CreateTime.ToString("yyyy-MM-dd HH:mm:ss")}：内容如下：" + data[i - 1].CompactionResultMessageText;
                 }
             } 
+            return prompt;
+        }
+
+        /// <summary>
+        /// 获取聊天对话历史记录，当用户询问聊天记录时调用，返回用户历史对话
+        /// </summary> 
+        [Description("获取聊天对话历史记录，当用户询问聊天记录时调用，返回用户历史对话(压缩摘要版本)")]
+        public async Task<String> GetAIToolThreadPrompt()
+        {
+            var prompt = "";
+            var data = await AIChatMessageStoreCompactionRp.Query(isDataPer: false, isTenant: false).Where(t => t.IsDelete == false && t.ThreadId == _threadId).OrderBy(t => t.CreateTime).ToListAsync();
+            if (data != default && data.Count > 0)
+            {
+                prompt = " 历史对话（压缩摘要版本）：";
+                for (int i = 1; i <= data.Count; i++)
+                {
+                    prompt += "\n " + i + $".时间{data[i - 1].CreateTime.ToString("yyyy-MM-dd HH:mm:ss")}：内容如下：" + data[i - 1].CompactionResultMessageText;
+                }
+            }
             return prompt;
         }
     }

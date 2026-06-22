@@ -294,7 +294,7 @@ namespace kevin.Application.Services.AI
         public async Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, object parAi, CancellationToken cancellationToken = default)
         {
             #region 获取压缩聊天记录提示词
-            if (aiapp.IsAutoGetAIMessageCompaction&& aiapp.IsAIMessageCompaction)
+            if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
             {
                 systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString());
             }
@@ -331,6 +331,16 @@ namespace kevin.Application.Services.AI
                             chatAgOs.ChatOptions.Tools.AddRange(aIAgent.AsAIFunction());
                         }
                     }
+                    if (!aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
+                    {
+                        _aIChatMessageStoreCompactionService.InitData(par.AIChatsId.ToString());
+                        chatAgOs.ChatOptions.Tools.Add(AIFunctionFactory.Create(_aIChatMessageStoreCompactionService.GetAIToolThreadPrompt, new AIFunctionFactoryOptions
+                        {
+                            Name = "GetAIToolThreadPrompt",
+                            Description = "获取聊天对话历史记录，当用户询问聊天记录时调用，返回用户历史对话(压缩摘要版本)。"
+                        }
+      ));
+                    }
                 }
             }
             if (aiapp.IsSkill)
@@ -363,7 +373,7 @@ namespace kevin.Application.Services.AI
             string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
             #region 获取压缩聊天记录提示词
             if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
-            { 
+            {
                 systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString());
             }
             #endregion
@@ -378,7 +388,7 @@ namespace kevin.Application.Services.AI
                     ResponseFormat = ChatResponseFormat.Text,
                     Instructions = systemPrompt,
                 },
-                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0)
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), 0)
             };
             #region AI配置
             if (aiapp.IsAITools)
