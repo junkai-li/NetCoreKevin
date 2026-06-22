@@ -10,10 +10,14 @@ using Kevin.AI.Dto;
 using Kevin.Common.Extension;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
+using OllamaSharp.Tools;
 using OpenAI;
 using Repository.Database;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace kevin.Application.Services.AI
 {
@@ -502,7 +506,50 @@ namespace kevin.Application.Services.AI
                     {
                         if (item.Value.Count > 0)
                         {
-                            var reslut = await aiAgent.RunAsync($"内容如下：{comDataDic.Select(t => t.Value).ToArray().SerializeToJson()}", cancellationToken: cancellationToken);
+                            var content = new StringBuilder();
+                            content.Append("内容如下：\n");
+                            foreach (var itemValue in item.Value)
+                            {
+                                JsonElement msg = JsonSerializer.Deserialize<JsonElement>(itemValue);
+                                string role = msg.GetProperty("Role").GetString() ?? "";
+                                JsonElement contents = msg.GetProperty("Contents");
+                                if (role == "assistant")
+                                {
+                                    foreach (JsonElement itemmsg in contents.EnumerateArray())
+                                    {
+                                        string type = itemmsg.GetProperty("$type").GetString() ?? "";
+                                        if (type == "reasoning")
+                                        {
+                                            content.AppendLine("思考过程:" + itemmsg.GetProperty("Text").GetString());
+                                        }
+                                        else if (type == "text")
+                                        {
+                                            content.AppendLine("AI回复:" + itemmsg.GetProperty("Text").GetString());
+                                        }
+                                    }
+                                }
+                                else if (role == "user")
+                                { 
+                                    foreach (JsonElement itemmsg in contents.EnumerateArray())
+                                    {
+                                        content.AppendLine("用户对话:" + itemmsg.GetProperty("Text").GetString());
+                                    }
+                                }
+                                else if (role == "tool")   // ✅ 新增
+                                {
+                                    foreach (JsonElement itemmsg in contents.EnumerateArray())
+                                    {
+                                        if (itemmsg.GetProperty("$type").GetString() == "functionResult")
+                                        {
+                                            string result = itemmsg.GetProperty("Result").GetString() ?? "";
+                                            string callId = itemmsg.GetProperty("CallId").GetString() ?? "";
+                                            content.AppendLine($"工具执行结果：[{callId}] {result}");
+                                        }
+                                    }
+                                }
+                            }
+
+                            var reslut = await aiAgent.RunAsync($"内容如下：{content.ToString()}", cancellationToken: cancellationToken);
                             addList.Add(new TAIChatMessageStoreCompaction
                             {
                                 Id = snowflakeIdService1.GetNextId(),
