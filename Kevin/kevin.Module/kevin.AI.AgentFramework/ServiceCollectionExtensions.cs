@@ -15,6 +15,7 @@ namespace Kevin.AI
             services.TryAddScoped<IShellToolsService, ShellToolsService>();
             services.TryAddScoped<IAgentHttpClientToolsService, AgentHttpClientToolsService>();
             services.TryAddScoped<IAIAgentService, AIAgentService>();
+            services.TryAddScoped<IAuthorizedToolsService, AuthorizedToolsService>();
         }
     }
 }

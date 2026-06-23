@@ -1,6 +1,7 @@
 ﻿using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Interfaces.Tasks;
 using kevin.AI.AgentFramework.Interfaces.Tools;
+using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Interfaces.IServices.AI;
 using Microsoft.Extensions.AI;
 
@@ -27,10 +28,12 @@ namespace kevin.Application.Services.AI
         private readonly IAIFileToolService _iAIFileToolService;
 
         private readonly IAIMsgService _IAIMsgService;
+
+        private readonly IAuthorizedToolsService _authorizedToolsService;
         public AIAgentToolSkillService(IKevinAITaskService kevinAITaskService, IAISkillToolBindIdService iAISkillToolBindIdService,
             IAISkillToolManagementService iAISkillToolManagementService, ICommonToolsService commonTools, IPythonToolsService pythonTools,
-            IShellToolsService shellTools, IAgentHttpClientToolsService agentHttpClientToolsService, IUserService userService, IAIFileToolService iAIFileToolService,
-            IAIMsgService iAIMsgService)
+            IShellToolsService shellTools, IAgentHttpClientToolsService agentHttpClientToolsService, IUserService userService,
+            IAIFileToolService iAIFileToolService,  IAIMsgService iAIMsgService, IAuthorizedToolsService authorizedToolsService)
         {
             _kevinAITaskService = kevinAITaskService;
             _iAISkillToolBindIdService = iAISkillToolBindIdService;
@@ -41,7 +44,8 @@ namespace kevin.Application.Services.AI
             _agentHttpClientToolsService = agentHttpClientToolsService;
             _userService = userService;
             _iAIFileToolService = iAIFileToolService;
-            _IAIMsgService = iAIMsgService;
+            _IAIMsgService = iAIMsgService; 
+            _authorizedToolsService = authorizedToolsService;
         }
         private async Task<List<AITool>> GetAITools(object data, List<string> toolNames)
         {
@@ -51,6 +55,15 @@ namespace kevin.Application.Services.AI
             _iPythonTools.InitData(data);
             _iShellTools.InitData(data);
             _agentHttpClientToolsService.InitData(data);
+            _authorizedToolsService.InitData(data); 
+            aiTools.Add(
+                 AIFunctionFactory.Create(_authorizedToolsService.GetUrlAuthorizedCodeAsync,
+                 new AIFunctionFactoryOptions
+                 {
+                     Name = "GetUrlAuthorizedCodeAsync",
+                     Description = "获取授权登录代码：当使用python，http工具发起Http请求时，需要先获取401授权代码， 返回授权码：输出JSON明确指示Token值和放置位置（URL参数或Headers） 失败异常返回以 ❌ 开头的错误信息"
+                 }
+          ));
             aiTools.Add(
                     AIFunctionFactory.Create(_iCommonTools.GetCurrentTime,
                     new AIFunctionFactoryOptions
