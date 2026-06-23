@@ -487,7 +487,7 @@ namespace kevin.Application.Services.AI
                                         string type = itemmsg.GetProperty("$type").GetRawText() ?? "";
                                         if (type == "reasoning")
                                         {
-                                            content.AppendLine("思考过程:" + itemmsg.GetProperty("Text").GetRawText());
+                                          //  content.AppendLine("思考过程:" + itemmsg.GetProperty("Text").GetRawText());
                                         }
                                         else if (type == "text")
                                         {
@@ -499,7 +499,7 @@ namespace kevin.Application.Services.AI
                                 {
                                     foreach (JsonElement itemmsg in contents.EnumerateArray())
                                     {
-                                        content.AppendLine("用户对话:" + itemmsg.GetProperty("Text").GetRawText());
+                                        content.AppendLine("用户提问:" + itemmsg.GetProperty("Text").GetRawText());
                                     }
                                 }
                                 else if (role == "tool")   // ✅ 新增
