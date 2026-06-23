@@ -51,8 +51,7 @@ namespace Kevin.Web.Basics.AI
 
         [HttpPost("Add")]
         [ActionDescription("新增AI对话聊天记录")]
-        [HttpLog("AI对话聊天记录管理", "新增AI对话聊天记录")]
-        [Transactional]
+        [HttpLog("AI对话聊天记录管理", "新增AI对话聊天记录")] 
         [SkipAuthority]
         public async Task<AIChatHistorysDto> Add([FromBody] AIChatHistorysDto par, CancellationToken cancellationToken)
         {
