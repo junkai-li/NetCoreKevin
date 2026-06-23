@@ -1027,15 +1027,18 @@ const formatDate = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
   const now = new Date();
-  const diffTime = Math.abs(now - date);
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const currentDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffTime = currentDate - targetDate;
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 1) {
+  if (diffDays === 0) {
     return "今天";
-  } else if (diffDays === 2) {
+  } else if (diffDays === 1) {
     return "昨天";
   } else if (diffDays <= 7) {
-    return `${diffDays - 1}天前`;
+    return `${diffDays}天前`;
   } else {
     return date.toLocaleDateString("zh-CN");
   }
