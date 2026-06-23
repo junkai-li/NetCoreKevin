@@ -687,10 +687,11 @@ const handleMenuClick = ({ key }) => {
 };
 
 // 退出登录
-const handleLogout = () => {
+const handleLogout = async () => {
   console.log("用户退出登录");
-  localStorage.removeItem("token");
-  localStorage.removeItem("UserPermissions");
+  await localStorage.removeItem("token");
+  await localStorage.removeItem("user");
+ await localStorage.removeItem("UserPermissions");
   router.push("/login");
 };
 // 个人中心
