@@ -235,9 +235,9 @@ namespace kevin.Application.Services.AI
             aIChatHistorysRp.Add(addAi);
             await aIChatsService.UpdateNameAndMsg(par.AIChatsId, count == 1 ? par.Content : "", addAi.Content, cancellationToken);
             await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
-            Task.Run(() => { 
-               MessageStoreCompaction(aiapp, aIModels, par.AIChatsId.ToString());
-            }); 
+            Task.Run(() => {
+                MessageStoreCompaction(aiapp, aIModels, par.AIChatsId.ToString());
+            });
             var data = addAi.MapTo<AIChatHistorysDto>();
             data.aIChatHistorysBindLogs = logdata;
             return data;
@@ -480,29 +480,29 @@ namespace kevin.Application.Services.AI
                                 JsonElement msg = JsonSerializer.Deserialize<JsonElement>(itemValue);
                                 string role = msg.GetProperty("Role").GetString() ?? "";
                                 JsonElement contents = msg.GetProperty("Contents");
-                                if (role == "assistant")
+                                if (role.Contains("assistant"))
                                 {
                                     foreach (JsonElement itemmsg in contents.EnumerateArray())
                                     {
                                         string type = itemmsg.GetProperty("$type").GetRawText() ?? "";
-                                        if (type == "reasoning")
+                                        if (type.Contains("reasoning"))
                                         {
-                                          //  content.AppendLine("思考过程:" + itemmsg.GetProperty("Text").GetRawText());
+                                            //  content.AppendLine("思考过程:" + itemmsg.GetProperty("Text").GetRawText());
                                         }
-                                        else if (type == "text")
+                                        else if (type.Contains("text"))
                                         {
                                             content.AppendLine("AI回复:" + itemmsg.GetProperty("Text").GetRawText());
                                         }
                                     }
                                 }
-                                else if (role == "user")
+                                else if (role.Contains("user"))
                                 {
                                     foreach (JsonElement itemmsg in contents.EnumerateArray())
                                     {
                                         content.AppendLine("用户提问:" + itemmsg.GetProperty("Text").GetRawText());
                                     }
                                 }
-                                else if (role == "tool")   // ✅ 新增
+                                else if (role.Contains("tool"))   // ✅ 新增
                                 {
                                     foreach (JsonElement itemmsg in contents.EnumerateArray())
                                     {
