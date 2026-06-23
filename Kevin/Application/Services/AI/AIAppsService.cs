@@ -517,14 +517,14 @@ namespace kevin.Application.Services.AI
                                 {
                                     foreach (JsonElement itemmsg in contents.EnumerateArray())
                                     {
-                                        string type = itemmsg.GetProperty("$type").GetString() ?? "";
+                                        string type = itemmsg.GetProperty("$type").GetRawText() ?? "";
                                         if (type == "reasoning")
                                         {
-                                            content.AppendLine("思考过程:" + itemmsg.GetProperty("Text").GetString());
+                                            content.AppendLine("思考过程:" + itemmsg.GetProperty("Text").GetRawText());
                                         }
                                         else if (type == "text")
                                         {
-                                            content.AppendLine("AI回复:" + itemmsg.GetProperty("Text").GetString());
+                                            content.AppendLine("AI回复:" + itemmsg.GetProperty("Text").GetRawText());
                                         }
                                     }
                                 }
@@ -532,7 +532,7 @@ namespace kevin.Application.Services.AI
                                 { 
                                     foreach (JsonElement itemmsg in contents.EnumerateArray())
                                     {
-                                        content.AppendLine("用户对话:" + itemmsg.GetProperty("Text").GetString());
+                                        content.AppendLine("用户对话:" + itemmsg.GetProperty("Text").GetRawText());
                                     }
                                 }
                                 else if (role == "tool")   // ✅ 新增
@@ -541,8 +541,8 @@ namespace kevin.Application.Services.AI
                                     {
                                         if (itemmsg.GetProperty("$type").GetString() == "functionResult")
                                         {
-                                            string result = itemmsg.GetProperty("Result").GetString() ?? "";
-                                            string callId = itemmsg.GetProperty("CallId").GetString() ?? "";
+                                            string result = itemmsg.GetProperty("Result").GetRawText() ?? "";
+                                            string callId = itemmsg.GetProperty("CallId").GetRawText() ?? "";
                                             content.AppendLine($"工具执行结果：[{callId}] {result}");
                                         }
                                     }
