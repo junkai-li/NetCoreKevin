@@ -10,7 +10,7 @@ namespace kevin.AI.AgentFramework.Interfaces.Tools
 {
     public interface IAuthorizedToolsService : IBaseAIToolService
     {
-        [Description("获取授权登录代码：当使用python，http工具发起Http请求时，需要先获取401授权代码， 返回授权码：输出JSON明确指示Token值和放置位置（URL参数或Headers） 失败异常返回以 ❌ 开头的错误信息")]
+        [Description("获取授权登录代码：当使用Python，Shell工具，http工具发起Http请求时，需要先获取401授权代码， 返回授权码：输出JSON明确指示Token值和放置位置（URL参数或Headers） 失败异常返回以 ❌ 开头的错误信息")]
         Task<string> GetUrlAuthorizedCodeAsync([Description("传入请求的url")][Required] string url); 
     }
 }
