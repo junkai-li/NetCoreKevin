@@ -367,16 +367,21 @@ namespace kevin.Application.Services.AI
         }
 
         /// <summary>
-        /// 获取ai应用
+        /// 获取子ai应用
         /// </summary>
+        /// <param name="aiapp"></param>
+        /// <param name="parAi"></param>
+        /// <param name="par"></param>
+        /// <param name="cancellationToken"></param>
+        /// <param name="referenceDepth">深度为0时可以获取到子ai应用，深度为1时可以获取到子ai应用的子ai应用，以此类推 最多三级引用</param>
         /// <returns></returns>
-        public async Task<AIAgent> GetAppAIAgent(AIAppsDto aiapp, object parAi, AIChatHistorysDto par, CancellationToken cancellationToken = default)
+        public async Task<AIAgent> GetAppAIAgent(AIAppsDto aiapp, object parAi, AIChatHistorysDto par, CancellationToken cancellationToken = default, int referenceDepth = 0)
         {
             var aIModels = await aIModelsService.GetDetails(aiapp.ChatModelID.ToTryInt64());
             var aIPrompts = await aIPromptsService.GetDetails(aiapp.AIPromptID);
-            string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt; 
+            string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
             // 获取压缩聊天记录提示词
-            systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString()); 
+            systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString());
             var chatAgOs = new ChatClientAgentOptions
             {
                 Name = aiapp.Name,
@@ -398,6 +403,20 @@ namespace kevin.Application.Services.AI
                     // 🔑 能力层：工具
                     chatAgOs.ChatOptions.Tools ??= new List<AITool>();
                     chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(parAi, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result);
+                    if (referenceDepth < 3)
+                    {
+                        if (aiapp.BindIds.Where(x => x.Contains("agent_")).Count() > 0)
+                        {
+                            referenceDepth++;
+                            var agentIds = aiapp.BindIds.Where(x => x.Contains("agent_")).Select(t => t.Replace("agent_", "")).ToList();
+                            foreach (var item in agentIds)
+                            {
+                                var appitem = await GetDetails(item.ToTryInt64());
+                                var aIAgent = await GetAppAIAgent(appitem, parAi, par, cancellationToken, referenceDepth);
+                                chatAgOs.ChatOptions.Tools.AddRange(aIAgent.AsAIFunction());
+                            }
+                        }
+                    }
                 }
             }
             if (aiapp.IsSkill)
