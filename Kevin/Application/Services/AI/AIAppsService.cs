@@ -375,6 +375,8 @@ namespace kevin.Application.Services.AI
             var aIModels = await aIModelsService.GetDetails(aiapp.ChatModelID.ToTryInt64());
             var aIPrompts = await aIPromptsService.GetDetails(aiapp.AIPromptID);
             string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt; 
+            // 获取压缩聊天记录提示词
+            systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString()); 
             var chatAgOs = new ChatClientAgentOptions
             {
                 Name = aiapp.Name,
@@ -386,7 +388,7 @@ namespace kevin.Application.Services.AI
                     ResponseFormat = ChatResponseFormat.Text,
                     Instructions = systemPrompt,
                 },
-                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + Guid.NewGuid().ToString(), 0)
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0)
             };
             #region AI配置
             if (aiapp.IsAITools)

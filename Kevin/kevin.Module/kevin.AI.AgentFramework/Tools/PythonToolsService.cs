@@ -221,7 +221,7 @@ namespace kevin.AI.AgentFramework.Tools
                 {
                     output = "Python脚本执行完成，但没有输出结果。";
                 }
-                return output.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(output, _contentLengthLimit) : output;
+                return $"Python脚本路径为：{scriptPath}  \n 执行结果如下：\n" +  (output.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(output, _contentLengthLimit) : output);
             }
             catch (Exception ex)
             {
@@ -293,7 +293,7 @@ namespace kevin.AI.AgentFramework.Tools
                 {
                     output = "Python脚本执行完成，但没有输出结果。";
                 }
-                return output.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(output, _contentLengthLimit) : output;
+                return $"Python脚本已保存路径为：{saveResult}  \n 执行结果如下：\n" + ( output.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(output, _contentLengthLimit) : output);
 
             }
             catch (Exception ex)

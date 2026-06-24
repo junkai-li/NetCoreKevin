@@ -235,8 +235,27 @@ namespace kevin.Application.Services.AI
             aIChatHistorysRp.Add(addAi);
             await aIChatsService.UpdateNameAndMsg(par.AIChatsId, count == 1 ? par.Content : "", addAi.Content, cancellationToken);
             await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
-            Task.Run(() => {
+            var BindApps = new Dictionary<AIAppsDto, AIModelsDto>();
+            if (aiapp.BindIds.Where(x => x.Contains("agent_")).Count() > 0)
+            {
+                var agentIds = aiapp.BindIds.Where(x => x.Contains("agent_")).Select(t => t.Replace("agent_", "")).ToList();
+                foreach (var item in agentIds)
+                {
+                    var appitem = await aIAppsService.GetDetails(item.ToTryInt64());
+                    if (appitem != default)
+                    {
+                        BindApps.Add(appitem, await aIModelsService.GetDetails(appitem.ChatModelID.ToTryInt64()));
+                    }
+                }
+            }
+            Task.Run(() =>
+            {
                 MessageStoreCompaction(aiapp, aIModels, par.AIChatsId.ToString());
+                //压缩绑定智能体聊天记录
+                foreach (var item in BindApps)
+                {
+                    MessageStoreCompaction(item.Key, item.Value, par.AIChatsId.ToString() + "_agent_" + item.Key.Id.ToString());
+                }
             });
             var data = addAi.MapTo<AIChatHistorysDto>();
             data.aIChatHistorysBindLogs = logdata;
