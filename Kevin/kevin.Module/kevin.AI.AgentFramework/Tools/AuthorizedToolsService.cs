@@ -60,7 +60,7 @@ namespace kevin.AI.AgentFramework.Tools
         /// <param name="url">传入需要请求的url</param>
         /// <returns></returns>
         [Description("获取授权登录代码：当使用python，http工具发起Http请求时，需要先获取401授权代码， 返回授权码：输出JSON明确指示Token值和放置位置（URL参数或Headers） 失败异常返回以 ❌ 开头的错误信息")]
-        public async Task<string> GetUrlAuthorizedCodeAsync([Description("传入请求的url"), Required] string url)
+        public async Task<string> GetUrlAuthorizedCodeAsync([Description("传入完整的请求url如：https://ksiaa.com/api/product/lists"), Required] string url)
         {
             AuthorizedDomainsCheck(url);
             var data = new { UrlParameters=new { Code = "123456"}, Headers=new { Authorization = "Bearer 123456" } };
