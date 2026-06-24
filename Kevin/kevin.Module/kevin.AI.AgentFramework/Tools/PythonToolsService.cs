@@ -206,22 +206,26 @@ namespace kevin.AI.AgentFramework.Tools
                 start.RedirectStandardOutput = true; // 重定向标准输出
                 start.RedirectStandardError = true; // 重定向标准错误
                 string output = "";
-                using (Process process = Process.Start(start))
+                using var process = Process.Start(start);
+                if (process == null)
                 {
-                    // 获取输出
-                    output = process.StandardOutput.ReadToEnd();
-                    string error = process.StandardError.ReadToEnd();
-                    process.WaitForExit(); // 等待进程结束 
-                    if (!string.IsNullOrEmpty(error))
-                    {
-                        return $"❌ 执行失败: {error}";
-                    }
+                    return "❌ 无法启动 Shell 进程";
+                }
+                var stdout = process.StandardOutput.ReadToEndAsync();
+                var stderr = process.StandardError.ReadToEndAsync(); 
+                // 获取输出
+                output = stdout.Result;
+                string error = stderr.Result;
+                process.WaitForExit(); // 等待进程结束 
+                if (!string.IsNullOrEmpty(error))
+                {
+                    return $"❌ 执行失败: {error}";
                 }
                 if (string.IsNullOrWhiteSpace(output))
                 {
                     output = "Python脚本执行完成，但没有输出结果。";
                 }
-                return $"Python脚本路径为：{scriptPath}  \n 执行结果如下：\n" +  (output.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(output, _contentLengthLimit) : output);
+                return $"Python脚本路径为：{scriptPath}  \n 执行结果如下：\n" + (output.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(output, _contentLengthLimit) : output);
             }
             catch (Exception ex)
             {
@@ -278,22 +282,33 @@ namespace kevin.AI.AgentFramework.Tools
                 start.UseShellExecute = false; // 不使用操作系统外壳启动
                 start.RedirectStandardOutput = true; // 重定向标准输出
                 start.RedirectStandardError = true; // 重定向标准错误
-                using (Process process = Process.Start(start))
+                using var process = Process.Start(start);
+                if (process == null)
                 {
-                    // 获取输出
-                    output = process.StandardOutput.ReadToEnd();
-                    string error = process.StandardError.ReadToEnd();
-                    process.WaitForExit(); // 等待进程结束 
-                    if (!string.IsNullOrEmpty(error))
-                    {
-                        return $"❌ 执行失败: {error}";
-                    }
+                    return "❌ 无法启动 Shell 进程";
+                }
+                var stdout = process.StandardOutput.ReadToEndAsync();
+                var stderr = process.StandardError.ReadToEndAsync();
+
+                // 🛡️ 安全护栏 3：超时控制（600秒）
+                if (!process.WaitForExit(600_000))
+                {
+                    process.Kill(entireProcessTree: true);
+                    return "❌ 命令执行超时（600秒），已强制终止。";
+                }
+                // 获取输出
+                output = stdout.Result;
+                string error = stderr.Result;
+                process.WaitForExit(); // 等待进程结束 
+                if (!string.IsNullOrEmpty(error))
+                {
+                    return $"❌ 执行失败: {error}";
                 }
                 if (string.IsNullOrWhiteSpace(output))
                 {
                     output = "Python脚本执行完成，但没有输出结果。";
                 }
-                return $"Python脚本已保存路径为：{saveResult}  \n 执行结果如下：\n" + ( output.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(output, _contentLengthLimit) : output);
+                return $"Python脚本已保存路径为：{saveResult}  \n 执行结果如下：\n" + (output.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(output, _contentLengthLimit) : output);
 
             }
             catch (Exception ex)

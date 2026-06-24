@@ -37,7 +37,7 @@
         /// <summary>
         /// AI请求超时时间，单位分钟
         /// </summary>
-        public int NetworkTimeout { get; set; } = 10;
+        public int NetworkTimeout { get; set; } = 30;
 
         /// <summary>
         /// 是否开启流式请求

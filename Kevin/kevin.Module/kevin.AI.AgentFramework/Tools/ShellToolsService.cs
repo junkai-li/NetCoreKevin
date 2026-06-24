@@ -157,24 +157,26 @@ namespace kevin.AI.AgentFramework.Tools
                     return "❌ 无法启动 Shell 进程";
                 }
 
-                var stdout = process.StandardOutput.ReadToEnd();
-                var stderr = process.StandardError.ReadToEnd();
+                var stdout = process.StandardOutput.ReadToEndAsync();
+                var stderr = process.StandardError.ReadToEndAsync();
 
-                // 🛡️ 安全护栏 3：超时控制（60秒）
-                if (!process.WaitForExit(60_000))
+                // 🛡️ 安全护栏 3：超时控制（600秒）
+                if (!process.WaitForExit(600_000))
                 {
                     process.Kill(entireProcessTree: true);
-                    return "❌ 命令执行超时（60秒），已强制终止。";
+                    return "❌ 命令执行超时（600秒），已强制终止。";
                 }
 
                 var result = new StringBuilder();
-                if (!string.IsNullOrWhiteSpace(stdout))
+               var resultStdout = stdout.Result;
+                var resultStderr = stderr.Result;
+                if (!string.IsNullOrWhiteSpace(resultStdout))
                 {
-                    result.AppendLine(stdout.Trim());
+                    result.AppendLine(resultStdout.Trim());
                 }
-                if (!string.IsNullOrWhiteSpace(stderr))
+                if (!string.IsNullOrWhiteSpace(resultStderr))
                 {
-                    result.AppendLine($"⚠️ stderr: {stderr.Trim()}");
+                    result.AppendLine($"⚠️ stderr: {resultStderr.Trim()}");
                 }
                 if (process.ExitCode != 0)
                 {
