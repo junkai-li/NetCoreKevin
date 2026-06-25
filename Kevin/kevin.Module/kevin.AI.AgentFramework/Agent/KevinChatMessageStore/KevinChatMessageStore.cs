@@ -2,8 +2,7 @@ using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.Interfaces;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Text.Json;
 
 namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
 {
@@ -25,28 +24,14 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
             this._chatMessageStore = vectorStore ?? throw new ArgumentNullException(nameof(vectorStore));
             this.ThreadDbKey = aIChatsId;
             this.MaxUserTurns = maxUserTurns;
+            JsonSerializer.SerializeToElement(this.ThreadDbKey);
         }
-        // 🔑 使用 Newtonsoft.Json
-        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
-        {
-            Formatting = Formatting.None,
-            NullValueHandling = NullValueHandling.Ignore,
-            TypeNameHandling = TypeNameHandling.Auto, // 🔑 自动添加类型信息
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore, // 🔑 忽略循环引用
-            Converters = new List<JsonConverter>
-            {
-                new StringEnumConverter(),
-                new AIContentNewtonsoftConverter(),
-            }
-        };
+
         protected override ValueTask<IEnumerable<ChatMessage>> ProvideChatHistoryAsync(
          InvokingContext context, CancellationToken cancellationToken = default)
         {
             var data = _chatMessageStore.GetMessagesAsync(this.ThreadDbKey, cancellationToken, MaxUserTurns).Result;
-            var messages = data
-                      .OrderBy(t => t.Timestamp)
-                      .Select(x => JsonConvert.DeserializeObject<ChatMessage>(x.SerializedMessage!, SerializerSettings)!)
-                      .ToList();
+            var messages = data.OrderByDescending(t => t.Timestamp).ToList().ConvertAll(x => JsonSerializer.Deserialize<ChatMessage>(x.SerializedMessage!)!);
             messages.Reverse();
             messages = messages.ToList();
             if (context.RequestMessages.Count() > 0)
@@ -98,14 +83,11 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
                     ThreadId = this.ThreadDbKey,
                     MessageId = x.MessageId,
                     Role = x.Role.Value,
-                    SerializedMessage = JsonConvert.SerializeObject(x, SerializerSettings),
+                    SerializedMessage = JsonSerializer.Serialize(x),
                     MessageText = x.Text
                 }).ToList();
                 await _chatMessageStore.AddMessagesAsync(adddata, cancellationToken);
             }
         }
-
-
-
     }
 }
