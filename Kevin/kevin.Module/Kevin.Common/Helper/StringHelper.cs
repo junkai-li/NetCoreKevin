@@ -229,16 +229,13 @@ namespace Common
             }
             return "";
         }
-
-
-
         /// <summary>
         /// 对文本进行指定长度截取并添加省略号
         /// </summary>
         /// <param name="NeiRong"></param>
         /// <param name="length"></param>
         /// <returns></returns>
-        public static string SubstringText(string NeiRong, int length, string NeiRongMsg = "...")
+        public static string SubstringText(string NeiRong, int length,string NeiRongMsg="...")
         {
             if (length == 0) return NeiRong;
             if (!string.IsNullOrEmpty(NeiRong))
@@ -258,6 +255,7 @@ namespace Common
             }
             return "";
         }
+
 
         /// <summary>
         /// 对字符串进行脱敏处理
