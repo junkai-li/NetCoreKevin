@@ -31,7 +31,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
          InvokingContext context, CancellationToken cancellationToken = default)
         {
             var data = _chatMessageStore.GetMessagesAsync(this.ThreadDbKey, cancellationToken, MaxUserTurns).Result;
-            var messages = data.OrderByDescending(t => t.Timestamp).ToList().ConvertAll(x => JsonSerializer.Deserialize<ChatMessage>(x.SerializedMessage!)!);
+            var messages = data.OrderByDescending(t => t.CreateTime).ToList().ConvertAll(x => JsonSerializer.Deserialize<ChatMessage>(x.SerializedMessage!)!);
             messages.Reverse();
             messages = messages.ToList();
             if (context.RequestMessages.Count() > 0)
@@ -40,7 +40,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
                 {
                     if (item.CreatedAt == null)
                     {
-                        item.CreatedAt = DateTimeOffset.UtcNow;
+                        item.CreatedAt = DateTime.Now.AddSeconds(-1);
                     }
                 }
             }
@@ -54,26 +54,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         protected override async ValueTask StoreChatHistoryAsync(InvokedContext context, CancellationToken cancellationToken = default)
         {
             var responseMessages = context.ResponseMessages ?? Array.Empty<ChatMessage>();
-            var allNewMessages = context.RequestMessages.Concat(responseMessages).ToList();
-            var toolsMessages = allNewMessages.Where(x => x.Role == ChatRole.Tool).OrderBy(t => t.CreatedAt).ToList();
-            var toolsMessagesI = 0;
-            //修复assistant必须在tool之前CreatedAt时间问题 保证顺序正确性
-            if (toolsMessages.Count > 0)
-            {
-                foreach (var item in allNewMessages)
-                {
-                    if (item.Role == ChatRole.Assistant)
-                    {
-                        //是否工具调用提示
-                        if (string.IsNullOrEmpty(item.Text))
-                        {
-                            toolsMessages[toolsMessagesI].CreatedAt = item.CreatedAt!.Value.AddMilliseconds(1);
-                            toolsMessagesI++;
-                        }
-                    }
-                }
-            }
-
+            var allNewMessages = context.RequestMessages.Concat(responseMessages).ToList();  
             if (allNewMessages.Count() > 0)
             {
                 var adddata = allNewMessages.Select(x => new ChatHistoryItemDto()

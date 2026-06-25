@@ -28,5 +28,7 @@ namespace kevin.AI.AgentFramework.Dto
         public string Role { get; set; }
 
         public string? MessageId { get; set; }
+
+        public DateTime? CreateTime { get; set; }
     }
 }

@@ -51,7 +51,8 @@ namespace kevin.Application.Services.AI
                     SerializedMessage = t.SerializedMessage,
                     MessageText = t.MessageText,
                     Role = t.Role,
-                    MessageId = t.MessageId
+                    MessageId = t.MessageId,
+                    CreateTime=t.CreateTime
                 }).ToListAsync();
             }
             else
@@ -64,7 +65,8 @@ namespace kevin.Application.Services.AI
                     SerializedMessage = t.SerializedMessage,
                     MessageText = t.MessageText,
                     Role = t.Role,
-                    MessageId = t.MessageId
+                    MessageId = t.MessageId,
+                    CreateTime = t.CreateTime
                 }).OrderByDescending(t => t.Timestamp).ToListAsync();
                 var reslutData = new List<ChatHistoryItemDto>();
                 int userTurns = 0;
