@@ -101,7 +101,7 @@ namespace kevin.AI.AgentFramework.Tools
         public async Task<string> RunShell(
             [Description("要执行的 Shell 命令。例如：'pwsh -File /path/to/script.ps1' 或 'dir'")] string command,
             [Description("命令执行的工作目录（可选）。如果不指定，使用当前目录。")] string? workingDirectory = null,
-               [Description("超时时间（单位秒）：默认600秒")] int milliseconds = 600
+               [Description("超时时间（单位秒）：默认600秒")] int seconds = 600
             )
         {
             try
@@ -163,10 +163,10 @@ namespace kevin.AI.AgentFramework.Tools
                 var stderr = process.StandardError.ReadToEndAsync();
 
                 // 🛡️ 安全护栏 3：超时控制（600秒）
-                if (!process.WaitForExit(milliseconds * 1000))
+                if (!process.WaitForExit(seconds * 1000))
                 {
                     process.Kill(entireProcessTree: true);
-                    return $"❌ 命令执行超时（{milliseconds}秒），已强制终止。";
+                    return $"❌ 命令执行超时（{seconds}秒），已强制终止。";
                 }
 
                 var result = new StringBuilder();
