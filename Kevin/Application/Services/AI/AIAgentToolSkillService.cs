@@ -56,7 +56,8 @@ namespace kevin.Application.Services.AI
             _iPythonTools.InitData(data);
             _iShellTools.InitData(data);
             _agentHttpClientToolsService.InitData(data);
-            _authorizedToolsService.InitData(data); 
+            _authorizedToolsService.InitData(data);
+            _IAIMsgService.InitData(data);
             aiTools.Add(
                  AIFunctionFactory.Create(_authorizedToolsService.GetUrlAuthorizedCodeAsync,
                  new AIFunctionFactoryOptions
