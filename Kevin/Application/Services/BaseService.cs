@@ -34,6 +34,7 @@ public partial class BaseService : IBaseService
         {
             //非Http请求上下文时，直接new一个
             SnowflakeIdService = new Kevin.SnowflakeId.Service.SnowflakeIdService();
+            CurrentUser= new CurrentUser(_httpContextAccessor, _serviceProvider);
         }
     }
 }

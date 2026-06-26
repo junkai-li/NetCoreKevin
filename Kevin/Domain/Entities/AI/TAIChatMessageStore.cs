@@ -11,7 +11,7 @@ namespace kevin.Domain.Entities.AI
     [Index(nameof(ThreadId))]
     [Index(nameof(Role))]
     [Index(nameof(MessageId))]
-    public class TAIChatMessageStore : CUD_User
+    public class TAIChatMessageStore : CUD
     {
         [MaxLength(200)]
         public string Key { get; set; }

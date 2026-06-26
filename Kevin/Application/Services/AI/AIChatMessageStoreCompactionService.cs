@@ -54,8 +54,7 @@ namespace kevin.Application.Services.AI
                 var add = data.MapTo<TAIChatMessageStoreCompaction>();
                 add.Id = data.Id == default ? SnowflakeIdService.GetNextId() : data.Id;
                 add.IsDelete = false;
-                add.CreateTime = DateTime.Now;
-                add.CreateUserId = CurrentUser.UserId;
+                add.CreateTime = DateTime.Now; 
                 add.TenantId = CurrentUser.TenantId;
                 AIChatMessageStoreCompactionRp.Add(add);
             }
@@ -65,8 +64,7 @@ namespace kevin.Application.Services.AI
                 if (upData != default)
                 {
                     upData = data.MapTo(upData);
-                    upData.UpdateTime = DateTime.Now;
-                    upData.UpdateUserId = CurrentUser.UserId;
+                    upData.UpdateTime = DateTime.Now; 
                     upData.TenantId = CurrentUser.TenantId;
                 }
                 else

@@ -343,7 +343,7 @@ namespace kevin.Application.Services.AI
                 {
                     // 🔑 能力层：工具
                     chatAgOs.ChatOptions.Tools ??= new List<AITool>();
-                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(parAi, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result);
+                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(parAi, aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
                     if (aiapp.BindIds.Where(x => x.Contains("agent_")).Count() > 0)
                     {
                         var agentIds = aiapp.BindIds.Where(x => x.Contains("agent_")).Select(t => t.Replace("agent_", "")).ToList();
@@ -368,7 +368,7 @@ namespace kevin.Application.Services.AI
             }
             if (aiapp.IsSkill)
             {
-                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(parAi, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result;
+                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(parAi, aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result;
 #pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。  
                 var skillsProvider = new AgentSkillsProviderBuilder()
                                                .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)
@@ -421,7 +421,7 @@ namespace kevin.Application.Services.AI
                 {
                     // 🔑 能力层：工具
                     chatAgOs.ChatOptions.Tools ??= new List<AITool>();
-                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(parAi, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result);
+                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(parAi, aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
                     if (referenceDepth < MaxReferenceDepth)
                     {
                         if (aiapp.BindIds.Where(x => x.Contains("agent_")).Count() > 0)
@@ -440,7 +440,7 @@ namespace kevin.Application.Services.AI
             }
             if (aiapp.IsSkill)
             {
-                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(parAi, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result;
+                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(parAi, aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result;
 #pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。  
                 var skillsProvider = new AgentSkillsProviderBuilder()
                                                .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)

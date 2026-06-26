@@ -109,7 +109,7 @@ namespace kevin.Application
         {
             if (userId == default)
             {
-                userId = CurrentUser.UserId;
+                userId = CurrentUser?.UserId ?? 0;
             }
             return GetSysUserWhereId(userId);
         }
@@ -121,7 +121,7 @@ namespace kevin.Application
         /// <returns></returns>
         public dtoUser GetCurrentUserInfo()
         {
-            return GetSysUserWhereId(CurrentUser.UserId);
+            return GetSysUserWhereId(CurrentUser?.UserId ?? 0);
         }
 
         /// <summary>

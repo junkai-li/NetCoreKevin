@@ -22,8 +22,7 @@ namespace kevin.Application.Services.AI
             var adddata = chatHistoryItems.Select(t => new TAIChatMessageStore
             {
                 Id = SnowflakeIdService.GetNextId(),
-                CreateTime = DateTime.Now,
-                CreateUserId = CurrentUser.UserId,
+                CreateTime = DateTime.Now, 
                 IsDelete = false,
                 TenantId = CurrentUser.TenantId,
                 ThreadId = t.ThreadId ?? "",

@@ -34,7 +34,7 @@ namespace kevin.Application.Services.AI
             if (_data != default)
             {
                 var jsonDoc = JsonDocument.Parse(JsonSerializer.Serialize(_data));
-                var userId = jsonDoc.RootElement.GetProperty("UserId").GetString();
+                var userId = jsonDoc.RootElement.GetProperty("UserId").ToString();
                 if (!string.IsNullOrEmpty(userId))
                 {
                     var userInfo = userService.GetSysUserWhereId(userId.ToTryInt64());

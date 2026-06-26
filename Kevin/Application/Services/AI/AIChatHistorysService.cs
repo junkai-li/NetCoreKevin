@@ -540,8 +540,7 @@ namespace kevin.Application.Services.AI
                             {
                                 Id = snowflakeIdService1.GetNextId(),
                                 IsDelete = false,
-                                CreateTime = DateTime.Now,
-                                CreateUserId = aiapp.CreateUserId,
+                                CreateTime = DateTime.Now, 
                                 TenantId = aiapp.TenantId,
                                 ThreadId = thread_id,
                                 CompactionMessageText = item.Value.SerializeToJson(),

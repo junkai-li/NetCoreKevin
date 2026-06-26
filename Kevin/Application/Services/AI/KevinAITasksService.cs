@@ -29,10 +29,10 @@ namespace kevin.Application.Services.AI
 
         private readonly IMessageService _messageService;
 
-        private readonly IAIAgentService _aIAgentService;
+        private readonly IAIAgentService _aIAgentService; 
         private readonly IAIChatsRp aIChatsRp;
         private readonly IAIModelsRp _aIModelsRp;
-        private readonly IAIPromptsRp _aIPromptsRp;
+        private readonly IAIPromptsRp _aIPromptsRp; 
         private IDistributedLockProvider distLock { get; set; }
 
         private object? _data; // 用于存储初始化数据
@@ -50,11 +50,11 @@ namespace kevin.Application.Services.AI
             _recurringJobManager = recurringJobManager;
             _jobStorage = jobStorage; // 可通过 DI 注入；若为 null，会回退到 JobStorage.Current
             _messageService = messageService;
-            _aIAgentService = aIAgentService;
+            _aIAgentService = aIAgentService; 
             this._aIModelsRp = aIModelsRp;
             this._aIPromptsRp = aIPromptsRp;
             this.aIChatsRp = aIChatsRp;
-            this.distLock = distLock;
+            this.distLock = distLock; 
         }
         public static bool IsValidCronExpression(string cronExpression)
         {
@@ -74,10 +74,17 @@ namespace kevin.Application.Services.AI
 
             return true;
         }
-        public Task<string> AddOrUpdateCronTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")] string name, [Description("content：可传入具体的任务内容，不可为空 比如：第一步：搜索并总结AI领域的热门资讯，包括技术突破、产品发布、行业动态等，第二步：生成总结报告为MkD格式")] string content, [Description("cron表达式：用于定义任务的执行周期，不可为空 比如用户需要每六分钟执行一次则传入：0 0/6 0/1 * * ?  ")] string cronExpression)
+        public Task<string> AddOrUpdateCronTask(
+            [Description("可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")] string name,
+            [Description("可传入具体的任务内容（禁止传入自动任务相关词汇，只能传入任务步骤！！！）。 比如：第一步：搜索并总结AI领域的热门资讯，包括技术突破、产品发布、行业动态等，第二步：生成总结报告为MkD格式")] string content, 
+            [Description("cron表达式：用于定义任务的执行周期，不可为空 比如用户需要每六分钟执行一次则传入：0 0/6 0/1 * * ?  ")] string cronExpression)
         {
             try
             {
+                if (content.Contains(name))
+                {
+                     return Task.FromResult("添加或更新定时任务失败：" + name + content + cronExpression + "，异常信息：cronExpression格式错误");
+                }
                 //校验cronExpression
                 if (IsValidCronExpression(cronExpression) == false)
                 {
@@ -175,12 +182,11 @@ namespace kevin.Application.Services.AI
                 try
                 {
                     //这里可以根据任务名称和内容执行具体的业务逻辑，比如调用AI接口、处理数据等。当前示例仅打印日志并返回结果。 自行处理 
-                    var messageContent = $"AI:{userId}RunTask：执行任务" + taskName + taskContent + taskdata.ToJson();
-                    Console.WriteLine(messageContent);
+                    var messageContent = $"AI:{userId}RunTask：执行任务" + taskName + taskContent + taskdata.ToJson(); 
                     if (JsonHelper.GetValueByKey(taskdata.ToJson(), "ai_chats_id").ToTryInt64() != default)
                     {
                         var aichat = aIChatsRp.FirstOrDefault(t => t.Id == JsonHelper.GetValueByKey(taskdata.ToJson(), "ai_chats_id").ToTryInt64(), isDataPer: false, isTenant: false);
-                        var _aIAppsService = _serviceProvider?.GetService<IAIAppsService>();
+                        var _aIAppsService= _serviceProvider?.GetService<IAIAppsService>();
                         if (_aIAppsService != null)
                         {
                             var aiapp = _aIAppsService.GetNoPerDetails(aichat.AppId).Result;

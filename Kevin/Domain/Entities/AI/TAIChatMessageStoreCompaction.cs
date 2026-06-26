@@ -14,7 +14,7 @@ namespace kevin.Domain.Entities.AI
     [Table("TAIChatMessageStoreCompaction")]
     [Description("专门用于存储AI聊天记录压缩后的表")] 
     [Index(nameof(ThreadId))] 
-    public class TAIChatMessageStoreCompaction : CUD_User
+    public class TAIChatMessageStoreCompaction : CUD
     {
         [MaxLength(150)]
         public string ThreadId { get; set; } = "";

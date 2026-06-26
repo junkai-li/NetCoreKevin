@@ -15,8 +15,8 @@ namespace kevin.AI.AgentFramework.Interfaces.Tasks
         /// 创建或更新一个周期性自动任务 
         /// <param name="cronExpression">cron表达式：用于定义任务的执行周期，不可为空</param>
         /// </summary>
-        Task<string> AddOrUpdateCronTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")][Required] string name,
-            [Description("content：可传入具体的任务内容，不可为空 比如：第一步：搜索并总结AI领域的热门资讯，包括技术突破、产品发布、行业动态等，第二步：生成总结报告为MkD格式")][Required] string content,
+        Task<string> AddOrUpdateCronTask([Description("可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")][Required] string name,
+      [Description("可传入具体的任务内容（禁止传入自动任务相关词汇，只能传入任务步骤！！！）。 比如：第一步：搜索并总结AI领域的热门资讯，包括技术突破、产品发布、行业动态等，第二步：生成总结报告为MkD格式")] string content,
             [Description("cron表达式：用于定义任务的执行周期，不可为空 比如用户需要每六分钟执行一次则传入：0 0/6 0/1 * * ?  ")][Required] string cronExpression
          );
 
