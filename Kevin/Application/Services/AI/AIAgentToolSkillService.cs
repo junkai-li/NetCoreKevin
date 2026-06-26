@@ -1,4 +1,5 @@
 ﻿using kevin.AI.AgentFramework.Interfaces;
+using kevin.AI.AgentFramework.Interfaces.Msg;
 using kevin.AI.AgentFramework.Interfaces.Tasks;
 using kevin.AI.AgentFramework.Interfaces.Tools;
 using kevin.AI.AgentFramework.Tools;
