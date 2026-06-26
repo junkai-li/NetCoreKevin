@@ -16,6 +16,7 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// <param name="id"></param>
         /// <returns></returns>
         Task<AIAppsDto> GetDetails(long id);
+        Task<AIAppsDto> GetNoPerDetails(long id);
 
         /// <summary>
         /// 获取智能体AI配置

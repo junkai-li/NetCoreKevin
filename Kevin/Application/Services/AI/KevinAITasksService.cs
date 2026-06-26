@@ -7,6 +7,8 @@ using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Interfaces.Tasks;
 using kevin.AI.AgentFramework.ScriptRunners;
 using kevin.Domain.Interfaces.IRepositories.AI;
+using kevin.Domain.Interfaces.IServices.AI;
+using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using Kevin.AI.Dto;
 using Kevin.Common.Extension;
@@ -34,6 +36,7 @@ namespace kevin.Application.Services.AI
         private readonly IAIModelsRp _aIModelsRp;
         private readonly IAIPromptsRp _aIPromptsRp;
 
+        private readonly IAIAppsService _aIAppsService;
         private IDistributedLockProvider distLock { get; set; }
 
         private object _data; // 用于存储初始化数据
@@ -45,7 +48,7 @@ namespace kevin.Application.Services.AI
 
         public KevinAITasksService(IHttpContextAccessor _httpContextAccessor, IRecurringJobManager recurringJobManager, JobStorage jobStorage, IMessageService messageService,
             IAIAgentService aIAgentService, IAIAppsRp aIAppsRp, IAIModelsRp aIModelsRp, IAIPromptsRp aIPromptsRp, IAIChatsRp aIChatsRp, IServiceProvider serviceProvider,
-            IDistributedLockProvider distLock) : base(_httpContextAccessor)
+            IDistributedLockProvider distLock, IAIAppsService aIAppsService) : base(_httpContextAccessor)
         {
             _serviceProvider = serviceProvider;
             _recurringJobManager = recurringJobManager;
@@ -57,6 +60,7 @@ namespace kevin.Application.Services.AI
             this._aIPromptsRp = aIPromptsRp;
             this.aIChatsRp = aIChatsRp;
             this.distLock = distLock;
+            _aIAppsService = aIAppsService;
         }
         public static bool IsValidCronExpression(string cronExpression)
         {
@@ -182,47 +186,16 @@ namespace kevin.Application.Services.AI
                     if (JsonHelper.GetValueByKey(taskdata.ToJson(), "ai_chats_id").ToTryInt64() != default)
                     {
                         var aichat = aIChatsRp.FirstOrDefault(t => t.Id == JsonHelper.GetValueByKey(taskdata.ToJson(), "ai_chats_id").ToTryInt64(), isDataPer: false, isTenant: false);
-                        var aiapp = _aIAppsRp.FirstOrDefault(t => t.Id == aichat.AppId, isDataPer: false, isTenant: false);
+                        var aiapp = _aIAppsService.GetNoPerDetails(aichat.AppId).Result;
                         var aIModels = _aIModelsRp.FirstOrDefault(t => t.Id == aiapp.ChatModelID.ToTryInt64(), isDataPer: false, isTenant: false);
-                        var aIPrompts = _aIPromptsRp.FirstOrDefault(t => t.Id == aiapp.AIPromptID, isDataPer: false, isTenant: false);
+                        var aIPrompts = _aIPromptsRp.FirstOrDefault(t => t.Id == aiapp.AIPromptID, isDataPer: false, isTenant: false).MapTo<AIPromptsDto>();
                         string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
-                        var chatAgOs = new ChatClientAgentOptions
+                        var chatAgOs = _aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, new Domain.Share.Dtos.AI.AIChatHistorysDto
                         {
-                            Name = aiapp.Name,
-                            Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
-                            ChatOptions = new Microsoft.Extensions.AI.ChatOptions
-                            {
-                                MaxOutputTokens = aiapp.MaxAskPromptSize,
-                                Temperature = (float)(aiapp.Temperature / 100),
-                                ResponseFormat = ChatResponseFormat.Text,
-                                Instructions = systemPrompt,
-                            },
-                        };
-                        var _aIAgentToolSkillService = _serviceProvider.GetService<IAIAgentToolSkillService>();
-                        if (aiapp.IsAITools && _aIAgentToolSkillService != default)
-                        {
-                            if (chatAgOs.ChatOptions != default)
-                            {
-                                // 🔑 能力层：工具
-                                chatAgOs.ChatOptions.Tools ??= new List<AITool>();
-                                chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(taskdata, aiapp.Id.ToString(), userId).Result);
-                            }
-                        }
-                        if (aiapp.IsSkill)
-                        {
-                            var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(taskdata, aiapp.Id.ToString(), userId).Result;
-#pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。 
-
-                            var skillsProvider = new AgentSkillsProviderBuilder()
-                                                .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)
-                                                .UseOptions(options => options.DisableCaching = true);
-                            foreach (var skillPath in skillPaths)
-                            {
-                                skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath));
-                            }
-                            var sk = skillsProvider.Build();
-                            chatAgOs.AIContextProviders = [sk];
-                        }
+                            AIChatsId = SnowflakeIdService.GetNextId(),
+                            Id= SnowflakeIdService.GetNextId(),
+                            CreateTime=DateTime.Now
+                        }, taskdata).Result;
                         switch (aIModels.AIType)
                         {
                             case Domain.Share.Enums.AIType.OpenAI:

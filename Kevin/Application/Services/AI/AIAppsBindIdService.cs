@@ -17,7 +17,7 @@ namespace kevin.Application.Services.AI
 
         public async Task<List<TAIAppsBindId>> GetListByBindId(string aIAppsId)
         {
-            return await AIAppsBindIdRp.Query().Where(t => t.IsDelete == false && t.TAIAppsId == aIAppsId.ToTryInt64()).ToListAsync();
+            return await AIAppsBindIdRp.Query(isDataPer: false, isTenant: false).Where(t => t.IsDelete == false && t.TAIAppsId == aIAppsId.ToTryInt64()).ToListAsync();
         }
 
         public async Task<List<TAIAppsBindId>> GetListById(List<string> bindIds)

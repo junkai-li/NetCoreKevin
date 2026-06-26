@@ -74,11 +74,7 @@ namespace Kevin.EntityFrameworkCore._.Data
                         if (CurrentUser != default && CurrentUser.TenantId > 0)
                         {
                             t_d_p_predicate = t_d_p_predicate.And(e => EF.Property<Int32>(e, "TenantId") == CurrentUser.TenantId);
-                        }
-                        else
-                        {
-                            t_d_p_predicate = t_d_p_predicate.And(e => EF.Property<Int32>(e, "TenantId") == TenantHelper.GetSettingsTenantId().ToTryInt32());
-                        }
+                        } 
                     }
 
                 }

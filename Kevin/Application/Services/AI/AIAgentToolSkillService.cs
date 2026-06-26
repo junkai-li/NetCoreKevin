@@ -270,17 +270,12 @@ namespace kevin.Application.Services.AI
 
         public async Task<List<string>> GetUserAIAgentSkillsAsync(object data, string agentId, string userId)
         {
-            var agentBindIds = (await _iAISkillToolBindIdService.GetListById(agentId)).Select(t => t.AISkillToolManagementId).ToList();
-            var skills = (await _iAISkillToolManagementService.GetNotDataPerAllSkills()).Where(t => agentBindIds.Contains(t.Id)).ToList();
-            return skills.Where(t => agentBindIds.Contains(t.Id)).Select(t => t.Name).ToList();
+            return await GetAIAgentSkillsAsync(data, agentId);
         }
 
         public async Task<List<AITool>> GetUserAIAgentToolsAsync(object data, string agentId, string userId)
         {
-            var aiTools = new List<AITool>();
-            var agentBindIds = (await _iAISkillToolBindIdService.GetListById(agentId)).Select(t => t.AISkillToolManagementId).ToList();
-            var tools = (await _iAISkillToolManagementService.GetNotDataPerAllTools()).Where(t => agentBindIds.Contains(t.Id)).ToList();
-            return await GetAITools(data, tools.Select(t => t.ClassMethod ?? "").ToList());
+            return await GetAIAgentToolsAsync(data, agentId);
         }
     }
 }

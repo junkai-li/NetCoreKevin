@@ -105,6 +105,25 @@ namespace kevin.Application.Services.AI
             return data;
         }
         /// <summary>
+        /// 获取ai应用
+        /// </summary>
+        /// <param name="id"></param> 
+        /// <returns></returns> 
+        public async Task<AIAppsDto> GetNoPerDetails(long id)
+        {
+            var data = (await aIAppsRp.Query(isDataPer: false, isTenant: false).FirstOrDefaultAsync(t => t.IsDelete == false && t.Id == id)).MapTo<AIAppsDto>();
+            if (data == default)
+            {
+                throw new UserFriendlyException("ai应用数据不存在或已删除");
+            }
+            var skills = await aISkillToolManagementService.GetNotDataPerAllSkills();
+            var tools = await aISkillToolManagementService.GetNotDataPerAllTools();
+            var myIds = await aISkillToolBindIdService.GetListById(data.Id.ToString());
+            data.BindIds = (await aIAppsBindIdService.GetListByBindId(data.Id.ToString())).Select(t => t.BindId).ToList();
+            data.AISkillsToolsBindIds = myIds.Select(t => t.AISkillToolManagementId.ToString()).ToList();
+            return data;
+        }
+        /// <summary>
         /// 获取ai应用列表
         /// </summary>
         /// <param name="dtoPage"></param> 
@@ -330,7 +349,7 @@ namespace kevin.Application.Services.AI
                         var agentIds = aiapp.BindIds.Where(x => x.Contains("agent_")).Select(t => t.Replace("agent_", "")).ToList();
                         foreach (var item in agentIds)
                         {
-                            var appitem = await GetDetails(item.ToTryInt64());
+                            var appitem = await GetNoPerDetails(item.ToTryInt64());
                             var aIAgent = await GetAppAIAgent(appitem, parAi, par, cancellationToken);
                             chatAgOs.ChatOptions.Tools.AddRange(aIAgent.AsAIFunction());
                         }
@@ -375,7 +394,7 @@ namespace kevin.Application.Services.AI
         /// <param name="cancellationToken"></param>
         /// <param name="referenceDepth">深度为0时可以获取到子ai应用，深度为1时可以获取到子ai应用的子ai应用，以此类推 最多三级引用</param>
         /// <returns></returns>
-        public async Task<AIAgent> GetAppAIAgent(AIAppsDto aiapp, object parAi, AIChatHistorysDto par, CancellationToken cancellationToken = default, int referenceDepth = 0)
+        public async Task<AIAgent> GetAppAIAgent(AIAppsDto aiapp, object parAi, AIChatHistorysDto par, CancellationToken cancellationToken = default, int referenceDepth = 0, int MaxReferenceDepth = 3)
         {
             var aIModels = await aIModelsService.GetDetails(aiapp.ChatModelID.ToTryInt64());
             var aIPrompts = await aIPromptsService.GetDetails(aiapp.AIPromptID);
@@ -403,7 +422,7 @@ namespace kevin.Application.Services.AI
                     // 🔑 能力层：工具
                     chatAgOs.ChatOptions.Tools ??= new List<AITool>();
                     chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(parAi, aiapp.Id.ToString(), CurrentUser.UserId.ToString()).Result);
-                    if (referenceDepth < 3)
+                    if (referenceDepth < MaxReferenceDepth)
                     {
                         if (aiapp.BindIds.Where(x => x.Contains("agent_")).Count() > 0)
                         {
@@ -411,7 +430,7 @@ namespace kevin.Application.Services.AI
                             var agentIds = aiapp.BindIds.Where(x => x.Contains("agent_")).Select(t => t.Replace("agent_", "")).ToList();
                             foreach (var item in agentIds)
                             {
-                                var appitem = await GetDetails(item.ToTryInt64());
+                                var appitem = await GetNoPerDetails(item.ToTryInt64());
                                 var aIAgent = await GetAppAIAgent(appitem, parAi, par, cancellationToken, referenceDepth);
                                 chatAgOs.ChatOptions.Tools.AddRange(aIAgent.AsAIFunction());
                             }

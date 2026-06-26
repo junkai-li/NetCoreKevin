@@ -86,7 +86,7 @@ namespace kevin.Application.Services.AI
 
         public async Task<List<TAISkillToolBindId>> GetListById(string Id)
         {
-            return await AISkillToolBindIdRp.Query().Where(t => t.IsDelete == false && t.BindId == Id).ToListAsync();
+            return await AISkillToolBindIdRp.Query(isTenant: false, isDataPer: false).Where(t => t.IsDelete == false && t.BindId == Id).ToListAsync();
         }
 
         public async Task<bool> BatchAddIds(string Id, List<long> ids)
