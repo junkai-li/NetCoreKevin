@@ -44,7 +44,22 @@ namespace kevin.Application.Services.AI
         /// <returns></returns> 
         public async Task<AIModelsDto> GetDetails(long id)
         {
-            var data = (await aIModelsRp.Query(isDataPer: true).FirstOrDefaultAsync(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId && t.Id == id)).MapTo<AIModelsDto>();
+            var data = (await aIModelsRp.Query(isDataPer: true).FirstOrDefaultAsync(t => t.IsDelete == false && t.Id == id)).MapTo<AIModelsDto>();
+            if (data == default)
+            {
+                throw new UserFriendlyException("ai模型数据不存在或已删除");
+            }
+            return data;
+        }
+
+        /// <summary>
+        /// 获取ai模型
+        /// </summary>
+        /// <param name="id"></param> 
+        /// <returns></returns> 
+        public async Task<AIModelsDto> GetNoPerDetails(long id)
+        {
+            var data = (await aIModelsRp.Query(isDataPer: false, isTenant: false).FirstOrDefaultAsync(t => t.IsDelete == false && t.Id == id)).MapTo<AIModelsDto>();
             if (data == default)
             {
                 throw new UserFriendlyException("ai模型数据不存在或已删除");

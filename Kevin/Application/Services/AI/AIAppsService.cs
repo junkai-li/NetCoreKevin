@@ -396,8 +396,8 @@ namespace kevin.Application.Services.AI
         /// <returns></returns>
         public async Task<AIAgent> GetAppAIAgent(AIAppsDto aiapp, object parAi, AIChatHistorysDto par, CancellationToken cancellationToken = default, int referenceDepth = 0, int MaxReferenceDepth = 3)
         {
-            var aIModels = await aIModelsService.GetDetails(aiapp.ChatModelID.ToTryInt64());
-            var aIPrompts = await aIPromptsService.GetDetails(aiapp.AIPromptID);
+            var aIModels = await aIModelsService.GetNoPerDetails(aiapp.ChatModelID.ToTryInt64());
+            var aIPrompts = await aIPromptsService.GetNoPerDetails(aiapp.AIPromptID);
             string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
             // 获取压缩聊天记录提示词
             systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString());

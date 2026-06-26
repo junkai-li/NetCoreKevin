@@ -9,6 +9,7 @@ namespace kevin.Domain.Interfaces.IServices.AI
         Task<bool> Delete(long id);
 
         Task<AIModelsDto> GetDetails(long id);
+        Task<AIModelsDto> GetNoPerDetails(long id);
         Task<List<AIModelsDto>> GetALLList(int Type = 1);
     }
 }
