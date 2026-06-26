@@ -56,8 +56,8 @@ namespace kevin.AI.AgentFramework.Tools
                     _IsSecurityIntercept = jsonDoc.RootElement.GetProperty("IsSecurityIntercept").GetBoolean();
                 }
                 catch (Exception)
-                { 
-                    _IsSecurityIntercept= true; // 解析失败则默认启用安全拦截
+                {
+                    _IsSecurityIntercept = true; // 解析失败则默认启用安全拦截
                 }
 
             }
@@ -85,7 +85,7 @@ namespace kevin.AI.AgentFramework.Tools
                 foreach (Match match in matches)
                 {
                     var url = match.Value;
-                    var isAllowed = _authorizedDomains.Any(prefix => url.Contains(prefix, StringComparison.OrdinalIgnoreCase)); 
+                    var isAllowed = _authorizedDomains.Any(prefix => url.Contains(prefix, StringComparison.OrdinalIgnoreCase));
                     if (!isAllowed)
                         throw new UnauthorizedAccessException($"URL '{url}' 不在授权域名单中。");
                 }
@@ -95,12 +95,14 @@ namespace kevin.AI.AgentFramework.Tools
                 // 如果未配置 AuthorizedDomains，视为允许所有
                 return;
             }
-        } 
+        }
 
         [Description("执行 Shell 命令。通过操作系统原生 Shell 执行命令（Windows 用 cmd，Linux/Mac 用 bash）。包含安全护栏：危险命令阻止、HTTP请求域名白名单、输出截断（50KB）、超时控制（60秒）。")]
         public async Task<string> RunShell(
             [Description("要执行的 Shell 命令。例如：'pwsh -File /path/to/script.ps1' 或 'dir'")] string command,
-            [Description("命令执行的工作目录（可选）。如果不指定，使用当前目录。")] string? workingDirectory = null)
+            [Description("命令执行的工作目录（可选）。如果不指定，使用当前目录。")] string? workingDirectory = null,
+               [Description("超时时间（单位秒）：默认600秒")] int milliseconds = 600
+            )
         {
             try
             {
@@ -112,7 +114,7 @@ namespace kevin.AI.AgentFramework.Tools
                     {
                         return "❌ 安全拦截：检测到危险命令，已阻止执行。";
                     }
-                } 
+                }
 
                 // 🛡️ 安全护栏 2：HTTP请求域名白名单检查
                 try
@@ -161,14 +163,14 @@ namespace kevin.AI.AgentFramework.Tools
                 var stderr = process.StandardError.ReadToEndAsync();
 
                 // 🛡️ 安全护栏 3：超时控制（600秒）
-                if (!process.WaitForExit(600_000))
+                if (!process.WaitForExit(milliseconds * 1000))
                 {
                     process.Kill(entireProcessTree: true);
-                    return "❌ 命令执行超时（600秒），已强制终止。";
+                    return $"❌ 命令执行超时（{milliseconds}秒），已强制终止。";
                 }
 
                 var result = new StringBuilder();
-               var resultStdout = stdout.Result;
+                var resultStdout = stdout.Result;
                 var resultStderr = stderr.Result;
                 if (!string.IsNullOrWhiteSpace(resultStdout))
                 {

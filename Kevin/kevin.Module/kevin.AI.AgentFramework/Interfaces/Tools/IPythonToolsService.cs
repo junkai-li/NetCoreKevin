@@ -12,12 +12,12 @@ namespace kevin.AI.AgentFramework.Interfaces.Tools
         Task<string> RunPythonPy([Description("需要执行的python脚本路径。例如：'Skills\\python-skills\\hello-python\\scripts\\hello-python.py'")]
                                         [Required] string scriptPath,
            [Description("需要传入python脚本的参数。例如：['你好','word']")]
-            List<string>? args = default
+            List<string>? args = default, 
+           [Description("超时时间（单位秒）：默认600秒")] int milliseconds = 600
            );
         [Description("用于执行Python代码")]
         Task<string> RunPythonCode([Description("需要执行的python代码。例如：'def main(name): return 'Hello ' + name.title() + '!'")]
-                                       [Required]  string code);
-        [Description("把传入的python代码保存为 .py 文件，返回保存的完整路径，失败返回以 ❌ 开头的错误信息")]
-        Task<string> SavePythonToFile([Required][Description("需要保存的python代码。例如：'def main(name): return 'Hello ' + name.title() + '!'\"")] string code, string relativeDir = "Skills/python-skills/tmp", string? fileName = null);
+                                       [Required]  string code, 
+            [Description("超时时间（单位秒）：默认600秒")] int milliseconds = 600); 
     }
 }

@@ -144,7 +144,7 @@ namespace kevin.AI.AgentFramework.Tools
         public async Task<string> RunPythonPy([Description("需要执行的python脚本路径。例如：'Skills\\python-skills\\hello-python\\scripts\\hello-python.py'")]
                                         [Required]string scriptPath,
             [Description("需要传入python脚本的参数。例如：['你好','word']")]
-            List<string>? args = default
+            List<string>? args = default, [Description("超时时间（单位秒）：默认600秒")] int milliseconds = 600
             )
         {
             try
@@ -212,7 +212,13 @@ namespace kevin.AI.AgentFramework.Tools
                     return "❌ 无法启动 Shell 进程";
                 }
                 var stdout = process.StandardOutput.ReadToEndAsync();
-                var stderr = process.StandardError.ReadToEndAsync(); 
+                var stderr = process.StandardError.ReadToEndAsync();
+                // 🛡️ 安全护栏 3：超时控制（600秒）
+                if (!process.WaitForExit(milliseconds * 1000))
+                {
+                    process.Kill(entireProcessTree: true);
+                    return $"❌ 命令执行超时（{milliseconds}秒），已强制终止。";
+                }
                 // 获取输出
                 output = stdout.Result;
                 string error = stderr.Result;
@@ -235,7 +241,7 @@ namespace kevin.AI.AgentFramework.Tools
 
         [Description("用于执行Python代码。包含安全护栏：HTTP请求域名白名单。")]
         public async Task<string> RunPythonCode([Description("需要执行的python代码。例如：'def main(name): return 'Hello ' + name.title() + '!'")]
-                                         [Required]string code)
+                                         [Required]string code, [Description("超时时间（单位秒）：默认600秒")] int milliseconds = 600)
         {
             try
             {
@@ -291,10 +297,10 @@ namespace kevin.AI.AgentFramework.Tools
                 var stderr = process.StandardError.ReadToEndAsync();
 
                 // 🛡️ 安全护栏 3：超时控制（600秒）
-                if (!process.WaitForExit(600_000))
+                if (!process.WaitForExit(milliseconds * 1000))
                 {
                     process.Kill(entireProcessTree: true);
-                    return "❌ 命令执行超时（600秒），已强制终止。";
+                    return $"❌ 命令执行超时（{milliseconds}秒），已强制终止。";
                 }
                 // 获取输出
                 output = stdout.Result;
