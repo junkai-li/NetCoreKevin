@@ -30,16 +30,12 @@ namespace kevin.Application.Services.AI
         private readonly IMessageService _messageService;
 
         private readonly IAIAgentService _aIAgentService;
-
-        private readonly IAIAppsRp _aIAppsRp;
         private readonly IAIChatsRp aIChatsRp;
         private readonly IAIModelsRp _aIModelsRp;
         private readonly IAIPromptsRp _aIPromptsRp;
-
-        private readonly IAIAppsService _aIAppsService;
         private IDistributedLockProvider distLock { get; set; }
 
-        private object _data; // 用于存储初始化数据
+        private object? _data; // 用于存储初始化数据
 
         public void InitData(object data)
         {
@@ -47,20 +43,18 @@ namespace kevin.Application.Services.AI
         }
 
         public KevinAITasksService(IHttpContextAccessor _httpContextAccessor, IRecurringJobManager recurringJobManager, JobStorage jobStorage, IMessageService messageService,
-            IAIAgentService aIAgentService, IAIAppsRp aIAppsRp, IAIModelsRp aIModelsRp, IAIPromptsRp aIPromptsRp, IAIChatsRp aIChatsRp, IServiceProvider serviceProvider,
-            IDistributedLockProvider distLock, IAIAppsService aIAppsService) : base(_httpContextAccessor)
+            IAIAgentService aIAgentService, IAIModelsRp aIModelsRp, IAIPromptsRp aIPromptsRp, IAIChatsRp aIChatsRp, IServiceProvider serviceProvider,
+            IDistributedLockProvider distLock) : base(_httpContextAccessor)
         {
             _serviceProvider = serviceProvider;
             _recurringJobManager = recurringJobManager;
             _jobStorage = jobStorage; // 可通过 DI 注入；若为 null，会回退到 JobStorage.Current
             _messageService = messageService;
             _aIAgentService = aIAgentService;
-            this._aIAppsRp = aIAppsRp;
             this._aIModelsRp = aIModelsRp;
             this._aIPromptsRp = aIPromptsRp;
             this.aIChatsRp = aIChatsRp;
             this.distLock = distLock;
-            _aIAppsService = aIAppsService;
         }
         public static bool IsValidCronExpression(string cronExpression)
         {
@@ -186,35 +180,39 @@ namespace kevin.Application.Services.AI
                     if (JsonHelper.GetValueByKey(taskdata.ToJson(), "ai_chats_id").ToTryInt64() != default)
                     {
                         var aichat = aIChatsRp.FirstOrDefault(t => t.Id == JsonHelper.GetValueByKey(taskdata.ToJson(), "ai_chats_id").ToTryInt64(), isDataPer: false, isTenant: false);
-                        var aiapp = _aIAppsService.GetNoPerDetails(aichat.AppId).Result;
-                        var aIModels = _aIModelsRp.FirstOrDefault(t => t.Id == aiapp.ChatModelID.ToTryInt64(), isDataPer: false, isTenant: false);
-                        var aIPrompts = _aIPromptsRp.FirstOrDefault(t => t.Id == aiapp.AIPromptID, isDataPer: false, isTenant: false).MapTo<AIPromptsDto>();
-                        string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
-                        var chatAgOs = _aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, new Domain.Share.Dtos.AI.AIChatHistorysDto
+                        var _aIAppsService = _serviceProvider?.GetService<IAIAppsService>();
+                        if (_aIAppsService != null)
                         {
-                            AIChatsId = SnowflakeIdService.GetNextId(),
-                            Id= SnowflakeIdService.GetNextId(),
-                            CreateTime=DateTime.Now
-                        }, taskdata).Result;
-                        switch (aIModels.AIType)
-                        {
-                            case Domain.Share.Enums.AIType.OpenAI:
-                            case Domain.Share.Enums.AIType.ZhiPuAI:
-                            case Domain.Share.Enums.AIType.AzureOpenAI:
-                            default:
-                                messageContent = _aIAgentService.CreateOpenAIAgentAndSendMSG(new AISetting
-                                {
-                                    AIUrl = aIModels.EndPoint,
-                                    AIKeySecret = aIModels.ModelKey,
-                                    AIDefaultModel = aIModels.ModelName,
-                                    IsStreame = false,
-                                    IsHttpLog = aiapp.IsHttpLog,
-                                    MaxRetries = aiapp.MaxRetries,
-                                    IsAISkills = aiapp.IsSkill,
-                                    IsAITools = aiapp.IsAITools,
-                                    NetworkTimeout = aiapp.NetworkTimeout,
-                                }, chatAgOs, new(ChatRole.User, [new TextContent($"{taskContent}")])).Result.Item2;
-                                break;
+                            var aiapp = _aIAppsService.GetNoPerDetails(aichat.AppId).Result;
+                            var aIModels = _aIModelsRp.FirstOrDefault(t => t.Id == aiapp.ChatModelID.ToTryInt64(), isDataPer: false, isTenant: false);
+                            var aIPrompts = _aIPromptsRp.FirstOrDefault(t => t.Id == aiapp.AIPromptID, isDataPer: false, isTenant: false).MapTo<AIPromptsDto>();
+                            string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
+                            var chatAgOs = _aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, new Domain.Share.Dtos.AI.AIChatHistorysDto
+                            {
+                                AIChatsId = SnowflakeIdService.GetNextId(),
+                                Id = SnowflakeIdService.GetNextId(),
+                                CreateTime = DateTime.Now
+                            }, taskdata).Result;
+                            switch (aIModels.AIType)
+                            {
+                                case Domain.Share.Enums.AIType.OpenAI:
+                                case Domain.Share.Enums.AIType.ZhiPuAI:
+                                case Domain.Share.Enums.AIType.AzureOpenAI:
+                                default:
+                                    messageContent = _aIAgentService.CreateOpenAIAgentAndSendMSG(new AISetting
+                                    {
+                                        AIUrl = aIModels.EndPoint,
+                                        AIKeySecret = aIModels.ModelKey,
+                                        AIDefaultModel = aIModels.ModelName,
+                                        IsStreame = false,
+                                        IsHttpLog = aiapp.IsHttpLog,
+                                        MaxRetries = aiapp.MaxRetries,
+                                        IsAISkills = aiapp.IsSkill,
+                                        IsAITools = aiapp.IsAITools,
+                                        NetworkTimeout = aiapp.NetworkTimeout,
+                                    }, chatAgOs, new(ChatRole.User, [new TextContent($"{taskContent}")])).Result.Item2;
+                                    break;
+                            }
                         }
                     }
                     _messageService.AddAIMessage(new Domain.Share.Dtos.Msg.MessageDto
