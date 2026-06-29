@@ -20,6 +20,13 @@ namespace kevin.AI.AgentFramework.Tools
         // 用于从代码中提取URL的正则表达式
         private static readonly Regex UrlRegex = new Regex(@"https?://[\w\-._~:/?#\[\]@!$&'()*+,;=%]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+        // 🛡️ 安全护栏：受限制的配置文件
+        private static readonly string[] restrictedFiles = [
+            "appsettings.json",
+            "appsettings.development.json",
+            "appsettings.test.json"
+        ];
+
         private object? _data { get; set; }
         private int _contentLengthLimit = 0;//  内容长度限制，超过限制后会进行截断
         private List<string> _authorizedDomains = new List<string>(); // 授权域名列表
@@ -50,6 +57,17 @@ namespace kevin.AI.AgentFramework.Tools
                 }
 
             }
+        }
+
+        /// <summary>
+        /// 检查代码中是否包含受限制的配置文件路径
+        /// </summary>
+        /// <param name="code">Python代码或脚本路径</param>
+        /// <returns>是否包含受限制路径</returns>
+        private bool ContainsRestrictedFile(string code)
+        {
+            return restrictedFiles.Any(file => 
+                code.IndexOf(file, StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
         /// <summary>
@@ -140,7 +158,7 @@ namespace kevin.AI.AgentFramework.Tools
             return null;
         }
 
-        [Description("执行Python脚本。通过System.Diagnostics.Process类来启动一个新的进程，并运行Python.py的脚本。这种方法适用于Windows和Linux系统。包含安全护栏：HTTP请求域名白名单。")]
+        [Description("执行Python脚本。通过System.Diagnostics.Process类来启动一个新的进程，并运行Python.py的脚本。这种方法适用于Windows和Linux系统。包含安全护栏：配置文件访问拦截（禁止访问 appsettings.json 等）、HTTP请求域名白名单。")]
         public async Task<string> RunPythonPy([Description("需要执行的python脚本路径。例如：'Skills\\python-skills\\hello-python\\scripts\\hello-python.py'")]
                                         [Required]string scriptPath,
             [Description("需要传入python脚本的参数。例如：['你好','word']")]
@@ -170,6 +188,18 @@ namespace kevin.AI.AgentFramework.Tools
                 {
                     return $"❌ 授权拦截：{ex.Message}";
                 }
+
+                // 🛡️ 安全护栏：受限制配置文件检查
+                string fullContent = scriptPath;
+                if (args != default)
+                {
+                    fullContent += " " + string.Join(" ", args);
+                }
+                if (ContainsRestrictedFile(fullContent))
+                {
+                    return "❌ 安全拦截：禁止访问配置文件（appsettings.json 等）。";
+                }
+
                 if (_IsSecurityIntercept)
                 {
                     var validationResult = PythonSecurityValidator.ValidatePythonFile(scriptPath);
@@ -239,7 +269,7 @@ namespace kevin.AI.AgentFramework.Tools
             }
         }
 
-        [Description("用于执行Python代码。包含安全护栏：HTTP请求域名白名单。")]
+        [Description("用于执行Python代码。包含安全护栏：配置文件访问拦截（禁止访问 appsettings.json 等）、HTTP请求域名白名单。")]
         public async Task<string> RunPythonCode([Description("需要执行的python代码。例如：'def main(name): return 'Hello ' + name.title() + '!'")]
                                          [Required]string code, [Description("超时时间（单位秒）：默认600秒")] int seconds = 600)
         {
@@ -259,6 +289,13 @@ namespace kevin.AI.AgentFramework.Tools
                 {
                     return $"❌ 授权拦截：{ex.Message}";
                 }
+
+                // 🛡️ 安全护栏：受限制配置文件检查
+                if (ContainsRestrictedFile(code))
+                {
+                    return "❌ 安全拦截：禁止访问配置文件（appsettings.json 等）。";
+                }
+
                 if (_IsSecurityIntercept)
                 {
                     var validationResult = PythonSecurityValidator.ValidatePythonCode(code);

@@ -28,6 +28,13 @@ namespace kevin.AI.AgentFramework.Tools
         "del /f /s /q",                 // Windows 递归删除
     ];
 
+        // 🛡️ 安全护栏：受限制的配置文件
+        private static readonly string[] restrictedFiles = [
+            "appsettings.json",
+            "appsettings.development.json",
+            "appsettings.test.json"
+        ];
+
         // 用于从命令中提取URL的正则表达式
         private static readonly Regex UrlRegex = new Regex(@"https?://[\w\-._~:/?#\[\]@!$&'()*+,;=%]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -64,6 +71,17 @@ namespace kevin.AI.AgentFramework.Tools
         }
 
         /// <summary>
+        /// 检查命令中是否包含受限制的配置文件路径
+        /// </summary>
+        /// <param name="command">要执行的命令</param>
+        /// <returns>是否包含受限制路径</returns>
+        private bool ContainsRestrictedFile(string command)
+        {
+            return restrictedFiles.Any(file => 
+                command.IndexOf(file, StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        /// <summary>
         /// 检查命令中的URL是否在授权域名白名单中
         /// 支持授权域名格式：
         /// - example.com (仅域名)
@@ -97,7 +115,7 @@ namespace kevin.AI.AgentFramework.Tools
             }
         }
 
-        [Description("执行 Shell 命令。通过操作系统原生 Shell 执行命令（Windows 用 cmd，Linux/Mac 用 bash）。包含安全护栏：危险命令阻止、HTTP请求域名白名单、输出截断（50KB）、超时控制（60秒）。")]
+        [Description("执行 Shell 命令。通过操作系统原生 Shell 执行命令（Windows 用 cmd，Linux/Mac 用 bash）。包含安全护栏：危险命令阻止、配置文件访问拦截（禁止访问 appsettings.json 等）、HTTP请求域名白名单、输出截断（50KB）、超时控制（60秒）。")]
         public async Task<string> RunShell(
             [Description("要执行的 Shell 命令。例如：'pwsh -File /path/to/script.ps1' 或 'dir'")] string command,
             [Description("命令执行的工作目录（可选）。如果不指定，使用当前目录。")] string? workingDirectory = null,
@@ -113,6 +131,12 @@ namespace kevin.AI.AgentFramework.Tools
                     if (dangerousPatterns.Any(d => command.Contains(d, StringComparison.OrdinalIgnoreCase)))
                     {
                         return "❌ 安全拦截：检测到危险命令，已阻止执行。";
+                    }
+
+                    // 🛡️ 安全护栏 1.5：受限制配置文件检查
+                    if (ContainsRestrictedFile(command))
+                    {
+                        return "❌ 安全拦截：禁止访问配置文件（appsettings.json 等）。";
                     }
                 }
 
