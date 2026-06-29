@@ -58,7 +58,7 @@ namespace kevin.Application.Services.AI
             var result = new dtoPageData<AIKmssDto>();
             var data = AIKmssRp.Query(isDataPer: true).Where(t => t.IsDelete == false);
             result.total = await data.CountAsync();
-            var dbdata = await data.Skip(skip).Take(dtoPagePar.pageSize).OrderByDescending(x => x.CreateTime).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
+            var dbdata = await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPagePar.pageSize).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
             result.data = dbdata.MapToList<TAIKmss, AIKmssDto>();
             var aikmsData = await AIKmsDetailsRp.Query().Where(t => t.IsDelete == false && result.data.Select(t => t.Id).ToList().Contains(t.KmsId)).ToListAsync();
             var flieData = FileRp.Query().Where(t => t.IsDelete == false && aikmsData.Select(a => a.FileId.ToTryInt64()).ToList().Contains(t.Id)).ToList().MapToList<TFile, FileDto>().ToList();

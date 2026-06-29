@@ -56,7 +56,7 @@ namespace kevin.Application.Services.AI
                 data = data.Where(t => (t.Name ?? "").Contains(dtoPage.searchKey));
             }
             result.total = await data.CountAsync();
-            result.data = (await data.Skip(skip).Take(dtoPage.pageSize).OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIChats, AIChatsDto>();
+            result.data = (await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPage.pageSize).ToListAsync()).MapToList<TAIChats, AIChatsDto>();
             return result;
         }
 

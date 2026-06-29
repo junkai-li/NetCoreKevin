@@ -28,7 +28,7 @@ namespace kevin.Application.Services.AI
                 data = data.Where(t => (t.ModelName ?? "").Contains(dtoPage.searchKey));
             }
             result.total = await data.CountAsync();
-            var dbdata = await data.Skip(skip).Take(dtoPage.pageSize).OrderByDescending(x => x.CreateTime).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
+            var dbdata = await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPage.pageSize).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
             result.data = dbdata.MapToList<TAIModels, AIModelsDto>();
             result.data.ForEach(t =>
             {

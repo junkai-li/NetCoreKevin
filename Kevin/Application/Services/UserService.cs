@@ -245,7 +245,7 @@ namespace kevin.Application
                 data = data.Where(t => (t.Name ?? "").Contains(dtoPage.searchKey) || (t.Phone ?? "").Contains(dtoPage.searchKey));
             }
             dtoPage.total = data.Count();
-            dtoPage.data = data.Skip(skip).Take(dtoPage.pageSize).Select(t => new dtoUser
+            dtoPage.data = data.OrderByDescending(t => t.CreateTime).Skip(skip).Take(dtoPage.pageSize).Select(t => new dtoUser
             {
                 Id = t.Id,
                 Name = t.Name,
@@ -256,7 +256,7 @@ namespace kevin.Application
                     Value = f.Url ?? ""
                 }).Take(1).ToList(),
                 CreateTime = t.CreateTime
-            }).OrderByDescending(t => t.CreateTime).ToList();
+            }).ToList();
 
             return dtoPage;
         }
@@ -288,7 +288,7 @@ namespace kevin.Application
                 data = data.Where(t => ids.Contains(t.Id));
             }
             dtoPage.total = data.Count();
-            dtoPage.data = data.Skip(skip).Take(par.pageSize).Select(t => new dtoUser
+            dtoPage.data = data.OrderByDescending(t => t.CreateTime).Skip(skip).Take(par.pageSize).Select(t => new dtoUser
             {
                 Id = t.Id,
                 Name = t.Name,
@@ -298,7 +298,7 @@ namespace kevin.Application
                 Status = t.Status,
                 RecentLoginTime = t.RecentLoginTime,
                 CreateTime = t.CreateTime
-            }).OrderByDescending(t => t.CreateTime).ToList();
+            }).ToList();
             var listflie = fileRp.Query(true, false).Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && dtoPage.data.Select(t => t.Id.ToString()).ToList().Contains(f.TableId)).OrderByDescending(x => x.CreateTime).Select(f => new FileDto
             {
                 Id = f.Id,

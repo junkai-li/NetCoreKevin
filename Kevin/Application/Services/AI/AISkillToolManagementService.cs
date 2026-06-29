@@ -44,7 +44,7 @@ namespace kevin.Application.Services.AI
                 data = data.Where(t => t.SkillToolType == (AISkillToolTypeEnums)dtoPagePar.Parameter);
             }
             result.total = await data.CountAsync();
-            var dbdata = await data.Skip(skip).Take(dtoPagePar.pageSize).OrderByDescending(x => x.CreateTime).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
+            var dbdata = await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPagePar.pageSize).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
             result.data = dbdata.MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
             var flieData = _FileRp.Query().Where(t => t.IsDelete == false && t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && result.data.Select(a => a.Id.ToString()).ToList().Contains(t.TableId)).ToList().MapToList<TFile, FileDto>().ToList();
             foreach (var item in result.data)
