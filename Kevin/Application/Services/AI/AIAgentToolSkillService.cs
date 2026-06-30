@@ -31,9 +31,11 @@ namespace kevin.Application.Services.AI
         private readonly IAIMsgService _IAIMsgService;
 
         private readonly IAuthorizedToolsService _authorizedToolsService;
+
+        private readonly IAIJsonLogService _aIJsonLogService;
         public AIAgentToolSkillService(IKevinAITaskService kevinAITaskService, IAISkillToolBindIdService iAISkillToolBindIdService,
             IAISkillToolManagementService iAISkillToolManagementService, ICommonToolsService commonTools, IPythonToolsService pythonTools,
-            IShellToolsService shellTools, IAgentHttpClientToolsService agentHttpClientToolsService, IUserService userService,
+            IShellToolsService shellTools, IAgentHttpClientToolsService agentHttpClientToolsService, IUserService userService, IAIJsonLogService aIJsonLogService,
             IAIFileToolService iAIFileToolService,  IAIMsgService iAIMsgService, IAuthorizedToolsService authorizedToolsService)
         {
             _kevinAITaskService = kevinAITaskService;
@@ -47,6 +49,7 @@ namespace kevin.Application.Services.AI
             _iAIFileToolService = iAIFileToolService;
             _IAIMsgService = iAIMsgService; 
             _authorizedToolsService = authorizedToolsService;
+            _aIJsonLogService = aIJsonLogService;
         }
         private async Task<List<AITool>> GetAITools(object data, List<string> toolNames)
         {
@@ -58,14 +61,23 @@ namespace kevin.Application.Services.AI
             _agentHttpClientToolsService.InitData(data);
             _authorizedToolsService.InitData(data);
             _IAIMsgService.InitData(data);
+            _aIJsonLogService.InitData(data);
             aiTools.Add(
-                 AIFunctionFactory.Create(_authorizedToolsService.GetUrlAuthorizedCodeAsync,
+                 AIFunctionFactory.Create(_aIJsonLogService.Add,
                  new AIFunctionFactoryOptions
                  {
-                     Name = "GetUrlAuthorizedCodeAsync",
-                     Description = "获取授权登录代码：当使用Python，Shell工具，http工具发起Http请求时，需要先获取401授权代码， 返回授权码：输出JSON明确指示Token值和放置位置（URL参数或Headers） 失败异常返回以 ❌ 开头的错误信息"
+                     Name = "AddJson",
+                     Description = "专门用于保存 Json 数据。"
                  }
           ));
+            aiTools.Add(
+                AIFunctionFactory.Create(_authorizedToolsService.GetUrlAuthorizedCodeAsync,
+                new AIFunctionFactoryOptions
+                {
+                    Name = "GetUrlAuthorizedCodeAsync",
+                    Description = "获取授权登录代码：当使用Python，Shell工具，http工具发起Http请求时，需要先获取401授权代码， 返回授权码：输出JSON明确指示Token值和放置位置（URL参数或Headers） 失败异常返回以 ❌ 开头的错误信息"
+                }
+         ));
             aiTools.Add(
                     AIFunctionFactory.Create(_iCommonTools.GetCurrentTime,
                     new AIFunctionFactoryOptions

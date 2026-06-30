@@ -49,7 +49,7 @@ namespace kevin.Application.Services.AI
             {
                 return "未找到关联到用户钉钉Id";
             }
-            return new DingDingMsgHelper().RobotSendTextMessageToUsers("", new List<string> { correlationId }, $"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}】\n {msgContent}");
+            return new DingDingMsgHelper().RobotSendTextMessageToUsers("",new List<string> { correlationId }, $"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}】\n {msgContent}");
         }
 
         public string SendDDToUserMsg([Description("消息内容")][Required] string msgContent, [Description("发送用户名称")][Required] string userName)
@@ -63,7 +63,7 @@ namespace kevin.Application.Services.AI
             {
                 return userInfo?.Name + "未关联到用户钉钉Id";
             }
-            return new DingDingMsgHelper().RobotSendTextMessageToUsers("", new List<string> { userInfo.CorrelationId }, $"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}】\n {msgContent}");
+            return new DingDingMsgHelper().RobotSendTextMessageToUsers("", new List<string> { userInfo.CorrelationId }, $"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}】\n {msgContent}"); 
         }
     }
 }

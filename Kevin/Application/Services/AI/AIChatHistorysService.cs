@@ -179,7 +179,7 @@ namespace kevin.Application.Services.AI
             ChatMessage mgs = new(ChatRole.User, [new TextContent($"{add.Content}"),
                         .. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(),
                         .. ImgUrls.Where(t => !string.IsNullOrEmpty(t)).Select(url => DataContent.LoadFromAsync(FileHelper.GetRemoteFileStreamAsync(url).Result).Result).ToList()]);
-            var parAi = new { AIChatsId = add.AIChatsId, AppId = aiapp.Id, UserId = CurrentUser.UserId, AuthorizedDomains = aiapp.AuthorizedDomains, ContentLengthLimit = aiapp.ContentLengthLimit, IsSecurityIntercept = aiapp.IsSecurityIntercept };
+            var parAi = new { AIChatsId = add.AIChatsId, AppId = aiapp.Id, UserId = CurrentUser.UserId, TenantId = CurrentUser.TenantId, AuthorizedDomains = aiapp.AuthorizedDomains, ContentLengthLimit = aiapp.ContentLengthLimit, IsSecurityIntercept = aiapp.IsSecurityIntercept };
             var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par, parAi);
             switch (aIModels.AIType)
             {
