@@ -1,15 +1,12 @@
-﻿using Kevin.Common.App.Global;
-using Kevin.Common.Extension;
+﻿using Kevin.Common.Extension;
 using Kevin.HttpApiClients.Helper;
-using Kevin.log4Net;
-using Microsoft.Extensions.DependencyInjection;
 using NetCore.Util.Helper.DingDing.RQ;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Kevin.Common.Helper.DingDing.Msg
@@ -23,12 +20,14 @@ namespace Kevin.Common.Helper.DingDing.Msg
         private static log4net.ILog log = log4net.LogManager.GetLogger(typeof(DingDingMsgHelper));
 
         string AgentId { get; set; }
+        string RobotCode { get; set; }
         string appKey { get; set; }
         string appSecret { get; set; }
 
         public DingDingMsgHelper(string appKey = null, string appSecret = null, string AgentId = null)
         {
             this.AgentId = AgentId ?? ConfigHelper.Configuration["DingDingMsgInfo:dingdingAgentId"];
+            this.RobotCode = AgentId ?? ConfigHelper.Configuration["DingDingMsgInfo:robotCode"];
             this.appKey = appKey ?? ConfigHelper.Configuration["DingDingMsgInfo:appKey"];
             this.appSecret = appSecret ?? ConfigHelper.Configuration["DingDingMsgInfo:appSecret"];
         }
@@ -38,8 +37,12 @@ namespace Kevin.Common.Helper.DingDing.Msg
         /// </summary>
         /// <param name="userIds"></param>
         /// <returns></returns>
-        public void RobotSendTextMessageToUsers(string robotCode, List<string> userIds, string content)
+        public String RobotSendTextMessageToUsers(string robotCode, List<string> userIds, string content)
         {
+            if (string.IsNullOrEmpty(robotCode))
+            {
+                robotCode = RobotCode;
+            }
             var dingTalkRequest = new
             {
                 robotCode,
@@ -51,7 +54,7 @@ namespace Kevin.Common.Helper.DingDing.Msg
             var url = "https://api.dingtalk.com/v1.0/robot/oToMessages/batchSend";
             Dictionary<string, string> dictHead = new Dictionary<string, string>();
             dictHead.Add("x-acs-dingtalk-access-token", token);
-            var str_result = HttpClientHelper.CreatePostHttpResponse(url, dictHead, dingTalkRequest.ToJson());
+            var str_result = HttpClientHelper.CreatePostHttpResponse(url, dictHead, JsonSerializer.Serialize(dingTalkRequest));
             var Jresult = str_result.ToObject<dynamic>();
             string processQueryKey = Jresult?.processQueryKey?.ToString()?.Trim();
             // 2. 判断是否为空（null/空字符串/全空格都视为失败）
@@ -59,7 +62,8 @@ namespace Kevin.Common.Helper.DingDing.Msg
             {
                 // 抛出自定义异常，携带明确的错误信息
                 throw new Exception($"机器人发送消息给用户失败：robotCode={robotCode},userIds={userIds.ToJson()},content={content}");
-            }
+            } 
+            return str_result;
         }
 
 
@@ -194,7 +198,7 @@ namespace Kevin.Common.Helper.DingDing.Msg
         #endregion
         public string GetAccessToken()
         {
-            string cacheKey = "dingding.accessToken" + appKey; 
+            string cacheKey = "dingding.accessToken" + appKey;
             appKey = appKey ?? ConfigHelper.Configuration["DingDingMsgInfo:appKey"];
             appSecret = appSecret ?? ConfigHelper.Configuration["DingDingMsgInfo:appSecret"];
             var dictParam = new
@@ -204,7 +208,7 @@ namespace Kevin.Common.Helper.DingDing.Msg
             }.EntityToJson();
             var str_result = HttpClientHelper.CreatePostHttpResponse("https://api.dingtalk.com/v1.0/oauth2/accessToken", dictParam);
             var jresult = str_result.ToObject<JObject>();
-            var accessToken = jresult["accessToken"].ToString(); 
+            var accessToken = jresult["accessToken"].ToString();
             return accessToken;
         }
         /// <summary>
@@ -243,7 +247,7 @@ namespace Kevin.Common.Helper.DingDing.Msg
             var ticket = GetJsapi_ticket();
             if (!ticket.success) return (false, ticket.result, null);
             var settings = new DingTalkSign() { signature = ticket.result };
-            var queryString = settings.GetQueryString(); 
+            var queryString = settings.GetQueryString();
 
             var sha = new SHA1CryptoServiceProvider();
             var enc = new ASCIIEncoding();

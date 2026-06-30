@@ -1,16 +1,8 @@
 ﻿using kevin.AI.AgentFramework.Interfaces.Msg;
-using kevin.Domain.Interfaces.IServices.AI;
-using kevin.FileStorage;
-using Kevin.Common.Extension;
 using Kevin.Common.Helper.DingDing.Msg;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace kevin.Application.Services.AI
 {
@@ -57,7 +49,7 @@ namespace kevin.Application.Services.AI
             {
                 return "未找到关联到用户钉钉Id";
             }
-            return new DingDingMsgHelper().SendMessage_ByDingDingURLText(correlationId, $"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}】\n {msgContent}").ToJson();
+            return new DingDingMsgHelper().RobotSendTextMessageToUsers("", new List<string> { correlationId }, $"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}】\n {msgContent}");
         }
 
         public string SendDDToUserMsg([Description("消息内容")][Required] string msgContent, [Description("发送用户名称")][Required] string userName)
@@ -71,7 +63,7 @@ namespace kevin.Application.Services.AI
             {
                 return userInfo?.Name + "未关联到用户钉钉Id";
             }
-            return new DingDingMsgHelper().SendMessage_ByDingDingURLText(userInfo.CorrelationId, $"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}】\n {msgContent}").ToJson();
+            return new DingDingMsgHelper().RobotSendTextMessageToUsers("", new List<string> { userInfo.CorrelationId }, $"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}】\n {msgContent}");
         }
     }
 }
