@@ -21,7 +21,7 @@ namespace %namespacePath%
             var result = new dtoPageData<T%entityName%>();
             var data = %entityName%Rp.Query(isDataPer: true).Where(t => t.IsDelete == false);
             result.total = await data.CountAsync();
-            result.data = await data.Skip(skip).Take(dtoPagePar.pageSize).OrderByDescending(x => x.CreateTime).ToListAsync();
+            result.data = await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPagePar.pageSize).ToListAsync();
             result.pageSize = dtoPagePar.pageSize;
             result.pageNum = dtoPagePar.pageNum;
             return result;
