@@ -33,8 +33,8 @@ namespace kevin.Cache.Service
 
         /// <summary>
         /// 设置string类型的key（无过期）
-        /// 为了兼容性，我们将值包装为 { value: "...", expireAt: ticks? }
-        /// expireAt 为 null 表示不生效
+        /// 为了兼容性，我们将值包装为 { value: "...", expire_at: ticks? }
+        /// expire_at 为 null 表示不生效
         /// </summary>
         public bool SetString(string key, string value)
         {
@@ -43,7 +43,7 @@ namespace kevin.Cache.Service
                 var payload = new
                 {
                     value = value,
-                    expireAt = (long?)null
+                    expire_at = (long?)null
                 };
                 Cache.SetString(key, JsonConvert.SerializeObject(payload));
                 return true;
@@ -65,7 +65,7 @@ namespace kevin.Cache.Service
                 var payload = new
                 {
                     value = valueStr,
-                    expireAt = (long?)null
+                    expire_at = (long?)null
                 };
                 Cache.SetString(key, JsonConvert.SerializeObject(payload));
                 return true;
@@ -83,11 +83,11 @@ namespace kevin.Cache.Service
         {
             try
             {
-                var expireAt = DateTime.UtcNow.Add(timeOut).Ticks;
+                var expire_at = DateTime.UtcNow.Add(timeOut).Ticks;
                 var payload = new
                 {
                     value = value,
-                    expireAt = (long?)expireAt
+                    expire_at = (long?)expire_at
                 };
                 Cache.SetString(key, JsonConvert.SerializeObject(payload), new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = timeOut });
                 return true;
@@ -106,11 +106,11 @@ namespace kevin.Cache.Service
             try
             {
                 var valueStr = JsonConvert.SerializeObject(value);
-                var expireAt = DateTime.UtcNow.Add(timeOut).Ticks;
+                var expire_at = DateTime.UtcNow.Add(timeOut).Ticks;
                 var payload = new
                 {
                     value = valueStr,
-                    expireAt = (long?)expireAt
+                    expire_at = (long?)expire_at
                 };
                 Cache.SetString(key, JsonConvert.SerializeObject(payload), new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = timeOut });
                 return true;
@@ -138,7 +138,7 @@ namespace kevin.Cache.Service
                 var jt = JsonConvert.DeserializeObject<JObject>(raw);
                 if (jt != null && jt["value"] != null)
                 {
-                    var expireToken = jt["expireAt"];
+                    var expireToken = jt["expire_at"];
                     if (expireToken != null && expireToken.Type != JTokenType.Null)
                     {
                         var expireTicks = expireToken.Value<long>();
@@ -179,7 +179,7 @@ namespace kevin.Cache.Service
                 var jt = JsonConvert.DeserializeObject<JObject>(raw);
                 if (jt != null && jt["value"] != null)
                 {
-                    var expireToken = jt["expireAt"];
+                    var expireToken = jt["expire_at"];
                     if (expireToken != null && expireToken.Type != JTokenType.Null)
                     {
                         var expireTicks = expireToken.Value<long>();
@@ -189,7 +189,7 @@ namespace kevin.Cache.Service
                             throw new Exception($"缓存key：{key}值为空");
                         }
                     }
-                    valueStr = (jt["value"]??"").ToString();
+                    valueStr = (jt["value"] ?? "").ToString();
                 }
             }
             catch
