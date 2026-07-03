@@ -10,7 +10,7 @@ namespace Web.Filters
     /// <summary>
     /// 对外接口 密钥验证
     /// </summary>
-    public class PublicPortAuthorizeFilters
+    public class PublicPortAuthorizeFilters : Attribute, IActionFilter
     {
         public string AppId { get; }
 
