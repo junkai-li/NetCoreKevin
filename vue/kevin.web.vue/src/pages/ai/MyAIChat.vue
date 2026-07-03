@@ -86,7 +86,8 @@
               <RobotOutlined v-else />
             </div>
             <div class="message-content">
-              <div class="message-text" v-html="formatMessageContent(message.content)"></div>
+              <div class="message-text" v-if="message.isSend === false" v-html="formatMessageContent(message.content)"></div>
+                <div class="message-text" v-else v-html="message.content"></div>
               <a-collapse v-if="message.aiReasoningContent" class="message-collapse" ghost :default-active-key="expandedReasoning ? ['reasoning'] : []">
                 <a-collapse-panel key="reasoning" header="思考过程">
                   <div class="collapse-content">
@@ -1422,6 +1423,8 @@ const deleteConversation = async (conversationId, event) => {
   text-align: left;
   display: inline-block;
   max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .message-text .url-link {
