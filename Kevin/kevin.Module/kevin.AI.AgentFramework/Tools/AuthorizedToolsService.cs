@@ -1,14 +1,10 @@
 ﻿using kevin.AI.AgentFramework.Interfaces.Tools;
+using Kevin.Common.App;
 using Kevin.Common.Extension;
-using System;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-
 namespace kevin.AI.AgentFramework.Tools
 {
     public class AuthorizedToolsService : IAuthorizedToolsService
@@ -16,6 +12,12 @@ namespace kevin.AI.AgentFramework.Tools
         private object? _data { get; set; }
         private int _contentLengthLimit = 0;//  内容长度限制，超过限制后会进行截断
         private List<string> _authorizedDomains = new List<string>(); // 授权域名列表
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public AuthorizedToolsService(IHttpContextAccessor httpContextAccessor)
+        { 
+            _httpContextAccessor = httpContextAccessor;
+        }
         public void InitData(object data)
         {
             _data = data;
@@ -63,8 +65,33 @@ namespace kevin.AI.AgentFramework.Tools
         public async Task<string> GetUrlAuthorizedCodeAsync([Description("传入完整的请求url如：https://ksiaa.com/api/product/lists"), Required] string url)
         {
             AuthorizedDomainsCheck(url);
-            var data = new { UrlParameters=new { Code = "123456"}, Headers=new { Authorization = "Bearer 123456" } };
-            return data.ToJson();
-        } 
+            var Authorization = _httpContextAccessor.Current().Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(Authorization) || !IsBearerValidJwt(Authorization))
+            {
+                Authorization = _httpContextAccessor.Current().Request.Query["Authorization"].ToString();
+            }
+            return new { Headers = new { Authorization = "Bearer " + Authorization } }.ToJson(); 
+        }
+
+        /// <summary>
+        /// 简单验证JWT的有效性 ，适用于从Authorization头提取的Token
+        /// </summary>
+        /// <param name="authorizationHeader"></param>
+        /// <param name="secretKey"></param>
+        /// <param name="validIssuer"></param>
+        /// <param name="validAudience"></param>
+        /// <returns></returns>
+        public static bool IsBearerValidJwt(string authorizationHeader)
+        {
+            // 1. 检查 Authorization 头格式
+            if (string.IsNullOrEmpty(authorizationHeader) ||
+                !authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            string token = authorizationHeader.Substring("Bearer ".Length).Trim();
+            if (string.IsNullOrEmpty(token))
+                return false;
+            return true;
+        }
     }
 }
