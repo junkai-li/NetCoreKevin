@@ -65,12 +65,23 @@ namespace kevin.AI.AgentFramework.Tools
         public async Task<string> GetUrlAuthorizedCodeAsync([Description("传入完整的请求url如：https://ksiaa.com/api/product/lists"), Required] string url)
         {
             AuthorizedDomainsCheck(url);
-            var Authorization = _httpContextAccessor.Current().Request.Headers["Authorization"].ToString();
+            var Authorization = "";
+            if (_httpContextAccessor.Current().Request.Headers.ContainsKey("Authorization"))
+            {
+                  Authorization = _httpContextAccessor.Current().Request.Headers["Authorization"].ToString(); 
+            }
             if (string.IsNullOrEmpty(Authorization) || !IsBearerValidJwt(Authorization))
             {
-                Authorization = _httpContextAccessor.Current().Request.Query["Authorization"].ToString();
+                if (_httpContextAccessor.Current().Request.Query.ContainsKey("Authorization"))
+                {
+                    Authorization = _httpContextAccessor.Current().Request.Query["Authorization"].ToString();
+                }
             }
-            return new { Headers = new { Authorization =Authorization } }.ToJson(); 
+            if (!string.IsNullOrEmpty(Authorization))
+            {
+                return new { Headers = new { Authorization = Authorization } }.ToJson();
+            }
+            return "接口无需授权";
         }
 
         /// <summary>
