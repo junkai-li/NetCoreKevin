@@ -70,7 +70,7 @@ namespace kevin.AI.AgentFramework.Tools
             {
                 Authorization = _httpContextAccessor.Current().Request.Query["Authorization"].ToString();
             }
-            return new { Headers = new { Authorization = "Bearer " + Authorization } }.ToJson(); 
+            return new { Headers = new { Authorization =Authorization } }.ToJson(); 
         }
 
         /// <summary>
