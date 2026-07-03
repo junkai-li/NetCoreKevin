@@ -131,8 +131,6 @@ namespace kevin.Application.Services.AI
             add.CreateUserId = CurrentUser.UserId;
             add.TenantId = CurrentUser.TenantId;
             add.IsSend = true;
-            aIChatHistorysRp.Add(add);
-            await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
             //回复消息
             var addAi = new TAIChatHistorys();
             addAi.Id = SnowflakeIdService.GetNextId();
@@ -231,6 +229,8 @@ namespace kevin.Application.Services.AI
                     }
                     break;
             }
+            aIChatHistorysRp.Add(add);
+            await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
             var logdata = await _aIChatHistorysBindLogService.GetByIds(new List<long> { addAi.Id });
             aIChatHistorysRp.Add(addAi);
             await aIChatsService.UpdateNameAndMsg(par.AIChatsId, count == 1 ? par.Content : "", addAi.Content, cancellationToken);
@@ -540,7 +540,7 @@ namespace kevin.Application.Services.AI
                             {
                                 Id = snowflakeIdService1.GetNextId(),
                                 IsDelete = false,
-                                CreateTime = DateTime.Now, 
+                                CreateTime = DateTime.Now,
                                 TenantId = aiapp.TenantId,
                                 ThreadId = thread_id,
                                 CompactionMessageText = item.Value.SerializeToJson(),
