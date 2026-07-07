@@ -373,7 +373,10 @@ namespace kevin.Application.Services.AI
                                                .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync);
                 foreach (var skillPath in skillPaths)
                 {
-                    skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath));
+                    skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath), new AgentFileSkillsSourceOptions
+                    {
+                        SearchDepth = 2
+                    }); 
                 }
                 var sk = skillsProvider.Build();
                 chatAgOs.AIContextProviders = [sk];
