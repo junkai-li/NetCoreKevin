@@ -9,9 +9,9 @@
 
   <ItemGroup> 
       <PackageReference Include="HttpMataki.NET.Auto" Version="1.0.3" />
-      <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.11.0" />
+      <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.13.0" />
       <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.11" />
-    <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.11.0" />
+    <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.13.0" />
       <PackageReference Include="ModelContextProtocol" Version="1.2.0" />
       <PackageReference Include="OpenTelemetry" Version="1.14.0" />
       <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.14.0" />
@@ -23,14 +23,41 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Skills\expense-report\expense-report\assets\expense-report-template.md">
+    <None Update="Skills\expense-report\assets\expense-report-template.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\expense-report\expense-report\assets\expense-report-template.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Skills\expense-report\expense-report\references\POLICY_FAQ.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Skills\expense-report\expense-report\SKILL.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\expense-report\references\POLICY_FAQ.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\expense-report\SKILL.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\system-ops\assets\template.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\system-ops\references\troubleshooting-guide.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\system-ops\scripts\check-disk-usage.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\system-ops\scripts\check-system-info.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\system-ops\scripts\check-top-processes.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Skills\system-ops\SKILL.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Skills\system-ops\system-ops\assets\template.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

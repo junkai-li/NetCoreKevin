@@ -369,17 +369,14 @@ namespace kevin.Application.Services.AI
             if (aiapp.IsSkill)
             {
                 var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(parAi, aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result;
-#pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。  
                 var skillsProvider = new AgentSkillsProviderBuilder()
-                                               .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)
-                                               .UseOptions(options => options.DisableCaching = true);
+                                               .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync);
                 foreach (var skillPath in skillPaths)
                 {
                     skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath));
                 }
                 var sk = skillsProvider.Build();
                 chatAgOs.AIContextProviders = [sk];
-#pragma warning restore MAAI001
             }
             #endregion
             return chatAgOs;
@@ -441,17 +438,17 @@ namespace kevin.Application.Services.AI
             if (aiapp.IsSkill)
             {
                 var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(parAi, aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result;
-#pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。  
                 var skillsProvider = new AgentSkillsProviderBuilder()
-                                               .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync)
-                                               .UseOptions(options => options.DisableCaching = true);
+                                               .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync);
                 foreach (var skillPath in skillPaths)
                 {
-                    skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath));
+                    skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath), new AgentFileSkillsSourceOptions
+                    {
+                        SearchDepth = 2
+                    });
                 }
                 var sk = skillsProvider.Build();
                 chatAgOs.AIContextProviders = [sk];
-#pragma warning restore MAAI001  
             }
             #endregion
 

@@ -74,7 +74,19 @@ namespace kevin.AI.AgentFramework
 
             // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示  
             var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(aISetting.AIKeySecret) ? "local" : aISetting.AIKeySecret), openAIClientOptions);
-            var aiAgent = ai.GetChatClient(aISetting.AIDefaultModel).AsIChatClient().AsAIAgent(chatClientAgentOptions);
+#pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+            var aiAgent = ai.GetChatClient(aISetting.AIDefaultModel).AsIChatClient().AsAIAgent(chatClientAgentOptions)
+                .AsBuilder()
+                .UseToolApproval(new ToolApprovalAgentOptions
+                {
+                    // NOTE: Auto-approving all skill tools is done here for simplicity in
+                    // this demonstration. In production, you should prompt the user before
+                    // allowing script execution. See Agent_Step07_SkillsAutoApproval for a
+                    // walkthrough of the full approval flow.
+                    AutoApprovalRules = [AgentSkillsProvider.AllToolsAutoApprovalRule],
+                })
+                .Build(); ;
+#pragma warning restore MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
             var reslut = new AgentResponse();
             var tokenConsumptionInfo = new TokenConsumptionInfo();
             var resultText = string.Empty;
@@ -187,7 +199,7 @@ namespace kevin.AI.AgentFramework
         /// <param name="chatClientAgentOptions"></param> 
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<AIAgent> CreateOpenAIAgent(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions,CancellationToken cancellationToken = default)
+        public async Task<AIAgent> CreateOpenAIAgent(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();//是否已经中止，若已请求取消则抛出异常
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions()
@@ -217,7 +229,7 @@ namespace kevin.AI.AgentFramework
             #endregion 
             // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示  
             var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(aISetting.AIKeySecret) ? "local" : aISetting.AIKeySecret), openAIClientOptions);
-            var aiAgent = ai.GetChatClient(aISetting.AIDefaultModel).AsIChatClient().AsAIAgent(chatClientAgentOptions);  
+            var aiAgent = ai.GetChatClient(aISetting.AIDefaultModel).AsIChatClient().AsAIAgent(chatClientAgentOptions);
             return aiAgent;
         }
 
