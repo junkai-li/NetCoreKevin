@@ -234,9 +234,14 @@
 }
 
 .content-wrapper .message-avatar {
-  background: #e6f4ff !important;
-  border-color: #91caff !important;
+  background: #fff !important;
+  border-color: #d9d9d9 !important;
   color: #1677ff !important;
+}
+
+.content-wrapper .message-avatar.avatar-ai {
+  background: transparent !important;
+  border-color: transparent !important;
 }
 
 .content-wrapper .message-text {
