@@ -62,6 +62,16 @@ namespace kevin.AI.AgentFramework.Tools
         /// </summary> 
         public async Task<string> GetSeoAsync(string value, string aiEndPoint, string aiModelName, string aiModelKey)
         {
+            // 优先使用You.com结构化联网搜索：结果本身已经是干净的结构化文本，
+            // 无需再走HTML抓取+LLM总结的流程。未配置或调用失败时回退到原有抓取逻辑。
+            if (YouComSearchProvider.IsEnabled)
+            {
+                var youComResult = await YouComSearchProvider.SearchAsync(value);
+                if (!string.IsNullOrEmpty(youComResult))
+                {
+                    return "互联网查询信息:" + "\n" + youComResult;
+                }
+            }
 
             var htmls = new List<string>();
             string result = "";
