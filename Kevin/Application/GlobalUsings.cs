@@ -1,4 +1,4 @@
-﻿global using kevin.Domain.Entities;
+global using kevin.Domain.Entities;
 global using kevin.Domain.Interfaces.IRepositories;
 global using kevin.Domain.Interfaces.IServices;
 global using kevin.Domain.Share.Dtos;
@@ -8,4 +8,4 @@ global using kevin.Share.Dtos;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.EntityFrameworkCore;
 global using Web.Global.Exceptions;
-global using Kevin.Common.Helper.FileHandleTools;
+global using Kevin.Common.Helper.FileHandleTools; 
