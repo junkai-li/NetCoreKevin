@@ -216,7 +216,7 @@ namespace kevin.Application.Services.AI
                                         IsAISkills = aiapp.IsSkill,
                                         IsAITools = aiapp.IsAITools,
                                         NetworkTimeout = aiapp.NetworkTimeout,
-                                    }, chatAgOs, new(ChatRole.User, [new TextContent($"{taskContent}")])).Result.Item2;
+                                    }, chatAgOs, new(ChatRole.User, [new TextContent($"{taskContent} \n 必须根据相关技能，一次性完成所有步骤在返回结果")])).Result.Item2;
                                     break;
                             }
                         }
