@@ -76,20 +76,38 @@ namespace Kevin.SignalR.Service
 
         public Task SendConnIdMsg(string method, string connId, string msg)
         {
+            if (string.IsNullOrEmpty(connId))
+            {
+                return Task.CompletedTask;
+            }
             return _messageHub.Clients.Client(connId).SendAsync(method, msg);
         }
         public Task SendConnIdsMsg(string method, List<string> connIds, string msg)
         {
+            if (connIds.Count <= 0)
+            {
+                return Task.CompletedTask;
+            }
             return _messageHub.Clients.Clients(connIds).SendAsync(method, msg);
         }
 
         public Task SendIdentityIdMsg(string method, string identityId, string msg)
         {
-            return _messageHub.Clients.Client(GetIdentityIdConnIds(new List<string>() { identityId }).FirstOrDefault() ?? identityId).SendAsync(method, msg);
+            var sendId = GetIdentityIdConnIds(new List<string>() { identityId })?.FirstOrDefault();
+            if (string.IsNullOrEmpty(sendId))
+            {
+                return Task.CompletedTask;
+            }
+            return _messageHub.Clients.Client(sendId).SendAsync(method, msg);
         }
         public Task SendIdentityIdsMsg(string method, List<string> identityIds, string msg)
         {
-            return _messageHub.Clients.Clients(GetIdentityIdConnIds(identityIds)).SendAsync(method, msg);
+            var sendIds = GetIdentityIdConnIds(identityIds);
+            if (sendIds.Count <= 0)
+            {
+                return Task.CompletedTask;
+            }
+            return _messageHub.Clients.Clients(sendIds).SendAsync(method, msg);
         }
 
         private List<string> GetIdentityIdConnIds(List<string> identityId)
