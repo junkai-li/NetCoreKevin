@@ -71,7 +71,6 @@ namespace kevin.AI.AgentFramework
             var maxRetries = aISetting.MaxRetries;
             var retries = 1;
         aiRun:
-
             // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示  
             var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(aISetting.AIKeySecret) ? "local" : aISetting.AIKeySecret), openAIClientOptions);
 #pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
@@ -79,13 +78,16 @@ namespace kevin.AI.AgentFramework
                 .AsBuilder()
                 .UseToolApproval(new ToolApprovalAgentOptions
                 {
-                    // NOTE: Auto-approving all skill tools is done here for simplicity in
-                    // this demonstration. In production, you should prompt the user before
-                    // allowing script execution. See Agent_Step07_SkillsAutoApproval for a
-                    // walkthrough of the full approval flow.
-                    AutoApprovalRules = [AgentSkillsProvider.AllToolsAutoApprovalRule],
+
+                    AutoApprovalRules = new Func<ToolAutoApprovalRuleContext, ValueTask<bool>>[]
+                                        {
+                                            // 先添加一个全匹配规则（注意安全风险）
+                                            context => new ValueTask<bool>(true),
+                                            // 或保留原有规则并放在后面作为备选
+                                            AgentSkillsProvider.AllToolsAutoApprovalRule
+                                        }
                 })
-                .Build(); ;
+                .Build();
 #pragma warning restore MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
             var reslut = new AgentResponse();
             var tokenConsumptionInfo = new TokenConsumptionInfo();
@@ -229,7 +231,18 @@ namespace kevin.AI.AgentFramework
             #endregion 
             // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示  
             var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(aISetting.AIKeySecret) ? "local" : aISetting.AIKeySecret), openAIClientOptions);
-            var aiAgent = ai.GetChatClient(aISetting.AIDefaultModel).AsIChatClient().AsAIAgent(chatClientAgentOptions);
+            var aiAgent = ai.GetChatClient(aISetting.AIDefaultModel).AsIChatClient().AsAIAgent(chatClientAgentOptions).AsBuilder()
+                .UseToolApproval(new ToolApprovalAgentOptions
+                {
+                    AutoApprovalRules = new Func<ToolAutoApprovalRuleContext, ValueTask<bool>>[]
+                                            {
+                                                // 先添加一个全匹配规则（注意安全风险）
+                                                context => new ValueTask<bool>(true),
+                                                // 或保留原有规则并放在后面作为备选
+                                                AgentSkillsProvider.AllToolsAutoApprovalRule
+                                            }
+                })
+                .Build();
             return aiAgent;
         }
 
