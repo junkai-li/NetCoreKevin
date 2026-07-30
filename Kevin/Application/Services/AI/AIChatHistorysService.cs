@@ -1,16 +1,13 @@
 ﻿
 using Common;
-using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
-using kevin.AI.AgentFramework.ScriptRunners;
 using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using Kevin.AI.Dto;
-using Kevin.Common.Extension;
 using Kevin.RAG.Interfaces;
 using Kevin.RAG.Ollama;
 using Kevin.SignalR.Service;
@@ -48,8 +45,7 @@ namespace kevin.Application.Services.AI
         private readonly IAIChatHistorysBindLogService _aIChatHistorysBindLogService;
 
         private readonly IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService;
-
-        public AIChatHistorysService() { }
+         
         public AIChatHistorysService(IHttpContextAccessor _httpContextAccessor, IAIChatHistorysRp _aIChatHistorysRp,
             IAIAgentService _aIAgentService, IAIModelsService _aIModelsService, IAIPromptsService _aIPromptsService,
             IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore,

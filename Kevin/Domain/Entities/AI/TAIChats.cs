@@ -19,6 +19,13 @@
         public String? LastMessage { get; set; }
 
         /// <summary>
+        /// 是否隐藏
+        /// </summary>
+        [DefaultValue(false)]
+        [Description("是否隐藏")]
+        public bool IsHidden { get; set; } = false;
+
+        /// <summary>
         /// 聊天用户di
         /// </summary>
         [Description("聊天用户Id")]

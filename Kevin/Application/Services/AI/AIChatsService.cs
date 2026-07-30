@@ -50,7 +50,7 @@ namespace kevin.Application.Services.AI
         {
             var result = new dtoPageData<AIChatsDto>();
             int skip = dtoPage.GetSkip();
-            var data = aIChatsRp.Query().Where(t => t.IsDelete == false && t.UserId == CurrentUser.UserId && t.TenantId == CurrentUser.TenantId);
+            var data = aIChatsRp.Query().Where(t => t.IsDelete == false && t.UserId == CurrentUser.UserId && t.TenantId == CurrentUser.TenantId && t.IsHidden == false);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
                 data = data.Where(t => (t.Name ?? "").Contains(dtoPage.searchKey));
@@ -83,6 +83,7 @@ namespace kevin.Application.Services.AI
             add.CreateUserId = CurrentUser.UserId;
             add.TenantId = CurrentUser.TenantId;
             add.UserId = CurrentUser.UserId;
+            add.IsHidden = par.IsHidden;
             aIChatsRp.Add(add);
             await aIChatsRp.SaveChangesAsync();
 
@@ -135,8 +136,8 @@ namespace kevin.Application.Services.AI
         /// <returns></returns>
         public async Task<bool> UpdateNameAndMsg(long Id, string Name = "", string LastMessage = "", CancellationToken cancellationToken = default)
         {
-            Name = StringHelper.SubstringText(Name, 200,"...");
-            LastMessage= StringHelper.SubstringText(Name, 300,"...");
+            Name = StringHelper.SubstringText(Name, 200, "...");
+            LastMessage = StringHelper.SubstringText(Name, 300, "...");
             var ai = await aIChatsRp.Query().Where(t => t.IsDelete == false && t.Id == Id).FirstOrDefaultAsync(cancellationToken);
             if (ai != null)
             {

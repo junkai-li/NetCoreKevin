@@ -303,6 +303,11 @@
             应用ID
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatsDto.IsHidden">
+            <summary>
+            是否隐藏
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIChatsDto.LastMessage">
             <summary>
             最后一条聊天记录

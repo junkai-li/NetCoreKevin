@@ -31,6 +31,11 @@ namespace kevin.Domain.Share.Dtos.AI
         public virtual string? App { get; set; }
 
         /// <summary>
+        /// 是否隐藏
+        /// </summary>
+        public bool IsHidden { get; set; } = false;
+
+        /// <summary>
         /// 最后一条聊天记录
         /// </summary>
         public String LastMessage { get; set; }
