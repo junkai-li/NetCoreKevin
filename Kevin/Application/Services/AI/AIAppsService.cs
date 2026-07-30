@@ -10,14 +10,6 @@ using Kevin.AI.Dto;
 using Kevin.Common.Extension;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
-using OllamaSharp.Tools;
-using OpenAI;
-using Repository.Database;
-using System.ClientModel;
-using System.ClientModel.Primitives;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace kevin.Application.Services.AI
 {
@@ -186,6 +178,12 @@ namespace kevin.Application.Services.AI
             }
             if (isAdd)
             {
+                var AppName = aIAppsRp.Query().Where(t => t.Name == par.Name && t.IsDelete == false).FirstOrDefault();
+                //验证唯一不允许添加
+                if (AppName != null && par.Id != AppName.Id)
+                {
+                    throw new UserFriendlyException("智能体名称已存在");
+                }
                 var add = par.MapTo<TAIApps>();
                 add.Id = par.Id == default ? SnowflakeIdService.GetNextId() : par.Id;
                 add.IsDelete = false;
@@ -199,6 +197,12 @@ namespace kevin.Application.Services.AI
                 var msg = aIAppsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.Id == par.Id).FirstOrDefault();
                 if (msg != default)
                 {
+                    var AppName = aIAppsRp.Query().Where(t => t.Name == par.Name && t.IsDelete == false).FirstOrDefault();
+                    //验证唯一不允许添加
+                    if (AppName != null && par.Id != AppName.Id)
+                    {
+                        throw new UserFriendlyException("智能体名称已存在");
+                    }
                     msg.UpdateTime = DateTime.Now;
                     msg.UpdateUserId = CurrentUser.UserId;
                     msg.TenantId = CurrentUser.TenantId;
@@ -376,7 +380,7 @@ namespace kevin.Application.Services.AI
                     skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath), new AgentFileSkillsSourceOptions
                     {
                         SearchDepth = 2
-                    }); 
+                    });
                 }
                 var sk = skillsProvider.Build();
                 chatAgOs.AIContextProviders = [sk];
