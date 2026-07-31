@@ -110,8 +110,7 @@ namespace kevin.AI.AgentFramework.Tools
                 Description = SystemTemplate,
                 ChatOptions = new Microsoft.Extensions.AI.ChatOptions
                 {
-                    Temperature = (float)(30 / 100),
-                    ResponseFormat = ChatResponseFormat.Text,
+                    Temperature = (float)(30 / 100), 
                     Instructions = SystemTemplate 
                 },
             }, new(ChatRole.User, [new TextContent($"用户搜索意图问题:{value} \n 互联网搜索信息如下：" + string.Join("\n", htmls) + "\n" + " 请你根据用户搜索意图问题来进行提取总结")]))).Item2;

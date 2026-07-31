@@ -480,8 +480,7 @@ namespace kevin.Application.Services.AI
                         ChatOptions = new Microsoft.Extensions.AI.ChatOptions
                         {
                             MaxOutputTokens = aiapp.AnswerTokens,
-                            Temperature = (float)(aiapp.Temperature / 100),
-                            ResponseFormat = ChatResponseFormat.Text,
+                            Temperature = (float)(aiapp.Temperature / 100), 
                             Instructions = aiapp.AIMessageCompactionPrompt 
                         },
                     });

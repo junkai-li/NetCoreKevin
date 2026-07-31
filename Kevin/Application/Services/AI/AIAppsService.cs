@@ -334,8 +334,7 @@ namespace kevin.Application.Services.AI
                 ChatOptions = new Microsoft.Extensions.AI.ChatOptions
                 {
                     MaxOutputTokens = aiapp.AnswerTokens,
-                    Temperature = (float)(aiapp.Temperature / 100),
-                    ResponseFormat = ChatResponseFormat.Text,
+                    Temperature = (float)(aiapp.Temperature / 100), 
                     Instructions = systemPrompt 
                 },
                 ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0)
@@ -412,8 +411,7 @@ namespace kevin.Application.Services.AI
                 ChatOptions = new Microsoft.Extensions.AI.ChatOptions
                 {
                     MaxOutputTokens = aiapp.AnswerTokens,
-                    Temperature = (float)(aiapp.Temperature / 100),
-                    ResponseFormat = ChatResponseFormat.Text,
+                    Temperature = (float)(aiapp.Temperature / 100), 
                     Instructions = systemPrompt
                 },
                 ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0)
