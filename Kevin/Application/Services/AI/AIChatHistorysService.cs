@@ -482,11 +482,7 @@ namespace kevin.Application.Services.AI
                             MaxOutputTokens = aiapp.AnswerTokens,
                             Temperature = (float)(aiapp.Temperature / 100),
                             ResponseFormat = ChatResponseFormat.Text,
-                            Instructions = aiapp.AIMessageCompactionPrompt,
-                            Reasoning = new ReasoningOptions
-                            {
-                                Effort = ReasoningEffort.High // 根据需要调整
-                            }
+                            Instructions = aiapp.AIMessageCompactionPrompt 
                         },
                     });
                     var snowflakeIdService1 = new Kevin.SnowflakeId.Service.SnowflakeIdService();

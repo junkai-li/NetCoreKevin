@@ -64,8 +64,8 @@ namespace kevin.Domain.Share.Dtos.AI
         /// <summary>
         /// 提问最大token数
         /// </summary> 
-        [DefaultValue(2048)]
-        public int MaxAskPromptSize { get; set; } = 2048;
+        [DefaultValue(204800)]
+        public int MaxAskPromptSize { get; set; } = 204800;
         /// <summary>
         /// 向量匹配数
         /// </summary> 
@@ -78,8 +78,8 @@ namespace kevin.Domain.Share.Dtos.AI
         /// <summary>
         /// 回答最大token数
         /// </summary> 
-        [DefaultValue(2048)]
-        public int AnswerTokens { get; set; } = 2048;
+        [DefaultValue(204800)]
+        public int AnswerTokens { get; set; } = 204800;
 
         /// <summary>
         /// 提示词绑定
@@ -146,12 +146,12 @@ namespace kevin.Domain.Share.Dtos.AI
         /// AI请求最大重试次数
         /// </summary>
         [Description("AI请求最大重试次数")]
-        public int MaxRetries { get; set; } = 3;
+        public int MaxRetries { get; set; } = 2;
         /// <summary>
         /// AI请求超时时间，单位分钟
         /// </summary>
         [Description("AI请求超时时间，单位分钟")]
-        public int NetworkTimeout { get; set; } = 10;
+        public int NetworkTimeout { get; set; } = 30;
 
         /// <summary>
         /// 关联的绑定ID
@@ -191,10 +191,10 @@ namespace kevin.Domain.Share.Dtos.AI
         public bool IsToolLog { get; set; } = true;
 
         /// <summary>
-        /// 内容长度限制，超过限制后会进行截断，默认30000字符（知识库，互联网搜索，AI工具内容，文件内容等，）
+        /// 内容长度限制，超过限制后会进行截断，默认50000字符（知识库，互联网搜索，AI工具内容，文件内容等，）
         /// </summary>
-        [Description(" 内容长度限制，超过限制后会进行截断，默认30000字符（知识库，互联网搜索，AI工具内容，文件内容等，）")]
-        public int ContentLengthLimit { get; set; } = 30000;
+        [Description(" 内容长度限制，超过限制后会进行截断，默认50000字符（知识库，互联网搜索，AI工具内容，文件内容等，）")]
+        public int ContentLengthLimit { get; set; } = 50000;
 
         /// <summary>
         /// 是否开启安全拦截开启后会对python脚本和shell命令内容进行安全拦截，防止输入敏感信息，默认开启

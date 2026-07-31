@@ -112,11 +112,7 @@ namespace kevin.AI.AgentFramework.Tools
                 {
                     Temperature = (float)(30 / 100),
                     ResponseFormat = ChatResponseFormat.Text,
-                    Instructions = SystemTemplate,
-                    Reasoning = new ReasoningOptions
-                    {
-                        Effort = ReasoningEffort.High // 根据需要调整
-                    }
+                    Instructions = SystemTemplate 
                 },
             }, new(ChatRole.User, [new TextContent($"用户搜索意图问题:{value} \n 互联网搜索信息如下：" + string.Join("\n", htmls) + "\n" + " 请你根据用户搜索意图问题来进行提取总结")]))).Item2;
             return "互联网查询信息:" + "\n" + (result ?? "无相关信息");

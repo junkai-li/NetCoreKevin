@@ -336,11 +336,7 @@ namespace kevin.Application.Services.AI
                     MaxOutputTokens = aiapp.AnswerTokens,
                     Temperature = (float)(aiapp.Temperature / 100),
                     ResponseFormat = ChatResponseFormat.Text,
-                    Instructions = systemPrompt,
-                    Reasoning = new ReasoningOptions
-                    {
-                        Effort = ReasoningEffort.High // 根据需要调整
-                    }
+                    Instructions = systemPrompt 
                 },
                 ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0)
             };
@@ -418,11 +414,7 @@ namespace kevin.Application.Services.AI
                     MaxOutputTokens = aiapp.AnswerTokens,
                     Temperature = (float)(aiapp.Temperature / 100),
                     ResponseFormat = ChatResponseFormat.Text,
-                    Instructions = systemPrompt,
-                    Reasoning = new ReasoningOptions
-                    {
-                        Effort = ReasoningEffort.High // 根据需要调整
-                    }
+                    Instructions = systemPrompt
                 },
                 ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0)
             };
