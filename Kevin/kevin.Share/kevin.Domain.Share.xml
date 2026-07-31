@@ -184,6 +184,21 @@
             自动压缩策略提示词
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.ResponseFormat">
+            <summary>
+            模型返回格式，默认不配置，支持Json,Text
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.ReasoningEffort">
+            <summary>
+            模型思考能力，默认不配置，支持None,Low,Medium,High,ExtraHigh
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.ReasoningOutput">
+            <summary>
+            模型思考输出，默认不配置，支持None,Summary,Full
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysBindLogDto.AIChatHistorysId">
             <summary>
             对话记录id

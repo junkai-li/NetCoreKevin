@@ -216,7 +216,40 @@
             <a-switch v-model:checked="form.isSecurityIntercept" :disabled="isViewMode" />
           </a-form-item>
         </a-col>
+         <a-col :span="12">
+          <a-form-item label="返回格式">
+            <a-select v-model:value="form.responseFormat" placeholder="默认不配置" :disabled="isViewMode" allow-clear>
+              <a-select-option :value="''">不配置</a-select-option>
+              <a-select-option value="Json">Json</a-select-option>
+              <a-select-option value="Text">Text</a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-col>
       </a-row>
+       <a-row :gutter="16"> 
+        <a-col :span="12">
+          <a-form-item label="思考能力">
+            <a-select v-model:value="form.reasoningEffort" placeholder="默认不配置" :disabled="isViewMode" allow-clear>
+              <a-select-option :value="undefined">不配置</a-select-option>
+              <a-select-option :value="0">0.None</a-select-option>
+              <a-select-option :value="1">1.Low</a-select-option>
+              <a-select-option :value="2">2.Medium</a-select-option>
+              <a-select-option :value="3">3.High</a-select-option>
+              <a-select-option :value="4">4.ExtraHigh</a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="思考输出">
+            <a-select v-model:value="form.reasoningOutput" placeholder="默认不配置" :disabled="isViewMode" allow-clear>
+              <a-select-option :value="undefined">不配置</a-select-option>
+              <a-select-option :value="0">0.None</a-select-option>
+              <a-select-option :value="1">1.Summary</a-select-option>
+              <a-select-option :value="2">2.Full</a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-col>
+      </a-row> 
       <a-row :gutter="16">
         <a-col :span="12">
           <a-form-item label="请求超时(分钟)">
@@ -228,7 +261,8 @@
              <a-textarea v-model:value="form.authorizedDomains" placeholder="*为所有，逗号分隔多个域名前缀" :rows="3" :maxlength="300" :disabled="isViewMode" />
           </a-form-item>
         </a-col>
-      </a-row> 
+      </a-row>
+ 
         </a-form>
       </a-tab-pane>
       <a-tab-pane key="skillTool" tab="技能工具">
@@ -444,8 +478,8 @@ const form = reactive({
   imageModelID: '',
   temperature: 50,
   relevance: 50,
-  maxAskPromptSize: 204800,
-  answerTokens: 204800,
+  maxAskPromptSize: 20480,
+  answerTokens: 20480,
   maxMatchesCount: 3,
   rerankCount: 20,
   aiPromptID: undefined,
@@ -464,6 +498,9 @@ const form = reactive({
   isThinkingLog: true,
   isToolLog: true,
   isSecurityIntercept: true,
+  responseFormat: '',
+  reasoningEffort: undefined,
+  reasoningOutput: undefined,
   conversationTurnsExceed: 10,
   isAIMessageCompaction: false,
   isAutoGetAIMessageCompaction: false,
@@ -829,8 +866,8 @@ watch(() => props.open, (newVal) => {
         imageModelID: '',
         temperature: 50,
         relevance: 50,
-        maxAskPromptSize: 204800,
-        answerTokens: 204800,
+        maxAskPromptSize: 20480,
+        answerTokens: 20480,
         maxMatchesCount: 3,
         rerankCount: 20,
         aiPromptID: undefined,
@@ -848,6 +885,9 @@ watch(() => props.open, (newVal) => {
         contentLengthLimit: 50000,
         isThinkingLog: true,
         isToolLog: true,
+        responseFormat: '',
+        reasoningEffort: undefined,
+        reasoningOutput: undefined,
         conversationTurnsExceed: 10,
         isAIMessageCompaction: false,
         isAutoGetAIMessageCompaction: false,
@@ -915,6 +955,9 @@ const handleOk = () => {
         isThinkingLog: form.isThinkingLog,
         isToolLog: form.isToolLog,
         isSecurityIntercept: form.isSecurityIntercept,
+        responseFormat: form.responseFormat,
+        reasoningEffort: form.reasoningEffort,
+        reasoningOutput: form.reasoningOutput,
         conversationTurnsExceed: form.conversationTurnsExceed,
         isAIMessageCompaction: form.isAIMessageCompaction,
         isAutoGetAIMessageCompaction: form.isAutoGetAIMessageCompaction,

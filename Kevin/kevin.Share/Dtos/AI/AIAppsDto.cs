@@ -64,8 +64,8 @@ namespace kevin.Domain.Share.Dtos.AI
         /// <summary>
         /// 提问最大token数
         /// </summary> 
-        [DefaultValue(204800)]
-        public int MaxAskPromptSize { get; set; } = 204800;
+        [DefaultValue(20480)]
+        public int MaxAskPromptSize { get; set; } = 20480;
         /// <summary>
         /// 向量匹配数
         /// </summary> 
@@ -78,8 +78,8 @@ namespace kevin.Domain.Share.Dtos.AI
         /// <summary>
         /// 回答最大token数
         /// </summary> 
-        [DefaultValue(204800)]
-        public int AnswerTokens { get; set; } = 204800;
+        [DefaultValue(20480)]
+        public int AnswerTokens { get; set; } = 20480;
 
         /// <summary>
         /// 提示词绑定
@@ -242,5 +242,23 @@ namespace kevin.Domain.Share.Dtos.AI
                                                     ---
 
                                                     【原始内容】：";
+
+        /// <summary>
+        /// 模型返回格式，默认不配置，支持Json,Text
+        /// </summary> 
+        [Description("模型返回格式，默认不配置，支持Json,Text")]
+        public string? ResponseFormat { get; set; } = "";
+
+        /// <summary>
+        /// 模型思考能力，默认不配置，支持None,Low,Medium,High,ExtraHigh
+        /// </summary> 
+        [Description("模型思考能力，默认不配置，支持0.None,1.Low,2.Medium,3.High,4.ExtraHigh")]
+        public int? ReasoningEffort { get; set; }
+
+        /// <summary>
+        /// 模型思考输出，默认不配置，支持None,Summary,Full
+        /// </summary>
+        [Description("模型思考输出，默认不配置，支持0.None,1.Summary,2.Full")]
+        public int? ReasoningOutput { get; set; }
     }
 }

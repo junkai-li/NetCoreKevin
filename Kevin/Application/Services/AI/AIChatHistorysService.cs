@@ -420,7 +420,52 @@ namespace kevin.Application.Services.AI
             return true;
         }
 
+        /// <summary>
+        /// 获取AI应用的聊天选项配置
+        /// </summary>
+        /// <param name="aiapp"></param>
+        /// <param name="systemPrompt"></param>
+        /// <returns></returns>
+        public ChatOptions GetAppChatOptions(AIAppsDto aiapp, string systemPrompt)
+        {
+            ReasoningOptions? reasoning = default;
+            if (aiapp.ReasoningEffort >= 0 || aiapp.ReasoningOutput >= 0)
+            {
+                reasoning = new ReasoningOptions();
+                if (aiapp.ReasoningEffort >= 0)
+                {
+                    reasoning.Effort = (ReasoningEffort)(aiapp.ReasoningEffort ?? 0);
+                }
+                if (aiapp.ReasoningOutput >= 0)
+                {
+                    reasoning.Output = (ReasoningOutput)(aiapp.ReasoningOutput ?? 0);
+                }
 
+            }
+            ChatResponseFormat? responseFormat = default;
+            if (!string.IsNullOrEmpty(aiapp.ResponseFormat))
+            {
+                switch (aiapp.ResponseFormat)
+                {
+                    case "Json":
+                        responseFormat = ChatResponseFormat.Json;
+                        break;
+                    case "Text":
+                        responseFormat = ChatResponseFormat.Text;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return new Microsoft.Extensions.AI.ChatOptions
+            {
+                MaxOutputTokens = aiapp.AnswerTokens,
+                Temperature = (float)(aiapp.Temperature / 100),
+                Instructions = systemPrompt,
+                Reasoning = reasoning,
+                ResponseFormat = responseFormat
+            };
+        }
         /// <summary>
         /// 异步消息压缩
         /// </summary>
@@ -477,12 +522,7 @@ namespace kevin.Application.Services.AI
 
                         Name = " 你是一款专业的压缩消息记录工具。",
                         Description = aiapp.AIMessageCompactionPrompt,
-                        ChatOptions = new Microsoft.Extensions.AI.ChatOptions
-                        {
-                            MaxOutputTokens = aiapp.AnswerTokens,
-                            Temperature = (float)(aiapp.Temperature / 100), 
-                            Instructions = aiapp.AIMessageCompactionPrompt 
-                        },
+                        ChatOptions = GetAppChatOptions(aiapp, aiapp.AIMessageCompactionPrompt)
                     });
                     var snowflakeIdService1 = new Kevin.SnowflakeId.Service.SnowflakeIdService();
                     var addList = new List<TAIChatMessageStoreCompaction>();
