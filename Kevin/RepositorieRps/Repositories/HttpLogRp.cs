@@ -1,6 +1,7 @@
 ﻿using Kevin.Common.App;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Repository.Database;
 
 namespace kevin.RepositorieRps.Repositories
 {
@@ -19,6 +20,7 @@ namespace kevin.RepositorieRps.Repositories
         /// <returns></returns>
         public Task<bool> Add(string operateType, string operateRemark)
         {
+            using var db = new KevinDbContext();
             var log = new THttpLog();
             log.Id = SnowflakeIdService.GetNextId();
             log.CreateTime = DateTime.Now;
@@ -39,8 +41,8 @@ namespace kevin.RepositorieRps.Repositories
             log.HttpUrl = ServiceProvider.GetService<IHttpContextAccessor>().GetUrl();
             log.Device = ServiceProvider.GetService<IHttpContextAccessor>().GetDevice();
             log.HttpMethod = ServiceProvider.GetService<IHttpContextAccessor>().Current().Request.Method;
-            DbSet.Add(log);
-            SaveChangesAsync();
+            db.Set<THttpLog>().Add(log);
+            db.SaveChanges(); 
             return Task.FromResult(true);
         }
     }

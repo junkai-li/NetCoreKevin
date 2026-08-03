@@ -6,6 +6,7 @@ using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using Kevin.log4Net;
 using Kevin.SignalR.Service;
+using Repository.Database;
 using TencentCloud.Lowcode.V20210108.Models;
 
 namespace kevin.Application.Services.AI
@@ -138,9 +139,10 @@ namespace kevin.Application.Services.AI
         {
             try
             {
+                using var db = new KevinDbContext();
                 Name = StringHelper.SubstringText(Name, 200, "...");
                 LastMessage = StringHelper.SubstringText(Name, 300, "...");
-                var ai = await aIChatsRp.Query().Where(t => t.IsDelete == false && t.Id == Id).FirstOrDefaultAsync();
+                var ai = await db.Set<TAIChats>().Where(t => t.IsDelete == false && t.Id == Id).FirstOrDefaultAsync();
                 if (ai != null)
                 {
                     if (!string.IsNullOrEmpty(Name))
@@ -153,8 +155,8 @@ namespace kevin.Application.Services.AI
                     }
                     ai.UpdateTime = DateTime.Now;
                     ai.UpdateUserId = CurrentUser.UserId;
-                    ai.RowVersion = Guid.NewGuid();
-                    await aIChatsRp.SaveChangesAsync();
+                    db.Set<TAIChats>().Update(ai);
+                    db.SaveChanges(); 
                 }
             }
             catch (Exception ex)
