@@ -4,6 +4,7 @@ using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
+using Kevin.log4Net;
 using Kevin.SignalR.Service;
 using TencentCloud.Lowcode.V20210108.Models;
 
@@ -125,8 +126,7 @@ namespace kevin.Application.Services.AI
             //        break;
             //}
             return addHist.MapTo<AIChatHistorysDto>();
-        }
-
+        } 
         /// <summary>
         /// 修改对话的主题和最后一条消息
         /// </summary>
@@ -136,23 +136,33 @@ namespace kevin.Application.Services.AI
         /// <returns></returns>
         public async Task<bool> UpdateNameAndMsg(long Id, string Name = "", string LastMessage = "", CancellationToken cancellationToken = default)
         {
-            Name = StringHelper.SubstringText(Name, 200, "...");
-            LastMessage = StringHelper.SubstringText(Name, 300, "...");
-            var ai = await aIChatsRp.Query().Where(t => t.IsDelete == false && t.Id == Id).FirstOrDefaultAsync(cancellationToken);
-            if (ai != null)
+            try
             {
-                if (!string.IsNullOrEmpty(Name))
+                Name = StringHelper.SubstringText(Name, 200, "...");
+                LastMessage = StringHelper.SubstringText(Name, 300, "...");
+                var ai = await aIChatsRp.Query().Where(t => t.IsDelete == false && t.Id == Id).FirstOrDefaultAsync(cancellationToken);
+                if (ai != null)
                 {
-                    ai.Name = Name;
+                    if (!string.IsNullOrEmpty(Name))
+                    {
+                        ai.Name = Name;
+                    }
+                    if (!string.IsNullOrEmpty(LastMessage))
+                    {
+                        ai.LastMessage = LastMessage;
+                    }
+                    ai.UpdateTime = DateTime.Now;
+                    ai.UpdateUserId = CurrentUser.UserId;
+                    ai.RowVersion = Guid.NewGuid();
+                    await aIChatsRp.SaveChangesAsync(cancellationToken);
                 }
-                if (!string.IsNullOrEmpty(LastMessage))
-                {
-                    ai.LastMessage = LastMessage;
-                }
-                ai.UpdateTime = DateTime.Now;
-                ai.UpdateUserId = CurrentUser.UserId;
-                await aIChatsRp.SaveChangesAsync(cancellationToken);
             }
+            catch (Exception ex)
+            {
+                LogHelper.logger.Error("修改对话的主题和最后一条消息失败:", ex);
+                return false;
+            }
+
             return true;
         }
 
