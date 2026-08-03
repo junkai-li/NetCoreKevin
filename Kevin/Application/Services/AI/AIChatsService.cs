@@ -140,7 +140,7 @@ namespace kevin.Application.Services.AI
             {
                 Name = StringHelper.SubstringText(Name, 200, "...");
                 LastMessage = StringHelper.SubstringText(Name, 300, "...");
-                var ai = await aIChatsRp.Query().Where(t => t.IsDelete == false && t.Id == Id).FirstOrDefaultAsync(cancellationToken);
+                var ai = await aIChatsRp.Query().Where(t => t.IsDelete == false && t.Id == Id).FirstOrDefaultAsync();
                 if (ai != null)
                 {
                     if (!string.IsNullOrEmpty(Name))
@@ -154,7 +154,7 @@ namespace kevin.Application.Services.AI
                     ai.UpdateTime = DateTime.Now;
                     ai.UpdateUserId = CurrentUser.UserId;
                     ai.RowVersion = Guid.NewGuid();
-                    await aIChatsRp.SaveChangesAsync(cancellationToken);
+                    await aIChatsRp.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
