@@ -166,17 +166,7 @@ namespace kevin.Application.Services.AI
                                     Description = "执行 Shell 命令。通过操作系统原生 Shell 执行命令(Windows 用 cmd也可以执行bash相关命令，Linux/Mac 用 bash）。包含安全护栏：危险命令阻止、输出截断（50KB）、超时控制（60秒）。"
                                 }
                             ));
-                            break;
-                        case "PythonTools.RunPythonPy":
-                            aiTools.Add(
-                               AIFunctionFactory.Create(_iPythonTools.RunPythonPy,
-                               new AIFunctionFactoryOptions
-                               {
-                                   Name = "RunPythonPy",
-                                   Description = "执行Python脚本。 可以帮助Skills工具执行scripts中含有后缀.py脚本的能力 通过PythonNet库来调用Python.py的脚本,并返回执行脚本结果 如果执行返回结果为空或者报错 可以使用RunShell来提取脚本代码然后自行调整定义main函数使用RunPythonCode来执行"
-                               }
-                           ));
-                            break;
+                            break; 
                         case "PythonTools.RunPythonCode":
                             aiTools.Add(
                                AIFunctionFactory.Create(_iPythonTools.RunPythonCode,

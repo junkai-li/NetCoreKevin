@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
-using Kevin.Common.Helper;
 
 namespace kevin.AI.AgentFramework.ScriptRunners
 {
@@ -22,11 +21,12 @@ namespace kevin.AI.AgentFramework.ScriptRunners
             Encoding outputEncoding = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                 ? Encoding.Default
                 : Encoding.UTF8;
-
+            // 逐个添加参数，框架会自动处理转义 
             return new ProcessStartInfo
             {
                 FileName = fileName,
                 Arguments = arguments,
+
                 UseShellExecute = false, // 必须为 false 才能重定向流
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
@@ -115,11 +115,10 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                 // 3. 根据后缀选择解释器
                 string ext = Path.GetExtension(scriptFullPath).ToLowerInvariant();
                 ProcessStartInfo startInfo;
-
+                var argument = "";
                 switch (ext)
                 {
                     case ".py":
-                        // 检测可用的 Python 环境
                         string? pythonCmd = GetAvailablePythonCommand();
                         if (pythonCmd == null)
                         {
@@ -127,20 +126,15 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                                 "Python environment is not installed. Please install Python (python3 or python) and ensure it is available in the system PATH."
                             );
                         }
-                        var validationResult = PythonSecurityValidator.ValidatePythonFile(scriptFullPath);
-                        if (!validationResult.IsValid)
-                        {
-                            var blockedList = string.Join("; ", validationResult.BlockedItems);
-                            return $"❌ 安全校验失败: {blockedList}";
-                        }
-                        startInfo = CreateStartInfo(pythonCmd, $"\"{scriptFullPath}\"");
-                        Console.WriteLine($"执行命令 {pythonCmd} \"{scriptFullPath}\"");
+                        startInfo = CreateStartInfo(pythonCmd, string.Empty);
+                        argument = scriptFullPath;
                         break;
 
                     case ".sh":
                         string shell = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "bash" : "bash";
                         // 注意：Windows 上运行 bash 通常需要 WSL 或 Git Bash 且在 PATH 中
-                        startInfo = CreateStartInfo(shell, $"\"{scriptFullPath}\"");
+                        startInfo = CreateStartInfo(shell, string.Empty);
+                        argument = scriptFullPath;
                         break;
 
                     case ".ps1":
@@ -149,12 +143,14 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                             // 关键优化：强制 PowerShell 使用 UTF-8 输出，防止中文乱码
                             // $OutputEncoding 和 [Console]::OutputEncoding 设置为 UTF-8
                             string psArgs = $"-NoProfile -NonInteractive -ExecutionPolicy Bypass -Command \"& {{ [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8; & '{scriptFullPath}' }}\"";
-                            startInfo = CreateStartInfo("powershell", psArgs);
+                            startInfo = CreateStartInfo("powershell", string.Empty);
+                            argument = psArgs;
                         }
                         else
                         {
                             // Linux/macOS 使用 pwsh (PowerShell Core)
-                            startInfo = CreateStartInfo("pwsh", $"-NoProfile -NonInteractive -File \"{scriptFullPath}\"");
+                            startInfo = CreateStartInfo("pwsh", string.Empty);
+                            argument = $"-NoProfile -NonInteractive -File \"{scriptFullPath}\"";
                         }
                         break;
 
@@ -162,6 +158,32 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                         // 尝试直接执行（适用于 .exe, .bat, .cmd 等）
                         startInfo = CreateStartInfo(scriptFullPath, string.Empty);
                         break;
+                }
+                //拼接参数
+                startInfo.ArgumentList.Add(argument);
+                if (arguments != null)
+                {
+                    var kind = arguments.Value.ValueKind;
+                    if (kind == JsonValueKind.Object)
+                    {
+                        foreach (var prop in arguments.Value.EnumerateObject())
+                        {
+                            startInfo.ArgumentList.Add($"--{prop.Name}");
+                            startInfo.ArgumentList.Add(prop.Value.ToString());
+                        }
+                    }
+                    else if (kind == JsonValueKind.Array)
+                    {
+                        // 数组格式：直接逐个添加每个元素（元素已包含完整参数）
+                        foreach (var element in arguments.Value.EnumerateArray())
+                        {
+                            startInfo.ArgumentList.Add(element.ToString());
+                        }
+                    }
+                    else
+                    {
+                        startInfo.ArgumentList.Add(arguments.Value.ToString());
+                    }
                 }
 
                 // 4. 启动进程并异步处理
@@ -199,21 +221,9 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                     // 立即开始异步读取输出流
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
-
-                    // 异步写入标准输入
-                    // 注意：如果脚本不读取 stdin，写入操作通常会成功但被忽略，或者如果缓冲区满且无人读取可能会阻塞。
-                    // 为了安全，我们使用 WriteAsync 并关闭流。
-                    await process.StandardInput.WriteAsync(inputJson);
-                    await process.StandardInput.FlushAsync();
-                    process.StandardInput.Close(); // 关闭 stdin 以告知脚本输入结束
-
                     // 等待进程退出或取消
                     // 使用 WaitForExitAsync 结合 CancellationToken
                     await process.WaitForExitAsync(cancellationToken);
-
-                    // 额外等待一小段时间以确保事件队列处理完毕（可选，但推荐）
-                    // 或者更严谨的做法是等待 tcs，但 WaitForExitAsync 通常足够保证流读取完成
-                    // 这里我们依赖 WaitForExitAsync 的行为：它保证在返回前，重定向的流已被读完。
                 }
                 catch (OperationCanceledException)
                 {
@@ -238,9 +248,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                         $"Output: {stdOut}"
                     );
                 }
-
                 Console.WriteLine($"Script {script.Name} executed successfully.");
-
                 // 6. 尝试解析 JSON 返回结果
                 if (string.IsNullOrWhiteSpace(stdOut))
                 {

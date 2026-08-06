@@ -66,7 +66,7 @@ namespace kevin.AI.AgentFramework.Tools
         /// <returns>是否包含受限制路径</returns>
         private bool ContainsRestrictedFile(string code)
         {
-            return restrictedFiles.Any(file => 
+            return restrictedFiles.Any(file =>
                 code.IndexOf(file, StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
@@ -156,117 +156,6 @@ namespace kevin.AI.AgentFramework.Tools
 
             // 都不存在返回 null
             return null;
-        }
-
-        [Description("执行Python脚本。通过System.Diagnostics.Process类来启动一个新的进程，并运行Python.py的脚本。这种方法适用于Windows和Linux系统。包含安全护栏：配置文件访问拦截（禁止访问 appsettings.json 等）、HTTP请求域名白名单。")]
-        public async Task<string> RunPythonPy([Description("需要执行的python脚本路径。例如：'Skills\\python-skills\\hello-python\\scripts\\hello-python.py'")]
-                                        [Required]string scriptPath,
-            [Description("需要传入python脚本的参数。例如：['你好','word']")]
-            List<string>? args = default, [Description("超时时间（单位秒）：默认600秒")] int seconds = 600
-            )
-        {
-            try
-            {
-                args ??= new List<string>();
-                //传入非完整的路径
-                if (!scriptPath.Contains(":"))
-                {
-                    scriptPath = AppContext.BaseDirectory + scriptPath.Replace(@"/", @"\");
-                }
-
-                // 🛡️ 安全护栏：HTTP请求域名白名单检查（检查脚本路径和参数）
-                try
-                {
-                    string fullCommand = scriptPath;
-                    if (args != default)
-                    {
-                        fullCommand += " " + string.Join(" ", args);
-                    }
-                    AuthorizedDomainsCheck(fullCommand);
-                }
-                catch (UnauthorizedAccessException ex)
-                {
-                    return $"❌ 授权拦截：{ex.Message}";
-                }
-
-                // 🛡️ 安全护栏：受限制配置文件检查
-                string fullContent = scriptPath;
-                if (args != default)
-                {
-                    fullContent += " " + string.Join(" ", args);
-                }
-                if (ContainsRestrictedFile(fullContent))
-                {
-                    return "❌ 安全拦截：禁止访问配置文件（appsettings.json 等）。";
-                }
-
-                if (_IsSecurityIntercept)
-                {
-                    var validationResult = PythonSecurityValidator.ValidatePythonFile(scriptPath);
-                    if (!validationResult.IsValid)
-                    {
-                        var blockedList = string.Join("; ", validationResult.BlockedItems);
-                        return $"❌ 安全校验失败: {blockedList}";
-                    }
-                }
-                Console.WriteLine();
-                Console.WriteLine($"🔧 正在执行Py脚本 {scriptPath}");
-                // 设置进程信息
-                ProcessStartInfo start = new ProcessStartInfo();
-                // 检测可用的 Python 环境
-                string? pythonCmd = GetAvailablePythonCommand();
-                if (pythonCmd == null)
-                {
-                    throw new InvalidOperationException(
-                        "Python environment is not installed. Please install Python (python3 or python) and ensure it is available in the system PATH."
-                    );
-                }
-                start.FileName = pythonCmd; // Python解释器的路径，例如 "python" 或 "python3"
-                start.Arguments = $"{scriptPath}"; // 传递参数
-                if (args != default)
-                {
-                    foreach (var item in args)
-                    {
-                        start.Arguments += $" {item} \" ";
-                    }
-
-                }
-
-                start.UseShellExecute = false; // 不使用操作系统外壳启动
-                start.RedirectStandardOutput = true; // 重定向标准输出
-                start.RedirectStandardError = true; // 重定向标准错误
-                string output = "";
-                using var process = Process.Start(start);
-                if (process == null)
-                {
-                    return "❌ 无法启动 Shell 进程";
-                }
-                var stdout = process.StandardOutput.ReadToEndAsync();
-                var stderr = process.StandardError.ReadToEndAsync();
-                // 🛡️ 安全护栏 3：超时控制（600秒）
-                if (!process.WaitForExit(seconds * 1000))
-                {
-                    process.Kill(entireProcessTree: true);
-                    return $"❌ 命令执行超时（{seconds}秒），已强制终止。";
-                }
-                // 获取输出
-                output = stdout.Result;
-                string error = stderr.Result;
-                process.WaitForExit(); // 等待进程结束 
-                if (!string.IsNullOrEmpty(error))
-                {
-                    return $"❌ 执行失败: {error}";
-                }
-                if (string.IsNullOrWhiteSpace(output))
-                {
-                    output = "Python脚本执行完成，但没有输出结果。";
-                }
-                return $"Python脚本路径为：{scriptPath}  \n 执行结果如下：\n" + (output.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(output, _contentLengthLimit) : output);
-            }
-            catch (Exception ex)
-            {
-                return $"❌ 执行失败: {ex.Message}";
-            }
         }
 
         [Description("用于执行Python代码。包含安全护栏：配置文件访问拦截（禁止访问 appsettings.json 等）、HTTP请求域名白名单。")]

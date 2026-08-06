@@ -63,19 +63,7 @@ namespace kevin.Domain.BaseDatas
                IsSystem=true,
                SkillToolType=AISkillToolTypeEnums.Tool,
                CreateUserId=TUserBaseData.TUsers[0].Id
-           },
-                 new TAISkillToolManagement() {
-               Id=4514141254257227716,
-               Name="执行Python脚本",
-               ClassMethod="PythonTools.RunPythonPy",
-               Description="执行Python脚本",
-               TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
-               CreateTime = DateTime.Parse("2020-01-01 00:00:01"),
-               IsSystem=true,
-               SkillToolType=AISkillToolTypeEnums.Tool,
-               CreateUserId=TUserBaseData.TUsers[0].Id
-           },
-
+           }, 
             new TAISkillToolManagement() {
                Id=4514141254257227717,
                Name="执行Python代码",
