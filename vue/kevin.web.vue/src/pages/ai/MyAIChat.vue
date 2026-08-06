@@ -364,8 +364,8 @@
           </div>
         </div>
 
-        <a-modal v-model:open="detailModalVisible" :title="detailModalTitle" :footer="null" width="800px">
-          <div style="max-height: 350px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">
+        <a-modal v-model:open="detailModalVisible" :title="detailModalTitle" :footer="null" width="1000px">
+          <div style="max-height: 750px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">
             {{ detailModalContent }}
           </div>
         </a-modal>
