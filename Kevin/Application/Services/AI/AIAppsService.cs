@@ -416,7 +416,13 @@ namespace kevin.Application.Services.AI
             {
                 var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(parAi, aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result;
                 var skillsProvider = new AgentSkillsProviderBuilder()
-                                               .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync);
+                                         .UseOptions(t =>
+                                         {
+                                             t.DisableLoadSkillApproval = true;
+                                             t.DisableReadSkillResourceApproval = true;
+                                             t.DisableRunSkillScriptApproval = true;
+                                         })
+                                         .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync);
                 foreach (var skillPath in skillPaths)
                 {
                     skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath), new AgentFileSkillsSourceOptions
@@ -482,7 +488,13 @@ namespace kevin.Application.Services.AI
             {
                 var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(parAi, aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result;
                 var skillsProvider = new AgentSkillsProviderBuilder()
-                                               .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync);
+                                       .UseOptions(t =>
+                                       {
+                                           t.DisableLoadSkillApproval = true;
+                                           t.DisableReadSkillResourceApproval = true;
+                                           t.DisableRunSkillScriptApproval = true;
+                                       })
+                                       .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync);
                 foreach (var skillPath in skillPaths)
                 {
                     skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath), new AgentFileSkillsSourceOptions
