@@ -129,18 +129,13 @@
               </div>
             </div>
             <div class="message-content">
-              <!-- 非语音模式：文字正常显示在顶部 -->
+              <!-- 非语音模式：文字正常显示 -->
               <div class="message-text" v-if="message.isSend === false && !isVoiceMode" v-html="message.content"></div>
               <div class="message-text" v-else-if="message.isSend === true" v-html="message.content"></div>
               <!-- AI 语音条 -->
               <div
                 v-if="isVoiceMode && message.isSend === false && message.content"
                 class="voice-msg-bar"
-                @pointerdown="onVoiceBarLongPressStart($event, message)"
-                @pointerup="onVoiceBarLongPressEnd"
-                @pointerleave="onVoiceBarLongPressEnd"
-                @pointercancel="onVoiceBarLongPressEnd"
-                @contextmenu.prevent
               >
                 <div class="voice-msg-left" @click.stop="playAIVoice(message)">
                   <SoundOutlined class="voice-msg-icon" />
@@ -150,21 +145,8 @@
                   <span v-if="isSpeaking && currentSpeakingMsgId === message.id" class="voice-msg-duration">播放中...</span>
                 </div>
               </div>
-              <!-- 语音模式下展开的文字 -->
-              <div v-if="isVoiceMode && message.isSend === false && expandedVoiceMsgIds[message.id]" class="message-text voice-expanded-text" v-html="message.content"></div>
-              <!-- 长按浮窗 -->
-              <Teleport to="body">
-                <div
-                  v-if="voiceContextMenu.visible && voiceContextMenu.msgId === message.id"
-                  class="voice-context-menu"
-                  :style="{ left: voiceContextMenu.x + 'px', top: voiceContextMenu.y + 'px' }"
-                  @click.stop
-                >
-                  <div class="context-menu-item" @click="onContextMenuToggleText">
-                    {{ expandedVoiceMsgIds[message.id] ? '收起文字' : '转文字' }}
-                  </div>
-                </div>
-              </Teleport>
+              <!-- 语音模式 + 转文字：文字显示在语音条下方 -->
+              <div v-if="isVoiceMode && showTextInVoiceMode && message.isSend === false && message.content" class="message-text voice-expanded-text" v-html="message.content"></div>
               <a-collapse v-if="message.aiReasoningContent" class="message-collapse" ghost :default-active-key="expandedReasoning ? ['reasoning'] : []">
                 <a-collapse-panel key="reasoning" header="思考过程">
                   <div class="collapse-content">
@@ -594,17 +576,6 @@ const recognition = ref(null); // 语音识别实例
 const isSpeaking = ref(false); // 是否正在播放语音
 const currentSpeakingMsgId = ref(null); // 当前正在播放的消息ID
 const voiceSpeed = ref(1.0); // 语音播放倍速
-const expandedVoiceMsgIds = ref({}); // 已展开文字的语音消息ID映射
-const voiceContextMenu = ref({
-  visible: false,
-  msgId: null,
-  x: 0,
-  y: 0,
-}); // 长按语音条浮窗状态
-let longPressTimer = null; // 长按计时器
-let longPressTriggered = false; // 长按是否已触发浮窗
-let longPressElement = null; // 缓存长按的元素引用
-let longPressMessage = null; // 缓存长按的消息对象
 const speedOptions = [
   { label: '1x', value: 1.0 },
   { label: '1.5x', value: 1.5 },
@@ -615,65 +586,6 @@ const speedOptions = [
 // 设置播放倍速
 const setVoiceSpeed = (speed) => {
   voiceSpeed.value = speed;
-};
-
-// 切换语音消息文字显示
-const toggleVoiceText = (msgId) => {
-  if (expandedVoiceMsgIds.value[msgId]) {
-    delete expandedVoiceMsgIds.value[msgId];
-  } else {
-    expandedVoiceMsgIds.value[msgId] = true;
-  }
-};
-
-// 长按开始（Pointer Events 统一处理 PC + 移动端）
-const onVoiceBarLongPressStart = (e, message) => {
-  longPressTriggered = false;
-  longPressElement = e.currentTarget;
-  longPressMessage = message;
-  longPressTimer = setTimeout(() => {
-    if (!longPressElement || !longPressMessage) return;
-    const rect = longPressElement.getBoundingClientRect();
-    voiceContextMenu.value = {
-      visible: true,
-      msgId: longPressMessage.id,
-      x: rect.left + rect.width / 2,
-      y: rect.top - 10,
-    };
-    longPressTriggered = true;
-    // 震动反馈（移动端）
-    if (navigator.vibrate) navigator.vibrate(30);
-  }, 500);
-};
-
-// 长按结束/取消
-const onVoiceBarLongPressEnd = () => {
-  if (longPressTimer) {
-    clearTimeout(longPressTimer);
-    longPressTimer = null;
-  }
-  longPressElement = null;
-  longPressMessage = null;
-};
-
-// 关闭浮窗
-const closeVoiceContextMenu = () => {
-  // 如果刚刚由长按触发的 click 到来，跳过以防止秒关
-  if (longPressTriggered) {
-    longPressTriggered = false;
-    return;
-  }
-  voiceContextMenu.value.visible = false;
-  voiceContextMenu.value.msgId = null;
-};
-
-// 浮窗中点击转文字
-const onContextMenuToggleText = () => {
-  const msgId = voiceContextMenu.value.msgId;
-  if (msgId) {
-    toggleVoiceText(msgId);
-  }
-  closeVoiceContextMenu();
 };
 
 // ========== 语音功能 ==========
@@ -2113,19 +2025,12 @@ onMounted(async () => {
   if (messagesContainer.value) {
     messagesContainer.value.addEventListener("scroll", handleScroll);
   }
-
-  // 点击空白处关闭语音浮窗
-  document.addEventListener("click", closeVoiceContextMenu);
 });
 
 // 组件卸载时移除事件监听器
 onUnmounted(() => {
   if (messagesContainer.value) {
     messagesContainer.value.removeEventListener("scroll", handleScroll);
-  }
-  document.removeEventListener("click", closeVoiceContextMenu);
-  if (longPressTimer) {
-    clearTimeout(longPressTimer);
   }
   if (pendingStopTimer) {
     clearTimeout(pendingStopTimer);
@@ -3876,54 +3781,6 @@ const deleteConversation = async (conversationId, event) => {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* 长按浮窗 */
-.voice-context-menu {
-  position: fixed;
-  z-index: 9999;
-  transform: translate(-50%, -100%);
-  background: rgba(15, 25, 55, 0.95);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 200, 255, 0.3);
-  border-radius: 10px;
-  padding: 4px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 150, 255, 0.15);
-  min-width: 120px;
-  animation: contextMenuIn 0.15s ease-out;
-}
-
-@keyframes contextMenuIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, calc(-100% + 10px));
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -100%);
-  }
-}
-
-.context-menu-item {
-  padding: 10px 16px;
-  font-size: 13px;
-  color: #c8d6ff;
-  border-radius: 7px;
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.2s ease;
-  user-select: none;
-  white-space: nowrap;
-}
-
-.context-menu-item:hover {
-  background: rgba(0, 200, 255, 0.15);
-  color: #00e5ff;
-}
-
-/* 语音条长按提示 */
-.voice-msg-bar:active {
-  background: rgba(0, 200, 255, 0.2) !important;
 }
 
 /* ============ 响应式 ============ */
