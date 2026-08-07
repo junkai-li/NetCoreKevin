@@ -674,6 +674,17 @@ const startRecording = (e) => {
   // 在用户手势中解锁语音合成（为后续AI回复自动播放做准备）
   unlockSpeechSynthesis();
 
+  // 开始录音时，停止正在播放的AI语音
+  if (isSpeaking.value) {
+    staticPlaybackGen++; // 使旧回调失效
+    streamingTtsActive = false;
+    staticPlaybackMsgId = null;
+    staticSentenceList = [];
+    staticSentenceIndex = 0;
+    window.speechSynthesis.cancel();
+    resetSpeakingState();
+  }
+
   // 每次创建新的识别实例（stop/abort 后旧实例无法复用）
   recognition.value = initSpeechRecognition();
   if (!recognition.value) return;
