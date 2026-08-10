@@ -285,12 +285,12 @@
               </div>
               <div v-else class="voice-hint-text">按住下方按钮开始说话，说完松开自动发送</div>
             </div>
-            <!-- 语音录制按钮 -->
+            <!-- 语音录制按钮（按住说话，松开自动发送） -->
             <div v-if="isVoiceMode" class="voice-recorder-area">
               <div class="voice-recorder-wrapper">
-                <a-button
+                <div
                   :class="['voice-record-btn', { recording: isRecording, recognizing: isRecognizing }]"
-                  :disabled="isSending"
+                  :style="{ pointerEvents: isSending ? 'none' : 'auto', opacity: isSending ? 0.5 : 1 }"
                   @mousedown="startRecording"
                   @mouseup="stopRecording"
                   @mouseleave="cancelRecording"
@@ -298,12 +298,9 @@
                   @touchend.prevent="stopRecording"
                   @touchcancel.prevent="cancelRecording"
                 >
-                  <template #icon>
-                    <AudioOutlined v-if="!isRecording && !isRecognizing" />
-                    <AudioMutedOutlined v-else />
-                  </template>
-                  {{ isRecording ? '松开发送' : isRecognizing ? '识别中...' : '按住录音' }}
-                </a-button>
+                  <AudioOutlined class="voice-record-icon" />
+                  <span class="voice-record-text">{{ isRecording ? '松开 结束' : '按住 说话' }}</span>
+                </div>
               </div>
               <div v-if="isRecording || isRecognizing" class="recording-indicator">
                 <span class="recording-dot" :class="{ recognizing: isRecognizing }"></span>
@@ -1070,6 +1067,7 @@ let streamingTtsPlayedLength = 0; // 已送入 TTS 的文本长度
 let streamingTtsActive = false; // 流式 TTS 是否激活
 let ttsUtteranceCount = 0; // 当前排队的 utterance 数量
 let speakingCheckTimer = null; // 轮询定时器：检测 TTS 是否已停止
+let userStoppedSending = false; // 用户主动停止发送，阻止后续自动播放
 
 // 重置播放状态（统一出口）
 const resetSpeakingState = () => {
@@ -1243,7 +1241,8 @@ watch(
   (newLen) => {
     // 流式 TTS 激活时跳过（由 finishStreamingTTS 处理播放）
     // isSpeaking 已为 true 时跳过（finishStreamingTTS 已开始播放，避免 playAIVoice 误判为停止）
-    if (newLen > 0 && isVoiceMode.value && !isSending.value && !streamingTtsActive && !isSpeaking.value) {
+    // userStoppedSending 时跳过（用户主动停止发送，阻止 SignalR 延迟完成事件触发自动播放）
+    if (newLen > 0 && isVoiceMode.value && !isSending.value && !streamingTtsActive && !isSpeaking.value && !userStoppedSending) {
       autoPlayLatestAIVoice();
     }
   }
@@ -1278,6 +1277,18 @@ watch(isVoiceMode, async (newVal) => {
     voiceSentHint.value = '';
   }
 });
+
+// 转文字开关变化时，保持滚动到最底部（避免内容高度变化导致跳动）
+watch(showTextInVoiceMode, () => {
+  nextTick(() => {
+    nextTick(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+      }
+    });
+  });
+});
+
 // 分页相关变量
 const currentPage = ref(1);
 const hasMoreMessages = ref(true);
@@ -1681,6 +1692,7 @@ const sendMessage = async () => {
   if (!newMessage.value.trim() || isSending.value) return;
   const messageToSend = newMessage.value.trim();
   isSending.value = true;
+  userStoppedSending = false; // 重置停止标志，允许自动播放
   expandedReasoning.value = false;
   expandedTools.value = false;
   currentReceivingMsgId.value = null;
@@ -1949,6 +1961,8 @@ const stopMessage = () => {
     abortController.abort();
     abortController = null;
   }
+  // 标记用户主动停止，阻止 SignalR 延迟完成事件触发自动播放
+  userStoppedSending = true;
   // 停止流式 TTS
   streamingTtsActive = false;
   streamingTtsPlayedLength = 0;
@@ -3541,36 +3555,54 @@ const deleteConversation = async (conversationId, event) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
 }
 
 .voice-record-btn {
-  height: 44px !important;
-  min-width: 160px !important;
-  border-radius: 22px !important;
-  background: rgba(0, 200, 255, 0.1) !important;
-  border: 1.5px solid rgba(0, 200, 255, 0.3) !important;
-  color: #c8d6ff !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  transition: all 0.3s ease !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
+  height: 44px;
+  width: 100%;
+  max-width: 280px;
+  border-radius: 22px;
+  background: rgba(0, 200, 255, 0.1);
+  border: 1.5px solid rgba(0, 200, 255, 0.3);
+  color: #c8d6ff;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
-.voice-record-btn:hover:not(:disabled) {
-  background: rgba(0, 200, 255, 0.18) !important;
-  border-color: rgba(0, 200, 255, 0.5) !important;
-  box-shadow: 0 0 15px rgba(0, 200, 255, 0.2) !important;
+.voice-record-btn:hover {
+  background: rgba(0, 200, 255, 0.18);
+  border-color: rgba(0, 200, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 200, 255, 0.2);
+}
+
+.voice-record-btn:active {
+  transform: scale(0.98);
+}
+
+.voice-record-icon {
+  font-size: 18px;
+}
+
+.voice-record-text {
+  letter-spacing: 1px;
 }
 
 .voice-record-btn.recording {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.3)) !important;
-  border-color: rgba(239, 68, 68, 0.5) !important;
-  color: #fca5a5 !important;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.3));
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
   animation: voicePulse 1.2s ease-in-out infinite;
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3) !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
 }
 
 @keyframes voicePulse {
@@ -3630,13 +3662,14 @@ const deleteConversation = async (conversationId, event) => {
 
 /* 识别中按钮样式 */
 .voice-record-btn.recognizing {
-  background: rgba(59, 130, 246, 0.15) !important;
-  border-color: rgba(59, 130, 246, 0.5) !important;
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.5);
+  cursor: default;
 }
 
-.voice-record-btn.recognizing:hover:not(:disabled) {
-  background: rgba(59, 130, 246, 0.25) !important;
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3) !important;
+.voice-record-btn.recognizing:hover {
+  background: rgba(59, 130, 246, 0.15);
+  box-shadow: none;
 }
 
 /* AI 语音条 */
