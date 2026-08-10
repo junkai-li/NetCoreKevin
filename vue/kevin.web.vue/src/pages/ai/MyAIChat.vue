@@ -83,7 +83,7 @@
       <div class="chat-main">
         <div class="chat-header" v-if="activeConversation">
           <div class="header-left">
-            <div> 
+            <div>
               <div class="agent-info" v-if="activeConversation.appId">
                 <div class="ai-robot-mini">
                   <div class="robot-head-mini">
@@ -330,6 +330,16 @@
                   <template #checkedChildren>语音模式</template>
                   <template #unCheckedChildren>语音模式</template>
                 </a-switch>
+                <a-button
+                  class="phone-mode-btn"
+                  @click="enterPhoneMode"
+                  size="small"
+                >
+                  <template #icon>
+                    <PhoneOutlined />
+                  </template>
+                  电话
+                </a-button>
                 <!-- 倍速选择器（仅语音模式开启时显示） -->
                 <div v-if="isVoiceMode" class="voice-speed-selector global-speed-selector">
                   <span
@@ -456,11 +466,82 @@
     </div>
 
     </div>
+
+    <!-- 电话模式全屏覆盖 -->
+    <Teleport to="body">
+      <div v-if="isPhoneMode && !phoneModeCollapsed" class="phone-mode-overlay">
+        <div class="phone-call-container">
+          <!-- 收起按钮：隐藏全屏覆盖层，后台保持聆听 -->
+          <div class="phone-collapse-btn" @click="phoneModeCollapsed = true">
+            <span class="phone-collapse-text">收起</span>
+          </div>
+          <!-- 顶部：通话计时 -->
+          <div class="phone-timer">
+            <span class="phone-timer-text">{{ formatPhoneCallDuration(phoneCallDuration) }}</span>
+          </div>
+
+          <!-- 中部：AI头像 + 名称 + 状态 + 波形 -->
+          <div class="phone-main">
+            <div class="phone-avatar">
+              <div class="phone-avatar-ring" :class="{ active: isSpeaking }"></div>
+              <div class="ai-robot-mini phone-robot">
+                <div class="robot-head-mini">
+                  <div class="robot-eye-left-mini"></div>
+                  <div class="robot-eye-right-mini"></div>
+                  <div class="robot-mouth-mini"></div>
+                </div>
+                <div class="robot-antenna-mini">
+                  <div class="antenna-dot-mini"></div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-name">{{ getAiAppName(activeConversation?.appId) || 'AI 助手' }}</div>
+            <div class="phone-status">{{ phoneStatusText }}</div>
+            <!-- 播放波形（AI说话时显示） -->
+            <div class="phone-wave" v-if="isSpeaking">
+              <span v-for="i in 24" :key="i" class="phone-wave-bar" :style="{ animationDelay: (i * 0.05) + 's' }"></span>
+            </div>
+          </div>
+
+          <!-- 底部：识别预览 + 麦克风指示器 + 挂断 -->
+          <div class="phone-controls">
+            <div class="phone-recognize-preview" v-if="isRecording || isRecognizing">
+              {{ recognizedPreviewText || '...' }}
+            </div>
+            <div class="phone-buttons">
+              <!-- 麦克风指示器（自动监听中） -->
+              <div class="phone-mic-wrapper">
+                <div :class="['phone-mic-indicator', { listening: isRecording }]">
+                  <AudioOutlined class="phone-mic-icon" />
+                </div>
+                <span class="phone-mic-label">{{ isRecording ? '聆听中' : (isSending || isSpeaking ? '等待中' : '准备中') }}</span>
+              </div>
+              <!-- 挂断按钮 -->
+              <div class="phone-hangup-btn" @click="hangUpPhone">
+                <PhoneOutlined class="phone-hangup-icon" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- 电话模式收起后的悬浮恢复按钮：点击恢复全屏 -->
+    <Teleport to="body">
+      <div v-if="isPhoneMode && phoneModeCollapsed" class="phone-restore-btn" @click="phoneModeCollapsed = false">
+        <PhoneOutlined class="phone-restore-icon" :class="{ 'restore-pulse': isSpeaking }" />
+        <div class="phone-restore-info">
+          <span class="phone-restore-name">{{ getAiAppName(activeConversation?.appId) || 'AI 助手' }}</span>
+          <span class="phone-restore-text">{{ isSpeaking ? '播放中' : (isRecording ? '聆听中' : '电话中') }}</span>
+        </div>
+        <span class="phone-restore-dot" :class="{ active: isRecording }"></span>
+      </div>
+    </Teleport>
 </template>
 
 <script setup>
 /* eslint-disable */
-import { ref, onMounted, nextTick, watch, h, onUnmounted } from "vue";
+import { ref, onMounted, nextTick, watch, h, onUnmounted, computed } from "vue";
 import {
   PlusOutlined,
   UserOutlined,
@@ -479,6 +560,7 @@ import {
   AudioMutedOutlined,
   CheckCircleFilled,
   InfoCircleFilled,
+  PhoneOutlined,
 } from "@ant-design/icons-vue";
 import FileUpload from "../../components/FileUpload.vue";
 import { message, Modal, Select } from "ant-design-vue";
@@ -585,7 +667,79 @@ const setVoiceSpeed = (speed) => {
   voiceSpeed.value = speed;
 };
 
+// ========== 电话模式 ==========
+const isPhoneMode = ref(false); // 电话模式开关
+const phoneModeCollapsed = ref(false); // 电话模式全屏收起标志（收起后后台保持聆听，仅隐藏全屏覆盖层）
+const previousVoiceMode = ref(false); // 进入电话模式前 isVoiceMode 的原值
+const phoneCallDuration = ref(0); // 通话时长（秒）
+let phoneCallTimer = null; // 通话计时句柄
+const PHONE_SILENCE_THRESHOLD = 1800; // 静默1.8秒后自动发送
+let phoneSilenceTimer = null; // 静默检测定时器
+let phoneLastSpeechTime = 0; // 最后一次检测到语音的时间
+let lastSentPhoneText = ''; // 上次发送的文字（barge-in 时用于拼接）
+let phoneBargeInProgress = false; // barge-in 进行中标志（阻止 watch 误触发）
+let phoneBargeInDuringPlayback = false; // 在 TTS 播放时打断的标志（发送时只发新文字，不拼接）
+
+// 唤醒词检测（只有包含唤醒词才能打断 AI）
+const PHONE_WAKE_WORDS = ['小k', '小凯'];
+const containsWakeWord = (text) => {
+  if (!text) return false;
+  const lower = text.toLowerCase();
+  return PHONE_WAKE_WORDS.some((w) => lower.includes(w));
+};
+// 从文字中移除唤醒词，只保留有效内容
+const stripWakeWord = (text) => {
+  if (!text) return '';
+  let result = text;
+  for (const w of PHONE_WAKE_WORDS) {
+    const regex = new RegExp(w, 'gi');
+    result = result.replace(regex, '');
+  }
+  return result.trim();
+};
+
+// 通话状态文字（根据录音/识别/发送/播放状态自动计算）
+const phoneStatusText = computed(() => {
+  if (isRecording.value) return '正在聆听...';
+  if (isRecognizing.value) return '识别中...';
+  if (isSending.value && !isSpeaking.value) return 'AI 思考中...';
+  if (isSpeaking.value) return '正在回复...';
+  return '通话中';
+});
+
 // ========== 语音功能 ==========
+
+// onresult 节流机制：Chrome interimResults 每 50-100ms 触发一次 onresult，
+// 直接更新 Vue ref 会导致大量 DOM 重渲染 → 用户感知卡顿。
+// 使用 requestAnimationFrame 合并多次 onresult 的更新，每帧最多触发一次 DOM 更新。
+let previewTextBuffer = '';      // 缓存最新的识别文本
+let previewTextRafId = null;     // requestAnimationFrame 句柄
+let lastPreviewText = '';        // 上一次已渲染的文本（用于对比变化）
+
+const flushPreviewText = () => {
+  previewTextRafId = null;
+  if (previewTextBuffer !== lastPreviewText) {
+    lastPreviewText = previewTextBuffer;
+    recognizedPreviewText.value = previewTextBuffer;
+  }
+};
+
+const updatePreviewText = (text) => {
+  previewTextBuffer = text;
+  if (!previewTextRafId) {
+    previewTextRafId = requestAnimationFrame(flushPreviewText);
+  }
+};
+
+const resetPreviewTextBuffer = () => {
+  previewTextBuffer = '';
+  lastPreviewText = '';
+  if (previewTextRafId) {
+    cancelAnimationFrame(previewTextRafId);
+    previewTextRafId = null;
+  }
+  recognizedPreviewText.value = '';
+};
 
 // 初始化语音识别（每次创建新实例，避免复用导致无法再次 start）
 const initSpeechRecognition = () => {
@@ -683,12 +837,17 @@ const startRecording = (e) => {
   }
 
   // 每次创建新的识别实例（stop/abort 后旧实例无法复用）
+  // 先清理上一轮残留实例，避免旧实例占用语音服务/回调误触发导致识别失效
+  if (recognition.value) {
+    const old = recognition.value;
+    try { old.onend = null; old.onerror = null; old.onresult = null; old.abort(); } catch (e) { /* ignore */ }
+  }
   recognition.value = initSpeechRecognition();
   if (!recognition.value) return;
 
   isRecording.value = true;
   isRecognizing.value = false;
-  recognizedPreviewText.value = '';
+  resetPreviewTextBuffer();
   newMessage.value = '';
   recordingStartTime = Date.now();
 
@@ -708,8 +867,8 @@ const startRecording = (e) => {
         interimText = result[0].transcript;
       }
     }
-    // 最终显示 = 已完成文本 + 当前临时文本
-    recognizedPreviewText.value = accumulatedText + interimText;
+    // 最终显示 = 已完成文本 + 当前临时文本（使用节流更新）
+    updatePreviewText(accumulatedText + interimText);
   };
 
   recognition.value.onerror = (event) => {
@@ -759,9 +918,9 @@ const stopRecording = () => {
     if (recognition.value) {
       try { recognition.value.abort(); } catch (e) { /* ignore */ }
     }
-    recognizedPreviewText.value = '';
+    resetPreviewTextBuffer();
     voiceSentHint.value = '说话时间太短';
-    setTimeout(() => { voiceSentHint.value = ''; }, 1500);
+    setTimeout(() => { voiceSentHint.value = ''; }, PHONE_SILENCE_THRESHOLD);
     return;
   }
   
@@ -781,16 +940,23 @@ const stopRecording = () => {
     // 等 onend 事件处理完最后一批结果后，发送消息
     // 再等一个小延迟确保最后的 final result 已到达
     setTimeout(() => {
-      if (recognizedPreviewText.value.trim()) {
-        newMessage.value = recognizedPreviewText.value;
-        recognizedPreviewText.value = '';
+      // 立即刷新 buffer，确保读取到最新的识别文本
+      if (previewTextRafId) {
+        cancelAnimationFrame(previewTextRafId);
+        previewTextRafId = null;
+      }
+      flushPreviewText();
+      const text = recognizedPreviewText.value.trim();
+      if (text) {
+        newMessage.value = text;
+        resetPreviewTextBuffer();
         voiceSentHint.value = '已发送 ✓';
-        setTimeout(() => { voiceSentHint.value = ''; }, 1500);
+        setTimeout(() => { voiceSentHint.value = ''; }, PHONE_SILENCE_THRESHOLD);
         sendMessage();
       } else {
-        recognizedPreviewText.value = '';
+        resetPreviewTextBuffer();
         voiceSentHint.value = '未识别到内容，已取消';
-        setTimeout(() => { voiceSentHint.value = ''; }, 1500);
+        setTimeout(() => { voiceSentHint.value = ''; }, PHONE_SILENCE_THRESHOLD);
       }
     }, 300);
   }, 500);
@@ -807,7 +973,7 @@ const cancelRecording = () => {
     pendingStopTimer = null;
   }
   newMessage.value = '';
-  recognizedPreviewText.value = '';
+  resetPreviewTextBuffer();
   voiceSentHint.value = '已取消';
   setTimeout(() => { voiceSentHint.value = ''; }, 1000);
   if (recognition.value) {
@@ -817,6 +983,389 @@ const cancelRecording = () => {
       // ignore
     }
   }
+};
+
+// ========== 电话模式功能 ==========
+
+// 重置电话模式的播放/识别/计时状态（不切换 isPhoneMode / isVoiceMode）
+// 供 hangUpPhone 退出时调用，以及 enterPhoneMode 在"已在电话模式中再点电话"时复用
+const resetPhoneCallState = () => {
+  // 停止自动监听
+  stopPhoneAutoListen();
+  // 停止正在发送的消息
+  if (isSending.value) {
+    stopMessage();
+  }
+  // 重置 barge-in 相关状态
+  phoneBargeInProgress = false;
+  phoneBargeInDuringPlayback = false;
+  lastSentPhoneText = '';
+  // 停止 TTS 播放
+  staticPlaybackGen++;
+  window.speechSynthesis.cancel();
+  streamingTtsActive = false;
+  streamingTtsPlayedLength = 0;
+  staticPlaybackMsgId = null;
+  staticSentenceList = [];
+  staticSentenceIndex = 0;
+  resetSpeakingState();
+  // 重置停止发送标志，避免残留阻止新通话的自动播放
+  userStoppedSending = false;
+  // 停止计时
+  stopPhoneCallTimer();
+};
+
+// 进入电话模式
+const enterPhoneMode = async () => {
+  if (!activeConversation.value) {
+    message.warning('请先选择一个对话');
+    return;
+  }
+  if (isPhoneMode.value) {
+    // 已在电话模式中（例如收起后切换了对话再点电话）：先彻底重置识别/TTS/计时，再为当前对话重新发起
+    resetPhoneCallState();
+  } else {
+    // 首次进入：记住之前的语音模式状态
+    previousVoiceMode.value = isVoiceMode.value;
+    // 启用语音模式，复用全部 TTS/录音/自动播放逻辑
+    // watch(isVoiceMode) 会自动解锁语音合成 + 申请麦克风权限
+    isVoiceMode.value = true;
+    isPhoneMode.value = true;
+  }
+  phoneModeCollapsed.value = false;
+  phoneCallDuration.value = 0;
+  startPhoneCallTimer();
+  // 重置 barge-in 相关状态
+  lastSentPhoneText = '';
+  phoneBargeInProgress = false;
+  phoneBargeInDuringPlayback = false;
+  // 延迟启动自动监听，等待权限获取和语音合成解锁
+  setTimeout(() => {
+    if (isPhoneMode.value) {
+      startPhoneAutoListen();
+    }
+  }, 1000);
+};
+
+// 通话计时开始
+const startPhoneCallTimer = () => {
+  stopPhoneCallTimer();
+  phoneCallTimer = setInterval(() => {
+    phoneCallDuration.value++;
+  }, 1000);
+};
+
+// 通话计时停止
+const stopPhoneCallTimer = () => {
+  if (phoneCallTimer) {
+    clearInterval(phoneCallTimer);
+    phoneCallTimer = null;
+  }
+};
+
+// 格式化通话时长
+const formatPhoneCallDuration = (seconds) => {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  const pad = (n) => String(n).padStart(2, '0');
+  return h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+};
+
+// 电话模式：启动自动监听（实时对话，无需按住）
+const startPhoneAutoListen = () => {
+  // 允许在 AI 思考和 TTS 播放时继续监听，实现 barge-in 打断
+  if (!isPhoneMode.value) return;
+  if (isRecording.value) return; // 已在监听中，防止重复启动
+  if (!micPermissionGranted.value) {
+    // 等待权限获取后重试
+    setTimeout(() => {
+      if (isPhoneMode.value) startPhoneAutoListen();
+    }, 1000);
+    return;
+  }
+
+  unlockSpeechSynthesis();
+
+  // 清理上一轮残留的识别实例：解除回调并 abort，避免旧实例 onend 误重启新实例、
+  // 或旧实例占用语音服务导致几轮后识别失效（Chrome Web Speech 多实例互相干扰）
+  if (recognition.value) {
+    const old = recognition.value;
+    try { old.onend = null; old.onerror = null; old.onresult = null; old.abort(); } catch (e) { /* ignore */ }
+  }
+
+  const rec = initSpeechRecognition();
+  if (!rec) return;
+  recognition.value = rec;
+
+  isRecording.value = true;
+  isRecognizing.value = false;
+  resetPreviewTextBuffer();
+  phoneLastSpeechTime = Date.now();
+
+  let accumulatedText = '';
+
+  rec.onresult = (event) => {
+    phoneLastSpeechTime = Date.now();
+
+    // Barge-in：TTS 播放中用户说话，只有包含唤醒词才打断
+    // 同时检查 speechSynthesis.speaking/pending，覆盖 isSpeaking 在播放启动瞬间的间隙
+    // （startStreamingTTS 先置 isSpeaking=false，第一句 onstart 才置 true）
+    if (isSpeaking.value || window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+      let interimText = '';
+      const segments = [];
+      for (let i = 0; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result.isFinal) {
+          segments.push(result[0].transcript);
+        } else {
+          interimText = result[0].transcript;
+        }
+      }
+      const fullText = segments.join('') + interimText;
+
+      if (containsWakeWord(fullText)) {
+        // 检测到唤醒词，打断 TTS
+        phoneBargeInDuringPlayback = true;
+        staticPlaybackGen++;
+        window.speechSynthesis.cancel();
+        streamingTtsActive = false;
+        streamingTtsPlayedLength = 0;
+        staticPlaybackMsgId = null;
+        staticSentenceList = [];
+        staticSentenceIndex = 0;
+        resetSpeakingState();
+        // 清空后累积新文字
+        accumulatedText = '';
+        resetPreviewTextBuffer();
+        // 如果唤醒词后没有实际内容（例如只说"小K"），重置状态继续正常监听
+        const cleanAfterWake = stripWakeWord(fullText);
+        if (!cleanAfterWake) {
+          phoneBargeInDuringPlayback = false;
+          // 只说唤醒词不应作为消息发送：清空累积并重启识别
+          accumulatedText = '';
+          resetPreviewTextBuffer();
+          try { recognition.value.abort(); } catch (e) { /* ignore */ }
+          return;
+        }
+      } else {
+        // 没有唤醒词，清空已识别文字，不让静默定时器发送
+        accumulatedText = '';
+        resetPreviewTextBuffer();
+        return; // 跳过更新
+      }
+    }
+
+    let interimText = '';
+    for (let i = 0; i < event.results.length; i++) {
+      const result = event.results[i];
+      if (result.isFinal) {
+        accumulatedText += result[0].transcript;
+      } else {
+        interimText = result[0].transcript;
+      }
+    }
+    // 保留唤醒词一起发送（用户要求发送时不移除唤醒词）
+    const rawText = accumulatedText + interimText;
+    updatePreviewText(rawText);
+  };
+
+  rec.onerror = (event) => {
+    console.error('语音识别错误:', event.error);
+    // [barge-in 诊断] TTS 播放中识别错误：观察识别是否被抑制/打断
+    if (isSpeaking.value) console.log('[barge-in] TTS播放中识别错误:', event.error);
+    if (event.error === 'aborted' || event.error === 'no-speech') return;
+    if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+      message.error('麦克风权限被拒绝');
+    }
+    isRecording.value = false;
+  };
+
+  rec.onend = () => {
+    // 旧实例（已被新实例取代）的 onend：直接返回，避免污染 isRecording / 误重启新实例
+    if (recognition.value !== rec) return;
+    // 电话模式下自动重启识别（浏览器可能自动停止），TTS 播放时也保持监听
+    // [barge-in 诊断] TTS 播放中识别结束：观察是否频繁结束、重启是否成功
+    if (isSpeaking.value) console.log('[barge-in] TTS播放中识别onend，尝试重启 (isRecording:', isRecording.value, ')');
+    if (isPhoneMode.value && isRecording.value) {
+      try {
+        rec.start();
+      } catch (e) {
+        // 重启失败则重新创建实例
+        setTimeout(() => {
+          if (isPhoneMode.value) {
+            startPhoneAutoListen();
+          }
+        }, 300);
+      }
+    } else {
+      isRecording.value = false;
+    }
+  };
+
+  try {
+    rec.start();
+  } catch (err) {
+    console.error('启动语音识别失败:', err);
+    isRecording.value = false;
+    setTimeout(() => {
+      if (isPhoneMode.value && !isSpeaking.value) {
+        startPhoneAutoListen();
+      }
+    }, 500);
+  }
+
+  // 启动静默检测：用户停说话2.5秒后自动发送
+  // 注意：TTS 播放中不发送消息（barge-in 打断由 onresult 的唤醒词检测处理，不走静默发送）
+  // 否则播放间隙 isSpeaking 短暂为 false 时会误发消息，新响应的 startStreamingTTS 会 cancel 当前播放
+  stopPhoneSilenceTimer();
+  phoneSilenceTimer = setInterval(() => {
+    if (!isPhoneMode.value) {
+      stopPhoneSilenceTimer();
+      return;
+    }
+    // TTS 播放中（含间隙）不发送消息，避免误发导致播放被打断
+    if (isSpeaking.value || window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+      return;
+    }
+    const silenceDuration = Date.now() - phoneLastSpeechTime;
+    // 立即刷新 buffer，确保检测到最新的识别文本
+    if (previewTextRafId) {
+      cancelAnimationFrame(previewTextRafId);
+      previewTextRafId = null;
+    }
+    flushPreviewText();
+    if (silenceDuration > PHONE_SILENCE_THRESHOLD && recognizedPreviewText.value.trim()) {
+      sendPhoneMessage();
+    }
+  }, 300);
+};
+
+// 停止静默检测定时器
+const stopPhoneSilenceTimer = () => {
+  if (phoneSilenceTimer) {
+    clearInterval(phoneSilenceTimer);
+    phoneSilenceTimer = null;
+  }
+};
+
+// 停止电话模式自动监听
+const stopPhoneAutoListen = () => {
+  stopPhoneSilenceTimer();
+  isRecording.value = false;
+  isRecognizing.value = false;
+  if (recognition.value) {
+    try { recognition.value.abort(); } catch (e) { /* ignore */ }
+  }
+  resetPreviewTextBuffer();
+};
+
+// 电话模式：静默触发后自动发送消息
+const sendPhoneMessage = () => {
+  // 立即刷新 buffer，确保读取到最新的识别文本
+  if (previewTextRafId) {
+    cancelAnimationFrame(previewTextRafId);
+    previewTextRafId = null;
+  }
+  flushPreviewText();
+  const text = recognizedPreviewText.value.trim();
+  // 先停止监听
+  stopPhoneSilenceTimer();
+  isRecording.value = false;
+  if (recognition.value) {
+    try { recognition.value.stop(); } catch (e) { /* ignore */ }
+  }
+  resetPreviewTextBuffer();
+
+  if (!text) {
+    // 没有识别到内容，继续监听
+    phoneBargeInDuringPlayback = false;
+    setTimeout(() => {
+      if (isPhoneMode.value) {
+        startPhoneAutoListen();
+      }
+    }, 300);
+    return;
+  }
+
+  if (phoneBargeInDuringPlayback) {
+    // Barge-in：TTS 播放时用户打断（唤醒词已在 onresult 检测通过）
+    phoneBargeInDuringPlayback = false;
+    phoneBargeInProgress = true;
+    if (isSending.value) {
+      stopMessage();
+    }
+    setTimeout(() => {
+      lastSentPhoneText = text;
+      newMessage.value = text;
+      sendMessage();
+      phoneBargeInProgress = false;
+      // 发送后恢复监听
+      setTimeout(() => {
+        if (isPhoneMode.value) {
+          startPhoneAutoListen();
+        }
+      }, 500);
+    }, 400);
+  } else if (isSending.value && !isSpeaking.value) {
+    // Barge-in：AI 正在思考（未开始播放），需要检测唤醒词
+    if (!containsWakeWord(text)) {
+      // 没有唤醒词，丢弃文字，继续监听
+      setTimeout(() => {
+        if (isPhoneMode.value) {
+          startPhoneAutoListen();
+        }
+      }, 300);
+      return;
+    }
+    // 有唤醒词，停止当前发送，将新内容（保留唤醒词）拼接到上次发送的文字后面
+    phoneBargeInProgress = true;
+    stopMessage();
+    setTimeout(() => {
+      const contentAfterWake = stripWakeWord(text);
+      if (!contentAfterWake) {
+        // 只有唤醒词没有实际内容，恢复监听
+        phoneBargeInProgress = false;
+        setTimeout(() => {
+          if (isPhoneMode.value) startPhoneAutoListen();
+        }, 300);
+        return;
+      }
+      // 保留唤醒词一起发送（用户要求发送时不移除唤醒词）
+      const combinedText = lastSentPhoneText + ' ' + text;
+      lastSentPhoneText = combinedText;
+      newMessage.value = combinedText;
+      sendMessage();
+      phoneBargeInProgress = false;
+      // 发送后恢复监听（继续支持 barge-in）
+      setTimeout(() => {
+        if (isPhoneMode.value) {
+          startPhoneAutoListen();
+        }
+      }, 500);
+    }, 400);
+  } else {
+    // 正常发送
+    lastSentPhoneText = text;
+    newMessage.value = text;
+    sendMessage();
+    // 发送后恢复监听（AI 思考和播放时也监听，支持 barge-in）
+    setTimeout(() => {
+      if (isPhoneMode.value) {
+        startPhoneAutoListen();
+      }
+    }, 500);
+  }
+};
+
+// 挂断电话
+const hangUpPhone = () => {
+  resetPhoneCallState();
+  // 退出电话模式
+  isPhoneMode.value = false;
+  phoneModeCollapsed.value = false;
+  // 恢复之前的语音模式状态
+  isVoiceMode.value = previousVoiceMode.value;
 };
 
 // 播放AI语音（TTS）
@@ -874,23 +1423,35 @@ const unlockSpeechSynthesis = () => {
 const getBestChineseVoice = () => {
   if (cachedBestVoice) return cachedBestVoice;
   const voices = window.speechSynthesis.getVoices();
-  // 只选择普通话语音：zh-CN, cmn-Hans-CN, zh-MO（排除 zh-HK, zh-TW, yue-* 等粤语/台湾音）
-  const zhVoices = voices.filter((v) => {
-    if (!v.lang) return false;
-    const lang = v.lang.toLowerCase();
-    // 排除粤语和台湾
-    if (lang.includes('hk') || lang.includes('tw') || lang.includes('yue') || lang.includes('hant')) return false;
-    // 选择普通话
-    return lang.startsWith('zh') || lang.startsWith('cmn');
+
+  // 打印可用语音用于调试
+  console.log('[TTS] 可用语音列表:');
+  voices.forEach((v) => {
+    console.log(`  - "${v.name}" lang=${v.lang} local=${v.localService}`);
   });
 
-  if (zhVoices.length === 0) {
-    cachedBestVoice = voices.find((v) => v.lang && (v.lang.startsWith('zh') || v.lang.startsWith('cmn'))) || null;
-    return cachedBestVoice;
+  // 只选择普通话语音（严格排除粤语/台湾/繁体）
+  const mandarinVoices = voices.filter((v) => {
+    if (!v.lang) return false;
+    const lang = v.lang.toLowerCase();
+    // 排除所有粤语和台湾音变体
+    if (lang.includes('hk') || lang.includes('tw') || lang.includes('yue') || lang.includes('hant')) return false;
+    // 必须是普通话：zh-CN 或 cmn-Hans-CN
+    if (lang === 'zh-cn' || lang === 'cmn-hans-cn') return true;
+    // 其他 zh-* 只在明确排除了粤语的情况下才接受
+    return lang.startsWith('zh') && !lang.includes('hk') && !lang.includes('tw');
+  });
+
+  console.log('[TTS] 筛选后普通话语音:', mandarinVoices.map(v => `${v.name} (${v.lang})`));
+
+  if (mandarinVoices.length === 0) {
+    console.warn('[TTS] 未找到任何普通话语音！将使用 utterance.lang 让浏览器自动选择');
+    cachedBestVoice = null;
+    return null;
   }
 
   // 排除 Preview/Experimental 等实验性语音
-  const stableVoices = zhVoices.filter(
+  const stableVoices = mandarinVoices.filter(
     (v) => !v.name.toLowerCase().includes('preview') && !v.name.toLowerCase().includes('experimental')
   );
 
@@ -921,9 +1482,10 @@ const getBestChineseVoice = () => {
     best = stableVoices.find((v) => !v.name.toLowerCase().includes('default')) || stableVoices[0];
   }
 
-  // 最后兜底
-  if (!best) best = zhVoices[0];
+  // 最后兜底：第一个普通话语音
+  if (!best) best = mandarinVoices[0];
 
+  console.log('[TTS] 选中语音:', best ? `${best.name} (${best.lang})` : '无');
   cachedBestVoice = best;
   return best;
 };
@@ -979,10 +1541,14 @@ const playNextStaticSentence = (gen) => {
   const utterance = new SpeechSynthesisUtterance(sentence);
   utterance.lang = 'zh-CN';
   const bestVoice = getBestChineseVoice();
-  if (bestVoice) utterance.voice = bestVoice;
+  if (bestVoice) {
+    utterance.voice = bestVoice; // 有普通话语音时才设置
+  }
+  // 没有普通话语音时不设置 voice，浏览器会根据 lang='zh-CN' 自动选择
   utterance.pitch = 1.0;
   utterance.rate = voiceSpeed.value; // 每句读取最新倍速
-  utterance.volume = 1.0;
+  // 电话模式降低音量，减弱扬声器回声对麦克风识别的干扰（与 speakSentence 保持一致）
+  utterance.volume = isPhoneMode.value ? 0.6 : 1.0;
 
   utterance.onstart = () => {
     if (gen !== staticPlaybackGen) return;
@@ -1066,6 +1632,9 @@ watch(voiceSpeed, () => {
 let streamingTtsPlayedLength = 0; // 已送入 TTS 的文本长度
 let streamingTtsActive = false; // 流式 TTS 是否激活
 let ttsUtteranceCount = 0; // 当前排队的 utterance 数量
+let streamingSentenceQueue = []; // 流式待播放句子队列：上一句播完后才播下一句，避免 Chrome speechSynthesis 队列堆积导致卡顿
+let streamingIsPlaying = false; // 流式是否有句子正在播放
+let lastStreamSpeakTime = 0; // 上次调用 speechSynthesis.speak() 的时间戳，用于轮询兜底的宽限期
 let speakingCheckTimer = null; // 轮询定时器：检测 TTS 是否已停止
 let userStoppedSending = false; // 用户主动停止发送，阻止后续自动播放
 
@@ -1074,6 +1643,9 @@ const resetSpeakingState = () => {
   isSpeaking.value = false;
   currentSpeakingMsgId.value = null;
   ttsUtteranceCount = 0;
+  streamingSentenceQueue = [];
+  streamingIsPlaying = false;
+  lastStreamSpeakTime = 0;
   stopSpeakingCheck();
 };
 
@@ -1081,17 +1653,35 @@ const resetSpeakingState = () => {
 const startSpeakingCheck = () => {
   stopSpeakingCheck();
   speakingCheckTimer = setInterval(() => {
+    // 顺序播放队列兜底：Chrome utterance.onend 在移动端经常不触发，
+    // 导致队列卡住（播完一句就停）。检测到当前句子已播完但 onend 没触发时，手动推进。
+    // 加 500ms 宽限期避免与 speak() 调用竞态（speak 后 pending 可能未立即置 true）
+    // 注意：不检查 streamingTtsActive，因为 finishStreamingTTS 后 streamingTtsActive=false 但队列可能还有剩余句子
+    if (streamingIsPlaying && !window.speechSynthesis.speaking && !window.speechSynthesis.pending && (Date.now() - lastStreamSpeakTime > 500)) {
+      streamingIsPlaying = false;
+      playNextStreamingSentence();
+      return;
+    }
+    // 安全网：队列有积压但没在播放（speakSentence 入队后 playNextStreamingSentence 未触发）
+    if (!streamingIsPlaying && streamingSentenceQueue.length > 0) {
+      playNextStreamingSentence();
+      return;
+    }
     // speechSynthesis 既不在播放也没有排队，但 isSpeaking 仍为 true → 状态卡住了
-    if (isSpeaking.value && !window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
-      console.log('检测到 TTS 已停止但状态未重置，自动修复');
+    if (isSpeaking.value && !window.speechSynthesis.speaking && !window.speechSynthesis.pending && !streamingTtsActive) {
       resetSpeakingState();
       return;
+    }
+    // 兜底：speechSynthesis 正在播放但 isSpeaking 未置 true（移动端 utterance.onstart 偶发不触发）
+    // → 补置 true，确保 barge-in 监听分支（if (isSpeaking.value)）能进入
+    if (!isSpeaking.value && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
+      isSpeaking.value = true;
     }
     // Chrome 15秒暂停 bug：长文本会自动暂停，定期 resume 保持播放
     if (window.speechSynthesis.speaking && window.speechSynthesis.paused) {
       window.speechSynthesis.resume();
     }
-  }, 500);
+  }, 300);
 };
 
 const stopSpeakingCheck = () => {
@@ -1108,44 +1698,72 @@ const startStreamingTTS = () => {
   streamingTtsPlayedLength = 0;
   streamingTtsActive = true;
   ttsUtteranceCount = 0;
+  streamingSentenceQueue = [];
+  streamingIsPlaying = false;
+  lastStreamSpeakTime = 0;
   isSpeaking.value = false;
   currentSpeakingMsgId.value = null;
-  stopSpeakingCheck();
+  // 清除用户发送消息后的残留识别状态，确保新一轮回复播放时识别状态干净
+  phoneLastSpeechTime = 0;
+  resetPreviewTextBuffer();
+  // 启动轮询兜底：移动端 utterance.onstart 偶发不触发时，由轮询补置 isSpeaking=true，
+  // 否则 barge-in 的 if(isSpeaking.value) 分支不会进入，唤醒词永远打不断播放
+  startSpeakingCheck();
 };
 
-// 播放单个句子（加入 TTS 队列）
+// 播放队列中的下一句（流式顺序播放：上一句 onend 后才 speak 下一句，避免 utterance 堆积卡顿）
+const playNextStreamingSentence = () => {
+  // 队列空：暂无可播放的句子
+  if (streamingSentenceQueue.length === 0) {
+    streamingIsPlaying = false;
+    // 流式已结束且队列空 → 整段播放完成，重置状态
+    if (!streamingTtsActive) {
+      resetSpeakingState();
+    }
+    return;
+  }
+  streamingIsPlaying = true;
+  const cleanText = streamingSentenceQueue.shift();
+
+  const utterance = new SpeechSynthesisUtterance(cleanText);
+  utterance.lang = 'zh-CN';
+  const bestVoice = getBestChineseVoice();
+  if (bestVoice) {
+    utterance.voice = bestVoice; // 有普通话语音时才设置
+  }
+  // 没有普通话语音时不设置 voice，浏览器会根据 lang='zh-CN' 自动选择
+  utterance.pitch = 1.0;
+  utterance.rate = voiceSpeed.value; // 每句读取最新倍速
+  // 电话模式降低音量，减弱扬声器回声对麦克风识别的干扰，提高 barge-in 唤醒词（小k/小凯）的命中率
+  utterance.volume = isPhoneMode.value ? 0.6 : 1.0;
+
+  utterance.onstart = () => {
+    isSpeaking.value = true;
+    startSpeakingCheck();
+  };
+  // 上一句播完才播下一句（顺序播放，不依赖 Chrome 队列）
+  utterance.onend = () => {
+    playNextStreamingSentence();
+  };
+  utterance.onerror = () => {
+    playNextStreamingSentence();
+  };
+
+  window.speechSynthesis.speak(utterance);
+  lastStreamSpeakTime = Date.now();
+};
+
+// 播放单个句子（入队，等上一句播完再播）
 const speakSentence = (text) => {
   if (!text || !text.trim()) return;
   const cleanText = sanitizeTextForTTS(text);
   if (!cleanText) return;
 
-  const utterance = new SpeechSynthesisUtterance(cleanText);
-  utterance.lang = 'zh-CN';
-  const bestVoice = getBestChineseVoice();
-  if (bestVoice) utterance.voice = bestVoice;
-  utterance.pitch = 1.0;
-  utterance.rate = voiceSpeed.value;
-  utterance.volume = 1.0;
-
-  ttsUtteranceCount++;
-  utterance.onstart = () => {
-    isSpeaking.value = true;
-    startSpeakingCheck();
-  };
-  utterance.onend = () => {
-    ttsUtteranceCount = Math.max(0, ttsUtteranceCount - 1);
-    if (ttsUtteranceCount === 0) {
-      resetSpeakingState();
-    }
-  };
-  utterance.onerror = () => {
-    ttsUtteranceCount = Math.max(0, ttsUtteranceCount - 1);
-    if (ttsUtteranceCount === 0) {
-      resetSpeakingState();
-    }
-  };
-
-  window.speechSynthesis.speak(utterance);
+  // 入队，若当前无句子在播则立即开始播放下一句
+  streamingSentenceQueue.push(cleanText);
+  if (!streamingIsPlaying) {
+    playNextStreamingSentence();
+  }
 };
 
 // 流式播放：从累积文本中提取新的完整句子并播放
@@ -1212,10 +1830,10 @@ const finishStreamingTTS = (fullText, msgId) => {
   streamingTtsPlayedLength = fullText.length;
   streamingTtsActive = false;
 
-  // 只有实际有 utterance 在播放时才设置状态（用于语音条动画）
-  // 非流式场景（没有收到任何流式文本）ttsUtteranceCount === 0，不设置状态，
+  // 只有实际有句子在播放或排队时才设置状态（用于语音条动画）
+  // 非流式场景（没有收到任何流式文本）队列空且未播放，不设置状态，
   // 由下方 watch 检测到 !isSpeaking 后调用 autoPlayLatestAIVoice 常规播放
-  if (ttsUtteranceCount > 0) {
+  if (streamingIsPlaying || streamingSentenceQueue.length > 0) {
     currentSpeakingMsgId.value = msgId;
     isSpeaking.value = true;
     startSpeakingCheck(); // 确保轮询兜底检测已启动
@@ -1273,7 +1891,7 @@ watch(isVoiceMode, async (newVal) => {
     }
     isRecording.value = false;
     isRecognizing.value = false;
-    recognizedPreviewText.value = '';
+    resetPreviewTextBuffer();
     voiceSentHint.value = '';
   }
 });
@@ -1287,6 +1905,48 @@ watch(showTextInVoiceMode, () => {
       }
     });
   });
+});
+
+// 电话模式：AI回复播放结束后强制重建识别实例恢复监听
+watch(isSpeaking, (newVal, oldVal) => {
+  // barge-in 进行中时跳过（由 sendPhoneMessage 自行管理）
+  if (phoneBargeInProgress) return;
+  // bar­ge-in 打断播放时跳过（phoneBargeInDuringPlayback=true 表示用户正在说后续指令，由 sendPhoneMessage 管理重启）
+  if (phoneBargeInDuringPlayback) return;
+  // TTS 播放结束时：轻量恢复识别（不创建新实例，只是 start()）
+  // 之前每次播放结束都 stopPhoneAutoListen + startPhoneAutoListen（500ms 延迟 + 实例启动），
+  // 导致用户说话后"过了几秒才能转换成文字"。
+  // 现在只调用 rec.start()：如果识别已 stopped 会重启，如果在 running 会抛错被忽略。
+  if (isPhoneMode.value && oldVal && !newVal) {
+    setTimeout(() => {
+      if (isPhoneMode.value && !isSpeaking.value && recognition.value && !phoneBargeInProgress && !phoneBargeInDuringPlayback) {
+        try {
+          recognition.value.start();
+        } catch (e) {
+          // 识别仍在 running（InvalidStateError）或已失效，由 onend 自动重启处理
+        }
+      }
+    }, 100);
+  }
+});
+
+// 电话模式：非流式场景（isSpeaking从未true），发送结束后强制重建识别实例恢复监听
+watch(isSending, (newVal, oldVal) => {
+  // barge-in 进行中时跳过（由 sendPhoneMessage 自行管理）
+  if (phoneBargeInProgress) return;
+  if (phoneBargeInDuringPlayback) return;
+  // 非流式场景（isSpeaking从未true），发送结束后轻量恢复识别
+  if (isPhoneMode.value && oldVal && !newVal && !isSpeaking.value) {
+    setTimeout(() => {
+      if (isPhoneMode.value && !isSending.value && !isSpeaking.value && recognition.value && !phoneBargeInProgress && !phoneBargeInDuringPlayback) {
+        try {
+          recognition.value.start();
+        } catch (e) {
+          // 识别仍在 running 或已失效，由 onend 自动重启处理
+        }
+      }
+    }, 100);
+  }
 });
 
 // 分页相关变量
@@ -2061,6 +2721,8 @@ onUnmounted(() => {
     clearTimeout(pendingStopTimer);
     pendingStopTimer = null;
   }
+  stopPhoneCallTimer(); // 清理通话计时器
+  stopPhoneSilenceTimer(); // 清理静默检测定时器
   stopSpeakingCheck(); // 清理轮询定时器
   staticPlaybackGen++; // 使旧回调失效
   staticPlaybackMsgId = null;
@@ -3872,5 +4534,377 @@ const deleteConversation = async (conversationId, event) => {
 @keyframes eyeGlow {
   0%, 100% { box-shadow: 0 0 6px #00e5ff; }
   50% { box-shadow: 0 0 12px #00e5ff, 0 0 20px rgba(0, 229, 255, 0.4); }
+}
+
+/* ============ 电话模式按钮 ============ */
+.phone-mode-btn {
+  height: 28px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 14px;
+  background: #10b981;
+  color: #fff;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.phone-mode-btn:hover {
+  background: #059669;
+  color: #fff;
+}
+
+.phone-mode-btn:active {
+  transform: scale(0.96);
+}
+
+/* ============ 电话模式全屏覆盖 ============ */
+.phone-mode-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  background: linear-gradient(160deg, #0a0e27 0%, #1a1f3a 40%, #0d1b2a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: phoneFadeIn 0.3s ease;
+}
+
+@keyframes phoneFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.phone-call-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  max-width: 500px;
+  padding: 60px 40px 50px;
+  box-sizing: border-box;
+}
+
+/* 收起按钮（全屏覆盖层右上角） */
+.phone-collapse-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  padding: 7px 16px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  cursor: pointer;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: background 0.2s;
+  user-select: none;
+}
+.phone-collapse-btn:active {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+/* 收起后悬浮恢复按钮 */
+.phone-restore-btn {
+  position: fixed;
+  bottom: 96px;
+  right: 18px;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 18px;
+  background: linear-gradient(135deg, #1a1f3a, #0d1b2a);
+  color: #fff;
+  border-radius: 30px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  animation: phoneFadeIn 0.3s ease;
+  user-select: none;
+}
+.phone-restore-btn:active {
+  transform: scale(0.96);
+}
+.phone-restore-icon {
+  font-size: 18px;
+  color: #4ade80;
+}
+.phone-restore-icon.restore-pulse {
+  color: #60a5fa;
+  animation: restorePulse 1s ease-in-out infinite;
+}
+.phone-restore-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.2;
+}
+.phone-restore-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.phone-restore-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1;
+}
+.phone-restore-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+}
+.phone-restore-dot.active {
+  background: #4ade80;
+  box-shadow: 0 0 6px #4ade80;
+  animation: dotBlink 1.2s ease-in-out infinite;
+}
+@keyframes restorePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+@keyframes dotBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* 通话计时 */
+.phone-timer {
+  margin-top: 10px;
+}
+
+.phone-timer-text {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 中部 */
+.phone-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.phone-avatar {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.phone-robot {
+  transform: scale(2.5);
+  filter: drop-shadow(0 0 20px rgba(0, 200, 255, 0.5));
+}
+
+.phone-avatar-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 200, 255, 0.15);
+  pointer-events: none;
+  transition: border-color 0.3s ease;
+}
+
+.phone-avatar-ring.active {
+  border-color: rgba(0, 200, 255, 0.6);
+  animation: phoneRingPulse 1.5s ease-out infinite;
+}
+
+@keyframes phoneRingPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 200, 255, 0.4);
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    box-shadow: 0 0 0 30px rgba(0, 200, 255, 0);
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+}
+
+.phone-name {
+  font-size: 24px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+.phone-status {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 1px;
+  min-height: 20px;
+}
+
+/* 波形动画（AI 播放时） */
+.phone-wave {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 40px;
+  margin-top: 10px;
+}
+
+.phone-wave-bar {
+  display: inline-block;
+  width: 4px;
+  height: 12px;
+  background: linear-gradient(180deg, #00c8ff, #0099ff);
+  border-radius: 2px;
+  animation: phoneWaveAnim 0.8s ease-in-out infinite;
+}
+
+@keyframes phoneWaveAnim {
+  0%, 100% { height: 8px; }
+  50% { height: 36px; }
+}
+
+/* 底部控制区 */
+.phone-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.phone-recognize-preview {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  min-height: 20px;
+  text-align: center;
+  max-width: 80%;
+  word-break: break-all;
+}
+
+.phone-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 60px;
+}
+
+/* 麦克风指示器（自动监听，非按钮） */
+.phone-mic-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.phone-mic-indicator {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.phone-mic-indicator.listening {
+  background: linear-gradient(135deg, rgba(0, 200, 255, 0.3), rgba(0, 150, 255, 0.4));
+  border-color: rgba(0, 200, 255, 0.6);
+  box-shadow: 0 0 30px rgba(0, 200, 255, 0.5);
+  animation: phoneMicPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes phoneMicPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.phone-mic-icon {
+  font-size: 28px;
+  color: #ffffff;
+}
+
+.phone-mic-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 1px;
+}
+
+/* 挂断按钮 */
+.phone-hangup-btn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+}
+
+.phone-hangup-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 30px rgba(239, 68, 68, 0.6);
+}
+
+.phone-hangup-btn:active {
+  transform: scale(0.95);
+}
+
+.phone-hangup-icon {
+  font-size: 28px;
+  color: #ffffff;
+  transform: rotate(135deg);
+}
+
+/* ============ 电话模式响应式 ============ */
+@media (max-width: 480px) {
+  .phone-call-container {
+    padding: 40px 20px 40px;
+  }
+  .phone-buttons {
+    gap: 40px;
+  }
+  .phone-avatar {
+    width: 130px;
+    height: 130px;
+  }
+  .phone-robot {
+    transform: scale(2);
+  }
+  .phone-avatar-ring {
+    width: 120px;
+    height: 120px;
+  }
+  .phone-name {
+    font-size: 20px;
+  }
 }
 </style>
