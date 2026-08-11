@@ -552,12 +552,9 @@ import {
   LoadingOutlined,
   StopOutlined,
   FileTextOutlined,
-  LinkOutlined,
-  UploadOutlined,
   SendOutlined,
   AudioOutlined,
   SoundOutlined,
-  AudioMutedOutlined,
   CheckCircleFilled,
   InfoCircleFilled,
   PhoneOutlined,
@@ -676,27 +673,6 @@ let phoneCallTimer = null; // 通话计时句柄
 const PHONE_SILENCE_THRESHOLD = 1800; // 静默1.8秒后自动发送
 let phoneSilenceTimer = null; // 静默检测定时器
 let phoneLastSpeechTime = 0; // 最后一次检测到语音的时间
-let lastSentPhoneText = ''; // 上次发送的文字（barge-in 时用于拼接）
-let phoneBargeInProgress = false; // barge-in 进行中标志（阻止 watch 误触发）
-let phoneBargeInDuringPlayback = false; // 在 TTS 播放时打断的标志（发送时只发新文字，不拼接）
-
-// 唤醒词检测（只有包含唤醒词才能打断 AI）
-const PHONE_WAKE_WORDS = ['小k', '小凯'];
-const containsWakeWord = (text) => {
-  if (!text) return false;
-  const lower = text.toLowerCase();
-  return PHONE_WAKE_WORDS.some((w) => lower.includes(w));
-};
-// 从文字中移除唤醒词，只保留有效内容
-const stripWakeWord = (text) => {
-  if (!text) return '';
-  let result = text;
-  for (const w of PHONE_WAKE_WORDS) {
-    const regex = new RegExp(w, 'gi');
-    result = result.replace(regex, '');
-  }
-  return result.trim();
-};
 
 // 通话状态文字（根据录音/识别/发送/播放状态自动计算）
 const phoneStatusText = computed(() => {
@@ -851,23 +827,29 @@ const startRecording = (e) => {
   newMessage.value = '';
   recordingStartTime = Date.now();
 
-  // 累积所有已完成的识别结果
+  // 增量累加：只处理新增的 final 结果，避免 Chrome 回放历史 results 导致重复
+  let processedResultCount = 0;
   let accumulatedText = '';
 
   recognition.value.onresult = (event) => {
-    // 遍历所有结果（包括已完成 + 临时）
-    let interimText = '';
-    for (let i = 0; i < event.results.length; i++) {
+    const currentLen = event.results.length;
+    let newFinalText = '';
+    for (let i = processedResultCount; i < currentLen; i++) {
       const result = event.results[i];
       if (result.isFinal) {
-        // 最终结果：直接累加到完整文本
-        accumulatedText += result[0].transcript;
-      } else {
-        // 临时结果：取最后一个临时结果作为预览
-        interimText = result[0].transcript;
+        newFinalText += result[0].transcript;
       }
     }
-    // 最终显示 = 已完成文本 + 当前临时文本（使用节流更新）
+    if (newFinalText) {
+      accumulatedText += newFinalText;
+    }
+    // 最新的 interim 文本
+    let interimText = '';
+    const lastResult = event.results[currentLen - 1];
+    if (lastResult && !lastResult.isFinal) {
+      interimText = lastResult[0].transcript;
+    }
+    processedResultCount = currentLen;
     updatePreviewText(accumulatedText + interimText);
   };
 
@@ -990,16 +972,10 @@ const cancelRecording = () => {
 // 重置电话模式的播放/识别/计时状态（不切换 isPhoneMode / isVoiceMode）
 // 供 hangUpPhone 退出时调用，以及 enterPhoneMode 在"已在电话模式中再点电话"时复用
 const resetPhoneCallState = () => {
-  // 停止自动监听
   stopPhoneAutoListen();
-  // 停止正在发送的消息
   if (isSending.value) {
     stopMessage();
   }
-  // 重置 barge-in 相关状态
-  phoneBargeInProgress = false;
-  phoneBargeInDuringPlayback = false;
-  lastSentPhoneText = '';
   // 停止 TTS 播放
   staticPlaybackGen++;
   window.speechSynthesis.cancel();
@@ -1009,9 +985,7 @@ const resetPhoneCallState = () => {
   staticSentenceList = [];
   staticSentenceIndex = 0;
   resetSpeakingState();
-  // 重置停止发送标志，避免残留阻止新通话的自动播放
   userStoppedSending = false;
-  // 停止计时
   stopPhoneCallTimer();
 };
 
@@ -1035,11 +1009,6 @@ const enterPhoneMode = async () => {
   phoneModeCollapsed.value = false;
   phoneCallDuration.value = 0;
   startPhoneCallTimer();
-  // 重置 barge-in 相关状态
-  lastSentPhoneText = '';
-  phoneBargeInProgress = false;
-  phoneBargeInDuringPlayback = false;
-  // 延迟启动自动监听，等待权限获取和语音合成解锁
   setTimeout(() => {
     if (isPhoneMode.value) {
       startPhoneAutoListen();
@@ -1074,7 +1043,7 @@ const formatPhoneCallDuration = (seconds) => {
 
 // 电话模式：启动自动监听（实时对话，无需按住）
 const startPhoneAutoListen = () => {
-  // 允许在 AI 思考和 TTS 播放时继续监听，实现 barge-in 打断
+  // 播放中不监听，播放结束后由 watch(isSpeaking) 重新启动
   if (!isPhoneMode.value) return;
   if (isRecording.value) return; // 已在监听中，防止重复启动
   if (!micPermissionGranted.value) {
@@ -1103,77 +1072,35 @@ const startPhoneAutoListen = () => {
   resetPreviewTextBuffer();
   phoneLastSpeechTime = Date.now();
 
+  // 增量累加：只处理新增的 final 结果，避免 Chrome 回放历史 results 导致重复
+  let processedResultCount = 0;
   let accumulatedText = '';
 
   rec.onresult = (event) => {
     phoneLastSpeechTime = Date.now();
 
-    // Barge-in：TTS 播放中用户说话，只有包含唤醒词才打断
-    // 同时检查 speechSynthesis.speaking/pending，覆盖 isSpeaking 在播放启动瞬间的间隙
-    // （startStreamingTTS 先置 isSpeaking=false，第一句 onstart 才置 true）
-    if (isSpeaking.value || window.speechSynthesis.speaking || window.speechSynthesis.pending) {
-      let interimText = '';
-      const segments = [];
-      for (let i = 0; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (result.isFinal) {
-          segments.push(result[0].transcript);
-        } else {
-          interimText = result[0].transcript;
-        }
-      }
-      const fullText = segments.join('') + interimText;
-
-      if (containsWakeWord(fullText)) {
-        // 检测到唤醒词，打断 TTS
-        phoneBargeInDuringPlayback = true;
-        staticPlaybackGen++;
-        window.speechSynthesis.cancel();
-        streamingTtsActive = false;
-        streamingTtsPlayedLength = 0;
-        staticPlaybackMsgId = null;
-        staticSentenceList = [];
-        staticSentenceIndex = 0;
-        resetSpeakingState();
-        // 清空后累积新文字
-        accumulatedText = '';
-        resetPreviewTextBuffer();
-        // 如果唤醒词后没有实际内容（例如只说"小K"），重置状态继续正常监听
-        const cleanAfterWake = stripWakeWord(fullText);
-        if (!cleanAfterWake) {
-          phoneBargeInDuringPlayback = false;
-          // 只说唤醒词不应作为消息发送：清空累积并重启识别
-          accumulatedText = '';
-          resetPreviewTextBuffer();
-          try { recognition.value.abort(); } catch (e) { /* ignore */ }
-          return;
-        }
-      } else {
-        // 没有唤醒词，清空已识别文字，不让静默定时器发送
-        accumulatedText = '';
-        resetPreviewTextBuffer();
-        return; // 跳过更新
-      }
-    }
-
-    let interimText = '';
-    for (let i = 0; i < event.results.length; i++) {
+    const currentLen = event.results.length;
+    let newFinalText = '';
+    for (let i = processedResultCount; i < currentLen; i++) {
       const result = event.results[i];
       if (result.isFinal) {
-        accumulatedText += result[0].transcript;
-      } else {
-        interimText = result[0].transcript;
+        newFinalText += result[0].transcript;
       }
     }
-    // 保留唤醒词一起发送（用户要求发送时不移除唤醒词）
-    const rawText = accumulatedText + interimText;
-    updatePreviewText(rawText);
+    if (newFinalText) {
+      accumulatedText += newFinalText;
+    }
+    let interimText = '';
+    const lastResult = event.results[currentLen - 1];
+    if (lastResult && !lastResult.isFinal) {
+      interimText = lastResult[0].transcript;
+    }
+    processedResultCount = currentLen;
+    updatePreviewText(accumulatedText + interimText);
   };
 
   rec.onerror = (event) => {
     console.error('语音识别错误:', event.error);
-    // [barge-in 诊断] TTS 播放中识别错误：观察识别是否被抑制/打断
-    if (isSpeaking.value) console.log('[barge-in] TTS播放中识别错误:', event.error);
     if (event.error === 'aborted' || event.error === 'no-speech') return;
     if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
       message.error('麦克风权限被拒绝');
@@ -1182,16 +1109,13 @@ const startPhoneAutoListen = () => {
   };
 
   rec.onend = () => {
-    // 旧实例（已被新实例取代）的 onend：直接返回，避免污染 isRecording / 误重启新实例
+    // 旧实例（已被新实例取代）的 onend：直接返回
     if (recognition.value !== rec) return;
-    // 电话模式下自动重启识别（浏览器可能自动停止），TTS 播放时也保持监听
-    // [barge-in 诊断] TTS 播放中识别结束：观察是否频繁结束、重启是否成功
-    if (isSpeaking.value) console.log('[barge-in] TTS播放中识别onend，尝试重启 (isRecording:', isRecording.value, ')');
+    // 电话模式下自动重启识别（浏览器可能自动停止）
     if (isPhoneMode.value && isRecording.value) {
       try {
         rec.start();
       } catch (e) {
-        // 重启失败则重新创建实例
         setTimeout(() => {
           if (isPhoneMode.value) {
             startPhoneAutoListen();
@@ -1215,16 +1139,14 @@ const startPhoneAutoListen = () => {
     }, 500);
   }
 
-  // 启动静默检测：用户停说话2.5秒后自动发送
-  // 注意：TTS 播放中不发送消息（barge-in 打断由 onresult 的唤醒词检测处理，不走静默发送）
-  // 否则播放间隙 isSpeaking 短暂为 false 时会误发消息，新响应的 startStreamingTTS 会 cancel 当前播放
+  // 启动静默检测：用户停说话1.8秒后自动发送（TTS 播放中不发送）
   stopPhoneSilenceTimer();
   phoneSilenceTimer = setInterval(() => {
     if (!isPhoneMode.value) {
       stopPhoneSilenceTimer();
       return;
     }
-    // TTS 播放中（含间隙）不发送消息，避免误发导致播放被打断
+    // TTS 播放中不发送消息（播放时录音已关闭，此检查作为安全兜底）
     if (isSpeaking.value || window.speechSynthesis.speaking || window.speechSynthesis.pending) {
       return;
     }
@@ -1262,14 +1184,12 @@ const stopPhoneAutoListen = () => {
 
 // 电话模式：静默触发后自动发送消息
 const sendPhoneMessage = () => {
-  // 立即刷新 buffer，确保读取到最新的识别文本
   if (previewTextRafId) {
     cancelAnimationFrame(previewTextRafId);
     previewTextRafId = null;
   }
   flushPreviewText();
   const text = recognizedPreviewText.value.trim();
-  // 先停止监听
   stopPhoneSilenceTimer();
   isRecording.value = false;
   if (recognition.value) {
@@ -1278,8 +1198,6 @@ const sendPhoneMessage = () => {
   resetPreviewTextBuffer();
 
   if (!text) {
-    // 没有识别到内容，继续监听
-    phoneBargeInDuringPlayback = false;
     setTimeout(() => {
       if (isPhoneMode.value) {
         startPhoneAutoListen();
@@ -1288,74 +1206,10 @@ const sendPhoneMessage = () => {
     return;
   }
 
-  if (phoneBargeInDuringPlayback) {
-    // Barge-in：TTS 播放时用户打断（唤醒词已在 onresult 检测通过）
-    phoneBargeInDuringPlayback = false;
-    phoneBargeInProgress = true;
-    if (isSending.value) {
-      stopMessage();
-    }
-    setTimeout(() => {
-      lastSentPhoneText = text;
-      newMessage.value = text;
-      sendMessage();
-      phoneBargeInProgress = false;
-      // 发送后恢复监听
-      setTimeout(() => {
-        if (isPhoneMode.value) {
-          startPhoneAutoListen();
-        }
-      }, 500);
-    }, 400);
-  } else if (isSending.value && !isSpeaking.value) {
-    // Barge-in：AI 正在思考（未开始播放），需要检测唤醒词
-    if (!containsWakeWord(text)) {
-      // 没有唤醒词，丢弃文字，继续监听
-      setTimeout(() => {
-        if (isPhoneMode.value) {
-          startPhoneAutoListen();
-        }
-      }, 300);
-      return;
-    }
-    // 有唤醒词，停止当前发送，将新内容（保留唤醒词）拼接到上次发送的文字后面
-    phoneBargeInProgress = true;
-    stopMessage();
-    setTimeout(() => {
-      const contentAfterWake = stripWakeWord(text);
-      if (!contentAfterWake) {
-        // 只有唤醒词没有实际内容，恢复监听
-        phoneBargeInProgress = false;
-        setTimeout(() => {
-          if (isPhoneMode.value) startPhoneAutoListen();
-        }, 300);
-        return;
-      }
-      // 保留唤醒词一起发送（用户要求发送时不移除唤醒词）
-      const combinedText = lastSentPhoneText + ' ' + text;
-      lastSentPhoneText = combinedText;
-      newMessage.value = combinedText;
-      sendMessage();
-      phoneBargeInProgress = false;
-      // 发送后恢复监听（继续支持 barge-in）
-      setTimeout(() => {
-        if (isPhoneMode.value) {
-          startPhoneAutoListen();
-        }
-      }, 500);
-    }, 400);
-  } else {
-    // 正常发送
-    lastSentPhoneText = text;
-    newMessage.value = text;
-    sendMessage();
-    // 发送后恢复监听（AI 思考和播放时也监听，支持 barge-in）
-    setTimeout(() => {
-      if (isPhoneMode.value) {
-        startPhoneAutoListen();
-      }
-    }, 500);
-  }
+  // 正常发送
+  newMessage.value = text;
+  sendMessage();
+  // 发送后等播放结束由 watch(isSpeaking) 恢复监听，不在这里立即重启
 };
 
 // 挂断电话
@@ -1673,7 +1527,6 @@ const startSpeakingCheck = () => {
       return;
     }
     // 兜底：speechSynthesis 正在播放但 isSpeaking 未置 true（移动端 utterance.onstart 偶发不触发）
-    // → 补置 true，确保 barge-in 监听分支（if (isSpeaking.value)）能进入
     if (!isSpeaking.value && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
       isSpeaking.value = true;
     }
@@ -1694,6 +1547,10 @@ const stopSpeakingCheck = () => {
 // 开始流式 TTS
 const startStreamingTTS = () => {
   if (!isVoiceMode.value) return;
+  // 播放时关闭录音，避免麦克风干扰播放
+  if (isPhoneMode.value) {
+    stopPhoneAutoListen();
+  }
   window.speechSynthesis.cancel();
   streamingTtsPlayedLength = 0;
   streamingTtsActive = true;
@@ -1703,11 +1560,8 @@ const startStreamingTTS = () => {
   lastStreamSpeakTime = 0;
   isSpeaking.value = false;
   currentSpeakingMsgId.value = null;
-  // 清除用户发送消息后的残留识别状态，确保新一轮回复播放时识别状态干净
   phoneLastSpeechTime = 0;
   resetPreviewTextBuffer();
-  // 启动轮询兜底：移动端 utterance.onstart 偶发不触发时，由轮询补置 isSpeaking=true，
-  // 否则 barge-in 的 if(isSpeaking.value) 分支不会进入，唤醒词永远打不断播放
   startSpeakingCheck();
 };
 
@@ -1734,7 +1588,6 @@ const playNextStreamingSentence = () => {
   // 没有普通话语音时不设置 voice，浏览器会根据 lang='zh-CN' 自动选择
   utterance.pitch = 1.0;
   utterance.rate = voiceSpeed.value; // 每句读取最新倍速
-  // 电话模式降低音量，减弱扬声器回声对麦克风识别的干扰，提高 barge-in 唤醒词（小k/小凯）的命中率
   utterance.volume = isPhoneMode.value ? 0.6 : 1.0;
 
   utterance.onstart = () => {
@@ -1907,45 +1760,40 @@ watch(showTextInVoiceMode, () => {
   });
 });
 
-// 电话模式：AI回复播放结束后强制重建识别实例恢复监听
+// 电话模式：AI回复播放结束后重置录音，重新开始监听
 watch(isSpeaking, (newVal, oldVal) => {
-  // barge-in 进行中时跳过（由 sendPhoneMessage 自行管理）
-  if (phoneBargeInProgress) return;
-  // bar­ge-in 打断播放时跳过（phoneBargeInDuringPlayback=true 表示用户正在说后续指令，由 sendPhoneMessage 管理重启）
-  if (phoneBargeInDuringPlayback) return;
-  // TTS 播放结束时：轻量恢复识别（不创建新实例，只是 start()）
-  // 之前每次播放结束都 stopPhoneAutoListen + startPhoneAutoListen（500ms 延迟 + 实例启动），
-  // 导致用户说话后"过了几秒才能转换成文字"。
-  // 现在只调用 rec.start()：如果识别已 stopped 会重启，如果在 running 会抛错被忽略。
-  if (isPhoneMode.value && oldVal && !newVal) {
+  if (!isPhoneMode.value) return;
+  // TTS 播放结束 → 停止当前识别，重置后重新开始监听
+  if (oldVal && !newVal) {
     setTimeout(() => {
-      if (isPhoneMode.value && !isSpeaking.value && recognition.value && !phoneBargeInProgress && !phoneBargeInDuringPlayback) {
-        try {
-          recognition.value.start();
-        } catch (e) {
-          // 识别仍在 running（InvalidStateError）或已失效，由 onend 自动重启处理
+      if (isPhoneMode.value && !isSpeaking.value) {
+        // 停止当前识别实例，重置后重建
+        if (recognition.value) {
+          try { recognition.value.abort(); } catch (e) { /* ignore */ }
         }
+        isRecording.value = false;
+        resetPreviewTextBuffer();
+        startPhoneAutoListen();
       }
-    }, 100);
+    }, 300);
   }
 });
 
-// 电话模式：非流式场景（isSpeaking从未true），发送结束后强制重建识别实例恢复监听
+// 电话模式：非流式场景（isSpeaking从未true），发送结束后恢复监听
 watch(isSending, (newVal, oldVal) => {
-  // barge-in 进行中时跳过（由 sendPhoneMessage 自行管理）
-  if (phoneBargeInProgress) return;
-  if (phoneBargeInDuringPlayback) return;
-  // 非流式场景（isSpeaking从未true），发送结束后轻量恢复识别
-  if (isPhoneMode.value && oldVal && !newVal && !isSpeaking.value) {
+  if (!isPhoneMode.value) return;
+  // 发送结束且未进入播放状态 → 恢复监听
+  if (oldVal && !newVal && !isSpeaking.value) {
     setTimeout(() => {
-      if (isPhoneMode.value && !isSending.value && !isSpeaking.value && recognition.value && !phoneBargeInProgress && !phoneBargeInDuringPlayback) {
-        try {
-          recognition.value.start();
-        } catch (e) {
-          // 识别仍在 running 或已失效，由 onend 自动重启处理
+      if (isPhoneMode.value && !isSending.value && !isSpeaking.value) {
+        if (recognition.value) {
+          try { recognition.value.abort(); } catch (e) { /* ignore */ }
         }
+        isRecording.value = false;
+        resetPreviewTextBuffer();
+        startPhoneAutoListen();
       }
-    }, 100);
+    }, 300);
   }
 });
 
