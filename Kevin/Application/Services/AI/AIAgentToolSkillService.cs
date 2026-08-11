@@ -96,13 +96,13 @@ namespace kevin.Application.Services.AI
              ));
 
             aiTools.Add(
-                  AIFunctionFactory.Create(_iAIFileToolService.SaveFileContent,
-                  new AIFunctionFactoryOptions
-                  {
-                      Name = "SaveFileContent",
-                      Description = "保存文件内容并返回访问url，当用户需要将内容保存为文件时调用。"
-                  }
-            ));
+               AIFunctionFactory.Create(_iAIFileToolService.SaveFileContent,
+               new AIFunctionFactoryOptions
+               {
+                   Name = "SaveFileContent",
+                   Description = "保存文件(本地文件地址和文件内容二选一（必须有一个必填）)并返回远程访问url，当用户需要将内容保存为文件或者把本地文件上传到远程时调用。"
+               }
+         ));
             aiTools.Add(
                 AIFunctionFactory.Create(_IAIMsgService.SendDDToMyMsg,
                 new AIFunctionFactoryOptions
