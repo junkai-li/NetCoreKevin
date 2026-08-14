@@ -233,7 +233,7 @@ namespace kevin.Application.Services.AI
             var logdata = await _aIChatHistorysBindLogService.GetByIds(new List<long> { addAi.Id });
             aIChatHistorysRp.Add(addAi);
             await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
-            await aIChatsService.UpdateNameAndMsg(par.AIChatsId, count == 1 ? par.Content : "", addAi.Content, cancellationToken); 
+            await aIChatsService.UpdateNameAndMsg(par.AIChatsId, count == 1 ? par.Content : "", addAi.Content); 
             var BindApps = new Dictionary<AIAppsDto, AIModelsDto>();
             if (aiapp.BindIds.Where(x => x.Contains("agent_")).Count() > 0)
             {
