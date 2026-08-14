@@ -23,3 +23,7 @@ export const GetAllTools = () => {
 export const GetAllSkills = () => {
   return http.get('/api/AISkillToolManagement/GetAllSkills');
 };
+//获取Mcp工具列表
+export const GetAllMcps = () => {
+  return http.get('/api/AISkillToolManagement/GetAllMcps');
+};

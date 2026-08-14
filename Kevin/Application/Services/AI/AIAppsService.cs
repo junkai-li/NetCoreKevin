@@ -241,6 +241,7 @@ namespace kevin.Application.Services.AI
                     msg.ResponseFormat = par.ResponseFormat;
                     msg.ReasoningEffort = par.ReasoningEffort;
                     msg.ReasoningOutput = par.ReasoningOutput;
+                    msg.IsMcp = par.IsMcp;
                 }
                 else
                 {
@@ -251,6 +252,7 @@ namespace kevin.Application.Services.AI
             await aIAppsRp.SaveChangesAsync();
             var ids = par.Skills.Where(t => t.IsSelect).Select(t => t.AISkillToolManagementId).ToList();
             ids.AddRange(par.Tools.Where(t => t.IsSelect).Select(t => t.AISkillToolManagementId).ToList());
+            ids.AddRange(par.Mcps.Where(t => t.IsSelect).Select(t => t.AISkillToolManagementId).ToList());
             await aISkillToolBindIdService.BatchAddIds(par.Id.ToString(), ids);
             await aIAppsBindIdService.BatchAddIds(par.Id.ToString(), par.BindIds);
             return true;

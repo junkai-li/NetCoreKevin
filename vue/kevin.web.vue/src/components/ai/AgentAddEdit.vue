@@ -277,6 +277,11 @@
               <a-switch v-model:checked="form.isSkill" :disabled="isViewMode" />
             </a-form-item>
           </a-col>
+          <a-col :span="8">
+            <a-form-item label="Mcp工具">
+              <a-switch v-model:checked="form.isMcp" :disabled="isViewMode" />
+            </a-form-item>
+          </a-col>
         </a-row>
         <a-tabs v-model:activeKey="skillToolTabKey">
           <a-tab-pane key="tools" tab="Tools工具" :disabled="!form.isAITools">
@@ -295,6 +300,17 @@
               :columns="skillToolColumns"
               :data-source="skillsList"
               :row-selection="skillsRowSelection"
+              :pagination="false"
+              :scroll="{ y: 250 }"
+              row-key="id"
+              size="small"
+            />
+          </a-tab-pane>
+          <a-tab-pane key="mcps" tab="Mcp工具" :disabled="!form.isMcp">
+            <a-table
+              :columns="skillToolColumns"
+              :data-source="mcpList"
+              :row-selection="mcpsRowSelection"
               :pagination="false"
               :scroll="{ y: 250 }"
               row-key="id"
@@ -436,7 +452,7 @@ import { getAIPromptsALLList } from '@/api/ai/aiPrompts';
 import { getAIKmssList } from '@/api/ai/aikmss';
 import { getUserList } from '@/api/userapi';
 import { getRolePage } from '@/api/roleapi';
-import { GetAllTools, GetAllSkills } from '@/api/ai/aiskilltoolManagement';
+import { GetAllTools, GetAllSkills, GetAllMcps } from '@/api/ai/aiskilltoolManagement';
 import { getAIAppsALLList } from '@/api/ai/aiapps';
 const emit = defineEmits(['ok', 'cancel']);
 
@@ -486,8 +502,10 @@ const form = reactive({
   msgType: 1,
   isAITools: true,
   isSkill: true,
+  isMcp: true,
   tools: [],
   skills: [],
+  mcps: [],
   isHttpLog: false,
   maxRetries: 2,
   networkTimeout: 30,
@@ -557,6 +575,8 @@ const skillToolColumns = [
 const toolsList = ref([]);
 // 技能列表
 const skillsList = ref([]);
+// Mcp列表
+const mcpList = ref([]);
 
 // Tools行选择
 const toolsRowSelection = computed(() => {
@@ -575,6 +595,17 @@ const skillsRowSelection = computed(() => {
     selectedRowKeys: form.skills,
     onChange: isViewMode.value ? () => {} : (selectedRowKeys) => {
       form.skills = [...selectedRowKeys];
+    },
+    preserveSelectedRows: true
+  };
+});
+
+// Mcps行选择
+const mcpsRowSelection = computed(() => {
+  return {
+    selectedRowKeys: form.mcps,
+    onChange: isViewMode.value ? () => {} : (selectedRowKeys) => {
+      form.mcps = [...selectedRowKeys];
     },
     preserveSelectedRows: true
   };
@@ -845,9 +876,11 @@ watch(() => props.open, (newVal) => {
       const skillsToolsBindIds = props.agentData.aiSkillsToolsBindIds || [];
       const toolIds = toolsList.value.map(t => t.id);
       const skillIds = skillsList.value.map(s => s.id);
+      const mcpIds = mcpList.value.map(m => m.id);
 
       form.tools = skillsToolsBindIds.filter(id => toolIds.includes(id));
       form.skills = skillsToolsBindIds.filter(id => skillIds.includes(id));
+      form.mcps = skillsToolsBindIds.filter(id => mcpIds.includes(id));
 
       // bindIds 包含用户、角色和智能体
       form.bindIds = props.agentData.bindIds || [];
@@ -874,8 +907,10 @@ watch(() => props.open, (newVal) => {
         msgType: 1,
         isAITools: true,
         isSkill: true,
+        isMcp: true,
         tools: [],
         skills: [],
+        mcps: [],
         isHttpLog: false,
         maxRetries: 2,
         networkTimeout: 30,
@@ -943,8 +978,10 @@ const handleOk = () => {
         msgType: form.msgType,
         isAITools: form.isAITools,
         isSkill: form.isSkill,
+        isMcp: form.isMcp,
         tools: form.isAITools ? buildSelectedData(form.tools || [], toolsList.value) : [],
         skills: form.isSkill ? buildSelectedData(form.skills || [], skillsList.value) : [],
+        mcps: form.isMcp ? buildSelectedData(form.mcps || [], mcpList.value) : [],
         isHttpLog: form.isHttpLog,
         maxRetries: form.maxRetries,
         networkTimeout: form.networkTimeout,
@@ -1053,6 +1090,18 @@ const loadSkillsList = async () => {
   }
 };
 
+// 加载Mcp列表
+const loadMcpsList = async () => {
+  try {
+    const response = await GetAllMcps();
+    if (response && response.code === 200 && response.data) {
+      mcpList.value = response.data;
+    }
+  } catch (error) {
+    console.error('加载Mcp列表失败:', error);
+  }
+};
+
 // 组件挂载时加载数据
 onMounted(() => {
   loadModelList();
@@ -1063,6 +1112,7 @@ onMounted(() => {
   loadAgentList();
   loadToolsList();
   loadSkillsList();
+  loadMcpsList();
 });
 
 // 暴露方法给父组件

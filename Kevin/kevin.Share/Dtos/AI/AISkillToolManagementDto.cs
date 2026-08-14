@@ -22,7 +22,40 @@ namespace kevin.Domain.Share.Dtos.AI
         [Description("方法")]
         [StringLength(100)]
         public String? ClassMethod { get; set; } = "";
+        /// <summary>
+        /// Mcp地址
+        /// </summary> 
+        [Description("Mcp地址")]
+        public String? McpUrl { get; set; } = "";
 
+        /// <summary>
+        /// McpType https,sse,stdio
+        /// </summary> 
+        [Description("McpType McpType https,sse,stdio")]
+        [StringLength(100)]
+        public String? McpType { get; set; } = "";
+
+        /// <summary>
+        /// McpHeaders
+        /// </summary> 
+        [Description("McpHeaders 键值对Json格式")]
+        public String? McpHeaders { get; set; } = "";
+        /// <summary>
+        /// McpCommand
+        /// </summary> 
+        [Description("McpCommand")]
+        public String? McpCommand { get; set; } = "";
+        /// <summary>
+        /// McpArguments
+        /// </summary> 
+        [Description("McpArguments ,分隔")]
+        public String? McpArguments { get; set; } = "";
+
+        /// <summary>
+        /// McpEnvironment
+        /// </summary> 
+        [Description("McpEnvironment 键值对Json格式")]
+        public String? McpEnvironment { get; set; } = "";
         /// <summary>
         /// 描述
         /// </summary>
@@ -52,5 +85,27 @@ namespace kevin.Domain.Share.Dtos.AI
         /// skill工具关联的文件信息
         /// </summary>
         public FileDto? SkillFile { get; set; }
+
+        /// <summary>
+        /// 检验
+        /// </summary>
+        public void Check()
+        { 
+            if (this.SkillToolType == AISkillToolTypeEnums.Mcp)
+            {
+                if (string.IsNullOrEmpty(this.McpUrl) && this.McpType != "stdio")
+                {
+                    throw new Exception("McpUrl不能为空");
+                }
+                if (string.IsNullOrEmpty(this.McpType))
+                {
+                    throw new Exception("McpType不能为空");
+                }
+                if (this.McpType == "stdio" && string.IsNullOrEmpty(this.McpCommand))
+                {
+                    throw new Exception("McpCommand不能为空");
+                }
+            }
+        }
     }
 }

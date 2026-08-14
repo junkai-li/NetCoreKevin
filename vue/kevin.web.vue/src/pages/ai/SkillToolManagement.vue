@@ -17,6 +17,7 @@
             >
               <a-select-option :value="1">Tool</a-select-option>
               <a-select-option :value="2">Skill</a-select-option>
+              <a-select-option :value="3">Mcp</a-select-option>
             </a-select>
             <a-input-search
               class="search-input"
@@ -129,6 +130,7 @@
           <a-select v-model:value="form.skillToolType" placeholder="请选择技能工具类型">
             <a-select-option :value="1">Tool</a-select-option>
             <a-select-option :value="2">Skill</a-select-option>
+            <a-select-option :value="3">Mcp</a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item label="方法" v-bind="validateInfos.classMethod">
@@ -148,6 +150,28 @@
             @upload-error="onFileUploadError"
             @zip-updated="onZipUpdated"
           />
+        </a-form-item>
+        <a-form-item v-if="form.skillToolType === 3" label="Mcp地址" v-bind="validateInfos.mcpUrl">
+          <a-input v-model:value="form.mcpUrl" placeholder="请输入Mcp地址" />
+        </a-form-item>
+        <a-form-item v-if="form.skillToolType === 3" label="Mcp类型" v-bind="validateInfos.mcpType">
+          <a-select v-model:value="form.mcpType" placeholder="请选择Mcp类型">
+            <a-select-option value="https">https</a-select-option>
+            <a-select-option value="sse">sse</a-select-option>
+            <a-select-option value="stdio">stdio</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item v-if="form.skillToolType === 3" label="McpHeaders" v-bind="validateInfos.mcpHeaders">
+          <a-textarea v-model:value="form.mcpHeaders" :rows="3" placeholder="键值对Json格式，例如: {&quot;Authorization&quot;: &quot;Bearer xxx&quot;}" />
+        </a-form-item>
+        <a-form-item v-if="form.skillToolType === 3 && form.mcpType === 'stdio'" label="McpCommand" v-bind="validateInfos.mcpCommand">
+          <a-input v-model:value="form.mcpCommand" placeholder="请输入McpCommand" />
+        </a-form-item>
+        <a-form-item v-if="form.skillToolType === 3 && form.mcpType === 'stdio'" label="McpArguments">
+          <a-input v-model:value="form.mcpArguments" placeholder=",分隔，例如: arg1,arg2" />
+        </a-form-item>
+        <a-form-item v-if="form.skillToolType === 3 && form.mcpType === 'stdio'" label="McpEnvironment">
+          <a-textarea v-model:value="form.mcpEnvironment" :rows="3" placeholder="键值对Json格式" />
         </a-form-item>
         <a-form-item label="描述">
           <a-textarea v-model:value="form.description" :rows="4" placeholder="请输入描述" :maxlength="500" show-count />
@@ -188,6 +212,12 @@
           </a>
           <span v-else>无</span>
         </a-descriptions-item>
+        <a-descriptions-item label="Mcp地址" v-if="viewItem?.skillToolType === 3">{{ viewItem?.mcpUrl || '无' }}</a-descriptions-item>
+        <a-descriptions-item label="Mcp类型" v-if="viewItem?.skillToolType === 3">{{ viewItem?.mcpType || '无' }}</a-descriptions-item>
+        <a-descriptions-item label="McpHeaders" v-if="viewItem?.skillToolType === 3">{{ viewItem?.mcpHeaders || '无' }}</a-descriptions-item>
+        <a-descriptions-item label="McpCommand" v-if="viewItem?.skillToolType === 3 && viewItem?.mcpType === 'stdio'">{{ viewItem?.mcpCommand || '无' }}</a-descriptions-item>
+        <a-descriptions-item label="McpArguments" v-if="viewItem?.skillToolType === 3 && viewItem?.mcpType === 'stdio'">{{ viewItem?.mcpArguments || '无' }}</a-descriptions-item>
+        <a-descriptions-item label="McpEnvironment" v-if="viewItem?.skillToolType === 3 && viewItem?.mcpType === 'stdio'">{{ viewItem?.mcpEnvironment || '无' }}</a-descriptions-item>
       </a-descriptions>
     </a-modal>
   </div>
@@ -241,6 +271,12 @@ const form = reactive({
   activeStatus: 1,
   skillToolType: undefined,
   skillFile: null,
+  mcpUrl: "",
+  mcpType: "",
+  mcpHeaders: "",
+  mcpCommand: "",
+  mcpArguments: "",
+  mcpEnvironment: "",
 });
 
 const validateSkillFile = (rule, value) => {
@@ -287,12 +323,20 @@ const rules = computed(() => ({
     { required: true, validator: validateSkillFile, trigger: "change" },
     { validator: validateSkillFileName, trigger: "change" },
   ] : [],
+  mcpUrl: (form.skillToolType === 3 && form.mcpType !== 'stdio') ? [{ required: true, message: "请输入Mcp地址" }] : [],
+  mcpType: form.skillToolType === 3 ? [{ required: true, message: "请选择Mcp类型" }] : [],
+  mcpCommand: (form.skillToolType === 3 && form.mcpType === 'stdio') ? [{ required: true, message: "请输入McpCommand" }] : [],
 }));
 
 const { validate: validateForm, validateInfos, clearValidate } = useForm(form, rules);
 
 watch(() => form.skillToolType, () => {
-  clearValidate(["classMethod", "skillFile"]);
+  clearValidate(["classMethod", "skillFile", "mcpUrl", "mcpType", "mcpHeaders", "mcpCommand", "mcpArguments", "mcpEnvironment"]);
+});
+
+// Mcp类型切换时清空stdio相关验证
+watch(() => form.mcpType, () => {
+  clearValidate(["mcpCommand", "mcpArguments", "mcpEnvironment"]);
 });
 
 // 名称变化时重新校验技能文件
@@ -306,7 +350,7 @@ const searchKeyword = ref("");
 const filterType = ref(2);
 
 const getSkillToolTypeName = (type) => {
-  const types = { 1: "Tool", 2: "Skill" };
+  const types = { 1: "Tool", 2: "Skill", 3: "Mcp" };
   return types[type] || "未知";
 };
 
@@ -361,6 +405,12 @@ const showAddModal = async () => {
       activeStatus: 1,
       skillToolType: undefined,
       skillFile: null,
+      mcpUrl: "",
+      mcpType: "",
+      mcpHeaders: "",
+      mcpCommand: "",
+      mcpArguments: "",
+      mcpEnvironment: "",
     });
   } catch (error) {
     console.error("获取ID失败:", error);
@@ -372,6 +422,12 @@ const showAddModal = async () => {
       activeStatus: 1,
       skillToolType: undefined,
       skillFile: null,
+      mcpUrl: "",
+      mcpType: "",
+      mcpHeaders: "",
+      mcpCommand: "",
+      mcpArguments: "",
+      mcpEnvironment: "",
     });
   }
   modalVisible.value = true;
@@ -420,6 +476,12 @@ const showEditModal = (record) => {
   form.activeStatus = record.activeStatus !== undefined ? record.activeStatus : 1;
   form.skillToolType = record.skillToolType !== undefined ? record.skillToolType : undefined;
   form.skillFile = record.skillFile || null;
+  form.mcpUrl = record.mcpUrl || "";
+  form.mcpType = record.mcpType || "";
+  form.mcpHeaders = record.mcpHeaders || "";
+  form.mcpCommand = record.mcpCommand || "";
+  form.mcpArguments = record.mcpArguments || "";
+  form.mcpEnvironment = record.mcpEnvironment || "";
   modalVisible.value = true;
 };
 
@@ -466,6 +528,12 @@ const handleModalOk = () => {
           description: form.description,
           activeStatus: form.activeStatus,
           skillToolType: form.skillToolType,
+          mcpUrl: form.mcpUrl,
+          mcpType: form.mcpType,
+          mcpHeaders: form.mcpHeaders,
+          mcpCommand: form.mcpCommand,
+          mcpArguments: form.mcpArguments,
+          mcpEnvironment: form.mcpEnvironment,
         } : {
           id: form.id,
           name: form.name,
@@ -473,6 +541,12 @@ const handleModalOk = () => {
           description: form.description,
           activeStatus: form.activeStatus,
           skillToolType: form.skillToolType,
+          mcpUrl: form.mcpUrl,
+          mcpType: form.mcpType,
+          mcpHeaders: form.mcpHeaders,
+          mcpCommand: form.mcpCommand,
+          mcpArguments: form.mcpArguments,
+          mcpEnvironment: form.mcpEnvironment,
         });
 
         message.success(currentRecord.value ? "更新成功" : "添加成功");

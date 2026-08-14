@@ -219,5 +219,11 @@ namespace kevin.Domain.Entities.AI
         /// </summary>
         [Description("模型思考输出，默认不配置，支持0.None,1.Summary,2.Full")]
         public int? ReasoningOutput { get; set; }
+
+        /// <summary>
+        /// 是否开启aiMcp工具
+        /// </summary>
+        [Description("是否开启aiMcp工具")]
+        public bool IsMcp { get; set; } = true;
     }
 }

@@ -4,7 +4,12 @@ using kevin.AI.AgentFramework.Interfaces.Tasks;
 using kevin.AI.AgentFramework.Interfaces.Tools;
 using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Interfaces.IServices.AI;
+using kevin.Domain.Share.Dtos.AI;
+using Kevin.Common.Extension;
 using Microsoft.Extensions.AI;
+using ModelContextProtocol.Client;
+using ModelContextProtocol.Protocol;
+using System;
 
 namespace kevin.Application.Services.AI
 {
@@ -36,7 +41,7 @@ namespace kevin.Application.Services.AI
         public AIAgentToolSkillService(IKevinAITaskService kevinAITaskService, IAISkillToolBindIdService iAISkillToolBindIdService,
             IAISkillToolManagementService iAISkillToolManagementService, ICommonToolsService commonTools, IPythonToolsService pythonTools,
             IShellToolsService shellTools, IAgentHttpClientToolsService agentHttpClientToolsService, IUserService userService, IAIJsonLogService aIJsonLogService,
-            IAIFileToolService iAIFileToolService,  IAIMsgService iAIMsgService, IAuthorizedToolsService authorizedToolsService)
+            IAIFileToolService iAIFileToolService, IAIMsgService iAIMsgService, IAuthorizedToolsService authorizedToolsService)
         {
             _kevinAITaskService = kevinAITaskService;
             _iAISkillToolBindIdService = iAISkillToolBindIdService;
@@ -47,7 +52,7 @@ namespace kevin.Application.Services.AI
             _agentHttpClientToolsService = agentHttpClientToolsService;
             _userService = userService;
             _iAIFileToolService = iAIFileToolService;
-            _IAIMsgService = iAIMsgService; 
+            _IAIMsgService = iAIMsgService;
             _authorizedToolsService = authorizedToolsService;
             _aIJsonLogService = aIJsonLogService;
         }
@@ -166,7 +171,7 @@ namespace kevin.Application.Services.AI
                                     Description = "执行 Shell 命令。通过操作系统原生 Shell 执行命令(Windows 用 cmd也可以执行bash相关命令，Linux/Mac 用 bash）。包含安全护栏：危险命令阻止、输出截断（50KB）、超时控制（60秒）。"
                                 }
                             ));
-                            break; 
+                            break;
                         case "PythonTools.RunPythonCode":
                             aiTools.Add(
                                AIFunctionFactory.Create(_iPythonTools.RunPythonCode,
@@ -244,6 +249,83 @@ namespace kevin.Application.Services.AI
             return aiTools;
         }
 
+        private async Task<List<AITool>> GetMcpTools(object data, List<AISkillToolManagementDto> AISkillToolManagementDtos)
+        {
+            var aiTools = new List<AITool>();
+            foreach (var item in AISkillToolManagementDtos)
+            {
+                if (string.IsNullOrEmpty(item.McpType))
+                    continue;
+
+                IClientTransport transport = null; // 声明传输对象
+
+                try
+                {
+                    // 根据类型创建对应的传输
+                    switch (item.McpType.ToLowerInvariant())
+                    {
+                        case "http":
+                        case "https":
+                            // ---- HTTP / StreamableHttp ----
+                            if (string.IsNullOrEmpty(item.McpUrl))
+                                throw new ArgumentException("HTTP 模式需要提供 McpUrl");
+                            transport = new HttpClientTransport(new HttpClientTransportOptions
+                            {
+                                Endpoint = new Uri(item.McpUrl),
+                                TransportMode = HttpTransportMode.StreamableHttp, // 推荐
+                                AdditionalHeaders = !string.IsNullOrEmpty(item.McpHeaders)
+                                    ? item.McpHeaders.ToObject<Dictionary<string, string>>()
+                                    : null
+                            });
+                            break;
+
+                        case "sse":
+                            // ---- Server-Sent Events ----
+                            if (string.IsNullOrEmpty(item.McpUrl))
+                                throw new ArgumentException("SSE 模式需要提供 McpUrl");
+                            transport = new HttpClientTransport(new HttpClientTransportOptions
+                            {
+                                Endpoint = new Uri(item.McpUrl),
+                                TransportMode = HttpTransportMode.Sse, // 使用 SSE 模式
+                                AdditionalHeaders = !string.IsNullOrEmpty(item.McpHeaders)
+                                    ? item.McpHeaders.ToObject<Dictionary<string, string>>()
+                                    : null
+                            });
+                            break;
+
+                        case "stdio":
+                            // ---- 标准输入输出（本地进程） ----
+                            if (string.IsNullOrEmpty(item.McpCommand))
+                                throw new ArgumentException("Stdio 模式需要提供 McpCommand");
+
+                            var stdioOptions = new StdioClientTransportOptions
+                            {
+                                Command = item.McpCommand,
+                                Arguments = item.McpArguments?.Split(",").ToList(),
+                                EnvironmentVariables = item.McpEnvironment?.ToObject<Dictionary<string, string?>>() ?? default
+                            };
+                            transport = new StdioClientTransport(stdioOptions);
+                            break;
+
+                        default:
+                            throw new NotSupportedException($"不支持的传输类型: {item.McpType}");
+                    }
+
+                    // 创建客户端并获取工具
+                    await using var mcpClient = await McpClient.CreateAsync(transport);
+                    var mcpTools = await mcpClient.ListToolsAsync();
+                    aiTools.AddRange(mcpTools.Cast<AITool>());
+                }
+                catch (Exception ex)
+                {
+                    // 建议记录日志，继续处理下一个服务
+                    // _logger.LogError(ex, "获取 MCP 工具失败, 类型: {Type}, URL: {Url}", item.McpType, item.McpUrl);
+                    // 可以选择抛出或跳过
+                }
+            }
+            return aiTools;
+        }
+
         public async Task<List<string>> GetAIAgentSkillsAsync(object data, string agentId)
         {
             var agentBindIds = (await _iAISkillToolBindIdService.GetListById(agentId)).Select(t => t.AISkillToolManagementId).ToList();
@@ -256,7 +338,10 @@ namespace kevin.Application.Services.AI
             var aiTools = new List<AITool>();
             var agentBindIds = (await _iAISkillToolBindIdService.GetListById(agentId)).Select(t => t.AISkillToolManagementId).ToList();
             var tools = (await _iAISkillToolManagementService.GetNotDataPerAllTools()).Where(t => agentBindIds.Contains(t.Id)).ToList();
-            return await GetAITools(data, tools.Select(t => t.ClassMethod ?? "").ToList());
+            var mcps = (await _iAISkillToolManagementService.GetNotDataPerAllMcps()).Where(t => agentBindIds.Contains(t.Id)).ToList();
+            aiTools.AddRange(await GetAITools(data, tools.Select(t => t.ClassMethod ?? "").ToList()));
+            aiTools.AddRange(await GetMcpTools(data, mcps));
+            return aiTools;
         }
 
         public async Task<List<string>> GetAllAIAgentSkillsAsync(object data)

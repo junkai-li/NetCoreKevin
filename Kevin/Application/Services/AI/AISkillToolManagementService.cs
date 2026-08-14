@@ -76,6 +76,7 @@ namespace kevin.Application.Services.AI
         public async Task<bool> AddEdit(AISkillToolManagementDto data)
         {
             var isAdd = data.Id == default;
+            data.Check();
             if (!isAdd)
             {
                 var msg = AISkillToolManagementRp.Query().Where(t => t.IsDelete == false && t.Id == data.Id).FirstOrDefault();
@@ -120,11 +121,18 @@ namespace kevin.Application.Services.AI
                     upData.ActiveStatus = data.ActiveStatus;
                     upData.ClassMethod = data.ClassMethod;
                     upData.Description = data.Description;
+                    upData.McpUrl = data.McpUrl;    
+                    upData.McpType = data.McpType;
+                    upData.McpHeaders = data.McpHeaders;
+                    upData.McpCommand = data.McpCommand;
+                    upData.McpArguments = data.McpArguments;
+                    upData.McpEnvironment = data.McpEnvironment;
                     upData.UpdateTime = DateTime.Now;
                     upData.UpdateUserId = CurrentUser.UserId;
                     upData.TenantId = CurrentUser.TenantId;
                     upData.IsDelete = false;
                     upData.IsSystem = false;
+
                 }
                 else
                 {
@@ -224,6 +232,21 @@ namespace kevin.Application.Services.AI
         public async Task<List<AISkillToolManagementDto>> GetNotDataPerAllTools()
         {
             return (await AISkillToolManagementRp.Query().Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Tool && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
+
+        }
+
+        public async Task<List<AISkillToolManagementDto>> GetAllMcps()
+        {
+            return (await AISkillToolManagementRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Mcp && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
+        }
+
+        /// <summary>
+        /// 不受数据权限控制的技能工具列表（主要用于系统管理员等特殊角色使用）
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<AISkillToolManagementDto>> GetNotDataPerAllMcps()
+        {
+            return (await AISkillToolManagementRp.Query().Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Mcp && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
 
         }
     }

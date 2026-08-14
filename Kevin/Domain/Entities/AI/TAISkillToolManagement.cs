@@ -50,6 +50,43 @@ namespace kevin.Domain.Entities.AI
         public AISkillToolTypeEnums SkillToolType { get; set; } = AISkillToolTypeEnums.Tool;
 
 
+        /// <summary>
+        /// Mcp地址
+        /// </summary> 
+        [Description("Mcp地址")]
+        public String? McpUrl { get; set; } = "";
+
+        /// <summary>
+        /// McpType https,sse,stdio
+        /// </summary> 
+        [Description("McpType McpType https,sse,stdio")]
+        [StringLength(100)]
+        public String? McpType { get; set; } = "";
+
+        /// <summary>
+        /// McpHeaders
+        /// </summary> 
+        [Description("McpHeaders 键值对Json格式")]
+        public String? McpHeaders { get; set; } = "";
+
+        /// <summary>
+        /// McpCommand
+        /// </summary> 
+        [Description("McpCommand")]
+        public String? McpCommand { get; set; } = "";
+        /// <summary>
+        /// McpArguments
+        /// </summary> 
+        [Description("McpArguments ,分隔")]
+        public String? McpArguments { get; set; } = "";
+
+        /// <summary>
+        /// McpEnvironment
+        /// </summary> 
+        [Description("McpEnvironment 键值对Json格式")]
+        public String? McpEnvironment { get; set; } = "";
+
+
 
     }
 }

@@ -13,6 +13,12 @@ namespace kevin.Domain.Interfaces.IServices.AI
         Task<List<AISkillToolManagementDto>> GetAllSkills();
 
         /// <summary>
+        /// 获取所有mcp接口
+        /// </summary>
+        /// <returns></returns>
+        Task<List<AISkillToolManagementDto>> GetAllMcps();
+
+        /// <summary>
         /// 根据Id获取Skill技能
         /// </summary>
         /// <param name="id"></param>
@@ -47,6 +53,8 @@ namespace kevin.Domain.Interfaces.IServices.AI
         Task<List<AISkillToolManagementDto>> GetNotDataPerAllSkills();
 
         Task<List<AISkillToolManagementDto>> GetNotDataPerAllTools();
+
+        Task<List<AISkillToolManagementDto>> GetNotDataPerAllMcps();
 
     }
 }

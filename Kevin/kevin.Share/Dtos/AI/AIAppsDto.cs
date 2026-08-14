@@ -121,9 +121,20 @@ namespace kevin.Domain.Share.Dtos.AI
         public bool IsAITools { get; set; } = true;
 
         /// <summary>
+        /// 是否开启aiMcp工具
+        /// </summary>
+        [Description("是否开启aiMcp工具")]
+        public bool IsMcp { get; set; } = true;
+
+        /// <summary>
         /// 工具绑定列表
         /// </summary>
         public List<AIAppsBindSkillToolsDto> Tools { get; set; } = new List<AIAppsBindSkillToolsDto>();
+
+        /// <summary>
+        /// Mcp绑定列表
+        /// </summary>
+        public List<AIAppsBindSkillToolsDto> Mcps { get; set; } = new List<AIAppsBindSkillToolsDto>();
 
         /// <summary>
         /// 是否开启Skill技能，开启后可以使用Skill技能

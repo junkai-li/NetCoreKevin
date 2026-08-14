@@ -85,6 +85,15 @@ namespace Kevin.Web.Basics.Controllers.AI
             return result;
         }
 
+        [HttpGet("GetAllMcps")]
+        [ActionDescription("获取AIMcp工具列表")]
+        [HttpLog("AI应用管理", "获取AIMcp工具列表")]
+        public async Task<List<AISkillToolManagementDto>> GetAllMcps()
+        {
+            var result = await _service.GetAllMcps();
+            return result;
+        }
+
         /// <summary>
         /// 删除AI技能工具
         /// </summary>

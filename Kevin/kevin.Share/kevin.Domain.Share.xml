@@ -99,9 +99,19 @@
             是否开启ai工具，开启后可以使用AI工具类技能，关闭后只能使用普通技能
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.IsMcp">
+            <summary>
+            是否开启aiMcp工具
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.Tools">
             <summary>
             工具绑定列表
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.Mcps">
+            <summary>
+            Mcp绑定列表
             </summary>
         </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.IsSkill">
@@ -473,6 +483,36 @@
             方法 Tools 
             </summary> 
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.McpUrl">
+            <summary>
+            Mcp地址
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.McpType">
+            <summary>
+            McpType https,sse,stdio
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.McpHeaders">
+            <summary>
+            McpHeaders
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.McpCommand">
+            <summary>
+            McpCommand
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.McpArguments">
+            <summary>
+            McpArguments
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.McpEnvironment">
+            <summary>
+            McpEnvironment
+            </summary> 
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.Description">
             <summary>
             描述
@@ -496,6 +536,11 @@
         <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.SkillFile">
             <summary>
             skill工具关联的文件信息
+            </summary>
+        </member>
+        <member name="M:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.Check">
+            <summary>
+            检验
             </summary>
         </member>
         <member name="T:kevin.Domain.Share.Dtos.Bases.CD_Dto">
