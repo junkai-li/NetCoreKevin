@@ -39,6 +39,8 @@ using Microsoft.Extensions.FileProviders;
 using Repository.Database;
 using System.Text.Encodings.Web;
 using Web.Filters;
+using Kevin.Asr;
+using Kevin.Asr.AliCloud.Models;
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -200,6 +202,18 @@ namespace Web.Extension
                 options.AccountName = settings.AccountName;
                 options.AccountPassword = settings.AccountPassword;
                 options.Port = settings.Port;
+            });
+
+            #endregion
+
+            #region Asr
+
+            services.AddAliCloudAsrService(options =>
+            {
+                var settings = Configuration.GetRequiredSection("AliyunAsr").Get<AliAsrSetting>()!;
+                options.AccessKeyId = settings.AccessKeyId;
+                options.AccessKeySecret = settings.AccessKeySecret;
+                options.AsrAppKey = settings.AsrAppKey; 
             });
 
             #endregion
