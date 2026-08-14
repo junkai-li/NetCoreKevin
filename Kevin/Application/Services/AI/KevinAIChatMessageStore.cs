@@ -22,7 +22,7 @@ namespace kevin.Application.Services.AI
             var adddata = chatHistoryItems.Select(t => new TAIChatMessageStore
             {
                 Id = SnowflakeIdService.GetNextId(),
-                CreateTime = DateTime.Now, 
+                CreateTime = DateTime.Now,
                 IsDelete = false,
                 TenantId = CurrentUser.TenantId,
                 ThreadId = t.ThreadId ?? "",
@@ -35,7 +35,7 @@ namespace kevin.Application.Services.AI
             }).ToList();
 
             aIChatMessageStoreRp.AddRange(adddata);
-            await aIChatMessageStoreRp.SaveChangesAsync();
+            await aIChatMessageStoreRp.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<List<ChatHistoryItemDto>> GetMessagesAsync(string threadId, CancellationToken cancellationToken, int maxUserTurns = 0)
@@ -51,8 +51,8 @@ namespace kevin.Application.Services.AI
                     MessageText = t.MessageText,
                     Role = t.Role,
                     MessageId = t.MessageId,
-                    CreateTime=t.CreateTime
-                }).ToListAsync();
+                    CreateTime = t.CreateTime
+                }).ToListAsync(cancellationToken);
             }
             else
             {
@@ -66,7 +66,7 @@ namespace kevin.Application.Services.AI
                     Role = t.Role,
                     MessageId = t.MessageId,
                     CreateTime = t.CreateTime
-                }).OrderByDescending(t => t.Timestamp).ToListAsync();
+                }).OrderByDescending(t => t.Timestamp).ToListAsync(cancellationToken);
                 var reslutData = new List<ChatHistoryItemDto>();
                 int userTurns = 0;
                 foreach (var item in data)
