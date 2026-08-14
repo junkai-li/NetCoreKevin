@@ -1143,7 +1143,25 @@ const startPhoneAutoListen = () => {
         interimText = result[0].transcript;
       }
     }
-    updatePreviewText(finalText + interimText);
+    const fullText = finalText + interimText;
+    updatePreviewText(fullText);
+
+    // 检测到句末标点（。！？.!?）的 final 结果时立即发送，不等静默超时
+    const lastResult = event.results[event.results.length - 1];
+    if (lastResult && lastResult.isFinal && /[。！？.!?]$/.test(lastResult[0].transcript)) {
+      // 立即刷新 buffer，确保 recognizedPreviewText 是最新的
+      if (previewTextRafId) {
+        cancelAnimationFrame(previewTextRafId);
+        previewTextRafId = null;
+      }
+      flushPreviewText();
+      // 防重复：避免在通话中、TTS 播放中、已发送等状态下重复触发
+      if (!isPhoneMode.value || isSpeaking.value || window.speechSynthesis.speaking || isSending.value) return;
+      const text = recognizedPreviewText.value.trim();
+      if (text) {
+        sendPhoneMessage();
+      }
+    }
   };
 
   rec.onerror = (event) => {
