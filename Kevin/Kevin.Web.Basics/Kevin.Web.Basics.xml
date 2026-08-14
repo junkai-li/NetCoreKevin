@@ -254,6 +254,16 @@
              </summary> 
              <returns></returns>
         </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AliAsrController">
+            <summary>
+            Asr语音识别
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AliAsrController.GetToken">
+            <summary>
+            获取阿里云 NLS 实时语音识别临时 Token
+            </summary>
+        </member>
         <member name="T:Kevin.Web.Basics.Controllers.AuthorizeController">
             <summary>
             系统访问授权模块
