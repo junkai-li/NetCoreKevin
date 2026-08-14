@@ -337,10 +337,8 @@ namespace kevin.Application.Services.AI
         {
             var aiTools = new List<AITool>();
             var agentBindIds = (await _iAISkillToolBindIdService.GetListById(agentId)).Select(t => t.AISkillToolManagementId).ToList();
-            var tools = (await _iAISkillToolManagementService.GetNotDataPerAllTools()).Where(t => agentBindIds.Contains(t.Id)).ToList();
-            var mcps = (await _iAISkillToolManagementService.GetNotDataPerAllMcps()).Where(t => agentBindIds.Contains(t.Id)).ToList();
-            aiTools.AddRange(await GetAITools(data, tools.Select(t => t.ClassMethod ?? "").ToList()));
-            aiTools.AddRange(await GetMcpTools(data, mcps));
+            var tools = (await _iAISkillToolManagementService.GetNotDataPerAllTools()).Where(t => agentBindIds.Contains(t.Id)).ToList(); 
+            aiTools.AddRange(await GetAITools(data, tools.Select(t => t.ClassMethod ?? "").ToList())); 
             return aiTools;
         }
 
@@ -363,6 +361,20 @@ namespace kevin.Application.Services.AI
         public async Task<List<AITool>> GetUserAIAgentToolsAsync(object data, string agentId, string userId)
         {
             return await GetAIAgentToolsAsync(data, agentId);
+        }
+
+        public async Task<List<AITool>> GetAIAgentMcpToolsAsync(object data, string agentId)
+        {
+            var aiTools = new List<AITool>();
+            var agentBindIds = (await _iAISkillToolBindIdService.GetListById(agentId)).Select(t => t.AISkillToolManagementId).ToList(); 
+            var mcps = (await _iAISkillToolManagementService.GetNotDataPerAllMcps()).Where(t => agentBindIds.Contains(t.Id)).ToList(); 
+            aiTools.AddRange(await GetMcpTools(data, mcps));
+            return aiTools;
+        }
+
+        public async Task<List<AITool>> GetUserAIAgentMcpToolsAsync(object data, string agentId, string userId)
+        {
+            return await GetAIAgentMcpToolsAsync(data, agentId);
         }
     }
 }

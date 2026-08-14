@@ -52,5 +52,14 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="data">用于传递数据</param>
         /// <returns></returns>
         Task<List<string>> GetAllAIAgentSkillsAsync(object data);
+
+        /// <summary>
+        /// 获取智能体的MCP工具
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="agentId"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        Task<List<AITool>> GetUserAIAgentMcpToolsAsync(object data, string agentId, string userId);
     }
 }

@@ -319,7 +319,7 @@ namespace kevin.Application.Services.AI
         /// <param name="aiapp"></param>
         /// <param name="systemPrompt"></param>
         /// <returns></returns>
-        public    ChatOptions GetAppChatOptions(AIAppsDto aiapp, string systemPrompt)
+        public ChatOptions GetAppChatOptions(AIAppsDto aiapp, string systemPrompt)
         {
             ReasoningOptions? reasoning = default;
             if (aiapp.ReasoningEffort >= 0 || aiapp.ReasoningOutput >= 0)
@@ -356,7 +356,7 @@ namespace kevin.Application.Services.AI
                 Temperature = (float)(aiapp.Temperature / 100),
                 Instructions = systemPrompt,
                 Reasoning = reasoning,
-                ResponseFormat= responseFormat
+                ResponseFormat = responseFormat
             };
         }
         /// <summary>
@@ -381,7 +381,7 @@ namespace kevin.Application.Services.AI
             {
                 Name = aiapp.Name,
                 Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
-                ChatOptions =  GetAppChatOptions(aiapp, systemPrompt),
+                ChatOptions = GetAppChatOptions(aiapp, systemPrompt),
                 ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0)
             };
             #region AI配置
@@ -412,6 +412,14 @@ namespace kevin.Application.Services.AI
                         }
       ));
                     }
+                }
+            }
+            if (aiapp.IsMcp)
+            {
+                if (chatAgOs.ChatOptions != default)
+                {
+                    chatAgOs.ChatOptions.Tools ??= new List<AITool>();
+                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(parAi, aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
                 }
             }
             if (aiapp.IsSkill)
@@ -484,6 +492,14 @@ namespace kevin.Application.Services.AI
                             }
                         }
                     }
+                }
+            }
+            if (aiapp.IsMcp)
+            {
+                if (chatAgOs.ChatOptions != default)
+                {
+                    chatAgOs.ChatOptions.Tools ??= new List<AITool>();
+                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(parAi, aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
                 }
             }
             if (aiapp.IsSkill)
