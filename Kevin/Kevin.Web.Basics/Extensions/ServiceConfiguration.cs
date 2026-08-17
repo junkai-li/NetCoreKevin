@@ -45,7 +45,7 @@ namespace Web.Extension
 {
     public static class ServiceConfiguration
     {
-        public static IServiceCollection ConfigServies(this IServiceCollection services, IConfiguration Configuration)
+        public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration Configuration)
         {
             Console.InputEncoding = System.Text.Encoding.UTF8;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -103,19 +103,17 @@ namespace Web.Extension
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             #endregion
 
-            services.AddControllers();
-
-            services.AddControllers().AddJsonOptions(option =>
-            {
-                option.JsonSerializerOptions.Converters.Add(new Common.Json.DateTimeConverter());
-                option.JsonSerializerOptions.Converters.Add(new Common.Json.DateTimeNullConverter());
-                option.JsonSerializerOptions.Converters.Add(new Common.Json.LongConverter());
-                option.JsonSerializerOptions.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;// 或者使用其他适当的编码器
-                option.JsonSerializerOptions.WriteIndented = true; // 可选，美化输出 
-                option.JsonSerializerOptions.MaxDepth = 128; // 可选，设置最大深度
-            });
-
-            services.AddControllers().AddControllersAsServices(); //控制器当做实例创建 
+            services.AddControllers()
+                .AddJsonOptions(option =>
+                {
+                    option.JsonSerializerOptions.Converters.Add(new Common.Json.DateTimeConverter());
+                    option.JsonSerializerOptions.Converters.Add(new Common.Json.DateTimeNullConverter());
+                    option.JsonSerializerOptions.Converters.Add(new Common.Json.LongConverter());
+                    option.JsonSerializerOptions.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;// 或者使用其他适当的编码器
+                    option.JsonSerializerOptions.WriteIndented = true; // 可选，美化输出 
+                    option.JsonSerializerOptions.MaxDepth = 128; // 可选，设置最大深度
+                })
+                .AddControllersAsServices(); //控制器当做实例创建 
             services.AddKevinApiVersioning(); //api版本
 
             #region 缓存服务模式

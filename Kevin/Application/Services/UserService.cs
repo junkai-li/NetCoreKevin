@@ -650,35 +650,27 @@ namespace kevin.Application
         /// <returns></returns> 
         public bool EditUserRole(dtoRole role)
         {
-            try
+            var data = roleRp.Query().Where(x => x.Id == role.Id && x.IsDelete == false).FirstOrDefault();
+            var tokenuser = userRp.Query().Where(x => x.IsDelete == false && x.Id == CurrentUser.UserId).FirstOrDefault();
+            if (data != null)
             {
-                var data = roleRp.Query().Where(x => x.Id == role.Id && x.IsDelete == false).FirstOrDefault();
-                var tokenuser = userRp.Query().Where(x => x.IsDelete == false && x.Id == CurrentUser.UserId).FirstOrDefault();
-                if (data != null)
-                {
-                    TRole olddata = new();
-                    //编辑
-                    data.Name = role.Name;
-                    data.Remarks = role.Remarks;
-                }
-                else
-                {
-                    data = new TRole();
-                    data.Id = role.Id == default ? SnowflakeIdService.GetNextId() : role.Id;
-                    data.Name = role.Name;
-                    data.Remarks = role.Remarks;
-                    data.IsDelete = false;
-                    data.CreateTime = DateTime.Now;
-                    roleRp.Add(data);
-                }
-                roleRp.SaveChanges();
-                return true;
+                TRole olddata = new();
+                //编辑
+                data.Name = role.Name;
+                data.Remarks = role.Remarks;
             }
-            catch (Exception)
+            else
             {
-
-                return false;
+                data = new TRole();
+                data.Id = role.Id == default ? SnowflakeIdService.GetNextId() : role.Id;
+                data.Name = role.Name;
+                data.Remarks = role.Remarks;
+                data.IsDelete = false;
+                data.CreateTime = DateTime.Now;
+                roleRp.Add(data);
             }
+            roleRp.SaveChanges();
+            return true;
         }
 
 
@@ -690,28 +682,20 @@ namespace kevin.Application
         /// <returns></returns> 
         public bool DeleteUserRole(long Id)
         {
-            try
+            var users = userBindRoleRp.Query().Where(x => x.RoleId == Id && x.IsDelete == false).ToList();
+            if (users.Count > 0)
             {
-                var users = userBindRoleRp.Query().Where(x => x.RoleId == Id && x.IsDelete == false).ToList();
-                if (users.Count > 0)
-                {
-                    throw new UserFriendlyException("当前角色含有 未失效用户删除失败");
-                }
-                var data = roleRp.Query().Where(x => x.Id == Id && x.IsDelete == false).FirstOrDefault();
-                if (data != default)
-                {
-                    //删除
-                    data.IsDelete = true;
-                    data.DeleteTime = DateTime.Now;
-                    roleRp.SaveChanges();
-                }
-                return true;
+                throw new UserFriendlyException("当前角色含有 未失效用户删除失败");
             }
-            catch (Exception)
+            var data = roleRp.Query().Where(x => x.Id == Id && x.IsDelete == false).FirstOrDefault();
+            if (data != default)
             {
-
-                return false;
+                //删除
+                data.IsDelete = true;
+                data.DeleteTime = DateTime.Now;
+                roleRp.SaveChanges();
             }
+            return true;
         }
         /// <summary>
         /// 获取可用户角色的键值对列表信息

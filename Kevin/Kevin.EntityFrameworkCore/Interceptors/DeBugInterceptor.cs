@@ -9,10 +9,6 @@ namespace Repository.Interceptors
 
         public override InterceptionResult<DbDataReader> ReaderExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result)
         {
-
-            //执行的Sql
-            _ = command.CommandText;
-
             return result;
         }
 
@@ -28,7 +24,8 @@ namespace Repository.Interceptors
             //如果执行时间超过 5秒 则记录日志
             if (runtime > 5)
             {
-
+                System.Diagnostics.Debug.WriteLine($"[慢查询警告] 执行耗时 {runtime:F2}秒, SQL: {command.CommandText}");
+                Console.WriteLine($"[慢查询警告] 执行耗时 {runtime:F2}秒, SQL: {command.CommandText}");
             }
 
             return result;

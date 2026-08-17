@@ -28,36 +28,55 @@ namespace Web.Filters
         /// 是否使用 Body
         /// </summary>
         public bool UseBody { get; set; } = true;
+
+        /// <summary>
+        /// 存储在 HttpContext.Items 中的缓存键名称
+        /// </summary>
+        private const string CacheKeyItemName = "__CacheDataFilter_Key";
+
+        /// <summary>
+        /// 计算缓存键并存储到 HttpContext.Items 中，避免重复计算
+        /// </summary>
+        private string ComputeCacheKey(ActionContext context)
+        {
+            var httpContext = context.HttpContext;
+            // 如果已经计算过，直接返回
+            if (httpContext.Items.TryGetValue(CacheKeyItemName, out var existingKey) && existingKey is string cachedKey)
+            {
+                return cachedKey;
+            }
+
+            var body = "";
+            try
+            {
+                if (UseBody && httpContext.Request.Body.CanSeek)
+                {
+                    httpContext.Request.Body.Position = 0;
+                    using (var requestReader = new StreamReader(httpContext.Request.Body, encoding: Encoding.UTF8, leaveOpen: true))
+                    {
+                        body = requestReader.ReadToEnd();
+                    }
+                    httpContext.Request.Body.Position = 0;
+                }
+            }
+            catch
+            {
+            }
+
+            string key = context.ActionDescriptor.DisplayName + "_" + httpContext.Request.QueryString + "_" + body + "_"
+                    + (UseToken ? httpContext.Request.Headers.Where(t => t.Key == "Authorization").Select(t => t.Value).FirstOrDefault() : "");
+            key = "CacheData_" + Common.CryptoHelper.GetMd5(key);
+
+            // 存储到 HttpContext.Items 中供后续使用
+            httpContext.Items[CacheKeyItemName] = key;
+            return key;
+        }
+
         void IActionFilter.OnActionExecuting(ActionExecutingContext context)
         {
             try
             {
-                var body = "";
-                try
-                {
-                    if (UseBody)
-                    {
-                        using (Stream requestBody = new MemoryStream())
-                        {
-                            if (context.HttpContext.Request.Body.Length > 0)
-                            {
-                                context.HttpContext.Request.Body.CopyTo(requestBody);
-                                context.HttpContext.Request.Body.Position = 0;
-                                requestBody.Position = 0;
-                                using (var requestReader = new StreamReader(requestBody, encoding: Encoding.UTF8))
-                                {
-                                    body = requestReader.ReadToEnd();
-                                }
-                            }
-                        }
-                    } 
-                }
-                catch
-                { 
-                } 
-                string key = context.ActionDescriptor.DisplayName + "_" + context.HttpContext.Request.QueryString + "_"+ body + "_" 
-                        + (UseToken ? context.HttpContext.Request.Headers.Where(t => t.Key == "Authorization").Select(t => t.Value).FirstOrDefault() : "");
-                key = "CacheData_" + Common.CryptoHelper.GetMd5(key);
+                string key = ComputeCacheKey(context);
 
                 var cacheInfo = context.HttpContext.RequestServices.GetService<ICacheService>()?.GetString(key);
                 if (!string.IsNullOrEmpty(cacheInfo))
@@ -81,32 +100,7 @@ namespace Web.Filters
         {
             try
             {
-                var body = "";
-                try
-                {
-                    if (UseBody)
-                    {
-                        using (Stream requestBody = new MemoryStream())
-                        {
-                            if (context.HttpContext.Request.Body.Length > 0)
-                            {
-                                context.HttpContext.Request.Body.CopyTo(requestBody);
-                                context.HttpContext.Request.Body.Position = 0;
-                                requestBody.Position = 0;
-                                using (var requestReader = new StreamReader(requestBody, encoding: Encoding.UTF8))
-                                {
-                                    body = requestReader.ReadToEnd();
-                                }
-                            }
-                        }
-                    }
-                }
-                catch
-                {
-                }
-                string key = context.ActionDescriptor.DisplayName + "_" + context.HttpContext.Request.QueryString + "_" + body + "_"
-                       + (UseToken ? context.HttpContext.Request.Headers.Where(t => t.Key == "Authorization").Select(t => t.Value).FirstOrDefault() : "");
-                key = "CacheData_" + Common.CryptoHelper.GetMd5(key);
+                string key = ComputeCacheKey(context);
                 var data = context.HttpContext.RequestServices.GetService<ICacheService>()?.GetString(key);
                 if (string.IsNullOrWhiteSpace(data))
                 {

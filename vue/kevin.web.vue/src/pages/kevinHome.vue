@@ -515,8 +515,8 @@ const userPermissions = ref([]);
 // 权限检查函数
 const hasPermission = (permission) => {
   if (!permission) return true;
-  // 如果没有权限数据（本地存储为空或无效），默认显示所有菜单
-  if (!userPermissions.value || userPermissions.value.length === 0) return true;
+  // 安全默认：没有权限数据时不显示任何菜单，需要重新登录获取权限
+  if (!userPermissions.value || userPermissions.value.length === 0) return false;
   return userPermissions.value.includes(permission);
 };
 
@@ -610,80 +610,8 @@ const handleMenuClick = ({ key }) => {
   // 打开标签页
   openTab(key, title);
 
-  // 根据key跳转到对应路由
-  switch (key) {
-    case "user-list":
-      router.push("/home/user/list");
-      break;
-    case "user-role":
-      router.push("/home/user/role");
-      break;
-    case "user-permission":
-      router.push("/home/user/permission");
-      break;
-    case "system-dic":
-      router.push("/home/system/dic");
-      break;
-    case "system-announcement":
-      router.push("/home/system/announcement");
-      break;
-    case "my-message":
-      router.push("/home/my/message");
-      break;
-    case "my-ai-chat":
-      router.push("/home/my/ai-chat");
-      break;
-    case "my-ai-tasks":
-      router.push("/home/my/ai-tasks");
-      break;
-    case "my-ai-agents":
-      router.push("/home/my/ai-agents");
-      break;
-    case "log-management":
-      router.push("/home/system/log");
-      break;
-    case "oslog":
-      router.push("/home/system/oslog");
-      break;
-    case "aimanagement":
-      router.push("/home/aimanagement");
-      break;
-    case "ai-appsmg":
-      router.push("/home/aimanagement/aiappsmg");
-      break;
-    case "ai-promptsmg":
-      router.push("/home/aimanagement/aipromptsmg");
-      break;
-    case "ai-kmssmg":
-      router.push("/home/aimanagement/aikmssmg"); // 添加知识库管理路由
-      break;
-    case "ai-modelmg":
-      router.push("/home/aimanagement/aimodelmg");
-      break;
-    case "ai-skilltoolmg":
-      router.push("/home/aimanagement/aiskilltoolmg");
-      break;
-    case "organizational-position":
-      router.push("/home/position/management");
-      break;
-    case "organizational-department":
-      router.push("/home/department/management");
-      break;
-      case "system-tenant":
-      router.push("/home/system/tenant");
-      break;
-    case "system-code-generator":
-      router.push("/home/system/code-generator");
-      break;
-    case "dashboard":
-      router.push("/home");
-      break;
-    case "handleUserInfo":
-      router.push("/home/user/profile");
-      break;
-    default:
-      router.push("/home");
-  }
+  // 根据key跳转到对应路由（复用 getRoutePath 避免重复代码）
+  router.push(getRoutePath(key));
 };
 
 // 退出登录
@@ -733,12 +661,13 @@ onMounted(() => {
         userPermissions.value = permissions;   
       }
     } catch {
-      // 如果本地存储的权限数据无效，使用模拟数据
-      userPermissions.value = getAllPermissions();
+      // 权限数据解析失败，清空权限（安全默认：不显示菜单，需重新登录）
+      console.warn('权限数据解析失败，请重新登录');
+      userPermissions.value = [];
     }
   } else {
-    // 模拟权限数据（开发阶段使用）
-    userPermissions.value = getAllPermissions();
+    // 没有权限数据，清空权限（安全默认：不显示菜单，需重新登录）
+    userPermissions.value = [];
   }
 
   fetchNoReadCount();
@@ -746,18 +675,6 @@ onMounted(() => {
   document.addEventListener('fullscreenchange', () => {
     isFullScreen.value = !!document.fullscreenElement;
   });
-});
-
-// 获取所有权限（用于默认显示全部菜单）
-const getAllPermissions = () => {
-  return [
-    'Menu/Home','Menu/Home/Index',
-    'Menu/MyMenu', 'Menu/MyMenu/MyMessage', 'Menu/MyMenu/MyAiChat', 'Menu/MyMenu/MyAiTasks', 'Menu/MyMenu/MyAiAgents',
-    'Menu/AIManagement', 'Menu/AIManagement/AIAppsManagement', 'Menu/AIManagement/AIPromptsManagement', 'Menu/AIManagement/AIKmssManagement', 'Menu/AIManagement/AIModelManagement', 'Menu/AIManagement/AISkillToolManagement',
-    'Menu/OrganizationalManagement', 'Menu/OrganizationalManagement/PositionManagement', 'Menu/OrganizationalManagement/DepartmentManagement',
-    'Menu/UserManagement', 'Menu/UserManagement/UserList', 'Menu/UserManagement/UserRole', 'Menu/UserManagement/UserPermission',
-    'Menu/SystemSettings', 'Menu/SystemSettings/SystemAnnouncement', 'Menu/SystemSettings/SystemDic', 'Menu/SystemSettings/SystemTenant', 'Menu/SystemSettings/SystemCodeGenerator', 'Menu/SystemSettings/LogManagement', 'Menu/SystemSettings/OsLog'
-  ];
-};
+}); 
 </script>
 

@@ -16,10 +16,11 @@ namespace kevin.Application.Services
         public ICacheService _CacheService { get; set; }
         public IConfiguration Configuration { get; set; }
         public IDistributedLockProvider distLock { get; set; }
+        private readonly KevinDbContext _db;
 
         public ITokenService _TokenService { get; set; }
         public ISMS _ISMS { get; set; }
-        public AuthorizeService(IHttpContextAccessor _httpContextAccessor, IUserService IUserService, ICacheService ICacheService, IConfiguration IConfiguration, IDistributedLockProvider IDistributedLockProvider, ISMS ISMS, ITokenService tokenService) : base(_httpContextAccessor)
+        public AuthorizeService(IHttpContextAccessor _httpContextAccessor, IUserService IUserService, ICacheService ICacheService, IConfiguration IConfiguration, IDistributedLockProvider IDistributedLockProvider, ISMS ISMS, ITokenService tokenService, KevinDbContext dbContext) : base(_httpContextAccessor)
         {
             this._IUserService = IUserService;
             this._CacheService = ICacheService;
@@ -27,6 +28,7 @@ namespace kevin.Application.Services
             this.distLock = IDistributedLockProvider;
             this._ISMS = ISMS;
             this._TokenService = tokenService;
+            this._db = dbContext;
         }
 
         ///// <summary>
@@ -64,8 +66,7 @@ namespace kevin.Application.Services
         /// </summary>
         private void ValidateTenant(Int32 tenantId)
         {
-            using KevinDbContext db = new KevinDbContext();
-            var TTenant = db.Set<TTenant>().FirstOrDefault(t => t.Code == tenantId);
+            var TTenant = _db.Set<TTenant>().FirstOrDefault(t => t.Code == tenantId);
             if (TTenant == null)
             {
                 throw new UserFriendlyException("租户不存在");
@@ -84,8 +85,7 @@ namespace kevin.Application.Services
             if (Web.Auth.AuthorizeAction.SmsVerifyPhone(keyValue))
             {
                 string phone = keyValue.Key.ToString() ?? "";
-                using KevinDbContext db = new KevinDbContext();
-                var user = db.Set<TUser>().Where(t => t.IsDelete == false && (t.Name == phone || t.Phone == phone) && t.IsSystem == false).FirstOrDefault();
+                var user = _db.Set<TUser>().Where(t => t.IsDelete == false && (t.Name == phone || t.Phone == phone) && t.IsSystem == false).FirstOrDefault();
 
                 if (user == null)
                 {
@@ -98,8 +98,8 @@ namespace kevin.Application.Services
                     user.NickName = user.Name;
                     user.IsSystem = false;
                     user.ChangePassword(phone);
-                    db.Set<TUser>().Add(user);
-                    db.SaveChanges();
+                    _db.Set<TUser>().Add(user);
+                    _db.SaveChanges();
                 }
                 // 直接通过passwordHash登录，避免对已哈希密码再次哈希
                 var loggedInUser = _IUserService.LoginUser(user.Name ?? "", "", user.TenantId, user.PasswordHash ?? "");

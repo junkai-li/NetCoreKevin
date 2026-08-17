@@ -47,17 +47,17 @@ namespace Kevin.Web.Basics.Controllers
         public List<dtoKeyValue> GetRegion(int provinceId, int cityId)
         {
             var list = new List<dtoKeyValue>();
-            if (provinceId == 0 && cityId == 0)
-            {
-                list = db.Set<TRegionProvince>().Select(t => new dtoKeyValue { Key = t.Id, Value = t.Province }).ToList();
-            }
-            if (provinceId != 0)
-            {
-                list = db.Set<TRegionCity>().Where(t => t.ProvinceId == provinceId).Select(t => new dtoKeyValue { Key = t.Id, Value = t.City }).ToList();
-            }
             if (cityId != 0)
             {
                 list = db.Set<TRegionArea>().Where(t => t.CityId == cityId).Select(t => new dtoKeyValue { Key = t.Id, Value = t.Area }).ToList();
+            }
+            else if (provinceId != 0)
+            {
+                list = db.Set<TRegionCity>().Where(t => t.ProvinceId == provinceId).Select(t => new dtoKeyValue { Key = t.Id, Value = t.City }).ToList();
+            }
+            else
+            {
+                list = db.Set<TRegionProvince>().Select(t => new dtoKeyValue { Key = t.Id, Value = t.Province }).ToList();
             }
             return list;
         }
@@ -69,6 +69,7 @@ namespace Kevin.Web.Basics.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("GetRegionAll")]
+        [global::Web.Filters.CacheDataFilter<List<dtoKeyValueChild>>(TTL = 3600, UseBody = false, UseToken = false)]
         public List<dtoKeyValueChild> GetRegionAll()
         {
 

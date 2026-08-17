@@ -826,9 +826,24 @@
             是否使用 Body
             </summary>
         </member>
+        <member name="F:Web.Filters.CacheDataFilter`1.CacheKeyItemName">
+            <summary>
+            存储在 HttpContext.Items 中的缓存键名称
+            </summary>
+        </member>
+        <member name="M:Web.Filters.CacheDataFilter`1.ComputeCacheKey(Microsoft.AspNetCore.Mvc.ActionContext)">
+            <summary>
+            计算缓存键并存储到 HttpContext.Items 中，避免重复计算
+            </summary>
+        </member>
         <member name="T:Web.Filters.PublicPortAuthorizeFilters">
             <summary>
             对外接口 密钥验证
+            </summary>
+        </member>
+        <member name="M:Web.Filters.PublicPortAuthorizeFilters.FixedTimeEquals(System.String,System.String)">
+            <summary>
+            时序安全的字符串比较，防止时序攻击
             </summary>
         </member>
         <member name="T:Web.Filters.QueueLimitFilter">
@@ -851,11 +866,17 @@
             全局过滤器
             </summary>
         </member>
-        <member name="M:Web.Filters.ResultFilter.resultFormatting(Microsoft.AspNetCore.Mvc.ObjectResult)">
+        <member name="F:Web.Filters.ResultFilter.MaxRecursionDepth">
+            <summary>
+            递归处理的最大深度，防止深层嵌套导致性能问题或栈溢出
+            </summary>
+        </member>
+        <member name="M:Web.Filters.ResultFilter.resultFormatting(Microsoft.AspNetCore.Mvc.ObjectResult,System.Int32)">
             <summary>
             返回对象格式化方法
             </summary>
             <param name="result"></param>
+            <param name="depth">当前递归深度</param>
             <remarks>处理 string null 为 "" ，List null 为 []</remarks>
         </member>
         <member name="T:Web.Filters.SignVerifyFilter">

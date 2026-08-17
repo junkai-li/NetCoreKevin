@@ -42,7 +42,7 @@ namespace WebApi
 
                 //builder.Services.AddKevinRedisCap(builder.Configuration.GetConnectionString("redisConnection"), builder.Configuration.GetConnectionString("dbConnection")); cap
                 Path._hostingEnvironment = builder.Environment;
-                builder.Services.ConfigServies(builder.Configuration);
+                builder.Services.ConfigureServices(builder.Configuration);
 
 
                 builder.Services.AddKevinHttpApiClients();
@@ -76,8 +76,8 @@ namespace WebApi
                     app.UseExceptionHandler(builder => builder.Run(async context => await GlobalError.ErrorEvent(context)));
                 }
 
-                //堆的硬限制设置为1G字节
-                AppContext.SetData("GCHeapHardLimit", (ulong)1024 * 1_024 * 1_024);
+                //堆的硬限制设置为2G字节（AI应用需要更多内存，从1G调整为2G）
+                AppContext.SetData("GCHeapHardLimit", (ulong)2048 * 1_024 * 1_024);
 
                 //kevin初始化
                 app.UseKevin(builder.Configuration);

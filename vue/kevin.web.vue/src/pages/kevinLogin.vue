@@ -259,11 +259,10 @@ const handlePasswordLogin = (values) => {
                    localStorage.setItem('UserPermissions',JSON.stringify(response.data)); 
                 }
             });
-             // 保存登录信息（如果选择了记住我）
+             // 保存登录信息（如果选择了记住我）—— 仅保存用户名和租户ID，不保存密码
             if (values.remember) {
               localStorage.setItem('savedLoginInfo', JSON.stringify({
                 username: values.username,
-                password: values.password,
                 tenantId: values.tenantId,
                 remember: values.remember
               }));
@@ -314,15 +313,14 @@ const handleSmsLogin = (values) => {
   }, 1500);
 };
 
-// 从本地存储加载保存的登录信息
+// 从本地存储加载保存的登录信息（仅回填用户名和租户ID，不回填密码）
 const loadSavedLoginInfo = () => {
   const savedInfo = localStorage.getItem('savedLoginInfo');
   if (savedInfo) {
     try {
       const info = JSON.parse(savedInfo);
-      if (info.username && info.password && info.tenantId) {
+      if (info.username && info.tenantId) {
         passwordForm.username = info.username;
-        passwordForm.password = info.password;
         passwordForm.tenantId = info.tenantId;
         passwordForm.remember = info.remember !== false;
         return;
@@ -332,7 +330,6 @@ const loadSavedLoginInfo = () => {
     }
   }else{ 
       passwordForm.username = 'admin';
-  passwordForm.password = '123456';
   passwordForm.tenantId = '1000';
   passwordForm.remember = true;
   } 

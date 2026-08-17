@@ -13,11 +13,17 @@ namespace Web.Filters
     public class ResultFilter : Attribute, IResultFilter
     {
         /// <summary>
+        /// 递归处理的最大深度，防止深层嵌套导致性能问题或栈溢出
+        /// </summary>
+        private const int MaxRecursionDepth = 128;
+
+        /// <summary>
         /// 返回对象格式化方法
         /// </summary>
         /// <param name="result"></param>
+        /// <param name="depth">当前递归深度</param>
         /// <remarks>处理 string null 为 "" ，List null 为 []</remarks>
-        void resultFormatting(ObjectResult result)
+        void resultFormatting(ObjectResult result, int depth = 0)
         {
 
             if (result != null)
@@ -49,6 +55,9 @@ namespace Web.Filters
                 }
                 else
                 {
+                    // 超过最大递归深度则停止处理，避免性能问题
+                    if (depth >= MaxRecursionDepth) return;
+
                     if (result.Value.GetType().Namespace != null && result.Value.GetType().Namespace.Contains("System") == false)
                     {
                         {
@@ -95,7 +104,7 @@ namespace Web.Filters
 
                                     //如果属性的值不是 null 且该属性不是 系统自带类型，则当作自定义类型进行递归操作值替换
 
-                                    resultFormatting(new ObjectResult(propertyValue));
+                                    resultFormatting(new ObjectResult(propertyValue), depth + 1);
 
                                 }
                             }
