@@ -10,20 +10,20 @@ namespace kevin.Domain.Interfaces.IServices
         /// </summary>
         /// <param name="userId">用户ID</param>
         /// <returns></returns>
-        dtoUser GetUser(long userId);
+        Task<dtoUser> GetUser(long userId);
 
         /// <summary>
         /// 获取用户信息
         /// </summary>
         /// <param name="userName"></param>
         /// <returns></returns>
-        dtoUser GetSysUserWhereUserName(string userName);
+        Task<dtoUser> GetSysUserWhereUserName(string userName);
 
         /// <summary>
         /// 获取当前登录用户信息
         /// </summary> 
         /// <returns></returns>
-        dtoUser GetCurrentUserInfo();
+        Task<dtoUser> GetCurrentUserInfo();
 
         /// <summary>
         /// 登录用户信息
@@ -85,7 +85,7 @@ namespace kevin.Domain.Interfaces.IServices
         /// </summary>
         /// <param name="Id">用户ID</param>
         /// <returns></returns> 
-        dtoUser GetSysUserWhereId(long Id);
+        Task<dtoUser> GetSysUserWhereId(long Id);
 
         /// <summary>
         /// 新增编辑用户信息 

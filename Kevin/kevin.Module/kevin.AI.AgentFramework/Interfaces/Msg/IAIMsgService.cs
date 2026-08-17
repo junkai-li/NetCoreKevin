@@ -16,7 +16,7 @@ namespace kevin.AI.AgentFramework.Interfaces.Msg
         /// <param name="msgContent"></param>
         /// <returns></returns>
         [Description("发送钉钉消息给自己， 用于把消息发送给自己的钉钉账户。以 ❌ 开头的错误信息。")]
-        public string SendDDToMyMsg([Description("消息内容")][Required] string msgContent);
+        public Task<string> SendDDToMyMsg([Description("消息内容")][Required] string msgContent);
 
         /// <summary>
         /// 发送钉钉消息给其他用户
@@ -24,6 +24,6 @@ namespace kevin.AI.AgentFramework.Interfaces.Msg
         /// <param name="msgContent"></param>
         /// <returns></returns>
         [Description("发送钉钉消息给其他用户， 用于把消息发送给指定的钉钉账户。以 ❌ 开头的错误信息。")]
-        public string SendDDToUserMsg([Description("消息内容")][Required] string msgContent, [Description("发送用户名称")][Required] string userName);
+        public Task<string> SendDDToUserMsg([Description("消息内容")][Required] string msgContent, [Description("发送用户名称")][Required] string userName);
     }
 }

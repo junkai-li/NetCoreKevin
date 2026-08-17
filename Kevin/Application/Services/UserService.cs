@@ -105,13 +105,13 @@ namespace kevin.Application
         /// </summary>
         /// <param name="userId">用户ID</param>
         /// <returns></returns>
-        public dtoUser GetUser(long userId)
+        public async Task<dtoUser> GetUser(long userId)
         {
             if (userId == default)
             {
                 userId = CurrentUser?.UserId ?? 0;
             }
-            return GetSysUserWhereId(userId);
+            return await GetSysUserWhereId(userId);
         }
 
         /// <summary>
@@ -119,9 +119,9 @@ namespace kevin.Application
         /// </summary>
         /// <param name="userId">用户ID</param>
         /// <returns></returns>
-        public dtoUser GetCurrentUserInfo()
+        public async Task<dtoUser> GetCurrentUserInfo()
         {
-            return GetSysUserWhereId(CurrentUser?.UserId ?? 0);
+            return await GetSysUserWhereId(CurrentUser?.UserId ?? 0);
         }
 
         /// <summary>
@@ -342,7 +342,7 @@ namespace kevin.Application
         /// </summary>
         /// <param name="Id">用户ID</param>
         /// <returns></returns> 
-        public dtoUser GetSysUserWhereId(long Id)
+        public async Task<dtoUser> GetSysUserWhereId(long Id)
         {
             var user = userRp.Query().Where(t => t.Id == Id && t.IsDelete == false).FirstOrDefault().MapTo<dtoUser>();
             if (user == default)
@@ -359,7 +359,8 @@ namespace kevin.Application
             {
                 if (user.dtoUserInfo != default)
                 {
-                    user.dtoUserInfo.DepartmentName = departmentService.GetALLList(userInfoData.Select(t => t.DepartmentId).ToList()).Result.FirstOrDefault()?.Name;
+                    var departments = await departmentService.GetALLList(userInfoData.Select(t => t.DepartmentId).ToList());
+                    user.dtoUserInfo.DepartmentName = departments.FirstOrDefault()?.Name;
                 }
             }
             return user ?? new dtoUser();
@@ -370,7 +371,7 @@ namespace kevin.Application
         /// </summary>
         /// <param name="userName">用户名</param>
         /// <returns></returns> 
-        public dtoUser GetSysUserWhereUserName(string userName)
+        public async Task<dtoUser> GetSysUserWhereUserName(string userName)
         {
             var user = userRp.Query().Where(t => t.Name == userName && t.IsDelete == false).FirstOrDefault().MapTo<dtoUser>();
             if (user == default)
@@ -387,7 +388,8 @@ namespace kevin.Application
             {
                 if (user.dtoUserInfo != default)
                 {
-                    user.dtoUserInfo.DepartmentName = departmentService.GetALLList(userInfoData.Select(t => t.DepartmentId).ToList()).Result.FirstOrDefault()?.Name;
+                    var departments = await departmentService.GetALLList(userInfoData.Select(t => t.DepartmentId).ToList());
+                    user.dtoUserInfo.DepartmentName = departments.FirstOrDefault()?.Name;
                 }
             }
             return user ?? default;

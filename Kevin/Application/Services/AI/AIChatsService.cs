@@ -141,7 +141,7 @@ namespace kevin.Application.Services.AI
             {
                 using var db = new KevinDbContext();
                 Name = StringHelper.SubstringText(Name, 200, "...");
-                LastMessage = StringHelper.SubstringText(Name, 300, "...");
+                LastMessage = StringHelper.SubstringText(LastMessage, 300, "...");
                 var ai = await db.Set<TAIChats>().Where(t => t.IsDelete == false && t.Id == Id).FirstOrDefaultAsync();
                 if (ai != null)
                 {

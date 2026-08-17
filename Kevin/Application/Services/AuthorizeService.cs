@@ -36,17 +36,16 @@ namespace kevin.Application.Services
         ///// <returns></returns> 
         public async Task<string> GetToken([FromBody] dtoLogin login)
         {
-            using KevinDbContext db = new KevinDbContext();
-            var TTenant = db.Set<TTenant>().FirstOrDefault(t => t.Code == login.TenantId);
-            if (TTenant == null)
-            {
-                throw new UserFriendlyException("租户不存在");
-            }
-            else
-            {
-                TTenant.IsInactiveCheck();
-            }
+            ValidateTenant(login.TenantId);
             var user = _IUserService.LoginUser(login.Name, login.PassWord, login.TenantId, login.PasswordHash ?? "");
+            return GenerateTokenForUser(user);
+        }
+
+        /// <summary>
+        /// 根据用户信息生成Token
+        /// </summary>
+        private string GenerateTokenForUser(kevin.Domain.Share.Dtos.User.dtoUser user)
+        {
             var accessToken = _TokenService.GenerateAccessToken(new Kevin.Authentication.Jwt.Dto.UserDto
             {
                 Id = user.Id.ToString(),
@@ -59,6 +58,20 @@ namespace kevin.Application.Services
             });
             return accessToken ?? "获取AccessToken失败";
         }
+
+        /// <summary>
+        /// 验证租户有效性
+        /// </summary>
+        private void ValidateTenant(Int32 tenantId)
+        {
+            using KevinDbContext db = new KevinDbContext();
+            var TTenant = db.Set<TTenant>().FirstOrDefault(t => t.Code == tenantId);
+            if (TTenant == null)
+            {
+                throw new UserFriendlyException("租户不存在");
+            }
+            TTenant.IsInactiveCheck();
+        }
         /// <summary>
         /// 利用手机号和短信验证码获取Token认证信息
         /// </summary>
@@ -68,10 +81,10 @@ namespace kevin.Application.Services
         [HttpLog("登录", "GetTokenBySms利用手机号和短信验证码获取Token认证信息")]
         public async Task<string> GetTokenBySms(dtoKeyValue keyValue)
         {
-            using KevinDbContext db = new KevinDbContext();
             if (Web.Auth.AuthorizeAction.SmsVerifyPhone(keyValue))
             {
                 string phone = keyValue.Key.ToString() ?? "";
+                using KevinDbContext db = new KevinDbContext();
                 var user = db.Set<TUser>().Where(t => t.IsDelete == false && (t.Name == phone || t.Phone == phone) && t.IsSystem == false).FirstOrDefault();
 
                 if (user == null)
@@ -88,11 +101,13 @@ namespace kevin.Application.Services
                     db.Set<TUser>().Add(user);
                     db.SaveChanges();
                 }
-                return await GetToken(new dtoLogin { Name = user.Name ?? "", PassWord = user.PasswordHash ?? "" });
+                // 直接通过passwordHash登录，避免对已哈希密码再次哈希
+                var loggedInUser = _IUserService.LoginUser(user.Name ?? "", "", user.TenantId, user.PasswordHash ?? "");
+                return GenerateTokenForUser(loggedInUser);
             }
             else
             {
-                throw new UserFriendlyException("Authorize.GetTokenBySms.'New password is not allowed to be empty");
+                throw new UserFriendlyException("Authorize.GetTokenBySms.'短信验证码校验失败");
             }
 
         }

@@ -1,0 +1,9 @@
+schema_version: 1
+module_path: tests
+title: 单元测试与集成测试套件
+scope:
+    - Test/
+source_files: []
+depends_on: []
+related_to:
+    - path: app_project

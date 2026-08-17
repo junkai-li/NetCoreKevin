@@ -20,7 +20,7 @@ namespace kevin.Application.Services.AI
             userService = _userService;
         }
 
-        public string SendDDToMyMsg([Description("消息内容")][Required] string msgContent)
+        public async Task<string> SendDDToMyMsg([Description("消息内容")][Required] string msgContent)
         {
             string correlationId = "";
             if (_data != default)
@@ -29,7 +29,7 @@ namespace kevin.Application.Services.AI
                 var userId = jsonDoc.RootElement.GetProperty("UserId").ToString();
                 if (!string.IsNullOrEmpty(userId))
                 {
-                    var userInfo = userService.GetSysUserWhereId(userId.ToTryInt64());
+                    var userInfo = await userService.GetSysUserWhereId(userId.ToTryInt64());
                     if (userInfo != default)
                     {
                         correlationId = userInfo.CorrelationId ?? "";
@@ -38,7 +38,7 @@ namespace kevin.Application.Services.AI
             }
             if (string.IsNullOrEmpty(correlationId))
             {
-                var userInfo = userService.GetCurrentUserInfo();
+                var userInfo = await userService.GetCurrentUserInfo();
                 if (string.IsNullOrEmpty(userInfo?.CorrelationId))
                 {
                     return userInfo?.Name + "未关联到用户钉钉Id";
@@ -52,9 +52,9 @@ namespace kevin.Application.Services.AI
             return new DingDingMsgHelper().RobotSendTextMessageToUsers("",new List<string> { correlationId }, $"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}】\n {msgContent}");
         }
 
-        public string SendDDToUserMsg([Description("消息内容")][Required] string msgContent, [Description("发送用户名称")][Required] string userName)
+        public async Task<string> SendDDToUserMsg([Description("消息内容")][Required] string msgContent, [Description("发送用户名称")][Required] string userName)
         {
-            var userInfo = userService.GetSysUserWhereUserName(userName);
+            var userInfo = await userService.GetSysUserWhereUserName(userName);
             if (userInfo == default)
             {
                 return "用户名称不存在";

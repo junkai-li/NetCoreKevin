@@ -116,7 +116,7 @@ namespace Kevin.Web.Basics.Controllers
         public List<dtoKeyValue> GetSelectValue(string key)
         {
 
-            var list = db.Set<TDictionary>().Where(t => t.IsDelete == false).OrderBy(t => t.Sort).Select(t => new dtoKeyValue
+            var list = db.Set<TDictionary>().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId).OrderBy(t => t.Sort).Select(t => new dtoKeyValue
             {
                 Key = t.Value,
                 Value = t.Id

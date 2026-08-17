@@ -44,9 +44,9 @@ namespace Kevin.Web.Basics.Controllers
         [HttpGet("GetUser")]
         [SkipAuthority]
         [CacheDataFilter<dtoUser>(TTL = 60, UseToken = true)]
-        public dtoUser GetUser(long userId)
+        public async Task<dtoUser> GetUser(long userId)
         {
-            return _userService.GetUser(userId);
+            return await _userService.GetUser(userId);
         }
 
         /// <summary>
@@ -140,9 +140,9 @@ namespace Kevin.Web.Basics.Controllers
         /// <returns></returns>
         [HttpGet("GetSysUserWhereId")]
         [SkipAuthority]
-        public dtoUser GetSysUserWhereId([Required] long Id)
+        public async Task<dtoUser> GetSysUserWhereId([Required] long Id)
         {
-            return _userService.GetSysUserWhereId(Id);
+            return await _userService.GetSysUserWhereId(Id);
         }
 
         /// <summary>

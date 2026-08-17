@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: app_project
+title: App 业务应用层（WebApi + Application + Domain + RepositorieRps）
+scope:
+    - App/
+source_files: []
+depends_on: []
+related_to:
+    - path: frontend_vue
+    - path: tests

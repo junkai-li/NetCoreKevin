@@ -1,0 +1,16 @@
+schema_version: 1
+module_path: ""
+title: NetCoreKevin 企业级 AI 中台解决方案
+scope:
+    - SYSTEM_DOCUMENTATION.md
+    - .dockerignore
+    - .editorconfig
+    - .gitattributes
+    - .gitignore
+    - NetCoreKevin.sln
+    - LICENSE
+    - README.md
+    - docker-compose.yml
+source_files: []
+depends_on: []
+related_to: []
