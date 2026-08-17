@@ -285,8 +285,8 @@ kevin.abp.core/
 
 ## 📖 文档资源
 
-- **项目 Wiki**: [快速开始](.qoder/repowiki/zh/content/快速开始.md) —— 位于 `.qoder/repowiki/zh/content/`，涵盖架构设计、核心模块、开发指南、API 接口文档、部署运维等全套文档
-- **详细文档**: [SYSTEM_DOCUMENTATION.md](SYSTEM_DOCUMENTATION.md)
+- **项目 Wiki**: [项目解析以及详细教程](.qoder/repowiki/zh/content/快速开始.md) —— 位于 `.qoder/repowiki/zh/content/`，涵盖架构设计、核心模块、开发指南、API 接口文档、部署运维等全套文档
+- **快速入门详细文档**: [SYSTEM_DOCUMENTATION.md](SYSTEM_DOCUMENTATION.md)
 - **教学文档**: [CSDN 专栏](https://blog.csdn.net/weixin_42629287/category_13037923.html)
 - **新项目教程**: [基于 NetCoreKevin 二次开发](https://gitee.com/netkevin-li/ainet)
 
