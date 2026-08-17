@@ -52,17 +52,17 @@
 | **微服务架构** | 基于 Consul、CAP、Hangfire 实现服务解耦 |
 | **AI 集成** | AgentFramework 1.9、Skill 动态管理、Ollama 本地模型支持 |
 | **RAG 检索增强** | Qdrant 向量数据库实现知识库问答 |
-| **多租户支持** | 一库多租户架构，数据隔离 |
-| **分布式缓存** | Redis 缓存层，支持多种缓存策略 |
-| **日志系统** | log4net 日志框架，支持多级别日志 |
-
----
-
+| **多租户支持** | 一库多租户架构，数据隔离，接口层强制租户过滤 |
+| **分布式缓存** | Redis 缓存层，支持多种缓存策略，内置请求级响应缓存过滤器 |
+| **安全加固** | 时序安全密钥校验、密码哈希防重、权限安全默认策略 |
+| **日志系统** | log4net 日志框架，支持多级别日志，内置慢查询告警 |
+ 
 ## 🚀 快速开始
 
 ### 环境要求
 
 - .NET SDK 9.0+
+- Node.js 16+（前端）
 - MySQL 8.0+
 - Redis 7.0+
 - Qdrant 1.7+（AI 功能）
@@ -92,20 +92,31 @@ Add-Migration "初始化数据库"
 Update-Database
 ```
 
-**3. 启动应用**
+**3. 启动后端**
 
 ```bash
 cd App/WebApi
 dotnet run --environment Development
 ```
 
-**4. 访问地址**
+**4. 启动前端（可选，管理后台）**
+
+```bash
+cd vue/kevin.web.vue
+npm install
+npm run serve
+```
+
+前端开发服务器已将 `/VarApi` 反向代理到后端 `http://localhost:9901`，无需额外配置跨域。
+
+**5. 访问地址**
 
 | 服务 | 地址 |
 |------|------|
 | API | http://localhost:9901 |
 | Swagger | http://localhost:9901/swagger |
 | Hangfire | http://localhost:9901/pchangfire|
+| 前端管理后台 | http://localhost:8080 |
 
 ### 默认账户
 
@@ -233,8 +244,24 @@ kevin.abp.core/
 │   ├── Application/        # 核心服务
 │   │   └── Services/AI/    # AI 相关服务
 │   ├── Domain/             # 核心领域模型
-│   ├── Kevin.EntityFrameworkCore/  # EF Core 实现
-│   └── Kevin.Web.Basics/   # Web 基础组件
+│   ├── Kevin.EntityFrameworkCore/  # EF Core 实现（含慢查询拦截器）
+│   ├── Kevin.Web.Basics/   # Web 基础组件（控制器、全局过滤器）
+│   ├── RepositorieRps/     # 核心仓储实现
+│   ├── kevin.Share/        # 共享 DTO、枚举、常量
+│   └── kevin.Module/       # 可插拔功能模块
+│       ├── kevin.AI.AgentFramework/  # AI 智能体框架
+│       ├── Kevin.RAG/      # RAG 检索增强（Qdrant/Ollama/Rerank）
+│       ├── Kevin.Authentication.Jwt/ # JWT 认证
+│       ├── kevin.Permission/         # RBAC 权限
+│       ├── kevin.Cache/              # 缓存
+│       ├── Kevin.Hangfire/           # 任务调度
+│       ├── Kevin.SignalR/            # 实时通信
+│       └── ...             # 短信、邮件、雪花ID、分布式锁等 30+ 模块
+├── Test/                   # 测试套件
+│   ├── Kevin.Web.Test/     # 单元测试（xUnit）
+│   ├── Kvin.Integration.Tests/  # 集成测试
+│   └── Testing.Shared/     # 共享测试基础设施
+├── vue/kevin.web.vue/      # 前端管理后台（Vue3 + Ant Design Vue）
 ├── Doc/                    # 文档资源
 └── InitData/               # 初始化数据
 ```
@@ -258,6 +285,7 @@ kevin.abp.core/
 
 ## 📖 文档资源
 
+- **项目 Wiki**: [快速开始](.qoder/repowiki/zh/content/快速开始.md) —— 位于 `.qoder/repowiki/zh/content/`，涵盖架构设计、核心模块、开发指南、API 接口文档、部署运维等全套文档
 - **详细文档**: [SYSTEM_DOCUMENTATION.md](SYSTEM_DOCUMENTATION.md)
 - **教学文档**: [CSDN 专栏](https://blog.csdn.net/weixin_42629287/category_13037923.html)
 - **新项目教程**: [基于 NetCoreKevin 二次开发](https://gitee.com/netkevin-li/ainet)
@@ -284,6 +312,6 @@ kevin.abp.core/
 
 ---
 
-**版本**: v1.0  
+**版本**: v1.1（代码审查治理版）  
 **License**: MIT  
 **维护者**: NetCoreKevin 开发团队 
