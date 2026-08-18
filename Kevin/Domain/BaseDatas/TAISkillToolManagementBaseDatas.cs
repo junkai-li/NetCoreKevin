@@ -188,7 +188,27 @@ namespace kevin.Domain.BaseDatas
                IsSystem=true,
                SkillToolType=AISkillToolTypeEnums.Skill,
                CreateUserId=TUserBaseData.TUsers[0].Id
-           },
+           }, new TAISkillToolManagement() {
+               Id=4514141251257327726,
+               Name="豆包联网搜索Global版本",
+               ClassMethod="WebSearchEngine.DoubaoSearchGlobalAsync",
+               Description="豆包联网搜索Global版本",
+               TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
+               CreateTime = DateTime.Parse("2020-01-01 00:00:01"),
+               IsSystem=true,
+               SkillToolType=AISkillToolTypeEnums.Tool,
+               CreateUserId=TUserBaseData.TUsers[0].Id
+           }, new TAISkillToolManagement() {
+               Id=4514112251217327726,
+               Name="豆包联网搜索Custom版本",
+               ClassMethod="WebSearchEngine.DoubaoSearchCustomAsync",
+               Description="豆包联网搜索Custom版本",
+               TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
+               CreateTime = DateTime.Parse("2020-01-01 00:00:01"),
+               IsSystem=true,
+               SkillToolType=AISkillToolTypeEnums.Tool,
+               CreateUserId=TUserBaseData.TUsers[0].Id
+           }
         };
     }
 }

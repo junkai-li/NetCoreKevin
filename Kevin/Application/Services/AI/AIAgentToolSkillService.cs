@@ -40,10 +40,12 @@ namespace kevin.Application.Services.AI
         private readonly IAuthorizedToolsService _authorizedToolsService;
 
         private readonly IAIJsonLogService _aIJsonLogService;
+
+        private readonly IWebSearchEngine _webSearchEngine;
         public AIAgentToolSkillService(IKevinAITaskService kevinAITaskService, IAISkillToolBindIdService iAISkillToolBindIdService,
             IAISkillToolManagementService iAISkillToolManagementService, ICommonToolsService commonTools, IPythonToolsService pythonTools,
             IShellToolsService shellTools, IAgentHttpClientToolsService agentHttpClientToolsService, IUserService userService, IAIJsonLogService aIJsonLogService,
-            IAIFileToolService iAIFileToolService, IAIMsgService iAIMsgService, IAuthorizedToolsService authorizedToolsService)
+            IAIFileToolService iAIFileToolService, IAIMsgService iAIMsgService, IAuthorizedToolsService authorizedToolsService, IWebSearchEngine webSearchEngine)
         {
             _kevinAITaskService = kevinAITaskService;
             _iAISkillToolBindIdService = iAISkillToolBindIdService;
@@ -57,6 +59,7 @@ namespace kevin.Application.Services.AI
             _IAIMsgService = iAIMsgService;
             _authorizedToolsService = authorizedToolsService;
             _aIJsonLogService = aIJsonLogService;
+            _webSearchEngine = webSearchEngine;
         }
         private async Task<List<AITool>> GetAITools(object data, List<string> toolNames)
         {
@@ -243,6 +246,18 @@ namespace kevin.Application.Services.AI
                             aiTools.Add(
                             AIFunctionFactory.Create(_IAIMsgService.SendDDToUserMsg,
                             new AIFunctionFactoryOptions { Name = "SendDDToUserMsg", Description = "发送钉钉消息给其他用户， 用于把消息发送给指定用户的钉钉账户。以 ❌ 开头的错误信息。" }
+                        ));
+                            break;
+                        case "WebSearchEngine.DoubaoSearchGlobalAsync":
+                            aiTools.Add(
+                            AIFunctionFactory.Create(_webSearchEngine.DoubaoSearchGlobalAsync,
+                            new AIFunctionFactoryOptions { Name = "DoubaoSearchGlobalAsync", Description = "豆包联网搜索Global版本，覆盖全球站点，综合搜索效果更好。当需要联网搜索实时信息、新闻、资料时调用，返回搜索结果列表（标题/链接/发布时间/摘要），失败返回以 ❌ 开头的错误信息" }
+                        ));
+                            break;
+                        case "WebSearchEngine.DoubaoSearchCustomAsync":
+                            aiTools.Add(
+                            AIFunctionFactory.Create(_webSearchEngine.DoubaoSearchCustomAsync,
+                            new AIFunctionFactoryOptions { Name = "DoubaoSearchCustomAsync", Description = "豆包联网搜索Custom版本，时延低，控制更灵活，支持各行业高频搜索需求。当需要联网搜索实时信息、新闻、资料时调用，返回搜索结果列表（标题/链接/来源/发布时间/摘要），失败返回以 ❌ 开头的错误信息" }
                         ));
                             break;
                     }
