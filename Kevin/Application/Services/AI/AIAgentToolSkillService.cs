@@ -6,7 +6,9 @@ using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using Kevin.Common.Extension;
+using Kevin.log4Net;
 using Microsoft.Extensions.AI;
+using Microsoft.IdentityModel.Logging;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
 using System;
@@ -330,7 +332,7 @@ namespace kevin.Application.Services.AI
                 catch (Exception ex)
                 {
                     // 建议记录日志，继续处理下一个服务
-                    // _logger.LogError(ex, "获取 MCP 工具失败, 类型: {Type}, URL: {Url}", item.McpType, item.McpUrl);
+                    Kevin.log4Net.LogHelper.logger.Error(ex + string.Format("获取 MCP 工具失败, 类型: {0}, URL: {1}", item.McpType, item.McpUrl));
                     // 可以选择抛出或跳过
                 }
             }
@@ -348,8 +350,8 @@ namespace kevin.Application.Services.AI
         {
             var aiTools = new List<AITool>();
             var agentBindIds = (await _iAISkillToolBindIdService.GetListById(agentId)).Select(t => t.AISkillToolManagementId).ToList();
-            var tools = (await _iAISkillToolManagementService.GetNotDataPerAllTools()).Where(t => agentBindIds.Contains(t.Id)).ToList(); 
-            aiTools.AddRange(await GetAITools(data, tools.Select(t => t.ClassMethod ?? "").ToList())); 
+            var tools = (await _iAISkillToolManagementService.GetNotDataPerAllTools()).Where(t => agentBindIds.Contains(t.Id)).ToList();
+            aiTools.AddRange(await GetAITools(data, tools.Select(t => t.ClassMethod ?? "").ToList()));
             return aiTools;
         }
 
@@ -377,8 +379,8 @@ namespace kevin.Application.Services.AI
         public async Task<List<AITool>> GetAIAgentMcpToolsAsync(object data, string agentId)
         {
             var aiTools = new List<AITool>();
-            var agentBindIds = (await _iAISkillToolBindIdService.GetListById(agentId)).Select(t => t.AISkillToolManagementId).ToList(); 
-            var mcps = (await _iAISkillToolManagementService.GetNotDataPerAllMcps()).Where(t => agentBindIds.Contains(t.Id)).ToList(); 
+            var agentBindIds = (await _iAISkillToolBindIdService.GetListById(agentId)).Select(t => t.AISkillToolManagementId).ToList();
+            var mcps = (await _iAISkillToolManagementService.GetNotDataPerAllMcps()).Where(t => agentBindIds.Contains(t.Id)).ToList();
             aiTools.AddRange(await GetMcpTools(data, mcps));
             return aiTools;
         }
