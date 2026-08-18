@@ -58,6 +58,7 @@ namespace Kevin.Api.Versioning
                 {
                     return apiDescriptions.First();
                 });
+                options.DocumentFilter<PlainJsonBodyFilter>();
             });
 
             var apiVersioningBuilder = services.AddApiVersioning(options =>
