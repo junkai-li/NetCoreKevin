@@ -312,9 +312,20 @@ namespace kevin.Application.Services.AI
                     }
 
                     // 创建客户端并获取工具
-                    await using var mcpClient = await McpClient.CreateAsync(transport);
-                    var mcpTools = await mcpClient.ListToolsAsync();
-                    aiTools.AddRange(mcpTools.Cast<AITool>());
+                    // 注意：返回的 McpClientTool 是远程调用句柄，模型调用工具时仍需通过同一个客户端连接发送请求，
+                    // 因此这里不能用 await using 立即释放客户端，否则 transport 被关闭，工具调用会报 A task was canceled
+                    var mcpClient = await McpClient.CreateAsync(transport);
+                    try
+                    {
+                        var mcpTools = await mcpClient.ListToolsAsync();
+                        aiTools.AddRange(mcpTools.Cast<AITool>());
+                    }
+                    catch
+                    {
+                        // 拉取工具失败时释放客户端，避免泄漏连接/子进程
+                        await mcpClient.DisposeAsync();
+                        throw;
+                    }
                 }
                 catch (Exception ex)
                 {
