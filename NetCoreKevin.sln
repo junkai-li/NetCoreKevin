@@ -89,6 +89,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kevin.Authentication.Jwt", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kevin.Asr", "Kevin\kevin.Module\Kevin.Asr\Kevin.Asr.csproj", "{CDC14972-D14D-4139-A4C0-5A297C2F1888}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.WebApi.Mcp", "App\WebApiMcp\App.WebApi.Mcp\App.WebApi.Mcp.csproj", "{6CEC6398-BD83-4D55-AE3E-BD94EDFCB307}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -251,6 +253,10 @@ Global
 		{CDC14972-D14D-4139-A4C0-5A297C2F1888}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CDC14972-D14D-4139-A4C0-5A297C2F1888}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CDC14972-D14D-4139-A4C0-5A297C2F1888}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CEC6398-BD83-4D55-AE3E-BD94EDFCB307}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CEC6398-BD83-4D55-AE3E-BD94EDFCB307}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CEC6398-BD83-4D55-AE3E-BD94EDFCB307}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CEC6398-BD83-4D55-AE3E-BD94EDFCB307}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -296,6 +302,7 @@ Global
 		{3884FEA5-45D8-4579-9E11-A8EC4EFE410A} = {52538984-57B4-4B42-8D6D-86B07E33B4A6}
 		{FB870E79-27D6-41E1-890C-83C51FAC2C36} = {52538984-57B4-4B42-8D6D-86B07E33B4A6}
 		{CDC14972-D14D-4139-A4C0-5A297C2F1888} = {52538984-57B4-4B42-8D6D-86B07E33B4A6}
+		{6CEC6398-BD83-4D55-AE3E-BD94EDFCB307} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9A57BA34-E6D0-4E76-AA55-1A573F3CC798}

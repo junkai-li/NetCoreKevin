@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Kevin.Api.Versioning.Swagger
 {
@@ -13,6 +14,10 @@ namespace Kevin.Api.Versioning.Swagger
     public class SwaggerConfigureOptions : IConfigureOptions<SwaggerGenOptions>
     {
         readonly IApiVersionDescriptionProvider provider;
+
+        // OpenAPI 规范要求 components/schemas 的 key 只能包含字母、数字、.、-、_
+        // 泛型 DTO（如 dtoPageData[xxx]）的方括号/逗号会被替换为下划线，否则 Mcpifier 等严格校验的解析器会报错
+        private static readonly Regex InvalidSchemaIdChars = new("[^a-zA-Z0-9.\\-_]", RegexOptions.Compiled);
 
         public SwaggerConfigureOptions(IApiVersionDescriptionProvider provider) => this.provider = provider;
 
@@ -24,9 +29,25 @@ namespace Kevin.Api.Versioning.Swagger
                 Console.WriteLine(description.GroupName);
                 var modelPrefix = Assembly.GetEntryAssembly()?.GetName().Name + ".Models.";
                 var versionPrefix = description.GroupName + ".";
-                options.SchemaGeneratorOptions = new SchemaGeneratorOptions { SchemaIdSelector = type => (type.ToString()[(type.ToString().IndexOf("Models.") + 7)..]).Replace(modelPrefix, "").Replace(versionPrefix, "").Replace("`1", "").Replace("+", ".") };
+                options.SchemaGeneratorOptions = new SchemaGeneratorOptions { SchemaIdSelector = type => GetSchemaId(type, modelPrefix, versionPrefix) };
 
             }
+        }
+
+        /// <summary>
+        /// 生成符合 OpenAPI 命名规范（^[a-zA-Z0-9.\-_]+$）的 SchemaId
+        /// </summary>
+        static string GetSchemaId(Type type, string modelPrefix, string versionPrefix)
+        {
+            var typeName = type.ToString();
+            var modelsIndex = typeName.IndexOf("Models.");
+            if (modelsIndex >= 0)
+            {
+                typeName = typeName[(modelsIndex + 7)..];
+            }
+            typeName = typeName.Replace(modelPrefix, "").Replace(versionPrefix, "").Replace("`1", "").Replace("+", ".");
+            // 泛型的 [ ] , 及空格等非法字符统一替换为下划线，保证不同泛型实参的 SchemaId 仍唯一
+            return InvalidSchemaIdChars.Replace(typeName, "_");
         }
 
         static OpenApiInfo CreateInfoForApiVersion(ApiVersionDescription description)
