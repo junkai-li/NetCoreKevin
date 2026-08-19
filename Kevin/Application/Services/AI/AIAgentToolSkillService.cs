@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Logging;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
 using System;
+using Kevin.Common.App;
 
 namespace kevin.Application.Services.AI
 {
@@ -269,6 +270,22 @@ namespace kevin.Application.Services.AI
         private async Task<List<AITool>> GetMcpTools(object data, List<AISkillToolManagementDto> AISkillToolManagementDtos)
         {
             var aiTools = new List<AITool>();
+
+            #region 获取Authorization
+            var Authorization = "";
+            if (HttpContextAccessor.Current().Request.Headers.ContainsKey("Authorization"))
+            {
+                Authorization = HttpContextAccessor.Current().Request.Headers["Authorization"].ToString();
+            }
+            if (string.IsNullOrEmpty(Authorization) || !JwtToken.IsBearerValidJwt(Authorization))
+            {
+                if (HttpContextAccessor.Current().Request.Query.ContainsKey("Authorization"))
+                {
+                    Authorization = HttpContextAccessor.Current().Request.Query["Authorization"].ToString();
+                }
+            }
+            #endregion
+
             foreach (var item in AISkillToolManagementDtos)
             {
                 if (string.IsNullOrEmpty(item.McpType))
@@ -278,7 +295,12 @@ namespace kevin.Application.Services.AI
 
                 try
                 {
-                    // 根据类型创建对应的传输
+                    // Mcp自动授权Headers
+                    var dic = item.McpHeaders.ToObject<Dictionary<string, string>>();
+                    if (!dic.ContainsKey("Authorization"))
+                    {
+                        dic.Add("Authorization", Authorization);
+                    }
                     switch (item.McpType.ToLowerInvariant())
                     {
                         case "http":
@@ -290,9 +312,7 @@ namespace kevin.Application.Services.AI
                             {
                                 Endpoint = new Uri(item.McpUrl),
                                 TransportMode = HttpTransportMode.StreamableHttp, // 推荐
-                                AdditionalHeaders = !string.IsNullOrEmpty(item.McpHeaders)
-                                    ? item.McpHeaders.ToObject<Dictionary<string, string>>()
-                                    : null
+                                AdditionalHeaders = dic
                             });
                             break;
 
@@ -304,9 +324,7 @@ namespace kevin.Application.Services.AI
                             {
                                 Endpoint = new Uri(item.McpUrl),
                                 TransportMode = HttpTransportMode.Sse, // 使用 SSE 模式
-                                AdditionalHeaders = !string.IsNullOrEmpty(item.McpHeaders)
-                                    ? item.McpHeaders.ToObject<Dictionary<string, string>>()
-                                    : null
+                                AdditionalHeaders = dic
                             });
                             break;
 
