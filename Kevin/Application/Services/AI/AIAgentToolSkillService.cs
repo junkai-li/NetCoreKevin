@@ -296,7 +296,7 @@ namespace kevin.Application.Services.AI
                 try
                 {
                     // Mcp自动授权Headers
-                    var dic = item.McpHeaders.ToObject<Dictionary<string, string>>();
+                    var dic = !string.IsNullOrEmpty(item.McpHeaders) ? item.McpHeaders.ToObject<Dictionary<string, string>>() : new Dictionary<string, string>();
                     if (!dic.ContainsKey("Authorization"))
                     {
                         dic.Add("Authorization", Authorization);
