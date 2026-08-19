@@ -52,7 +52,7 @@ namespace Kevin.Common.Helper
             {
                 env = Formal;
             }
-            ConsoleHelper.PrintFrameworkName("当前环境变量:" + EnvironmentDictionary[env]);
+            Console.WriteLine("当前环境变量:" + EnvironmentDictionary[env]);
             Environment.SetEnvironmentVariable("NETCORE_ENVIRONMENT", env);
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", env);
         }
