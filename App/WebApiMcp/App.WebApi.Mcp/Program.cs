@@ -9,7 +9,8 @@ namespace App.WebApi.Mcp
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            //设置环境变量-----如果需要手动切换环境 只需要修改这里即可 
+            Kevin.Common.Helper.EnvironmentConfigHelper.SetEnvironment(Kevin.Common.Helper.EnvironmentConfigHelper.GetEnvironment());
             // 从 appsettings.json 读取 HttpInterToMcpService 配置
             var setting = builder.Configuration.GetRequiredSection("HttpInterToMcpService").Get<HttpInterToMcpSetting>()
                 ?? throw new InvalidOperationException("缺少 HttpInterToMcpService 配置节点");
