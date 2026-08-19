@@ -59,6 +59,13 @@ namespace Kevin.Api.Versioning
                     return apiDescriptions.First();
                 });
                 options.DocumentFilter<PlainJsonBodyFilter>();
+                // 为每个接口生成唯一 operationId：控制器名_动作名
+                options.CustomOperationIds(apiDesc =>
+                {
+                    var controller = apiDesc.ActionDescriptor.RouteValues["controller"];
+                    var action = apiDesc.ActionDescriptor.RouteValues["action"];
+                    return $"{controller}_{action}";
+                });
             });
 
             var apiVersioningBuilder = services.AddApiVersioning(options =>
