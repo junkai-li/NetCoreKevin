@@ -87,6 +87,11 @@ Kevin.AI 系列
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.19" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\kevin.AI.AgentFramework\kevin.AI.AgentFramework.csproj" />
     <ProjectReference Include="..\Kevin.Asr\Kevin.Asr.csproj" />
     <ProjectReference Include="..\Kevin.Authentication.Jwt\Kevin.Authentication.Jwt.csproj" />

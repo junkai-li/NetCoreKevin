@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.19" />
+    <PackageReference Include="TencentCloudSDK" Version="3.0.1363" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Domain\kevin.Domain.csproj" />
     <ProjectReference Include="..\Kevin.EntityFrameworkCore\Kevin.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\kevin.Module\kevin.Ioc\kevin.Ioc.csproj" />

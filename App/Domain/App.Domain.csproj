@@ -12,6 +12,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.19" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AppShare\App.Share.csproj" />
     <ProjectReference Include="..\..\Kevin\Kevin.Web.Basics\Kevin.Web.Basics.csproj" />
   </ItemGroup>

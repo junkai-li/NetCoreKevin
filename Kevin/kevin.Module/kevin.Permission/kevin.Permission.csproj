@@ -9,7 +9,10 @@
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.17.1" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" /> 
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.19" />
+    <PackageReference Include="TencentCloudSDK" Version="3.0.1363" /> 
   </ItemGroup>
 
   <ItemGroup>

@@ -11,6 +11,10 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" /> 
     <PackageReference Include="OllamaSharp" Version="5.4.25" /> 
     <PackageReference Include="Qdrant.Client" Version="1.17.0" /> 
+    <PackageReference Include="SSH.NET" Version="2026.0.0" /> 
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0" /> 
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.19" /> 
+    <PackageReference Include="TencentCloudSDK" Version="3.0.1363" /> 
   </ItemGroup>
 
   <ItemGroup>

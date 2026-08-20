@@ -29,6 +29,10 @@
     <PackageReference Include="MySql.EntityFrameworkCore" Version="9.0.9" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.19" />
+    <PackageReference Include="TencentCloudSDK" Version="3.0.1363" />
   </ItemGroup>
 	
   

@@ -13,6 +13,7 @@
     <PackageReference Include="Hangfire.Redis.StackExchange" Version="1.12.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.11" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.11" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
 </Project>

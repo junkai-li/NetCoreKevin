@@ -10,7 +10,11 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.3.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.11" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.11" />
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
     <PackageReference Include="System.Formats.Asn1" Version="9.0.11" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.19" />
+    <PackageReference Include="TencentCloudSDK" Version="3.0.1363" />
   </ItemGroup>
 
   <ItemGroup>
