@@ -43,10 +43,12 @@ namespace kevin.Application.Services.AI
         private readonly IAIJsonLogService _aIJsonLogService;
 
         private readonly IWebSearchEngine _webSearchEngine;
+
+        private readonly IAIAgentMemoryService _aiAgentMemoryService;
         public AIAgentToolSkillService(IKevinAITaskService kevinAITaskService, IAISkillToolBindIdService iAISkillToolBindIdService,
             IAISkillToolManagementService iAISkillToolManagementService, ICommonToolsService commonTools, IPythonToolsService pythonTools,
             IShellToolsService shellTools, IAgentHttpClientToolsService agentHttpClientToolsService, IUserService userService, IAIJsonLogService aIJsonLogService,
-            IAIFileToolService iAIFileToolService, IAIMsgService iAIMsgService, IAuthorizedToolsService authorizedToolsService, IWebSearchEngine webSearchEngine, IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
+            IAIFileToolService iAIFileToolService, IAIMsgService iAIMsgService, IAuthorizedToolsService authorizedToolsService, IWebSearchEngine webSearchEngine, IAIAgentMemoryService aiAgentMemoryService, IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
         {
             _kevinAITaskService = kevinAITaskService;
             _iAISkillToolBindIdService = iAISkillToolBindIdService;
@@ -61,6 +63,7 @@ namespace kevin.Application.Services.AI
             _authorizedToolsService = authorizedToolsService;
             _aIJsonLogService = aIJsonLogService;
             _webSearchEngine = webSearchEngine;
+            _aiAgentMemoryService = aiAgentMemoryService;
         }
         private async Task<List<AITool>> GetAITools(object data, List<string> toolNames)
         {
@@ -73,6 +76,7 @@ namespace kevin.Application.Services.AI
             _authorizedToolsService.InitData(data);
             _IAIMsgService.InitData(data);
             _aIJsonLogService.InitData(data);
+            _aiAgentMemoryService.InitData(data);
             aiTools.Add(
                  AIFunctionFactory.Create(_aIJsonLogService.Add,
                  new AIFunctionFactoryOptions
@@ -259,6 +263,30 @@ namespace kevin.Application.Services.AI
                             aiTools.Add(
                             AIFunctionFactory.Create(_webSearchEngine.DoubaoSearchCustomAsync,
                             new AIFunctionFactoryOptions { Name = "DoubaoSearchCustomAsync", Description = "豆包联网搜索Custom版本，时延低，控制更灵活，支持各行业高频搜索需求。当需要联网搜索实时信息、新闻、资料时调用，返回搜索结果列表（标题/链接/来源/发布时间/摘要），失败返回以 ❌ 开头的错误信息" }
+                        ));
+                            break;
+                        case "AgentMemoryTools.SaveMemory":
+                            aiTools.Add(
+                            AIFunctionFactory.Create(_aiAgentMemoryService.SaveMemoryAsync,
+                            new AIFunctionFactoryOptions { Name = "SaveMemory", Description = "保存用户的长期记忆。当用户表达个人偏好、习惯、重要事实，或明确要求“记住某事”时调用，保存成功后简短告知用户。失败返回以 ❌ 开头的错误信息" }
+                        ));
+                            break;
+                        case "AgentMemoryTools.SearchMemory":
+                            aiTools.Add(
+                            AIFunctionFactory.Create(_aiAgentMemoryService.SearchMemoryAsync,
+                            new AIFunctionFactoryOptions { Name = "SearchMemory", Description = "搜索当前用户的长期记忆。需要回忆用户偏好、历史事实、约定事项，或回答涉及“我之前说过/我喜欢”等内容时先调用本工具。失败返回以 ❌ 开头的错误信息" }
+                        ));
+                            break;
+                        case "AgentMemoryTools.UpdateMemory":
+                            aiTools.Add(
+                            AIFunctionFactory.Create(_aiAgentMemoryService.UpdateMemoryAsync,
+                            new AIFunctionFactoryOptions { Name = "UpdateMemory", Description = "更新已有的长期记忆。当之前保存的记忆内容发生变化（如偏好改变）时调用，记忆Id需要先通过 SearchMemory 搜索获取。失败返回以 ❌ 开头的错误信息" }
+                        ));
+                            break;
+                        case "AgentMemoryTools.DeleteMemory":
+                            aiTools.Add(
+                            AIFunctionFactory.Create(_aiAgentMemoryService.DeleteMemoryAsync,
+                            new AIFunctionFactoryOptions { Name = "DeleteMemory", Description = "删除不再需要的长期记忆。当用户明确要求忘记某事或记忆已失效时调用，记忆Id需要先通过 SearchMemory 搜索获取。失败返回以 ❌ 开头的错误信息" }
                         ));
                             break;
                     }

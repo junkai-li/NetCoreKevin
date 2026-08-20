@@ -44,7 +44,7 @@ namespace kevin.Application.Services.AI
                 data = data.Where(t => t.SkillToolType == (AISkillToolTypeEnums)dtoPagePar.Parameter);
             }
             result.total = await data.CountAsync();
-            var dbdata = await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPagePar.pageSize).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
+            var dbdata = await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPagePar.pageSize).Include(t => t.CreateUser).Include(t => t.UpdateUser).OrderByDescending(t => t.CreateTime).ToListAsync();
             result.data = dbdata.MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
             var flieData = _FileRp.Query().Where(t => t.IsDelete == false && t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && result.data.Select(a => a.Id.ToString()).ToList().Contains(t.TableId)).ToList().MapToList<TFile, FileDto>().ToList();
             foreach (var item in result.data)
@@ -207,13 +207,13 @@ namespace kevin.Application.Services.AI
 
         public async Task<List<AISkillToolManagementDto>> GetAllSkills()
         {
-            return (await AISkillToolManagementRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Skill && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
+            return (await AISkillToolManagementRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Skill && t.ActiveStatus == InActiveStatusEnums.Active).OrderByDescending(t => t.CreateTime).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
 
         }
 
         public async Task<List<AISkillToolManagementDto>> GetAllTools()
         {
-            return (await AISkillToolManagementRp.Query(isDataPer: false).Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Tool && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
+            return (await AISkillToolManagementRp.Query(isDataPer: false).Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Tool && t.ActiveStatus == InActiveStatusEnums.Active).OrderByDescending(t => t.CreateTime).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
 
         }
         /// <summary>
@@ -222,7 +222,7 @@ namespace kevin.Application.Services.AI
         /// <returns></returns>
         public async Task<List<AISkillToolManagementDto>> GetNotDataPerAllSkills()
         {
-            return (await AISkillToolManagementRp.Query().Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Skill && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
+            return (await AISkillToolManagementRp.Query().Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Skill && t.ActiveStatus == InActiveStatusEnums.Active).OrderByDescending(t => t.CreateTime).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
 
         }
         /// <summary>
@@ -231,13 +231,13 @@ namespace kevin.Application.Services.AI
         /// <returns></returns>
         public async Task<List<AISkillToolManagementDto>> GetNotDataPerAllTools()
         {
-            return (await AISkillToolManagementRp.Query().Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Tool && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
+            return (await AISkillToolManagementRp.Query().Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Tool && t.ActiveStatus == InActiveStatusEnums.Active).OrderByDescending(t => t.CreateTime).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
 
         }
 
         public async Task<List<AISkillToolManagementDto>> GetAllMcps()
         {
-            return (await AISkillToolManagementRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Mcp && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
+            return (await AISkillToolManagementRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Mcp && t.ActiveStatus == InActiveStatusEnums.Active).OrderByDescending(t => t.CreateTime).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace kevin.Application.Services.AI
         /// <returns></returns>
         public async Task<List<AISkillToolManagementDto>> GetNotDataPerAllMcps()
         {
-            return (await AISkillToolManagementRp.Query().Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Mcp && t.ActiveStatus == InActiveStatusEnums.Active).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
+            return (await AISkillToolManagementRp.Query().Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Mcp && t.ActiveStatus == InActiveStatusEnums.Active).OrderByDescending(t => t.CreateTime).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
 
         }
     }
