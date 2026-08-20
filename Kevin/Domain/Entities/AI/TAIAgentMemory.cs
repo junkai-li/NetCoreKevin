@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,11 @@ namespace kevin.Domain.Entities.AI
     /// </summary>
     [Table("TAIAgentMemory")]
     [Description("智能体长期记忆（用户级）")]
+    [Index(nameof(AIAppsId))]
+    [Index(nameof(AIChatsId))]
+    [Index(nameof(UserId))]
+    [Index(nameof(MemoryType))]
+    [Index(nameof(Keywords))]
     public class TAIAgentMemory : CUD
     {
         /// <summary>
@@ -35,11 +41,13 @@ namespace kevin.Domain.Entities.AI
         /// 记忆类型：preference偏好/fact事实/task任务/other其他
         /// </summary>
         [Description("记忆类型：preference偏好/fact事实/task任务/other其他")]
+        [MaxLength(50)]
         public string MemoryType { get; set; } = "other";
 
         /// <summary>
         /// 记忆关键词，逗号分隔，用于检索
         /// </summary>
+        [MaxLength(200)]
         [Description("记忆关键词，逗号分隔，用于检索")]
         public string Keywords { get; set; } = "";
 
