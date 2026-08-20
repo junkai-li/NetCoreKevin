@@ -14,6 +14,7 @@
     <PackageReference Include="aliyun-net-sdk-alidns" Version="2.6.32" />
     <PackageReference Include="aliyun-net-sdk-core" Version="1.6.2" />
     <PackageReference Include="Aliyun.OSS.SDK.NetCore" Version="2.14.1" />
+    <PackageReference Include="AngleSharp" Version="1.7.1" />
     <PackageReference Include="AutoMapper" Version="14.0.0" />
     <PackageReference Include="Azure.Identity" Version="1.17.1" />
     <PackageReference Include="Baidu.AI" Version="4.15.16" />
@@ -24,6 +25,7 @@
     <PackageReference Include="Emgu.CV.Bitmap" Version="4.10.0.5680" />
     <PackageReference Include="Emgu.CV.runtime.ubuntu-x64" Version="4.10.0.5680" />
     <PackageReference Include="Emgu.CV.runtime.windows" Version="4.10.0.5680" />
+    <PackageReference Include="log4net" Version="3.3.2" />
     <PackageReference Include="Mapster" Version="7.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.Abstractions" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.3.0" />

@@ -10,11 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AngleSharp" Version="1.7.1" />
     <PackageReference Include="Azure.Identity" Version="1.17.1" />
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="log4net" Version="3.3.2" />
     <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.3.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
     <PackageReference Include="SSH.NET" Version="2026.0.0" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.0" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.19" />

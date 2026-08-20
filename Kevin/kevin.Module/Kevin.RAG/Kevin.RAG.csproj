@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup> 
+    <PackageReference Include="AngleSharp" Version="1.7.1" /> 
+    <PackageReference Include="log4net" Version="3.3.2" /> 
     <PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="9.7.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" /> 
     <PackageReference Include="OllamaSharp" Version="5.4.25" /> 
