@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Kevin.Common.Extension;
 using Mapster;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -57,7 +59,7 @@ namespace System
             where TDestination : class, new()
         {
             if (source == null) return new TDestination();
-            var config = new MapperConfiguration(configure);
+            var config = CreateMapperConfiguration(configure);
             var mapper = config.CreateMapper();
             return mapper.Map<TDestination>(source);
         }
@@ -80,7 +82,7 @@ namespace System
             actions.Add(action);
             if (configure != null) actions.Add(configure);
             if (source == null) return new TDestination();
-            var config = new MapperConfiguration(cfg =>
+            var config = CreateMapperConfiguration(cfg =>
             {
                 actions.ForEach(a => a.Invoke(cfg));
             });
@@ -99,7 +101,7 @@ namespace System
             where TSource : class
         {
             if (source == null) return new List<TDestination>();
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<TSource, TDestination>());
+            var config = CreateMapperConfiguration(cfg => cfg.CreateMap<TSource, TDestination>());
             var mapper = config.CreateMapper();
             return mapper.Map<List<TDestination>>(source);
         }
@@ -115,9 +117,21 @@ namespace System
             where TDestination : class
         {
             if (source == null) return new List<TDestination>();
-            var config = new MapperConfiguration(configure);
+            var config = CreateMapperConfiguration(configure);
             var mapper = config.CreateMapper();
             return mapper.Map<List<TDestination>>(source);
+        }
+
+        /// <summary>
+        /// 创建 AutoMapper 配置（AutoMapper 15.x 构造函数需要 MapperConfigurationExpression 与 ILoggerFactory）
+        /// </summary>
+        /// <param name="configure">映射配置</param>
+        /// <returns></returns>
+        private static MapperConfiguration CreateMapperConfiguration(Action<IMapperConfigurationExpression> configure)
+        {
+            var configurationExpression = new MapperConfigurationExpression();
+            configure?.Invoke(configurationExpression);
+            return new MapperConfiguration(configurationExpression, NullLoggerFactory.Instance);
         }
 
         /// <summary>

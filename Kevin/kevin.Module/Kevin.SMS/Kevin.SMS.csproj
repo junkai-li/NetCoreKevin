@@ -8,8 +8,10 @@
 
   <ItemGroup>
     <PackageReference Include="aliyun-net-sdk-core" Version="1.6.2" />
+    <PackageReference Include="AutoMapper" Version="15.1.3" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.11" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="9.0.19" />
     <PackageReference Include="TencentCloudSDK" Version="3.0.1363" />
   </ItemGroup>
 
