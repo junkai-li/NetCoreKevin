@@ -32,10 +32,12 @@ namespace kevin.Application.Services.AI
 
         public readonly IAIChatMessageStoreCompactionRp _aIChatMessageStoreCompactionRp;
         public readonly IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService;
+        public readonly IPySubprocessScriptRunner _pySubprocessScriptRunner;
         public AIAppsService(IHttpContextAccessor _httpContextAccessor, IAIAppsRp _aIAppsRp,
             IAISkillToolManagementService aISkillToolManagementService, IAISkillToolBindIdService aISkillToolBindIdService, IAIAppsBindIdService aIAppsBindIdService,
             IKevinAIChatMessageStore kevinAIChatMessageStore, IAIAgentToolSkillService aIAgentToolSkillService, IAIModelsService aIModelsService, IAIPromptsService aIPromptsService,
-            IAIAgentService aIAgentService, IAIChatMessageStoreRp aIChatMessageStoreRp, IAIChatMessageStoreCompactionRp aIChatMessageStoreCompactionRp, IAIChatMessageStoreCompactionService aIChatMessageStoreCompactionService) : base(_httpContextAccessor)
+            IAIAgentService aIAgentService, IAIChatMessageStoreRp aIChatMessageStoreRp, IAIChatMessageStoreCompactionRp aIChatMessageStoreCompactionRp,
+            IAIChatMessageStoreCompactionService aIChatMessageStoreCompactionService, IPySubprocessScriptRunner pySubprocessScriptRunner) : base(_httpContextAccessor)
         {
             this.aIAppsRp = _aIAppsRp;
             this.aISkillToolManagementService = aISkillToolManagementService;
@@ -49,6 +51,7 @@ namespace kevin.Application.Services.AI
             this._aIChatMessageStoreRp = aIChatMessageStoreRp;
             this._aIChatMessageStoreCompactionRp = aIChatMessageStoreCompactionRp;
             this._aIChatMessageStoreCompactionService = aIChatMessageStoreCompactionService;
+            this._pySubprocessScriptRunner = pySubprocessScriptRunner;
         }
 
         /// <summary>
@@ -432,7 +435,7 @@ namespace kevin.Application.Services.AI
                                              t.DisableReadSkillResourceApproval = true;
                                              t.DisableRunSkillScriptApproval = true;
                                          })
-                                         .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync);
+                                         .UseFileScriptRunner(_pySubprocessScriptRunner.StaticRunAsync);
                 foreach (var skillPath in skillPaths)
                 {
                     skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath), new AgentFileSkillsSourceOptions
@@ -512,7 +515,7 @@ namespace kevin.Application.Services.AI
                                            t.DisableReadSkillResourceApproval = true;
                                            t.DisableRunSkillScriptApproval = true;
                                        })
-                                       .UseFileScriptRunner(PySubprocessScriptRunner.StaticRunAsync);
+                                       .UseFileScriptRunner(_pySubprocessScriptRunner.StaticRunAsync);
                 foreach (var skillPath in skillPaths)
                 {
                     skillsProvider.UseFileSkill(Path.Combine(AppContext.BaseDirectory, "Skills", skillPath), new AgentFileSkillsSourceOptions

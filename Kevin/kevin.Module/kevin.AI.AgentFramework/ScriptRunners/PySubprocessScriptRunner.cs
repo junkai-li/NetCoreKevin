@@ -1,3 +1,4 @@
+using kevin.AI.AgentFramework.Interfaces;
 using Microsoft.Agents.AI;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -6,12 +7,12 @@ using System.Text.Json;
 
 namespace kevin.AI.AgentFramework.ScriptRunners
 {
-    public class PySubprocessScriptRunner
+    public class PySubprocessScriptRunner : IPySubprocessScriptRunner
     {
         /// <summary>
         /// 创建进程启动信息
         /// </summary>
-        private static ProcessStartInfo CreateStartInfo(string fileName, string arguments)
+        private ProcessStartInfo CreateStartInfo(string fileName, string arguments)
         {
             // 注册编码提供程序以支持 GBK 等旧编码（Windows 常见）
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -41,7 +42,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
         /// <summary>
         /// 检测指定命令是否存在于系统 PATH 中
         /// </summary>
-        private static bool IsCommandAvailable(string command)
+        private bool IsCommandAvailable(string command)
         {
             try
             {
@@ -71,7 +72,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
         /// 获取可用的 Python 命令（优先 python3，其次 python）
         /// 如果都不可用，返回 null
         /// </summary>
-        private static string? GetAvailablePythonCommand()
+        private string? GetAvailablePythonCommand()
         {
             // 优先检查 python3
             if (IsCommandAvailable("python3"))
@@ -90,7 +91,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
         }
 
 #pragma warning disable MAAI001
-        public static async Task<object?> StaticRunAsync(
+        public async Task<object?> StaticRunAsync(
             AgentFileSkill skill,
             AgentFileSkillScript script,
             JsonElement? arguments,
