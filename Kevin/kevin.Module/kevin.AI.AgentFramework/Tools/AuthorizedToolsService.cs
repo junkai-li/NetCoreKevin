@@ -2,9 +2,11 @@
 using Kevin.Common.App;
 using Kevin.Common.Extension;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using Web.Global.User;
 namespace kevin.AI.AgentFramework.Tools
 {
     public class AuthorizedToolsService : IAuthorizedToolsService
@@ -12,11 +14,11 @@ namespace kevin.AI.AgentFramework.Tools
         private object? _data { get; set; }
         private int _contentLengthLimit = 0;//  内容长度限制，超过限制后会进行截断
         private List<string> _authorizedDomains = new List<string>(); // 授权域名列表
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpContextAccessor _httpContextAccessor; 
 
-        public AuthorizedToolsService(IHttpContextAccessor httpContextAccessor)
+        public AuthorizedToolsService(IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor)
         { 
-            _httpContextAccessor = httpContextAccessor;
+            _httpContextAccessor = httpContextAccessor; 
         }
         public void InitData(object data)
         {
@@ -65,18 +67,44 @@ namespace kevin.AI.AgentFramework.Tools
         public async Task<string> GetUrlAuthorizedCodeAsync([Description("传入完整的请求url如：https://ksiaa.com/api/product/lists"), Required] string url)
         {
             AuthorizedDomainsCheck(url);
+            #region 获取Authorization
             var Authorization = "";
-            if (_httpContextAccessor.Current().Request.Headers.ContainsKey("Authorization"))
+            if (_httpContextAccessor != default && _httpContextAccessor.Current() != default)
             {
-                  Authorization = _httpContextAccessor.Current().Request.Headers["Authorization"].ToString(); 
-            }
-            if (string.IsNullOrEmpty(Authorization) || !IsBearerValidJwt(Authorization))
-            {
-                if (_httpContextAccessor.Current().Request.Query.ContainsKey("Authorization"))
+                if (_httpContextAccessor.Current().Request.Headers.ContainsKey("Authorization"))
                 {
-                    Authorization = _httpContextAccessor.Current().Request.Query["Authorization"].ToString();
+                    Authorization = _httpContextAccessor.Current().Request.Headers["Authorization"].ToString();
+                }
+                if (string.IsNullOrEmpty(Authorization) || !JwtToken.IsBearerValidJwt(Authorization))
+                {
+                    if (_httpContextAccessor.Current().Request.Query.ContainsKey("Authorization"))
+                    {
+                        Authorization = _httpContextAccessor.Current().Request.Query["Authorization"].ToString();
+                    }
                 }
             }
+            else
+            {
+                if (_data != default)
+                {
+                    long UserId = 0;
+                    var TenantId = 0;
+                    var jsonDoc = JsonDocument.Parse(JsonSerializer.Serialize(_data));
+                    if (jsonDoc.RootElement.TryGetProperty("UserId", out var userIdEl))
+                    {
+                        userIdEl.TryGetInt64(out UserId);
+                    }
+                    if (jsonDoc.RootElement.TryGetProperty("TenantId", out var tenantEl))
+                    {
+                        tenantEl.TryGetInt32(out TenantId);
+                    }
+                    if (UserId > 0 && TenantId > 0)
+                    {
+                        Authorization = "Bearer ";//后台任务用
+                    }
+                }
+            } 
+            #endregion 
             if (!string.IsNullOrEmpty(Authorization))
             {
                 return new { Headers = new { Authorization = Authorization } }.ToJson();

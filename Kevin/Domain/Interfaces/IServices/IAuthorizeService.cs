@@ -24,6 +24,14 @@ namespace kevin.Domain.Interfaces.IServices
         /// <returns></returns>
         bool SendSmsVerifyPhone(dtoKeyValue keyValue);
 
+        /// <summary>
+        /// 获取Token认证信息
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="tenantId"></param>
+        /// <returns></returns>
+        Task<string> GetTokenById(long userId, long tenantId);
+
 
     }
 }

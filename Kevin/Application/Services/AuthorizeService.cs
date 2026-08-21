@@ -32,6 +32,37 @@ namespace kevin.Application.Services
         }
 
         ///// <summary>
+        ///// 根据用户Id获取Token认证信息  （内部使用）
+        ///// </summary>
+        ///// <param name="login">登录信息集合</param>
+        ///// <returns></returns> 
+        public async Task<string> GetTokenById(long userId, long tenantId)
+        {
+            using KevinDbContext db = new KevinDbContext();
+            var TTenant = db.Set<TTenant>().FirstOrDefault(t => t.Code == tenantId);
+            if (TTenant == null)
+            {
+                throw new UserFriendlyException("租户不存在");
+            }
+            else
+            {
+                TTenant.IsInactiveCheck();
+            }
+            var user =  await _IUserService.GetSysUserWhereId(userId);
+            var accessToken = _TokenService.GenerateAccessToken(new Kevin.Authentication.Jwt.Dto.UserDto
+            {
+                Id = user.Id.ToString(),
+                Name = user.Name,
+                IsSuperAdmin = user.IsSuperAdmin,
+                Password = user.PassWord,
+                Phone = user.Phone,
+                CreatedTime = user.CreateTime,
+                TenantId = user.TenantId,
+            });
+            return accessToken ?? "获取AccessToken失败";
+        }
+
+        ///// <summary>
         ///// 获取Token认证信息
         ///// </summary>
         ///// <param name="login">登录信息集合</param>

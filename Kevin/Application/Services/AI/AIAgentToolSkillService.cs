@@ -5,6 +5,8 @@ using kevin.AI.AgentFramework.Interfaces.Tools;
 using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
+using kevin.RepositorieRps.Repositories.AI;
+using Kevin.Common.App;
 using Kevin.Common.Extension;
 using Kevin.log4Net;
 using Microsoft.Extensions.AI;
@@ -12,7 +14,7 @@ using Microsoft.IdentityModel.Logging;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
 using System;
-using Kevin.Common.App;
+using System.Text.Json;
 
 namespace kevin.Application.Services.AI
 {
@@ -45,10 +47,12 @@ namespace kevin.Application.Services.AI
         private readonly IWebSearchEngine _webSearchEngine;
 
         private readonly IAIAgentMemoryService _aiAgentMemoryService;
+
+        private readonly IAuthorizeService _authorizeService;
         public AIAgentToolSkillService(IKevinAITaskService kevinAITaskService, IAISkillToolBindIdService iAISkillToolBindIdService,
             IAISkillToolManagementService iAISkillToolManagementService, ICommonToolsService commonTools, IPythonToolsService pythonTools,
             IShellToolsService shellTools, IAgentHttpClientToolsService agentHttpClientToolsService, IUserService userService, IAIJsonLogService aIJsonLogService,
-            IAIFileToolService iAIFileToolService, IAIMsgService iAIMsgService, IAuthorizedToolsService authorizedToolsService, IWebSearchEngine webSearchEngine, IAIAgentMemoryService aiAgentMemoryService, IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
+            IAIFileToolService iAIFileToolService, IAIMsgService iAIMsgService, IAuthorizedToolsService authorizedToolsService, IWebSearchEngine webSearchEngine, IAIAgentMemoryService aiAgentMemoryService, IAuthorizeService authorizeService, IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
         {
             _kevinAITaskService = kevinAITaskService;
             _iAISkillToolBindIdService = iAISkillToolBindIdService;
@@ -64,6 +68,7 @@ namespace kevin.Application.Services.AI
             _aIJsonLogService = aIJsonLogService;
             _webSearchEngine = webSearchEngine;
             _aiAgentMemoryService = aiAgentMemoryService;
+            _authorizeService = authorizeService;
         }
         private async Task<List<AITool>> GetAITools(object data, List<string> toolNames)
         {
@@ -298,20 +303,50 @@ namespace kevin.Application.Services.AI
         private async Task<List<AITool>> GetMcpTools(object data, List<AISkillToolManagementDto> AISkillToolManagementDtos)
         {
             var aiTools = new List<AITool>();
-
+            if (AISkillToolManagementDtos.Count <= 0)
+            {
+                return aiTools;
+            }
             #region 获取Authorization
             var Authorization = "";
-            if (HttpContextAccessor.Current().Request.Headers.ContainsKey("Authorization"))
+            if (HttpContextAccessor != default && HttpContextAccessor.Current() != default)
             {
-                Authorization = HttpContextAccessor.Current().Request.Headers["Authorization"].ToString();
-            }
-            if (string.IsNullOrEmpty(Authorization) || !JwtToken.IsBearerValidJwt(Authorization))
-            {
-                if (HttpContextAccessor.Current().Request.Query.ContainsKey("Authorization"))
+                if (HttpContextAccessor.Current().Request.Headers.ContainsKey("Authorization"))
                 {
-                    Authorization = HttpContextAccessor.Current().Request.Query["Authorization"].ToString();
+                    Authorization = HttpContextAccessor.Current().Request.Headers["Authorization"].ToString();
+                }
+                if (string.IsNullOrEmpty(Authorization) || !JwtToken.IsBearerValidJwt(Authorization))
+                {
+                    if (HttpContextAccessor.Current().Request.Query.ContainsKey("Authorization"))
+                    {
+                        Authorization = HttpContextAccessor.Current().Request.Query["Authorization"].ToString();
+                    }
                 }
             }
+            else
+            {
+                var _data = data;
+                if (_data != default)
+                {
+                    long UserId = 0;
+                    var TenantId = 0;
+                    var jsonDoc = JsonDocument.Parse(JsonSerializer.Serialize(_data));
+                    if (jsonDoc.RootElement.TryGetProperty("UserId", out var userIdEl))
+                    {
+                        userIdEl.TryGetInt64(out UserId);
+                    }
+                    if (jsonDoc.RootElement.TryGetProperty("TenantId", out var tenantEl))
+                    {
+                        tenantEl.TryGetInt32(out TenantId);
+                    }
+                    if (UserId > 0 && TenantId > 0)
+                    {
+                        Authorization = "Bearer " + await _authorizeService.GetTokenById(UserId, TenantId);
+                    }
+                }
+            }
+
+
             #endregion
 
             foreach (var item in AISkillToolManagementDtos)
