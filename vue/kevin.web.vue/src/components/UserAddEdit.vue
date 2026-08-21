@@ -215,7 +215,7 @@ const form = reactive({
 const formRules = reactive({
   username: [
     { required: true, message: "请输入用户名" },
-    { min: 3, message: "用户名至少3个字符" },
+    { min: 2, message: "用户名至少2个字符" },
   ],
   nickName: [{ required: true, message: "请输入昵称" }],
   phone: [
