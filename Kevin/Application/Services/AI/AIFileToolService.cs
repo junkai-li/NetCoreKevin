@@ -45,7 +45,7 @@ namespace kevin.Application.Services.AI
                 }
                 else
                 {
-                    var encoding = new UTF8Encoding(false); // 默认 UTF-8 无 BOM 
+                    var encoding = new UTF8Encoding(true); // UTF-8 带 BOM，确保浏览器/编辑器正确识别中文编码，避免乱码
                     string safeName = StringHelper.MakeSafeFileName(fileName);
                     string basepath = "/Files/" + DateTime.Now.ToString("yyyy/MM/dd");
                     string filepath = Kevin.Common.App.IO.Path.ContentRootPath() + basepath;
