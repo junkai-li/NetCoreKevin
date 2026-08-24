@@ -3,7 +3,7 @@ schema_version: 1
 locale: zh-CN
 branch: master
 nodes_managed: true
-exported_at: "2026-08-17T03:40:26Z"
+exported_at: "2026-08-24T03:26:29Z"
 modules:
     "":
         dir_name: NetCoreKevin 企业级 AI 中台解决方案
