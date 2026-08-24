@@ -150,6 +150,30 @@
         <a-form-item v-if="modelForm.aiModelType === 2" label="矢量精度" v-bind="validateInfos.embeddingValueSize">
           <a-input-number v-model:value="modelForm.embeddingValueSize" :min="1" :default-value="2048" placeholder="请输入矢量精度" style="width: 100%" />
         </a-form-item>
+        <a-form-item v-if="modelForm.aiModelType === 1" label="提问Token" v-bind="validateInfos.maxAskPromptSize">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <a-input-number v-model:value="modelForm.maxAskPromptSize" :min="0" style="flex: 1" placeholder="请输入提问最大Token数" />
+            <a-tag
+              v-for="opt in askTokenOptions"
+              :key="opt.value"
+              :color="modelForm.maxAskPromptSize === opt.value ? 'blue' : 'default'"
+              style="cursor: pointer; margin: 0"
+              @click="modelForm.maxAskPromptSize = opt.value"
+            >{{ opt.label }}</a-tag>
+          </div>
+        </a-form-item>
+        <a-form-item v-if="modelForm.aiModelType === 1" label="回答Token" v-bind="validateInfos.answerTokens">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <a-input-number v-model:value="modelForm.answerTokens" :min="0" style="flex: 1" placeholder="请输入回答最大Token数" />
+            <a-tag
+              v-for="opt in answerTokenOptions"
+              :key="opt.value"
+              :color="modelForm.answerTokens === opt.value ? 'blue' : 'default'"
+              style="cursor: pointer; margin: 0"
+              @click="modelForm.answerTokens = opt.value"
+            >{{ opt.label }}</a-tag>
+          </div>
+        </a-form-item>
       </a-form>
     </a-modal>
   </div>
@@ -203,8 +227,24 @@ const modelForm = reactive({
   modelName: '',
   modelKey: '',
   modelDescription: '',
-  embeddingValueSize: 2048
+  embeddingValueSize: 2048,
+  maxAskPromptSize: 131072,
+  answerTokens: 8192
 });
+
+// Token快捷赋值选项（1k = 1024 Token）
+const askTokenOptions = [
+  { label: '128k', value: 131072 },
+  { label: '256k', value: 262144 },
+  { label: '512k', value: 524288 },
+  { label: '1M', value: 1048576 }
+];
+const answerTokenOptions = [
+  { label: '4k', value: 4096 },
+  { label: '16k', value: 16384 },
+  { label: '32k', value: 32768 },
+  { label: '128k', value: 131072 }
+];
 
 // 表单验证规则
 const modelRules = reactive({
@@ -301,7 +341,9 @@ const showAddModelModal = () => {
     modelName: '',
     modelKey: '',
     modelDescription: '',
-    embeddingValueSize: 2048
+    embeddingValueSize: 2048,
+    maxAskPromptSize: 131072,
+    answerTokens: 8192
   }); 
   modelModalVisible.value = true;
 };
@@ -318,6 +360,8 @@ const showEditModelModal = (record) => {
   modelForm.modelKey = record.modelKey || '';
   modelForm.modelDescription = record.modelDescription || '';
   modelForm.embeddingValueSize = record.embeddingValueSize || 2048;
+  modelForm.maxAskPromptSize = record.maxAskPromptSize || 131072;
+  modelForm.answerTokens = record.answerTokens || 8192;
   modelModalVisible.value = true;
 };
 
@@ -364,7 +408,9 @@ const handleModelModalOk = () => {
         modelName: modelForm.modelName,
         modelKey: modelForm.modelKey,
         modelDescription: modelForm.modelDescription,
-        embeddingValueSize: modelForm.embeddingValueSize
+        embeddingValueSize: modelForm.embeddingValueSize,
+        maxAskPromptSize: modelForm.maxAskPromptSize,
+        answerTokens: modelForm.answerTokens
       }:{ 
         aiType: modelForm.aiType,
         aiModelType: modelForm.aiModelType,
@@ -372,7 +418,9 @@ const handleModelModalOk = () => {
         modelName: modelForm.modelName,
         modelKey: modelForm.modelKey,
         modelDescription: modelForm.modelDescription,
-        embeddingValueSize: modelForm.embeddingValueSize
+        embeddingValueSize: modelForm.embeddingValueSize,
+        maxAskPromptSize: modelForm.maxAskPromptSize,
+        answerTokens: modelForm.answerTokens
       });
       
       message.success(currentModel.value ? '模型信息更新成功' : '模型信息添加成功');

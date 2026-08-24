@@ -15,15 +15,20 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         /// 最大用户轮次
         /// </summary>
         public int MaxUserTurns { get; set; } = 0;
+        /// <summary>
+        /// 提问Token预算（0=不限制），超出时从最旧的消息开始丢弃，优先保留最近的历史（保守估算：1个字符≈1个Token）
+        /// </summary>
+        public int MaxAskTokenBudget { get; set; } = 0;
 
         public KevinChatMessageStore(
               IKevinAIChatMessageStore vectorStore,
-                      string aIChatsId, int maxUserTurns = 0)
+                      string aIChatsId, int maxUserTurns = 0, int maxAskTokenBudget = 0)
         {
 
             this._chatMessageStore = vectorStore ?? throw new ArgumentNullException(nameof(vectorStore));
             this.ThreadDbKey = aIChatsId;
             this.MaxUserTurns = maxUserTurns;
+            this.MaxAskTokenBudget = maxAskTokenBudget;
             JsonSerializer.SerializeToElement(this.ThreadDbKey);
         }
 
@@ -34,6 +39,21 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
             var messages = data.OrderByDescending(t => t.CreateTime).ToList().ConvertAll(x => JsonSerializer.Deserialize<ChatMessage>(x.SerializedMessage!)!);
             messages.Reverse();
             messages = messages.ToList();
+            // 超出提问Token预算时，从最旧的消息开始丢弃，至少保留最近一条历史（工具消息Text可能为空，按字符数估算）
+            if (MaxAskTokenBudget > 0 && messages.Count > 1)
+            {
+                var totalTokens = messages.Sum(t => t.Text?.Length ?? 0);
+                var removeCount = 0;
+                while (totalTokens > MaxAskTokenBudget && removeCount < messages.Count - 1)
+                {
+                    totalTokens -= messages[removeCount].Text?.Length ?? 0;
+                    removeCount++;
+                }
+                if (removeCount > 0)
+                {
+                    messages = messages.Skip(removeCount).ToList();
+                }
+            }
             if (context.RequestMessages.Count() > 0)
             {
                 foreach (var item in context.RequestMessages)

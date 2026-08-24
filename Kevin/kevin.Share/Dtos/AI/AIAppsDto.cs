@@ -62,11 +62,6 @@ namespace kevin.Domain.Share.Dtos.AI
         public double Relevance { get; set; } = 60f;
 
         /// <summary>
-        /// 提问最大token数
-        /// </summary> 
-        [DefaultValue(20480)]
-        public int MaxAskPromptSize { get; set; } = 20480;
-        /// <summary>
         /// 向量匹配数
         /// </summary> 
         [DefaultValue(3)]
@@ -75,11 +70,6 @@ namespace kevin.Domain.Share.Dtos.AI
 
         [DefaultValue(20)]
         public int RerankCount { get; set; } = 20;
-        /// <summary>
-        /// 回答最大token数
-        /// </summary> 
-        [DefaultValue(20480)]
-        public int AnswerTokens { get; set; } = 20480;
 
         /// <summary>
         /// 提示词绑定

@@ -127,30 +127,6 @@
       </a-row>
       <a-row :gutter="16">
         <a-col :span="12">
-          <a-form-item label="提问Token" v-bind="validateInfos.maxAskPromptSize">
-            <a-input-number
-              v-model:value="form.maxAskPromptSize"
-              :min="0"
-              style="width: 100%"
-              placeholder="请输入最大Token数"
-              :disabled="isViewMode"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label="回答Token" v-bind="validateInfos.answerTokens">
-            <a-input-number
-              v-model:value="form.answerTokens"
-              :min="0"
-              style="width: 100%"
-              placeholder="请输入最大Token数"
-              :disabled="isViewMode"
-            />
-          </a-form-item>
-        </a-col>
-      </a-row>
-      <a-row :gutter="16">
-        <a-col :span="12">
           <a-form-item label="向量匹配数" v-bind="validateInfos.maxMatchesCount">
             <a-input-number
               v-model:value="form.maxMatchesCount"
@@ -494,8 +470,6 @@ const form = reactive({
   imageModelID: '',
   temperature: 50,
   relevance: 50,
-  maxAskPromptSize: 20480,
-  answerTokens: 20480,
   maxMatchesCount: 3,
   rerankCount: 20,
   aiPromptID: undefined,
@@ -899,8 +873,6 @@ watch(() => props.open, (newVal) => {
         imageModelID: '',
         temperature: 50,
         relevance: 50,
-        maxAskPromptSize: 20480,
-        answerTokens: 20480,
         maxMatchesCount: 3,
         rerankCount: 20,
         aiPromptID: undefined,
@@ -970,8 +942,6 @@ const handleOk = () => {
         imageModelID: form.imageModelID,
         temperature: form.temperature,
         relevance: form.relevance,
-        maxAskPromptSize: form.maxAskPromptSize,
-        answerTokens: form.answerTokens,
         maxMatchesCount: form.maxMatchesCount,
         rerankCount: form.rerankCount,
         aiPromptID: form.aiPromptID,

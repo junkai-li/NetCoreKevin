@@ -220,14 +220,11 @@ namespace kevin.Application.Services.AI
                     msg.SecretKey = par.SecretKey;
                     msg.Relevance = par.Relevance;
                     msg.MsgType = par.MsgType;
-                    msg.MaxAskPromptSize = par.MaxAskPromptSize;
                     msg.MaxMatchesCount = par.MaxMatchesCount;
                     msg.RerankCount = par.RerankCount;
-                    msg.AnswerTokens = par.AnswerTokens;
                     msg.AIPromptID = par.AIPromptID;
                     msg.IsAITools = par.IsAITools;
                     msg.IsSkill = par.IsSkill;
-                    msg.MaxAskPromptSize = par.MaxAskPromptSize;
                     msg.NetworkTimeout = par.NetworkTimeout;
                     msg.IsHttpLog = par.IsHttpLog;
                     msg.AuthorizedDomains = par.AuthorizedDomains;
@@ -322,7 +319,7 @@ namespace kevin.Application.Services.AI
         /// <param name="aiapp"></param>
         /// <param name="systemPrompt"></param>
         /// <returns></returns>
-        public ChatOptions GetAppChatOptions(AIAppsDto aiapp, string systemPrompt)
+        public ChatOptions GetAppChatOptions(AIAppsDto aiapp, AIModelsDto aiModel, string systemPrompt)
         {
             ReasoningOptions? reasoning = default;
             if (aiapp.ReasoningEffort >= 0 || aiapp.ReasoningOutput >= 0)
@@ -355,7 +352,7 @@ namespace kevin.Application.Services.AI
             }
             return new Microsoft.Extensions.AI.ChatOptions
             {
-                MaxOutputTokens = aiapp.AnswerTokens,
+                MaxOutputTokens = aiModel.AnswerTokens,
                 Temperature = (float)(aiapp.Temperature / 100),
                 Instructions = systemPrompt,
                 Reasoning = reasoning,
@@ -379,13 +376,14 @@ namespace kevin.Application.Services.AI
                 systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString());
             }
             #endregion
-
+            // Token配置来自模型配置（提问最大token数/回答最大token数）
+            var aiModel = await aIModelsService.GetNoPerDetails(aiapp.ChatModelID.ToTryInt64());
             var chatAgOs = new ChatClientAgentOptions
             {
                 Name = aiapp.Name,
                 Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
-                ChatOptions = GetAppChatOptions(aiapp, systemPrompt),
-                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0)
+                ChatOptions = GetAppChatOptions(aiapp, aiModel, systemPrompt),
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, Math.Max(0, aiModel.MaxAskPromptSize - (systemPrompt?.Length ?? 0) - aiModel.AnswerTokens))
             };
             #region AI配置
             if (aiapp.IsAITools)
@@ -470,8 +468,8 @@ namespace kevin.Application.Services.AI
             {
                 Name = aiapp.Name,
                 Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
-                ChatOptions = GetAppChatOptions(aiapp, systemPrompt),
-                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0)
+                ChatOptions = GetAppChatOptions(aiapp, aIModels, systemPrompt),
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, Math.Max(0, aIModels.MaxAskPromptSize - (systemPrompt?.Length ?? 0) - aIModels.AnswerTokens))
             };
             #region AI配置
             if (aiapp.IsAITools)

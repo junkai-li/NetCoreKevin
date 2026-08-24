@@ -69,19 +69,9 @@
             相似度
             </summary> 
         </member>
-        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.MaxAskPromptSize">
-            <summary>
-            提问最大token数
-            </summary> 
-        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.MaxMatchesCount">
             <summary>
             向量匹配数
-            </summary> 
-        </member>
-        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.AnswerTokens">
-            <summary>
-            回答最大token数
             </summary> 
         </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.AIPromptID">
@@ -457,6 +447,16 @@
             <summary>
             矢量值大小
             </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIModelsDto.MaxAskPromptSize">
+            <summary>
+            提问最大token数（模型上下文窗口预算）
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIModelsDto.AnswerTokens">
+            <summary>
+            回答最大token数（模型最大输出长度）
+            </summary>
         </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIPromptsDto.Name">
             <summary>

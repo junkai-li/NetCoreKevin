@@ -120,6 +120,8 @@ namespace kevin.Application.Services.AI
                     msg.ModelKey = par.ModelKey;
                     msg.ModelDescription = par.ModelDescription;
                     msg.EmbeddingValueSize = par.EmbeddingValueSize;
+                    msg.MaxAskPromptSize = par.MaxAskPromptSize;
+                    msg.AnswerTokens = par.AnswerTokens;
 
                 }
                 else

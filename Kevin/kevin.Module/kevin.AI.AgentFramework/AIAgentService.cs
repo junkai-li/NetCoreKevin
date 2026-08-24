@@ -180,10 +180,21 @@ namespace kevin.AI.AgentFramework
             {
                 // Unexpected exception: try to fallback as well
                 Ailogger?.LogError(ex, "Unexpected streaming error, falling back to non-streaming RunAsync.");
-                if (retries <= maxRetries)
+                // 参数类错误（如 max_tokens 超模型范围）重试也不会成功，直接停止并友好提示；其他错误才重试
+                if (!IsParameterInvalidException(ex) && retries <= maxRetries)
                 {
                     retries++;
                     goto aiRun;
+                }
+                // 重试耗尽或参数错误：将异常转成友好提示，避免前端只看到空回复
+                var friendlyMsg = BuildFriendlyAIMsg(ex);
+                if (aISetting.IsStreame && aISetting.StreameCallback != default)
+                {
+                    aISetting.StreameCallback.Invoke(friendlyMsg);
+                }
+                else
+                {
+                    resultText += friendlyMsg;
                 }
             }
             if (aISetting.IsHttpLog)
@@ -192,6 +203,44 @@ namespace kevin.AI.AgentFramework
             }
 
             return (aiAgent, resultText, tokenConsumptionInfo);
+        }
+
+        /// <summary>
+        /// 判断是否为请求参数类错误（如 max_tokens 超出模型支持范围），此类错误重试无意义，且多为配置问题需友好提示
+        /// </summary>
+        private static bool IsParameterInvalidException(Exception ex)
+        {
+            var msg = (ex.Message ?? "") + " " + (ex.InnerException?.Message ?? "");
+            return msg.Contains("invalid_parameter") || msg.Contains("InvalidParameter") || msg.Contains("invalid_request_error");
+        }
+
+        /// <summary>
+        /// 将模型调用异常转成用户可读的友好提示
+        /// </summary>
+        private static string BuildFriendlyAIMsg(Exception ex)
+        {
+            var msg = ex.InnerException?.Message ?? ex.Message ?? "";
+            if (msg.Contains("max_tokens") || msg.Contains("max_completion_tokens"))
+            {
+                // 提取模型返回的允许范围，如 "Range of max_tokens should be [1, 32768]"
+                var start = msg.IndexOf('[');
+                var end = msg.IndexOf(']');
+                var range = (start > 0 && end > start) ? msg.Substring(start, end - start + 1) : "";
+                return $"\n❌ 回答Token设置超出了当前模型支持的最大输出长度{range}，请到智能体设置中调小“回答Token”后重试。";
+            }
+            if (msg.Contains("context_length") || msg.Contains("context length") || msg.Contains("maximum context"))
+            {
+                return "\n❌ 提问内容（含历史对话与上下文）超出了模型的上下文窗口，请到智能体设置中调大“提问Token”或新建对话重试。";
+            }
+            if (msg.Contains("401") || msg.Contains("API key") || msg.Contains("api_key") || msg.Contains("Unauthorized") || msg.Contains("InvalidApiKey"))
+            {
+                return "\n❌ 模型鉴权失败（API Key 无效或已过期），请检查模型配置后重试。";
+            }
+            if (msg.Contains("429"))
+            {
+                return "\n❌ 模型服务限流或余额不足，请稍后重试或检查模型供应商配置。";
+            }
+            return $"\n❌ 模型调用失败：{msg}";
         }
 
         /// <summary>

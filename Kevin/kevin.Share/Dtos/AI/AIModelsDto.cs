@@ -50,5 +50,19 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary> 
         [Description("矢量值大小")]
         public int EmbeddingValueSize { get; set; } = 2048;
+
+        /// <summary>
+        /// 提问最大token数（模型上下文窗口预算）
+        /// </summary> 
+        [Description("提问最大token数")]
+        [DefaultValue(131072)]
+        public int MaxAskPromptSize { get; set; } = 131072;
+
+        /// <summary>
+        /// 回答最大token数（模型最大输出长度）
+        /// </summary>
+        [Description("回答最大token数")]
+        [DefaultValue(8192)]
+        public int AnswerTokens { get; set; } = 8192;
     }
 }

@@ -70,12 +70,6 @@ namespace kevin.Domain.Entities.AI
         public Double Relevance { get; set; } = 50f;
 
         /// <summary>
-        /// 提问最大token数
-        /// </summary> 
-        [DefaultValue(20480)]
-        [Description("提问最大token数")]
-        public int MaxAskPromptSize { get; set; } = 20480;
-        /// <summary>
         /// 向量匹配数
         /// </summary> 
         [DefaultValue(3)]
@@ -86,12 +80,6 @@ namespace kevin.Domain.Entities.AI
         [DefaultValue(20)]
         [Description("RerankCount")]
         public int RerankCount { get; set; } = 20;
-        /// <summary>
-        /// 回答最大token数
-        /// </summary> 
-        [Description("回答最大token数")]
-        [DefaultValue(20480)]
-        public int AnswerTokens { get; set; } = 20480;
 
         /// <summary>
         /// 提示词绑定

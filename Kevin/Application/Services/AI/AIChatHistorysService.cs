@@ -173,6 +173,8 @@ namespace kevin.Application.Services.AI
                 OtherContents.Add(StringHelper.SubstringText(webseoData, aiapp.ContentLengthLimit));
             }
             #endregion
+            // 按提问Token预算裁剪补充上下文，确保输入总量不超过模型的上下文窗口预算（模型配置的MaxAskPromptSize）
+            OtherContents = TrimContentsByAskTokenBudget(OtherContents, systemPrompt, add.Content, aIModels.MaxAskPromptSize, aIModels.AnswerTokens);
             ChatMessage mgs = new(ChatRole.User, [new TextContent($"{add.Content}"),
                         .. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(),
                         .. ImgUrls.Where(t => !string.IsNullOrEmpty(t)).Select(url => DataContent.LoadFromAsync(FileHelper.GetRemoteFileStreamAsync(url).Result).Result).ToList()]);
@@ -421,12 +423,13 @@ namespace kevin.Application.Services.AI
         }
 
         /// <summary>
-        /// 获取AI应用的聊天选项配置
+        /// 获取AI应用的聊天选项配置（Token配置来自模型配置）
         /// </summary>
         /// <param name="aiapp"></param>
+        /// <param name="aiModel"></param>
         /// <param name="systemPrompt"></param>
         /// <returns></returns>
-        public ChatOptions GetAppChatOptions(AIAppsDto aiapp, string systemPrompt)
+        public ChatOptions GetAppChatOptions(AIAppsDto aiapp, AIModelsDto aiModel, string systemPrompt)
         {
             ReasoningOptions? reasoning = default;
             if (aiapp.ReasoningEffort >= 0 || aiapp.ReasoningOutput >= 0)
@@ -459,12 +462,55 @@ namespace kevin.Application.Services.AI
             }
             return new Microsoft.Extensions.AI.ChatOptions
             {
-                MaxOutputTokens = aiapp.AnswerTokens,
+                MaxOutputTokens = aiModel.AnswerTokens,
                 Temperature = (float)(aiapp.Temperature / 100),
                 Instructions = systemPrompt,
                 Reasoning = reasoning,
                 ResponseFormat = responseFormat
             };
+        }
+
+        /// <summary>
+        /// 估算文本Token数（保守估算：1个字符≈1个Token，确保不超预算）
+        /// </summary>
+        private static int EstimateTokenCount(string text)
+        {
+            return string.IsNullOrEmpty(text) ? 0 : text.Length;
+        }
+
+        /// <summary>
+        /// 按提问Token预算裁剪补充上下文（RAG/文件/联网搜索结果）：
+        /// 预算 = 提问Token上限 - 系统提示词 - 用户问题 - 预留回答Token，
+        /// 按顺序填充，不够放的内容截断后不再纳入后续内容，保证排在前面的高优先级内容完整。
+        /// </summary>
+        private static List<string> TrimContentsByAskTokenBudget(List<string> contents, string systemPrompt, string userContent, int maxAskPromptSize, int answerTokens)
+        {
+            var result = new List<string>();
+            if (contents == null || contents.Count == 0 || maxAskPromptSize <= 0)
+            {
+                return result ?? new List<string>();
+            }
+            var budget = maxAskPromptSize - EstimateTokenCount(systemPrompt) - EstimateTokenCount(userContent) - answerTokens;
+            foreach (var content in contents)
+            {
+                if (string.IsNullOrEmpty(content) || budget <= 0)
+                {
+                    continue;
+                }
+                var tokens = EstimateTokenCount(content);
+                if (tokens <= budget)
+                {
+                    result.Add(content);
+                    budget -= tokens;
+                }
+                else
+                {
+                    // 当前段放不下时截断保留，后续内容不再纳入，避免半截上下文干扰模型
+                    result.Add(content.Substring(0, budget));
+                    break;
+                }
+            }
+            return result;
         }
         /// <summary>
         /// 异步消息压缩
@@ -522,7 +568,7 @@ namespace kevin.Application.Services.AI
 
                         Name = " 你是一款专业的压缩消息记录工具。",
                         Description = aiapp.AIMessageCompactionPrompt,
-                        ChatOptions = GetAppChatOptions(aiapp, aiapp.AIMessageCompactionPrompt)
+                        ChatOptions = GetAppChatOptions(aiapp, aIModels, aiapp.AIMessageCompactionPrompt)
                     });
                     var snowflakeIdService1 = new Kevin.SnowflakeId.Service.SnowflakeIdService();
                     var addList = new List<TAIChatMessageStoreCompaction>();
