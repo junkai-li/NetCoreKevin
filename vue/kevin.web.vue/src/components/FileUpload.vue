@@ -75,13 +75,12 @@
       :title="previewFile?.name"
       :footer="null"
       width="800px"
-      :key="previewModalKey"
     >
       <div v-if="previewLoading" class="preview-loading">
         <a-spin tip="加载中..." />
       </div>
       <div v-else-if="previewType === 'image'" class="preview-content">
-        <img :src="previewFile.url" :alt="previewFile?.name" class="preview-image" />
+        <img :key="previewFile?.url" :src="previewFile.url" :alt="previewFile?.name" class="preview-image" />
       </div>
       <div v-else-if="previewType === 'pdf'" class="preview-content preview-pdf">
         <embed :key="previewFile?.url" :src="previewFile.url" type="application/pdf" class="preview-embed" />
@@ -257,7 +256,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['upload-success', 'upload-error', 'delete-success', 'delete-error', 'zip-updated']);
+const emit = defineEmits(['upload-success', 'upload-error', 'delete-success', 'delete-error', 'zip-updated', 'file-ids-change']);
 
 const fileList = ref([]);
 const uploading = ref(false);
@@ -418,7 +417,6 @@ const canPreview = (file) => {
 };
 
 const previewModalVisible = ref(false);
-const previewModalKey = ref(0);
 const previewFile = ref(null);
 const previewContent = ref('');
 const previewHtml = ref('');
@@ -426,12 +424,17 @@ const previewLoading = ref(false);
 const previewType = ref('text');
 
 const handlePreview = async (file) => {
-  // 先清空上一次预览的残留状态，确保每次预览从干净状态开始
+  // 如果预览弹窗已打开，先关闭再重新打开，确保每次预览从干净状态开始
+  if (previewModalVisible.value) {
+    previewModalVisible.value = false;
+    await nextTick();
+  }
+
+  // 重置所有预览状态
   previewContent.value = '';
   previewHtml.value = '';
   previewLoading.value = false;
   previewFile.value = file;
-  previewModalKey.value++;
 
   if (isImageFile(file.name)) {
     previewType.value = 'image';
