@@ -76,27 +76,28 @@
       :footer="null"
       width="800px"
     >
-      <div v-if="previewLoading" class="preview-loading">
-        <a-spin tip="加载中..." />
+      <div :key="previewVersion">
+        <div v-if="previewLoading" class="preview-loading">
+          <a-spin tip="加载中..." />
+        </div>
+        <div v-else-if="previewType === 'image'" class="preview-content">
+          <img :src="previewFile.url" :alt="previewFile?.name" class="preview-image" />
+        </div>
+        <div v-else-if="previewType === 'pdf'" class="preview-content preview-pdf">
+          <embed :src="previewFile.url" type="application/pdf" class="preview-embed" />
+        </div>
+        <div v-else-if="previewType === 'word'" class="preview-content preview-word">
+          <iframe
+            :src="'https://docs.google.com/gview?url=' + encodeURIComponent(previewFile.url) + '&embedded=true'"
+            class="preview-iframe"
+          />
+        </div>
+        <div v-else-if="previewType === 'markdown'" class="preview-content preview-markdown" v-html="previewHtml"></div>
+        <div v-else-if="previewContent" class="preview-content">
+          <pre class="preview-text">{{ previewContent }}</pre>
+        </div>
+        <a-empty v-else description="暂不支持预览此文件" />
       </div>
-      <div v-else-if="previewType === 'image'" class="preview-content">
-        <img :key="previewFile?.url" :src="previewFile.url" :alt="previewFile?.name" class="preview-image" />
-      </div>
-      <div v-else-if="previewType === 'pdf'" class="preview-content preview-pdf">
-        <embed :key="previewFile?.url" :src="previewFile.url" type="application/pdf" class="preview-embed" />
-      </div>
-      <div v-else-if="previewType === 'word'" class="preview-content preview-word">
-        <iframe
-          :key="previewFile?.url"
-          :src="'https://docs.google.com/gview?url=' + encodeURIComponent(previewFile.url) + '&embedded=true'"
-          class="preview-iframe"
-        />
-      </div>
-      <div v-else-if="previewType === 'markdown'" class="preview-content preview-markdown" v-html="previewHtml"></div>
-      <div v-else-if="previewContent" class="preview-content">
-        <pre class="preview-text">{{ previewContent }}</pre>
-      </div>
-      <a-empty v-else description="暂不支持预览此文件" />
     </a-modal>
 
     <!-- Zip编辑Modal -->
@@ -109,7 +110,7 @@
       :footer="null"
       :maskClosable="false"
     >
-      <div class="zip-edit-container">
+      <div class="zip-edit-container" :key="zipEditVersion">
         <div class="zip-edit-header">
           <div class="zip-edit-actions">
             <a-button
@@ -417,6 +418,7 @@ const canPreview = (file) => {
 };
 
 const previewModalVisible = ref(false);
+const previewVersion = ref(0);
 const previewFile = ref(null);
 const previewContent = ref('');
 const previewHtml = ref('');
@@ -424,13 +426,8 @@ const previewLoading = ref(false);
 const previewType = ref('text');
 
 const handlePreview = async (file) => {
-  // 如果预览弹窗已打开，先关闭再重新打开，确保每次预览从干净状态开始
-  if (previewModalVisible.value) {
-    previewModalVisible.value = false;
-    await nextTick();
-  }
-
-  // 重置所有预览状态
+  // 递增版本号，强制 Vue 销毁重建整个预览内容区，确保每次预览从干净状态开始
+  previewVersion.value++;
   previewContent.value = '';
   previewHtml.value = '';
   previewLoading.value = false;
@@ -506,6 +503,7 @@ const handlePreview = async (file) => {
 };
 
 const zipEditModalVisible = ref(false);
+const zipEditVersion = ref(0);
 const zipEditLoading = ref(false);
 const zipEditSaving = ref(false);
 const zipEditFile = ref(null);
@@ -564,6 +562,8 @@ const rebuildZipFileTree = () => {
 };
 
 const handleZipEdit = async (file) => {
+  // 递增版本号，强制 Vue 销毁重建整个编辑区，确保每次编辑从干净状态开始
+  zipEditVersion.value++;
   zipEditFile.value = file;
   zipEditModalVisible.value = true;
   zipEditLoading.value = true;
