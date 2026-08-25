@@ -122,6 +122,30 @@
             </template>
           </a-dropdown>
 
+          <!-- 页面浏览模式切换 -->
+          <a-dropdown>
+            <a-button type="text" class="theme-switch-button">
+              <AppstoreOutlined />
+              浏览模式
+            </a-button>
+            <template #overlay>
+              <a-menu class="theme-menu">
+                <a-menu-item key="single" @click="switchPageMode('single')">
+                  <div class="page-mode-option">
+                    <span>单页面模式</span>
+                    <CheckOutlined v-if="pageMode === 'single'" class="page-mode-check" />
+                  </div>
+                </a-menu-item>
+                <a-menu-item key="tab" @click="switchPageMode('tab')">
+                  <div class="page-mode-option">
+                    <span>标签页模式</span>
+                    <CheckOutlined v-if="pageMode === 'tab'" class="page-mode-check" />
+                  </div>
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+
           <a-button type="text" class="theme-switch-button" @click="toggleFullScreen">
             <FullscreenOutlined v-if="!isFullScreen" />
             <FullscreenExitOutlined v-else />
@@ -262,6 +286,7 @@ import {
   MoreOutlined,
   CloseSquareOutlined,
   MinusSquareOutlined,
+  CheckOutlined,
 } from "@ant-design/icons-vue";
 import { GetMyNoReadCount } from "@/api/message";
 //import { Button } from 'ant-design-vue';
@@ -303,6 +328,9 @@ const openKeys = ref(["user-management"]);
 // 标签页相关
 const openTabs = ref([]);
 const activeTabKey = ref('');
+
+// 页面浏览模式：single=单页面模式（SPA内部标签页），tab=标签页模式（新浏览器标签页打开）
+const pageMode = ref('tab');
 
 // 路由key到组件的映射
 const routeComponentMap = {
@@ -415,32 +443,43 @@ const closeTab = (key) => {
   openTabs.value.splice(index, 1);
 };
 
+// 路由key到路径的映射
+const routePathMap = {
+  'user-list': '/home/user/list',
+  'user-role': '/home/user/role',
+  'user-permission': '/home/user/permission',
+  'system-dic': '/home/system/dic',
+  'system-announcement': '/home/system/announcement',
+  'log-management': '/home/system/log',
+  'oslog': '/home/system/oslog',
+  'ai-appsmg': '/home/aimanagement/aiappsmg',
+  'ai-promptsmg': '/home/aimanagement/aipromptsmg',
+  'ai-kmssmg': '/home/aimanagement/aikmssmg',
+  'ai-modelmg': '/home/aimanagement/aimodelmg',
+  'ai-skilltoolmg': '/home/aimanagement/aiskilltoolmg',
+  'my-message': '/home/my/message',
+  'my-ai-chat': '/home/my/ai-chat',
+  'my-ai-tasks': '/home/my/ai-tasks',
+  'my-ai-agents': '/home/my/ai-agents',
+  'organizational-position': '/home/position/management',
+  'organizational-department': '/home/department/management',
+  'system-tenant': '/home/system/tenant',
+  'system-code-generator': '/home/system/code-generator',
+  'handleUserInfo': '/home/user/profile',
+};
+
 // 根据key获取路由路径
 const getRoutePath = (key) => {
-  const paths = {
-    'user-list': '/home/user/list',
-    'user-role': '/home/user/role',
-    'user-permission': '/home/user/permission',
-    'system-dic': '/home/system/dic',
-    'system-announcement': '/home/system/announcement',
-    'log-management': '/home/system/log',
-    'oslog': '/home/system/oslog',
-    'ai-appsmg': '/home/aimanagement/aiappsmg',
-    'ai-promptsmg': '/home/aimanagement/aipromptsmg',
-    'ai-kmssmg': '/home/aimanagement/aikmssmg',
-    'ai-modelmg': '/home/aimanagement/aimodelmg',
-    'ai-skilltoolmg': '/home/aimanagement/aiskilltoolmg',
-    'my-message': '/home/my/message',
-    'my-ai-chat': '/home/my/ai-chat',
-    'my-ai-tasks': '/home/my/ai-tasks',
-    'my-ai-agents': '/home/my/ai-agents',
-    'organizational-position': '/home/position/management',
-    'organizational-department': '/home/department/management',
-    'system-tenant': '/home/system/tenant',
-    'system-code-generator': '/home/system/code-generator',
-    'handleUserInfo': '/home/user/profile',
-  };
-  return paths[key] || '/home';
+  return routePathMap[key] || '/home';
+};
+
+// 根据路由路径获取菜单key（反向映射，用于新标签页加载时同步菜单选中状态）
+const getRouteKey = (path) => {
+  if (path === '/home' || path === '/home/') return 'dashboard';
+  for (const [key, value] of Object.entries(routePathMap)) {
+    if (value === path) return key;
+  }
+  return 'dashboard';
 };
 
 // 刷新单个标签页
@@ -600,17 +639,37 @@ const switchTheme = (theme) => {
   localStorage.setItem("app-theme", theme);
 };
 
+// 切换页面浏览模式
+const switchPageMode = (mode) => {
+  pageMode.value = mode;
+  localStorage.setItem('page-mode', mode);
+
+  if (mode === 'single') {
+    // 切换到单页面模式时，将当前路由对应的页面作为内部标签页打开
+    const currentPath = router.currentRoute.value.path;
+    const routeKey = getRouteKey(currentPath);
+    const title = pageTitleMap[routeKey] || routeKey;
+    openTab(routeKey, title);
+  } else {
+    // 切换到标签页模式时，清空内部标签页
+    openTabs.value = [];
+    activeTabKey.value = '';
+  }
+};
+
 // 菜单点击事件
 const handleMenuClick = ({ key }) => {
   selectedKeys.value = [key];
 
-  // 获取页面标题
+  // 标签页模式：在新浏览器标签页中打开
+  if (pageMode.value === 'tab') {
+    window.open(getRoutePath(key), '_blank');
+    return;
+  }
+
+  // 单页面模式：使用内部标签页
   const title = pageTitleMap[key] || key;
-
-  // 打开标签页
   openTab(key, title);
-
-  // 根据key跳转到对应路由（复用 getRoutePath 避免重复代码）
   router.push(getRoutePath(key));
 };
 
@@ -624,8 +683,15 @@ const handleLogout = async () => {
 };
 // 个人中心
 const handleUserInfo = () => {
-  console.log("个人中心");
   selectedKeys.value = ["handleUserInfo"];
+
+  // 标签页模式：在新浏览器标签页中打开
+  if (pageMode.value === 'tab') {
+    window.open('/home/user/profile', '_blank');
+    return;
+  }
+
+  // 单页面模式：使用内部标签页
   openTab("handleUserInfo", "个人中心");
   router.push("/home/user/profile");
 };
@@ -638,6 +704,27 @@ onMounted(() => {
   } else {
     currentTheme.value = "theme-simple-white";
     localStorage.setItem("app-theme", "simple-white");
+  }
+
+  // 加载页面浏览模式，默认标签页模式
+  const savedPageMode = localStorage.getItem('page-mode');
+  pageMode.value = savedPageMode === 'single' ? 'single' : 'tab';
+
+  // 根据当前路由同步菜单选中状态（新标签页打开时自动定位）
+  const currentPath = router.currentRoute.value.path;
+  const routeKey = getRouteKey(currentPath);
+  selectedKeys.value = [routeKey];
+  for (const menu of menuList.value) {
+    if (menu.children && menu.children.some(child => child.key === routeKey)) {
+      openKeys.value = [menu.key];
+      break;
+    }
+  }
+
+  // 单页面模式下，将当前路由对应的页面作为标签页打开
+  if (pageMode.value === 'single') {
+    const title = pageTitleMap[routeKey] || routeKey;
+    openTab(routeKey, title);
   }
 
   const raw = localStorage.getItem("user");

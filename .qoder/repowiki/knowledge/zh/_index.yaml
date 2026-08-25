@@ -3,11 +3,11 @@ schema_version: 1
 locale: zh-CN
 branch: master
 nodes_managed: true
-exported_at: "2026-08-24T07:19:52Z"
+exported_at: "2026-08-25T01:33:31Z"
 modules:
     "":
-        dir_name: NetCoreKevin 企业级 AI 中台解决方案
-        title: NetCoreKevin 企业级 AI 中台解决方案
+        dir_name: Kevin 企业级 AI 中台解决方案（根工程）
+        title: Kevin 企业级 AI 中台解决方案（根工程）
         scope:
             - SYSTEM_DOCUMENTATION.md
             - .dockerignore
@@ -48,8 +48,8 @@ modules:
         depends_on: []
         related_to: []
     frontend_vue:
-        dir_name: Kevin 管理后台 Vue3 前端
-        title: Kevin 管理后台 Vue3 前端
+        dir_name: Kevin 管理后台前端（Vue3 + Ant Design Vue）
+        title: Kevin 管理后台前端（Vue3 + Ant Design Vue）
         scope:
             - vue/
         source_files: []

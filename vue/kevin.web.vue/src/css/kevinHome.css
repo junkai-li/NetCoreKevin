@@ -260,6 +260,18 @@
   background: rgba(0, 0, 0, 0.04) !important;
 }
 
+.page-mode-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 140px;
+}
+
+.page-mode-check {
+  color: var(--accent);
+  margin-left: 8px;
+}
+
 @media (max-width: 768px) {
   .sider {
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.12);
