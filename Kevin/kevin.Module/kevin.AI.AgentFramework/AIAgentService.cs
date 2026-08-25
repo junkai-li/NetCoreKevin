@@ -199,7 +199,12 @@ namespace kevin.AI.AgentFramework
                         // 更新当前模型配置
                         aISetting.AIUrl = nextModel.AIUrl;
                         aISetting.AIKeySecret = nextModel.AIKeySecret;
-                        aISetting.AIDefaultModel = nextModel.AIDefaultModel; 
+                        aISetting.AIDefaultModel = nextModel.AIDefaultModel;
+                        // 同步更新Token配置：切换到新模型的回答Token上限
+                        if (chatClientAgentOptions?.ChatOptions != null)
+                        {
+                            chatClientAgentOptions.ChatOptions.MaxOutputTokens = nextModel.AnswerTokens;
+                        }
                         // 通知前端模型切换
                         if (aISetting.IsStreame && aISetting.ToolStreameCallback != default)
                         {

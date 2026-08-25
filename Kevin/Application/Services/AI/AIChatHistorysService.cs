@@ -140,7 +140,9 @@ namespace kevin.Application.Services.AI
                 {
                     AIUrl = m.EndPoint,
                     AIKeySecret = m.ModelKey,
-                    AIDefaultModel = m.ModelName
+                    AIDefaultModel = m.ModelName,
+                    MaxAskPromptSize = m.MaxAskPromptSize,
+                    AnswerTokens = m.AnswerTokens
                 }).ToList();
             }
             var aIModels = await aIModelsService.GetDetails(aiapp.ChatModelID.ToTryInt64());

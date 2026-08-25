@@ -83,5 +83,13 @@
         /// 模型名称
         /// </summary>
         public string AIDefaultModel { get; set; } = string.Empty;
+        /// <summary>
+        /// 提问最大token数（模型上下文窗口预算）
+        /// </summary>
+        public int MaxAskPromptSize { get; set; } = 131072;
+        /// <summary>
+        /// 回答最大token数（模型最大输出长度）
+        /// </summary>
+        public int AnswerTokens { get; set; } = 8192;
     }
 }
