@@ -42,15 +42,6 @@ namespace kevin.AI.AgentFramework
             {
                 HttpClientAutoInterceptor.StartInterception();
             }
-            OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions()
-            {
-                Endpoint = new Uri(aISetting.AIUrl),
-                NetworkTimeout = TimeSpan.FromMinutes(aISetting.NetworkTimeout),// 设置网络超时时间为10分钟，适用于可能需要较长时间处理的请求
-                RetryPolicy = new ClientRetryPolicy(maxRetries: aISetting.MaxRetries)//重试次数和延迟
-                {
-                    // 可自定义延迟，默认指数退避
-                }
-            };
             #region AI工具
             if (!aISetting.IsAITools)
             {
@@ -69,8 +60,23 @@ namespace kevin.AI.AgentFramework
             #endregion
 
             var maxRetries = aISetting.MaxRetries;
+            // Auto模式：确保重试次数足够尝试所有备选模型
+            if (aISetting.FallbackModels?.Count > 0)
+            {
+                maxRetries = Math.Max(maxRetries, aISetting.FallbackModels.Count);
+            }
             var retries = 1;
         aiRun:
+            // openAIClientOptions 必须在 aiRun 内创建，确保模型切换后使用新的 Endpoint
+            OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions()
+            {
+                Endpoint = new Uri(aISetting.AIUrl),
+                NetworkTimeout = TimeSpan.FromMinutes(aISetting.NetworkTimeout),// 设置网络超时时间为10分钟，适用于可能需要较长时间处理的请求
+                RetryPolicy = new ClientRetryPolicy(maxRetries: aISetting.MaxRetries)//重试次数和延迟
+                {
+                    // 可自定义延迟，默认指数退避
+                }
+            };
             // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示  
             var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(aISetting.AIKeySecret) ? "local" : aISetting.AIKeySecret), openAIClientOptions);
 #pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
@@ -181,21 +187,42 @@ namespace kevin.AI.AgentFramework
                 // Unexpected exception: try to fallback as well
                 Ailogger?.LogError(ex, "Unexpected streaming error, falling back to non-streaming RunAsync.");
                 // 参数类错误（如 max_tokens 超模型范围）重试也不会成功，直接停止并友好提示；其他错误才重试
-                if (!IsParameterInvalidException(ex) && retries <= maxRetries)
+                if (retries <= maxRetries)
                 {
+                    // Auto模式：从备选模型中随机切换一个未使用过的模型
+                    if (aISetting.FallbackModels?.Count > 0)
+                    {
+                        var random = new Random();
+                        var index = random.Next(aISetting.FallbackModels.Count);
+                        var nextModel = aISetting.FallbackModels[index];
+                        aISetting.FallbackModels.RemoveAt(index);  
+                        // 更新当前模型配置
+                        aISetting.AIUrl = nextModel.AIUrl;
+                        aISetting.AIKeySecret = nextModel.AIKeySecret;
+                        aISetting.AIDefaultModel = nextModel.AIDefaultModel; 
+                        // 通知前端模型切换
+                        if (aISetting.IsStreame && aISetting.ToolStreameCallback != default)
+                        {
+                            aISetting.ToolStreameCallback.Invoke($"\n⚠️ 模型调用失败，正在自动切换到备用模型: {nextModel.AIDefaultModel}...\n");
+                        }
+                    }
                     retries++;
                     goto aiRun;
-                }
-                // 重试耗尽或参数错误：将异常转成友好提示，避免前端只看到空回复
-                var friendlyMsg = BuildFriendlyAIMsg(ex);
-                if (aISetting.IsStreame && aISetting.StreameCallback != default)
+                } 
+                if (IsParameterInvalidException(ex))
                 {
-                    aISetting.StreameCallback.Invoke(friendlyMsg);
-                }
-                else
-                {
-                    resultText += friendlyMsg;
-                }
+                    // 重试耗尽后参数错误：将异常转成友好提示，避免前端只看到空回复
+                    var friendlyMsg = BuildFriendlyAIMsg(ex);
+                    if (aISetting.IsStreame && aISetting.StreameCallback != default)
+                    {
+                        aISetting.StreameCallback.Invoke(friendlyMsg);
+                        resultText += friendlyMsg;
+                    }
+                    else
+                    {
+                        resultText += friendlyMsg;
+                    }
+                } 
             }
             if (aISetting.IsHttpLog)
             {

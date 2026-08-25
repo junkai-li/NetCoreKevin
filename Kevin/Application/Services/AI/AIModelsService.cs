@@ -66,6 +66,19 @@ namespace kevin.Application.Services.AI
             }
             return data;
         }
+
+        /// <summary>
+        /// 获取ai模型列表 无权限控制
+        /// </summary>
+        /// <param name="Type"></param> 
+        /// <returns></returns> 
+        public async Task<List<AIModelsDto>> GetNoPerALLList(int Type = 1)
+        {
+            var result = new List<AIModelsDto>();
+            var data = aIModelsRp.Query(isDataPer: false, isTenant: false).Where(t => t.IsDelete == false && t.AIModelType == (AIModelType)Type);
+            result = (await data.OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIModels, AIModelsDto>();
+            return result;
+        }
         /// <summary>
         /// 获取ai模型列表
         /// </summary>

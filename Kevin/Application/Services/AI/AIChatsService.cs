@@ -76,6 +76,14 @@ namespace kevin.Application.Services.AI
             {
                 throw new UserFriendlyException("智能体权限不足，无法使用");
             }
+            // Auto模式解析：随机选择一个可用模型
+            if (string.Equals(aiapp.ChatModelID, "auto", StringComparison.OrdinalIgnoreCase))
+            {
+                var allModels = await aIModelsService.GetNoPerALLList(1);
+                if (allModels.Count == 0)
+                    throw new UserFriendlyException("当前没有可用的聊天模型，请联系管理员配置模型。");
+                aiapp.ChatModelID = allModels[new Random().Next(allModels.Count)].Id.ToString();
+            }
             var aIModels = await aIModelsService.GetDetails(aiapp.ChatModelID.ToTryInt64());
             var aIPrompts = await aIPromptsService.GetDetails(aiapp.AIPromptID);
             var add = par.MapTo<TAIChats>();

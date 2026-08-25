@@ -377,6 +377,16 @@ namespace kevin.Application.Services.AI
             }
             #endregion
             // Token配置来自模型配置（提问最大token数/回答最大token数）
+            // Auto模式：解析为实际模型
+            if (string.Equals(aiapp.ChatModelID, "auto", StringComparison.OrdinalIgnoreCase))
+            {
+                var allModels = await aIModelsService.GetNoPerALLList(1);
+                if (allModels.Count == 0)
+                {
+                    throw new UserFriendlyException("当前没有可用的聊天模型，请联系管理员配置模型。");
+                }
+                aiapp.ChatModelID = allModels[new Random().Next(allModels.Count)].Id.ToString();
+            }
             var aiModel = await aIModelsService.GetNoPerDetails(aiapp.ChatModelID.ToTryInt64());
             var chatAgOs = new ChatClientAgentOptions
             {
@@ -459,6 +469,16 @@ namespace kevin.Application.Services.AI
         /// <returns></returns>
         public async Task<AIAgent> GetAppAIAgent(AIAppsDto aiapp, object parAi, AIChatHistorysDto par, CancellationToken cancellationToken = default, int referenceDepth = 0, int MaxReferenceDepth = 3)
         {
+            // Auto模式：子智能体随机选择一个模型
+            if (string.Equals(aiapp.ChatModelID, "auto", StringComparison.OrdinalIgnoreCase))
+            {
+                var allModels = await aIModelsService.GetNoPerALLList(1);
+                if (allModels.Count == 0)
+                {
+                    throw new UserFriendlyException("当前没有可用的聊天模型，请联系管理员配置模型。");
+                }
+                aiapp.ChatModelID = allModels[new Random().Next(allModels.Count)].Id.ToString();
+            }
             var aIModels = await aIModelsService.GetNoPerDetails(aiapp.ChatModelID.ToTryInt64());
             var aIPrompts = await aIPromptsService.GetNoPerDetails(aiapp.AIPromptID);
             string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;

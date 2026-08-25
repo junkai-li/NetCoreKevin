@@ -11,5 +11,7 @@ namespace kevin.Domain.Interfaces.IServices.AI
         Task<AIModelsDto> GetDetails(long id);
         Task<AIModelsDto> GetNoPerDetails(long id);
         Task<List<AIModelsDto>> GetALLList(int Type = 1);
+
+        Task<List<AIModelsDto>> GetNoPerALLList(int Type = 1);
     }
 }

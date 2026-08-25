@@ -57,7 +57,31 @@
         /// <summary>
         /// 思考过程流式请求回调
         /// </summary>
-        public Action<string> ReasoningStreameCallback { get; set; } = default; 
+        public Action<string> ReasoningStreameCallback { get; set; } = default;
 
+        /// <summary>
+        /// Auto模式下的备选模型信息列表，当主模型失败时自动随机切换到下一个未使用过的模型
+        /// </summary>
+        public List<AIFallbackModel> FallbackModels { get; set; } = new();
+
+    }
+
+    /// <summary>
+    /// Auto模式备选模型信息
+    /// </summary>
+    public class AIFallbackModel
+    {
+        /// <summary>
+        /// 模型API地址
+        /// </summary>
+        public string AIUrl { get; set; } = string.Empty;
+        /// <summary>
+        /// 模型密钥
+        /// </summary>
+        public string AIKeySecret { get; set; } = string.Empty;
+        /// <summary>
+        /// 模型名称
+        /// </summary>
+        public string AIDefaultModel { get; set; } = string.Empty;
     }
 }

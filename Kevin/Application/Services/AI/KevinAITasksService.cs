@@ -190,6 +190,15 @@ namespace kevin.Application.Services.AI
                         if (_aIAppsService != null)
                         {
                             var aiapp = _aIAppsService.GetNoPerDetails(aichat.AppId).Result;
+                            // Auto模式解析：随机选择一个可用模型
+                            if (string.Equals(aiapp.ChatModelID, "auto", StringComparison.OrdinalIgnoreCase))
+                            {
+                                var _aIModelsService = _serviceProvider?.GetService<IAIModelsService>();
+                                var allModels = _aIModelsService?.GetNoPerALLList(1).Result ?? new System.Collections.Generic.List<AIModelsDto>();
+                                if (allModels.Count == 0)
+                                    throw new UserFriendlyException("当前没有可用的聊天模型，请联系管理员配置模型。");
+                                aiapp.ChatModelID = allModels[new Random().Next(allModels.Count)].Id.ToString();
+                            }
                             var aIModels = _aIModelsRp.FirstOrDefault(t => t.Id == aiapp.ChatModelID.ToTryInt64(), isDataPer: false, isTenant: false);
                             var aIPrompts = _aIPromptsRp.FirstOrDefault(t => t.Id == aiapp.AIPromptID, isDataPer: false, isTenant: false).MapTo<AIPromptsDto>();
                             string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;

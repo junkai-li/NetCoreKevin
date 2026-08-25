@@ -121,6 +121,28 @@ namespace kevin.Application.Services.AI
             {
                 throw new UserFriendlyException("智能体权限不足，无法使用");
             }
+            // Auto模式：解析为实际模型并构建备选模型列表
+            List<AIFallbackModel> fallbackModels = new();
+            if (string.Equals(aiapp.ChatModelID, "auto", StringComparison.OrdinalIgnoreCase))
+            {
+                var allModels = await aIModelsService.GetNoPerALLList(1);
+                if (allModels.Count == 0)
+                {
+                    throw new UserFriendlyException("当前没有可用的聊天模型，请联系管理员配置模型。");
+                }
+                // 随机打乱模型顺序
+                var random = new Random();
+                allModels = allModels.OrderBy(_ => random.Next()).ToList();
+                // 第一个模型作为主模型
+                aiapp.ChatModelID = allModels[0].Id.ToString();
+                // 剩余模型作为备选
+                fallbackModels = allModels.Skip(1).Select(m => new AIFallbackModel
+                {
+                    AIUrl = m.EndPoint,
+                    AIKeySecret = m.ModelKey,
+                    AIDefaultModel = m.ModelName
+                }).ToList();
+            }
             var aIModels = await aIModelsService.GetDetails(aiapp.ChatModelID.ToTryInt64());
             var aIPrompts = await aIPromptsService.GetDetails(aiapp.AIPromptID);
             var add = par.MapTo<TAIChatHistorys>();
@@ -198,6 +220,7 @@ namespace kevin.Application.Services.AI
                         NetworkTimeout = aiapp.NetworkTimeout,
                         IsAISkills = aiapp.IsSkill,
                         IsAITools = aiapp.IsAITools,
+                        FallbackModels = fallbackModels,
                         StreameCallback = async (msg) =>
                         {
                             await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
@@ -245,6 +268,14 @@ namespace kevin.Application.Services.AI
                     var appitem = await aIAppsService.GetDetails(item.ToTryInt64());
                     if (appitem != default)
                     {
+                        // Auto模式解析：子智能体如果是auto则随机选一个模型
+                        if (string.Equals(appitem.ChatModelID, "auto", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var allModels = await aIModelsService.GetNoPerALLList(1);
+                            if (allModels.Count == 0)
+                                throw new UserFriendlyException("当前没有可用的聊天模型，请联系管理员配置模型。");
+                            appitem.ChatModelID = allModels[new Random().Next(allModels.Count)].Id.ToString();
+                        }
                         BindApps.Add(appitem, await aIModelsService.GetDetails(appitem.ChatModelID.ToTryInt64()));
                     }
                 }

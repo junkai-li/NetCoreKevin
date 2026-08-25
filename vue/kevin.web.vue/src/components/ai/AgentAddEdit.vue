@@ -57,12 +57,14 @@
             <a-select
               v-model:value="form.chatModelID"
               placeholder="请选择会话模型"
-              :options="modelOptions"
               allow-clear
               show-search
               optionFilterProp="label"
               :disabled="isViewMode"
             >
+              <a-select-option :value="'auto'">
+                🤖 Auto (自动切换)
+              </a-select-option>
               <a-select-option 
                 v-for="model in modelList" 
                 :key="model.id" 
@@ -727,13 +729,7 @@ const handleAgentTableChange = (pagination) => {
   loadAgentList();
 };
 
-// 模型选项
-const modelOptions = computed(() => {
-  return modelList.value.map(model => ({
-    label: model.modelName,
-    value: model.id
-  }));
-});
+// 模型选项（已通过插槽直接渲染，无需计算属性）
 
 // 知识库选项
 const kmsOptions = computed(() => {
