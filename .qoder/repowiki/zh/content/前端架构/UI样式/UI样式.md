@@ -14,10 +14,17 @@
 - [UserRole.css](file://vue/kevin.web.vue/src/css/UserRole.css)
 - [kevinHome.css](file://vue/kevin.web.vue/src/css/kevinHome.css)
 - [kevinLogin.css](file://vue/kevin.web.vue/src/css/kevinLogin.css)
+- [kevinHome.vue](file://vue/kevin.web.vue/src/pages/kevinHome.vue)
 - [main.js](file://vue/kevin.web.vue/src/main.js)
 - [package.json](file://vue/kevin.web.vue/package.json)
 - [vue.config.js](file://vue/kevin.web.vue/vue.config.js)
 </cite>
+
+## 更新摘要
+**变更内容**
+- 新增页面浏览模式UI元素样式，包括 .page-mode-option 和 .page-mode-check CSS类
+- 更新了主布局中的下拉菜单和模式选择指示器样式
+- 增强了单页面模式和标签页模式的视觉反馈
 
 ## 目录
 1. [简介](#简介)
@@ -35,7 +42,7 @@
 本文件系统化梳理 NetCoreKevin 前端 UI 的样式架构与实现，覆盖企业级主题定制、Ant Design Vue 主题覆盖、响应式设计与移动端适配、浏览器兼容性处理、CSS 变量体系、组件样式隔离与复用策略、动画与交互反馈、样式性能优化、模块化开发与调试技巧，以及设计系统落地与品牌一致性保障。目标是让不同技术背景的读者都能理解并高效维护该样式体系。
 
 ## 项目结构
-前端样式位于 vue/kevin.web.vue/src/css 目录下，采用“全局基础 + 业务域”的分层组织方式：
+前端样式位于 vue/kevin.web.vue/src/css 目录下，采用"全局基础 + 业务域"的分层组织方式：
 - 全局基础：主题变量、按钮与表单统一样式、分页统一样式、内容区企业风覆盖
 - 布局与页面：主布局（侧边栏/头部/内容区）、登录页
 - 业务域：用户管理、角色管理、个人资料、AI 聊天等独立样式模块
@@ -53,6 +60,7 @@ E --> H["MyTable.css<br/>深色表格样式"]
 E --> I["UserList.css / UserRole.css / UserProfile.css<br/>业务域样式"]
 E --> J["kevinLogin.css<br/>登录页样式"]
 E --> K["MyAIChat.css<br/>AI对话样式"]
+F --> L["页面浏览模式UI<br/>.page-mode-option/.page-mode-check"]
 ```
 
 图表来源
@@ -61,7 +69,7 @@ E --> K["MyAIChat.css<br/>AI对话样式"]
 - [buttons.css:1-99](file://vue/kevin.web.vue/src/css/buttons.css#L1-L99)
 - [pagination-enterprise.css:1-135](file://vue/kevin.web.vue/src/css/pagination-enterprise.css#L1-L135)
 - [enterprise-surface.css:1-327](file://vue/kevin.web.vue/src/css/enterprise-surface.css#L1-L327)
-- [kevinHome.css:1-387](file://vue/kevin.web.vue/src/css/kevinHome.css#L1-L387)
+- [kevinHome.css:1-399](file://vue/kevin.web.vue/src/css/kevinHome.css#L1-L399)
 
 章节来源
 - [main.js:1-20](file://vue/kevin.web.vue/src/main.js#L1-L20)
@@ -80,17 +88,20 @@ E --> K["MyAIChat.css<br/>AI对话样式"]
   - 将历史深色玻璃风组件统一到浅色企业风，覆盖卡片、表格、搜索框、AI 对话等区域，确保主内容区风格一致。
 - 布局与页面
   - 主布局包含侧边栏、头部、内容区与底部；登录页具备科技风背景与动效。
+- **新增：页面浏览模式UI**
+  - 新增 .page-mode-option 类用于下拉菜单选项布局，支持左右对齐显示模式名称和选中状态
+  - 新增 .page-mode-check 类用于显示当前选中模式的检查标记，使用强调色突出显示
 
 章节来源
 - [themes.css:1-378](file://vue/kevin.web.vue/src/css/themes.css#L1-L378)
 - [buttons.css:1-99](file://vue/kevin.web.vue/src/css/buttons.css#L1-L99)
 - [pagination-enterprise.css:1-135](file://vue/kevin.web.vue/src/css/pagination-enterprise.css#L1-L135)
 - [enterprise-surface.css:1-327](file://vue/kevin.web.vue/src/css/enterprise-surface.css#L1-L327)
-- [kevinHome.css:1-387](file://vue/kevin.web.vue/src/css/kevinHome.css#L1-L387)
+- [kevinHome.css:1-399](file://vue/kevin.web.vue/src/css/kevinHome.css#L1-L399)
 - [kevinLogin.css:1-255](file://vue/kevin.web.vue/src/css/kevinLogin.css#L1-L255)
 
 ## 架构总览
-样式架构遵循“变量驱动 + 主题类 + 作用域覆盖”的模式：
+样式架构遵循"变量驱动 + 主题类 + 作用域覆盖"的模式：
 - 变量层：themes.css 定义全局 CSS 变量，作为单一事实源
 - 主题层：以主题类挂载变量值，配合 :deep() 覆盖 Ant Design Vue 默认样式
 - 应用层：业务样式文件通过引用或继承变量，保持视觉一致
@@ -103,12 +114,14 @@ T --> U["应用层<br/>业务样式文件"]
 M["入口层<br/>main.js"] --> T
 M --> U
 U --> P["页面与组件<br/>kevinHome/kevinLogin/业务域"]
+U --> N["新增功能<br/>页面浏览模式UI"]
+N --> O[".page-mode-option<br/>.page-mode-check"]
 ```
 
 图表来源
 - [themes.css:1-378](file://vue/kevin.web.vue/src/css/themes.css#L1-L378)
 - [main.js:1-20](file://vue/kevin.web.vue/src/main.js#L1-L20)
-- [kevinHome.css:1-387](file://vue/kevin.web.vue/src/css/kevinHome.css#L1-L387)
+- [kevinHome.css:1-399](file://vue/kevin.web.vue/src/css/kevinHome.css#L1-L399)
 
 ## 详细组件分析
 
@@ -147,6 +160,39 @@ Override --> End(["渲染完成"])
 
 章节来源
 - [themes.css:1-378](file://vue/kevin.web.vue/src/css/themes.css#L1-L378)
+
+### 页面浏览模式UI样式（新增）
+- **模式选项容器 (.page-mode-option)**
+  - 使用 flexbox 布局实现左右对齐，左侧显示模式名称，右侧显示选中状态
+  - 最小宽度设置为 140px，确保在不同屏幕尺寸下的良好显示效果
+  - 垂直居中对齐，提升视觉一致性
+- **选中状态指示器 (.page-mode-check)**
+  - 使用主题强调色显示检查图标，提供清晰的视觉反馈
+  - 左侧边距 8px，与模式名称保持适当间距
+  - 仅在对应模式被选中时显示，增强用户操作反馈
+- **集成到下拉菜单**
+  - 应用于 kevinHome.vue 中的页面模式切换下拉菜单
+  - 支持"单页面模式"和"标签页模式"两种浏览方式的切换
+  - 动态显示当前选中状态的检查标记
+
+```mermaid
+sequenceDiagram
+participant U as "用户"
+participant M as "模式切换菜单"
+participant S as "样式层(.page-mode-option)"
+U->>M : 点击模式选项
+M->>S : 应用模式选项样式
+S-->>M : 显示模式名称和选中状态
+M-->>U : 视觉反馈(高亮/检查标记)
+```
+
+图表来源
+- [kevinHome.css:263-273](file://vue/kevin.web.vue/src/css/kevinHome.css#L263-L273)
+- [kevinHome.vue:133-145](file://vue/kevin.web.vue/src/pages/kevinHome.vue#L133-L145)
+
+章节来源
+- [kevinHome.css:263-273](file://vue/kevin.web.vue/src/css/kevinHome.css#L263-L273)
+- [kevinHome.vue:133-145](file://vue/kevin.web.vue/src/pages/kevinHome.vue#L133-L145)
 
 ### 全局控件与交互反馈
 - 按钮与链接
@@ -209,7 +255,7 @@ C-->>U : 视觉反馈(高亮/阴影/颜色变化)
   - 小屏适配：卡片内边距、标题字号、验证码按钮宽度调整
 
 章节来源
-- [kevinHome.css:1-387](file://vue/kevin.web.vue/src/css/kevinHome.css#L1-L387)
+- [kevinHome.css:1-399](file://vue/kevin.web.vue/src/css/kevinHome.css#L1-L399)
 - [kevinLogin.css:1-255](file://vue/kevin.web.vue/src/css/kevinLogin.css#L1-L255)
 
 ### 业务域样式
@@ -251,6 +297,7 @@ C-->>U : 视觉反馈(高亮/阴影/颜色变化)
   - themes.css 提供变量与主题类
   - buttons.css、pagination-enterprise.css、enterprise-surface.css 基于变量与主题类进行覆盖
   - kevinHome.css、kevinLogin.css 与业务域样式消费变量与主题类
+  - **新增：页面浏览模式UI样式依赖于主题变量和Ant Design Vue组件**
 
 ```mermaid
 graph LR
@@ -268,6 +315,7 @@ ES --> UR["UserRole.css"]
 ES --> UP["UserProfile.css"]
 ES --> KL["kevinLogin.css"]
 ES --> AC["MyAIChat.css"]
+HM --> PM["页面浏览模式UI<br/>.page-mode-option/.page-mode-check"]
 ```
 
 图表来源
@@ -276,15 +324,8 @@ ES --> AC["MyAIChat.css"]
 - [buttons.css:1-99](file://vue/kevin.web.vue/src/css/buttons.css#L1-L99)
 - [pagination-enterprise.css:1-135](file://vue/kevin.web.vue/src/css/pagination-enterprise.css#L1-L135)
 - [enterprise-surface.css:1-327](file://vue/kevin.web.vue/src/css/enterprise-surface.css#L1-L327)
-- [kevinHome.css:1-387](file://vue/kevin.web.vue/src/css/kevinHome.css#L1-L387)
-- [kevinLogin.css:1-255](file://vue/kevin.web.vue/src/css/kevinLogin.css#L1-L255)
-- [management.css:1-177](file://vue/kevin.web.vue/src/css/management.css#L1-L177)
-- [CardTable.css:1-353](file://vue/kevin.web.vue/src/css/CardTable.css#L1-L353)
-- [MyTable.css:1-76](file://vue/kevin.web.vue/src/css/MyTable.css#L1-L76)
-- [UserList.css:1-266](file://vue/kevin.web.vue/src/css/UserList.css#L1-L266)
-- [UserRole.css:1-318](file://vue/kevin.web.vue/src/css/UserRole.css#L1-L318)
-- [UserProfile.css:1-126](file://vue/kevin.web.vue/src/css/UserProfile.css#L1-L126)
-- [MyAIChat.css:1-800](file://vue/kevin.web.vue/src/css/MyAIChat.css#L1-L800)
+- [kevinHome.css:1-399](file://vue/kevin.web.vue/src/css/kevinHome.css#L1-L399)
+- [kevinHome.vue:133-145](file://vue/kevin.web.vue/src/pages/kevinHome.vue#L133-L145)
 
 章节来源
 - [package.json:1-68](file://vue/kevin.web.vue/package.json#L1-L68)
@@ -304,8 +345,6 @@ ES --> AC["MyAIChat.css"]
   - 长列表使用虚拟滚动或分页，避免一次性渲染过多 DOM
   - 自定义滚动条样式仅在必要时使用，避免兼容性问题
 
-[本节为通用指导，不直接分析具体文件]
-
 ## 故障排查指南
 - 主题未生效
   - 检查是否在根容器上正确添加主题类（如 .theme-enterprise）
@@ -316,6 +355,10 @@ ES --> AC["MyAIChat.css"]
 - 分页样式不一致
   - 确认分页容器类名与 pagination-enterprise.css 匹配
   - 检查表格底部分页是否被其他样式覆盖
+- **页面浏览模式UI样式问题**
+  - 确认 .page-mode-option 和 .page-mode-check 类是否正确应用到DOM元素
+  - 检查 kevinHome.vue 中模式切换逻辑是否正常执行
+  - 验证主题变量 --accent 是否正确定义
 - 移动端布局错乱
   - 检查 @media (max-width: 768px) 规则是否正确应用
   - 确认 flex 布局与内边距在小屏下的调整
@@ -327,27 +370,27 @@ ES --> AC["MyAIChat.css"]
 - [themes.css:1-378](file://vue/kevin.web.vue/src/css/themes.css#L1-L378)
 - [enterprise-surface.css:1-327](file://vue/kevin.web.vue/src/css/enterprise-surface.css#L1-L327)
 - [pagination-enterprise.css:1-135](file://vue/kevin.web.vue/src/css/pagination-enterprise.css#L1-L135)
-- [kevinHome.css:1-387](file://vue/kevin.web.vue/src/css/kevinHome.css#L1-L387)
+- [kevinHome.css:263-273](file://vue/kevin.web.vue/src/css/kevinHome.css#L263-L273)
+- [kevinHome.vue:133-145](file://vue/kevin.web.vue/src/pages/kevinHome.vue#L133-L145)
 - [kevinLogin.css:1-255](file://vue/kevin.web.vue/src/css/kevinLogin.css#L1-L255)
 - [package.json:61-66](file://vue/kevin.web.vue/package.json#L61-L66)
 
 ## 结论
-NetCoreKevin 的前端样式体系以 CSS 变量为核心，结合主题类与 :deep() 覆盖机制，实现了企业级主题定制与 Ant Design Vue 的深度集成。通过分层组织与模块化拆分，保证了样式的可维护性与可扩展性。响应式设计、动画与交互反馈提升了用户体验，性能优化与兼容性策略确保了稳定运行。建议持续完善主题文档与组件样式规范，进一步巩固设计系统的品牌一致性。
-
-[本节为总结，不直接分析具体文件]
+NetCoreKevin 的前端样式体系以 CSS 变量为核心，结合主题类与 :deep() 覆盖机制，实现了企业级主题定制与 Ant Design Vue 的深度集成。通过分层组织与模块化拆分，保证了样式的可维护性与可扩展性。**新增的页面浏览模式UI样式进一步增强了用户体验，提供了清晰的模式切换反馈**。响应式设计、动画与交互反馈提升了用户体验，性能优化与兼容性策略确保了稳定运行。建议持续完善主题文档与组件样式规范，进一步巩固设计系统的品牌一致性。
 
 ## 附录
 - 主题变量清单（示例）
   - 页面背景、侧栏背景、强调色、强调色 hover、强调色柔光、头部背景、头部边框、内容表面、内容边框、强文本、弱文本、页脚文本、头部图标色、危险色
 - 主题类清单（示例）
   - 企业蓝、黑蓝、灰蓝、绿色、紫色、深蓝、简约白
+- **新增：页面浏览模式UI类**
+  - .page-mode-option：模式选项容器样式
+  - .page-mode-check：选中状态检查标记样式
 - 关键样式文件职责
   - themes.css：主题变量与多主题
   - buttons.css：全局控件样式
   - pagination-enterprise.css：分页统一样式
   - enterprise-surface.css：内容区企业风覆盖
-  - kevinHome.css：主布局样式
+  - kevinHome.css：主布局样式与页面浏览模式UI
   - kevinLogin.css：登录页样式
   - 业务域样式：管理卡片、表格、用户/角色/资料、AI 对话
-
-[本节为补充说明，不直接分析具体文件]

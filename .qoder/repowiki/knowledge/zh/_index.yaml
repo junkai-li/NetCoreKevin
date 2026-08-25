@@ -3,11 +3,11 @@ schema_version: 1
 locale: zh-CN
 branch: master
 nodes_managed: true
-exported_at: "2026-08-25T01:33:31Z"
+exported_at: "2026-08-25T02:03:43Z"
 modules:
     "":
-        dir_name: Kevin 企业级 AI 中台解决方案（根工程）
-        title: Kevin 企业级 AI 中台解决方案（根工程）
+        dir_name: NetCoreKevin AI 中台 SaaS 工程根
+        title: NetCoreKevin AI 中台 SaaS 工程根
         scope:
             - SYSTEM_DOCUMENTATION.md
             - .dockerignore
@@ -35,6 +35,7 @@ modules:
         children: []
         depends_on: []
         related_to:
+            - path: docs_and_init_data
             - path: frontend_vue
             - path: tests
     docs_and_init_data:
@@ -46,10 +47,11 @@ modules:
         source_files: []
         children: []
         depends_on: []
-        related_to: []
+        related_to:
+            - path: app_project
     frontend_vue:
-        dir_name: Kevin 管理后台前端（Vue3 + Ant Design Vue）
-        title: Kevin 管理后台前端（Vue3 + Ant Design Vue）
+        dir_name: Kevin 管理后台 Vue 前端应用
+        title: Kevin 管理后台 Vue 前端应用
         scope:
             - vue/
         source_files: []

@@ -6,5 +6,6 @@ scope:
 source_files: []
 depends_on: []
 related_to:
+    - path: docs_and_init_data
     - path: frontend_vue
     - path: tests
