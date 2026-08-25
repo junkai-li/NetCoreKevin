@@ -29,6 +29,10 @@
         /// 是否启用AI工具
         /// </summary>
         public bool IsAITools { get; set; } = true;
+        /// <summary>
+        /// 是否启用Mcp工具
+        /// </summary>
+        public bool IsMcpTools { get; set; } = true;
 
         /// <summary>
         /// 最大重试次数

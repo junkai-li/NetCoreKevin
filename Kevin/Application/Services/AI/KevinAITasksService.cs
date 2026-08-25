@@ -224,6 +224,7 @@ namespace kevin.Application.Services.AI
                                         MaxRetries = aiapp.MaxRetries,
                                         IsAISkills = aiapp.IsSkill,
                                         IsAITools = aiapp.IsAITools,
+                                        IsMcpTools= aiapp.IsMcp,
                                         NetworkTimeout = aiapp.NetworkTimeout,
                                     }, chatAgOs, new(ChatRole.User, [new TextContent($"{taskContent} \n 必须根据相关技能，一次性完成所有步骤在返回结果")])).Result.Item2;
                                     break;

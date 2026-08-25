@@ -43,7 +43,7 @@ namespace kevin.AI.AgentFramework
                 HttpClientAutoInterceptor.StartInterception();
             }
             #region AI工具
-            if (!aISetting.IsAITools)
+            if (!aISetting.IsAITools && !aISetting.IsMcpTools)
             {
                 if (chatClientAgentOptions.ChatOptions != default)
                 {

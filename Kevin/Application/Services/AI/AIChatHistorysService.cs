@@ -222,6 +222,7 @@ namespace kevin.Application.Services.AI
                         NetworkTimeout = aiapp.NetworkTimeout,
                         IsAISkills = aiapp.IsSkill,
                         IsAITools = aiapp.IsAITools,
+                        IsMcpTools = aiapp.IsMcp,
                         FallbackModels = fallbackModels,
                         StreameCallback = async (msg) =>
                         {
