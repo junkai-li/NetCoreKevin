@@ -70,7 +70,7 @@
                 :key="model.id" 
                 :value="model.id"
               >
-                {{ model.modelName }}
+                {{ model.modelDescription }}
               </a-select-option>
             </a-select>
           </a-form-item>

@@ -3,11 +3,11 @@ schema_version: 1
 locale: zh-CN
 branch: master
 nodes_managed: true
-exported_at: "2026-08-25T03:52:33Z"
+exported_at: "2026-08-26T01:41:40Z"
 modules:
     "":
-        dir_name: NetCoreKevin AI 中台 SaaS 工程根
-        title: NetCoreKevin AI 中台 SaaS 工程根
+        dir_name: NetCoreKevin 企业级 AI 中台解决方案
+        title: NetCoreKevin 企业级 AI 中台解决方案
         scope:
             - SYSTEM_DOCUMENTATION.md
             - .dockerignore
@@ -27,8 +27,8 @@ modules:
         depends_on: []
         related_to: []
     app_project:
-        dir_name: App 业务应用层（WebApi + Application + Domain + RepositorieRps）
-        title: App 业务应用层（WebApi + Application + Domain + RepositorieRps）
+        dir_name: App 领域应用层（WebApi + Application + Domain + RepositorieRps + AppShare）
+        title: App 领域应用层（WebApi + Application + Domain + RepositorieRps + AppShare）
         scope:
             - App/
         source_files: []

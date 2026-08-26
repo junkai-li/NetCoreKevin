@@ -18,14 +18,19 @@
 - [AIAgentService.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AIAgentService.cs)
 - [AIAppsController.cs](file://Kevin/ Kevin.Web.Basics/Controllers/AI/AIAppsController.cs)
 - [AIChatsController.cs](file://Kevin/ Kevin.Web.Basics/Controllers/AI/AIChatsController.cs)
+- [TAIApps.cs](file://Kevin/Domain/Entities/AI/TAIApps.cs)
+- [AIAppsDto.cs](file://Kevin/kevin.Share/Dtos/AI/AIAppsDto.cs)
+- [TAIModels.cs](file://Kevin/Domain/Entities/AI/TAIModels.cs)
+- [AIModelsDto.cs](file://Kevin/kevin.Share/Dtos/AI/AIModelsDto.cs)
+- [AIChatHistorysService.cs](file://Kevin/Application/Services/AI/AIChatHistorysService.cs)
 </cite>
 
 ## 更新摘要
 **变更内容**
-- 新增AI文件工具服务编码优化章节，详细说明UTF-8带BOM编码改进
-- 更新文件处理相关组件的编码策略说明
-- 增强多语言内容处理的兼容性描述
-- 补充文件工具服务的集成与使用方式
+- 新增MCP工具支持功能，通过IsMcp属性启用外部工具集成
+- 增强令牌管理功能，新增MaxAskPromptSize和AnswerTokens属性用于模型上下文窗口控制
+- 优化知识库内容裁剪策略，基于Token预算精确控制上下文长度
+- 完善MCP协议工具发现与注册机制，支持HTTP、SSE、Stdio三种传输模式
 
 ## 目录
 1. [简介](#简介)
@@ -40,7 +45,7 @@
 10. [附录：API与配置要点](#附录api与配置要点)
 
 ## 简介
-本模块提供企业级AI智能助手能力，覆盖AI应用管理、聊天对话、知识库（RAG）管理、技能与工具注册使用等核心功能。系统支持多模型接入、流式响应、上下文记忆压缩、文件处理、代码执行、MCP协议工具集成等高级特性，并提供完整的Web API与前端页面支撑。**最新更新**：AI文件工具服务已优化UTF-8编码策略，采用带BOM模式确保浏览器和编辑器正确识别中文编码，避免乱码问题，显著提升多语言内容处理的兼容性。
+本模块提供企业级AI智能助手能力，覆盖AI应用管理、聊天对话、知识库（RAG）管理、技能与工具注册使用等核心功能。系统支持多模型接入、流式响应、上下文记忆压缩、文件处理、代码执行、**MCP协议工具集成**等高级特性，并提供完整的Web API与前端页面支撑。**最新更新**：新增MCP工具支持功能，通过IsMcp属性启用外部工具集成；增强令牌管理功能，通过MaxAskPromptSize和AnswerTokens属性精确控制模型上下文窗口，显著提升长对话场景下的性能和稳定性。
 
 ## 项目结构
 - 应用服务层（Application/Services/AI）：封装业务编排、数据持久化、外部服务调用（如向量库、文件存储、消息推送）。
@@ -70,6 +75,11 @@ SvcKms["AIKmssService"] --> DocProc["文档处理器"]
 DocProc --> Embed["Ollama嵌入"]
 Embed --> Qdrant["Qdrant向量库"]
 end
+subgraph "MCP工具集成"
+MCP["MCP协议支持"] --> HTTP["HTTP/SSE传输"]
+MCP --> Stdio["标准输入输出"]
+MCP --> Tools["动态工具发现"]
+end
 ```
 
 图表来源
@@ -79,19 +89,21 @@ end
 - [AIChatsService.cs:14-212](file://Kevin/Application/Services/AI/AIChatsService.cs#L14-L212)
 - [AIAgentService.cs:21-491](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AIAgentService.cs#L21-L491)
 - [AIKmssService.cs:18-449](file://Kevin/Application/Services/AI/AIKmssService.cs#L18-L449)
+- [AIAgentToolSkillService.cs:303-436](file://Kevin/Application/Services/AI/AIAgentToolSkillService.cs#L303-L436)
 
 章节来源
 - [AIAppsController.cs:14-122](file://Kevin/ Kevin.Web.Basics/Controllers/AI/AIAppsController.cs#L14-L122)
 - [AIChatsController.cs:15-79](file://Kevin/ Kevin.Web.Basics/Controllers/AI/AIChatsController.cs#L15-L79)
 
 ## 核心组件
-- AI应用管理：创建/编辑/删除智能体，绑定模型、提示词、工具/技能/MCP、子智能体，配置温度、最大输出、响应格式、重试次数、网络超时、消息压缩策略等。
+- AI应用管理：创建/编辑/删除智能体，绑定模型、提示词、工具/技能/**MCP工具**，配置温度、最大输出、响应格式、重试次数、网络超时、消息压缩策略等。
 - 聊天对话：创建会话、维护对话历史、流式或一次性返回结果、更新主题与最后一条消息。
 - 知识库管理：上传/导入文档，文本/Markdown/PDF/Word/HTML/图片/Excel等多格式解析，按段落/行分块，生成向量并入库Qdrant。
-- 技能与工具：动态注册内置工具（HTTP、Shell、Python、桌面操作、定时任务、钉钉消息等），以及通过MCP协议接入第三方工具；支持技能包解压与脚本执行。
+- 技能与工具：动态注册内置工具（HTTP、Shell、Python、桌面操作、定时任务、钉钉消息等），以及通过**MCP协议接入第三方工具**；支持技能包解压与脚本执行。
 - 模型与提示词：集中管理模型端点、密钥、类型（含Embedding）、提示词模板与描述。
 - Agent框架：统一构建OpenAI兼容Agent，支持工具自动审批、流式回调、思考过程提取、Token用量统计、失败重试。
 - **文件工具服务**：新增的AI文件工具服务，支持内容保存和文件上传，采用UTF-8带BOM编码确保中文显示正确。
+- **令牌管理**：**新增MaxAskPromptSize和AnswerTokens属性**，精确控制模型上下文窗口和输出长度，提升长对话场景性能。
 
 章节来源
 - [AIAppsService.cs:16-544](file://Kevin/Application/Services/AI/AIAppsService.cs#L16-L544)
@@ -103,6 +115,7 @@ end
 - [AIModelsService.cs:8-160](file://Kevin/Application/Services/AI/AIModelsService.cs#L8-L160)
 - [AIAgentService.cs:21-491](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AIAgentService.cs#L21-L491)
 - [AIFileToolService.cs:10-76](file://Kevin/Application/Services/AI/AIFileToolService.cs#L10-L76)
+- [TAIModels.cs:54-66](file://Kevin/Domain/Entities/AI/TAIModels.cs#L54-L66)
 
 ## 架构总览
 系统采用分层架构：
@@ -118,15 +131,20 @@ participant C as "AIChatsController"
 participant S as "AIChatsService"
 participant A as "AIAppsService"
 participant T as "AIAgentToolSkillService"
+participant M as "MCP工具服务"
 participant G as "AIAgentService"
-participant M as "模型(OpenAI兼容)"
+participant Model as "模型(OpenAI兼容)"
 U->>C : 发起对话请求
 C->>S : Add/发送消息
 S->>A : 获取应用配置/提示词/模型
 A->>T : 组装工具/技能/MCP
+alt MCP工具启用
+T->>M : 连接MCP服务器
+M-->>T : 返回可用工具列表
+end
 A->>G : 创建Agent并发送消息
-G->>M : 流式/非流式调用
-M-->>G : 增量文本/工具调用/思考过程
+G->>Model : 流式/非流式调用
+Model-->>G : 增量文本/工具调用/思考过程
 G-->>S : 结果/Token用量
 S-->>U : 实时推送或最终结果
 ```
@@ -143,13 +161,13 @@ S-->>U : 实时推送或最终结果
 ### AI应用管理（AIAppsService）
 - 功能要点
   - 列表查询、详情获取、新增/编辑、删除、初始化默认配置。
-  - 绑定技能/工具/MCP、子智能体引用（最多三级深度）。
+  - 绑定技能/工具/**MCP工具**、子智能体引用（最多三级深度）。
   - 构建ChatOptions：温度、最大输出、指令（系统提示词）、推理选项、响应格式。
   - 构建ChatClientAgentOptions：名称、描述、历史记录提供者（可压缩）、工具集、技能上下文提供者。
-  - 创建AIAgent：根据模型配置、是否启用工具/技能、是否流式、重试次数、网络超时等参数。
+  - 创建AIAgent：根据模型配置、是否启用工具/技能/**MCP工具**、是否流式、重试次数、网络超时等参数。
 - 关键流程
   - GetAppChatOptions：将应用配置映射为ChatOptions。
-  - GetAppAIAgentOptions/GetAppAIAgent：组合提示词、压缩策略、工具/技能/MCP，最终创建Agent。
+  - GetAppAIAgentOptions/GetAppAIAgent：组合提示词、压缩策略、工具/技能/**MCP工具**，最终创建Agent。
 - 错误处理
   - 应用不存在或已删除时抛出友好异常。
   - 唯一性校验（名称重复）。
@@ -167,7 +185,7 @@ Skills -- 是 --> AddSkills["加载技能脚本/上下文"]
 Skills -- 否 --> SkipSkills["跳过技能"]
 AddSkills --> MCP{"启用MCP?"}
 SkipSkills --> MCP
-MCP -- 是 --> AddMCP["连接MCP传输(HTTP/SSE/Stdio)"]
+MCP -- 是 --> AddMCP["连接MCP传输(HTTP/SSE/Stdio)<br/>动态发现工具"]
 MCP -- 否 --> SkipMCP["跳过MCP"]
 AddMCP --> CreateAgent["创建AIAgent"]
 SkipMCP --> CreateAgent
@@ -256,12 +274,12 @@ Store --> Done["标记成功/失败"]
 
 ### 技能与工具（AISkillToolManagementService & AIAgentToolSkillService）
 - 技能管理
-  - 列表/分页/详情，支持按类型筛选（技能/工具/MCP）。
+  - 列表/分页/详情，支持按类型筛选（技能/工具/**MCP**）。
   - 新增/编辑：技能包上传后解压到指定目录，供Agent运行时加载。
   - 删除：软删除并清理技能目录。
 - 工具装配
   - 内置工具：当前时间、当前用户、HTTP请求、Shell命令、Python代码执行、桌面操作、定时任务、钉钉消息、JSON日志、授权码获取等。
-  - MCP工具：支持HTTP/HTTPS、SSE、Stdio三种传输模式，动态发现并注册为AITool。
+  - **MCP工具**：支持HTTP/HTTPS、SSE、Stdio三种传输模式，动态发现并注册为AITool。
   - 工具选择：根据应用绑定的工具ID动态注入，支持用户维度隔离。
 - 安全与护栏
   - Shell/Python执行限制（超时、输出截断、危险命令阻止）。
@@ -305,10 +323,16 @@ AISkillToolManagementService <.. AIAgentToolSkillService : "查询可用技能/�
   - 列表/分页/详情，支持租户隔离。
   - 新增/编辑：名称、提示词内容、描述。
   - 删除：软删除。
+- **令牌管理增强**
+  - **MaxAskPromptSize**：提问最大token数，控制模型上下文窗口预算。
+  - **AnswerTokens**：回答最大token数，限制模型输出长度。
+  - 默认值：MaxAskPromptSize=131072，AnswerTokens=8192。
 
 章节来源
 - [AIModelsService.cs:16-157](file://Kevin/Application/Services/AI/AIModelsService.cs#L16-L157)
 - [AIPromptsService.cs:15-151](file://Kevin/Application/Services/AI/AIPromptsService.cs#L15-L151)
+- [TAIModels.cs:54-66](file://Kevin/Domain/Entities/AI/TAIModels.cs#L54-L66)
+- [AIModelsDto.cs:54-66](file://Kevin/kevin.Share/Dtos/AI/AIModelsDto.cs#L54-L66)
 
 ### Agent框架与流式响应（AIAgentService）
 - 能力
@@ -419,10 +443,87 @@ Clean --> Success["返回成功结果"]
 章节来源
 - [PythonToolsService.cs:280-299](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/PythonToolsService.cs#L280-L299)
 
+### MCP工具集成（新增功能）
+**重要更新** 系统现已支持通过MCP（Model Context Protocol）协议集成外部工具，提供更强大的工具扩展能力。
+
+- **MCP协议支持**
+  - 支持HTTP/HTTPS、SSE（Server-Sent Events）、Stdio三种传输模式。
+  - 自动发现远程工具并注册为AITool。
+  - 支持Bearer Token认证和环境变量配置。
+- **工具发现与注册**
+  - 通过McpClient.CreateAsync建立连接。
+  - 调用ListToolsAsync获取可用工具列表。
+  - 动态转换为AITool供Agent使用。
+- **配置管理**
+  - McpUrl：MCP服务器地址。
+  - McpType：传输类型（http/https/sse/stdio）。
+  - McpHeaders：自定义请求头（支持Authorization）。
+  - McpCommand：Stdio模式的命令行。
+  - McpArguments：命令行参数。
+  - McpEnvironment：环境变量配置。
+
+```mermaid
+flowchart TD
+Config["MCP配置"] --> Transport{"传输类型"}
+Transport --> |HTTP/SSE| HttpTransport["HttpClientTransport"]
+Transport --> |Stdio| StdioTransport["StdioClientTransport"]
+HttpTransport --> Client["McpClient创建"]
+StdioTransport --> Client
+Client --> Discover["ListToolsAsync发现工具"]
+Discover --> Register["注册为AITool"]
+Register --> Agent["Agent使用工具"]
+```
+
+图表来源
+- [AIAgentToolSkillService.cs:303-436](file://Kevin/Application/Services/AI/AIAgentToolSkillService.cs#L303-L436)
+
+章节来源
+- [AIAgentToolSkillService.cs:303-436](file://Kevin/Application/Services/AI/AIAgentToolSkillService.cs#L303-L436)
+- [AISkillToolManagementService.cs:247-250](file://Kevin/Application/Services/AI/AISkillToolManagementService.cs#L247-L250)
+
+### 令牌管理增强（新增功能）
+**重要更新** 系统新增了精细化的令牌管理机制，通过MaxAskPromptSize和AnswerTokens属性精确控制模型上下文窗口。
+
+- **MaxAskPromptSize（提问最大token数）**
+  - 默认值：131072 tokens
+  - 作用：控制模型上下文窗口的总预算
+  - 计算：系统提示词 + 用户问题 + 补充上下文 + 历史对话 ≤ MaxAskPromptSize
+- **AnswerTokens（回答最大token数）**
+  - 默认值：8192 tokens  
+  - 作用：限制模型输出的最大长度
+  - 应用：ChatOptions.MaxOutputTokens = AnswerTokens
+- **智能上下文裁剪**
+  - 基于Token预算的动态裁剪算法
+  - 优先级：系统提示词 > 用户问题 > 高优先级上下文
+  - 保护机制：确保关键信息不被截断
+
+```mermaid
+flowchart TD
+Budget["MaxAskPromptSize预算"] --> System["系统提示词"]
+Budget --> User["用户问题"]
+Budget --> Answer["预留回答空间"]
+System --> Remain["剩余预算"]
+User --> Remain
+Answer --> Remain
+Remain --> Context["补充上下文填充"]
+Context --> Trim["超出预算时裁剪"]
+Trim --> Optimize["优化上下文质量"]
+```
+
+图表来源
+- [AIChatHistorysService.cs:515-548](file://Kevin/Application/Services/AI/AIChatHistorysService.cs#L515-L548)
+- [AIAppsService.cs:396](file://Kevin/Application/Services/AI/AIAppsService.cs#L396)
+
+章节来源
+- [TAIModels.cs:54-66](file://Kevin/Domain/Entities/AI/TAIModels.cs#L54-L66)
+- [AIModelsDto.cs:54-66](file://Kevin/kevin.Share/Dtos/AI/AIModelsDto.cs#L54-L66)
+- [AIChatHistorysService.cs:515-548](file://Kevin/Application/Services/AI/AIChatHistorysService.cs#L515-L548)
+- [AIAppsService.cs:396](file://Kevin/Application/Services/AI/AIAppsService.cs#L396)
+
 ## 依赖关系分析
 - 控制器依赖服务：AIAppsController -> AIAppsService；AIChatsController -> AIChatsService。
 - 服务间协作：
-  - AIAppsService依赖AIAgentToolSkillService（工具/技能/MCP）、AIPromptsService（提示词）、AIModelsService（模型）、AIAgentService（Agent运行）。
+  - AIAppsService依赖AIAgentToolSkillService（工具/技能/**MCP工具**）、AIPromptsService（提示词）、AIModelsService（模型）、AIAgentService（Agent运行）。
   - AIChatsService依赖AIAppsService（应用配置）、AIAgentService（对话执行）、SignalR（实时推送）。
   - AIKmssService依赖文件服务、向量库（Qdrant）、Ollama嵌入、分布式锁。
   - **AIFileToolService**：被AIAgentToolSkillService集成，作为AI工具之一提供文件保存功能。
@@ -443,6 +544,8 @@ SvcChats --> SignalR["SignalR"]
 SvcKms["AIKmssService"] --> Qdrant["Qdrant"]
 SvcKms --> Ollama["Ollama"]
 ToolSvc --> FileSvc["AIFileToolService"]
+ToolSvc --> MCP["MCP工具集成"]
+ModelSvc --> Tokens["令牌管理"]
 ```
 
 图表来源
@@ -462,35 +565,40 @@ ToolSvc --> FileSvc["AIFileToolService"]
 ## 性能与优化建议
 - 流式响应优先：开启MsgType=2以启用流式输出，降低首字延迟，提升用户体验。
 - 上下文压缩：启用IsAIMessageCompaction与IsAutoGetAIMessageCompaction，配合ConversationTurnsExceed控制保留轮次，减少上下文长度与成本。
-- 模型参数调优：合理设置Temperature、MaxOutputTokens、ResponseFormat；对结构化输出使用Json格式。
-- 工具与技能最小化：仅绑定必要工具/技能，减少工具调用开销与安全风险。
+- **令牌优化**：**合理配置MaxAskPromptSize和AnswerTokens**，根据模型能力和业务需求调整上下文窗口和输出长度，避免资源浪费。
+- 模型参数调优：合理设置Temperature、ResponseFormat；对结构化输出使用Json格式。
+- 工具与技能最小化：仅绑定必要工具/技能/**MCP工具**，减少工具调用开销与安全风险。
 - 重试与超时：根据网络稳定性调整MaxRetries与NetworkTimeout，避免频繁重试导致雪崩。
 - 知识库分块策略：根据文档语义调整MaxTokensPerParagraph与OverlappingTokens，平衡召回率与冗余。
 - 向量维度匹配：确保Embedding模型的EmbeddingValueSize与实际向量维度一致，避免写入失败。
 - 并发控制：知识库处理使用分布式锁，避免重复计算；高并发场景考虑异步批处理。
 - **编码优化**：文件保存使用UTF-8带BOM编码，提升多语言内容兼容性；Python脚本使用UTF-8无BOM编码确保跨平台兼容。
+- **MCP工具优化**：合理使用MCP工具，注意网络连接和认证配置，避免不必要的远程调用开销。
 
 [本节为通用指导，不直接分析具体文件]
 
 ## 故障排查指南
 - 应用不存在或已删除：检查AI应用ID与租户隔离条件，确认未被软删除。
 - 工具/技能未生效：确认应用已绑定对应工具/技能ID，且工具ClassMethod正确。
-- MCP连接失败：检查McpType、McpUrl/McpCommand、Headers/Environment配置是否正确。
+- **MCP连接失败**：检查McpType、McpUrl/McpCommand、Headers/Environment配置是否正确，确认网络连通性和认证信息。
 - 知识库入库失败：查看明细状态与错误信息，确认文件可读、解析器支持、向量模型可用。
 - 流式无输出：检查IsStreame与回调是否注册，确认模型支持流式。
 - 权限不足：确认用户具备该AI应用的访问权限（角色/用户绑定）。
 - **文件编码问题**：检查文件保存时使用的编码格式，确保UTF-8带BOM用于需要中文显示的文件。
 - **文件工具调用失败**：验证SaveFileContent方法的参数传递，确认basePath和content至少有一个有效值。
+- **令牌溢出错误**：检查MaxAskPromptSize配置是否过小，或AnswerTokens是否过大，调整预算分配。
+- **上下文裁剪过度**：调整MaxAskPromptSize增大预算，或优化系统提示词和用户问题的长度。
 
 章节来源
 - [AIAppsService.cs:85-117](file://Kevin/Application/Services/AI/AIAppsService.cs#L85-L117)
 - [AIChatsService.cs:72-130](file://Kevin/Application/Services/AI/AIChatsService.cs#L72-L130)
 - [AIKmssService.cs:241-429](file://Kevin/Application/Services/AI/AIKmssService.cs#L241-L429)
-- [AIAgentToolSkillService.cs:252-327](file://Kevin/Application/Services/AI/AIAgentToolSkillService.cs#L252-L327)
+- [AIAgentToolSkillService.cs:252-327](file://Kevin/Application/Services/AI/AIAgentToolSkillService.cs#L252-327)
 - [AIFileToolService.cs:23-73](file://Kevin/Application/Services/AI/AIFileToolService.cs#L23-L73)
+- [AIAgentToolSkillService.cs:428-433](file://Kevin/Application/Services/AI/AIAgentToolSkillService.cs#L428-L433)
 
 ## 结论
-本AI智能助手模块提供了完整的AI应用生命周期管理与对话能力，结合RAG、工具/技能扩展、流式响应与上下文压缩，满足企业级复杂场景需求。**最新改进**：AI文件工具服务通过UTF-8带BOM编码优化，显著提升了多语言内容处理的兼容性，确保中文内容在各种浏览器和编辑器中正确显示。通过统一的Agent框架与模块化设计，系统具备良好的可扩展性与可维护性。建议在生产环境结合业务特点调优模型参数、工具范围与知识库策略，以获得最佳性能与体验。
+本AI智能助手模块提供了完整的AI应用生命周期管理与对话能力，结合RAG、工具/技能扩展、流式响应与上下文压缩，满足企业级复杂场景需求。**最新改进**：新增MCP工具支持功能，通过IsMcp属性启用外部工具集成，极大扩展了系统的工具生态；增强令牌管理功能，通过MaxAskPromptSize和AnswerTokens属性精确控制模型上下文窗口，显著提升长对话场景下的性能和稳定性。通过统一的Agent框架与模块化设计，系统具备良好的可扩展性与可维护性。建议在生产环境结合业务特点调优模型参数、工具范围与知识库策略，以获得最佳性能与体验。
 
 [本节为总结，不直接分析具体文件]
 
@@ -511,12 +619,13 @@ ToolSvc --> FileSvc["AIFileToolService"]
   - 保存文件内容：通过AI工具调用SaveFileContent方法
   - 支持本地文件路径和文件内容两种方式
   - 返回远程文件访问URL或错误信息
-- 关键配置项（示例说明）
+- **关键配置项（示例说明）**
   - 模型：EndPoint、ModelName、ModelKey、AIModelType（含Embedding）、EmbeddingValueSize。
+  - **令牌管理**：**MaxAskPromptSize**（默认131072）、**AnswerTokens**（默认8192）。
   - 提示词：Prompt、Description。
-  - 应用：Temperature、AnswerTokens、ResponseFormat、ReasoningEffort/Output、MaxRetries、NetworkTimeout、IsHttpLog、IsAIMessageCompaction、ConversationTurnsExceed、IsAITools、IsSkill、IsMcp、AuthorizedDomains、ContentLengthLimit、IsSecurityIntercept等。
+  - 应用：Temperature、ResponseFormat、ReasoningEffort/Output、MaxRetries、NetworkTimeout、IsHttpLog、IsAIMessageCompaction、ConversationTurnsExceed、IsAITools、IsSkill、**IsMcp**、AuthorizedDomains、ContentLengthLimit、IsSecurityIntercept等。
   - 知识库：MaxTokensPerParagraph、OverlappingTokens、aIModelsId（Embedding）、aIRerankModelsId。
-  - 工具/技能/MCP：ClassMethod、McpType、McpUrl、McpHeaders、McpCommand、McpArguments、McpEnvironment。
+  - 工具/技能/**MCP**：ClassMethod、**McpType**、**McpUrl**、**McpHeaders**、**McpCommand**、**McpArguments**、**McpEnvironment**。
   - **文件编码**：UTF-8带BOM用于需要中文显示的文件，UTF-8无BOM用于Python脚本等需要跨平台兼容的场景。
 
 章节来源
@@ -527,4 +636,8 @@ ToolSvc --> FileSvc["AIFileToolService"]
 - [AIPromptsService.cs:81-129](file://Kevin/Application/Services/AI/AIPromptsService.cs#L81-L129)
 - [AIKmssService.cs:112-240](file://Kevin/Application/Services/AI/AIKmssService.cs#L112-L240)
 - [AIAgentToolSkillService.cs:119-247](file://Kevin/Application/Services/AI/AIAgentToolSkillService.cs#L119-L247)
-- [AIFileToolService.cs:17-76](file://Kevin/Application/Services/AI/AIFileToolService.cs#L17-L76)
+- [AIFileToolService.cs:17-76](file://Kevin/Application/Services/AI/AIFileToolService.cs#L17-76)
+- [TAIApps.cs:211-215](file://Kevin/Domain/Entities/AI/TAIApps.cs#L211-L215)
+- [AIAppsDto.cs:113-117](file://Kevin/kevin.Share/Dtos/AI/AIAppsDto.cs#L113-L117)
+- [TAIModels.cs:54-66](file://Kevin/Domain/Entities/AI/TAIModels.cs#L54-L66)
+- [AIModelsDto.cs:54-66](file://Kevin/kevin.Share/Dtos/AI/AIModelsDto.cs#L54-L66)

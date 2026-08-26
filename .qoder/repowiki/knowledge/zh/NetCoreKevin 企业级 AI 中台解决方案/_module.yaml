@@ -1,6 +1,6 @@
 schema_version: 1
 module_path: ""
-title: NetCoreKevin AI 中台 SaaS 工程根
+title: NetCoreKevin 企业级 AI 中台解决方案
 scope:
     - SYSTEM_DOCUMENTATION.md
     - .dockerignore

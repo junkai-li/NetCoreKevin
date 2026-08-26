@@ -94,7 +94,7 @@
                 :key="model.id" 
                 :value="model.id"
               >
-                {{ model.modelName }}
+                {{ model.modelDescription }}
               </a-select-option>
             </a-select>
           </a-form-item>
@@ -112,7 +112,7 @@
                 :key="model.id" 
                 :value="model.id"
               >
-                {{ model.modelName }}
+                {{ model.modelDescription }} 
               </a-select-option>
             </a-select>
           </a-form-item> </a-col>
@@ -310,14 +310,14 @@ const rerankModelList = ref([]);
 // 模型选项
 const modelOptions = computed(() => {
   return modelList.value.map(model => ({
-    label: model.modelName,
+    label: model.modelDescription,
     value: model.id
   }));
 });
 // Rerank 模型选项
 const rerankModelOptions = computed(() => {
   return rerankModelList.value.map(model => ({
-    label: model.modelName,
+    label: model.modelDescription,
     value: model.id
   }));
 });

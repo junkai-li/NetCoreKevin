@@ -1,6 +1,6 @@
 schema_version: 1
 module_path: app_project
-title: App 业务应用层（WebApi + Application + Domain + RepositorieRps）
+title: App 领域应用层（WebApi + Application + Domain + RepositorieRps + AppShare）
 scope:
     - App/
 source_files: []
