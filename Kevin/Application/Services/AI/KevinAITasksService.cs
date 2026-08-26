@@ -111,7 +111,25 @@ namespace kevin.Application.Services.AI
         }
 
         /// <summary>
-        /// 创建一次性任务：在指定的未来时间点执行一次后自动结束，不会重复执行，也无需移除
+        /// 获取当前用户的未执行一次性任务（Scheduled 状态延迟作业），可按任务名称过滤
+        /// RunTask 参数顺序：[0]=userId [1]=taskName [2]=taskContent [3]=taskdata
+        /// </summary>
+        private List<KeyValuePair<string, Hangfire.Storage.Monitoring.ScheduledJobDto>> GetMyOnceJobs(string userId, string? name = null)
+        {
+            var storage = _jobStorage ?? JobStorage.Current;
+            if (storage == null)
+            {
+                return new List<KeyValuePair<string, Hangfire.Storage.Monitoring.ScheduledJobDto>>();
+            }
+            return storage.GetMonitoringApi().ScheduledJobs(0, int.MaxValue)
+                .Where(t => t.Value?.Job?.Type == typeof(IKevinAITaskService)
+                    && t.Value.Job.Args.FirstOrDefault()?.ToString() == userId
+                    && (name == null || (t.Value.Job.Args.Count > 1 && t.Value.Job.Args[1]?.ToString() == name)))
+                .ToList();
+        }
+
+        /// <summary>
+        /// 创建一次性任务：在指定的未来时间点执行一次后自动结束，不会重复执行，也无需移除；同名的未执行一次性任务会被覆盖（等同于更新执行时间）
         /// </summary>
         /// <param name="name">任务名称</param>
         /// <param name="content">任务内容</param>
@@ -129,12 +147,22 @@ namespace kevin.Application.Services.AI
                 {
                     return Task.FromResult("添加一次性任务失败：" + name + content + executeTime.ToString("yyyy-MM-dd HH:mm") + "，异常信息：执行时间必须大于当前时间，如果要立即执行请使用 TriggerCronTask");
                 }
+                // 同名一次性任务视为"更新"：先移除旧的未执行任务再创建，与 AddOrUpdateCronTask 的同名覆盖语义保持一致
+                var updateCount = 0;
+                foreach (var job in GetMyOnceJobs(CurrentUser.UserId.ToString(), name))
+                {
+                    if (_backgroundJobClient.Delete(job.Key))
+                    {
+                        updateCount++;
+                    }
+                }
                 //使用 Hangfire 延迟作业（Scheduled Job）在指定时间点执行一次，执行完后 Hangfire 自动结束该任务，无需重复也无需移除
                 _backgroundJobClient.Schedule<IKevinAITaskService>(
                          (s) => s.RunTask(CurrentUser.UserId.ToString(), name, content, _data),    // 要执行的任务
                          DateTime.SpecifyKind(executeTime, DateTimeKind.Local)      // 指定本地时区的执行时间点
                      );
-                return Task.FromResult("添加一次性任务成功：" + name + "，执行时间：" + executeTime.ToString("yyyy-MM-dd HH:mm") + "，该任务将在指定时间点执行一次后自动结束");
+                var updateMsg = updateCount > 0 ? $"，已覆盖同名旧任务 {updateCount} 个（等同更新执行时间）" : "";
+                return Task.FromResult("添加一次性任务成功：" + name + "，执行时间：" + executeTime.ToString("yyyy-MM-dd HH:mm") + updateMsg + "，该任务将在指定时间点执行一次后自动结束");
             }
             catch (Exception ex)
             {
@@ -163,17 +191,12 @@ namespace kevin.Application.Services.AI
                     return $"name:{r.Id.Replace(CurrentUser.UserId.ToString(), "")} | Type:周期性任务 | Cron:{r.Cron} | Next:{next} | Last:{last} | TimeZone:{r.TimeZoneId}";
                 }).ToList();
                 // 查询一次性任务（Scheduled 状态的延迟作业，执行完后会自动结束不再列表中）
-                var monitoring = storage.GetMonitoringApi();
-                var onceJobs = monitoring.ScheduledJobs(0, int.MaxValue)
-                    .Where(t => t.Value?.Job?.Type == typeof(IKevinAITaskService)
-                        && t.Value.Job.Args.FirstOrDefault()?.ToString() == CurrentUser.UserId.ToString())
-                    .Select(t =>
-                    {
-                        var executeAt = t.Value.EnqueueAt.ToLocalTime().ToString("u");
-                        // RunTask 参数顺序：[0]=userId [1]=taskName [2]=taskContent [3]=taskdata
-                        var taskName = t.Value.Job.Args.Count > 1 ? t.Value.Job.Args[1]?.ToString() : "";
-                        return $"name:{taskName} | Type:一次性任务 | ExecuteAt:{executeAt} | JobId:{t.Key}";
-                    }).ToList();
+                var onceJobs = GetMyOnceJobs(CurrentUser.UserId.ToString()).Select(t =>
+                {
+                    var executeAt = t.Value.EnqueueAt.ToLocalTime().ToString("u");
+                    var taskName = t.Value.Job.Args.Count > 1 ? t.Value.Job.Args[1]?.ToString() : "";
+                    return $"name:{taskName} | Type:一次性任务 | ExecuteAt:{executeAt} | JobId:{t.Key}";
+                }).ToList();
                 result.AddRange(onceJobs);
                 return Task.FromResult(result);
             }
@@ -184,12 +207,23 @@ namespace kevin.Application.Services.AI
 
 
         }
-        public Task<string> RemoveCronTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")] string name)
+        public Task<string> RemoveCronTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结（同时兼容周期性任务和一次性任务，已执行完成的一次性任务会自动结束无需移除）")] string name)
         {
             try
             {
+                // 1. 移除同名周期性任务（如存在，不存在也不抛异常）
                 _recurringJobManager.RemoveIfExists(CurrentUser.UserId + name);
-                return Task.FromResult("移除定时任务成功：" + name);
+                // 2. 移除同名未执行的一次性任务（Scheduled 状态延迟作业）
+                var onceRemoved = 0;
+                foreach (var job in GetMyOnceJobs(CurrentUser.UserId.ToString(), name))
+                {
+                    if (_backgroundJobClient.Delete(job.Key))
+                    {
+                        onceRemoved++;
+                    }
+                }
+                var onceMsg = onceRemoved > 0 ? $"，并移除了 {onceRemoved} 个同名未执行的一次性任务" : "";
+                return Task.FromResult("移除任务成功：" + name + onceMsg + "（注：已执行完成的一次性任务会自动结束，无需移除）");
             }
             catch (Exception ex)
             {
@@ -198,12 +232,34 @@ namespace kevin.Application.Services.AI
 
         }
 
-        public Task<string> TriggerCronTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")] string name)
+        public Task<string> TriggerCronTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结（同时兼容周期性任务和一次性任务）")] string name)
         {
             try
             {
-                _recurringJobManager.Trigger(CurrentUser.UserId + name);
-                return Task.FromResult("执行定时任务成功：" + name);
+                var triggered = new List<string>();
+                // 1. 立即触发同名未执行的一次性任务（Scheduled 状态延迟作业，触发后立即执行且不会再在原定时间重复执行）
+                foreach (var job in GetMyOnceJobs(CurrentUser.UserId.ToString(), name))
+                {
+                    if (_backgroundJobClient.Requeue(job.Key))
+                    {
+                        triggered.Add($"一次性任务(JobId:{job.Key})已立即触发");
+                    }
+                }
+                // 2. 触发同名周期性任务（如存在）
+                try
+                {
+                    _recurringJobManager.Trigger(CurrentUser.UserId + name);
+                    triggered.Add("周期性任务已触发");
+                }
+                catch
+                {
+                    // 同名周期性任务不存在时忽略（只要一次性任务触发成功即可），两者都不存在时下面统一报错
+                }
+                if (triggered.Count == 0)
+                {
+                    return Task.FromResult("执行任务失败：" + name + "，异常信息：未找到该名称的任务，可先通过 GetTaskList 查询任务列表确认任务名称");
+                }
+                return Task.FromResult("执行任务成功：" + name + "，" + string.Join("；", triggered));
             }
             catch (Exception ex)
             {
