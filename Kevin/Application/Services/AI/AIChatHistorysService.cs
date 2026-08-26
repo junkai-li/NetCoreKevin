@@ -309,7 +309,7 @@ namespace kevin.Application.Services.AI
             {
                 if (kmss.aIModelsId != default)
                 {
-                    var aimode = await aIModelsService.GetDetails(kmss.aIModelsId.GetValueOrDefault());
+                    var aimode = await aIModelsService.GetNoPerDetails(kmss.aIModelsId.GetValueOrDefault());
                     if (aimode?.AIModelType == AIModelType.Embedding)
                     {
                         ollamaApiService = new OllamaApiService(aimode.EndPoint, aimode.ModelName, aimode.ModelKey);
@@ -329,7 +329,7 @@ namespace kevin.Application.Services.AI
                 }
                 else
                 {
-                    var aIReankModels = await aIModelsService.GetDetails(kmss.aIRerankModelsId.ToTryInt64());
+                    var aIReankModels = await aIModelsService.GetNoPerDetails(kmss.aIRerankModelsId.ToTryInt64());
                     if (aIReankModels.AIModelType == AIModelType.Rerank)
                     {
                         switch (aIReankModels.AIType)
