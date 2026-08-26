@@ -233,6 +233,12 @@ namespace kevin.Application.Services.AI
                                 new AIFunctionFactoryOptions { Name = "AddOrUpdateCronTask", Description = "创建或更新一个周期性自动任务" }
                             ));
                             break;
+                        case "iKevinAITasksService.AddOnceTask":
+                            aiTools.Add(
+                                AIFunctionFactory.Create(_kevinAITaskService.AddOnceTask,
+                                new AIFunctionFactoryOptions { Name = "AddOnceTask", Description = "创建一个一次性任务：在指定的未来时间点（如明天上午九点、几小时后）执行一次后自动结束，不会重复执行，也无需移除。当用户要求在某个具体时间点执行一次时使用" }
+                            ));
+                            break;
                         case "iKevinAITasksService.RemoveCronTask":
                             aiTools.Add(
                                 AIFunctionFactory.Create(_kevinAITaskService.RemoveCronTask,
@@ -248,7 +254,7 @@ namespace kevin.Application.Services.AI
                         case "iKevinAITasksService.GetTaskList":
                             aiTools.Add(
                             AIFunctionFactory.Create(_kevinAITaskService.GetTaskList,
-                            new AIFunctionFactoryOptions { Name = "GetTaskList", Description = "获取我的所有周期性任务列表" }
+                            new AIFunctionFactoryOptions { Name = "GetTaskList", Description = "获取我的所有任务列表（包含周期性任务和未执行的一次性任务）" }
                         ));
                             break;
 

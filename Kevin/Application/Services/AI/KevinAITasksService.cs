@@ -25,6 +25,7 @@ namespace kevin.Application.Services.AI
     public class KevinAITasksService : BaseService, IKevinAITaskService
     {
         private readonly IRecurringJobManager _recurringJobManager;
+        private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly JobStorage _jobStorage;
 
         private readonly IMessageService _messageService;
@@ -42,12 +43,13 @@ namespace kevin.Application.Services.AI
             _data = data;
         }
 
-        public KevinAITasksService(IHttpContextAccessor _httpContextAccessor, IRecurringJobManager recurringJobManager, JobStorage jobStorage, IMessageService messageService,
+        public KevinAITasksService(IHttpContextAccessor _httpContextAccessor, IRecurringJobManager recurringJobManager, IBackgroundJobClient backgroundJobClient, JobStorage jobStorage, IMessageService messageService,
             IAIAgentService aIAgentService, IAIModelsRp aIModelsRp, IAIPromptsRp aIPromptsRp, IAIChatsRp aIChatsRp, IServiceProvider serviceProvider,
             IDistributedLockProvider distLock) : base(_httpContextAccessor)
         {
             _serviceProvider = serviceProvider;
             _recurringJobManager = recurringJobManager;
+            _backgroundJobClient = backgroundJobClient;
             _jobStorage = jobStorage; // 可通过 DI 注入；若为 null，会回退到 JobStorage.Current
             _messageService = messageService;
             _aIAgentService = aIAgentService;
@@ -108,6 +110,38 @@ namespace kevin.Application.Services.AI
 
         }
 
+        /// <summary>
+        /// 创建一次性任务：在指定的未来时间点执行一次后自动结束，不会重复执行，也无需移除
+        /// </summary>
+        /// <param name="name">任务名称</param>
+        /// <param name="content">任务内容</param>
+        /// <param name="executeTime">执行时间点，必须是未来时间</param>
+        /// <returns></returns>
+        public Task<string> AddOnceTask(
+            [Description("可传入具体的任务名称，不可为空 比如：明天上午九点总结AI热门资讯")] string name,
+            [Description("可传入具体的任务内容（禁止传入自动任务相关词汇，只能传入任务步骤！！！）。 比如：第一步：搜索并总结AI领域的热门资讯，包括技术突破、产品发布、行业动态等，第二步：生成总结报告为MkD格式")] string content,
+            [Description("执行时间点，不可为空，必须是未来的时间，格式：yyyy-MM-dd HH:mm 比如：2026-08-27 09:00 表示2026年8月27日上午9点执行一次")] DateTime executeTime)
+        {
+            try
+            {
+                //校验执行时间必须在未来
+                if (executeTime <= DateTime.Now)
+                {
+                    return Task.FromResult("添加一次性任务失败：" + name + content + executeTime.ToString("yyyy-MM-dd HH:mm") + "，异常信息：执行时间必须大于当前时间，如果要立即执行请使用 TriggerCronTask");
+                }
+                //使用 Hangfire 延迟作业（Scheduled Job）在指定时间点执行一次，执行完后 Hangfire 自动结束该任务，无需重复也无需移除
+                _backgroundJobClient.Schedule<IKevinAITaskService>(
+                         (s) => s.RunTask(CurrentUser.UserId.ToString(), name, content, _data),    // 要执行的任务
+                         DateTime.SpecifyKind(executeTime, DateTimeKind.Local)      // 指定本地时区的执行时间点
+                     );
+                return Task.FromResult("添加一次性任务成功：" + name + "，执行时间：" + executeTime.ToString("yyyy-MM-dd HH:mm") + "，该任务将在指定时间点执行一次后自动结束");
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult("添加一次性任务失败：" + name + content + executeTime.ToString("yyyy-MM-dd HH:mm") + "，异常信息：" + ex.Message);
+            }
+        }
+
         public Task<List<string>> GetTaskList()
         {
             try
@@ -126,8 +160,21 @@ namespace kevin.Application.Services.AI
                 {
                     var next = r.NextExecution?.ToLocalTime().ToString("u") ?? "null";
                     var last = r.LastExecution?.ToLocalTime().ToString("u") ?? "null";
-                    return $"name:{r.Id.Replace(CurrentUser.UserId.ToString(), "")} | Cron:{r.Cron} | Next:{next} | Last:{last} | TimeZone:{r.TimeZoneId}";
+                    return $"name:{r.Id.Replace(CurrentUser.UserId.ToString(), "")} | Type:周期性任务 | Cron:{r.Cron} | Next:{next} | Last:{last} | TimeZone:{r.TimeZoneId}";
                 }).ToList();
+                // 查询一次性任务（Scheduled 状态的延迟作业，执行完后会自动结束不再列表中）
+                var monitoring = storage.GetMonitoringApi();
+                var onceJobs = monitoring.ScheduledJobs(0, int.MaxValue)
+                    .Where(t => t.Value?.Job?.Type == typeof(IKevinAITaskService)
+                        && t.Value.Job.Args.FirstOrDefault()?.ToString() == CurrentUser.UserId.ToString())
+                    .Select(t =>
+                    {
+                        var executeAt = t.Value.EnqueueAt.ToLocalTime().ToString("u");
+                        // RunTask 参数顺序：[0]=userId [1]=taskName [2]=taskContent [3]=taskdata
+                        var taskName = t.Value.Job.Args.Count > 1 ? t.Value.Job.Args[1]?.ToString() : "";
+                        return $"name:{taskName} | Type:一次性任务 | ExecuteAt:{executeAt} | JobId:{t.Key}";
+                    }).ToList();
+                result.AddRange(onceJobs);
                 return Task.FromResult(result);
             }
             catch (Exception ex)

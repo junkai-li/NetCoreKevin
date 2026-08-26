@@ -21,6 +21,14 @@ namespace kevin.AI.AgentFramework.Interfaces.Tasks
          );
 
         /// <summary>
+        /// 创建一个一次性任务：在指定的未来时间点执行一次后自动结束，不会重复执行，也无需移除
+        /// </summary>
+        Task<string> AddOnceTask([Description("可传入具体的任务名称，不可为空 比如：明天上午九点总结AI热门资讯")][Required] string name,
+      [Description("可传入具体的任务内容（禁止传入自动任务相关词汇，只能传入任务步骤！！！）。 比如：第一步：搜索并总结AI领域的热门资讯，包括技术突破、产品发布、行业动态等，第二步：生成总结报告为MkD格式")] string content,
+            [Description("执行时间点，不可为空，必须是未来的时间，格式：yyyy-MM-dd HH:mm 比如：2026-08-27 09:00 表示2026年8月27日上午9点执行一次")][Required] DateTime executeTime
+         );
+
+        /// <summary>
         /// 移除周期性任务（如果存在） 
         /// <param name="name">name ：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结"</param>
         /// </summary>

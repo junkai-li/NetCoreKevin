@@ -119,6 +119,17 @@ namespace kevin.Domain.BaseDatas
                SkillToolType=AISkillToolTypeEnums.Tool,
                CreateUserId=TUserBaseData.TUsers[0].Id
            },
+           new TAISkillToolManagement() {
+               Id=4514141254257227731,
+               Name="创建一次性任务",
+               ClassMethod="iKevinAITasksService.AddOnceTask",
+               Description="创建一个一次性任务：在指定的未来时间点执行一次后自动结束，不会重复执行，也无需移除",
+               TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
+               CreateTime = DateTime.Parse("2020-01-01 00:00:01"),
+               IsSystem=true,
+               SkillToolType=AISkillToolTypeEnums.Tool,
+               CreateUserId=TUserBaseData.TUsers[0].Id
+           },
 
              new TAISkillToolManagement() {
                Id=4514141254257227722,
