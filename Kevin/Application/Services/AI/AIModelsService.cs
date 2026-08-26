@@ -89,6 +89,10 @@ namespace kevin.Application.Services.AI
             var result = new List<AIModelsDto>();
             var data = aIModelsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.AIModelType == (AIModelType)Type);
             result = (await data.OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<TAIModels, AIModelsDto>();
+             foreach (var item in result)
+            {
+                item.ModelKey = "";//清空key密钥
+            }
             return result;
         }
         /// <summary>
