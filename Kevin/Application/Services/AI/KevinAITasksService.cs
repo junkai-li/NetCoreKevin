@@ -133,19 +133,31 @@ namespace kevin.Application.Services.AI
         /// </summary>
         /// <param name="name">任务名称</param>
         /// <param name="content">任务内容</param>
-        /// <param name="executeTime">执行时间点，必须是未来时间</param>
+        /// <param name="executeTime">执行时间点字符串，支持多种格式：yyyy-MM-dd HH:mm、yyyy-MM-dd HH:mm:ss、ISO 8601</param>
         /// <returns></returns>
         public Task<string> AddOnceTask(
-            [Description("可传入具体的任务名称，不可为空 比如：明天上午九点总结AI热门资讯")] string name,
+            [Description("可传入具体的任务名称，不可为空 比如：明天上午九点总结AI热门资讯，同名重复添加会覆盖旧任务等同于更新执行时间")] string name,
             [Description("可传入具体的任务内容（禁止传入自动任务相关词汇，只能传入任务步骤！！！）。 比如：第一步：搜索并总结AI领域的热门资讯，包括技术突破、产品发布、行业动态等，第二步：生成总结报告为MkD格式")] string content,
-            [Description("执行时间点，不可为空，必须是未来的时间，格式：yyyy-MM-dd HH:mm 比如：2026-08-27 09:00 表示2026年8月27日上午9点执行一次")] DateTime executeTime)
+            [Description("执行时间点字符串，不可为空，必须是未来的时间。支持格式：yyyy-MM-dd HH:mm，yyyy-MM-dd HH:mm:ss，ISO 8601。例如：2026-08-27 09:00")] string executeTime)
         {
             try
             {
-                //校验执行时间必须在未来
-                if (executeTime <= DateTime.Now)
+                // 解析执行时间字符串，支持多种格式
+                if (string.IsNullOrWhiteSpace(executeTime))
                 {
-                    return Task.FromResult("添加一次性任务失败：" + name + content + executeTime.ToString("yyyy-MM-dd HH:mm") + "，异常信息：执行时间必须大于当前时间，如果要立即执行请使用 TriggerCronTask");
+                    return Task.FromResult("添加一次性任务失败：" + name + "，异常信息：执行时间不能为空，请传入未来的时间点，格式如：2026-08-27 09:00");
+                }
+                string[] formats = { "yyyy-MM-dd HH:mm", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-ddTHH:mm:ss", "yyyy-MM-ddTHH:mm", "yyyy-MM-ddTHH:mm:ssZ", "o" };
+                if (!DateTime.TryParseExact(executeTime.Trim(), formats, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var parsedTime)
+                    && !DateTime.TryParse(executeTime.Trim(), System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out parsedTime))
+                {
+                    return Task.FromResult("添加一次性任务失败：" + name + "，异常信息：执行时间格式无法识别，请使用格式如：2026-08-27 09:00 或 2026-08-27 09:00:00");
+                }
+                parsedTime = DateTime.SpecifyKind(parsedTime, DateTimeKind.Local);
+                //校验执行时间必须在未来
+                if (parsedTime <= DateTime.Now)
+                {
+                    return Task.FromResult("添加一次性任务失败：" + name + " " + content + " " + parsedTime.ToString("yyyy-MM-dd HH:mm") + "，异常信息：执行时间必须大于当前时间，如果要立即执行请使用 TriggerCronTask");
                 }
                 // 同名一次性任务视为"更新"：先移除旧的未执行任务再创建，与 AddOrUpdateCronTask 的同名覆盖语义保持一致
                 var updateCount = 0;
@@ -159,14 +171,14 @@ namespace kevin.Application.Services.AI
                 //使用 Hangfire 延迟作业（Scheduled Job）在指定时间点执行一次，执行完后 Hangfire 自动结束该任务，无需重复也无需移除
                 _backgroundJobClient.Schedule<IKevinAITaskService>(
                          (s) => s.RunTask(CurrentUser.UserId.ToString(), name, content, _data),    // 要执行的任务
-                         DateTime.SpecifyKind(executeTime, DateTimeKind.Local)      // 指定本地时区的执行时间点
+                         parsedTime      // 指定本地时区的执行时间点
                      );
                 var updateMsg = updateCount > 0 ? $"，已覆盖同名旧任务 {updateCount} 个（等同更新执行时间）" : "";
-                return Task.FromResult("添加一次性任务成功：" + name + "，执行时间：" + executeTime.ToString("yyyy-MM-dd HH:mm") + updateMsg + "，该任务将在指定时间点执行一次后自动结束");
+                return Task.FromResult("添加一次性任务成功：" + name + "，执行时间：" + parsedTime.ToString("yyyy-MM-dd HH:mm") + updateMsg + "，该任务将在指定时间点执行一次后自动结束");
             }
             catch (Exception ex)
             {
-                return Task.FromResult("添加一次性任务失败：" + name + content + executeTime.ToString("yyyy-MM-dd HH:mm") + "，异常信息：" + ex.Message);
+                return Task.FromResult("添加一次性任务失败：" + name + " " + content + " " + executeTime + "，异常信息：" + ex.Message);
             }
         }
 
@@ -195,7 +207,7 @@ namespace kevin.Application.Services.AI
                 {
                     var executeAt = t.Value.EnqueueAt.ToLocalTime().ToString("u");
                     var taskName = t.Value.Job.Args.Count > 1 ? t.Value.Job.Args[1]?.ToString() : "";
-                    return $"name:{taskName} | Type:一次性任务 | ExecuteAt:{executeAt} | JobId:{t.Key}";
+                    return $"name:{taskName} | Cron:一次性任务 | Next:{executeAt} | JobId:{t.Key}";
                 }).ToList();
                 result.AddRange(onceJobs);
                 return Task.FromResult(result);
@@ -327,7 +339,7 @@ namespace kevin.Application.Services.AI
                                         MaxRetries = aiapp.MaxRetries,
                                         IsAISkills = aiapp.IsSkill,
                                         IsAITools = aiapp.IsAITools,
-                                        IsMcpTools= aiapp.IsMcp,
+                                        IsMcpTools = aiapp.IsMcp,
                                         NetworkTimeout = aiapp.NetworkTimeout,
                                     }, chatAgOs, new(ChatRole.User, [new TextContent($"{taskContent} \n 必须根据相关技能，一次性完成所有步骤在返回结果")])).Result.Item2;
                                     break;

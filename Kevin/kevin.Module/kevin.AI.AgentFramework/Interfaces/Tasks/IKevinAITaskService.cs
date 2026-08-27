@@ -25,7 +25,7 @@ namespace kevin.AI.AgentFramework.Interfaces.Tasks
         /// </summary>
         Task<string> AddOnceTask([Description("可传入具体的任务名称，不可为空 比如：明天上午九点总结AI热门资讯，同名重复添加会覆盖旧任务等同于更新执行时间")][Required] string name,
       [Description("可传入具体的任务内容（禁止传入自动任务相关词汇，只能传入任务步骤！！！）。 比如：第一步：搜索并总结AI领域的热门资讯，包括技术突破、产品发布、行业动态等，第二步：生成总结报告为MkD格式")] string content,
-            [Description("执行时间点，不可为空，必须是未来的时间，格式：yyyy-MM-dd HH:mm 比如：2026-08-27 09:00 表示2026年8月27日上午9点执行一次")][Required] DateTime executeTime
+            [Description("executeTime: future time, format: yyyy-MM-dd HH:mm, e.g. 2026-08-27 09:00")][Required] string executeTime
          );
 
         /// <summary>
