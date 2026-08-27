@@ -33,12 +33,14 @@ namespace kevin.DistributedLock
             try
             {
                 var redisDatabase = ConnectionMultiplexer.Connect(redisConnection).GetDatabase();
+                // 配置分布式锁选项：Expiry=2小时，防止任务异常时锁永久占用
+                Action<RedisDistributedSynchronizationOptionsBuilder> lockOptions = options => options.Expiry(TimeSpan.FromHours(2));
                 //分布式
-                services.AddSingleton<IDistributedLockProvider>(new RedisDistributedSynchronizationProvider(redisDatabase));
+                services.AddSingleton<IDistributedLockProvider>(new RedisDistributedSynchronizationProvider(redisDatabase, lockOptions));
                 //信号锁
-                services.AddSingleton<IDistributedSemaphoreProvider>(new RedisDistributedSynchronizationProvider(redisDatabase));
+                services.AddSingleton<IDistributedSemaphoreProvider>(new RedisDistributedSynchronizationProvider(redisDatabase, lockOptions));
                 //读写锁
-                services.AddSingleton<IDistributedReaderWriterLockProvider>(new RedisDistributedSynchronizationProvider(redisDatabase));
+                services.AddSingleton<IDistributedReaderWriterLockProvider>(new RedisDistributedSynchronizationProvider(redisDatabase, lockOptions));
             }
             catch (Exception ex)
             {
