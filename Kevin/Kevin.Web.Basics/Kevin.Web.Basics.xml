@@ -889,5 +889,11 @@
             是否跳过签名验证，可用于控制器下单个接口指定跳过签名验证
             </summary>
         </member>
+        <member name="T:Web.Filters.SkipResultFilterAttribute">
+            <summary>
+            标记控制器或方法跳过 ResultFilter 的全局包装，
+            适用于需要原样返回响应体的场景（如接口转发代理）
+            </summary>
+        </member>
     </members>
 </doc>
