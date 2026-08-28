@@ -1,6 +1,7 @@
 ﻿using Common.Json;
 using Kevin.Common.App.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Web.Filters
@@ -119,6 +120,13 @@ namespace Web.Filters
 
         public void OnResultExecuting(ResultExecutingContext context)
         {
+            // 检查是否标记了 SkipResultFilter 属性，若是则跳过全局包装
+            if (context.ActionDescriptor is ControllerActionDescriptor actionDesc)
+            {
+                bool skip = actionDesc.MethodInfo.IsDefined(typeof(SkipResultFilterAttribute), false)
+                         || actionDesc.ControllerTypeInfo.IsDefined(typeof(SkipResultFilterAttribute), false);
+                if (skip) return;
+            }
             var Result = context.Result as ObjectResult;
             //判断是否流文件
             if (context.Result == null || context.Result.GetType().BaseType != typeof(FileResult))
