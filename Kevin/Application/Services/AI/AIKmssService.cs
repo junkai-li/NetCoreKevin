@@ -57,6 +57,10 @@ namespace kevin.Application.Services.AI
             int skip = dtoPagePar.GetSkip();
             var result = new dtoPageData<AIKmssDto>();
             var data = AIKmssRp.Query(isDataPer: true).Where(t => t.IsDelete == false);
+            if (!string.IsNullOrEmpty(dtoPagePar.searchKey))
+            {
+                data = data.Where(t => (t.Name ?? "").Contains(dtoPagePar.searchKey));
+            }
             result.total = await data.CountAsync();
             var dbdata = await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPagePar.pageSize).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
             result.data = dbdata.MapToList<TAIKmss, AIKmssDto>();

@@ -37,7 +37,7 @@ namespace kevin.Application.Services.AI
             }
             if (!string.IsNullOrEmpty(dtoPagePar.searchKey))
             {
-                data = data.Where(t => (t.Name ?? "").Contains(dtoPagePar.searchKey));
+                data = data.Where(t => (t.Name ?? "").Contains(dtoPagePar.searchKey) || (t.Description ?? "").Contains(dtoPagePar.searchKey));
             }
             if (dtoPagePar.Parameter != null && dtoPagePar.Parameter > 0)
             {

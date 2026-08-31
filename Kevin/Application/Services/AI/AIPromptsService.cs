@@ -24,7 +24,7 @@ namespace kevin.Application.Services.AI
             var data = aIPromptsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
-                data = data.Where(t => (t.Name ?? "").Contains(dtoPage.searchKey));
+                data = data.Where(t => (t.Name ?? "").Contains(dtoPage.searchKey) || (t.Description ?? "").Contains(dtoPage.searchKey));
             }
             result.total = await data.CountAsync();
             var dbdata = await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPage.pageSize).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
