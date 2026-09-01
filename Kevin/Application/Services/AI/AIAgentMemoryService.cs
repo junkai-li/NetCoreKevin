@@ -16,40 +16,12 @@ namespace kevin.Application.Services.AI
     {
         public IAIAgentMemoryRp AIAgentMemoryRp { get; set; }
 
-        private object? _data { get; set; }
-        private long UserId = 0;
-        private long AIChatsId = 0;
-        private long AppId = 0;
-        private int TenantId = 0;
-
-        public void InitData(object data)
-        {
-            _data = data;
-            if (_data != default)
-            {
-                var jsonDoc = JsonDocument.Parse(JsonSerializer.Serialize(_data));
-                if (jsonDoc.RootElement.TryGetProperty("UserId", out var userIdEl))
-                {
-                    userIdEl.TryGetInt64(out UserId);
-                }
-                if (jsonDoc.RootElement.TryGetProperty("AIChatsId", out var chatsEl))
-                {
-                    chatsEl.TryGetInt64(out AIChatsId);
-                }
-                if (jsonDoc.RootElement.TryGetProperty("AppId", out var appEl))
-                {
-                    appEl.TryGetInt64(out AppId);
-                }
-                if (jsonDoc.RootElement.TryGetProperty("TenantId", out var tenantEl))
-                {
-                    tenantEl.TryGetInt32(out TenantId);
-                }
-            }
-        }
-
-        public AIAgentMemoryService(IHttpContextAccessor _httpContextAccessor, IAIAgentMemoryRp _AIAgentMemoryRp) : base(_httpContextAccessor)
+        public IAIShareInfoService AIShareInfoService { get; set; }
+         
+        public AIAgentMemoryService(IHttpContextAccessor _httpContextAccessor, IAIAgentMemoryRp _AIAgentMemoryRp, IAIShareInfoService aIShareInfoService) : base(_httpContextAccessor)
         {
             this.AIAgentMemoryRp = _AIAgentMemoryRp;
+            AIShareInfoService = aIShareInfoService;
         }
 
         public async Task<dtoPageData<TAIAgentMemory>> GetPageData(dtoPagePar<string> dtoPagePar)
@@ -69,7 +41,7 @@ namespace kevin.Application.Services.AI
         /// </summary>
         public async Task<string> SaveMemoryAsync(string content, string keywords, string memoryType = "other", int importance = 5)
         {
-            if (UserId <= 0)
+            if (AIShareInfoService.GetData().UserId <= 0)
             {
                 return "❌ 保存记忆失败：无法获取当前用户，请在登录后使用。";
             }
@@ -81,10 +53,10 @@ namespace kevin.Application.Services.AI
             add.Id = SnowflakeIdService.GetNextId();
             add.IsDelete = false;
             add.CreateTime = DateTime.Now;
-            add.UserId = UserId;
-            add.AIAppsId = AppId;
-            add.AIChatsId = AIChatsId;
-            add.TenantId = TenantId;
+            add.UserId = AIShareInfoService.GetData().UserId;
+            add.AIAppsId = AIShareInfoService.GetData().AIAppsId;
+            add.AIChatsId = AIShareInfoService.GetData().AIChatsId;
+            add.TenantId = AIShareInfoService.GetData().TenantId;
             add.Content = content.Trim();
             add.Keywords = (keywords ?? "").Trim();
             add.MemoryType = string.IsNullOrWhiteSpace(memoryType) ? "other" : memoryType.Trim();
@@ -99,7 +71,7 @@ namespace kevin.Application.Services.AI
         /// </summary>
         public async Task<string> SearchMemoryAsync(string keyword)
         {
-            if (UserId <= 0)
+            if (AIShareInfoService.GetData().UserId <= 0)
             {
                 return "❌ 搜索记忆失败：无法获取当前用户，请在登录后使用。";
             }
@@ -113,7 +85,7 @@ namespace kevin.Application.Services.AI
             }
             var now = DateTime.Now;
             var query = AIAgentMemoryRp.Query(isDataPer: false, isTenant: false)
-                .Where(t => t.IsDelete == false && t.UserId == UserId && t.TenantId == TenantId && t.AIAppsId == AppId && (t.ExpireTime == null || t.ExpireTime > now));
+                .Where(t => t.IsDelete == false && t.UserId == AIShareInfoService.GetData().UserId && t.TenantId == AIShareInfoService.GetData().TenantId && t.AIAppsId == AIShareInfoService.GetData().AIAppsId && (t.ExpireTime == null || t.ExpireTime > now));
             var keyPredicate = BuildKeywordPredicate(words);
             var list = await query.Where(keyPredicate)
                 .OrderByDescending(t => t.Importance)
@@ -144,7 +116,7 @@ namespace kevin.Application.Services.AI
         /// </summary>
         public async Task<string> UpdateMemoryAsync(long id, string content, string keywords = "")
         {
-            if (UserId <= 0)
+            if (AIShareInfoService.GetData().UserId <= 0)
             {
                 return "❌ 更新记忆失败：无法获取当前用户，请在登录后使用。";
             }
@@ -153,7 +125,7 @@ namespace kevin.Application.Services.AI
                 return "❌ 更新记忆失败：记忆内容不能为空。";
             }
             var data = await AIAgentMemoryRp.Query(isDataPer: false, isTenant: false)
-                .Where(t => t.IsDelete == false && t.Id == id && t.UserId == UserId)
+                .Where(t => t.IsDelete == false && t.Id == id && t.UserId == AIShareInfoService.GetData().UserId)
                 .FirstOrDefaultAsync();
             if (data == default)
             {
@@ -174,12 +146,12 @@ namespace kevin.Application.Services.AI
         /// </summary>
         public async Task<string> DeleteMemoryAsync(long id)
         {
-            if (UserId <= 0)
+            if (AIShareInfoService.GetData().UserId <= 0)
             {
                 return "❌ 删除记忆失败：无法获取当前用户，请在登录后使用。";
             }
             var data = await AIAgentMemoryRp.Query(isDataPer: false, isTenant: false)
-                .Where(t => t.IsDelete == false && t.Id == id && t.UserId == UserId)
+                .Where(t => t.IsDelete == false && t.Id == id && t.UserId == AIShareInfoService.GetData().UserId)
                 .FirstOrDefaultAsync();
             if (data == default)
             {
@@ -208,8 +180,8 @@ namespace kevin.Application.Services.AI
                 add.Id = data.Id == default ? SnowflakeIdService.GetNextId() : data.Id;
                 add.IsDelete = false;
                 add.CreateTime = DateTime.Now;
-                add.AIChatsId = AIChatsId;
-                add.AIAppsId = AppId;
+                add.AIChatsId = AIShareInfoService.GetData().AIChatsId;
+                add.AIAppsId = AIShareInfoService.GetData().AIAppsId;
                 AIAgentMemoryRp.Add(add);
             }
             else

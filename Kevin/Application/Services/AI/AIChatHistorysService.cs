@@ -2,6 +2,7 @@
 using Common;
 using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
 using kevin.AI.AgentFramework.Const;
+using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.ScriptRunners;
 using kevin.AI.AgentFramework.Tools;
@@ -49,11 +50,14 @@ namespace kevin.Application.Services.AI
 
         private readonly IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService;
 
+        private readonly IAIShareInfoService _aIShareInfoService;
+
         public AIChatHistorysService(IHttpContextAccessor _httpContextAccessor, IAIChatHistorysRp _aIChatHistorysRp,
             IAIAgentService _aIAgentService, IAIModelsService _aIModelsService, IAIPromptsService _aIPromptsService,
             IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore,
             IRAGService _rAGService, IAIKmssService _aIKmssService, IOllamaApiService _ollamaApiService, ISignalRMsgService _signalRMsgService,
-            IHttpClientFactory _httpClientFactory, IAIChatHistorysBindLogService _aIChatHistorysBindLogService, IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService
+            IHttpClientFactory _httpClientFactory, IAIChatHistorysBindLogService _aIChatHistorysBindLogService, 
+            IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService,IAIShareInfoService aIShareInfoService
             ) : base(_httpContextAccessor)
         {
             this.aIChatHistorysRp = _aIChatHistorysRp;
@@ -70,6 +74,7 @@ namespace kevin.Application.Services.AI
             this.httpClientFactory = _httpClientFactory;
             this._aIChatHistorysBindLogService = _aIChatHistorysBindLogService;
             this._aIChatMessageStoreCompactionService = _aIChatMessageStoreCompactionService;
+            this._aIShareInfoService = aIShareInfoService;
         }
 
         /// <summary>
@@ -175,6 +180,18 @@ namespace kevin.Application.Services.AI
                     OtherContents.AddRange(ksmData);
                 }
             }
+            _aIShareInfoService.InitData(new AIShareInfoDto
+            {
+                AIAppsId = aiapp.Id,
+                AIChatsId = add.AIChatsId,
+                UserId = CurrentUser.UserId,
+                UserName = CurrentUser.UserName,
+                TenantId = CurrentUser.TenantId,
+                AuthorizedDomains = aiapp.AuthorizedDomains,
+                ContentLengthLimit = aiapp.ContentLengthLimit,
+                IsSecurityIntercept = aiapp.IsSecurityIntercept,
+                ChatMessageLimit = aiapp.ChatMessageLimit
+            });
             #region 文件处理
 
             var ImgUrls = new List<string>();
@@ -202,8 +219,7 @@ namespace kevin.Application.Services.AI
             ChatMessage mgs = new(ChatRole.User, [new TextContent($"{add.Content}"),
                         .. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(),
                         .. ImgUrls.Where(t => !string.IsNullOrEmpty(t)).Select(url => DataContent.LoadFromAsync(FileHelper.GetRemoteFileStreamAsync(url).Result).Result).ToList()]);
-            var parAi = new { AIChatsId = add.AIChatsId, AppId = aiapp.Id, UserId = CurrentUser.UserId, TenantId = CurrentUser.TenantId, AuthorizedDomains = aiapp.AuthorizedDomains, ContentLengthLimit = aiapp.ContentLengthLimit, IsSecurityIntercept = aiapp.IsSecurityIntercept };
-            var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par, parAi);
+            var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par);
             switch (aIModels.AIType)
             {
                 case Domain.Share.Enums.AIType.OpenAI:
@@ -261,7 +277,7 @@ namespace kevin.Application.Services.AI
             var logdata = await _aIChatHistorysBindLogService.GetByIds(new List<long> { addAi.Id });
             aIChatHistorysRp.Add(addAi);
             await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
-            await aIChatsService.UpdateNameAndMsg(par.AIChatsId, count == 1 ? par.Content : "", addAi.Content); 
+            await aIChatsService.UpdateNameAndMsg(par.AIChatsId, count == 1 ? par.Content : "", addAi.Content);
             var BindApps = new Dictionary<AIAppsDto, AIModelsDto>();
             if (aiapp.BindIds.Where(x => x.Contains("agent_")).Count() > 0)
             {
@@ -279,7 +295,7 @@ namespace kevin.Application.Services.AI
                                 throw new UserFriendlyException("当前没有可用的聊天模型，请联系管理员配置模型。");
                             appitem.ChatModelID = allModels[new Random().Next(allModels.Count)].Id.ToString();
                         }
-                        BindApps.Add(appitem, await aIModelsService.GetDetails(appitem.ChatModelID.ToTryInt64()));
+                        BindApps.Add(appitem, await aIModelsService.GetNoPerDetails(appitem.ChatModelID.ToTryInt64()));
                     }
                 }
             }

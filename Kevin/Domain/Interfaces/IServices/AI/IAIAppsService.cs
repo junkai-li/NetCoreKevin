@@ -1,4 +1,5 @@
-﻿using kevin.Domain.Share.Dtos.AI;
+﻿using kevin.AI.AgentFramework.Dto;
+using kevin.Domain.Share.Dtos.AI;
 using Microsoft.Agents.AI;
 namespace kevin.Domain.Interfaces.IServices.AI
 {
@@ -27,7 +28,7 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// <param name="par"></param>
         /// <param name="parAi"></param>
         /// <returns></returns>
-        Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, object parAi, CancellationToken cancellationToken = default);
+        Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// 新增初始化

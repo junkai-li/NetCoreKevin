@@ -1,4 +1,6 @@
-﻿using kevin.AI.AgentFramework.Interfaces.Msg;
+﻿using kevin.AI.AgentFramework.Interfaces;
+using kevin.AI.AgentFramework.Interfaces.Msg;
+using kevin.AI.AgentFramework.Tools;
 using Kevin.Common.Helper.DingDing.Msg;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -8,26 +10,23 @@ namespace kevin.Application.Services.AI
 {
     public class AIMsgService : IAIMsgService
     {
-        private object? _data { get; set; }
 
-        public void InitData(object data)
-        {
-            _data = data;
-        }
         public readonly IUserService userService;
-        public AIMsgService(IHttpContextAccessor _httpContextAccessor, IUserService _userService)
+
+        public readonly IAIShareInfoService aIShareInfoService;
+        public AIMsgService(IHttpContextAccessor _httpContextAccessor, IUserService _userService, IAIShareInfoService _aIShareInfoService)
         {
             userService = _userService;
+            aIShareInfoService = _aIShareInfoService;
         }
 
         public async Task<string> SendDDToMyMsg([Description("消息内容")][Required] string msgContent)
         {
             string correlationId = "";
-            if (_data != default)
+            if (aIShareInfoService.GetData() != default)
             {
-                var jsonDoc = JsonDocument.Parse(JsonSerializer.Serialize(_data));
-                var userId = jsonDoc.RootElement.GetProperty("UserId").ToString();
-                if (!string.IsNullOrEmpty(userId))
+                var userId = aIShareInfoService.GetData().UserId;
+                if (userId > 0)
                 {
                     var userInfo = await userService.GetSysUserWhereId(userId.ToTryInt64());
                     if (userInfo != default)
@@ -49,7 +48,7 @@ namespace kevin.Application.Services.AI
             {
                 return "未找到关联到用户钉钉Id";
             }
-            return new DingDingMsgHelper().RobotSendTextMessageToUsers("",new List<string> { correlationId }, $"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}】\n {msgContent}");
+            return new DingDingMsgHelper().RobotSendTextMessageToUsers("", new List<string> { correlationId }, $"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}】\n {msgContent}");
         }
 
         public async Task<string> SendDDToUserMsg([Description("消息内容")][Required] string msgContent, [Description("发送用户名称")][Required] string userName)
@@ -63,7 +62,7 @@ namespace kevin.Application.Services.AI
             {
                 return userInfo?.Name + "未关联到用户钉钉Id";
             }
-            return new DingDingMsgHelper().RobotSendTextMessageToUsers("", new List<string> { userInfo.CorrelationId }, $"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}】\n {msgContent}"); 
+            return new DingDingMsgHelper().RobotSendTextMessageToUsers("", new List<string> { userInfo.CorrelationId }, $"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}】\n {msgContent}");
         }
     }
 }

@@ -8,7 +8,7 @@ namespace kevin.AI.AgentFramework.Interfaces.Tools
     /// 可传入 URL、查询参数、Body、以及自定义 Header。
     /// 返回响应文本，发生错误时以 "❌ " 开头的描述。
     /// </summary>
-    public interface IAgentHttpClientToolsService : IBaseAIToolService
+    public interface IAgentHttpClientToolsService  
     {
 
         [Description("发送 GET 请求。参数：url, queryParams, headers, timeoutSeconds, cancellationToken。")]

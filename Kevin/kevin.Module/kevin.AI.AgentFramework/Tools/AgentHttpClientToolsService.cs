@@ -1,5 +1,6 @@
 ﻿using Common;
 using kevin.AI.AgentFramework.Const;
+using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Interfaces.Tools;
 using System.ComponentModel;
 using System.Net;
@@ -14,36 +15,12 @@ namespace kevin.AI.AgentFramework.Tools
     /// 返回响应文本，发生错误时以 "❌ " 开头的描述。
     /// </summary>
     public class AgentHttpClientToolsService : IAgentHttpClientToolsService
-    {
-        private object? _data { get; set; }
-        private int _contentLengthLimit = 0;//  内容长度限制，超过限制后会进行截断
-        private List<string> _authorizedDomains = new List<string>(); // 授权域名列表
-        public void InitData(object data)
+    { 
+        public readonly IAIShareInfoService aIShareInfoService;
+        public AgentHttpClientToolsService(IAIShareInfoService _aIShareInfoService)
         {
-            _data = data;
-            if (_data != default)
-            {
-                try
-                {
-                    var jsonDoc = JsonDocument.Parse(JsonSerializer.Serialize(_data));
-                    var authorizedDomains = jsonDoc.RootElement.GetProperty("AuthorizedDomains").GetString();
-                    if (!string.IsNullOrWhiteSpace(authorizedDomains) && authorizedDomains.Trim() != "*")
-                    {
-                        authorizedDomains.Split(',')
-                            .Select(s => s.Trim())
-                            .Where(s => !string.IsNullOrEmpty(s))
-                            .ToList()
-                            .ForEach(domain => this._authorizedDomains.Add(domain));
-                    }
-                    jsonDoc.RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit);
-                }
-                catch (Exception)
-                {
-                    _contentLengthLimit = 0; // 解析失败则不限制内容长度
-                }
-
-            }
-        }
+            aIShareInfoService = _aIShareInfoService; 
+        } 
         /// <summary>
         /// 请求
         /// </summary>
@@ -104,16 +81,13 @@ namespace kevin.AI.AgentFramework.Tools
         }
 
         private void AuthorizedDomainsCheck(string url)
-        {
-            if (_data != default)
-            {
-                // 将对象转为 JsonElement 或 Dictionary 
-                if (_authorizedDomains.Count == 0)
-                    return; // 没有有效的前缀，等同于允许所有
-                var isAllowed = _authorizedDomains.Any(prefix => url.Contains(prefix, StringComparison.OrdinalIgnoreCase));
-                if (!isAllowed)
-                    throw new UnauthorizedAccessException($"URL '{url}' 不在授权域名单中。");
-            }
+        { 
+            // 将对象转为 JsonElement 或 Dictionary 
+            if (aIShareInfoService.GetData().AuthorizedDomainsList.Count == 0)
+                return; // 没有有效的前缀，等同于允许所有
+            var isAllowed = aIShareInfoService.GetData().AuthorizedDomainsList.Any(prefix => url.Contains(prefix, StringComparison.OrdinalIgnoreCase));
+            if (!isAllowed)
+                throw new UnauthorizedAccessException($"URL '{url}' 不在授权域名单中。");
         }
 
         [Description("发送 GET 请求。参数：url, queryParams, headers, timeoutSeconds, cancellationToken。")]
@@ -137,7 +111,7 @@ namespace kevin.AI.AgentFramework.Tools
 
                 using var resp = await http.GetAsync(fullUrl, cancellationToken).ConfigureAwait(false);
                 var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-                return text.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, _contentLengthLimit) : text;
+                return text.Length > aIShareInfoService.GetData().ContentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, aIShareInfoService.GetData().ContentLengthLimit) : text;
             }
             catch (Exception ex)
             {
@@ -177,7 +151,7 @@ namespace kevin.AI.AgentFramework.Tools
 
                 using var resp = await http.PostAsync(fullUrl, content, cancellationToken).ConfigureAwait(false);
                 var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false) ?? "";
-                return text.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, _contentLengthLimit) : text;
+                return text.Length > aIShareInfoService.GetData().ContentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, aIShareInfoService.GetData().ContentLengthLimit) : text;
             }
             catch (Exception ex)
             {
@@ -216,7 +190,7 @@ namespace kevin.AI.AgentFramework.Tools
 
                 using var resp = await http.PutAsync(fullUrl, content, cancellationToken).ConfigureAwait(false);
                 var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false) ?? "";
-                return text.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, _contentLengthLimit) : text;
+                return text.Length > aIShareInfoService.GetData().ContentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, aIShareInfoService.GetData().ContentLengthLimit) : text;
             }
             catch (Exception ex)
             {
@@ -235,7 +209,7 @@ namespace kevin.AI.AgentFramework.Tools
             Console.WriteLine();
             Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.DeleteAsync -> {url}");
             try
-            { 
+            {
                 queryParams ??= new Dictionary<string, string>();
                 headers ??= new Dictionary<string, string>();
                 AuthorizedDomainsCheck(url);
@@ -245,7 +219,7 @@ namespace kevin.AI.AgentFramework.Tools
 
                 using var resp = await http.DeleteAsync(fullUrl, cancellationToken).ConfigureAwait(false);
                 var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false) ?? "";
-                return text.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, _contentLengthLimit) : text;
+                return text.Length > aIShareInfoService.GetData().ContentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, aIShareInfoService.GetData().ContentLengthLimit) : text;
             }
             catch (Exception ex)
             {

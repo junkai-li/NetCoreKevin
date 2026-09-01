@@ -3,9 +3,11 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using Hangfire;
 using Hangfire.Storage;
 using kevin.AI.AgentFramework.Const;
+using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Interfaces.Tasks;
 using kevin.AI.AgentFramework.ScriptRunners;
+using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
@@ -34,18 +36,12 @@ namespace kevin.Application.Services.AI
         private readonly IAIChatsRp aIChatsRp;
         private readonly IAIModelsRp _aIModelsRp;
         private readonly IAIPromptsRp _aIPromptsRp;
-        private IDistributedLockProvider distLock { get; set; }
-
-        private object? _data; // 用于存储初始化数据
-
-        public void InitData(object data)
-        {
-            _data = data;
-        }
+        private readonly IAIShareInfoService _aIShareInfoService;
+        private IDistributedLockProvider distLock { get; set; } 
 
         public KevinAITasksService(IHttpContextAccessor _httpContextAccessor, IRecurringJobManager recurringJobManager, IBackgroundJobClient backgroundJobClient, JobStorage jobStorage, IMessageService messageService,
             IAIAgentService aIAgentService, IAIModelsRp aIModelsRp, IAIPromptsRp aIPromptsRp, IAIChatsRp aIChatsRp, IServiceProvider serviceProvider,
-            IDistributedLockProvider distLock) : base(_httpContextAccessor)
+            IDistributedLockProvider distLock, IAIShareInfoService aIShareInfoService) : base(_httpContextAccessor)
         {
             _serviceProvider = serviceProvider;
             _recurringJobManager = recurringJobManager;
@@ -57,6 +53,7 @@ namespace kevin.Application.Services.AI
             this._aIPromptsRp = aIPromptsRp;
             this.aIChatsRp = aIChatsRp;
             this.distLock = distLock;
+            this._aIShareInfoService = aIShareInfoService;
         }
         public static bool IsValidCronExpression(string cronExpression)
         {
@@ -94,7 +91,7 @@ namespace kevin.Application.Services.AI
                 }
                 _recurringJobManager.AddOrUpdate<IKevinAITaskService>(
                          recurringJobId: CurrentUser.UserId + name,      // 唯一的 ID，用于后续修改或删除
-                         (s) => s.RunTask(CurrentUser.UserId.ToString(), name, content, _data),    // 要执行的任务
+                         (s) => s.RunTask(CurrentUser.UserId.ToString(), name, content, _aIShareInfoService.GetData()),    // 要执行的任务
                          cronExpression, new RecurringJobOptions
                          {
                              TimeZone = TimeZoneInfo.Local,        // 指定时区（默认UTC） 
@@ -170,7 +167,7 @@ namespace kevin.Application.Services.AI
                 }
                 //使用 Hangfire 延迟作业（Scheduled Job）在指定时间点执行一次，执行完后 Hangfire 自动结束该任务，无需重复也无需移除
                 _backgroundJobClient.Schedule<IKevinAITaskService>(
-                         (s) => s.RunTask(CurrentUser.UserId.ToString(), name, content, _data),    // 要执行的任务
+                         (s) => s.RunTask(CurrentUser.UserId.ToString(), name, content, _aIShareInfoService.GetData()),    // 要执行的任务
                          parsedTime      // 指定本地时区的执行时间点
                      );
                 var updateMsg = updateCount > 0 ? $"，已覆盖同名旧任务 {updateCount} 个（等同更新执行时间）" : "";
@@ -285,7 +282,7 @@ namespace kevin.Application.Services.AI
         /// <param name="taskName">任务名称</param>
         /// <param name="taskContent">任务内容</param>
         /// <returns></returns>
-        public Task<string> RunTask(string userId, string taskName, string taskContent, object taskdata)
+        public Task<string> RunTask(string userId, string taskName, string taskContent, AIShareInfoDto taskdata)
         {
             var lock1 = distLock.TryAcquireLock("kevin.Application.Services.AI.RunTask:" + userId + taskName);
             if (lock1 == null)
@@ -296,6 +293,7 @@ namespace kevin.Application.Services.AI
             {
                 try
                 {
+                    _aIShareInfoService.InitData(taskdata);
                     //这里可以根据任务名称和内容执行具体的业务逻辑，比如调用AI接口、处理数据等。当前示例仅打印日志并返回结果。 自行处理 
                     var messageContent = $"AI:{userId}RunTask：执行任务" + taskName + taskContent + taskdata.ToJson();
                     if (JsonHelper.GetValueByKey(taskdata.ToJson(), "ai_chats_id").ToTryInt64() != default)
@@ -322,7 +320,7 @@ namespace kevin.Application.Services.AI
                                 AIChatsId = SnowflakeIdService.GetNextId(),
                                 Id = SnowflakeIdService.GetNextId(),
                                 CreateTime = DateTime.Now
-                            }, taskdata).Result;
+                            }).Result;
                             switch (aIModels.AIType)
                             {
                                 case Domain.Share.Enums.AIType.OpenAI:

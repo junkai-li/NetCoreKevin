@@ -11,25 +11,7 @@ namespace kevin.AI.AgentFramework.Tools
     /// 常用工具类，包含一些常用的静态方法和属性，可以被智能体调用的用于提供一些常用的功能。
     /// </summary>
     public class CommonToolsService : ICommonToolsService
-    {
-        private object? _data { get; set; }
-        private int _contentLengthLimit = 0;//  内容长度限制，超过限制后会进行截断
-        public void InitData(object data)
-        {
-            _data = data;
-            if (_data != default)
-            {
-                try
-                {
-                    JsonDocument.Parse(JsonSerializer.Serialize(_data)).RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit);
-                }
-                catch (Exception)
-                {
-                    _contentLengthLimit = 0; // 解析失败则不限制内容长度
-                }
-
-            }
-        }
+    { 
         /// <summary>
         /// 获取当前时间
         /// </summary>

@@ -15,25 +15,11 @@ namespace kevin.Application.Services.AI
     {
         public IAIJsonLogRp AIJsonLogRp { get; set; }
 
-        private object? _data { get; set; }
-        private long AIChatsId = 0;
-        private long AppId = 0;
-
-        private int TenantId = 0;
-        public void InitData(object data)
-        {
-            _data = data;
-            if (_data != default)
-            {
-                var jsonDoc = JsonDocument.Parse(JsonSerializer.Serialize(_data));
-                jsonDoc.RootElement.GetProperty("AIChatsId").TryGetInt64(out AIChatsId);
-                jsonDoc.RootElement.GetProperty("AppId").TryGetInt64(out AppId);
-                jsonDoc.RootElement.GetProperty("TenantId").TryGetInt32(out TenantId);
-            }
-        }
-        public AIJsonLogService(IHttpContextAccessor _httpContextAccessor, IAIJsonLogRp _AIJsonLogRp) : base(_httpContextAccessor)
+        public IAIShareInfoService aIShareInfoService { get; set; } 
+        public AIJsonLogService(IHttpContextAccessor _httpContextAccessor, IAIJsonLogRp _AIJsonLogRp, IAIShareInfoService aIShareInfoService) : base(_httpContextAccessor)
         {
             this.AIJsonLogRp = _AIJsonLogRp;
+            this.aIShareInfoService = aIShareInfoService;
         }
 
         public async Task<dtoPageData<TAIJsonLog>> GetPageData(dtoPagePar<string> dtoPagePar)
@@ -56,9 +42,9 @@ namespace kevin.Application.Services.AI
             add.IsDelete = false;
             add.CreateTime = DateTime.Now;
             add.Json = Json;
-            add.AIChatsId = AIChatsId;
-            add.AIAppsId = AppId;
-            add.TenantId = TenantId;
+            add.AIChatsId = aIShareInfoService.GetData().AIChatsId;
+            add.AIAppsId = aIShareInfoService.GetData().AIAppsId;
+            add.TenantId = aIShareInfoService.GetData().TenantId;
             AIJsonLogRp.Add(add);
             await AIJsonLogRp.SaveChangesAsync();
             return "保存成功";
@@ -80,8 +66,9 @@ namespace kevin.Application.Services.AI
                 add.Id = data.Id == default ? SnowflakeIdService.GetNextId() : data.Id;
                 add.IsDelete = false;
                 add.CreateTime = DateTime.Now;
-                add.AIChatsId = AIChatsId;
-                add.AIAppsId= AppId;
+                add.AIChatsId = aIShareInfoService.GetData().AIChatsId;
+                add.AIAppsId= aIShareInfoService.GetData().AIAppsId;
+                add.TenantId = aIShareInfoService.GetData().TenantId;
                 AIJsonLogRp.Add(add);
             }
             else

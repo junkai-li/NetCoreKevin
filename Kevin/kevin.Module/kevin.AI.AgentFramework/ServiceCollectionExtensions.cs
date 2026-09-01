@@ -11,6 +11,7 @@ namespace Kevin.AI
     {
         public static void AddAIAgentClient(this IServiceCollection services)
         {
+            services.TryAddScoped<IAIShareInfoService, AIShareInfoService>();
             services.TryAddScoped<ICommonToolsService, CommonToolsService>();
             services.TryAddScoped<IPythonToolsService, PythonToolsService>();
             services.TryAddScoped<IShellToolsService, ShellToolsService>();

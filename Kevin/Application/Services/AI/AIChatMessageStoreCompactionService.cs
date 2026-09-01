@@ -1,4 +1,5 @@
 ﻿using kevin.AI.AgentFramework.Interfaces;
+using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
@@ -13,17 +14,17 @@ namespace kevin.Application.Services.AI
     /// AIChatMessageStoreCompaction服务接口
     /// </summary>
     public class AIChatMessageStoreCompactionService : BaseService, IAIChatMessageStoreCompactionService
-    {
+    { 
 
-        private string _threadId { get; set; } 
-        public void InitData(object data)
-        {
-            _threadId= (string)data;
-        }
+        private IAIShareInfoService _aIShareInfoService { get; set; }
+
         public IAIChatMessageStoreCompactionRp AIChatMessageStoreCompactionRp { get; set; }
-        public AIChatMessageStoreCompactionService(IHttpContextAccessor _httpContextAccessor, IAIChatMessageStoreCompactionRp _AIChatMessageStoreCompactionRp) : base(_httpContextAccessor)
+        public AIChatMessageStoreCompactionService(IHttpContextAccessor _httpContextAccessor,
+            IAIChatMessageStoreCompactionRp _AIChatMessageStoreCompactionRp, IAIShareInfoService aIShareInfoService
+            ) : base(_httpContextAccessor)
         {
             this.AIChatMessageStoreCompactionRp = _AIChatMessageStoreCompactionRp;
+            this._aIShareInfoService= aIShareInfoService; 
         }
 
         public async Task<dtoPageData<TAIChatMessageStoreCompaction>> GetPageData(dtoPagePar<string> dtoPagePar)
@@ -54,7 +55,7 @@ namespace kevin.Application.Services.AI
                 var add = data.MapTo<TAIChatMessageStoreCompaction>();
                 add.Id = data.Id == default ? SnowflakeIdService.GetNextId() : data.Id;
                 add.IsDelete = false;
-                add.CreateTime = DateTime.Now; 
+                add.CreateTime = DateTime.Now;
                 add.TenantId = CurrentUser.TenantId;
                 AIChatMessageStoreCompactionRp.Add(add);
             }
@@ -64,7 +65,7 @@ namespace kevin.Application.Services.AI
                 if (upData != default)
                 {
                     upData = data.MapTo(upData);
-                    upData.UpdateTime = DateTime.Now; 
+                    upData.UpdateTime = DateTime.Now;
                     upData.TenantId = CurrentUser.TenantId;
                 }
                 else
@@ -112,9 +113,9 @@ namespace kevin.Application.Services.AI
                 prompt = " 历史对话（压缩提取摘要版本）：";
                 for (int i = 1; i <= data.Count; i++)
                 {
-                    prompt += "\n " + i + $".时间{data[i-1].CreateTime.ToString("yyyy-MM-dd HH:mm:ss")}：内容如下：" + data[i - 1].CompactionResultMessageText;
+                    prompt += "\n " + i + $".时间{data[i - 1].CreateTime.ToString("yyyy-MM-dd HH:mm:ss")}：内容如下：" + data[i - 1].CompactionResultMessageText;
                 }
-            } 
+            }
             return prompt;
         }
 
@@ -125,7 +126,8 @@ namespace kevin.Application.Services.AI
         public async Task<String> GetAIToolThreadPrompt()
         {
             var prompt = "";
-            var data = await AIChatMessageStoreCompactionRp.Query(isDataPer: false, isTenant: false).Where(t => t.IsDelete == false && t.ThreadId == _threadId).OrderBy(t => t.CreateTime).ToListAsync();
+            var id = (_aIShareInfoService.GetData()?.AIChatsId.ToString() ?? "");
+            var data = await AIChatMessageStoreCompactionRp.Query(isDataPer: false, isTenant: false).Where(t => t.IsDelete == false && t.ThreadId == id).OrderBy(t => t.CreateTime).ToListAsync();
             if (data != default && data.Count > 0)
             {
                 prompt = " 历史对话（压缩摘要版本）：";

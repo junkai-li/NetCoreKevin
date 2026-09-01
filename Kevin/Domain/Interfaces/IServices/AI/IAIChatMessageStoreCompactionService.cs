@@ -5,7 +5,7 @@ namespace kevin.Domain.Interfaces.IServices.AI
     /// <summary>
     /// 历史聊天压缩记录服务
     /// </summary>
-    public interface IAIChatMessageStoreCompactionService : IBaseService, IBaseAIToolService
+    public interface IAIChatMessageStoreCompactionService : IBaseService
     {
          /// <summary>
         /// ��ȡ��ҳ����

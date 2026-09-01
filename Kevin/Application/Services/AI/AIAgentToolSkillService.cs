@@ -1,4 +1,5 @@
-﻿using kevin.AI.AgentFramework.Interfaces;
+﻿using kevin.AI.AgentFramework.Dto;
+using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Interfaces.Msg;
 using kevin.AI.AgentFramework.Interfaces.Tasks;
 using kevin.AI.AgentFramework.Interfaces.Tools;
@@ -49,10 +50,14 @@ namespace kevin.Application.Services.AI
         private readonly IAIAgentMemoryService _aiAgentMemoryService;
 
         private readonly IAuthorizeService _authorizeService;
+
+        private readonly IAIShareInfoService _aIShareInfoService;
         public AIAgentToolSkillService(IKevinAITaskService kevinAITaskService, IAISkillToolBindIdService iAISkillToolBindIdService,
             IAISkillToolManagementService iAISkillToolManagementService, ICommonToolsService commonTools, IPythonToolsService pythonTools,
             IShellToolsService shellTools, IAgentHttpClientToolsService agentHttpClientToolsService, IUserService userService, IAIJsonLogService aIJsonLogService,
-            IAIFileToolService iAIFileToolService, IAIMsgService iAIMsgService, IAuthorizedToolsService authorizedToolsService, IWebSearchEngine webSearchEngine, IAIAgentMemoryService aiAgentMemoryService, IAuthorizeService authorizeService, IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
+            IAIFileToolService iAIFileToolService, IAIMsgService iAIMsgService, IAuthorizedToolsService authorizedToolsService,
+            IWebSearchEngine webSearchEngine, IAIAgentMemoryService aiAgentMemoryService, IAuthorizeService authorizeService,
+            IAIShareInfoService aIShareInfoService, IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
         {
             _kevinAITaskService = kevinAITaskService;
             _iAISkillToolBindIdService = iAISkillToolBindIdService;
@@ -69,19 +74,12 @@ namespace kevin.Application.Services.AI
             _webSearchEngine = webSearchEngine;
             _aiAgentMemoryService = aiAgentMemoryService;
             _authorizeService = authorizeService;
+            _aIShareInfoService = aIShareInfoService;
+
         }
-        private async Task<List<AITool>> GetAITools(object data, List<string> toolNames)
+        private async Task<List<AITool>> GetAITools(List<string> toolNames)
         {
             var aiTools = new List<AITool>();
-            _kevinAITaskService.InitData(data);
-            _iCommonTools.InitData(data);
-            _iPythonTools.InitData(data);
-            _iShellTools.InitData(data);
-            _agentHttpClientToolsService.InitData(data);
-            _authorizedToolsService.InitData(data);
-            _IAIMsgService.InitData(data);
-            _aIJsonLogService.InitData(data);
-            _aiAgentMemoryService.InitData(data);
             aiTools.Add(
                  AIFunctionFactory.Create(_aIJsonLogService.Add,
                  new AIFunctionFactoryOptions
@@ -306,7 +304,7 @@ namespace kevin.Application.Services.AI
             return aiTools;
         }
 
-        private async Task<List<AITool>> GetMcpTools(object data, List<AISkillToolManagementDto> AISkillToolManagementDtos)
+        private async Task<List<AITool>> GetMcpTools(List<AISkillToolManagementDto> AISkillToolManagementDtos)
         {
             var aiTools = new List<AITool>();
             if (AISkillToolManagementDtos.Count <= 0)
@@ -330,25 +328,10 @@ namespace kevin.Application.Services.AI
                 }
             }
             else
-            {
-                var _data = data;
-                if (_data != default)
+            { 
+                if (_aIShareInfoService.GetData().UserId > 0 && _aIShareInfoService.GetData().TenantId > 0)
                 {
-                    long UserId = 0;
-                    var TenantId = 0;
-                    var jsonDoc = JsonDocument.Parse(JsonSerializer.Serialize(_data));
-                    if (jsonDoc.RootElement.TryGetProperty("UserId", out var userIdEl))
-                    {
-                        userIdEl.TryGetInt64(out UserId);
-                    }
-                    if (jsonDoc.RootElement.TryGetProperty("TenantId", out var tenantEl))
-                    {
-                        tenantEl.TryGetInt32(out TenantId);
-                    }
-                    if (UserId > 0 && TenantId > 0)
-                    {
-                        Authorization = "Bearer " + await _authorizeService.GetTokenById(UserId, TenantId);
-                    }
+                    Authorization = "Bearer " + await _authorizeService.GetTokenById(_aIShareInfoService.GetData().UserId, _aIShareInfoService.GetData().TenantId);
                 }
             }
 
@@ -441,55 +424,55 @@ namespace kevin.Application.Services.AI
             return aiTools;
         }
 
-        public async Task<List<string>> GetAIAgentSkillsAsync(object data, string agentId)
+        public async Task<List<string>> GetAIAgentSkillsAsync(string agentId)
         {
             var agentBindIds = (await _iAISkillToolBindIdService.GetListById(agentId)).Select(t => t.AISkillToolManagementId).ToList();
             var skills = (await _iAISkillToolManagementService.GetNotDataPerAllSkills()).Where(t => agentBindIds.Contains(t.Id)).ToList();
             return skills.Where(t => agentBindIds.Contains(t.Id)).Select(t => t.Name).ToList();
         }
 
-        public async Task<List<AITool>> GetAIAgentToolsAsync(object data, string agentId)
+        public async Task<List<AITool>> GetAIAgentToolsAsync(string agentId)
         {
             var aiTools = new List<AITool>();
             var agentBindIds = (await _iAISkillToolBindIdService.GetListById(agentId)).Select(t => t.AISkillToolManagementId).ToList();
             var tools = (await _iAISkillToolManagementService.GetNotDataPerAllTools()).Where(t => agentBindIds.Contains(t.Id)).ToList();
-            aiTools.AddRange(await GetAITools(data, tools.Select(t => t.ClassMethod ?? "").ToList()));
+            aiTools.AddRange(await GetAITools(tools.Select(t => t.ClassMethod ?? "").ToList()));
             return aiTools;
         }
 
-        public async Task<List<string>> GetAllAIAgentSkillsAsync(object data)
+        public async Task<List<string>> GetAllAIAgentSkillsAsync()
         {
             return (await _iAISkillToolManagementService.GetNotDataPerAllSkills()).Select(t => t.Name).ToList();
         }
 
-        public async Task<List<AITool>> GetAllAIAgentToolsAsync(object data)
+        public async Task<List<AITool>> GetAllAIAgentToolsAsync()
         {
             var tools = (await _iAISkillToolManagementService.GetNotDataPerAllTools());
-            return await GetAITools(data, tools.Select(t => t.ClassMethod ?? "").ToList());
+            return await GetAITools(tools.Select(t => t.ClassMethod ?? "").ToList());
         }
 
-        public async Task<List<string>> GetUserAIAgentSkillsAsync(object data, string agentId, string userId)
+        public async Task<List<string>> GetUserAIAgentSkillsAsync(string agentId, string userId)
         {
-            return await GetAIAgentSkillsAsync(data, agentId);
+            return await GetAIAgentSkillsAsync(agentId);
         }
 
-        public async Task<List<AITool>> GetUserAIAgentToolsAsync(object data, string agentId, string userId)
+        public async Task<List<AITool>> GetUserAIAgentToolsAsync(string agentId, string userId)
         {
-            return await GetAIAgentToolsAsync(data, agentId);
+            return await GetAIAgentToolsAsync(agentId);
         }
 
-        public async Task<List<AITool>> GetAIAgentMcpToolsAsync(object data, string agentId)
+        public async Task<List<AITool>> GetAIAgentMcpToolsAsync(string agentId)
         {
             var aiTools = new List<AITool>();
             var agentBindIds = (await _iAISkillToolBindIdService.GetListById(agentId)).Select(t => t.AISkillToolManagementId).ToList();
             var mcps = (await _iAISkillToolManagementService.GetNotDataPerAllMcps()).Where(t => agentBindIds.Contains(t.Id)).ToList();
-            aiTools.AddRange(await GetMcpTools(data, mcps));
+            aiTools.AddRange(await GetMcpTools(mcps));
             return aiTools;
         }
 
-        public async Task<List<AITool>> GetUserAIAgentMcpToolsAsync(object data, string agentId, string userId)
+        public async Task<List<AITool>> GetUserAIAgentMcpToolsAsync(string agentId, string userId)
         {
-            return await GetAIAgentMcpToolsAsync(data, agentId);
+            return await GetAIAgentMcpToolsAsync(agentId);
         }
     }
 }

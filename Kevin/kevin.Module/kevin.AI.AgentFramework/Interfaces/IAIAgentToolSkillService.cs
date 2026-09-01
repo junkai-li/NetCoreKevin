@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.AI;
+﻿using kevin.AI.AgentFramework.Dto;
+using Microsoft.Extensions.AI;
 
 namespace kevin.AI.AgentFramework.Interfaces
 {
@@ -10,7 +11,7 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="data">用于传递数据</param>
         /// <param name="agentId"></param>
         /// <returns></returns>
-        Task<List<AITool>> GetAIAgentToolsAsync(object data, string agentId);
+        Task<List<AITool>> GetAIAgentToolsAsync(string agentId);
 
         /// <summary>
         /// 获取用户和智能体的可用工具
@@ -19,14 +20,14 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="agentId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        Task<List<AITool>> GetUserAIAgentToolsAsync(object data, string agentId, string userId);
+        Task<List<AITool>> GetUserAIAgentToolsAsync(string agentId, string userId);
 
         /// <summary>
         /// 获取所有的工具
         /// </summary> 
         /// <param name="data">用于传递数据</param>
         /// <returns></returns>
-        Task<List<AITool>> GetAllAIAgentToolsAsync(object data);
+        Task<List<AITool>> GetAllAIAgentToolsAsync();
 
 
         /// <summary>
@@ -35,7 +36,7 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="data">用于传递数据</param>
         /// <param name="agentId"></param>
         /// <returns></returns>
-        Task<List<string>> GetAIAgentSkillsAsync(object data, string agentId);
+        Task<List<string>> GetAIAgentSkillsAsync(string agentId);
 
         /// <summary>
         /// 获取用户和智能体的Skill技能 skillPath地址
@@ -44,14 +45,14 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="agentId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        Task<List<string>> GetUserAIAgentSkillsAsync(object data, string agentId, string userId);
+        Task<List<string>> GetUserAIAgentSkillsAsync(string agentId, string userId);
 
         /// <summary>
         /// 获取所有的Skill技能 skillPath地址
         /// </summary> 
         /// <param name="data">用于传递数据</param>
         /// <returns></returns>
-        Task<List<string>> GetAllAIAgentSkillsAsync(object data);
+        Task<List<string>> GetAllAIAgentSkillsAsync();
 
         /// <summary>
         /// 获取智能体的MCP工具
@@ -60,6 +61,6 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="agentId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        Task<List<AITool>> GetUserAIAgentMcpToolsAsync(object data, string agentId, string userId);
+        Task<List<AITool>> GetUserAIAgentMcpToolsAsync(string agentId, string userId);
     }
 }

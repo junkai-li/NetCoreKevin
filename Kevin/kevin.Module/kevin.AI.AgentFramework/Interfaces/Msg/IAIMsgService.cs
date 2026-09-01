@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace kevin.AI.AgentFramework.Interfaces.Msg
 {
-    public interface IAIMsgService : IBaseAIToolService
+    public interface IAIMsgService  
     {
         /// <summary>
         /// 发送钉钉消息给自己

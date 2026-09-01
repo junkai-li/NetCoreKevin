@@ -1,5 +1,6 @@
 using Common;
 using kevin.AI.AgentFramework.Const;
+using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Interfaces.Tools;
 using Kevin.Common.Helper;
 using System.ComponentModel;
@@ -25,39 +26,14 @@ namespace kevin.AI.AgentFramework.Tools
             "appsettings.json",
             "appsettings.development.json",
             "appsettings.test.json"
-        ];
+        ]; 
+        private readonly IAIShareInfoService _aIShareInfoService;
 
-        private object? _data { get; set; }
-        private int _contentLengthLimit = 0;//  内容长度限制，超过限制后会进行截断
-        private List<string> _authorizedDomains = new List<string>(); // 授权域名列表
-        private bool _IsSecurityIntercept = true;// 是否启用安全拦截，默认启用
-        public void InitData(object data)
+        public PythonToolsService(IAIShareInfoService aIShareInfoService)
         {
-            _data = data;
-            if (_data != default)
-            {
-                try
-                {
-                    var jsonDoc = JsonDocument.Parse(JsonSerializer.Serialize(_data));
-                    var authorizedDomains = jsonDoc.RootElement.GetProperty("AuthorizedDomains").GetString();
-                    if (!string.IsNullOrWhiteSpace(authorizedDomains) && authorizedDomains.Trim() != "*")
-                    {
-                        authorizedDomains.Split(',')
-                            .Select(s => s.Trim())
-                            .Where(s => !string.IsNullOrEmpty(s))
-                            .ToList()
-                            .ForEach(domain => this._authorizedDomains.Add(domain));
-                    }
-                    jsonDoc.RootElement.GetProperty("ContentLengthLimit").TryGetInt32(out _contentLengthLimit);
-                    _IsSecurityIntercept = jsonDoc.RootElement.GetProperty("IsSecurityIntercept").GetBoolean();
-                }
-                catch (Exception)
-                {
-                    _IsSecurityIntercept = true; // 解析失败默认启用安全拦截
-                }
-
-            }
+            _aIShareInfoService=aIShareInfoService; 
         }
+
 
         /// <summary>
         /// 检查代码中是否包含受限制的配置文件路径
@@ -81,11 +57,9 @@ namespace kevin.AI.AgentFramework.Tools
         /// <exception cref="UnauthorizedAccessException"></exception>
         private void AuthorizedDomainsCheck(string code)
         {
-            if (_data == default) return;
-
             try
             {
-                if (_authorizedDomains.Count == 0)
+                if (_aIShareInfoService.GetData().AuthorizedDomainsList.Count == 0)
                     return; // 没有有效的前缀，等同于允许所有
 
                 // 从代码中提取所有URL
@@ -93,7 +67,7 @@ namespace kevin.AI.AgentFramework.Tools
                 foreach (Match match in matches)
                 {
                     var url = match.Value;
-                    var isAllowed = _authorizedDomains.Any(prefix => url.Contains(prefix, StringComparison.OrdinalIgnoreCase));
+                    var isAllowed = _aIShareInfoService.GetData().AuthorizedDomainsList.Any(prefix => url.Contains(prefix, StringComparison.OrdinalIgnoreCase));
                     if (!isAllowed)
                         throw new UnauthorizedAccessException($"URL '{url}' 不在授权域名单中。");
                 }
@@ -185,7 +159,7 @@ namespace kevin.AI.AgentFramework.Tools
                     return "❌ 安全拦截：禁止访问配置文件（appsettings.json 等）。";
                 }
 
-                if (_IsSecurityIntercept)
+                if (_aIShareInfoService.GetData().IsSecurityIntercept)
                 {
                     var validationResult = PythonSecurityValidator.ValidatePythonCode(code);
                     if (!validationResult.IsValid)
@@ -240,7 +214,7 @@ namespace kevin.AI.AgentFramework.Tools
                 {
                     output = "Python脚本执行完成，但没有输出结果。";
                 }
-                return $"Python脚本已保存路径为：{saveResult}  \n 执行结果如下：\n" + (output.Length > _contentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(output, _contentLengthLimit) : output);
+                return $"Python脚本已保存路径为：{saveResult}  \n 执行结果如下：\n" + (output.Length > _aIShareInfoService.GetData().ContentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(output, _aIShareInfoService.GetData().ContentLengthLimit) : output);
 
             }
             catch (Exception ex)

@@ -5,7 +5,7 @@ namespace kevin.Domain.Interfaces.IServices.AI
     /// <summary>
     /// ����ӿ�
     /// </summary>
-    public interface IAIJsonLogService : IBaseService, IBaseAIToolService
+    public interface IAIJsonLogService : IBaseService
     {
         /// <summary>
         /// ��ȡ��ҳ����

@@ -5,7 +5,7 @@ namespace kevin.Domain.Interfaces.IServices.AI
     /// <summary>
     /// 智能体记忆服务接口（用户级长期记忆）
     /// </summary>
-    public interface IAIAgentMemoryService : IBaseService, IBaseAIToolService
+    public interface IAIAgentMemoryService : IBaseService
     {
         /// <summary>
         /// 获取分页数据

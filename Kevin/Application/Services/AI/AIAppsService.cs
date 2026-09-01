@@ -1,5 +1,6 @@
 ﻿using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
 using kevin.AI.AgentFramework.Const;
+using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.ScriptRunners;
 using kevin.Domain.Entities.AI;
@@ -66,7 +67,7 @@ namespace kevin.Application.Services.AI
             var data = aIAppsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
-                data = data.Where(t => (t.Name ?? "").Contains(dtoPage.searchKey) || (t.Describe ?? "").Contains(dtoPage.searchKey));
+                data = data.Where(t => t.Name.Contains(dtoPage.searchKey)||t.Describe.Contains(dtoPage.searchKey));
             }
             result.total = await data.CountAsync();
             var dbdata = await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPage.pageSize).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
@@ -368,7 +369,7 @@ namespace kevin.Application.Services.AI
         /// <param name="par"></param>
         /// <param name="parAi"></param>
         /// <returns></returns>
-        public async Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, object parAi, CancellationToken cancellationToken = default)
+        public async Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default)
         {
             #region 获取压缩聊天记录提示词
             if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
@@ -402,20 +403,19 @@ namespace kevin.Application.Services.AI
                 {
                     // 🔑 能力层：工具
                     chatAgOs.ChatOptions.Tools ??= new List<AITool>();
-                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(parAi, aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
+                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
                     if (aiapp.BindIds.Where(x => x.Contains("agent_")).Count() > 0)
                     {
                         var agentIds = aiapp.BindIds.Where(x => x.Contains("agent_")).Select(t => t.Replace("agent_", "")).ToList();
                         foreach (var item in agentIds)
                         {
                             var appitem = await GetNoPerDetails(item.ToTryInt64());
-                            var aIAgent = await GetAppAIAgent(appitem, parAi, par, cancellationToken);
+                            var aIAgent = await GetAppAIAgent(appitem, par, cancellationToken);
                             chatAgOs.ChatOptions.Tools.AddRange(aIAgent.AsAIFunction());
                         }
                     }
                     if (!aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
-                    {
-                        _aIChatMessageStoreCompactionService.InitData(par.AIChatsId.ToString());
+                    { 
                         chatAgOs.ChatOptions.Tools.Add(AIFunctionFactory.Create(_aIChatMessageStoreCompactionService.GetAIToolThreadPrompt, new AIFunctionFactoryOptions
                         {
                             Name = "GetAIToolThreadPrompt",
@@ -430,12 +430,12 @@ namespace kevin.Application.Services.AI
                 if (chatAgOs.ChatOptions != default)
                 {
                     chatAgOs.ChatOptions.Tools ??= new List<AITool>();
-                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(parAi, aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
+                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
                 }
             }
             if (aiapp.IsSkill)
             {
-                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(parAi, aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result;
+                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result;
                 var skillsProvider = new AgentSkillsProviderBuilder()
                                          .UseOptions(t =>
                                          {
@@ -467,7 +467,7 @@ namespace kevin.Application.Services.AI
         /// <param name="cancellationToken"></param>
         /// <param name="referenceDepth">深度为0时可以获取到子ai应用，深度为1时可以获取到子ai应用的子ai应用，以此类推 最多三级引用</param>
         /// <returns></returns>
-        public async Task<AIAgent> GetAppAIAgent(AIAppsDto aiapp, object parAi, AIChatHistorysDto par, CancellationToken cancellationToken = default, int referenceDepth = 0, int MaxReferenceDepth = 3)
+        public async Task<AIAgent> GetAppAIAgent(AIAppsDto aiapp, AIChatHistorysDto par, CancellationToken cancellationToken = default, int referenceDepth = 0, int MaxReferenceDepth = 3)
         {
             // Auto模式：子智能体随机选择一个模型
             if (string.Equals(aiapp.ChatModelID, "auto", StringComparison.OrdinalIgnoreCase))
@@ -498,7 +498,7 @@ namespace kevin.Application.Services.AI
                 {
                     // 🔑 能力层：工具
                     chatAgOs.ChatOptions.Tools ??= new List<AITool>();
-                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(parAi, aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
+                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
                     if (referenceDepth < MaxReferenceDepth)
                     {
                         if (aiapp.BindIds.Where(x => x.Contains("agent_")).Count() > 0)
@@ -508,7 +508,7 @@ namespace kevin.Application.Services.AI
                             foreach (var item in agentIds)
                             {
                                 var appitem = await GetNoPerDetails(item.ToTryInt64());
-                                var aIAgent = await GetAppAIAgent(appitem, parAi, par, cancellationToken, referenceDepth);
+                                var aIAgent = await GetAppAIAgent(appitem, par, cancellationToken, referenceDepth);
                                 chatAgOs.ChatOptions.Tools.AddRange(aIAgent.AsAIFunction());
                             }
                         }
@@ -520,12 +520,12 @@ namespace kevin.Application.Services.AI
                 if (chatAgOs.ChatOptions != default)
                 {
                     chatAgOs.ChatOptions.Tools ??= new List<AITool>();
-                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(parAi, aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
+                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
                 }
             }
             if (aiapp.IsSkill)
             {
-                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(parAi, aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result;
+                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result;
                 var skillsProvider = new AgentSkillsProviderBuilder()
                                        .UseOptions(t =>
                                        {
