@@ -17,5 +17,12 @@ namespace Kevin.Authentication.Jwt.IService
         /// <param name="tokenStr"></param>
         /// <returns></returns>
         string RefreshTokenAccessToken(string tokenStr);
+
+        /// <summary>
+        /// 校验token是否为本系统颁发（验证签名、颁发者、受众、有效期）
+        /// </summary>
+        /// <param name="tokenStr"></param>
+        /// <returns></returns>
+        TokenValidationResultDto ValidateAccessToken(string tokenStr);
     }
 }

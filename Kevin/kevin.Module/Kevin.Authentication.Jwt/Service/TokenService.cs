@@ -105,5 +105,53 @@ namespace Kevin.Authentication.Jwt.Service
             }
             return "";
         }
+        /// <summary>
+        /// 校验token是否为本系统颁发（用同一把密钥验证签名，并校验颁发者、受众、有效期）
+        /// </summary>
+        /// <param name="tokenStr"></param>
+        /// <returns></returns>
+        public TokenValidationResultDto ValidateAccessToken(string tokenStr)
+        {
+            var result = new TokenValidationResultDto();
+            if (string.IsNullOrEmpty(tokenStr))
+            {
+                result.Message = "token不能为空";
+                return result;
+            }
+            try
+            {
+                var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings["Key"]!));
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidAudience = jwtSettings["Audience"],
+                    IssuerSigningKey = key,
+                    ClockSkew = TimeSpan.Zero // 消除默认5分钟偏移，使过期时间严格
+                };
+                var handler = new JwtSecurityTokenHandler();
+                // 关闭内置 Claim 映射，保证 userid/name 等自定义 claim 名称不被转换
+                handler.MapInboundClaims = false;
+                var principal = handler.ValidateToken(tokenStr, validationParameters, out _);
+                result.IsValid = true;
+                result.User = new UserDto
+                {
+                    Id = principal.FindFirst(JwtKeinClaimTypes.UserId)?.Value ?? "",
+                    Name = principal.FindFirst(JwtKeinClaimTypes.Name)?.Value ?? "",
+                    IsSuperAdmin = bool.TryParse(principal.FindFirst(JwtKeinClaimTypes.issuperadmin)?.Value, out var isSuperAdmin) && isSuperAdmin,
+                    TenantId = int.TryParse(principal.FindFirst(JwtKeinClaimTypes.TenantId)?.Value, out var tenantId) ? tenantId : 0,
+                    CreatedTime = DateTime.TryParse(principal.FindFirst(JwtKeinClaimTypes.CreatedTime)?.Value, out var createdTime) ? createdTime : null
+                };
+            }
+            catch (Exception ex)
+            {
+                result.IsValid = false;
+                result.Message = ex.Message;
+            }
+            return result;
+        }
     }
 }
