@@ -219,46 +219,6 @@ namespace kevin.Domain.BaseDatas
                IsSystem=true,
                SkillToolType=AISkillToolTypeEnums.Tool,
                CreateUserId=TUserBaseData.TUsers[0].Id
-           }, new TAISkillToolManagement() {
-               Id=4514112751217327726,
-               Name="保存用户的长期记忆",
-               ClassMethod="AgentMemoryTools.SaveMemory",
-               Description="保存用户的长期记忆。当用户表达个人偏好、习惯、重要事实或需要以后记住的事项时调用。",
-               TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
-               CreateTime = DateTime.Parse("2020-01-02 00:00:01"),
-               IsSystem=true,
-               SkillToolType=AISkillToolTypeEnums.Tool,
-               CreateUserId=TUserBaseData.TUsers[0].Id
-           }, new TAISkillToolManagement() {
-               Id=4514117251217357726,
-               Name="搜索当前用户的长期记忆",
-               ClassMethod="AgentMemoryTools.SearchMemory",
-               Description="搜索当前用户的长期记忆。需要回忆用户偏好、历史事实、约定事项，或回答涉及“我之前说过/我喜欢”等内容时先调用本工具。",
-               TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
-               CreateTime = DateTime.Parse("2020-01-02 00:00:01"),
-               IsSystem=true,
-               SkillToolType=AISkillToolTypeEnums.Tool,
-               CreateUserId=TUserBaseData.TUsers[0].Id
-           }, new TAISkillToolManagement() {
-               Id=4514132251217327216,
-               Name="更新已有的长期记忆",
-               ClassMethod="AgentMemoryTools.UpdateMemory",
-               Description="当之前保存的记忆内容发生变化（如偏好改变）时调用，记忆Id需要先通过 SearchMemory 搜索获取。",
-               TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
-               CreateTime = DateTime.Parse("2020-01-02 00:00:01"),
-               IsSystem=true,
-               SkillToolType=AISkillToolTypeEnums.Tool,
-               CreateUserId=TUserBaseData.TUsers[0].Id
-           }, new TAISkillToolManagement() {
-               Id=4511112251217328926,
-               Name="删除不再需要的长期记忆",
-               ClassMethod="AgentMemoryTools.DeleteMemory",
-               Description="当用户明确要求忘记某事或记忆已失效时调用，记忆Id需要先通过 SearchMemory 搜索获取。",
-               TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
-               CreateTime = DateTime.Parse("2020-01-02 00:00:01"),
-               IsSystem=true,
-               SkillToolType=AISkillToolTypeEnums.Tool,
-               CreateUserId=TUserBaseData.TUsers[0].Id
            }
         };
     }

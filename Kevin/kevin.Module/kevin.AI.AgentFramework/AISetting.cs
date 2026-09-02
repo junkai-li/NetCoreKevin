@@ -35,6 +35,11 @@
         public bool IsMcpTools { get; set; } = true;
 
         /// <summary>
+        /// 是否启用记忆功能
+        /// </summary>
+        public bool IsMemory { get; set; } = false;
+
+        /// <summary>
         /// 最大重试次数
         /// </summary>
         public int MaxRetries { get; set; } = 3;

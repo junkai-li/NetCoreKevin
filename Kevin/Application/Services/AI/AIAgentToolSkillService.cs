@@ -274,30 +274,6 @@ namespace kevin.Application.Services.AI
                             new AIFunctionFactoryOptions { Name = "DoubaoSearchCustomAsync", Description = "豆包联网搜索Custom版本，时延低，控制更灵活，支持各行业高频搜索需求。当需要联网搜索实时信息、新闻、资料时调用，返回搜索结果列表（标题/链接/来源/发布时间/摘要），失败返回以 ❌ 开头的错误信息" }
                         ));
                             break;
-                        case "AgentMemoryTools.SaveMemory":
-                            aiTools.Add(
-                            AIFunctionFactory.Create(_aiAgentMemoryService.SaveMemoryAsync,
-                            new AIFunctionFactoryOptions { Name = "SaveMemory", Description = "保存用户的长期记忆。当用户表达个人偏好、习惯、重要事实，或明确要求“记住某事”时调用，保存成功后简短告知用户。失败返回以 ❌ 开头的错误信息" }
-                        ));
-                            break;
-                        case "AgentMemoryTools.SearchMemory":
-                            aiTools.Add(
-                            AIFunctionFactory.Create(_aiAgentMemoryService.SearchMemoryAsync,
-                            new AIFunctionFactoryOptions { Name = "SearchMemory", Description = "搜索当前用户的长期记忆。需要回忆用户偏好、历史事实、约定事项，或回答涉及“我之前说过/我喜欢”等内容时先调用本工具。失败返回以 ❌ 开头的错误信息" }
-                        ));
-                            break;
-                        case "AgentMemoryTools.UpdateMemory":
-                            aiTools.Add(
-                            AIFunctionFactory.Create(_aiAgentMemoryService.UpdateMemoryAsync,
-                            new AIFunctionFactoryOptions { Name = "UpdateMemory", Description = "更新已有的长期记忆。当之前保存的记忆内容发生变化（如偏好改变）时调用，记忆Id需要先通过 SearchMemory 搜索获取。失败返回以 ❌ 开头的错误信息" }
-                        ));
-                            break;
-                        case "AgentMemoryTools.DeleteMemory":
-                            aiTools.Add(
-                            AIFunctionFactory.Create(_aiAgentMemoryService.DeleteMemoryAsync,
-                            new AIFunctionFactoryOptions { Name = "DeleteMemory", Description = "删除不再需要的长期记忆。当用户明确要求忘记某事或记忆已失效时调用，记忆Id需要先通过 SearchMemory 搜索获取。失败返回以 ❌ 开头的错误信息" }
-                        ));
-                            break;
                     }
                 }
             }
@@ -473,6 +449,26 @@ namespace kevin.Application.Services.AI
         public async Task<List<AITool>> GetUserAIAgentMcpToolsAsync(string agentId, string userId)
         {
             return await GetAIAgentMcpToolsAsync(agentId);
+        }
+
+        /// <summary>
+        /// 获取智能体记忆工具（SaveMemory/SearchMemory/UpdateMemory/DeleteMemory）。
+        /// 仅在智能体开启记忆开关（IsMemory）时由 AIAppsService 注入，不再作为可手动绑定的普通工具。
+        /// </summary>
+        public Task<List<AITool>> GetMemoryToolsAsync()
+        {
+            var aiTools = new List<AITool>
+            {
+                AIFunctionFactory.Create(_aiAgentMemoryService.SaveMemoryAsync,
+                    new AIFunctionFactoryOptions { Name = "SaveMemory", Description = "保存用户的长期记忆。调用前必须先 SearchMemory 检查是否已存在类似记忆，若存在则改用 UpdateMemory。必须同时满足：可复用、非显然、稳定、用户意图明确。memoryType（7 种：preference/fact/task/decision/pitfall/skill/other）和 importance（0-10）均为必填。expireTime 可选（字符串，支持 yyyy-MM-dd HH:mm 或 ISO 8601，如 2026-12-31 23:59），仅临时记忆（task 类）才传，永久记忆不传。失败返回以 ❌ 开头的错误信息，重复返回以 ⚠️ 开头的提示信息" }),
+                AIFunctionFactory.Create(_aiAgentMemoryService.SearchMemoryAsync,
+                    new AIFunctionFactoryOptions { Name = "SearchMemory", Description = "搜索当前用户的长期记忆。需要回忆用户偏好、历史事实、约定事项，或回答涉及“我之前说过/我喜欢”等内容时先调用本工具。支持按 memoryType 过滤精准检索（如只搜 decision 类记忆），多个类型用逗号分隔如 decision,pitfall。失败返回以 ❌ 开头的错误信息" }),
+                AIFunctionFactory.Create(_aiAgentMemoryService.UpdateMemoryAsync,
+                    new AIFunctionFactoryOptions { Name = "UpdateMemory", Description = "更新已有的长期记忆。当之前保存的记忆内容发生变化（如偏好改变）时调用，记忆Id需要先通过 SearchMemory 搜索获取。失败返回以 ❌ 开头的错误信息" }),
+                AIFunctionFactory.Create(_aiAgentMemoryService.DeleteMemoryAsync,
+                    new AIFunctionFactoryOptions { Name = "DeleteMemory", Description = "删除不再需要的长期记忆。当用户明确要求忘记某事或记忆已失效时调用，记忆Id需要先通过 SearchMemory 搜索获取。失败返回以 ❌ 开头的错误信息" })
+            };
+            return Task.FromResult(aiTools);
         }
     }
 }

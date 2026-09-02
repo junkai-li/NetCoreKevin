@@ -62,5 +62,12 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="userId"></param>
         /// <returns></returns>
         Task<List<AITool>> GetUserAIAgentMcpToolsAsync(string agentId, string userId);
+
+        /// <summary>
+        /// 获取智能体记忆工具（SaveMemory/SearchMemory/UpdateMemory/DeleteMemory）。
+        /// 仅在智能体开启记忆开关（IsMemory）时由 AIAppsService 注入，不作为可手动绑定的普通工具。
+        /// </summary>
+        /// <returns>4 个记忆工具</returns>
+        Task<List<AITool>> GetMemoryToolsAsync();
     }
 }

@@ -243,6 +243,7 @@ namespace kevin.Application.Services.AI
                     msg.ReasoningEffort = par.ReasoningEffort;
                     msg.ReasoningOutput = par.ReasoningOutput;
                     msg.IsMcp = par.IsMcp;
+                    msg.IsMemory = par.IsMemory;
                 }
                 else
                 {
@@ -371,6 +372,12 @@ namespace kevin.Application.Services.AI
         /// <returns></returns>
         public async Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default)
         {
+            #region 记忆管理协议提示词（仅在开启智能体记忆 IsMemory 时注入）
+            if (aiapp.IsMemory)
+            {
+                systemPrompt += "\n" + SystemPrompt.MemoryPromptText;
+            }
+            #endregion
             #region 获取压缩聊天记录提示词
             if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
             {
@@ -433,6 +440,13 @@ namespace kevin.Application.Services.AI
                     chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
                 }
             }
+            #region 记忆工具（仅在开启智能体记忆 IsMemory 时注入，独立于 IsAITools）
+            if (aiapp.IsMemory)
+            {
+                chatAgOs.ChatOptions.Tools ??= new List<AITool>();
+                chatAgOs.ChatOptions.Tools.AddRange(await _aIAgentToolSkillService.GetMemoryToolsAsync());
+            }
+            #endregion
             if (aiapp.IsSkill)
             {
                 var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result;
@@ -482,6 +496,11 @@ namespace kevin.Application.Services.AI
             var aIModels = await aIModelsService.GetNoPerDetails(aiapp.ChatModelID.ToTryInt64());
             var aIPrompts = await aIPromptsService.GetNoPerDetails(aiapp.AIPromptID);
             string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
+            // 记忆管理协议提示词（仅在开启智能体记忆 IsMemory 时注入）
+            if (aiapp.IsMemory)
+            {
+                systemPrompt += "\n" + SystemPrompt.MemoryPromptText;
+            }
             // 获取压缩聊天记录提示词
             systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString());
             var chatAgOs = new ChatClientAgentOptions
@@ -523,6 +542,13 @@ namespace kevin.Application.Services.AI
                     chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
                 }
             }
+            #region 记忆工具（仅在开启智能体记忆 IsMemory 时注入，独立于 IsAITools）
+            if (aiapp.IsMemory)
+            {
+                chatAgOs.ChatOptions.Tools ??= new List<AITool>();
+                chatAgOs.ChatOptions.Tools.AddRange(await _aIAgentToolSkillService.GetMemoryToolsAsync());
+            }
+            #endregion
             if (aiapp.IsSkill)
             {
                 var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result;

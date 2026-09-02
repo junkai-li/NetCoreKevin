@@ -261,5 +261,11 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary>
         [Description("模型思考输出，默认不配置，支持0.None,1.Summary,2.Full")]
         public int? ReasoningOutput { get; set; }
+
+        /// <summary>
+        /// 是否开启智能体记忆，开启后会注入记忆管理协议提示词和记忆工具，默认不开启
+        /// </summary>
+        [Description("是否开启智能体记忆，开启后会注入记忆管理协议提示词和记忆工具")]
+        public bool IsMemory { get; set; } = false;
     }
 }

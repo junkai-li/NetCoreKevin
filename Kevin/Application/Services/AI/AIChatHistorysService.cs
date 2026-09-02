@@ -239,6 +239,7 @@ namespace kevin.Application.Services.AI
                         IsAISkills = aiapp.IsSkill,
                         IsAITools = aiapp.IsAITools,
                         IsMcpTools = aiapp.IsMcp,
+                        IsMemory= aiapp.IsMemory,
                         FallbackModels = fallbackModels,
                         StreameCallback = async (msg) =>
                         {

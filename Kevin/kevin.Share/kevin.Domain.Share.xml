@@ -199,6 +199,11 @@
             模型思考输出，默认不配置，支持None,Summary,Full
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.IsMemory">
+            <summary>
+            是否开启智能体记忆，开启后会注入记忆管理协议提示词和记忆工具，默认不开启
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysBindLogDto.AIChatHistorysId">
             <summary>
             对话记录id
@@ -1232,6 +1237,61 @@
             <summary>
             员工状态 -1:离职 1:在职 2:休假 3:停职 4:退休 5:实习
             </summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Enums.MemoryTypes">
+            <summary>
+            智能体长期记忆类型常量与校验
+            </summary>
+            <remarks>
+            数据库 TAIAgentMemory.MemoryType 以字符串存储，本类提供合法值集合与校验方法。
+            保留原有 4 种（preference/fact/task/other）向后兼容，新增 3 种（decision/pitfall/skill）提升分类精度。
+            </remarks>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.MemoryTypes.Preference">
+            <summary>用户偏好：沟通风格、行为习惯、长期约束（如"回答用中文"、"先给方案再动手"）</summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.MemoryTypes.Fact">
+            <summary>事实：项目技术栈、架构、配置、模块边界等客观事实（如"项目用 .NET 9 + Vue 3"）</summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.MemoryTypes.Task">
+            <summary>任务：临时任务上下文、待办事项、阶段性目标（如"本次重构目标是解耦 X 模块"）</summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.MemoryTypes.Decision">
+            <summary>决策：重要设计/架构决策，含结论 + 权衡 + 拒绝的替代方案 + 适用/失效条件</summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.MemoryTypes.Pitfall">
+            <summary>踩坑教训：Bug 类 + 根因 + 修复模式 + 可复用教训</summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.MemoryTypes.Skill">
+            <summary>技能经验：工具/框架使用技巧，含场景 + 方法 + 注意事项</summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.MemoryTypes.Other">
+            <summary>其他：确实无法归入以上 6 类时才用</summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.MemoryTypes.All">
+            <summary>
+            全部合法记忆类型（小写）
+            </summary>
+        </member>
+        <member name="M:kevin.Domain.Share.Enums.MemoryTypes.IsValid(System.String)">
+            <summary>
+            校验记忆类型是否合法（不区分大小写）
+            </summary>
+            <param name="memoryType">待校验的记忆类型字符串</param>
+            <returns>合法返回 true，否则 false</returns>
+        </member>
+        <member name="M:kevin.Domain.Share.Enums.MemoryTypes.Normalize(System.String)">
+            <summary>
+            规范化记忆类型：去空格 + 转小写；非法值回退为 <see cref="F:kevin.Domain.Share.Enums.MemoryTypes.Other"/>
+            </summary>
+            <param name="memoryType">原始记忆类型字符串</param>
+            <returns>规范化后的合法记忆类型</returns>
+        </member>
+        <member name="M:kevin.Domain.Share.Enums.MemoryTypes.GetDescriptionText">
+            <summary>
+            获取全部合法类型的描述字符串，用于接口 [Description] 或提示词拼接
+            </summary>
+            <returns>形如 "preference偏好/fact事实/task任务/decision决策/pitfall踩坑/skill技能/other其他"</returns>
         </member>
         <member name="T:kevin.Domain.Share.Enums.OrganizationalStatus">
             <summary>

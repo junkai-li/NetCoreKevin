@@ -38,9 +38,9 @@ namespace kevin.Domain.Entities.AI
         public long AIChatsId { get; set; }
 
         /// <summary>
-        /// 记忆类型：preference偏好/fact事实/task任务/other其他
+        /// 记忆类型（7 种）：preference偏好/fact事实/task任务/decision决策/pitfall踩坑/skill技能/other其他
         /// </summary>
-        [Description("记忆类型：preference偏好/fact事实/task任务/other其他")]
+        [Description("记忆类型：preference偏好/fact事实/task任务/decision决策/pitfall踩坑/skill技能/other其他")]
         [MaxLength(50)]
         public string MemoryType { get; set; } = "other";
 
@@ -58,9 +58,9 @@ namespace kevin.Domain.Entities.AI
         public string Content { get; set; } = "";
 
         /// <summary>
-        /// 重要程度0~10，默认5，检索排序参考
+        /// 重要程度 0~10（AI 工具调用时必填）：9-10核心约束/7-8重要决策偏好/5-6一般事实经验/3-4边缘信息/0-2低价值。检索排序参考
         /// </summary>
-        [Description("重要程度0~10")]
+        [Description("重要程度 0~10")]
         public int Importance { get; set; } = 5;
 
         /// <summary>

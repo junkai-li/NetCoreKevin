@@ -213,5 +213,12 @@ namespace kevin.Domain.Entities.AI
         /// </summary>
         [Description("是否开启aiMcp工具")]
         public bool IsMcp { get; set; } = true;
+
+        /// <summary>
+        /// 是否开启智能体记忆，开启后会注入记忆管理协议提示词和记忆工具（SaveMemory/SearchMemory/UpdateMemory/DeleteMemory），默认不开启
+        /// </summary>
+        [Description("是否开启智能体记忆，开启后会注入记忆管理协议提示词和记忆工具")]
+        [DefaultValue(false)]
+        public bool IsMemory { get; set; } = false;
     }
 }

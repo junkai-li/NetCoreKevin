@@ -245,19 +245,26 @@
       </a-tab-pane>
       <a-tab-pane key="skillTool" tab="技能工具">
         <a-row :gutter="16">
-          <a-col :span="8">
+          <a-col :span="6">
             <a-form-item label="AI工具">
               <a-switch v-model:checked="form.isAITools" :disabled="isViewMode" />
             </a-form-item>
           </a-col>
-          <a-col :span="8">
+          <a-col :span="6">
             <a-form-item label="Skill技能">
               <a-switch v-model:checked="form.isSkill" :disabled="isViewMode" />
             </a-form-item>
           </a-col>
-          <a-col :span="8">
+          <a-col :span="6">
             <a-form-item label="Mcp工具">
               <a-switch v-model:checked="form.isMcp" :disabled="isViewMode" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-item label="智能体记忆">
+              <a-tooltip title="开启后注入记忆管理协议提示词和 SaveMemory/SearchMemory/UpdateMemory/DeleteMemory 四个记忆工具，默认关闭">
+                <a-switch v-model:checked="form.isMemory" :disabled="isViewMode" />
+              </a-tooltip>
             </a-form-item>
           </a-col>
         </a-row>
@@ -479,6 +486,7 @@ const form = reactive({
   isAITools: true,
   isSkill: true,
   isMcp: true,
+  isMemory: false,
   tools: [],
   skills: [],
   mcps: [],
@@ -876,6 +884,7 @@ watch(() => props.open, (newVal) => {
         isAITools: true,
         isSkill: true,
         isMcp: true,
+        isMemory: false,
         tools: [],
         skills: [],
         mcps: [],
@@ -945,6 +954,7 @@ const handleOk = () => {
         isAITools: form.isAITools,
         isSkill: form.isSkill,
         isMcp: form.isMcp,
+        isMemory: form.isMemory,
         tools: form.isAITools ? buildSelectedData(form.tools || [], toolsList.value) : [],
         skills: form.isSkill ? buildSelectedData(form.skills || [], skillsList.value) : [],
         mcps: form.isMcp ? buildSelectedData(form.mcps || [], mcpList.value) : [],
