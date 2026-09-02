@@ -10,33 +10,34 @@ namespace kevin.AI.AgentFramework.ScriptRunners
     public class PySubprocessScriptRunner : IPySubprocessScriptRunner
     {
         /// <summary>
+        /// 脚本执行超时时间，防止子进程长时间挂起
+        /// </summary>
+        private static readonly TimeSpan ScriptExecutionTimeout = TimeSpan.FromSeconds(600);
+
+        /// <summary>
         /// 创建进程启动信息
         /// </summary>
-        private ProcessStartInfo CreateStartInfo(string fileName, string arguments)
+        private ProcessStartInfo CreateStartInfo(string fileName)
         {
-            // 注册编码提供程序以支持 GBK 等旧编码（Windows 常见）
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-            // Windows 下默认使用 Default (ANSI/OEM)，非 Windows 使用 UTF-8
-            // 注意：对于 PowerShell，我们稍后会在参数中强制指定 UTF-8 输出，以覆盖此设置可能的不一致
-            Encoding outputEncoding = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? Encoding.Default
-                : Encoding.UTF8;
-            // 逐个添加参数，框架会自动处理转义 
-            return new ProcessStartInfo
+            // 统一使用 UTF-8 读取子进程输出。
+            // 注意：.NET Core/5+ 中 Encoding.Default 已经是 UTF-8（不再是 ANSI/OEM 代码页），
+            // 因此这里显式使用 UTF-8，并通过环境变量强制 Python 子进程以 UTF-8 输出，避免中文乱码。
+            var startInfo = new ProcessStartInfo
             {
                 FileName = fileName,
-                Arguments = arguments,
-
                 UseShellExecute = false, // 必须为 false 才能重定向流
-                RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                StandardInputEncoding = Encoding.UTF8,
-                StandardOutputEncoding = outputEncoding,
-                StandardErrorEncoding = outputEncoding,
+                StandardOutputEncoding = Encoding.UTF8,
+                StandardErrorEncoding = Encoding.UTF8,
                 CreateNoWindow = true
             };
+
+            // 强制 Python 以 UTF-8 输出（对非 Python 进程无副作用）
+            startInfo.EnvironmentVariables["PYTHONUTF8"] = "1";
+            startInfo.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8";
+
+            return startInfo;
         }
 
         /// <summary>
@@ -90,7 +91,29 @@ namespace kevin.AI.AgentFramework.ScriptRunners
             return null;
         }
 
-#pragma warning disable MAAI001
+        /// <summary>
+        /// 获取可用的 PowerShell 命令。
+        /// 优先 pwsh (PowerShell 7+)：默认以 UTF-8 读取无 BOM 脚本与输出，可避免中文字面量乱码；
+        /// Windows 上若未安装 pwsh 则回退到内置的 Windows PowerShell 5.1 (powershell)。
+        /// 都不可用时返回 null。
+        /// </summary>
+        private string? GetAvailablePowerShellCommand()
+        {
+            // 优先检查 pwsh (PowerShell 7+)
+            if (IsCommandAvailable("pwsh"))
+            {
+                return "pwsh";
+            }
+
+            // Windows 回退到内置的 Windows PowerShell 5.1
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && IsCommandAvailable("powershell"))
+            {
+                return "powershell";
+            }
+
+            // 都不存在返回 null
+            return null;
+        } 
         public async Task<object?> StaticRunAsync(
             AgentFileSkill skill,
             AgentFileSkillScript script,
@@ -107,16 +130,10 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                     throw new FileNotFoundException($"Script not found: {scriptFullPath}");
                 }
 
-                // 2. 序列化参数为 JSON
-                // 如果 arguments 为 null，发送一个空对象或空字符串，避免发送 "null" 字面量导致某些解析器报错
-                string inputJson = arguments.HasValue
-                    ? JsonSerializer.Serialize(arguments.Value)
-                    : "{}";
-
-                // 3. 根据后缀选择解释器
+                // 2. 根据后缀选择解释器，并把脚本路径与各开关作为独立参数加入 ArgumentList。
+                //    不能把 "-NoProfile -Command ..." 整串塞进一个参数，否则会被转义成单个 token 导致解释器无法解析。
                 string ext = Path.GetExtension(scriptFullPath).ToLowerInvariant();
                 ProcessStartInfo startInfo;
-                var argument = "";
                 switch (ext)
                 {
                     case ".py":
@@ -127,41 +144,52 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                                 "Python environment is not installed. Please install Python (python3 or python) and ensure it is available in the system PATH."
                             );
                         }
-                        startInfo = CreateStartInfo(pythonCmd, string.Empty);
-                        argument = scriptFullPath;
+                        startInfo = CreateStartInfo(pythonCmd);
+                        startInfo.ArgumentList.Add(scriptFullPath);
                         break;
 
                     case ".sh":
-                        string shell = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "bash" : "bash";
-                        // 注意：Windows 上运行 bash 通常需要 WSL 或 Git Bash 且在 PATH 中
-                        startInfo = CreateStartInfo(shell, string.Empty);
-                        argument = scriptFullPath;
+                        // Windows 上运行 bash 通常需要 WSL 或 Git Bash 且在 PATH 中
+                        startInfo = CreateStartInfo("bash");
+                        startInfo.ArgumentList.Add(scriptFullPath);
                         break;
 
                     case ".ps1":
-                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                        string? psCmd = GetAvailablePowerShellCommand();
+                        if (psCmd == null)
                         {
-                            // 关键优化：强制 PowerShell 使用 UTF-8 输出，防止中文乱码
-                            // $OutputEncoding 和 [Console]::OutputEncoding 设置为 UTF-8
-                            string psArgs = $"-NoProfile -NonInteractive -ExecutionPolicy Bypass -Command \"& {{ [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8; & '{scriptFullPath}' }}\"";
-                            startInfo = CreateStartInfo("powershell", string.Empty);
-                            argument = psArgs;
+                            throw new InvalidOperationException(
+                                "PowerShell is not available. Please install PowerShell (pwsh) or ensure powershell/pwsh is available in the system PATH."
+                            );
+                        }
+                        startInfo = CreateStartInfo(psCmd);
+                        startInfo.ArgumentList.Add("-NoProfile");
+                        startInfo.ArgumentList.Add("-NonInteractive");
+                        startInfo.ArgumentList.Add("-ExecutionPolicy");
+                        startInfo.ArgumentList.Add("Bypass");
+                        if (string.Equals(psCmd, "pwsh", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // PowerShell 7+：默认 UTF-8 读取脚本与输出，直接 -File，后续参数自然透传给脚本
+                            startInfo.ArgumentList.Add("-File");
+                            startInfo.ArgumentList.Add(scriptFullPath);
                         }
                         else
                         {
-                            // Linux/macOS 使用 pwsh (PowerShell Core)
-                            startInfo = CreateStartInfo("pwsh", string.Empty);
-                            argument = $"-NoProfile -NonInteractive -File \"{scriptFullPath}\"";
+                            // Windows PowerShell 5.1：会按 ANSI/GBK 读取无 BOM 脚本，这里强制 UTF-8 输出防止中文乱码；
+                            // 末尾 @args 用于把后续追加的参数透传给脚本。
+                            startInfo.ArgumentList.Add("-Command");
+                            startInfo.ArgumentList.Add(
+                                $"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8; & '{scriptFullPath}' @args");
                         }
                         break;
 
                     default:
                         // 尝试直接执行（适用于 .exe, .bat, .cmd 等）
-                        startInfo = CreateStartInfo(scriptFullPath, string.Empty);
+                        startInfo = CreateStartInfo(scriptFullPath);
                         break;
                 }
-                //拼接参数
-                startInfo.ArgumentList.Add(argument);
+
+                // 3. 追加脚本参数（通过命令行传递，形如 --name value）
                 if (arguments != null)
                 {
                     var kind = arguments.Value.ValueKind;
@@ -190,12 +218,10 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                 // 4. 启动进程并异步处理
                 using var process = new Process { StartInfo = startInfo };
 
-                // 使用 TaskCompletionSource 来确保在进程退出前，所有输出流都已读取完毕
-                var tcs = new TaskCompletionSource<bool>();
                 var outputBuilder = new StringBuilder();
                 var errorBuilder = new StringBuilder();
 
-                // 注册事件处理
+                // 异步读取输出/错误流，避免子进程缓冲区写满而阻塞
                 process.OutputDataReceived += (sender, e) =>
                 {
                     if (e.Data != null) outputBuilder.AppendLine(e.Data);
@@ -206,14 +232,10 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                     if (e.Data != null) errorBuilder.AppendLine(e.Data);
                 };
 
-                // 当进程退出时，标记任务完成
-                process.Exited += (sender, e) =>
-                {
-                    tcs.TrySetResult(true);
-                };
-
-                // 启用引发退出事件
-                process.EnableRaisingEvents = true;
+                // 组合外部取消令牌与执行超时，防止脚本长时间挂起
+                // （WaitForExitAsync 会同时等待输出流读取完毕，无需再用 Exited 事件）
+                using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                timeoutCts.CancelAfter(ScriptExecutionTimeout);
 
                 try
                 {
@@ -222,17 +244,24 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                     // 立即开始异步读取输出流
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
-                    // 等待进程退出或取消
-                    // 使用 WaitForExitAsync 结合 CancellationToken
-                    await process.WaitForExitAsync(cancellationToken);
+
+                    await process.WaitForExitAsync(timeoutCts.Token);
                 }
                 catch (OperationCanceledException)
                 {
-                    // 如果取消，尝试杀死进程
+                    // 超时或外部取消：先杀死进程树，再区分失败原因
                     if (!process.HasExited)
                     {
-                        try { process.Kill(); } catch { }
+                        try { process.Kill(entireProcessTree: true); } catch { }
                     }
+
+                    // 外部未请求取消，说明是本次执行超时
+                    if (!cancellationToken.IsCancellationRequested)
+                    {
+                        throw new TimeoutException(
+                            $"Script execution timed out after {ScriptExecutionTimeout.TotalSeconds} seconds.");
+                    }
+
                     throw;
                 }
 
