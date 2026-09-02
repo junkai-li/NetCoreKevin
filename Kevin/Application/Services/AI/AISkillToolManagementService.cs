@@ -7,6 +7,8 @@ using kevin.Domain.Share.Enums;
 using kevin.FileStorage;
 using kevin.RepositorieRps.Repositories;
 using Kevin.Common;
+using Kevin.Common.Helper;
+using System.Text.RegularExpressions;
 
 namespace kevin.Application.Services.AI
 {
@@ -31,7 +33,7 @@ namespace kevin.Application.Services.AI
             int skip = dtoPagePar.GetSkip();
             var result = new dtoPageData<AISkillToolManagementDto>();
             var data = AISkillToolManagementRp.Query(isDataPer: true).Where(t => t.IsDelete == false);
-            if ((AISkillToolTypeEnums)dtoPagePar.Parameter== AISkillToolTypeEnums.Tool)
+            if ((AISkillToolTypeEnums)dtoPagePar.Parameter == AISkillToolTypeEnums.Tool)
             {
                 data = AISkillToolManagementRp.Query(isDataPer: false).Where(t => t.IsDelete == false);
             }
@@ -121,7 +123,7 @@ namespace kevin.Application.Services.AI
                     upData.ActiveStatus = data.ActiveStatus;
                     upData.ClassMethod = data.ClassMethod;
                     upData.Description = data.Description;
-                    upData.McpUrl = data.McpUrl;    
+                    upData.McpUrl = data.McpUrl;
                     upData.McpType = data.McpType;
                     upData.McpHeaders = data.McpHeaders;
                     upData.McpCommand = data.McpCommand;
@@ -162,6 +164,21 @@ namespace kevin.Application.Services.AI
                         FileZipHelper.ExtractZipStreamToDirectory(fileStream, path);
                     }
                     File.Delete(path + flieData.Name);
+
+                    //校验技能包脚本(.py/.ps1/.sh)中提取到的http(s)地址是否都在授权前缀白名单内
+                    //存在非授权域名地址时，先清理已解压文件再抛出异常，避免非授权脚本残留磁盘
+                    try
+                    {
+                        ValidateSkillScriptUrls(path);
+                    }
+                    catch
+                    {
+                        if (Directory.Exists(path))
+                        {
+                            Directory.Delete(path, true);
+                        }
+                        throw;
+                    }
                 }
                 else
                 {
@@ -248,6 +265,80 @@ namespace kevin.Application.Services.AI
         {
             return (await AISkillToolManagementRp.Query().Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Mcp && t.ActiveStatus == InActiveStatusEnums.Active).OrderByDescending(t => t.CreateTime).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
 
+        }
+
+        /// <summary>
+        /// 校验skill技能包脚本(.py/.ps1/.sh)中提取到的http(s)地址是否都在授权前缀白名单内。
+        /// 白名单读取自配置节点 SkillToolSecuritySetting:AllowedUrlPrefixes；未配置时不做限制。
+        /// 存在非授权域名地址时抛出异常，并指明具体文件，提示联系开发人员。
+        /// </summary>
+        /// <param name="skillDirectory">技能包解压后的根目录</param>
+        private void ValidateSkillScriptUrls(string skillDirectory)
+        {
+            if (string.IsNullOrEmpty(skillDirectory) || !Directory.Exists(skillDirectory))
+            {
+                return;
+            } 
+            if (ConfigHelper.Configuration["SkillToolSecuritySetting:IsOpenAllowedUrlPrefixes"].ToBoolean() == false)
+            {
+                return;
+            }
+            //读取授权地址前缀白名单（appsettings 节点：SkillToolSecuritySetting:AllowedUrlPrefixes）
+            var allowedPrefixes = ConfigHelper.GetSection<List<string>>("SkillToolSecuritySetting:AllowedUrlPrefixes")?
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .Select(t => t.Trim())
+                .ToList();
+
+            //未配置白名单时不做限制
+            if (allowedPrefixes == null || allowedPrefixes.Count == 0)
+            {
+                return;
+            }
+
+            //需要扫描的脚本文件后缀
+            var scanExtensions = new[] { ".py", ".ps1", ".sh" };
+            //匹配 http:// 或 https:// 地址，遇到空白、单双引号、尖括号等即结束
+            var urlRegex = new Regex(@"https?://[^\s'""<>]+", RegexOptions.IgnoreCase);
+
+            var violations = new List<string>();
+            var scriptFiles = Directory.EnumerateFiles(skillDirectory, "*.*", SearchOption.AllDirectories)
+                .Where(f => scanExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()));
+
+            foreach (var file in scriptFiles)
+            {
+                string content;
+                try
+                {
+                    content = File.ReadAllText(file);
+                }
+                catch
+                {
+                    //无法读取的文件（如编码异常）跳过
+                    continue;
+                }
+
+                foreach (Match match in urlRegex.Matches(content))
+                {
+                    //去除地址末尾可能粘连的标点符号
+                    var url = match.Value.TrimEnd('.', ',', ';', ':', ')', ']', '}');
+                    //只要命中任意一个授权前缀即视为合法（忽略大小写）
+                    var isAllowed = allowedPrefixes.Any(prefix => url.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+                    if (!isAllowed)
+                    {
+                        //使用相对技能包根目录的路径，便于定位存在非授权地址的文件
+                        var relativePath = Path.GetRelativePath(skillDirectory, file);
+                        violations.Add($"文件[{relativePath}]存在非授权域名地址：{url}");
+                    }
+                }
+            }
+
+            if (violations.Count > 0)
+            {
+                //去重，避免同一地址重复出现导致提示信息冗长
+                var distinctViolations = violations.Distinct().ToList();
+                throw new UserFriendlyException(
+                    $"skill技能包脚本中存在非授权域名地址，请联系开发人员！授权前缀白名单：{string.Join("、", allowedPrefixes)}。{Environment.NewLine}{string.Join(Environment.NewLine, distinctViolations)}");
+            }
         }
     }
 }
