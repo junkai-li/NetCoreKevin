@@ -460,9 +460,9 @@ namespace kevin.Application.Services.AI
             var aiTools = new List<AITool>
             {
                 AIFunctionFactory.Create(_aiAgentMemoryService.SaveMemoryAsync,
-                    new AIFunctionFactoryOptions { Name = "SaveMemory", Description = "保存长期记忆。先 SearchMemory；重复则 UpdateMemory。memoryType、importance 必填；expireTime 仅 task 可传。" }),
+                    new AIFunctionFactoryOptions { Name = "SaveMemory", Description = "保存长期或短期记忆。先 SearchMemory；重复则 UpdateMemory。memoryType、importance 必填；task 是短期记忆且必须传 expireTime，其他类型禁止传 expireTime。" }),
                 AIFunctionFactory.Create(_aiAgentMemoryService.SearchMemoryAsync,
-                    new AIFunctionFactoryOptions { Name = "SearchMemory", Description = "搜索当前用户长期记忆；可按 memoryType 过滤（多类型逗号分隔）。" }),
+                    new AIFunctionFactoryOptions { Name = "SearchMemory", Description = "搜索当前用户有效记忆（长期与未过期短期记忆）；可按 memoryType 过滤（多类型逗号分隔）。" }),
                 AIFunctionFactory.Create(_aiAgentMemoryService.UpdateMemoryAsync,
                     new AIFunctionFactoryOptions { Name = "UpdateMemory", Description = "用户纠正或记忆变化时更新；先 SearchMemory 获取记忆Id。" }),
                 AIFunctionFactory.Create(_aiAgentMemoryService.DeleteMemoryAsync,

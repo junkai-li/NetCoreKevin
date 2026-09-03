@@ -52,25 +52,26 @@
                                                     ";
 
         /// <summary>
-        /// 记忆管理协议提示词  # 仅在智能体开启记忆开关（IsMemory=true）时追加注入到系统提示词，指导智能体使用 SaveMemory/SearchMemory/UpdateMemory/DeleteMemory 四个记忆工具进行长期记忆的存/取/改/删。
+        /// 记忆管理协议提示词  # 仅在智能体开启记忆开关（IsMemory=true）时追加注入到系统提示词，指导智能体使用 SaveMemory/SearchMemory/UpdateMemory/DeleteMemory 四个记忆工具进行长期与短期记忆的存/取/改/删。
         /// </summary>
-        public const string MemoryPromptText = @"## 长期记忆协议
-                                                    工具：SaveMemory、SearchMemory、UpdateMemory、DeleteMemory。记忆是跨会话资产，不是日志；少记、精记、先搜后存、及时纠正。
+        public const string MemoryPromptText = @"## 记忆协议
+                                                    工具：SaveMemory、SearchMemory、UpdateMemory、DeleteMemory。记忆可跨会话使用，不是日志；少记、精记、先搜后存、及时纠正。
 
                                                     **静默**：所有记忆操作对用户透明；回复不得提及搜索、保存、更新、删除或“记下”等行为。
 
                                                     ### 保存
-                                                    同时满足：①可复用，非一次性；②个人专属或经验结论，非通用知识；③稳定；④意图明确。
+                                                    长期记忆同时满足：①可复用，非一次性；②个人专属或经验结论，非通用知识；③稳定；④意图明确。
                                                     意图明确包括：用户明说记住/保存；或第一人称直接陈述稳定偏好、事实、决策（如“我不喜欢X”“我习惯Y”“项目用Z”“以后请…”），应主动保存。不得根据语气、行为或风格臆测；不确定时不保存。
+                                                    短期记忆用于有明确失效时间、在失效前可跨会话复用的临时目标、阶段性约束或待办事项；不得保存为永久记忆。
                                                     保存前必先 SearchMemory：已有类似记忆则 UpdateMemory。禁止保存一次性指令、通用知识、闲聊。
 
                                                     ### 检索
                                                     涉及偏好、项目约定、历史决策/教训、回忆性提问或不确定/冲突时搜索。keyword 用 2-5 个核心实体词，英文逗号分隔，不用完整问句；优先专有名词、避免泛词，并与 content 互补；首次无结果改用更宽泛词重试。可用 memoryType 过滤，多类型逗号分隔。
 
                                                     ### 保存字段
-                                                    memoryType 必填：preference=个人偏好；fact=项目事实；task=临时目标；decision=重要决策；pitfall=踩坑教训；skill=技巧；other=无法归类才用。
+                                                    memoryType 必填：preference=个人偏好；fact=项目事实；task=短期记忆（临时目标、阶段性约束、待办）；decision=重要决策；pitfall=踩坑教训；skill=技巧；other=无法归类才用。
                                                     importance 必填：9-10核心约束；7-8重要偏好/决策；5-6一般事实；3-4边缘信息；0-2原则上不存。
-                                                    expireTime 仅 task 使用且必须晚于当前时间，格式为 yyyy-MM-dd HH:mm、yyyy-MM-dd HH:mm:ss 或 ISO 8601；其他类型不传。
+                                                    task 必须设置 expireTime，且必须晚于当前时间；到期后不可检索。其他类型是长期记忆，禁止传 expireTime。格式为 yyyy-MM-dd HH:mm、yyyy-MM-dd HH:mm:ss 或 ISO 8601。
 
                                                     ### 更新与删除
                                                     用户纠正或信息变化：SearchMemory 后 UpdateMemory；过期信息更新或删除；重复时保留最完整一条并合并、删除其余；用户要求忘记时 DeleteMemory。

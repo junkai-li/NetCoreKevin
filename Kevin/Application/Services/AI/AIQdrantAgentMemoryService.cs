@@ -125,7 +125,8 @@ namespace kevin.Application.Services.AI
                     ["keywords"] = memory.Keywords ?? "",
                     ["content"] = memory.Content ?? "",
                     ["importance"] = memory.Importance.ToString(),
-                    ["createTime"] = memory.CreateTime.ToString("yyyy-MM-dd HH:mm:ss")
+                    ["createTime"] = memory.CreateTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                    ["expireTime"] = memory.ExpireTime?.ToString("O") ?? ""
                 }
             };
 
@@ -160,8 +161,9 @@ namespace kevin.Application.Services.AI
                 queryEmbedding.Vector,
                 limit: SearchFetchLimit);
 
-            // ③ 防御性校验：userId + tenantId + aiAppsId（集合已三维隔离，此处为双重保险）
+            // ③ 防御性校验并过滤过期短期记忆（集合已三维隔离，此处为双重保险）
             var candidates = FilterByOwnerScope(searchResults, userId, tenantId, aiAppsId);
+            candidates = FilterUnexpired(candidates);
 
             if (candidates.Count == 0)
                 return null;
@@ -276,6 +278,22 @@ namespace kevin.Application.Services.AI
                          && GetPayloadString(r, "tenantId") == tenantIdStr
                          && GetPayloadString(r, "aiAppsId") == aiAppsIdStr)
                 .ToList();
+        }
+
+        /// <summary>
+        /// 过滤过期短期记忆。缺少 expireTime 的历史向量按永久有效兼容处理。
+        /// </summary>
+        private static List<ScoredPoint> FilterUnexpired(IEnumerable<ScoredPoint> results)
+        {
+            var now = DateTime.Now;
+            return results.Where(result =>
+            {
+                var expireTime = GetPayloadString(result, "expireTime");
+                if (string.IsNullOrWhiteSpace(expireTime)) return true;
+                return DateTime.TryParse(expireTime, System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.RoundtripKind, out var parsedExpireTime)
+                    && parsedExpireTime > now;
+            }).ToList();
         }
 
         /// <summary>

@@ -11,7 +11,7 @@ namespace kevin.Domain.Entities.AI
     /// TAIAgentMemory
     /// </summary>
     [Table("TAIAgentMemory")]
-    [Description("智能体长期记忆（用户级）")]
+    [Description("智能体记忆（用户级，含长期与短期）")]
     [Index(nameof(AIAppsId))]
     [Index(nameof(AIChatsId))]
     [Index(nameof(UserId))]
@@ -38,9 +38,9 @@ namespace kevin.Domain.Entities.AI
         public long AIChatsId { get; set; }
 
         /// <summary>
-        /// 记忆类型（7 种）：preference偏好/fact事实/task任务/decision决策/pitfall踩坑/skill技能/other其他
+        /// 记忆类型（7 种）：preference偏好/fact事实/task短期记忆/decision决策/pitfall踩坑/skill技能/other其他
         /// </summary>
-        [Description("记忆类型：preference偏好/fact事实/task任务/decision决策/pitfall踩坑/skill技能/other其他")]
+        [Description("记忆类型：preference偏好/fact事实/task短期记忆/decision决策/pitfall踩坑/skill技能/other其他")]
         [MaxLength(50)]
         public string MemoryType { get; set; } = "other";
 
@@ -64,9 +64,9 @@ namespace kevin.Domain.Entities.AI
         public int Importance { get; set; } = 5;
 
         /// <summary>
-        /// 过期时间，为空表示永久有效
+        /// 短期记忆（task）的过期时间；为空表示长期记忆永久有效
         /// </summary>
-        [Description("过期时间，为空表示永久有效")]
+        [Description("短期记忆过期时间，为空表示长期记忆永久有效")]
         public DateTime? ExpireTime { get; set; }
     }
 }

@@ -11,7 +11,7 @@ using System.Text.Json;
 namespace kevin.Application.Services.AI
 {
     /// <summary>
-    /// 智能体记忆服务（用户级长期记忆）
+    /// 智能体记忆服务（用户级长期与短期记忆）
     /// <para>
     /// 搜索策略：优先通过 <see cref="AIQdrantAgentMemoryService"/> 进行 Qdrant 向量语义检索，
     /// 若 Qdrant 不可用或搜索无结果则降级到数据库关键词搜索。
@@ -53,8 +53,8 @@ namespace kevin.Application.Services.AI
         /// 保存记忆
         /// </summary>
         /// <remarks>
-        /// 校验顺序：用户身份 → content 非空 → memoryType 合法性 → importance 范围 → expireTime 解析与有效性 → 去重检查 → 写入。
-        /// expireTime 为字符串（空表示永久有效），支持多格式解析：yyyy-MM-dd HH:mm、yyyy-MM-dd HH:mm:ss、ISO 8601，参考 KevinAITasksService.AddOnceTask 模式。
+        /// 校验顺序：用户身份 → content 非空 → memoryType 合法性 → importance 范围 → expireTime 解析与类型匹配 → 去重检查 → 写入。
+        /// task 是跨会话可复用的短期记忆，必须设置 expireTime；其他类型为长期记忆，禁止设置 expireTime。
         /// 去重规则：用 keywords 查询同用户/租户/智能体下已有记忆，若 content 高度相似（互相包含或前 30 字符相同）则拒绝并提示改用 UpdateMemory。
         /// </remarks>
         public async Task<string> SaveMemoryAsync(string content, string keywords, string memoryType, int importance, string expireTime = "")
@@ -72,6 +72,7 @@ namespace kevin.Application.Services.AI
             {
                 return $"❌ 保存记忆失败：memoryType “{memoryType}” 非法。合法值：{MemoryTypes.GetDescriptionText()}。详见系统提示词 4.3 分类表。";
             }
+            var normalizedType = MemoryTypes.Normalize(memoryType);
             // importance 范围校验（0-10）
             if (importance < 0 || importance > 10)
             {
@@ -81,9 +82,19 @@ namespace kevin.Application.Services.AI
             {
                 return "❌ 保存记忆失败：keywords 不能为空，请提供 2-5 个核心实体/概念/技术术语，英文逗号分隔。";
             }
-            // expireTime 解析与校验：空字符串表示永久有效（null），支持多格式解析
+            // task 是短期记忆，必须设置 expireTime；其他类型是长期记忆，禁止设置 expireTime。
+            var hasExpireTime = !string.IsNullOrWhiteSpace(expireTime);
+            if (normalizedType == MemoryTypes.Task && !hasExpireTime)
+            {
+                return "❌ 保存记忆失败：短期记忆（task）必须设置 expireTime。";
+            }
+            if (normalizedType != MemoryTypes.Task && hasExpireTime)
+            {
+                return $"❌ 保存记忆失败：{normalizedType} 是长期记忆，不允许设置 expireTime；只有短期记忆（task）可以设置过期时间。";
+            }
+
             DateTime? parsedExpireTime = null;
-            if (!string.IsNullOrWhiteSpace(expireTime))
+            if (hasExpireTime)
             {
                 string[] formats = { "yyyy-MM-dd HH:mm", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-ddTHH:mm:ss", "yyyy-MM-ddTHH:mm", "yyyy-MM-ddTHH:mm:ssZ", "o" };
                 if (!DateTime.TryParseExact(expireTime.Trim(), formats, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var parsed)
@@ -99,7 +110,6 @@ namespace kevin.Application.Services.AI
             }
 
             // 去重检查：用 keywords 查询同用户/租户/智能体下已有记忆，若 content 高度相似则拒绝
-            var normalizedType = MemoryTypes.Normalize(memoryType);
             var words = keywords
                 .Split(new[] { ',', '，', '|', '、', ' ', '　' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Distinct()
