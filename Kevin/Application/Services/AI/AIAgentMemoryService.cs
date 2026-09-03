@@ -337,7 +337,7 @@ namespace kevin.Application.Services.AI
             }
             data.IsDelete = true;
             data.DeleteTime = DateTime.Now;
-            AIAgentMemoryRp.SaveChangesWithSaveLog();
+            AIAgentMemoryRp.SaveChanges();
 
             // 同步删除 Qdrant 中的向量
             await TryDeleteVectorAsync(data);
