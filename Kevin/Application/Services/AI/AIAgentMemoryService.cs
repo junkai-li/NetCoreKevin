@@ -12,17 +12,29 @@ namespace kevin.Application.Services.AI
 {
     /// <summary>
     /// 智能体记忆服务（用户级长期记忆）
+    /// <para>
+    /// 搜索策略：优先通过 <see cref="AIQdrantAgentMemoryService"/> 进行 Qdrant 向量语义检索，
+    /// 若 Qdrant 不可用或搜索无结果则降级到数据库关键词搜索。
+    /// 写入/更新/删除操作以数据库为主，成功后异步同步向量到 Qdrant（失败不影响主流程）。
+    /// </para>
     /// </summary>
     public class AIAgentMemoryService : BaseService, IAIAgentMemoryService
     {
         public IAIAgentMemoryRp AIAgentMemoryRp { get; set; }
 
         public IAIShareInfoService AIShareInfoService { get; set; }
-         
+
+        /// <summary>
+        /// Qdrant 向量记忆服务（可选，为 null 时自动降级到数据库关键词搜索）
+        /// </summary>
+        public IAIQdrantAgentMemoryService? QdrantVectorService { get; set; }
+
         public AIAgentMemoryService(IHttpContextAccessor _httpContextAccessor, IAIAgentMemoryRp _AIAgentMemoryRp, IAIShareInfoService aIShareInfoService) : base(_httpContextAccessor)
         {
             this.AIAgentMemoryRp = _AIAgentMemoryRp;
             AIShareInfoService = aIShareInfoService;
+            // 从服务容器解析 Qdrant 向量服务（可选依赖，未注册时为 null，自动降级到数据库搜索）
+            QdrantVectorService = _serviceProvider?.GetService(typeof(IAIQdrantAgentMemoryService)) as IAIQdrantAgentMemoryService;
         }
 
         public async Task<dtoPageData<TAIAgentMemory>> GetPageData(dtoPagePar<string> dtoPagePar)
@@ -131,6 +143,10 @@ namespace kevin.Application.Services.AI
             add.ExpireTime = parsedExpireTime;
             AIAgentMemoryRp.Add(add);
             await AIAgentMemoryRp.SaveChangesAsync();
+
+            // 同步向量到 Qdrant（失败不影响数据库主流程）
+            await TrySyncVectorAsync(add);
+
             var expireInfo = parsedExpireTime.HasValue ? $", 过期时间：{parsedExpireTime.Value:yyyy-MM-dd HH:mm:ss}" : "";
             return $"✅ 记忆已保存（Id：{add.Id}, 类型：{normalizedType}, 重要度：{importance}{expireInfo}）。";
         }
@@ -172,6 +188,30 @@ namespace kevin.Application.Services.AI
             {
                 return "❌ 搜索记忆失败：无法获取当前用户，请在登录后使用。";
             }
+
+            // ── 优先：Qdrant 向量语义检索（含可选 Rerank） ──
+            if (QdrantVectorService?.IsAvailable == true)
+            {
+                try
+                {
+                    var vectorResult = await QdrantVectorService.SearchMemoryVectorAsync(
+                        keyword,
+                        AIShareInfoService.GetData().UserId,
+                        AIShareInfoService.GetData().TenantId,
+                        AIShareInfoService.GetData().AIAppsId,
+                        memoryType);
+
+                    if (!string.IsNullOrEmpty(vectorResult))
+                        return vectorResult;
+                    // 向量搜索无结果时继续降级到数据库关键词搜索
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[AIAgentMemory] 向量搜索异常，降级到数据库搜索: {ex.Message}");
+                }
+            }
+
+            // ── 降级：数据库关键词搜索 ──
             var words = (keyword ?? "")
                 .Split(new[] { ',', '，', '|', '、', ' ', '　' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Distinct()
@@ -272,6 +312,10 @@ namespace kevin.Application.Services.AI
             }
             data.UpdateTime = DateTime.Now;
             AIAgentMemoryRp.SaveChanges();
+
+            // 同步向量到 Qdrant（内容/关键词变更后需更新向量）
+            await TrySyncVectorAsync(data);
+
             return $"✅ 记忆已更新（Id：{id}）。";
         }
 
@@ -294,6 +338,10 @@ namespace kevin.Application.Services.AI
             data.IsDelete = true;
             data.DeleteTime = DateTime.Now;
             AIAgentMemoryRp.SaveChangesWithSaveLog();
+
+            // 同步删除 Qdrant 中的向量
+            await TryDeleteVectorAsync(id, data.TenantId);
+
             return $"✅ 记忆已删除（Id：{id}）。";
         }
 
@@ -350,6 +398,42 @@ namespace kevin.Application.Services.AI
             }
             return true;
         }
+
+        #region 向量同步辅助方法（Qdrant 降级保护）
+
+        /// <summary>
+        /// 尝试将记忆向量同步到 Qdrant，失败时静默降级（不影响数据库主流程）
+        /// </summary>
+        private async Task TrySyncVectorAsync(TAIAgentMemory memory)
+        {
+            if (QdrantVectorService?.IsAvailable != true) return;
+            try
+            {
+                await QdrantVectorService.UpsertMemoryVectorAsync(memory);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AIAgentMemory] Qdrant 向量同步失败（记忆Id：{memory.Id}），已降级到数据库模式: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 尝试从 Qdrant 删除记忆向量，失败时静默降级
+        /// </summary>
+        private async Task TryDeleteVectorAsync(long memoryId, int tenantId)
+        {
+            if (QdrantVectorService?.IsAvailable != true) return;
+            try
+            {
+                await QdrantVectorService.DeleteMemoryVectorAsync(memoryId, tenantId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AIAgentMemory] Qdrant 向量删除失败（记忆Id：{memoryId}），已降级到数据库模式: {ex.Message}");
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// 构建关键词匹配表达式：任一关键词命中 Keywords 或 Content 即匹配（OR）

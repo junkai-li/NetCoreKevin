@@ -58,6 +58,8 @@ namespace Kevin.RAG.Ollama
                 {
                     // 注意：原生Ollama通常不需要ApiKey，这里展示如何通过HttpClient添加认证头
                     ollamaApiClient?.DefaultRequestHeaders.Add("Authorization", "Bearer " + Key);
+                    httpClientDisHelper = new HttpClientDisHelper();
+                    httpClientDisHelper.AddHeader("Authorization", "Bearer " + Key);
                 }
 
             }

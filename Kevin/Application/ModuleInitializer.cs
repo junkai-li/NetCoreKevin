@@ -18,6 +18,8 @@ namespace Kevin.Application
         {
             services.AddScoped<IAIFileToolService, AIFileToolService>();
             services.AddScoped<IAIMsgService, AIMsgService>();
+            // Qdrant 向量记忆服务（可选，未配置 Qdrant/Ollama 时服务内部自动降级到数据库搜索）
+            services.AddScoped<IAIQdrantAgentMemoryService, AIQdrantAgentMemoryService>();
             new IocHelper().BatchAddScopeds<IService>(services, t =>
             {
                 GlobalServices.AddIService(t);

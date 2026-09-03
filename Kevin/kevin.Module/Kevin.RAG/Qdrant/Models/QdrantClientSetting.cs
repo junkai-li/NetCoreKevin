@@ -14,5 +14,10 @@
         /// </summary>
         public string ApiKey { get; set; } = string.Empty;
         public string CertificateThumbprint { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 智能体记忆向量维度（需与 Embedding 模型输出维度一致，默认 2048 对应智谱 embedding-3）
+        /// </summary>
+        public int MemoryEmbeddingSize { get; set; } = 2048;
     }
 }
