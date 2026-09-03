@@ -39,6 +39,8 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// </summary>
         /// <param name="memoryId">记忆Id</param>
         /// <param name="tenantId">租户Id</param>
-        Task DeleteMemoryVectorAsync(long memoryId, int tenantId);
+        /// <param name="aiAppsId">智能体Id</param>
+        /// <param name="userId">用户Id</param>
+        Task DeleteMemoryVectorAsync(long memoryId, int tenantId, long aiAppsId, long userId);
     }
 }

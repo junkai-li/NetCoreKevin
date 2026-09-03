@@ -340,7 +340,7 @@ namespace kevin.Application.Services.AI
             AIAgentMemoryRp.SaveChangesWithSaveLog();
 
             // 同步删除 Qdrant 中的向量
-            await TryDeleteVectorAsync(id, data.TenantId);
+            await TryDeleteVectorAsync(data);
 
             return $"✅ 记忆已删除（Id：{id}）。";
         }
@@ -420,16 +420,16 @@ namespace kevin.Application.Services.AI
         /// <summary>
         /// 尝试从 Qdrant 删除记忆向量，失败时静默降级
         /// </summary>
-        private async Task TryDeleteVectorAsync(long memoryId, int tenantId)
+        private async Task TryDeleteVectorAsync(TAIAgentMemory memory)
         {
             if (QdrantVectorService?.IsAvailable != true) return;
             try
             {
-                await QdrantVectorService.DeleteMemoryVectorAsync(memoryId, tenantId);
+                await QdrantVectorService.DeleteMemoryVectorAsync(memory.Id, memory.TenantId, memory.AIAppsId, memory.UserId);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[AIAgentMemory] Qdrant 向量删除失败（记忆Id：{memoryId}），已降级到数据库模式: {ex.Message}");
+                Console.WriteLine($"[AIAgentMemory] Qdrant 向量删除失败（记忆Id：{memory.Id}），已降级到数据库模式: {ex.Message}");
             }
         }
 

@@ -32,12 +32,12 @@ namespace kevin.Application.Services.AI
         private readonly int _embeddingSize;
 
         /// <summary>
-        /// 记忆集合名前缀，完整名称为 {前缀}_{tenantId}
+        /// 记忆集合名前缀，完整名称为 {前缀}_{tenantId}_{aiAppsId}_{userId}（租户+智能体+用户三维隔离）
         /// </summary>
         private const string CollectionPrefix = "ai_memory";
 
         /// <summary>
-        /// 搜索时从 Qdrant 拉取的候选数（大于最终返回数，留出客户端过滤余量）
+        /// 搜索时从 Qdrant 拉取的候选数（大于最终返回数，留出防御性校验与 Rerank 重排余量）
         /// </summary>
         private const int SearchFetchLimit = 50;
 
@@ -108,7 +108,7 @@ namespace kevin.Application.Services.AI
             if (!IsAvailable) return;
 
             var embedding = await _ollamaApiService!.GetEmbedding(BuildEmbeddingText(memory.Content, memory.Keywords));
-            var collectionName = GetCollectionName(memory.TenantId);
+            var collectionName = GetCollectionName(memory.TenantId, memory.AIAppsId, memory.UserId);
 
             await EnsureCollectionExistsAsync(collectionName);
 
@@ -139,7 +139,7 @@ namespace kevin.Application.Services.AI
         /// <summary>
         /// 语义搜索记忆（Qdrant 向量检索 + 可选 Rerank 重排）。
         /// <para>
-        /// 流程：生成查询向量 → Qdrant 相似度检索 → 客户端过滤(userId/tenantId) → Rerank 重排 → 取 TopN
+        /// 流程：生成查询向量 → Qdrant 相似度检索 → 防御性校验(userId/tenantId/aiAppsId) → Rerank 重排 → 取 TopN
         /// </para>
         /// </summary>
         /// <returns>格式化的记忆文本，可直接返回给 AI；null 表示无结果或异常（调用方应降级）</returns>
@@ -149,19 +149,19 @@ namespace kevin.Application.Services.AI
 
             // ① 生成查询向量
             var queryEmbedding = await _ollamaApiService!.GetEmbedding(keyword);
-            var collectionName = GetCollectionName(tenantId);
+            var collectionName = GetCollectionName(tenantId, aiAppsId, userId);
 
             if (!await IsCollectionExistsAsync(collectionName))
                 return null;
 
-            // ② Qdrant 相似度检索（拉取较多候选，后续在客户端按 userId 过滤）
+            // ② Qdrant 相似度检索（集合已按 租户+智能体+用户 隔离，候选均为当前用户记忆）
             var searchResults = await Client.SearchAsync(
                 collectionName,
                 queryEmbedding.Vector,
                 limit: SearchFetchLimit);
 
-            // ③ 客户端过滤：userId + tenantId（SaaS 多租户隔离）
-            var candidates = FilterByUserAndTenant(searchResults, userId, tenantId);
+            // ③ 防御性校验：userId + tenantId + aiAppsId（集合已三维隔离，此处为双重保险）
+            var candidates = FilterByOwnerScope(searchResults, userId, tenantId, aiAppsId);
 
             if (candidates.Count == 0)
                 return null;
@@ -198,11 +198,11 @@ namespace kevin.Application.Services.AI
         /// <summary>
         /// 从 Qdrant 删除记忆向量（记忆被删除或软删除时调用）
         /// </summary>
-        public async Task DeleteMemoryVectorAsync(long memoryId, int tenantId)
+        public async Task DeleteMemoryVectorAsync(long memoryId, int tenantId, long aiAppsId, long userId)
         {
             if (!IsAvailable) return;
 
-            var collectionName = GetCollectionName(tenantId);
+            var collectionName = GetCollectionName(tenantId, aiAppsId, userId);
             if (!await IsCollectionExistsAsync(collectionName)) return;
 
             await Client.DeleteAsync(collectionName, new List<ulong> { (ulong)memoryId });
@@ -213,10 +213,10 @@ namespace kevin.Application.Services.AI
         #region 私有方法 —— 集合管理
 
         /// <summary>
-        /// 获取记忆集合名称（按租户隔离）
+        /// 获取记忆集合名称（按 租户+智能体+用户 三维隔离，每个用户在每个智能体下拥有独立集合）
         /// </summary>
-        private static string GetCollectionName(int tenantId)
-            => $"{CollectionPrefix}_{tenantId}";
+        private static string GetCollectionName(int tenantId, long aiAppsId, long userId)
+            => $"{CollectionPrefix}_{tenantId}_{aiAppsId}_{userId}";
 
         /// <summary>
         /// 确保集合存在，不存在则自动创建（余弦距离）
@@ -262,16 +262,19 @@ namespace kevin.Application.Services.AI
         }
 
         /// <summary>
-        /// 客户端过滤：按 userId 和 tenantId 筛选 Qdrant 搜索结果
+        /// 防御性校验：按 userId、tenantId、aiAppsId 筛选 Qdrant 搜索结果。
+        /// 集合本身已按三维隔离，此处为双重保险，防止集合数据错位导致越权读取。
         /// </summary>
-        private static List<ScoredPoint> FilterByUserAndTenant(IEnumerable<ScoredPoint> results, long userId, int tenantId)
+        private static List<ScoredPoint> FilterByOwnerScope(IEnumerable<ScoredPoint> results, long userId, int tenantId, long aiAppsId)
         {
             var userIdStr = userId.ToString();
             var tenantIdStr = tenantId.ToString();
+            var aiAppsIdStr = aiAppsId.ToString();
 
             return results
                 .Where(r => GetPayloadString(r, "userId") == userIdStr
-                         && GetPayloadString(r, "tenantId") == tenantIdStr)
+                         && GetPayloadString(r, "tenantId") == tenantIdStr
+                         && GetPayloadString(r, "aiAppsId") == aiAppsIdStr)
                 .ToList();
         }
 
