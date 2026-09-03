@@ -242,6 +242,7 @@ namespace Web.Extension
                 options2.Url = settings.Url;
                 options2.ApiKey = settings.ApiKey;
                 options2.CertificateThumbprint = settings.CertificateThumbprint;
+                options2.MemoryEmbeddingSize = settings.MemoryEmbeddingSize;
             }, options3 =>
             {
                 var settings = Configuration.GetRequiredSection("AliRerankApiSetting").Get<RerankApiSetting>()!;
