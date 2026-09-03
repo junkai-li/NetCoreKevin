@@ -460,13 +460,13 @@ namespace kevin.Application.Services.AI
             var aiTools = new List<AITool>
             {
                 AIFunctionFactory.Create(_aiAgentMemoryService.SaveMemoryAsync,
-                    new AIFunctionFactoryOptions { Name = "SaveMemory", Description = "保存用户的长期记忆。调用前必须先 SearchMemory 检查是否已存在类似记忆，若存在则改用 UpdateMemory。必须同时满足：可复用、非显然、稳定、用户意图明确。memoryType（7 种：preference/fact/task/decision/pitfall/skill/other）和 importance（0-10）均为必填。expireTime 可选（字符串，支持 yyyy-MM-dd HH:mm 或 ISO 8601，如 2026-12-31 23:59），仅临时记忆（task 类）才传，永久记忆不传。失败返回以 ❌ 开头的错误信息，重复返回以 ⚠️ 开头的提示信息" }),
+                    new AIFunctionFactoryOptions { Name = "SaveMemory", Description = "保存长期记忆。先 SearchMemory；重复则 UpdateMemory。memoryType、importance 必填；expireTime 仅 task 可传。" }),
                 AIFunctionFactory.Create(_aiAgentMemoryService.SearchMemoryAsync,
-                    new AIFunctionFactoryOptions { Name = "SearchMemory", Description = "搜索当前用户的长期记忆。需要回忆用户偏好、历史事实、约定事项，或回答涉及“我之前说过/我喜欢”等内容时先调用本工具。支持按 memoryType 过滤精准检索（如只搜 decision 类记忆），多个类型用逗号分隔如 decision,pitfall。失败返回以 ❌ 开头的错误信息" }),
+                    new AIFunctionFactoryOptions { Name = "SearchMemory", Description = "搜索当前用户长期记忆；可按 memoryType 过滤（多类型逗号分隔）。" }),
                 AIFunctionFactory.Create(_aiAgentMemoryService.UpdateMemoryAsync,
-                    new AIFunctionFactoryOptions { Name = "UpdateMemory", Description = "更新已有的长期记忆。当之前保存的记忆内容发生变化（如偏好改变）时调用，记忆Id需要先通过 SearchMemory 搜索获取。失败返回以 ❌ 开头的错误信息" }),
+                    new AIFunctionFactoryOptions { Name = "UpdateMemory", Description = "用户纠正或记忆变化时更新；先 SearchMemory 获取记忆Id。" }),
                 AIFunctionFactory.Create(_aiAgentMemoryService.DeleteMemoryAsync,
-                    new AIFunctionFactoryOptions { Name = "DeleteMemory", Description = "删除不再需要的长期记忆。当用户明确要求忘记某事或记忆已失效时调用，记忆Id需要先通过 SearchMemory 搜索获取。失败返回以 ❌ 开头的错误信息" })
+                    new AIFunctionFactoryOptions { Name = "DeleteMemory", Description = "用户要求忘记、记忆失效或重复时删除；先 SearchMemory 获取记忆Id。" })
             };
             return Task.FromResult(aiTools);
         }
