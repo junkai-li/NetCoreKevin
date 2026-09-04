@@ -7,12 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Kevin.Web.Filters
 {
-    public class HttpLogFilter : IResultFilter
+    public class HttpLogFilter : IActionFilter
     {
-        void IResultFilter.OnResultExecuted(ResultExecutedContext context)
+        void IActionFilter.OnActionExecuted(ActionExecutedContext context)
         {
-            var ad = context.HttpContext.GetEndpoint().Metadata.GetMetadata<ControllerActionDescriptor>();
-            var myLog = ad.MethodInfo.CustomAttributes.Where(x => x.AttributeType == typeof(HttpLogAttribute)).ToList().FirstOrDefault();
+            var ad = context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<ControllerActionDescriptor>();
+            var myLog = ad?.MethodInfo.CustomAttributes.Where(x => x.AttributeType == typeof(HttpLogAttribute)).ToList().FirstOrDefault();
             string OperateType = "未知";
             string OperateRemark = "未知";
             bool islog = true;
@@ -20,8 +20,8 @@ namespace Kevin.Web.Filters
             {
                 if (myLog.ConstructorArguments.Count > 1)
                 {
-                    OperateType = myLog.ConstructorArguments[0].Value.ToString();
-                    OperateRemark = myLog.ConstructorArguments[1].Value.ToString();
+                    OperateType = myLog.ConstructorArguments[0].Value?.ToString() ?? "未知";
+                    OperateRemark = myLog.ConstructorArguments[1].Value?.ToString() ?? "未知";
                     islog = myLog.ConstructorArguments[2].Value.ToBoolean();
                 }
                 if (myLog.ConstructorArguments.Count == 1)
@@ -31,11 +31,11 @@ namespace Kevin.Web.Filters
             }
             if (islog)
             {
-                var data = context.HttpContext.Request.HttpContext.RequestServices.GetService<IHttpLogService>().Add(OperateType, OperateRemark).Result;
+                var data = context.HttpContext.Request.HttpContext.RequestServices.GetService<IHttpLogService>()?.Add(OperateType, OperateRemark).Result;
             }
         }
 
-        void IResultFilter.OnResultExecuting(ResultExecutingContext context)
+        void IActionFilter.OnActionExecuting(ActionExecutingContext context)
         {
 
         }
