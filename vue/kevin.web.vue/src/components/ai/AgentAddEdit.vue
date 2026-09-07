@@ -625,27 +625,30 @@ const agentColumns = [
 // 用户分页
 const userPagination = reactive({
   current: 1,
-  pageSize: 50,
+  pageSize: 100,
   total: 0,
   showSizeChanger: true,
+  pageSizeOptions: ['100', '500', '1000', '2000'],
   showTotal: (total) => `共 ${total} 条`
 });
 
 // 角色分页
 const rolePagination = reactive({
   current: 1,
-  pageSize: 50,
+  pageSize: 100,
   total: 0,
   showSizeChanger: true,
+  pageSizeOptions: ['100', '500', '1000', '2000'],
   showTotal: (total) => `共 ${total} 条`
 });
 
 // 智能体分页
 const agentPagination = reactive({
   current: 1,
-  pageSize: 50,
+  pageSize: 100,
   total: 0,
   showSizeChanger: true,
+  pageSizeOptions: ['100', '500', '1000', '2000'],
   showTotal: (total) => `共 ${total} 条`
 });
 
