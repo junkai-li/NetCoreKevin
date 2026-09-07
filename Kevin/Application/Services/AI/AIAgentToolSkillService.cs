@@ -181,7 +181,7 @@ namespace kevin.Application.Services.AI
                                 new AIFunctionFactoryOptions
                                 {
                                     Name = "RunShell",
-                                    Description = "执行 Shell 命令。通过操作系统原生 Shell 执行命令(Windows 用 cmd也可以执行bash相关命令，Linux/Mac 用 bash）。包含安全护栏：危险命令阻止、输出截断（50KB）、超时控制（60秒）。"
+                                    Description = "执行 Shell 命令。通过操作系统原生 Shell 执行命令（Windows 用 cmd，Linux/Mac 用 bash），每次调用为独立 Shell 进程。包含安全护栏：危险命令阻止、受限配置文件拦截、HTTP请求域名白名单、输出截断、超时控制。"
                                 }
                             ));
                             break;

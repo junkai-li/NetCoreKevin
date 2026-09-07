@@ -22,11 +22,9 @@ namespace kevin.AI.AgentFramework.Tools
         { 
             if (_aIShareInfoService.GetData() != default)
             {
-                // 将对象转为 JsonElement 或 Dictionary 
-                if (_aIShareInfoService.GetData().AuthorizedDomainsList.Count == 0)
-                    return; // 没有有效的前缀，等同于允许所有
-                var isAllowed = _aIShareInfoService.GetData().AuthorizedDomainsList.Any(prefix => url.Contains(prefix, StringComparison.OrdinalIgnoreCase));
-                if (!isAllowed)
+                // 域名判定与 run_shell / run_python / 技能脚本共用 CommandGuardrails：
+                // 旧实现是 url.Contains(entry)，https://evil.com/?to=授权域名 会因串里出现过授权域名而放行
+                if (!CommandGuardrails.IsUrlAuthorized(url, _aIShareInfoService.GetData().AuthorizedDomainsList))
                     throw new UnauthorizedAccessException($"❌ URL '{url}' 不在授权域名单中。不能请求，禁止写代码或者http请求！");
             }
         }

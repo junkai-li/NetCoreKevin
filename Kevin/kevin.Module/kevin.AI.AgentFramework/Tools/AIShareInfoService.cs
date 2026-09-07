@@ -12,21 +12,15 @@ namespace kevin.AI.AgentFramework.Tools
     {
         private AIShareInfoDto data;
         public AIShareInfoDto GetData()
-        { 
-           return data;
-        } 
+        {
+            return data;
+        }
         public void InitData(AIShareInfoDto data)
         {
             this.data = data;
-            this.data.AuthorizedDomainsList = new List<string>();
-            if (!string.IsNullOrWhiteSpace(data.AuthorizedDomains) && data.AuthorizedDomains.Trim() != "*")
-            {
-                data.AuthorizedDomains.Split(',')
-                    .Select(s => s.Trim())
-                    .Where(s => !string.IsNullOrEmpty(s))
-                    .ToList()
-                    .ForEach(domain => this.data.AuthorizedDomainsList.Add(domain));
-            }
+            // 解析规则与 CommandGuardrails.IsUrlAuthorized / ParseDomainEntries 同一份：
+            // 空、“*”、只含空白项都得到空名单，下游护栏因此不启用（全放行）
+            this.data.AuthorizedDomainsList = CommandGuardrails.ParseDomainEntries(data.AuthorizedDomains);
         }
     }
 }
