@@ -72,6 +72,8 @@ namespace kevin.AI.AgentFramework
             {
                 Endpoint = new Uri(aISetting.AIUrl),
                 NetworkTimeout = TimeSpan.FromMinutes(aISetting.NetworkTimeout),// 设置网络超时时间为10分钟，适用于可能需要较长时间处理的请求
+                // SDK 内置重试只处理 408/429/5xx，400 这类参数错误不会在它内部重试；
+                // 这里保持为单请求重试次数（不能用 maxRetries）：外层 goto aiRun 还会整轮重试，两者相乘会放大成 maxRetries^2 次请求
                 RetryPolicy = new ClientRetryPolicy(maxRetries: aISetting.MaxRetries)//重试次数和延迟
                 {
                     // 可自定义延迟，默认指数退避
@@ -184,18 +186,18 @@ namespace kevin.AI.AgentFramework
             }
             catch (Exception ex)
             {
-                // Unexpected exception: try to fallback as well
-                Ailogger?.LogError(ex, "Unexpected streaming error, falling back to non-streaming RunAsync.");
-                // 参数类错误（如 max_tokens 超模型范围）重试也不会成功，直接停止并友好提示；其他错误才重试
-                if (retries <= maxRetries)
+                Ailogger?.LogError(ex, "模型调用失败，模型：{Model}，第{Retries}次尝试。", aISetting.AIDefaultModel, retries);
+                // 参数类错误（输入长度越界、max_tokens 超模型范围）由请求内容本身决定，重试或换模型都不会改变结果，直接终止并友好提示；
+                // 其他错误（网络、限流、5xx）才按 Auto 模式切换备选模型继续重试
+                if (!IsParameterInvalidException(ex) && retries <= maxRetries)
                 {
                     // Auto模式：从备选模型中随机切换一个未使用过的模型
                     if (aISetting.FallbackModels?.Count > 0)
                     {
-                        var random = new Random();
-                        var index = random.Next(aISetting.FallbackModels.Count);
+                        // 用 Random.Shared：避免短时间内连续 new Random() 拿到相同种子而反复选中同一个模型
+                        var index = Random.Shared.Next(aISetting.FallbackModels.Count);
                         var nextModel = aISetting.FallbackModels[index];
-                        aISetting.FallbackModels.RemoveAt(index);  
+                        aISetting.FallbackModels.RemoveAt(index);
                         // 更新当前模型配置
                         aISetting.AIUrl = nextModel.AIUrl;
                         aISetting.AIKeySecret = nextModel.AIKeySecret;
@@ -213,21 +215,15 @@ namespace kevin.AI.AgentFramework
                     }
                     retries++;
                     goto aiRun;
-                } 
-                if (IsParameterInvalidException(ex))
+                }
+                // 走到这里有两种情况：参数类错误（未重试），或非参数错误但重试次数已耗尽。
+                // 统一把异常转成友好提示，避免前端只看到空回复
+                var friendlyMsg = BuildFriendlyAIMsg(ex);
+                if (aISetting.IsStreame && aISetting.StreameCallback != default)
                 {
-                    // 重试耗尽后参数错误：将异常转成友好提示，避免前端只看到空回复
-                    var friendlyMsg = BuildFriendlyAIMsg(ex);
-                    if (aISetting.IsStreame && aISetting.StreameCallback != default)
-                    {
-                        aISetting.StreameCallback.Invoke(friendlyMsg);
-                        resultText += friendlyMsg;
-                    }
-                    else
-                    {
-                        resultText += friendlyMsg;
-                    }
-                } 
+                    aISetting.StreameCallback.Invoke(friendlyMsg);
+                }
+                resultText += friendlyMsg;
             }
             if (aISetting.IsHttpLog)
             {
@@ -238,7 +234,7 @@ namespace kevin.AI.AgentFramework
         }
 
         /// <summary>
-        /// 判断是否为请求参数类错误（如 max_tokens 超出模型支持范围），此类错误重试无意义，且多为配置问题需友好提示
+        /// 判断是否为请求参数类错误（如输入长度越界、max_tokens 超出模型支持范围），此类错误由请求内容本身决定，重试或换模型都无意义，且多为配置问题需友好提示
         /// </summary>
         private static bool IsParameterInvalidException(Exception ex)
         {
@@ -255,10 +251,12 @@ namespace kevin.AI.AgentFramework
             if (msg.Contains("max_tokens") || msg.Contains("max_completion_tokens"))
             {
                 // 提取模型返回的允许范围，如 "Range of max_tokens should be [1, 32768]"
-                var start = msg.IndexOf('[');
-                var end = msg.IndexOf(']');
-                var range = (start > 0 && end > start) ? msg.Substring(start, end - start + 1) : "";
-                return $"\n❌ 回答Token设置超出了当前模型支持的最大输出长度{range}，请到智能体设置中调小“回答Token”后重试。";
+                return $"\n❌ 回答Token设置超出了当前模型支持的最大输出长度{ExtractRange(msg)}，请到智能体设置中调小“回答Token”后重试。";
+            }
+            // 百炼/DashScope 用 "Range of input length should be [1, N]" 表达输入越界：区间是双边的，超出上限与输入长度为 0（空内容）都会命中
+            if (msg.Contains("input length") || msg.Contains("input_length"))
+            {
+                return $"\n❌ 本次请求的输入为空或超出了模型最大输入长度{ExtractRange(msg)}，请补充问题内容，或新建对话、到模型设置中调大“提问Token”后重试。";
             }
             if (msg.Contains("context_length") || msg.Contains("context length") || msg.Contains("maximum context"))
             {
@@ -273,6 +271,16 @@ namespace kevin.AI.AgentFramework
                 return "\n❌ 模型服务限流或余额不足，请稍后重试或检查模型供应商配置。";
             }
             return $"\n❌ 模型调用失败：{msg}";
+        }
+
+        /// <summary>
+        /// 从模型返回的错误文案中提取允许区间，如 "Range of max_tokens should be [1, 32768]" → " [1, 32768]"；取不到时返回空串
+        /// </summary>
+        private static string ExtractRange(string msg)
+        {
+            var start = msg.IndexOf('[');
+            var end = msg.IndexOf(']');
+            return (start > 0 && end > start) ? " " + msg.Substring(start, end - start + 1) : "";
         }
 
         /// <summary>

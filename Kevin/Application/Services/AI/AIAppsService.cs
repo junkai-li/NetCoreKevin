@@ -362,6 +362,20 @@ namespace kevin.Application.Services.AI
             };
         }
         /// <summary>
+        /// 计算历史消息的提问Token预算 = 提问Token上限 - 系统提示词 - 预留回答Token。
+        /// <para>
+        /// 算出 ≤0（说明模型配置的提问Token本就放不下提示词与回答预留）时退化为提问Token上限的 60%：
+        /// 不能直接返回 0，因为 0 在 KevinChatMessageStore 里的语义是“不限制”，那会把历史裁剪整体关掉，最经不起的就是长会话。
+        /// 模型未配置提问Token（上限 ≤0）时仍返回 0，表示没有预算依据、不裁剪。
+        /// </para>
+        /// </summary>
+        private static int GetAskTokenBudget(int maxAskPromptSize, int answerTokens, string? systemPrompt)
+        {
+            if (maxAskPromptSize <= 0) return 0;
+            var budget = maxAskPromptSize - (systemPrompt?.Length ?? 0) - answerTokens;
+            return budget > 0 ? budget : (int)(maxAskPromptSize * 0.6);
+        }
+        /// <summary>
         /// 获取ai应用配置
         /// </summary>
         /// <param name="aiapp"></param>
@@ -401,7 +415,7 @@ namespace kevin.Application.Services.AI
                 Name = aiapp.Name,
                 Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
                 ChatOptions = GetAppChatOptions(aiapp, aiModel, systemPrompt),
-                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, Math.Max(0, aiModel.MaxAskPromptSize - (systemPrompt?.Length ?? 0) - aiModel.AnswerTokens))
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, GetAskTokenBudget(aiModel.MaxAskPromptSize, aiModel.AnswerTokens, systemPrompt), aiapp.ContentLengthLimit)
             };
             #region AI配置
             if (aiapp.IsAITools)
@@ -508,7 +522,7 @@ namespace kevin.Application.Services.AI
                 Name = aiapp.Name,
                 Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
                 ChatOptions = GetAppChatOptions(aiapp, aIModels, systemPrompt),
-                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, Math.Max(0, aIModels.MaxAskPromptSize - (systemPrompt?.Length ?? 0) - aIModels.AnswerTokens))
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, GetAskTokenBudget(aIModels.MaxAskPromptSize, aIModels.AnswerTokens, systemPrompt), aiapp.ContentLengthLimit)
             };
             #region AI配置
             if (aiapp.IsAITools)

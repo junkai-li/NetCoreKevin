@@ -105,6 +105,39 @@ namespace kevin.Application.Services.AI
             return result;
         }
 
+        /// <summary>
+        /// 向累计日志追加文本：达到上限后不再追加（首次触顶时补一句说明）。
+        /// <para>
+        /// 字段虽然是 longtext，但单行 INSERT 的参数总量超过 MySQL max_allowed_packet（默认 4MB）就会以
+        /// DbUpdateException（Error submitting 4MB packet）失败并中断整个对话请求；中文按 3 字节/字估算，
+        /// 默认把回答 + 工具日志 + 思考日志合计控制在约 85 万字符（≤2.6MB）以内，留出协议开销余量
+        /// （各项上限可在 appsettings 的 AIChatStorageSetting 节调整）。
+        /// </para>
+        /// </summary>
+        private static string AppendWithCap(string? current, string msg, int maxLength)
+        {
+            current ??= "";
+            if (string.IsNullOrEmpty(msg)) return current;
+            if (current.Length >= maxLength) return current;
+            var room = maxLength - current.Length;
+            if (msg.Length <= room) return current + msg;
+            // 截断说明也要占额度，否则封顶后的实际长度反而超过 maxLength
+            var note = $"\n（日志已达 {maxLength} 字符入库上限，后续内容不再记录）";
+            return current + msg.Substring(0, Math.Max(0, room - note.Length)) + note;
+        }
+
+        /// <summary>
+        /// 入库前按上限截断（不超限时原样返回），只用于兜住单行 INSERT 体积
+        /// </summary>
+        private static string ShrinkForDb(string? text, int maxLength)
+        {
+            if (string.IsNullOrEmpty(text)) return "";
+            if (maxLength <= 0 || text.Length <= maxLength) return text;
+            // 同样把说明文字自身计入额度，保证返回值总长不超过 maxLength
+            var note = $"\n（内容已达 {maxLength} 字符入库上限，后续部分未入库）";
+            return text.Substring(0, Math.Max(0, maxLength - note.Length)) + note;
+        }
+
 
         /// <summary>
         /// 新建聊天
@@ -121,6 +154,14 @@ namespace kevin.Application.Services.AI
             if (count >= aiapp.ChatMessageLimit)
             {
                 throw new UserFriendlyException($"聊天记录已达上限{aiapp.ChatMessageLimit}条，为了更好的体验，建议新建聊天对话噢！");
+            }
+            // 提问内容长度守卫：整行 INSERT 受 MySQL max_allowed_packet（默认 4MB）限制，过长提问会在写入用户消息时直接整请求失败，
+            // 这里提前拦下给出可读提示，而不是静默截断用户原文（上限取自 AIChatStorageSetting）
+            var askLength = par.Content?.Length ?? 0;
+            var askLimit = AIChatStorageSetting.Current.AskContentMaxLength;
+            if (askLength > askLimit)
+            {
+                throw new UserFriendlyException($"单条消息内容过长（{askLength} 字符，上限 {askLimit} 字符），请精简或分批发送。");
             }
             if ((await aIAppsService.GetMyALLList()).Any(t => t.Id == aichas.AppId) == false)
             {
@@ -216,6 +257,12 @@ namespace kevin.Application.Services.AI
             #endregion
             // 按提问Token预算裁剪补充上下文，确保输入总量不超过模型的上下文窗口预算（模型配置的MaxAskPromptSize）
             OtherContents = TrimContentsByAskTokenBudget(OtherContents, systemPrompt, add.Content, aIModels.MaxAskPromptSize, aIModels.AnswerTokens);
+            // 空输入保护：模型的输入长度区间是双边的（如 “Range of input length should be [1, N]”），正文、上下文、图片全为空时输入长度为 0，同样会被模型直接拒掉，
+            // 这里按业务异常提前拦下，让前端拿到可读提示而不是模型报错
+            if (string.IsNullOrWhiteSpace(add.Content) && OtherContents.Count == 0 && ImgUrls.Count == 0)
+            {
+                throw new UserFriendlyException("请输入要咨询的内容（或上传可解析的文件）后再发送。");
+            }
             ChatMessage mgs = new(ChatRole.User, [new TextContent($"{add.Content}"),
                         .. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(),
                         .. ImgUrls.Where(t => !string.IsNullOrEmpty(t)).Select(url => DataContent.LoadFromAsync(FileHelper.GetRemoteFileStreamAsync(url).Result).Result).ToList()]);
@@ -247,22 +294,26 @@ namespace kevin.Application.Services.AI
                         },
                         ToolStreameCallback = async (msg) =>
                         {
-                            addAi.AIToolsContent += msg;
+                            // 单条事件按智能体内容长度上限截断后累加，同时整个字段封顶：
+                            // 一次几十万字的工具输出不能把整行记录撑到 MySQL 无法写入
+                            var toolLog = StringHelper.SubstringText(msg, aiapp.ContentLengthLimit);
+                            addAi.AIToolsContent = AppendWithCap(addAi.AIToolsContent, toolLog, AIChatStorageSetting.Current.ToolsLogMaxLength);
                             if (aiapp.IsToolLog)
                             {
-                                await signalRMsgService.SendIdentityIdMsg("aIToolsContentMsg", add.Id.ToString(), StringHelper.SubstringText(msg, aiapp.ContentLengthLimit));
+                                await signalRMsgService.SendIdentityIdMsg("aIToolsContentMsg", add.Id.ToString(), toolLog);
                             }
                         },
                         ReasoningStreameCallback = async (msg) =>
                         {
-                            addAi.AIReasoningContent += msg;
+                            var reasoningLog = StringHelper.SubstringText(msg, aiapp.ContentLengthLimit);
+                            addAi.AIReasoningContent = AppendWithCap(addAi.AIReasoningContent, reasoningLog, AIChatStorageSetting.Current.ReasoningLogMaxLength);
                             if (aiapp.IsThinkingLog)
                             {
-                                await signalRMsgService.SendIdentityIdMsg("aIReasoningContentMsg", add.Id.ToString(), StringHelper.SubstringText(msg, aiapp.ContentLengthLimit));
+                                await signalRMsgService.SendIdentityIdMsg("aIReasoningContentMsg", add.Id.ToString(), reasoningLog);
                             }
                         },
                     }, chatAgOs, mgs, cancellationToken: cancellationToken));
-                    addAi.Content = reslut.Item2 ?? "";
+                    addAi.Content = ShrinkForDb(reslut.Item2, AIChatStorageSetting.Current.AnswerContentMaxLength);
                     if (reslut.Item3 != default)
                     {
                         addAi.CachedInputTokenCount = reslut.Item3.CachedInputTokenCount;
@@ -537,9 +588,14 @@ namespace kevin.Application.Services.AI
         private static List<string> TrimContentsByAskTokenBudget(List<string> contents, string systemPrompt, string userContent, int maxAskPromptSize, int answerTokens)
         {
             var result = new List<string>();
-            if (contents == null || contents.Count == 0 || maxAskPromptSize <= 0)
+            if (contents == null || contents.Count == 0)
             {
-                return result ?? new List<string>();
+                return result;
+            }
+            // 模型未配置提问Token上限时没有预算依据，按“不裁剪”全部保留（原实现这里返回空集合，会把知识库、文件、联网搜索上下文静默丢弃）
+            if (maxAskPromptSize <= 0)
+            {
+                return contents;
             }
             var budget = maxAskPromptSize - EstimateTokenCount(systemPrompt) - EstimateTokenCount(userContent) - answerTokens;
             foreach (var content in contents)

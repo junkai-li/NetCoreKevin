@@ -34,8 +34,30 @@ namespace kevin.Application.Services.AI
                 MessageId = t.MessageId ?? SnowflakeIdService.GetNextId().ToString()
             }).ToList();
 
-            aIChatMessageStoreRp.AddRange(adddata);
-            await aIChatMessageStoreRp.SaveChangesAsync(cancellationToken);
+            // 按累计体积分批提交，避免一次长会话的工具消息把单条 INSERT 包撑爆：
+            // AddRange 后的一次提交会被 EF 批处理成一条多值 INSERT 发给 MySQL，累计体积一旦超过
+            // max_allowed_packet（默认 4MB）整批写入会直接失败（Broken pipe），上限取自 AIChatStorageSetting
+            var maxCharsPerSave = AIChatStorageSetting.Current.MaxCharsPerSave;
+            var batch = new List<TAIChatMessageStore>();
+            var batchSize = 0;
+            foreach (var item in adddata)
+            {
+                var size = (item.SerializedMessage?.Length ?? 0) + (item.MessageText?.Length ?? 0);
+                if (batch.Count > 0 && batchSize + size > maxCharsPerSave)
+                {
+                    aIChatMessageStoreRp.AddRange(batch);
+                    await aIChatMessageStoreRp.SaveChangesAsync(cancellationToken);
+                    batch.Clear();
+                    batchSize = 0;
+                }
+                batch.Add(item);
+                batchSize += size;
+            }
+            if (batch.Count > 0)
+            {
+                aIChatMessageStoreRp.AddRange(batch);
+                await aIChatMessageStoreRp.SaveChangesAsync(cancellationToken);
+            }
         }
 
         public async Task<List<ChatHistoryItemDto>> GetMessagesAsync(string threadId, CancellationToken cancellationToken, int maxUserTurns = 0)
