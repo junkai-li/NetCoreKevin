@@ -10,6 +10,8 @@ using kevin.Permission;
 using kevin.RabbitMQ;
 using Kevin.AI;
 using Kevin.Api.Versioning;
+using Kevin.Asr;
+using Kevin.Asr.AliCloud.Models;
 using Kevin.Authentication.Jwt;
 using Kevin.Common.App.Global;
 using Kevin.Common.Helper;
@@ -18,6 +20,7 @@ using Kevin.Cors.Models;
 using Kevin.Email;
 using Kevin.Hangfire;
 using Kevin.Hangfire.Models;
+using Kevin.HttpApiClients.Helper;
 using Kevin.RAG;
 using Kevin.RAG.Ollama.Models;
 using Kevin.RAG.Qdrant.Models;
@@ -39,8 +42,6 @@ using Microsoft.Extensions.FileProviders;
 using Repository.Database;
 using System.Text.Encodings.Web;
 using Web.Filters;
-using Kevin.Asr;
-using Kevin.Asr.AliCloud.Models;
 namespace Web.Extension
 {
     public static class ServiceConfiguration
@@ -334,6 +335,10 @@ namespace Web.Extension
                 options.cacheMySignalRKeyName = newoptions.cacheMySignalRKeyName;
             });
             GlobalServices.Set(app.ApplicationServices);
+            //静态助手（HttpClientHelper 等）要从容器取 IHttpClientFactory，这里显式把根容器喂进去：
+            //Program 的请求中间件会把 GlobalServices.ServiceProvider 覆盖成逐个请求的作用域容器，
+            //靠反射探测既可能取到已释放的作用域，也可能在容器就绪前被首次调用而拿到null
+            HttpClientHelper.Init(app.ApplicationServices);
             #region Hangfire服务注入  
             app.UseKevinHangfire(options =>
             {

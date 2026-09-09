@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Kevin.log4Net;
+using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Reflection;
@@ -9,32 +10,156 @@ namespace Kevin.HttpApiClients.Helper
 {
     public class HttpClientHelper
     {
-        private static bool IsInit;
+        private static readonly object _initLock = new object();
         private static IHttpClientFactory? InitHttpClientFactory;
 
+        /// <summary>
+        /// 容器不可用时的兜底客户端（按命名客户端缓存并复用，避免每次 new HttpClient 导致端口耗尽）
+        /// </summary>
+        private static readonly Dictionary<string, HttpClient> FallbackClients = new();
+        private static bool FallbackWarned;
+
+        /// <summary>
+        /// 注入容器：宿主在容器构建完成后调用一次（如 HttpClientHelper.Init(app.ApplicationServices)），
+        /// 未注入时本类会自行反射探测框架容器，探测不到才退回兜底客户端
+        /// </summary>
+        /// <param name="serviceProvider">容器（建议传根容器）</param>
+        public static void Init(IServiceProvider? serviceProvider)
+        {
+            if (serviceProvider == null)
+            {
+                return;
+            }
+            lock (_initLock)
+            {
+                InitHttpClientFactory ??= TryGetFactory(serviceProvider);
+            }
+        }
+
+        /// <summary>
+        /// 从容器取 IHttpClientFactory（IHttpClientFactory 是单例，取到后即可长期持有，不受容器后续释放影响）
+        /// </summary>
+        /// <param name="serviceProvider">容器</param>
+        /// <returns></returns>
+        private static IHttpClientFactory? TryGetFactory(IServiceProvider serviceProvider)
+        {
+            try
+            {
+                return serviceProvider.GetService<IHttpClientFactory>();
+            }
+            catch
+            {
+                //传进来的可能是已被释放的请求作用域容器（GlobalServices.ServiceProvider 会被请求中间件按请求覆盖），
+                //此处不抛，交给下一个容器来源处理
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 容器中的 IHttpClientFactory：只在解析成功时缓存，解析失败不能把null固化，
+        /// 否则启动早期（容器尚未就绪）的第一次调用会让之后所有请求永远拿不到客户端
+        /// </summary>
         private static IHttpClientFactory? HttpClientFactory
         {
             get
             {
-                if (!IsInit)
+                if (InitHttpClientFactory != null)
                 {
-                    var programType = Assembly.GetEntryAssembly()?.GetTypes().Where(t => t.Name == "Program").FirstOrDefault();
-                    if (programType != default)
+                    return InitHttpClientFactory;
+                }
+                lock (_initLock)
+                {
+                    if (InitHttpClientFactory != null)
                     {
-                        var ServiceProvider = programType.GetProperty("ServiceProvider", BindingFlags.Public | BindingFlags.Static)?.GetValue(programType);
-                        if (ServiceProvider != default)
+                        return InitHttpClientFactory;
+                    }
+                    foreach (var serviceProvider in FindServiceProviders())
+                    {
+                        var factory = TryGetFactory(serviceProvider);
+                        if (factory != null)
                         {
-                            var serviceProvider = (IServiceProvider)ServiceProvider;
-                            if (serviceProvider != null)
-                            {
-                                InitHttpClientFactory = serviceProvider.GetService<IHttpClientFactory>();
-                            }
+                            InitHttpClientFactory = factory;
+                            return factory;
                         }
                     }
-                    IsInit = true;
+                    return null;
                 }
+            }
+        }
 
-                return InitHttpClientFactory;
+        /// <summary>
+        /// 反射探测宿主容器：本程序集不能引用 Kevin.Common（Kevin.Common 反向依赖本程序集），只能按类型全名取 GlobalServices.ServiceProvider；
+        /// 再兼容入口程序集 Program 上公开静态属性 ServiceProvider 的历史宿主写法
+        /// </summary>
+        /// <returns></returns>
+        private static List<IServiceProvider> FindServiceProviders()
+        {
+            var providers = new List<IServiceProvider>();
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                try
+                {
+                    var globalServicesType = assembly.GetType("Kevin.Common.App.Global.GlobalServices", false);
+                    if (globalServicesType?.GetProperty("ServiceProvider", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) is IServiceProvider provider)
+                    {
+                        providers.Add(provider);
+                    }
+                }
+                catch
+                {
+                }
+            }
+            try
+            {
+                var programType = Assembly.GetEntryAssembly()?.GetTypes().FirstOrDefault(t => t.Name == "Program");
+                if (programType?.GetProperty("ServiceProvider", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) is IServiceProvider provider)
+                {
+                    providers.Add(provider);
+                }
+            }
+            catch
+            {
+            }
+            return providers;
+        }
+
+        /// <summary>
+        /// 取命名HttpClient：容器拿不到时兜底建一个内置客户端，而不是返回null——
+        /// 返回null只会让调用方表现为“响应内容为空”，把真实原因（容器未就绪、宿主没注册 AddHttpClient）吞掉
+        /// </summary>
+        /// <param name="name">命名客户端（与 AddKevinHttpApiClients 中注册的名字一致）</param>
+        /// <returns></returns>
+        private static HttpClient CreateClient(string name)
+        {
+            var client = HttpClientFactory?.CreateClient(name);
+            if (client != null)
+            {
+                return client;
+            }
+            lock (_initLock)
+            {
+                if (!FallbackClients.TryGetValue(name, out var fallbackClient))
+                {
+                    var handler = new HttpClientHandler { AllowAutoRedirect = false };
+                    if (name == "SkipSsl")
+                    {
+                        handler.ServerCertificateCustomValidationCallback = (message, cert, chain, sslPolicyErrors) => true;
+                    }
+                    fallbackClient = new HttpClient(handler);
+                    FallbackClients[name] = fallbackClient;
+                }
+                if (!FallbackWarned)
+                {
+                    FallbackWarned = true;
+                    try
+                    {
+                        LogHelper.logger.Warn($"未能从容器获取 IHttpClientFactory，{nameof(HttpClientHelper)} 已退回内置兜底HttpClient（请确认宿主已调用 AddKevinHttpApiClients 注册、并在容器构建后调用 {nameof(Init)}）");
+                    }
+                    catch
+                    {
+                    }
+                }
+                return fallbackClient;
             }
         }
 
@@ -50,17 +175,17 @@ namespace Kevin.HttpApiClients.Helper
         {
             string httpClientName = isSkipSslVerification ? "SkipSsl" : "";
 
-            var client = HttpClientFactory?.CreateClient(httpClientName);
+            var client = CreateClient(httpClientName);
 
             if (headers != default)
             {
                 foreach (var header in headers)
                 {
-                    client?.DefaultRequestHeaders.Add(header.Key, header.Value);
+                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
                 }
             }
-            using var httpResponse = client?.GetStringAsync(url);
-            return httpResponse?.Result;
+            using var httpResponse = client.GetStringAsync(url);
+            return httpResponse.Result;
         }
 
 
@@ -111,13 +236,13 @@ namespace Kevin.HttpApiClients.Helper
 
             string httpClientName = isSkipSslVerification ? "SkipSsl" : "";
 
-            var client = HttpClientFactory?.CreateClient(httpClientName);
+            var client = CreateClient(httpClientName);
 
             if (headers != default)
             {
                 foreach (var header in headers)
                 {
-                    client?.DefaultRequestHeaders.Add(header.Key, header.Value);
+                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
                 }
             }
 
@@ -136,8 +261,8 @@ namespace Kevin.HttpApiClients.Helper
             {
                 content.Headers.ContentType.CharSet = "utf-8";
             }
-            using var httpResponse = client?.PostAsync(url, content);
-            return httpResponse?.Result.Content.ReadAsStringAsync().Result ?? "";
+            using var httpResponse = client.PostAsync(url, content);
+            return httpResponse.Result.Content.ReadAsStringAsync().Result ?? "";
         }
 
 
@@ -174,19 +299,19 @@ namespace Kevin.HttpApiClients.Helper
 
             string httpClientName = isSkipSslVerification ? "SkipSsl" : "";
 
-            var client = HttpClientFactory?.CreateClient(httpClientName);
+            var client = CreateClient(httpClientName);
 
             if (headers != default)
             {
                 foreach (var header in headers)
                 {
-                    client?.DefaultRequestHeaders.Add(header.Key, header.Value);
+                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
                 }
             }
             using FormUrlEncodedContent formContent = new(formItems);
             formContent.Headers.ContentType!.CharSet = "utf-8";
-            using var httpResponse = client?.PostAsync(url, formContent);
-            return httpResponse?.Result.Content.ReadAsStringAsync().Result;
+            using var httpResponse = client.PostAsync(url, formContent);
+            return httpResponse.Result.Content.ReadAsStringAsync().Result;
         }
 
 
@@ -203,13 +328,13 @@ namespace Kevin.HttpApiClients.Helper
         {
             string httpClientName = isSkipSslVerification ? "SkipSsl" : "";
 
-            var client = HttpClientFactory?.CreateClient(httpClientName);
+            var client = CreateClient(httpClientName);
 
             if (headers != default)
             {
                 foreach (var header in headers)
                 {
-                    client?.DefaultRequestHeaders.Add(header.Key, header.Value);
+                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
                 }
             }
 
@@ -233,8 +358,8 @@ namespace Kevin.HttpApiClients.Helper
                 }
             }
 
-            using var httpResponse = client?.PostAsync(url, formDataContent);
-            return httpResponse?.Result.Content.ReadAsStringAsync().Result;
+            using var httpResponse = client.PostAsync(url, formDataContent);
+            return httpResponse.Result.Content.ReadAsStringAsync().Result;
         }
         public static string CreatePostHttpResponse(string url, string postData)
         {
