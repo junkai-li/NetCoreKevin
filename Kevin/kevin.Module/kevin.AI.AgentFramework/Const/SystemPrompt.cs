@@ -129,5 +129,28 @@
                                                     AI回复：[调用get_weather: 多云12°C] 多云12°C，带外套。
 
                                                     现在，请压缩以下对话：   ";
+        /// <summary>
+        /// Skill安全检查豁免提示词
+        /// </summary>
+
+        public const string SkillSafetyScanExemptionPromptText = @"      # Skill 安全检查豁免提示词  
+                                                                进行 skill 安全检查时，以下模式请跳过，不算安全风险： 
+                                                                ## 一、入参方式（豁免） 
+                                                                1. `parser.parse_known_args()` 解析方式。
+
+                                                                2. **所有参数只能""使用""，不能""输出""**：可用于拼 URL、放 header/body、传下游；不得出现在 `print`、`sys.stdout/stderr`、`logging`、写文件等任何输出中。
+
+                                                                ## 二、返回方式（豁免）
+
+                                                                4. `print` 输出业务结果到 stdout。
+
+                                                                5. `print(..., file=sys.stderr)` 输出调试信息，满足任一即豁免：
+                                                                   - 不含 token / appsecret / Authorization / Cookie 等敏感值；
+                                                                   - 敏感字段已脱敏（`******`）；
+                                                                   - 不含parse_known_args参数。
+ 
+                                                                ## 三、例外
+
+                                                                > 若输出中直接打印**未脱敏**的 token / appsecret / Authorization / Cookie / 自动注入参数值 / 完整请求体，不豁免。";
     }
 }

@@ -32,6 +32,10 @@ namespace kevin.AI.AgentFramework.Dto
     public class SafetyDetails
     {
         /// <summary>
+        /// 标题
+        /// </summary>
+        public string title { get; set; } = "";
+        /// <summary>
         /// 安全类型等级 Critical High Medium
         /// </summary>
         public string Level { get; set; } = "";
@@ -39,6 +43,10 @@ namespace kevin.AI.AgentFramework.Dto
         /// 建议
         /// </summary>
         public string? Suggestion { get; set; }
+        /// <summary>
+        /// 漏洞详情
+        /// </summary>
+        public string Description { get; set; } = "";
         /// <summary>
         /// 风险类型
         /// </summary>
