@@ -1,4 +1,6 @@
 ﻿using Aop.Api.Domain;
+using kevin.AI.AgentFramework.Interfaces.Safety;
+using kevin.AI.AgentFramework.Safety;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
@@ -8,6 +10,7 @@ using kevin.FileStorage;
 using kevin.RepositorieRps.Repositories;
 using Kevin.Common;
 using Kevin.Common.Helper;
+using System.IO;
 using System.Text.RegularExpressions;
 
 namespace kevin.Application.Services.AI
@@ -21,11 +24,14 @@ namespace kevin.Application.Services.AI
         public readonly IFileRp _FileRp;
 
         public readonly IFileStorage _FileStorage;
-        public AISkillToolManagementService(IHttpContextAccessor _httpContextAccessor, IAISkillToolManagementRp _AISkillToolManagementRp, IFileRp _IFileRp, IFileStorage _IFileStorage) : base(_httpContextAccessor)
+        public readonly ISkillSafetyService _SkillSafetyService;
+        public AISkillToolManagementService(IHttpContextAccessor _httpContextAccessor, IAISkillToolManagementRp _AISkillToolManagementRp,
+            IFileRp _IFileRp, IFileStorage _IFileStorage, ISkillSafetyService _skillSafetyService) : base(_httpContextAccessor)
         {
             this.AISkillToolManagementRp = _AISkillToolManagementRp;
             this._FileRp = _IFileRp;
             this._FileStorage = _IFileStorage;
+            this._SkillSafetyService = _skillSafetyService;
         }
 
         public async Task<dtoPageData<AISkillToolManagementDto>> GetPageData(dtoPagePar<int> dtoPagePar)
@@ -149,36 +155,59 @@ namespace kevin.Application.Services.AI
                 if (flieData != default && !string.IsNullOrEmpty(flieData.Url))
                 {
                     //拼接路径
-                    var path = Path.Combine(AppContext.BaseDirectory, "Skills", data.Name, data.Name);
-
+                    var pathCheck = Path.Combine(AppContext.BaseDirectory, "SkillsCheck", data.Name, data.Name);
+                    #region SkillsCheck 
                     //如果目录存在则删除目录下的所有文件  
-                    if (Directory.Exists(path))
+                    if (Directory.Exists(pathCheck))
                     {
-                        Directory.Delete(path, true);
-                    }
-                    Directory.CreateDirectory(path);
-                    _FileStorage.FileDownload(flieData.Url, path + flieData.Name);
+                        Directory.Delete(pathCheck, true);
+                    } 
+                    Directory.CreateDirectory(pathCheck);
+                    _FileStorage.FileDownload(flieData.Url, pathCheck + flieData.Name);
                     //将zip文件流解压到写入磁盘
-                    using (var fileStream = File.OpenRead(path + flieData.Name))
+                    using (var fileStream = File.OpenRead(pathCheck + flieData.Name))
                     {
-                        FileZipHelper.ExtractZipStreamToDirectory(fileStream, path);
+                        FileZipHelper.ExtractZipStreamToDirectory(fileStream, pathCheck);
                     }
-                    File.Delete(path + flieData.Name);
-
-                    //校验技能包脚本(.py/.ps1/.sh)中提取到的http(s)地址是否都在授权前缀白名单内
                     //存在非授权域名地址时，先清理已解压文件再抛出异常，避免非授权脚本残留磁盘
                     try
                     {
-                        ValidateSkillScriptUrls(path);
-                    }
-                    catch
-                    {
-                        if (Directory.Exists(path))
+                        var result = await _SkillSafetyService.CheckSafety(flieData.Url);
+                        if (!result.Item1)
                         {
-                            Directory.Delete(path, true);
+                            throw new UserFriendlyException(result.Item2?.SafetyMessage);
                         }
-                        throw;
+                        ValidateSkillScriptUrls(pathCheck);
                     }
+                    catch (Exception ex)
+                    {
+                        throw new UserFriendlyException(ex.Message);
+                    }
+                    finally
+                    {
+                        if (Directory.Exists(pathCheck))
+                        {
+                            Directory.Delete(pathCheck, true);
+                        }
+                    }
+                    #endregion
+
+                    #region Skill替换  
+                    //将zip文件流解压到写入磁盘
+                    var skillPath = Path.Combine(AppContext.BaseDirectory, "Skills", data.Name, data.Name);
+                    //如果目录存在则删除目录下的所有文件  
+                    if (Directory.Exists(skillPath))
+                    {
+                        Directory.Delete(skillPath, true);
+                    }
+                    Directory.CreateDirectory(skillPath);
+                    using (var fileStream = File.OpenRead(pathCheck + flieData.Name))
+                    {
+                        FileZipHelper.ExtractZipStreamToDirectory(fileStream, skillPath);
+                    }
+                    File.Delete(pathCheck + flieData.Name);
+                    #endregion
+
                 }
                 else
                 {
@@ -278,7 +307,7 @@ namespace kevin.Application.Services.AI
             if (string.IsNullOrEmpty(skillDirectory) || !Directory.Exists(skillDirectory))
             {
                 return;
-            } 
+            }
             if (ConfigHelper.Configuration["SkillToolSecuritySetting:IsOpenAllowedUrlPrefixes"].ToBoolean() == false)
             {
                 return;

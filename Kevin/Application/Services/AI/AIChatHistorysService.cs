@@ -1,17 +1,16 @@
 ﻿
 using Common;
-using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.Interfaces;
-using kevin.AI.AgentFramework.ScriptRunners;
+using kevin.AI.AgentFramework.Interfaces.Safety;
+using kevin.AI.AgentFramework.Safety;
 using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using Kevin.AI.Dto;
-using Kevin.Common.Extension;
 using Kevin.log4Net;
 using Kevin.RAG.Interfaces;
 using Kevin.RAG.Ollama;
@@ -49,16 +48,16 @@ namespace kevin.Application.Services.AI
 
         private readonly IAIChatHistorysBindLogService _aIChatHistorysBindLogService;
 
-        private readonly IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService;
-
         private readonly IAIShareInfoService _aIShareInfoService;
+
+        private readonly IAIInputOutputSafetyService _aIInputOutputSafetyService;
 
         public AIChatHistorysService(IHttpContextAccessor _httpContextAccessor, IAIChatHistorysRp _aIChatHistorysRp,
             IAIAgentService _aIAgentService, IAIModelsService _aIModelsService, IAIPromptsService _aIPromptsService,
             IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore,
             IRAGService _rAGService, IAIKmssService _aIKmssService, IOllamaApiService _ollamaApiService, ISignalRMsgService _signalRMsgService,
-            IHttpClientFactory _httpClientFactory, IAIChatHistorysBindLogService _aIChatHistorysBindLogService, 
-            IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService,IAIShareInfoService aIShareInfoService
+            IHttpClientFactory _httpClientFactory, IAIChatHistorysBindLogService _aIChatHistorysBindLogService,
+            IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService, IAIShareInfoService aIShareInfoService, IAIInputOutputSafetyService aIInputOutputSafetyService
             ) : base(_httpContextAccessor)
         {
             this.aIChatHistorysRp = _aIChatHistorysRp;
@@ -74,8 +73,8 @@ namespace kevin.Application.Services.AI
             this.signalRMsgService = _signalRMsgService;
             this.httpClientFactory = _httpClientFactory;
             this._aIChatHistorysBindLogService = _aIChatHistorysBindLogService;
-            this._aIChatMessageStoreCompactionService = _aIChatMessageStoreCompactionService;
             this._aIShareInfoService = aIShareInfoService;
+            this._aIInputOutputSafetyService = aIInputOutputSafetyService;
         }
 
         /// <summary>
@@ -148,9 +147,14 @@ namespace kevin.Application.Services.AI
         /// <exception cref="UserFriendlyException"></exception>
         public async Task<AIChatHistorysDto> Add(AIChatHistorysDto par, CancellationToken cancellationToken)
         {
-
+            var reslutUserCheck = await _aIInputOutputSafetyService.CheckUserInput(par.Content);
+            if (!reslutUserCheck.Item1)
+            {
+                throw new UserFriendlyException($"输入内容非法：{reslutUserCheck.Item2?.SafetyMessage}");
+            }
             var aichas = await aIChatsService.GetDetails(par.AIChatsId);
             var aiapp = await aIAppsService.GetDetails(aichas.AppId);
+
             #region 重试：先废弃上次失败的问答，避免历史里出现两条相同提问
             var retryCount = 0;
             if (par.RetryOfId != default)
@@ -176,6 +180,7 @@ namespace kevin.Application.Services.AI
                 }
             }
             #endregion
+
             var count = await aIChatHistorysRp.Query().Where(t => t.IsDelete == false && t.AIChatsId == par.AIChatsId).CountAsync(cancellationToken);
             if (count >= aiapp.ChatMessageLimit)
             {
@@ -354,6 +359,11 @@ namespace kevin.Application.Services.AI
                             },
                         };
                         var reslut = (await aIAgentService.CreateOpenAIAgentAndSendMSG(aiSetting, chatAgOs, mgs, cancellationToken: cancellationToken));
+                        var reslutAiCheck = await _aIInputOutputSafetyService.CheckAIOutput(reslut.Item2);
+                        if (!reslutAiCheck.Item1)
+                        {
+                            throw new UserFriendlyException($"AI输出内容非法：{reslutAiCheck.Item2?.SafetyMessage}");
+                        }
                         addAi.Content = ShrinkForDb(reslut.Item2, AIChatStorageSetting.Current.AnswerContentMaxLength);
                         if (reslut.Item3 != default)
                         {

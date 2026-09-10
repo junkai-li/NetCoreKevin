@@ -1,6 +1,8 @@
 ﻿using kevin.AI.AgentFramework;
 using kevin.AI.AgentFramework.Interfaces;
+using kevin.AI.AgentFramework.Interfaces.Safety;
 using kevin.AI.AgentFramework.Interfaces.Tools;
+using kevin.AI.AgentFramework.Safety;
 using kevin.AI.AgentFramework.ScriptRunners;
 using kevin.AI.AgentFramework.Tools;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +22,8 @@ namespace Kevin.AI
             services.TryAddScoped<IAuthorizedToolsService, AuthorizedToolsService>();
             services.TryAddScoped<IWebSearchEngine, WebSearchEngine>();
             services.TryAddScoped<IPySubprocessScriptRunner, PySubprocessScriptRunner>();
+            services.TryAddScoped<ISkillSafetyService, SkillSafetyService>();
+            services.TryAddScoped<IAIInputOutputSafetyService, AIInputOutputSafetyService>();
         }
     }
 }
