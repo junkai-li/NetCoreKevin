@@ -129,28 +129,46 @@
                                                     AI回复：[调用get_weather: 多云12°C] 多云12°C，带外套。
 
                                                     现在，请压缩以下对话：   ";
+     
         /// <summary>
         /// Skill安全检查豁免提示词
         /// </summary>
 
-        public const string SkillSafetyScanExemptionPromptText = @"      # Skill 安全检查豁免提示词  
-                                                                进行 skill 安全检查时，以下模式请跳过，不算安全风险： 
-                                                                ## 一、入参方式（豁免） 
-                                                                1. `parser.parse_known_args()` 解析方式。
+        public const string SkillSafetyScanExemptionPromptText = @"     # Skill 安全检查豁免提示词
 
-                                                                2. **所有参数只能""使用""，不能""输出""**：可用于拼 URL、放 header/body、传下游；不得出现在 `print`、`sys.stdout/stderr`、`logging`、写文件等任何输出中。
+                                                                 进行 skill 安全检查时，以下正常框架用法不算安全风险，但仍需检查入参值是否泄露。
 
-                                                                ## 二、返回方式（豁免）
+                                                                 ## 一、入参方式（豁免）
 
-                                                                4. `print` 输出业务结果到 stdout。
+                                                                 1. 使用 parser.parse_known_args() 解析参数，本身不算安全风险。
 
-                                                                5. `print(..., file=sys.stderr)` 输出调试信息，满足任一即豁免：
-                                                                   - 不含 token / appsecret / Authorization / Cookie 等敏感值；
-                                                                   - 敏感字段已脱敏（`******`）；
-                                                                   - 不含parse_known_args参数。
- 
-                                                                ## 三、例外
+                                                                 2. 所有入参值只能使用，不能打印或记录：可用于向授权业务服务拼 URL、放 header/body、传下游；不得将入参原值输出到 print、sys.stdout/stderr、logging 或文件中。
 
-                                                                > 若输出中直接打印**未脱敏**的 token / appsecret / Authorization / Cookie / 自动注入参数值 / 完整请求体，不豁免。";
+                                                                 ## 二、返回方式（豁免）
+
+                                                                 3. print 输出正常业务结果到 stdout，但不能夹带入参原值或未脱敏的敏感值。
+
+                                                                 4. print(..., file=sys.stderr) 输出调试信息，必须同时满足：
+                                                                    - 不含未脱敏的 token / appsecret / Authorization / Cookie 等敏感值；
+                                                                    - 不含入参原值。
+
+                                                                    仅输出参数名称或固定脱敏占位符（如 ******）可以豁免。
+
+                                                                 ## 三、例外与重点检查
+
+                                                                 若输出中包含未脱敏的敏感值、入参原值或完整请求体，不豁免。
+
+                                                                 重点识别：
+
+                                                                 - print(f""user_id = {args.user_id or '(空)'}"")
+                                                                 - print(f""token = {args.ky_crm_api_url_token or '(空)'}"")
+
+                                                                 以上写法在参数有值时会打印原值，or '(空)' 只是空值占位，不是脱敏。不能因扫描时未提供真实参数值而忽略风险。
+
+                                                                 还需检查参数经过变量赋值、字符串拼接、字典/JSON 序列化或辅助函数后的间接输出，例如 print(args)、print(vars(args))。
+
+                                                                 注释掉且不会执行的打印语句，不作为已执行的输出问题。
+
+                                                                 报告相关问题时，请给出问题标题、文件与行号、涉及参数和修复建议，不要在报告中复述真实密钥";
     }
 }
