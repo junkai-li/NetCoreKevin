@@ -255,7 +255,10 @@
                 <span></span>
                 <span></span>
               </div>
-             <div v-if="isSending && (!isVoiceMode || showTextInVoiceMode)" class="message-text message-text-stream">{{ aimessage2 }}</div>
+              <!-- 流式中的回复也包一层 .message-bubble-line，跟说完的气泡走同一套宽度/长词换行规则 -->
+              <div v-if="isSending && (!isVoiceMode || showTextInVoiceMode)" class="message-bubble-line">
+                <div class="message-text message-text-stream">{{ aimessage2 }}</div>
+              </div>
               <!-- 流式播放中的语音条 -->
               <div v-if="isVoiceMode && isSpeaking && streamingTtsActive" class="voice-msg-bar voice-msg-bar-streaming">
                 <div class="voice-msg-left">

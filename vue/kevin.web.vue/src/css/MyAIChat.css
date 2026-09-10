@@ -681,7 +681,8 @@
    这里取项目里实际生效的气泡底色：enterprise-surface.css 用 .content-wrapper + !important
    把用户气泡刷成 #1677ff、AI 气泡刷成 #f5f5f5，改那两处配色时要同步改这里 */
 .message-item.user-message .message-text::after,
-.message-item.ai-message .message-text::after {
+.message-item.ai-message .message-text::after,
+.typing-indicator::after {
   content: '';
   position: absolute;
   top: 7px;
@@ -696,17 +697,20 @@
   border-left: 5px solid #1677ff;
 }
 
-.message-item.ai-message .message-text::after {
+/* 打字指示器（流式块里上面临时出现的那颗）不是 .message-text，
+   拿不到 AI 气泡的尾巴，在这里并进同一条规则 */
+.message-item.ai-message .message-text::after,
+.typing-indicator::after {
   left: -5px;
   border-right: 5px solid #f5f5f5;
 }
 
-/* 流式输出中的回复沿用原来的透明气泡，只把压平的角从左下挪到左上 */
+/* 流式输出中的回复（临时那颗气泡，内容 = aimessage2）：完全走 AI 气泡那一套
+   （底色/描边/圆角/尖角都不在这里另写），只留一个淡入。注意这个动画只在气泡创建时
+   播一次（isSending 期间元素一直存在，不是每来一段文字重播），作用是“气泡淡入”而不是“逐字淡入”。
+   原来这里压着 background/border/color 三条 !important，是深色玻璃时代为了让流式文字“无气泡”留下的，
+   在浅色内容区里它只抹掉了 AI 气泡那圈 1px #f0f0f0 描边，导致流式中的气泡比说完的少一圈边 */
 .message-text-stream {
-  background: none !important;
-  border: none !important;
-  border-top-left-radius: 2px !important;
-  color: rgba(255, 255, 255, 0.9) !important;
   animation: streamFadeIn 0.3s ease-out;
 }
 
@@ -756,7 +760,8 @@
   align-items: center;
   padding: 12px 16px;
   background: rgba(20, 35, 70, 0.7);
-  /* 跟 AI 气泡同一套形状：小圆角 + 靠头像一侧压平 */
+  /* 跟 AI 气泡同一套形状：小圆角 + 靠头像一侧压平（尾巴由下面并进的 ::after 规则给） */
+  position: relative;
   border-radius: 8px;
   border-top-left-radius: 2px;
   border: 1px solid rgba(0, 200, 255, 0.1);
@@ -1835,10 +1840,9 @@
 /* 语音模式下展开的文字 */
 .voice-expanded-text {
   margin-top: 8px;
-  padding: 12px 16px;
-  background: rgba(0, 200, 255, 0.05);
-  border: 1px solid rgba(0, 200, 255, 0.15);
-  border-radius: 12px;
+  /* 形状不再自己写一份：12px 圆角 + 12/16 内边距是旧值，而且这条规则在文件里更靠后、
+     会把 .message-text 刚改的 8px 圆角 + 10/14 内边距顶回去；底色/描边本来就被 enterprise-surface.css
+     的 !important 接管，删掉也不影响颜色。这里只留语音模式展开时的动画 */
   animation: slideDown 0.2s ease-out;
 }
 
