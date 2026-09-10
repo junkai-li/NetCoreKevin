@@ -67,6 +67,7 @@ namespace kevin.AI.AgentFramework
             }
             var retries = 1;
         aiRun:
+            aISetting.AttemptCount = retries;
             // openAIClientOptions 必须在 aiRun 内创建，确保模型切换后使用新的 Endpoint
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions()
             {
@@ -186,6 +187,17 @@ namespace kevin.AI.AgentFramework
             }
             catch (Exception ex)
             {
+                // 客户端主动中止（前端点“停止”）不是模型故障：必须原样抛出，否则下面会把它当普通异常重试、甚至换模型继续跑，
+                // 前端早已断开等待，只会留下一条无意义的“报错回复”
+                if (ex is OperationCanceledException && cancellationToken.IsCancellationRequested)
+                {
+                    if (aISetting.IsHttpLog)
+                    {
+                        HttpClientAutoInterceptor.StopInterception();
+                    }
+                    Ailogger?.LogWarning("模型调用已被客户端中止，模型：{Model}，第{Retries}次尝试。", aISetting.AIDefaultModel, retries);
+                    throw;
+                }
                 Ailogger?.LogError(ex, "模型调用失败，模型：{Model}，第{Retries}次尝试。", aISetting.AIDefaultModel, retries);
                 // 参数类错误（输入长度越界、max_tokens 超模型范围）由请求内容本身决定，重试或换模型都不会改变结果，直接终止并友好提示；
                 // 其他错误（网络、限流、5xx）才按 Auto 模式切换备选模型继续重试
@@ -219,6 +231,9 @@ namespace kevin.AI.AgentFramework
                 // 走到这里有两种情况：参数类错误（未重试），或非参数错误但重试次数已耗尽。
                 // 统一把异常转成友好提示，避免前端只看到空回复
                 var friendlyMsg = BuildFriendlyAIMsg(ex);
+                // 友好文案照常推给前端，同时把原始异常带出去：调用方据此把本轮标记为失败并给出重试入口，
+                // 而不是让报错以“正常回复”的形态落库、事后无法区分
+                aISetting.LastError = ex;
                 if (aISetting.IsStreame && aISetting.StreameCallback != default)
                 {
                     aISetting.StreameCallback.Invoke(friendlyMsg);

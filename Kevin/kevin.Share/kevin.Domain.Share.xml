@@ -303,6 +303,27 @@
             相关日志记录
             </summary> 
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.SendStatus">
+            <summary>
+            发送状态：0.正常 1.失败(可重试) 2.重试中
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.FailReason">
+            <summary>
+            失败原因，仅 <see cref="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.SendStatus"/> 非正常时有值
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.RetryCount">
+            <summary>
+            该提问已重试次数
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.RetryOfId">
+            <summary>
+            重试来源：前端点红色重试按钮时回传上次失败的提问记录Id，服务端据此废弃旧的失败问答并累加重试次数。
+            <para>不落库，仅作为 <c>Add</c> 的入参使用，为 0 表示这是一次普通发送。</para>
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIChatsDto">
             <summary>
             对话
@@ -1221,6 +1242,26 @@
         <member name="P:kevin.Domain.Share.Dtos.User.dtoUserPar.DepartmentId">
             <summary>
             部门id
+            </summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Enums.AIChatHistorysSendStatusEnums">
+            <summary>
+            AI聊天记录发送状态
+            </summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.AIChatHistorysSendStatusEnums.Success">
+            <summary>
+            正常（发送成功并拿到回复）
+            </summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.AIChatHistorysSendStatusEnums.Fail">
+            <summary>
+            失败（模型或上下文处理环节报错，可在前端点红色按钮重试）
+            </summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.AIChatHistorysSendStatusEnums.Retrying">
+            <summary>
+            重试中：本次是对上一轮失败的重新发送，还没拿到回复；若进程中途被打断，记录会停在这个状态
             </summary>
         </member>
         <member name="T:kevin.Domain.Share.Enums.AIType">

@@ -12,6 +12,7 @@ using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using Kevin.AI.Dto;
 using Kevin.Common.Extension;
+using Kevin.log4Net;
 using Kevin.RAG.Interfaces;
 using Kevin.RAG.Ollama;
 using Kevin.SignalR.Service;
@@ -150,6 +151,31 @@ namespace kevin.Application.Services.AI
 
             var aichas = await aIChatsService.GetDetails(par.AIChatsId);
             var aiapp = await aIAppsService.GetDetails(aichas.AppId);
+            #region 重试：先废弃上次失败的问答，避免历史里出现两条相同提问
+            var retryCount = 0;
+            if (par.RetryOfId != default)
+            {
+                var oldAsk = await aIChatHistorysRp.Query().FirstOrDefaultAsync(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId
+                    && t.AIChatsId == par.AIChatsId && t.Id == par.RetryOfId && t.IsSend == true, cancellationToken);
+                // 请求层就失败（断网、被全局异常拦下）时前端也会带着 retryOfId 重试，那条旧记录根本没落库；
+                // 这里按一次普通发送处理，而不是抛业务异常把重试按钮点死
+                if (oldAsk != default)
+                {
+                    // 该提问之后的回复行一并软删（含上次记下报错的那条），旧行仍是 IsDelete=false 保留，可事后查失败记录
+                    var oldAnswers = await aIChatHistorysRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId
+                            && t.AIChatsId == par.AIChatsId && t.IsSend == false && t.CreateTime >= oldAsk.CreateTime).ToListAsync(cancellationToken);
+                    oldAsk.IsDelete = true;
+                    oldAsk.DeleteTime = DateTime.Now;
+                    foreach (var oldAnswer in oldAnswers)
+                    {
+                        oldAnswer.IsDelete = true;
+                        oldAnswer.DeleteTime = DateTime.Now;
+                    }
+                    retryCount = oldAsk.RetryCount + 1;
+                    await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
+                }
+            }
+            #endregion
             var count = await aIChatHistorysRp.Query().Where(t => t.IsDelete == false && t.AIChatsId == par.AIChatsId).CountAsync(cancellationToken);
             if (count >= aiapp.ChatMessageLimit)
             {
@@ -200,6 +226,7 @@ namespace kevin.Application.Services.AI
             add.CreateUserId = CurrentUser.UserId;
             add.TenantId = CurrentUser.TenantId;
             add.IsSend = true;
+            add.RetryCount = retryCount;
             //回复消息
             var addAi = new TAIChatHistorys();
             addAi.Id = SnowflakeIdService.GetNextId();
@@ -209,123 +236,162 @@ namespace kevin.Application.Services.AI
             addAi.TenantId = CurrentUser.TenantId;
             addAi.IsSend = false;
             addAi.AIChatsId = par.AIChatsId;
-            string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
-            await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = systemPrompt, LogType = AIChatHistorysBindLogEnums.SystemPrompt });
-            List<string> OtherContents = new List<string>();
-
-            if (aiapp.KmsId != default)
-            {
-                var ksmData = await KmsRag(add, aiapp, addAi);
-                if (ksmData.Count > 0)
-                {
-                    OtherContents.AddRange(ksmData);
-                }
-            }
-            _aIShareInfoService.InitData(new AIShareInfoDto
-            {
-                AIAppsId = aiapp.Id,
-                AIChatsId = add.AIChatsId,
-                UserId = CurrentUser.UserId,
-                UserName = CurrentUser.UserName,
-                TenantId = CurrentUser.TenantId,
-                AuthorizedDomains = aiapp.AuthorizedDomains,
-                ContentLengthLimit = aiapp.ContentLengthLimit,
-                IsSecurityIntercept = aiapp.IsSecurityIntercept,
-                ChatMessageLimit = aiapp.ChatMessageLimit
-            });
-            #region 文件处理
-
-            var ImgUrls = new List<string>();
-            var aiFilData = await AIFileUrlsHandle(add, aiapp, addAi);
-            if (aiFilData.Item1.Count > 0)
-                OtherContents.AddRange(aiFilData.Item1);
-
-            if (aiFilData.Item2.Count > 0)
-                ImgUrls.AddRange(aiFilData.Item2);
-
-            #endregion
-
-            #region 联网搜索
-            if (par.IsOnlineSearch)
-            {
-                await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在联网搜索....");
-                var http = new HttpClientFunction(aIAgentService, _serviceProvider);
-                var webseoData = await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey);
-                await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = webseoData, LogType = AIChatHistorysBindLogEnums.WebSeo });
-                OtherContents.Add(StringHelper.SubstringText(webseoData, aiapp.ContentLengthLimit));
-            }
-            #endregion
-            // 按提问Token预算裁剪补充上下文，确保输入总量不超过模型的上下文窗口预算（模型配置的MaxAskPromptSize）
-            OtherContents = TrimContentsByAskTokenBudget(OtherContents, systemPrompt, add.Content, aIModels.MaxAskPromptSize, aIModels.AnswerTokens);
-            // 空输入保护：模型的输入长度区间是双边的（如 “Range of input length should be [1, N]”），正文、上下文、图片全为空时输入长度为 0，同样会被模型直接拒掉，
-            // 这里按业务异常提前拦下，让前端拿到可读提示而不是模型报错
-            if (string.IsNullOrWhiteSpace(add.Content) && OtherContents.Count == 0 && ImgUrls.Count == 0)
-            {
-                throw new UserFriendlyException("请输入要咨询的内容（或上传可解析的文件）后再发送。");
-            }
-            ChatMessage mgs = new(ChatRole.User, [new TextContent($"{add.Content}"),
-                        .. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(),
-                        .. ImgUrls.Where(t => !string.IsNullOrEmpty(t)).Select(url => DataContent.LoadFromAsync(FileHelper.GetRemoteFileStreamAsync(url).Result).Result).ToList()]);
-            var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par);
-            switch (aIModels.AIType)
-            {
-                case Domain.Share.Enums.AIType.OpenAI:
-                case Domain.Share.Enums.AIType.ZhiPuAI:
-                case Domain.Share.Enums.AIType.AzureOpenAI:
-                default:
-                    await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在结合相关信息思考....");
-                    var reslut = (await aIAgentService.CreateOpenAIAgentAndSendMSG(new AISetting
-                    {
-                        AIUrl = aIModels.EndPoint,
-                        AIKeySecret = aIModels.ModelKey,
-                        AIDefaultModel = aIModels.ModelName,
-                        IsStreame = aiapp.MsgType == 2,
-                        IsHttpLog = aiapp.IsHttpLog,
-                        MaxRetries = aiapp.MaxRetries,
-                        NetworkTimeout = aiapp.NetworkTimeout,
-                        IsAISkills = aiapp.IsSkill,
-                        IsAITools = aiapp.IsAITools,
-                        IsMcpTools = aiapp.IsMcp,
-                        IsMemory= aiapp.IsMemory,
-                        FallbackModels = fallbackModels,
-                        StreameCallback = async (msg) =>
-                        {
-                            await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
-                        },
-                        ToolStreameCallback = async (msg) =>
-                        {
-                            // 单条事件按智能体内容长度上限截断后累加，同时整个字段封顶：
-                            // 一次几十万字的工具输出不能把整行记录撑到 MySQL 无法写入
-                            var toolLog = StringHelper.SubstringText(msg, aiapp.ContentLengthLimit);
-                            addAi.AIToolsContent = AppendWithCap(addAi.AIToolsContent, toolLog, AIChatStorageSetting.Current.ToolsLogMaxLength);
-                            if (aiapp.IsToolLog)
-                            {
-                                await signalRMsgService.SendIdentityIdMsg("aIToolsContentMsg", add.Id.ToString(), toolLog);
-                            }
-                        },
-                        ReasoningStreameCallback = async (msg) =>
-                        {
-                            var reasoningLog = StringHelper.SubstringText(msg, aiapp.ContentLengthLimit);
-                            addAi.AIReasoningContent = AppendWithCap(addAi.AIReasoningContent, reasoningLog, AIChatStorageSetting.Current.ReasoningLogMaxLength);
-                            if (aiapp.IsThinkingLog)
-                            {
-                                await signalRMsgService.SendIdentityIdMsg("aIReasoningContentMsg", add.Id.ToString(), reasoningLog);
-                            }
-                        },
-                    }, chatAgOs, mgs, cancellationToken: cancellationToken));
-                    addAi.Content = ShrinkForDb(reslut.Item2, AIChatStorageSetting.Current.AnswerContentMaxLength);
-                    if (reslut.Item3 != default)
-                    {
-                        addAi.CachedInputTokenCount = reslut.Item3.CachedInputTokenCount;
-                        addAi.InputTokenCount = reslut.Item3.InputTokenCount;
-                        addAi.OutputTokenCount = reslut.Item3.OutputTokenCount;
-                        addAi.TotalTokenCount = reslut.Item3.TotalTokenCount;
-                        addAi.ReasoningTokenCount = reslut.Item3.ReasoningTokenCount;
-                    }
-                    break;
-            }
+            // 两条记录都先按“失败”落库（重试中则记 2），拿到回复后才改回成功：RAG/文件/联网/模型/入库任一环节异常
+            // （包括没人接的 500），这条提问都已经是一条带失败原因的可重试记录，
+            // 不会再像以前那样 Add(add) 排在模型调用之后、一失败就整轮查无此事
+            var initialStatus = retryCount > 0 ? AIChatHistorysSendStatusEnums.Retrying : AIChatHistorysSendStatusEnums.Fail;
+            add.SendStatus = initialStatus;
+            add.FailReason = SendInterruptedReason;
+            addAi.SendStatus = initialStatus;
+            addAi.FailReason = SendInterruptedReason;
             aIChatHistorysRp.Add(add);
             await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
+            AISetting? aiSetting = default;
+            try
+            {
+                string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
+                await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = systemPrompt, LogType = AIChatHistorysBindLogEnums.SystemPrompt });
+                List<string> OtherContents = new List<string>();
+
+                if (aiapp.KmsId != default)
+                {
+                    var ksmData = await KmsRag(add, aiapp, addAi);
+                    if (ksmData.Count > 0)
+                    {
+                        OtherContents.AddRange(ksmData);
+                    }
+                }
+                _aIShareInfoService.InitData(new AIShareInfoDto
+                {
+                    AIAppsId = aiapp.Id,
+                    AIChatsId = add.AIChatsId,
+                    UserId = CurrentUser.UserId,
+                    UserName = CurrentUser.UserName,
+                    TenantId = CurrentUser.TenantId,
+                    AuthorizedDomains = aiapp.AuthorizedDomains,
+                    ContentLengthLimit = aiapp.ContentLengthLimit,
+                    IsSecurityIntercept = aiapp.IsSecurityIntercept,
+                    ChatMessageLimit = aiapp.ChatMessageLimit
+                });
+                #region 文件处理
+
+                var ImgUrls = new List<string>();
+                var aiFilData = await AIFileUrlsHandle(add, aiapp, addAi);
+                if (aiFilData.Item1.Count > 0)
+                    OtherContents.AddRange(aiFilData.Item1);
+
+                if (aiFilData.Item2.Count > 0)
+                    ImgUrls.AddRange(aiFilData.Item2);
+
+                #endregion
+
+                #region 联网搜索
+                if (par.IsOnlineSearch)
+                {
+                    await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在联网搜索....");
+                    var http = new HttpClientFunction(aIAgentService, _serviceProvider);
+                    var webseoData = await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey);
+                    await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = webseoData, LogType = AIChatHistorysBindLogEnums.WebSeo });
+                    OtherContents.Add(StringHelper.SubstringText(webseoData, aiapp.ContentLengthLimit));
+                }
+                #endregion
+                // 按提问Token预算裁剪补充上下文，确保输入总量不超过模型的上下文窗口预算（模型配置的MaxAskPromptSize）
+                OtherContents = TrimContentsByAskTokenBudget(OtherContents, systemPrompt, add.Content, aIModels.MaxAskPromptSize, aIModels.AnswerTokens);
+                // 空输入保护：模型的输入长度区间是双边的（如 “Range of input length should be [1, N]”），正文、上下文、图片全为空时输入长度为 0，同样会被模型直接拒掉，
+                // 这里按业务异常提前拦下，让前端拿到可读提示而不是模型报错
+                if (string.IsNullOrWhiteSpace(add.Content) && OtherContents.Count == 0 && ImgUrls.Count == 0)
+                {
+                    throw new UserFriendlyException("请输入要咨询的内容（或上传可解析的文件）后再发送。");
+                }
+                ChatMessage mgs = new(ChatRole.User, [new TextContent($"{add.Content}"),
+                        .. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(),
+                        .. ImgUrls.Where(t => !string.IsNullOrEmpty(t)).Select(url => DataContent.LoadFromAsync(FileHelper.GetRemoteFileStreamAsync(url).Result).Result).ToList()]);
+                var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par);
+                switch (aIModels.AIType)
+                {
+                    case Domain.Share.Enums.AIType.OpenAI:
+                    case Domain.Share.Enums.AIType.ZhiPuAI:
+                    case Domain.Share.Enums.AIType.AzureOpenAI:
+                    default:
+                        await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在结合相关信息思考....");
+                        aiSetting = new AISetting
+                        {
+                            AIUrl = aIModels.EndPoint,
+                            AIKeySecret = aIModels.ModelKey,
+                            AIDefaultModel = aIModels.ModelName,
+                            IsStreame = aiapp.MsgType == 2,
+                            IsHttpLog = aiapp.IsHttpLog,
+                            MaxRetries = aiapp.MaxRetries,
+                            NetworkTimeout = aiapp.NetworkTimeout,
+                            IsAISkills = aiapp.IsSkill,
+                            IsAITools = aiapp.IsAITools,
+                            IsMcpTools = aiapp.IsMcp,
+                            IsMemory = aiapp.IsMemory,
+                            FallbackModels = fallbackModels,
+                            StreameCallback = async (msg) =>
+                            {
+                                await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
+                            },
+                            ToolStreameCallback = async (msg) =>
+                            {
+                                // 单条事件按智能体内容长度上限截断后累加，同时整个字段封顶：
+                                // 一次几十万字的工具输出不能把整行记录撑到 MySQL 无法写入
+                                var toolLog = StringHelper.SubstringText(msg, aiapp.ContentLengthLimit);
+                                addAi.AIToolsContent = AppendWithCap(addAi.AIToolsContent, toolLog, AIChatStorageSetting.Current.ToolsLogMaxLength);
+                                if (aiapp.IsToolLog)
+                                {
+                                    await signalRMsgService.SendIdentityIdMsg("aIToolsContentMsg", add.Id.ToString(), toolLog);
+                                }
+                            },
+                            ReasoningStreameCallback = async (msg) =>
+                            {
+                                var reasoningLog = StringHelper.SubstringText(msg, aiapp.ContentLengthLimit);
+                                addAi.AIReasoningContent = AppendWithCap(addAi.AIReasoningContent, reasoningLog, AIChatStorageSetting.Current.ReasoningLogMaxLength);
+                                if (aiapp.IsThinkingLog)
+                                {
+                                    await signalRMsgService.SendIdentityIdMsg("aIReasoningContentMsg", add.Id.ToString(), reasoningLog);
+                                }
+                            },
+                        };
+                        var reslut = (await aIAgentService.CreateOpenAIAgentAndSendMSG(aiSetting, chatAgOs, mgs, cancellationToken: cancellationToken));
+                        addAi.Content = ShrinkForDb(reslut.Item2, AIChatStorageSetting.Current.AnswerContentMaxLength);
+                        if (reslut.Item3 != default)
+                        {
+                            addAi.CachedInputTokenCount = reslut.Item3.CachedInputTokenCount;
+                            addAi.InputTokenCount = reslut.Item3.InputTokenCount;
+                            addAi.OutputTokenCount = reslut.Item3.OutputTokenCount;
+                            addAi.TotalTokenCount = reslut.Item3.TotalTokenCount;
+                            addAi.ReasoningTokenCount = reslut.Item3.ReasoningTokenCount;
+                        }
+                        // 模型层的异常已经被转成“❌ 友好文案”当正文返回，HTTP 仍是 200，
+                        // 只能靠 AISetting.LastError 区分“真回复”与“报错文案”，否则这条记录会被当成成功、永远出不来重试按钮
+                        var sendFail = aiSetting.LastError != default;
+                        addAi.FailReason = sendFail ? BuildFailReason(aiSetting.LastError!, aiSetting, add.RetryCount) : null;
+                        SetSendStatus(add, addAi, sendFail, addAi.FailReason);
+                        break;
+                }
+            }
+            catch (UserFriendlyException)
+            {
+                // 业务类错误（内容为空、重试目标不存在等）仍按 HTTP 400 交给前端弹窗处理：
+                // 把提前落库的提问一并软删，效果等同于改造前的“整条都没写进去”
+                await DropEarlyMessages(add);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                // 非业务异常（模型客户端构造失败、上下文处理报错、客户端中止等）：以失败态收尾并正常返回，
+                // 让前端当场就能在提问上重试并看到报错，而不是只弹一条 message.error 后刷新就什么都看不到了
+                var failReason = BuildFailReason(ex, aiSetting, add.RetryCount);
+                await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "发送失败，可点红色按钮重试");
+                SetSendStatus(add, addAi, true, failReason);
+                aIChatHistorysRp.Add(addAi);
+                // 这里不能用 cancellationToken：客户端中止进来时它已被置位，用它写库会直接抛回异常
+                await aIChatHistorysRp.SaveChangesAsync(CancellationToken.None);
+                var failData = addAi.MapTo<AIChatHistorysDto>();
+                failData.aIChatHistorysBindLogs = await _aIChatHistorysBindLogService.GetByIds(new List<long> { addAi.Id });
+                return failData;
+            }
             var logdata = await _aIChatHistorysBindLogService.GetByIds(new List<long> { addAi.Id });
             aIChatHistorysRp.Add(addAi);
             await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
@@ -363,6 +429,72 @@ namespace kevin.Application.Services.AI
             var data = addAi.MapTo<AIChatHistorysDto>();
             data.aIChatHistorysBindLogs = logdata;
             return data;
+        }
+
+        /// <summary>
+        /// 提问落库时的默认失败原因：本轮收尾若仍是这个值，说明连回复都来得及产出（异常没人接住或进程被中断）
+        /// </summary>
+        private const string SendInterruptedReason = "发送中断：未收到模型回复，可点击重试";
+
+        /// <summary>
+        /// 失败原因入库长度上限：诊断文本不需要 longtext 的完整体积，也要给整行 INSERT 留出余量
+        /// </summary>
+        private const int FailReasonMaxLength = 2000;
+
+        /// <summary>
+        /// 设置一轮问答（提问行 + 回复行）的发送状态：两条保持一致，前端在哪一条上展示报错和重试入口都能对上
+        /// </summary>
+        private static void SetSendStatus(TAIChatHistorys add, TAIChatHistorys addAi, bool isFail, string? failReason)
+        {
+            var status = isFail ? AIChatHistorysSendStatusEnums.Fail : AIChatHistorysSendStatusEnums.Success;
+            add.SendStatus = status;
+            add.FailReason = failReason;
+            addAi.SendStatus = status;
+            addAi.FailReason = failReason;
+        }
+
+        /// <summary>
+        /// 组装入库并展示的失败原因：异常类型 + 消息 + 实际使用的模型与尝试次数
+        /// <para>
+        /// Auto 模式下异常可能已跨过好几个备选模型（<see cref="AISetting.AIDefaultModel"/> 保存的是最后一次尝试的模型），
+        /// 光看正文里的“❌ …”无法定位是哪个模型报的错，这里把上下文一起存下来。
+        /// </para>
+        /// </summary>
+        private static string BuildFailReason(Exception ex, AISetting? aiSetting, int retryCount)
+        {
+            if (ex is OperationCanceledException)
+            {
+                return "发送已中止（客户端取消或请求超时）";
+            }
+            var detail = $"{ex.GetType().Name}: {ex.InnerException?.Message ?? ex.Message}";
+            if (aiSetting != default)
+            {
+                detail += $"｜模型：{aiSetting.AIDefaultModel}｜本次尝试 {aiSetting.AttemptCount} 次";
+            }
+            if (retryCount > 0)
+            {
+                detail += $"｜已是第 {retryCount + 1} 次发送";
+            }
+            return StringHelper.SubstringText(detail, FailReasonMaxLength, "...");
+        }
+
+        /// <summary>
+        /// 业务类异常时把提前落库的提问软删，保证“前端弹提示 + 库里不留半截数据”和改造前一致。
+        /// <para>固定不用请求的 CancellationToken：中止场景下它已被置位，用它写库会直接抛回异常。</para>
+        /// </summary>
+        private async Task DropEarlyMessages(TAIChatHistorys add)
+        {
+            try
+            {
+                add.IsDelete = true;
+                add.DeleteTime = DateTime.Now;
+                add.FailReason = null;
+                await aIChatHistorysRp.SaveChangesAsync(CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.logger.Error("回滚提前落库的聊天提问记录失败:", ex);
+            }
         }
 
         /// <summary>

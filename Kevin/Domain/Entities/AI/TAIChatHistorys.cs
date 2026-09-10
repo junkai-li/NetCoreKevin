@@ -1,4 +1,6 @@
-﻿namespace kevin.Domain.Entities.AI
+﻿using kevin.Domain.Share.Enums;
+
+namespace kevin.Domain.Entities.AI
 {
     /// <summary>
     /// 聊天记录
@@ -78,5 +80,26 @@
         /// </remarks>
         [Description("“推理”/“思考”token数量")]
         public long? ReasoningTokenCount { get; set; }
+
+        /// <summary>
+        /// 发送状态：0.正常 1.失败(可重试) 2.重试中
+        /// <para>
+        /// 失败不再由模型层吞掉转成正文，而是显式落库，前端据此在提问气泡上给出重试入口
+        /// </para>
+        /// </summary>
+        [Description("发送状态 0.正常 1.失败可重试 2.重试中")]
+        public AIChatHistorysSendStatusEnums SendStatus { get; set; } = AIChatHistorysSendStatusEnums.Success;
+
+        /// <summary>
+        /// 失败原因（异常类型+消息，仅 <see cref="SendStatus"/> 非正常时有值）
+        /// </summary>
+        [Description("失败原因")]
+        public String? FailReason { get; set; }
+
+        /// <summary>
+        /// 该提问已重试次数，用于前端提示“第几次重试仍失败”，并避免无限重试
+        /// </summary>
+        [Description("已重试次数")]
+        public int RetryCount { get; set; }
     }
 }

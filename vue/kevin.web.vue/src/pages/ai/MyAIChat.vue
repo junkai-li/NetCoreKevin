@@ -109,7 +109,11 @@
             }"
           >
             <div class="message-avatar" :class="{ 'avatar-ai': message.isSend === false, 'avatar-user': message.isSend === true }">
-              <UserOutlined v-if="message.isSend === true" />
+              <!-- antd 图标集里没有实心人像（只有细线条的 UserOutlined），小尺寸下发虚，所以自己画一个填充式头像 -->
+              <svg v-if="message.isSend === true" class="avatar-user-glyph" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="7" r="4" fill="currentColor" />
+                <path d="M3.6 20.2c0-4.3 3.77-7.2 8.4-7.2s8.4 2.9 8.4 7.2z" fill="currentColor" />
+              </svg>
               <div v-else class="ai-robot-mini">
                 <div class="robot-head-mini">
                   <div class="robot-eye-left-mini"></div>
@@ -122,9 +126,52 @@
               </div>
             </div>
             <div class="message-content">
-              <!-- 非语音模式：文字正常显示 -->
-              <div class="message-text" v-if="message.isSend === false && !isVoiceMode" v-html="message.content"></div>
-              <div class="message-text" v-else-if="message.isSend === true" v-html="message.content"></div>
+              <!-- 气泡和复制键包成一行：复制键以气泡为锚点（用户挂左侧、AI 挂右上），不会被同列里更宽的元素甩开 -->
+              <div class="message-bubble-line">
+                <!-- 非语音模式：文字正常显示 -->
+                <div class="message-text" v-if="message.isSend === false && !isVoiceMode" v-html="message.content"></div>
+                <div class="message-text" v-else-if="message.isSend === true" v-html="message.content"></div>
+                <!-- 工具条：默认每个图标 hover 才出现，失败时的 ⚠ / ⟳ 另外常显（见 MyAIChat.css） -->
+                <div class="message-actions">
+                  <a-button
+                    type="text"
+                    size="small"
+                    @click="copyMessageContent(message.content)"
+                    class="copy-button">
+                    <template #icon>
+                      <CopyOutlined />
+                    </template>
+                  </a-button>
+                  <a-tooltip
+                    v-if="isMsgFailed(message)"
+                    :title="`发送失败：${failReasonBrief(message.failReason, 140)}`"
+                    :overlay-style="{ maxWidth: '420px' }">
+                    <a-button
+                      type="text"
+                      danger
+                      size="small"
+                      class="fail-detail-button"
+                      @click="showFailDetail(message)">
+                      <template #icon>
+                        <ExclamationCircleFilled />
+                      </template>
+                    </a-button>
+                  </a-tooltip>
+                  <a-tooltip v-if="isMsgFailed(message)" :title="retryTitle(message)">
+                    <a-button
+                      type="text"
+                      danger
+                      size="small"
+                      class="retry-button"
+                      :loading="retryingMsgId === message.id"
+                      @click="retryMessage(message)">
+                      <template #icon>
+                        <RedoOutlined />
+                      </template>
+                    </a-button>
+                  </a-tooltip>
+                </div>
+              </div>
               <!-- AI 语音条 -->
               <div
                 v-if="isVoiceMode && message.isSend === false && message.content"
@@ -181,20 +228,10 @@
                   </div>
                 </a-collapse-panel>
               </a-collapse>
-              <div class="message-actions">
-                <a-button
-                  type="text"
-                  size="small"
-                  @click="copyMessageContent(message.content)"
-                  class="copy-button">
-                  <template #icon>
-                    <CopyOutlined />
-                  </template>
-                </a-button>
-              </div>
               <div class="message-time">
                 {{ formatTime(message.createdAt) }}
                 <span v-if="message.totalTokenCount" class="token-count">消耗: {{ formatTokenCount(message.totalTokenCount) }} tokens</span>
+                <span v-if="tokenDetail(message)" class="token-count token-detail">{{ tokenDetail(message) }}</span>
               </div>
             </div>
           </div>
@@ -552,7 +589,6 @@
 import { ref, onMounted, nextTick, watch, h, onUnmounted, computed } from "vue";
 import {
   PlusOutlined,
-  UserOutlined,
   RobotOutlined,
   MessageOutlined,
   DeleteOutlined,
@@ -566,6 +602,8 @@ import {
   CheckCircleFilled,
   InfoCircleFilled,
   PhoneOutlined,
+  RedoOutlined,
+  ExclamationCircleFilled,
 } from "@ant-design/icons-vue";
 import FileUpload from "../../components/FileUpload.vue";
 import { message, Modal, Select } from "ant-design-vue";
@@ -609,6 +647,8 @@ const expandedReasoning = ref(false);
 const expandedTools = ref(false);
 const lastSentMessage = ref("");
 const lastSentMessageId = ref(null);
+// 正在重试的那条提问Id：用于红色按钮的 loading 态，并挡住重复点击
+const retryingMsgId = ref(null);
 let abortController = null;
 
 // 文件上传相关
@@ -2276,13 +2316,17 @@ const loadChatHistory = async (chatId, page) => {
         fileNames: item.fileNames || '',
         contentFileUrls: item.contentFileUrls || '',
         aIChatHistorysBindLogs: item.aIChatHistorysBindLogs || [],
+        // dbId 是服务端那条提问的主键，重试时作为 retryOfId 回传（本地新发的消息用列表 key，两者分开）
+        dbId: item.id,
+        sendStatus: item.sendStatus ?? 0,
+        failReason: item.failReason || '',
+        retryCount: item.retryCount || 0,
         createdAt: item.createTime || new Date().toISOString(),
-        cachedInputTokenCount: item.cachedInputTokenCount || 0,
-         InputTokenCount: item.InputTokenCount || 0,
-         OutputTokenCount: item.OutputTokenCount || 0,
-         cachedOutputTokenCount: item.cachedOutputTokenCount || 0,
-         totalTokenCount: item.totalTokenCount || 0,
-         reasoningTokenCount: item.reasoningTokenCount || 0,
+        cachedInputTokenCount: item.cachedInputTokenCount || 0, 
+        inputTokenCount: item.inputTokenCount || 0,
+        outputTokenCount: item.outputTokenCount || 0,
+        totalTokenCount: item.totalTokenCount || 0,
+        reasoningTokenCount: item.reasoningTokenCount || 0,
       }));
 
       // 如果是第一页，直接替换消息列表，否则添加到列表开头（历史消息在前）
@@ -2361,18 +2405,6 @@ const handlePressEnter = (e) => {
 const sendMessage = async () => {
   if (!newMessage.value.trim() || isSending.value) return;
   const messageToSend = newMessage.value.trim();
-  isSending.value = true;
-  userStoppedSending = false; // 重置停止标志，允许自动播放
-  expandedReasoning.value = false;
-  expandedTools.value = false;
-  currentReceivingMsgId.value = null;
-  aimessage.value='正在思考....'
-  aimessage2.value='';
-  aIToolsContentMsg.value='';
-  aIReasoningContentMsg.value='';
-  lastSentMessage.value = messageToSend;
-  abortController = new AbortController();
-
   const currentFileNames = [...pendingFileNames.value];
   const currentFileUrls = [...pendingFileUrls.value];
   clearUploadedFiles();
@@ -2383,21 +2415,101 @@ const sendMessage = async () => {
      // 滚动到底部以显示最新内容
         scrollToBottom();
   });
- const snowflakeId = (await GetSnowflakeId()).data;
+
+  // 添加用户消息到列表：发送失败时就地变成“可重试”，不再像以前那样只弹一条提示就什么都不剩
+  const userMessage = {
+    id: Date.now(),
+    conversationId: activeConversationId.value,
+    isSend: true,
+    content: messageToSend,
+    fileNames: currentFileNames.join(','),
+    contentFileUrls: currentFileUrls.join(','),
+    totalTokenCount: 0,
+    createdAt: new Date().toISOString(),
+    dbId: null,
+    sendStatus: 0,
+    failReason: '',
+    retryCount: 0,
+  };
+  messages.value.push(userMessage);
+  await postChatMessage(userMessage, {
+    content: messageToSend,
+    fileNames: currentFileNames,
+    contentFileUrls: currentFileUrls,
+  });
+};
+
+// 重试：仍走 Add 接口，靠 retryOfId 让服务端废弃上次失败的问答并累加重试次数，链路和首发完全一致
+const retryMessage = async (failed) => {
+  if (isSending.value || retryingMsgId.value) return;
+  const target = messages.value.find((m) => m.id === failed.id);
+  if (!target) return;
+  // 先本地占位成“重试中”，挡住连点；最终状态以服务端返回为准
+  target.sendStatus = 2;
+  target.failReason = '';
+  // 上次失败留下的那条回复（多半是“❌ …”文案）先摘掉，避免同一个问题下挂着两条回复
+  if (target.aiMsgId) {
+    const aiIndex = messages.value.findIndex((m) => m.id === target.aiMsgId);
+    if (aiIndex !== -1) {
+      messages.value.splice(aiIndex, 1);
+    }
+    target.aiMsgId = null;
+  }
+  retryingMsgId.value = target.id;
   try {
-    // 添加用户消息到列表
-    const userMessage = {
-      id: Date.now(),
-      conversationId: activeConversationId.value,
-      isSend: true,
-      content: messageToSend,
-      fileNames: currentFileNames.join(','),
-      contentFileUrls: currentFileUrls.join(','),
-      totalTokenCount: 0,
-      createdAt: new Date().toISOString(),
-    };
-    lastSentMessageId.value = userMessage.id;
-    messages.value.push(userMessage);
+    await postChatMessage(target, {
+      content: target.content,
+      fileNames: (target.fileNames || '').split(',').filter(Boolean),
+      contentFileUrls: (target.contentFileUrls || '').split(',').filter(Boolean),
+      retryOfId: target.dbId || target.id,
+    });
+  } finally {
+    retryingMsgId.value = null;
+  }
+};
+
+// 只有提问气泡上给重试入口：sendStatus 1/2 来自库里，请求层就没通的由本地补上
+const isMsgFailed = (msg) =>
+  msg.isSend === true && (msg.sendStatus === 1 || msg.sendStatus === 2);
+
+// 工具条上只塞得下一两句：默认截到 60 字，tooltip 里给得宽一点（传 140），全文靠弹窗
+const failReasonBrief = (reason, max = 60) => {
+  if (!reason) return '未获取到具体报错信息';
+  return reason.length > max ? reason.substring(0, max) + '...' : reason;
+};
+
+const showFailDetail = (msg) => {
+  showDetailModal('发送失败详情', msg.failReason || '未获取到具体报错信息');
+};
+
+// 重试按钮只剩图标，文案提示改由 tooltip 承载
+const retryTitle = (msg) =>
+  msg.retryCount > 0 ? `已重试 ${msg.retryCount} 次，点击再次重试` : '发送失败，点击重试';
+
+/**
+ * 新发送与重试共用的发送实现：userMessage 必须已在 messages 中，本函数只就地更新它的
+ * sendStatus/failReason，保证任意一层出错都能在那条提问上留下一个可点的红色重试按钮。
+ */
+const postChatMessage = async (userMessage, par) => {
+  const { content, fileNames = [], contentFileUrls = [], retryOfId = 0 } = par;
+  isSending.value = true;
+  userStoppedSending = false; // 重置停止标志，允许自动播放
+  expandedReasoning.value = false;
+  expandedTools.value = false;
+  currentReceivingMsgId.value = null;
+  aimessage.value='正在思考....'
+  aimessage2.value='';
+  aIToolsContentMsg.value='';
+  aIReasoningContentMsg.value='';
+  lastSentMessage.value = content;
+  lastSentMessageId.value = userMessage.id;
+  abortController = new AbortController();
+
+  let snowflakeId = null;
+  try {
+    snowflakeId = (await GetSnowflakeId()).data;
+    // Add 就把这个雪花Id当作提问记录的主键落库，下次重试时拿它当 retryOfId
+    userMessage.dbId = snowflakeId;
      // 滚动到底部以显示最新内容
         scrollToBottom();
          //监听流式输出
@@ -2406,42 +2518,17 @@ const sendMessage = async () => {
       startStreamingTTS();
     }
     getAiMySignalRHubMsg(snowflakeId);
-    var reulst;
-    try {
-      reulst = await addAIChatHistorys({
-        aIChatsId: activeConversationId.value,
-        id:snowflakeId,
-        content: messageToSend,
-        isOnlineSearch: isOnlineSearch.value,
-        fileNames: currentFileNames.join(','),
-        contentFileUrls: currentFileUrls.join(',')
-      }, abortController.signal);
-    } catch (error) {
-      if (error.name === 'AbortError' || error.name === 'CanceledError' || error.message?.includes('cancel')) {
-        message.info('已中止发送');
-        stopAiMySignalRHubMsg(snowflakeId);
-        isSending.value = false;
-        restoreUploadedFiles();
-        return;
-      }
-      const errorMsg = error.message || '';
-      if (errorMsg.includes('聊天记录已达上限')) {
-        Modal.confirm({
-          title: '提示',
-          content: '聊天记录已达上限，为了更好的体验，请新建对话？',
-          okText: '新建对话',
-          cancelText: '取消',
-          onOk: () => {
-            showAgentSelectionModal(activeConversation.value?.appId);
-          }
-        });
-      } else {
-        message.error(errorMsg || "发送失败");
-      }
-      stopAiMySignalRHubMsg(snowflakeId);
-      isSending.value = false;
-      restoreUploadedFiles();
-      return;
+    const reulst = await addAIChatHistorys({
+      aIChatsId: activeConversationId.value,
+      id:snowflakeId,
+      content: content,
+      isOnlineSearch: isOnlineSearch.value,
+      fileNames: fileNames.join(','),
+      contentFileUrls: contentFileUrls.join(','),
+      retryOfId: retryOfId,
+    }, abortController.signal);
+    if (reulst?.code !== 200 || !reulst?.data) {
+      throw new Error(reulst?.errMsg || '发送失败');
     }
     scrollToBottom();
     lastSentMessage.value = "";
@@ -2451,28 +2538,37 @@ const sendMessage = async () => {
       (c) => c.id === activeConversationId.value
     );
     if (conversation) {
-      conversation.lastMessage = messageToSend;
+      conversation.lastMessage = content;
       conversation.updatedAt = new Date().toISOString();
       if (!conversation.title) {
         conversation.title =
-          messageToSend.substring(0, 20) + (messageToSend.length > 20 ? "..." : "");
+          content.substring(0, 20) + (content.length > 20 ? "..." : "");
       }
     }
+    const data = reulst.data;
+    // 模型层的异常被转成“❌ …”正文后仍是 HTTP 200，只能靠 sendStatus 区分“真回复”和“报错”
+    const sendFail = data.sendStatus === 1 || data.sendStatus === 2;
+    userMessage.sendStatus = sendFail ? 1 : 0;
+    userMessage.failReason = data.failReason || '';
+    userMessage.retryCount = data.retryCount || 0;
     const aiMessage = {
-      id: reulst.data.id,
+      id: data.id,
       conversationId: activeConversationId.value,
-      isSend: reulst.data.isSend,
-      content: reulst.data.content,
-      aiToolsContent: reulst.data.aiToolsContent,
-      aiReasoningContent: reulst.data.aiReasoningContent,
-      createdAt: reulst.data.createTime,
-      aIChatHistorysBindLogs: reulst.data.aIChatHistorysBindLogs || [],
-      cachedInputTokenCount: reulst.data.cachedInputTokenCount || 0,
-       InputTokenCount: reulst.data.InputTokenCount || 0,
-       OutputTokenCount: reulst.data.OutputTokenCount || 0,
-       cachedOutputTokenCount: reulst.data.cachedOutputTokenCount || 0,
-       totalTokenCount: reulst.data.totalTokenCount || 0,
-       reasoningTokenCount: reulst.data.reasoningTokenCount || 0,
+      isSend: data.isSend,
+      content: data.content,
+      aiToolsContent: data.aiToolsContent,
+      aiReasoningContent: data.aiReasoningContent,
+      createdAt: data.createTime,
+      aIChatHistorysBindLogs: data.aIChatHistorysBindLogs || [],
+      cachedInputTokenCount: data.cachedInputTokenCount || 0,
+      inputTokenCount: data.inputTokenCount || 0,
+      outputTokenCount: data.outputTokenCount || 0,
+      totalTokenCount: data.totalTokenCount || 0,
+      reasoningTokenCount: data.reasoningTokenCount || 0,
+      dbId: data.id,
+      sendStatus: sendFail ? 1 : 0,
+      failReason: data.failReason || '',
+      retryCount: data.retryCount || 0,
     };
     if (aiMessage.aiReasoningContent) {
       expandedReasoning.value = true;
@@ -2481,6 +2577,8 @@ const sendMessage = async () => {
       expandedTools.value = true;
     }
     messages.value.push(aiMessage);
+    // 记下配对关系，重试时能精确把这次失败的回复换掉
+    userMessage.aiMsgId = aiMessage.id;
     currentReceivingMsgId.value = aiMessage.id;
     isSending.value = false;
     
@@ -2496,23 +2594,43 @@ const sendMessage = async () => {
     }
     
     scrollToBottom();
-    // 语音模式下：完成流式播放剩余内容，或常规播放
-    if (isVoiceMode.value) {
+    // 语音模式下：完成流式播放剩余内容，或常规播放（报错文案不播报）
+    if (isVoiceMode.value && !sendFail) {
       finishStreamingTTS(streamedText, lastAiMsg?.id);
     }
   } catch (error) {
-    if (error.name === 'AbortError' || error.name === 'CanceledError' || error.message?.includes('cancel')) {
-      message.info('已中止发送');
-      stopAiMySignalRHubMsg(snowflakeId);
-      isSending.value = false;
-      restoreUploadedFiles();
-      return;
-    }
     stopAiMySignalRHubMsg(snowflakeId);
-    console.error("发送消息失败:", error);
-    message.error("发送消息失败");
+    const aborted = error.name === 'AbortError' || error.name === 'CanceledError' || error.message?.includes('cancel');
+    let errorMsg = '';
+    if (aborted) {
+      errorMsg = '发送已中止（客户端取消或请求超时）';
+      message.info('已中止发送');
+    } else {
+      errorMsg = error.message || '';
+      if (errorMsg.includes('聊天记录已达上限')) {
+        Modal.confirm({
+          title: '提示',
+          content: '聊天记录已达上限，为了更好的体验，请新建对话？',
+          okText: '新建对话',
+          cancelText: '取消',
+          onOk: () => {
+            showAgentSelectionModal(activeConversation.value?.appId);
+          }
+        });
+      } else {
+        console.error("发送消息失败:", error);
+        message.error(errorMsg || "发送失败");
+      }
+    }
+    // 中止、断网、400、500 都当场把这条提问标成失败：不依赖服务端有没有已经落库，
+    // 用户都能直接点红色按钮重试（服务端找不到 retryOfId 时会退回成一次普通发送）
+    userMessage.sendStatus = 1;
+    userMessage.failReason = errorMsg || '发送失败，请检查网络后重试';
+    // 重试的附件已经挂在那条提问上，再回填上传区会重复
+    if (!retryOfId) {
+      restoreUploadedFiles();
+    }
     isSending.value = false;
-    restoreUploadedFiles();
   }
 };
 
@@ -2555,6 +2673,11 @@ var connectionServer=null;
 let connectionTimeout = null;
 
 const getAiMySignalRHubMsg=(id)=>{
+  // 每次发送都会新建一条 HubConnection，先把上一条停掉释放，否则重试几次就攒出一堆泄漏的连接
+  if (connectionServer) {
+    connectionServer.stop();
+    connectionServer = null;
+  }
    connectionServer=new signalR.HubConnectionBuilder().withUrl(`${process.env.VUE_APP_API_BASE_URL}/api/MySignalRHub?IdentityId=${id}&Authorization=${localStorage.getItem('token')}`,{
 
     headers: {
@@ -2596,7 +2719,7 @@ connectionServer.on('aIToolsContentMsg', (msg) => {
     // 实现逐字显示效果
     aIToolsContentMsg.value+=msg;
      // 滚动到底部以显示最新内容
-     if (aIToolsContentMsg.length<350) {
+     if (aIToolsContentMsg.value.length<350) {
      scrollToBottom();
     }
   });
@@ -2608,7 +2731,7 @@ connectionServer.on('aIReasoningContentMsg', (msg) => {
     // 实现逐字显示效果
     aIReasoningContentMsg.value+=msg;
        // 滚动到底部以显示最新内容
-     if (aIReasoningContentMsg.length<350) {
+     if (aIReasoningContentMsg.value.length<350) {
      scrollToBottom();
     }
   });
@@ -2627,6 +2750,8 @@ const stopAiMySignalRHubMsg=(id)=>{
     connectionTimeout = null;
   }
   connectionServer?.stop();
+  // 置空引用：stop() 之后旧连接不应该再被任何地方拿到
+  connectionServer = null;
 }
 
 const stopMessage = () => {
@@ -2646,11 +2771,15 @@ const stopMessage = () => {
   staticSentenceIndex = 0;
   window.speechSynthesis.cancel();
   resetSpeakingState();
-  stopAiMySignalRHubMsg();
   // 保存已接收的流式AI回复内容到消息列表（中断撤回时也需要展示）
+  // 必须先取内容再停连接：stopAiMySignalRHubMsg 会把 aimessage2 清空，放在它后面等于永远存不下半截回复
   const streamedText = aimessage2.value;
   const streamedReasoning = aIReasoningContentMsg.value;
   const streamedTools = aIToolsContentMsg.value;
+  const pendingAsk = lastSentMessageId.value !== null
+    ? messages.value.find((m) => m.id === lastSentMessageId.value)
+    : null;
+  stopAiMySignalRHubMsg();
   if (streamedText || streamedReasoning || streamedTools) {
     const aiMessage = {
       id: Date.now(),
@@ -2661,23 +2790,23 @@ const stopMessage = () => {
       aiToolsContent: streamedTools || '',
       createdAt: new Date().toISOString(),
       totalTokenCount: 0,
+      dbId: null,
+      sendStatus: 1,
+      failReason: '',
+      retryCount: 0,
     };
     if (currentReceivingMsgId.value) {
       aiMessage.id = currentReceivingMsgId.value;
     }
     messages.value.push(aiMessage);
-  }
-  if (lastSentMessageId.value !== null) {
-    const index = messages.value.findIndex(m => m.id === lastSentMessageId.value);
-    if (index !== -1) {
-      messages.value.splice(index, 1);
+    if (pendingAsk) {
+      pendingAsk.aiMsgId = aiMessage.id;
     }
-    lastSentMessageId.value = null;
   }
-  if (lastSentMessage.value) {
-    newMessage.value = lastSentMessage.value;
-    lastSentMessage.value = "";
-  }
+  // 中止的提问不再从列表里抹掉、也不退回输入框：postChatMessage 的 catch 会把它标成失败态，
+  // 直接点那条上的红色按钮原地重试，和刷新后从库里读到的状态保持一致
+  lastSentMessageId.value = null;
+  lastSentMessage.value = "";
   isSending.value = false;
   aimessage.value='';
   aimessage2.value='';
@@ -2720,6 +2849,16 @@ const formatTokenCount = (count) => {
     return (count / 10000).toFixed(2) + "万";
   }
   return count.toString();
+};
+
+// token 明细：推理、缓存命中按官方定义分别已计入输出、输入里，所以只在有值时作为“含…”补充，避免整行挂满 0
+const tokenDetail = (msg) => {
+  const parts = [];
+  if (msg.inputTokenCount) parts.push(`输入 ${formatTokenCount(msg.inputTokenCount)}`);
+  if (msg.outputTokenCount) parts.push(`输出 ${formatTokenCount(msg.outputTokenCount)}`);
+  if (msg.reasoningTokenCount) parts.push(`含推理 ${formatTokenCount(msg.reasoningTokenCount)}`);
+  if (msg.cachedInputTokenCount) parts.push(`含缓存命中 ${formatTokenCount(msg.cachedInputTokenCount)}`);
+  return parts.length ? `（${parts.join(" / ")}）` : "";
 };
 
 // 监听消息变化，自动滚动到底部

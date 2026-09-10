@@ -1,4 +1,5 @@
 ﻿using kevin.Domain.Share.Dtos.Bases;
+using kevin.Domain.Share.Enums;
 using System.ComponentModel;
 
 namespace kevin.Domain.Share.Dtos.AI
@@ -99,5 +100,29 @@ namespace kevin.Domain.Share.Dtos.AI
         /// 相关日志记录
         /// </summary> 
         public List<AIChatHistorysBindLogDto> aIChatHistorysBindLogs { get; set; }= new List<AIChatHistorysBindLogDto>();
+
+        /// <summary>
+        /// 发送状态：0.正常 1.失败(可重试) 2.重试中
+        /// </summary>
+        [Description("发送状态 0.正常 1.失败可重试 2.重试中")]
+        public AIChatHistorysSendStatusEnums SendStatus { get; set; } = AIChatHistorysSendStatusEnums.Success;
+
+        /// <summary>
+        /// 失败原因，仅 <see cref="SendStatus"/> 非正常时有值
+        /// </summary>
+        [Description("失败原因")]
+        public String? FailReason { get; set; }
+
+        /// <summary>
+        /// 该提问已重试次数
+        /// </summary>
+        [Description("已重试次数")]
+        public int RetryCount { get; set; }
+
+        /// <summary>
+        /// 重试来源：前端点红色重试按钮时回传上次失败的提问记录Id，服务端据此废弃旧的失败问答并累加重试次数。
+        /// <para>不落库，仅作为 <c>Add</c> 的入参使用，为 0 表示这是一次普通发送。</para>
+        /// </summary>
+        public long RetryOfId { get; set; }
     }
 }

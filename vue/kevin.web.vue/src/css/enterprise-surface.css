@@ -233,7 +233,10 @@
   opacity: 1 !important;
 }
 
-.content-wrapper .message-avatar {
+/* 用户头像已改由 MyAIChat.css 的 .avatar-user 自带设计，这里用 :not() 排除它：
+   否则这条 !important 的白底灰边蓝图标会把它压回默认样子，再叠一层 !important 去抢不值得；
+   其他页面（如 MyMessages）里没带 .avatar-user 的 .message-avatar 仍沿用这套浅色面样式 */
+.content-wrapper .message-avatar:not(.avatar-user) {
   background: #fff !important;
   border-color: #d9d9d9 !important;
   color: #1677ff !important;
@@ -248,6 +251,8 @@
   color: rgba(0, 0, 0, 0.88) !important;
 }
 
+/* 气泡配色维持原样（形状/尖角见 MyAIChat.css 的 .message-text 一节；
+   尖角小三角的 solid 色是从下面两处取过来的，改这里的底色要同步改那边） */
 .content-wrapper .message-item.user-message .message-text {
   background: #1677ff !important;
   color: #fff !important;

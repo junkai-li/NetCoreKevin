@@ -463,6 +463,8 @@
 
 .message-item.user-message {
   align-self: flex-end;
+  /* 头像摆到气泡右边（row-reverse 反转行内顺序），气泡左边留给复制键 */
+  flex-direction: row-reverse;
 }
 
 .message-item.ai-message {
@@ -482,10 +484,31 @@
 }
 
 .avatar-user {
-  background: linear-gradient(135deg, #0066ff, #1677ff);
-  color: #fff;
-  border: 1.5px solid rgba(22, 119, 255, 0.5);
-  box-shadow: 0 0 12px rgba(0, 100, 255, 0.3);
+  /* 圆角方块（跟微信头像同一取形，也配得上刚改的微信风气泡），不再用正圆 */
+  border-radius: 11px;
+  /* 底色走主题变量：白内容区上铺一层斜向渐淡的品牌色，
+     避免跟右边实心蓝气泡糊成一整块蓝，切换主题时也能跟着换色 */
+  background-color: var(--content-surface, #fff);
+  background-image: linear-gradient(150deg, var(--accent-soft), rgba(255, 255, 255, 0) 68%);
+  color: var(--accent);
+  /* 原来那圈 1.5px 蓝边 + 12px 霓虹光晕在浅色面上发脏，换成中性发丝圈 + 极轻投影 */
+  border: none;
+  box-shadow: 0 0 0 1px rgba(15, 34, 66, 0.07), 0 2px 6px rgba(15, 34, 66, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
+}
+
+/* 鼠标移到整条消息上时头像轻轻抬起、颜色加深一档，代替原来常驻的光晕 */
+.message-item:hover .avatar-user {
+  transform: translateY(-1px);
+  color: var(--accent-hover);
+  box-shadow: 0 0 0 1px var(--accent-soft), 0 4px 10px rgba(15, 34, 66, 0.1);
+}
+
+/* 自己画的头像图形：靠 currentColor 接上面的文字色，尺寸留在这里统一调 */
+.avatar-user-glyph {
+  width: 20px;
+  height: 20px;
+  display: block;
 }
 
 .avatar-ai {
@@ -549,16 +572,25 @@
   max-width: 100%;
 }
 
+/* 气泡旁的工具条：AI 挂气泡右上角、用户挂气泡左侧外，绝对定位不占正文宽度 */
 .message-actions {
   position: absolute;
   top: 8px;
   right: 8px;
-  opacity: 0;
-  transition: opacity 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 2px;
   z-index: 1;
 }
 
-.message-content:hover .message-actions {
+/* 透明度只能按图标各自控制：父级 opacity: 0 会把整棵子树按死（子级写 opacity: 1 也没用），
+   那样就没法做到 ⚠ / ⟳ 常显、复制键 hover 才出现 */
+.message-actions > * {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.message-content:hover .message-actions > * {
   opacity: 1;
 }
 
@@ -570,9 +602,29 @@
   color: #00c8ff !important;
 }
 
+/* 用户消息右侧是头像，工具条挂到气泡左边：用 right: 100% 让整条按自己的图标数量往左长 */
+.message-item.user-message .message-actions {
+  right: 100%;
+  left: auto;
+  margin-right: 6px;
+}
+
+/* ============ 发送失败：只剩工具条上两个红色图标 ============ */
+/* ⚠ 悬停看报错摘要、点击弹完整详情；⟳ 重试。两个都是 type="text" + danger，
+   红色由 antd 的 colorError 统一给（hover 自动变浅红），风格跟旁边的复制键一致。
+   它们是失败的唯一入口，不 hover 也要在；比 .message-actions > * 多一个类，盖得住上面的默认值。
+   刻意不用 type="primary"：buttons.css 把 .layout-container .ant-btn-primary 的背景和边框
+   统一刷成主题色 --accent，红底白图标会被顶成蓝底白图标 */
+.message-actions > .fail-detail-button,
+.message-actions > .retry-button {
+  flex: none;
+  opacity: 1;
+}
+
 .message-text {
-  padding: 12px 16px;
-  border-radius: 16px;
+  position: relative; /* 给微信式尖角尾巴做定位参考 */
+  padding: 10px 14px;
+  border-radius: 8px;
   color: #e0e8ff;
   line-height: 1.6;
   white-space: pre-wrap;
@@ -584,24 +636,76 @@
   font-size: 14px;
 }
 
+/* 气泡单独包一行（.message-bubble-line）：.message-content 是 fit-content 的纵向 flex，
+   交叉轴默认 align-items: stretch，同列里只要有更宽的元素（失败块、带 token 明细的时间行）
+   就会把气泡一起拉宽，绝对定位的复制键也会跟着列边脱离气泡 */
+.message-bubble-line {
+  position: relative; /* 做复制键的定位锚点，让它始终贴着气泡而不是整列 */
+  display: inline-flex;
+  max-width: 100%;
+  align-self: flex-start;
+}
+
+/* 用户消息整行是 row-reverse，头像在气泡右边，所以气泡行靠右贴回头像 */
+.message-item.user-message .message-bubble-line {
+  align-self: flex-end;
+}
+
+/* 长 URL 这类不可断词不能撑破 flex 默认的 min-width: auto，否则整行会溢出 */
+.message-bubble-line > .message-text {
+  min-width: 0;
+}
+
+/* 语音转文字、流式回复这类直接挂在列下的气泡同理不被拉伸 */
+.message-content > .message-text {
+  align-self: flex-start;
+}
+
+/* ============ 微信风格：只改形状（小圆角 + 靠头像一侧压平带尖角），配色全部保持原样 ============ */
 .message-item.user-message .message-text {
   background: linear-gradient(135deg, #0066ff, #0088ff);
-  border-bottom-right-radius: 4px;
   box-shadow: 0 4px 15px rgba(0, 100, 255, 0.25);
+  /* 头像在气泡右边（整行 row-reverse），所以压的是右上角 */
+  border-top-right-radius: 2px;
 }
 
 .message-item.ai-message .message-text {
   background: none;
   border: none;
-  border-bottom-left-radius: 4px;
   color: rgba(255, 255, 255, 0.9);
   box-shadow: none;
+  border-top-left-radius: 2px;
 }
 
+/* 靠头像那一侧上沿的小三角。三角形只能给 solid 色、跟不了 background 自动走，
+   这里取项目里实际生效的气泡底色：enterprise-surface.css 用 .content-wrapper + !important
+   把用户气泡刷成 #1677ff、AI 气泡刷成 #f5f5f5，改那两处配色时要同步改这里 */
+.message-item.user-message .message-text::after,
+.message-item.ai-message .message-text::after {
+  content: '';
+  position: absolute;
+  top: 7px;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+
+.message-item.user-message .message-text::after {
+  right: -5px;
+  border-left: 5px solid #1677ff;
+}
+
+.message-item.ai-message .message-text::after {
+  left: -5px;
+  border-right: 5px solid #f5f5f5;
+}
+
+/* 流式输出中的回复沿用原来的透明气泡，只把压平的角从左下挪到左上 */
 .message-text-stream {
   background: none !important;
   border: none !important;
-  border-bottom-left-radius: 4px !important;
+  border-top-left-radius: 2px !important;
   color: rgba(255, 255, 255, 0.9) !important;
   animation: streamFadeIn 0.3s ease-out;
 }
@@ -640,14 +744,21 @@
   color: rgba(0, 0, 0, 0.45);
 }
 
+/* token 明细比总额再轻一档，并且贴在“tokens”后面，不另起一个 8px 间距 */
+.token-detail {
+  margin-left: 4px;
+  color: rgba(160, 190, 220, 0.45);
+}
+
 /* ============ 打字指示器 ============ */
 .typing-indicator {
   display: flex;
   align-items: center;
   padding: 12px 16px;
   background: rgba(20, 35, 70, 0.7);
-  border-radius: 16px;
-  border-bottom-left-radius: 4px;
+  /* 跟 AI 气泡同一套形状：小圆角 + 靠头像一侧压平 */
+  border-radius: 8px;
+  border-top-left-radius: 2px;
   border: 1px solid rgba(0, 200, 255, 0.1);
 }
 

@@ -73,6 +73,20 @@
         /// </summary>
         public List<AIFallbackModel> FallbackModels { get; set; } = new();
 
+        /// <summary>
+        /// 重试耗尽（或参数类错误直接失败）后的原始异常。
+        /// <para>
+        /// 模型异常仍会以友好文案流式输出，但调用方需要区分“正常回复”与“报错文案”，
+        /// 因此这里把异常本身带出去，由调用方落库为失败态并提供重试入口。
+        /// </para>
+        /// </summary>
+        public Exception? LastError { get; set; }
+
+        /// <summary>
+        /// 本次调用实际尝试次数（含首次），失败时用于展示“重试了几次仍失败”
+        /// </summary>
+        public int AttemptCount { get; set; } = 1;
+
     }
 
     /// <summary>
