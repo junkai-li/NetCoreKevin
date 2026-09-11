@@ -155,14 +155,12 @@ namespace kevin.Application.Services.AI
                 if (flieData != default && !string.IsNullOrEmpty(flieData.Url))
                 {
                     //拼接路径
-                    var pathCheck = Path.Combine(AppContext.BaseDirectory, "SkillsCheck", data.Name, data.Name);
+                    //临时校验目录最内层再带一次请求的随机后缀：AI安全扫描耗时较久，同名技能被重复提交时，
+                    //各次请求的下载/解压目录彼此隔离，不会把别的请求正在使用的目录连带删掉
+                    var pathCheckRoot = Path.Combine(AppContext.BaseDirectory, "SkillsCheck", data.Name, data.Name);
+                    var pathCheck = Path.Combine(pathCheckRoot, Guid.NewGuid().ToString("N"));
                     var pathCheckFlieZip = Path.Combine(pathCheck, flieData.Name);
                     #region SkillsCheck 
-                    //如果目录存在则删除目录下的所有文件  
-                    if (Directory.Exists(pathCheck))
-                    {
-                        Directory.Delete(pathCheck, true);
-                    }
                     Directory.CreateDirectory(pathCheck);
                     _FileStorage.FileDownload(flieData.Url, pathCheckFlieZip);
                     //将zip文件流解压到写入磁盘
@@ -202,10 +200,27 @@ namespace kevin.Application.Services.AI
                     }
                     finally
                     {
-                        File.Delete(pathCheckFlieZip);
-                        if (Directory.Exists(pathCheck))
+                        //清理只针对本次请求的临时目录，且清理失败必须吞掉：
+                        //finally里抛异常会覆盖掉AI安全扫描的真实失败原因（如之前的DirectoryNotFoundException 500）
+                        try
                         {
-                            Directory.Delete(pathCheck, true);
+                            if (File.Exists(pathCheckFlieZip))
+                            {
+                                File.Delete(pathCheckFlieZip);
+                            }
+                            if (Directory.Exists(pathCheck))
+                            {
+                                Directory.Delete(pathCheck, true);
+                            }
+                            //本次临时目录已清空时，顺带回收上层的空目录，避免残留空壳
+                            if (Directory.Exists(pathCheckRoot) && !Directory.EnumerateFileSystemEntries(pathCheckRoot).Any())
+                            {
+                                Directory.Delete(pathCheckRoot);
+                            }
+                        }
+                        catch
+                        {
+                            //忽略清理异常，不影响扫描结果的返回
                         }
                     }
                 }
