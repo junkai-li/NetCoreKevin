@@ -120,9 +120,31 @@
       @ok="handleModalOk"
       @cancel="handleModalCancel"
       :confirm-loading="confirmLoading"
+      :ok-text="skillScanning ? 'AI安全扫描中，请稍候...' : undefined"
+      :closable="!skillScanning"
+      :mask-closable="!skillScanning"
+      :keyboard="!skillScanning"
+      :cancel-button-props="skillScanning ? { style: { display: 'none' } } : {}"
       width="600px"
     >
-      <a-form :model="form" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+      <a-alert
+        v-if="skillScanning"
+        type="warning"
+        show-icon
+        :closable="false"
+        style="margin-bottom: 16px"
+      >
+        <template #icon>
+          <LoadingOutlined spin />
+        </template>
+        <template #message>
+          <span>AI安全扫描进行中，已用时 {{ scanElapsedText }}</span>
+        </template>
+        <template #description>
+          Skill技能包需由AI完成安全性扫描，耗时较长，扫描期间本编辑页不可修改，请勿关闭窗口或刷新页面。
+        </template>
+      </a-alert>
+      <a-form :model="form" :disabled="skillScanning" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
         <a-form-item label="名称" v-bind="validateInfos.name">
           <a-input v-model:value="form.name" placeholder="请输入名称" />
         </a-form-item>
@@ -144,6 +166,7 @@
             accept=".zip"
             :multiple="false"
             :maxCount="1"
+            :disabled="skillScanning"
             :initialFiles="form.skillFile ? [form.skillFile] : []"
             uploadButtonText="上传技能压缩包"
             @upload-success="onFileUploadSuccess"
@@ -225,7 +248,7 @@
 
 <script setup>
 import "../../css/CardTable.css";
-import { ref, reactive, computed, watch, onMounted } from "vue";
+import { ref, reactive, computed, watch, onMounted, onUnmounted, h } from "vue";
 import {
   ToolOutlined,
   PlusOutlined,
@@ -233,6 +256,7 @@ import {
   DeleteOutlined,
   EllipsisOutlined,
   EyeOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons-vue";
 import { message, Modal } from "ant-design-vue";
 import { Form } from "ant-design-vue";
@@ -262,6 +286,32 @@ const currentRecord = ref(null);
 
 const viewModalVisible = ref(false);
 const viewItem = ref(null);
+
+// Skill类型提交后后台会做AI安全扫描，耗时较长，扫描期间锁定编辑弹窗
+const skillScanning = ref(false);
+const scanSeconds = ref(0);
+let scanTimer = null;
+
+const scanElapsedText = computed(() => {
+  const minutes = Math.floor(scanSeconds.value / 60);
+  const seconds = scanSeconds.value % 60;
+  return minutes > 0 ? `${minutes}分${seconds}秒` : `${seconds}秒`;
+});
+
+const startScanTimer = () => {
+  stopScanTimer();
+  scanSeconds.value = 0;
+  scanTimer = setInterval(() => {
+    scanSeconds.value += 1;
+  }, 1000);
+};
+
+const stopScanTimer = () => {
+  if (scanTimer) {
+    clearInterval(scanTimer);
+    scanTimer = null;
+  }
+};
 
 const form = reactive({
   id: "",
@@ -467,6 +517,10 @@ const showViewModal = (record) => {
 
 const showEditModal = (record) => {
   if (record.isSystem) return;
+  if (skillScanning.value) {
+    message.warning("AI安全扫描进行中，请等待扫描完成");
+    return;
+  }
   modalTitle.value = "编辑技能工具";
   currentRecord.value = record;
   form.id = record.id || "";
@@ -516,48 +570,111 @@ const handlePageChange = (page, pageSize) => {
   loadData();
 };
 
+// Skill类型提交前提示：需AI安全扫描、耗时较久且扫描期间不可编辑
+const confirmSkillScanSubmit = () => {
+  return new Promise((resolve) => {
+    Modal.confirm({
+      title: "提交AI安全扫描提示",
+      content:
+        "Skill类型提交后需由AI对技能包进行安全性扫描，扫描耗时较久，提交期间该技能不可编辑，请勿关闭窗口或刷新页面。是否确认提交？",
+      okText: "确认提交",
+      cancelText: "取消",
+      onOk: () => resolve(true),
+      onCancel: () => resolve(false),
+    });
+  });
+};
+
+// Skill提交失败（含AI安全扫描不通过、后端400/500）时用弹窗完整展示返回文案，
+// message气泡会被截断长度且不支持换行，看不清扫描报告全文
+const showSkillErrorModal = (msg) => {
+  Modal.error({
+    title: "Skill提交失败",
+    okText: "知道了",
+    width: 640,
+    zIndex: 1100,
+    content: h(
+      "div",
+      {
+        style: {
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-all",
+          maxHeight: "50vh",
+          overflowY: "auto",
+          lineHeight: "1.6",
+        },
+      },
+      msg
+    ),
+  });
+};
+
+const submitForm = async () => {
+  // 只有Skill类型会触发AI安全扫描，扫描期间锁定表单不允许编辑
+  const needScan = form.skillToolType === 2;
+  confirmLoading.value = true;
+  if (needScan) {
+    skillScanning.value = true;
+    startScanTimer();
+  }
+  try {
+    await addEditAISkillToolManagement(currentRecord.value ? {
+      id: form.id,
+      name: form.name,
+      classMethod: form.classMethod,
+      description: form.description,
+      activeStatus: form.activeStatus,
+      skillToolType: form.skillToolType,
+      mcpUrl: form.mcpUrl,
+      mcpType: form.mcpType,
+      mcpHeaders: form.mcpHeaders,
+      mcpCommand: form.mcpCommand,
+      mcpArguments: form.mcpArguments,
+      mcpEnvironment: form.mcpEnvironment,
+    } : {
+      id: form.id,
+      name: form.name,
+      classMethod: form.classMethod,
+      description: form.description,
+      activeStatus: form.activeStatus,
+      skillToolType: form.skillToolType,
+      mcpUrl: form.mcpUrl,
+      mcpType: form.mcpType,
+      mcpHeaders: form.mcpHeaders,
+      mcpCommand: form.mcpCommand,
+      mcpArguments: form.mcpArguments,
+      mcpEnvironment: form.mcpEnvironment,
+    });
+
+    message.success(currentRecord.value ? "更新成功" : "添加成功");
+    modalVisible.value = false;
+    loadData();
+  } catch (error) {
+    console.error("保存失败:", error);
+    // error.message 即后端返回的 err_msg 原文（已由http拦截器透传）
+    const errMsg = error?.message || "未知错误";
+    if (needScan) {
+      showSkillErrorModal(errMsg);
+    } else {
+      message.error("保存失败: " + errMsg);
+    }
+  } finally {
+    if (needScan) {
+      stopScanTimer();
+      skillScanning.value = false;
+    }
+    confirmLoading.value = false;
+  }
+};
+
 const handleModalOk = () => {
   validateForm()
     .then(async () => {
-      confirmLoading.value = true;
-      try {
-        await addEditAISkillToolManagement(currentRecord.value ? {
-          id: form.id,
-          name: form.name,
-          classMethod: form.classMethod,
-          description: form.description,
-          activeStatus: form.activeStatus,
-          skillToolType: form.skillToolType,
-          mcpUrl: form.mcpUrl,
-          mcpType: form.mcpType,
-          mcpHeaders: form.mcpHeaders,
-          mcpCommand: form.mcpCommand,
-          mcpArguments: form.mcpArguments,
-          mcpEnvironment: form.mcpEnvironment,
-        } : {
-          id: form.id,
-          name: form.name,
-          classMethod: form.classMethod,
-          description: form.description,
-          activeStatus: form.activeStatus,
-          skillToolType: form.skillToolType,
-          mcpUrl: form.mcpUrl,
-          mcpType: form.mcpType,
-          mcpHeaders: form.mcpHeaders,
-          mcpCommand: form.mcpCommand,
-          mcpArguments: form.mcpArguments,
-          mcpEnvironment: form.mcpEnvironment,
-        });
-
-        message.success(currentRecord.value ? "更新成功" : "添加成功");
-        modalVisible.value = false;
-        loadData();
-      } catch (error) {
-        console.error("保存失败:", error);
-        message.error("保存失败: " + (error.message || "未知错误"));
-      } finally {
-        confirmLoading.value = false;
+      if (form.skillToolType === 2) {
+        const confirmed = await confirmSkillScanSubmit();
+        if (!confirmed) return;
       }
+      await submitForm();
     })
     .catch((err) => {
       console.log("表单验证失败:", err);
@@ -565,10 +682,18 @@ const handleModalOk = () => {
 };
 
 const handleModalCancel = () => {
+  if (skillScanning.value) {
+    message.warning("AI安全扫描进行中，请等待扫描完成后再关闭");
+    return;
+  }
   modalVisible.value = false;
 };
 
 onMounted(() => {
   loadData();
+});
+
+onUnmounted(() => {
+  stopScanTimer();
 });
 </script>

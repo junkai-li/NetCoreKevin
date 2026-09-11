@@ -156,16 +156,17 @@ namespace kevin.Application.Services.AI
                 {
                     //拼接路径
                     var pathCheck = Path.Combine(AppContext.BaseDirectory, "SkillsCheck", data.Name, data.Name);
+                    var pathCheckFlieZip = Path.Combine(pathCheck, flieData.Name);
                     #region SkillsCheck 
                     //如果目录存在则删除目录下的所有文件  
                     if (Directory.Exists(pathCheck))
                     {
                         Directory.Delete(pathCheck, true);
-                    } 
+                    }
                     Directory.CreateDirectory(pathCheck);
-                    _FileStorage.FileDownload(flieData.Url, pathCheck + flieData.Name);
+                    _FileStorage.FileDownload(flieData.Url, pathCheckFlieZip);
                     //将zip文件流解压到写入磁盘
-                    using (var fileStream = File.OpenRead(pathCheck + flieData.Name))
+                    using (var fileStream = File.OpenRead(pathCheckFlieZip))
                     {
                         FileZipHelper.ExtractZipStreamToDirectory(fileStream, pathCheck);
                     }
@@ -178,6 +179,22 @@ namespace kevin.Application.Services.AI
                             throw new UserFriendlyException(result.Item2?.SafetyMessage);
                         }
                         ValidateSkillScriptUrls(pathCheck);
+                        #endregion
+
+                        #region Skill替换  
+                        //将zip文件流解压到写入磁盘
+                        var skillPath = Path.Combine(AppContext.BaseDirectory, "Skills", data.Name, data.Name);
+                        //如果目录存在则删除目录下的所有文件  
+                        if (Directory.Exists(skillPath))
+                        {
+                            Directory.Delete(skillPath, true);
+                        }
+                        Directory.CreateDirectory(skillPath);
+                        using (var fileStream = File.OpenRead(pathCheckFlieZip))
+                        {
+                            FileZipHelper.ExtractZipStreamToDirectory(fileStream, skillPath);
+                        }
+                        #endregion
                     }
                     catch (Exception ex)
                     {
@@ -185,29 +202,12 @@ namespace kevin.Application.Services.AI
                     }
                     finally
                     {
+                        File.Delete(pathCheckFlieZip);
                         if (Directory.Exists(pathCheck))
                         {
                             Directory.Delete(pathCheck, true);
                         }
                     }
-                    #endregion
-
-                    #region Skill替换  
-                    //将zip文件流解压到写入磁盘
-                    var skillPath = Path.Combine(AppContext.BaseDirectory, "Skills", data.Name, data.Name);
-                    //如果目录存在则删除目录下的所有文件  
-                    if (Directory.Exists(skillPath))
-                    {
-                        Directory.Delete(skillPath, true);
-                    }
-                    Directory.CreateDirectory(skillPath);
-                    using (var fileStream = File.OpenRead(pathCheck + flieData.Name))
-                    {
-                        FileZipHelper.ExtractZipStreamToDirectory(fileStream, skillPath);
-                    }
-                    File.Delete(pathCheck + flieData.Name);
-                    #endregion
-
                 }
                 else
                 {
