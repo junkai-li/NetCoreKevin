@@ -7,7 +7,11 @@ namespace kevin.AI.AgentFramework.ScriptRunners
 {
     public class PySubprocessScriptRunner : IPySubprocessScriptRunner
     {
-#pragma warning disable MAAI001
+        public readonly IAIShareInfoService _aIShareInfoService;
+        PySubprocessScriptRunner(IAIShareInfoService aIShareInfoService)
+        {
+            _aIShareInfoService = aIShareInfoService;
+        }
         public async Task<object?> StaticRunAsync(
             AgentFileSkill skill,
             AgentFileSkillScript script,
@@ -53,7 +57,19 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                         scriptArguments.Add(arguments.Value.ToString());
                     }
                 }
-
+                if (_aIShareInfoService.GetData() != default)
+                {
+                    foreach (var item in scriptArguments)
+                    {
+                        // 🛡️ 安全护栏：HTTP请求域名白名单检查
+                        var unauthorizedUrl = CommandGuardrails.FindUnauthorizedUrl(
+                            item, _aIShareInfoService.GetData()?.AuthorizedDomainsList);
+                        if (unauthorizedUrl is not null)
+                        {
+                            return CommandGuardrails.UnauthorizedDomainMessage(unauthorizedUrl);
+                        }
+                    }
+                }
                 // 3. 根据后缀选择解释器
                 var (startInfo, payloadArguments) = ScriptProcessRunner.CreateLaunch(scriptFullPath, scriptArguments);
                 foreach (var payload in payloadArguments)
