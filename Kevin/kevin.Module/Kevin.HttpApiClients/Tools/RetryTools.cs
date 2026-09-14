@@ -59,8 +59,16 @@ namespace Common
             {
                 retryTimes--;
                 LogHelper.logger.Error($"剩余重试次数: {retryTimes}, retry error: {e.Message}, Exception detail: {e}");
+                if (retryTimes <= 0)
+                {
+                    //重试次数用尽必须把原始异常抛出去：不能转调同步版 Retry，它在 retryTimes<=0 时 return default
+                    //对 Task<T> 就是 null，await null 会抛 NullReferenceException，把真实失败原因（如HTTP请求失败）
+                    //掩盖成“Object reference not set to an instance of an object.”
+                    throw;
+                }
                 System.Threading.Thread.Sleep(sleepMillisecondsTimeout);
-                return await Retry(handler, retryTimes);
+                //异步重试必须走 RetryAsync：同步版 Retry 拿 handler() 返回的 Task 时异常还没浮现，重试逻辑对异步动作不生效
+                return await RetryAsync(handler, retryTimes, sleepMillisecondsTimeout);
             }
         }
         /// <summary>

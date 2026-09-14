@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Common
 {
-    /// <summary>
+     /// <summary>
     /// 任务重试工具类，提供两种重试方式：1. 若发生 Exception (数据库查询超时)，重复执行相同动作 2. 传入多个动作，遇到 Exception依序执行 (数据库查询超时，改用不同条件查询)
     /// </summary>
     public static class RetryTools
@@ -33,7 +33,7 @@ namespace Common
             catch (Exception e)
             {
                 retryTimes--;
-                LogHelper.logger.Error($"剩余重试次数: {retryTimes}, retry error: {e.Message}, Exception detail: {Json.JsonHelper.ObjectToJSON(e)}");
+                LogHelper.logger.Error($"剩余重试次数: {retryTimes}, retry error: {e.Message}, Exception detail: {e}");
                 System.Threading.Thread.Sleep(sleepMillisecondsTimeout);
                 return Retry(handler, retryTimes);
             }
@@ -60,9 +60,17 @@ namespace Common
             catch (Exception e)
             {
                 retryTimes--;
-                LogHelper.logger.Error($"剩余重试次数: {retryTimes}, retry error: {e.Message}, Exception detail: {Json.JsonHelper.ObjectToJSON(e)}");
+                LogHelper.logger.Error($"剩余重试次数: {retryTimes}, retry error: {e.Message}, Exception detail: {e}");
+                if (retryTimes <= 0)
+                {
+                    //重试次数用尽必须把原始异常抛出去：不能转调同步版 Retry，它在 retryTimes<=0 时 return default
+                    //对 Task<T> 就是 null，await null 会抛 NullReferenceException，把真实失败原因（如HTTP请求失败）
+                    //掩盖成“Object reference not set to an instance of an object.”
+                    throw;
+                }
                 System.Threading.Thread.Sleep(sleepMillisecondsTimeout);
-                return await Retry(handler, retryTimes);
+                //异步重试必须走 RetryAsync：同步版 Retry 拿 handler() 返回的 Task 时异常还没浮现，重试逻辑对异步动作不生效
+                return await RetryAsync(handler, retryTimes, sleepMillisecondsTimeout);
             }
         }
         /// <summary>
@@ -83,7 +91,7 @@ namespace Common
                 }
                 catch (Exception e)
                 {
-                    LogHelper.logger.Error($"第 {i}次执行错误(start from 0): retry error: {e.Message}, Exception detail: {Json.JsonHelper.ObjectToJSON(e)}");
+                    LogHelper.logger.Error($"第 {i}次执行错误(start from 0): retry error: {e.Message}, Exception detail: {e}");
                     System.Threading.Thread.Sleep(sleepMillisecondsTimeout);
                 }
             }
@@ -107,7 +115,7 @@ namespace Common
             catch (Exception e)
             {
                 retryTimes--;
-                LogHelper.logger.Error($"剩余重试次数: {retryTimes}, retry error: {e.Message}, Exception detail: {Json.JsonHelper.ObjectToJSON(e)}");
+                LogHelper.logger.Error($"剩余重试次数: {retryTimes}, retry error: {e.Message}, Exception detail: {e}");
                 System.Threading.Thread.Sleep(sleepMillisecondsTimeout);
                 RetryVoid(handler, retryTimes);
             }
