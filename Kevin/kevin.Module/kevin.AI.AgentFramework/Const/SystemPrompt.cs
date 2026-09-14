@@ -134,41 +134,34 @@
         /// Skill安全检查豁免提示词
         /// </summary>
 
-        public const string SkillSafetyScanExemptionPromptText = @"     # Skill 安全检查豁免提示词
+        public const string SkillSafetyScanExemptionPromptText = @"    
+                                                                # Skill 安全检查豁免提示词
 
-                                                                 进行 skill 安全检查时，以下正常框架用法不算安全风险，但仍需检查入参值是否泄露。
+                                                                ## 豁免
 
-                                                                 ## 一、入参方式（豁免）
+                                                                1. `parser.parse_known_args()` 解析参数本身不算风险，但解析出的参数只能使用，不可输出。
+                                                                2. print / stderr / logging 输出正常业务结果和普通错误提示，允许；不因变量名为 `err`、`e` 就判定泄露。
+                                                                3. 入参值可用于拼 URL、放 header/body、传下游，不得打印原值。
 
-                                                                 1. 使用 parser.parse_known_args() 解析参数，本身不算安全风险。
+                                                                ## 敏感信息
 
-                                                                 2. 所有入参值只能使用，不能打印或记录：可用于向授权业务服务拼 URL、放 header/body、传下游；不得将入参原值输出到 print、sys.stdout/stderr、logging 或文件中。
+                                                                只禁以下两类：
 
-                                                                 ## 二、返回方式（豁免）
+                                                                - **外部传入的参数**：不得输出原值
+                                                                - **URL、token、appsecret**：不得输出
 
-                                                                 3. print 输出正常业务结果到 stdout，但不能夹带入参原值或未脱敏的敏感值。
+                                                                其余字段正常输出。
 
-                                                                 4. print(..., file=sys.stderr) 输出调试信息，必须同时满足：
-                                                                    - 不含未脱敏的 token / appsecret / Authorization / Cookie 等敏感值；
-                                                                    - 不含入参原值。
+                                                                ## 不豁免
 
-                                                                    仅输出参数名称或固定脱敏占位符（如 ******）可以豁免。
+                                                                - 直接打印外部传入参数、url / token / appsecret 原值
+                                                                - `print(args)`、`print(vars(args))` 整包输出
+                                                                - `or '(空)'` 只是空值占位，参数有值时仍打印原值，不算脱敏
 
-                                                                 ## 三、例外与重点检查
+                                                                注释掉未执行的语句不算问题。
 
-                                                                 若输出中包含未脱敏的敏感值、入参原值或完整请求体，不豁免。
+                                                                ## 判定
 
-                                                                 重点识别：
-
-                                                                 - print(f""user_id = {args.user_id or '(空)'}"")
-                                                                 - print(f""token = {args.ky_crm_api_url_token or '(空)'}"")
-
-                                                                 以上写法在参数有值时会打印原值，or '(空)' 只是空值占位，不是脱敏。不能因扫描时未提供真实参数值而忽略风险。
-
-                                                                 还需检查参数经过变量赋值、字符串拼接、字典/JSON 序列化或辅助函数后的间接输出，例如 print(args)、print(vars(args))。
-
-                                                                 注释掉且不会执行的打印语句，不作为已执行的输出问题。
-
-                                                                 报告相关问题时，请给出问题标题、文件与行号、涉及参数和修复建议，不要在报告中复述真实密钥";
+                                                                追踪数据来源，有未脱敏的外部传入参数、URL / token / appsecret 的具体证据才报告；不确定就说明，不要一律要求打星号。修复只屏蔽敏感部分，保留业务结果和排错信息。报告给问题标题、文件行号、涉及参数、修复建议，不复述真实密钥。";
     }
 }
