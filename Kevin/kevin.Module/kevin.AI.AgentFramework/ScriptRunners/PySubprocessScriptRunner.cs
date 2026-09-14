@@ -1,16 +1,20 @@
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Tools;
 using Microsoft.Agents.AI;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
+using Web.Global.User;
 
 namespace kevin.AI.AgentFramework.ScriptRunners
 {
     public class PySubprocessScriptRunner : IPySubprocessScriptRunner
     {
-        public readonly IAIShareInfoService _aIShareInfoService;
-        PySubprocessScriptRunner(IAIShareInfoService aIShareInfoService)
+        private readonly IAIShareInfoService _aIShareInfoService;
+        public PySubprocessScriptRunner(IServiceProvider serviceProvider)
         {
-            _aIShareInfoService = aIShareInfoService;
+
+            _aIShareInfoService = serviceProvider.GetService<IAIShareInfoService>();
         }
         public async Task<object?> StaticRunAsync(
             AgentFileSkill skill,
@@ -57,7 +61,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                         scriptArguments.Add(arguments.Value.ToString());
                     }
                 }
-                if (_aIShareInfoService.GetData() != default)
+                if (_aIShareInfoService?.GetData() != default)
                 {
                     foreach (var item in scriptArguments)
                     {
