@@ -87,11 +87,12 @@ const toggleColumn = (dataIndex, visible) => {
 const dataSource = ref([]);
 // 表格列定义
 const columns = ref([
-  // {
-  //   title: "id",
-  //   dataIndex: "id",
-  //   key: "id"
-  // },
+  {
+    title: "创建时间",
+    dataIndex: "createTime",
+    key: "createTime",
+    width: 150,ellipsis: true,
+   },
   {
     title: "登录人",
     dataIndex: "userName",

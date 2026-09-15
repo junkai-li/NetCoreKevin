@@ -23,7 +23,7 @@
                 data = data.Where(t => (t.OperateRemark ?? "").Contains(dtoPage.searchKey) || (t.OperateType ?? "").Contains(dtoPage.searchKey) || (t.UserName ?? "").Contains(dtoPage.searchKey));
             }
             dtoPage.total = await data.CountAsync();
-            dtoPage.data = (await data.Skip(skip).Take(dtoPage.pageSize).OrderByDescending(x => x.CreateTime).ToListAsync()).MapToList<THttpLog, HttpLogDto>();
+            dtoPage.data = (await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPage.pageSize).ToListAsync()).MapToList<THttpLog, HttpLogDto>();
             return dtoPage;
         }
 
