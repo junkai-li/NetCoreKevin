@@ -125,7 +125,7 @@ namespace kevin.AI.AgentFramework
                                                     var err = funcCall.Exception != default ? ("异常信息：" + funcCall.Exception?.Message) : "";
                                                     if (aISetting.ToolStreameCallback != default)
                                                     {
-                                                        aISetting.ToolStreameCallback.Invoke($"\n [工具调用] 名称：{funcCall.Name}，调用ID：{funcCall.CallId}，参数：（ {string.Join(", ", funcCall.Arguments?.Select(a => $"{a.Key}: {a.Value}") ?? [])}） {err}");
+                                                        await aISetting.ToolStreameCallback.Invoke($"\n [工具调用] 名称：{funcCall.Name}，调用ID：{funcCall.CallId}，参数：（ {string.Join(", ", funcCall.Arguments?.Select(a => $"{a.Key}: {a.Value}") ?? [])}） {err}");
                                                     }
                                                     break;
 
@@ -134,7 +134,7 @@ namespace kevin.AI.AgentFramework
                                                     var errr = funcResult.Exception != default ? ("异常信息：" + funcResult.Exception?.Message) : "";
                                                     if (aISetting.ToolStreameCallback != default)
                                                     {
-                                                        aISetting.ToolStreameCallback.Invoke($"\n [工具返回] 调用ID：{funcResult.CallId}，结果：{funcResult.Result?.ToString()} {errr} ");
+                                                        await aISetting.ToolStreameCallback.Invoke($"\n [工具返回] 调用ID：{funcResult.CallId}，结果：{funcResult.Result?.ToString()} {errr} ");
                                                     }
                                                     break;
 
@@ -147,7 +147,8 @@ namespace kevin.AI.AgentFramework
                                 }
                                 if (!string.IsNullOrEmpty(update.Text))
                                 {
-                                    aISetting.StreameCallback.Invoke(update.Text);
+                                    // 回调必须 await：既保证分片按模型输出顺序下发，也让回调内异常回到下面的 catch
+                                    await aISetting.StreameCallback.Invoke(update.Text);
                                     resultText += update.Text;
                                 }
                                 else
@@ -157,7 +158,7 @@ namespace kevin.AI.AgentFramework
                                         var reasoningStr = await GetReasoningTextAsync(update);
                                         if (!string.IsNullOrEmpty(reasoningStr))
                                         {
-                                            aISetting.ReasoningStreameCallback.Invoke(reasoningStr);
+                                            await aISetting.ReasoningStreameCallback.Invoke(reasoningStr);
                                         }
                                     }
 
@@ -222,7 +223,7 @@ namespace kevin.AI.AgentFramework
                         // 通知前端模型切换
                         if (aISetting.IsStreame && aISetting.ToolStreameCallback != default)
                         {
-                            aISetting.ToolStreameCallback.Invoke($"\n⚠️ 模型调用失败，正在自动切换到备用模型: {nextModel.AIDefaultModel}...\n");
+                            await aISetting.ToolStreameCallback.Invoke($"\n⚠️ 模型调用失败，正在自动切换到备用模型: {nextModel.AIDefaultModel}...\n");
                         }
                     }
                     retries++;
@@ -236,7 +237,7 @@ namespace kevin.AI.AgentFramework
                 aISetting.LastError = ex;
                 if (aISetting.IsStreame && aISetting.StreameCallback != default)
                 {
-                    aISetting.StreameCallback.Invoke(friendlyMsg);
+                    await aISetting.StreameCallback.Invoke(friendlyMsg);
                 }
                 resultText += friendlyMsg;
             }

@@ -16,6 +16,7 @@ using kevin.HttpApiClients;
 using Kevin.Common.App.Global;
 using Kevin.Common.App.IO;
 using Kevin.log4Net;
+using System.Threading;
 namespace WebApi
 {
     public class Program
@@ -26,6 +27,15 @@ namespace WebApi
             {
                 //设置环境变量-----如果需要手动切换环境 只需要修改这里即可 
                 Kevin.Common.Helper.EnvironmentConfigHelper.SetEnvironment(Kevin.Common.Helper.EnvironmentConfigHelper.GetEnvironment());
+                //线程池最小线程数默认等于逻辑核心数，而线程池每秒只补充约 2 个线程：
+                //容器里只有 8 核时，一旦有同步等 Redis 的调用占住工作线程，积压会让后续同步调用整体超时
+                //（StackExchange.Redis 自检里的 WORKER Busy 远大于 Min 就是这个信号）。
+                //这里先把下限抬起来做兜底，热路径上的 sync-over-async 仍应持续改为异步。
+                ThreadPool.GetMinThreads(out var minWorkerThreads, out var minCompletionPortThreads);
+                if (minWorkerThreads < 200)
+                {
+                    ThreadPool.SetMinThreads(200, Math.Max(minCompletionPortThreads, 200));
+                }
                 var builder = WebApplication.CreateBuilder(args);
                 builder.Logging.UseKevinLog4Net();//日志
                 #region Kestrel Https并绑定证书

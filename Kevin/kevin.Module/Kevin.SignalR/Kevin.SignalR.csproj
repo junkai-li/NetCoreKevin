@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\kevin.Share\kevin.Domain.Share.csproj" />
-    <ProjectReference Include="..\kevin.Cache\kevin.Cache.csproj" />
     <ProjectReference Include="..\Kevin.Common\Kevin.Common.csproj" />
   </ItemGroup>
 

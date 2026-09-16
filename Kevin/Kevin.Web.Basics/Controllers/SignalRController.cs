@@ -49,19 +49,6 @@ namespace Kevin.Web.Basics.Controllers
             return true;
         }
         /// <summary>
-        /// 获取租户所有身份id
-        /// </summary> 
-        /// <returns></returns>
-        [HttpGet("GetTenantIdentityIds")]
-        [ActionDescription("获取租户所有身份id")]
-        [SkipAuthority]
-        public List<string> GetTenantIdentityIds()
-        {
-            return _service.GetTenantIdentityIds(CurrentUser.TenantId);
-
-        }
-
-        /// <summary>
         /// 私发信息
         /// </summary> 
         /// <returns></returns>

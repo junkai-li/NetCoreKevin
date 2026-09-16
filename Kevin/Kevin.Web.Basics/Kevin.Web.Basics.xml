@@ -568,12 +568,6 @@
             </summary> 
             <returns></returns>
         </member>
-        <member name="M:Kevin.Web.Basics.Controllers.SignalRController.GetTenantIdentityIds">
-            <summary>
-            获取租户所有身份id
-            </summary> 
-            <returns></returns>
-        </member>
         <member name="M:Kevin.Web.Basics.Controllers.SignalRController.SendIdentityIdMsg(System.String,System.String,System.String)">
             <summary>
             私发信息

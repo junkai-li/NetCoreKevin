@@ -126,38 +126,64 @@ namespace kevin.Cache.Service
         /// </summary>
         public string GetString(string key)
         {
-            var raw = Cache.GetString(key);
-            if (string.IsNullOrEmpty(raw))
+            var valueStr = ReadPayloadValue(Cache.GetString(key), out var expired);
+            if (expired)
             {
+                // 已过期：删除并返回空字符串
+                try { Cache.Remove(key); } catch { }
                 return "";
             }
+            return valueStr ?? "";
+        }
 
-            // 尝试解析为包装格式
+        /// <summary>
+        /// 读取string类型的key（异步版，语义同 <see cref="GetString"/>）
+        /// </summary>
+        public async Task<string> GetStringAsync(string key)
+        {
+            var valueStr = ReadPayloadValue(await Cache.GetStringAsync(key), out var expired);
+            if (expired)
+            {
+                try { await Cache.RemoveAsync(key); } catch { }
+                return "";
+            }
+            return valueStr ?? "";
+        }
+
+        /// <summary>
+        /// 从包装格式 { value, expire_at } 中取出 value 原文；返回 null 表示没有可用值
+        /// （key 不存在、value 为空或已过期）。expired 为 true 时由调用方按自己的方式（同步/异步）删键。
+        /// <para>与 GetString/GetObject 的兼容分支一致：不是包装格式时按原始字符串返回。</para>
+        /// </summary>
+        private static string? ReadPayloadValue(string? raw, out bool expired)
+        {
+            expired = false;
+            if (string.IsNullOrEmpty(raw))
+            {
+                return null;
+            }
+
+            var valueStr = raw;
             try
             {
                 var jt = JsonConvert.DeserializeObject<JObject>(raw);
                 if (jt != null && jt["value"] != null)
                 {
                     var expireToken = jt["expire_at"];
-                    if (expireToken != null && expireToken.Type != JTokenType.Null)
+                    if (expireToken != null && expireToken.Type != JTokenType.Null
+                        && DateTime.UtcNow.Ticks > expireToken.Value<long>())
                     {
-                        var expireTicks = expireToken.Value<long>();
-                        if (DateTime.UtcNow.Ticks > expireTicks)
-                        {
-                            // 已过期：删除并返回空字符串
-                            try { Cache.Remove(key); } catch { }
-                            return "";
-                        }
+                        expired = true;
+                        return null;
                     }
-                    return (jt["value"] ?? "").ToString();
+                    valueStr = (jt["value"] ?? "").ToString();
                 }
             }
             catch
             {
                 // 解析失败，视为原始字符串（向后兼容）
             }
-
-            return raw;
+            return string.IsNullOrEmpty(valueStr) ? null : valueStr;
         }
 
         /// <summary>
@@ -203,6 +229,37 @@ namespace kevin.Cache.Service
                 return value;
             }
             throw new Exception($"{valueStr}GetObject为null");
+        }
+
+        /// <summary>
+        /// 读取 Object 类型的key，取不到时返回 default（同 <see cref="GetObject{T}"/> 但语义上是“没有值”而不是错误）
+        /// <para>
+        /// 适用于“取不到就降级”的场景（例如按连接映射定位推送目标：没有在线连接就不推）。
+        /// key 不存在、值为空、已过期都返回 default；Redis 自身的通信异常仍然抛出，
+        /// 由调用方决定是否降级，避免把故障伪装成“确实没有数据”。
+        /// </para>
+        /// </summary>
+        public T? GetObjectOrDefault<T>(string key) where T : class
+        {
+            var valueStr = ReadPayloadValue(Cache.GetString(key), out var expired);
+            if (expired)
+            {
+                try { Cache.Remove(key); } catch { }
+            }
+            return valueStr == null ? default : JsonConvert.DeserializeObject<T>(valueStr.Replace("undefined", "null"));
+        }
+
+        /// <summary>
+        /// 读取 Object 类型的key（异步版，语义同 <see cref="GetObjectOrDefault{T}"/>）
+        /// </summary>
+        public async Task<T?> GetObjectOrDefaultAsync<T>(string key) where T : class
+        {
+            var valueStr = ReadPayloadValue(await Cache.GetStringAsync(key), out var expired);
+            if (expired)
+            {
+                try { await Cache.RemoveAsync(key); } catch { }
+            }
+            return valueStr == null ? default : JsonConvert.DeserializeObject<T>(valueStr.Replace("undefined", "null"));
         }
 
         /// <summary>

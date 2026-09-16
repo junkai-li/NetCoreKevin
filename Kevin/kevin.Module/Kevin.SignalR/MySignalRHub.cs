@@ -1,9 +1,6 @@
-﻿using kevin.Cache.Service;
-using Kevin.SignalR.Models;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Web.Global.User;
 
 namespace Kevin.SignalR
@@ -16,14 +13,10 @@ namespace Kevin.SignalR
 
         public string identityId { get; set; }
 
-        public ICacheService _cacheService { get; set; }
-
 
         public IHttpContextAccessor _httpContextAccessor { get; set; }
 
-        private readonly SignalrRdisSetting _config;
-
-        public MySignalRHub(IOptionsMonitor<SignalrRdisSetting> config, IHttpContextAccessor httpContextAccessor, IServiceProvider serviceProvider)
+        public MySignalRHub(IHttpContextAccessor httpContextAccessor, IServiceProvider serviceProvider)
         {
             if (serviceProvider != default)
             {
@@ -32,13 +25,7 @@ namespace Kevin.SignalR
                 {
                     _currentUser = currentUser;
                 }
-                var cacheService = serviceProvider.GetService<ICacheService>();
-                if (cacheService != default)
-                {
-                    _cacheService = cacheService;
-                }
             }
-            _config = config.CurrentValue;
             if (httpContextAccessor != default)
             {
                 _httpContextAccessor = httpContextAccessor;
@@ -77,52 +64,11 @@ namespace Kevin.SignalR
             {
                 throw new Exception($"用户不存在");
             }
-            if (identityId != default && _currentUser.TenantId != default)
+            // 连接注册交给 SignalR 分组：组名就是推送目标用的 identityId，
+            // 由 Redis 背板维护归属并在连接失效时自动回收，不再自己往缓存里维护整张映射表
+            if (!string.IsNullOrEmpty(identityId))
             {
-                var data = new SignalRCacheDto();
-                var json = _cacheService.GetString(_config.cacheMySignalRKeyName);
-                if (!string.IsNullOrEmpty(json))
-                {
-                    data = _cacheService.GetObject<SignalRCacheDto>(_config.cacheMySignalRKeyName);
-                    if (data != default)
-                    {
-                        var tenantData = data.Items.FirstOrDefault(t => t.TenantId == _currentUser.TenantId);
-                        if (tenantData != default)
-                        {
-                            if (tenantData.Connections.FirstOrDefault(t => t.IdentityId == identityId) != default)
-                            {
-                                tenantData.Connections.RemoveAll(t => t.IdentityId == identityId);
-                            }
-                            tenantData.Connections?.Add(new IdentityConnectionDto
-                            {
-                                IdentityId = identityId,
-                                ConnectionId = Context.ConnectionId
-                            });
-                        }
-                        else
-                        {
-                            data.Items.Add(new SignalRRedisItemDto
-                            {
-                                TenantId = _currentUser.TenantId,
-                                Connections = new List<IdentityConnectionDto> {
-                                                          new IdentityConnectionDto{ ConnectionId=Context.ConnectionId, IdentityId=identityId}
-                                                            }
-                            });
-                        }
-                    }
-
-                }
-                else
-                {
-                    data.Items.Add(new SignalRRedisItemDto
-                    {
-                        TenantId = _currentUser.TenantId,
-                        Connections = new List<IdentityConnectionDto> {
-                                                          new IdentityConnectionDto{ ConnectionId=Context.ConnectionId, IdentityId=identityId}
-                                                            }
-                    });
-                }
-                _cacheService.SetObject(_config.cacheMySignalRKeyName, data);
+                await Groups.AddToGroupAsync(Context.ConnectionId, identityId);
             }
             Console.WriteLine(identityId + "-链接MySignalRHub");
             await base.OnConnectedAsync();
@@ -134,42 +80,9 @@ namespace Kevin.SignalR
         /// <returns></returns>
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            try
-            {
-                if (identityId != default && _currentUser.TenantId != default)
-                {
-                    var data = _cacheService.GetObject<SignalRCacheDto>(_config.cacheMySignalRKeyName);
-                    if (data != default)
-                    {
-                        var tenantData = data.Items.FirstOrDefault(t => t.TenantId == _currentUser.TenantId);
-                        if (tenantData != default)
-                        {
-                            if (tenantData.Connections.FirstOrDefault(t => t.IdentityId == identityId) != default)
-                            {
-                                tenantData.Connections.RemoveAll(t => t.IdentityId == identityId);
-                            }
-                        }
-                        _cacheService.SetObject(_config.cacheMySignalRKeyName, data);
-                    }
-
-                }
-                Console.WriteLine(identityId + "断开链接MySignalRHub");
-            }
-            finally
-            {
-                await base.OnDisconnectedAsync(exception);
-            }
-
-        }
-
-        /// <summary>
-        /// 关闭
-        /// </summary>
-        /// <returns></returns>
-        public new void Dispose()
-        {
-            _cacheService.Remove(_config.cacheMySignalRKeyName);
-            base.Dispose(); ;
+            // 分组归属由 SignalR 自己回收（连接结束即退出所有组），这里不需要再做清理
+            Console.WriteLine(identityId + "断开链接MySignalRHub");
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }

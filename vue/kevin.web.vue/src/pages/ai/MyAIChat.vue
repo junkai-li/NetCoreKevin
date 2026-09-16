@@ -2520,7 +2520,8 @@ const postChatMessage = async (userMessage, par) => {
     if (isVoiceMode.value) {
       startStreamingTTS();
     }
-    getAiMySignalRHubMsg(snowflakeId);
+    // 必须 await：连接没建立就发提问，这一轮的流式输出会全部推空
+    await getAiMySignalRHubMsg(snowflakeId);
     const reulst = await addAIChatHistorys({
       aIChatsId: activeConversationId.value,
       id:snowflakeId,
@@ -2675,7 +2676,7 @@ const getLogTypeName = (logType) => {
 var connectionServer=null;
 let connectionTimeout = null;
 
-const getAiMySignalRHubMsg=(id)=>{
+const getAiMySignalRHubMsg=async (id)=>{
   // 每次发送都会新建一条 HubConnection，先把上一条停掉释放，否则重试几次就攒出一堆泄漏的连接
   if (connectionServer) {
     connectionServer.stop();
@@ -2689,7 +2690,6 @@ const getAiMySignalRHubMsg=(id)=>{
   })
   .withAutomaticReconnect()
   .build()
-connectionServer.start().then(() => {})
 connectionServer.onreconnecting(() => {})
 connectionServer.onreconnected(() => { })
 connectionServer.onclose(() => {})
@@ -2739,6 +2739,15 @@ connectionServer.on('aIReasoningContentMsg', (msg) => {
     }
   });
 })
+// 上面这些 on(...) 全部注册完才启动连接，否则抢在注册前到的分片会因为还没有监听者被直接丢掉
+// start 必须 await 到真正连上再返回：服务端推送目标是 SignalR 分组（组名=本次回答的雪花Id），
+// 没连上就发提问请求，本轮所有流式分片都推给一个还不存在的组员，前端只能等 HTTP 返回的整段回复。
+// 连不上不把异常抛给调用方：推送只是旁路，最多这一次不流式，不该把用户正常的提问判成发送失败。
+try {
+  await connectionServer.start();
+} catch (err) {
+  console.warn('SignalR 连接失败，本次回答不做流式展示', err);
+}
 }
 
 const stopAiMySignalRHubMsg=(id)=>{

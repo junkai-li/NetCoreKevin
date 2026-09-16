@@ -55,18 +55,23 @@
 
         /// <summary>
         /// 流式请求回调
+        /// <para>
+        /// 用 Func&lt;string, Task&gt; 而不是 Action&lt;string&gt;：调用侧会 await 它，推送异常才能回到模型调用的 try/catch 里。
+        /// Action 上挂 async lambda 等于 async void，其内部异常不会被任何调用方接管，
+        /// 而是直接抛到线程池变成进程级 Unhandled exception（一次 Redis 抖动就能把整个服务干掉）。
+        /// </para>
         /// </summary>
-        public Action<string> StreameCallback { get; set; } = default;
+        public Func<string, Task>? StreameCallback { get; set; }
 
         /// <summary>
-        /// 工具流式请求回调
+        /// 工具流式请求回调（语义同 <see cref="StreameCallback"/>）
         /// </summary>
-        public Action<string> ToolStreameCallback { get; set; } = default;
+        public Func<string, Task>? ToolStreameCallback { get; set; }
 
         /// <summary>
-        /// 思考过程流式请求回调
+        /// 思考过程流式请求回调（语义同 <see cref="StreameCallback"/>）
         /// </summary>
-        public Action<string> ReasoningStreameCallback { get; set; } = default;
+        public Func<string, Task>? ReasoningStreameCallback { get; set; }
 
         /// <summary>
         /// Auto模式下的备选模型信息列表，当主模型失败时自动随机切换到下一个未使用过的模型

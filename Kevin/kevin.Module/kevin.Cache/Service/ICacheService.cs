@@ -51,6 +51,29 @@
         public string GetString(string key);
 
         /// <summary>
+        /// 读取string类型的key（异步：不等 Redis 时不占用线程池线程）
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public Task<string> GetStringAsync(string key);
+
+        /// <summary>
+        /// 读取 Object 类型的key，取不到时返回 default（key 不存在、值为空、已过期都算“取不到”）
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public T? GetObjectOrDefault<T>(string key) where T : class;
+
+        /// <summary>
+        /// 读取 Object 类型的key（异步：不等 Redis 时不占用线程池线程），取不到时返回 default
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public Task<T?> GetObjectOrDefaultAsync<T>(string key) where T : class;
+
+        /// <summary>
         /// 读取 Object 类型的key
         /// </summary>
         /// <typeparam name="T"></typeparam>
