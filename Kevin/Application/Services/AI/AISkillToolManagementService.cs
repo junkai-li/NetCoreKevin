@@ -9,7 +9,11 @@ using kevin.Domain.Share.Enums;
 using kevin.FileStorage;
 using kevin.RepositorieRps.Repositories;
 using Kevin.Common;
+using Kevin.Common.App;
+using Kevin.Common.Extension;
 using Kevin.Common.Helper;
+using ModelContextProtocol.Client;
+using ModelContextProtocol.Protocol;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -45,7 +49,8 @@ namespace kevin.Application.Services.AI
             }
             if (!string.IsNullOrEmpty(dtoPagePar.searchKey))
             {
-                data = data.Where(t => (t.Name ?? "").Contains(dtoPagePar.searchKey) || (t.Description ?? "").Contains(dtoPagePar.searchKey));
+                //创建人按姓名模糊匹配：CreateUser 是必填导航（CreateUserId 非空且有外键约束），EF 生成的 INNER JOIN 不会丢记录
+                data = data.Where(t => (t.Name ?? "").Contains(dtoPagePar.searchKey) || (t.Description ?? "").Contains(dtoPagePar.searchKey) || (t.CreateUser.Name ?? "").Contains(dtoPagePar.searchKey));
             }
             if (dtoPagePar.Parameter != null && dtoPagePar.Parameter > 0)
             {
@@ -135,6 +140,8 @@ namespace kevin.Application.Services.AI
                     upData.McpCommand = data.McpCommand;
                     upData.McpArguments = data.McpArguments;
                     upData.McpEnvironment = data.McpEnvironment;
+                    upData.McpTools = data.McpTools;
+                    upData.McpSelectedTools = data.McpSelectedTools;
                     upData.UpdateTime = DateTime.Now;
                     upData.UpdateUserId = CurrentUser.UserId;
                     upData.TenantId = CurrentUser.TenantId;
@@ -191,7 +198,7 @@ namespace kevin.Application.Services.AI
                         using (var fileStream = File.OpenRead(pathCheckFlieZip))
                         {
                             FileZipHelper.ExtractZipStreamToDirectory(fileStream, skillPath);
-                        }
+                        } 
                         #endregion
                     }
                     catch (Exception ex)
@@ -309,6 +316,115 @@ namespace kevin.Application.Services.AI
         {
             return (await AISkillToolManagementRp.Query().Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Mcp && t.ActiveStatus == InActiveStatusEnums.Active).OrderByDescending(t => t.CreateTime).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
 
+        }
+
+        /// <summary>
+        /// 测试Mcp连接并返回该Mcp服务下的全部工具。
+        /// 连接失败或返回异常时抛出 UserFriendlyException，前端据此提示测试未通过。
+        /// </summary>
+        public async Task<List<McpToolDto>> TestMcpConnection(McpConnectionTestDto data)
+        {
+            if (data == default || string.IsNullOrEmpty(data.McpType))
+            {
+                throw new UserFriendlyException("请先选择Mcp类型");
+            }
+
+            #region 获取Authorization（沿用运行时逻辑：表单未显式配置时注入当前登录态）
+            var authorization = "";
+            if (HttpContextAccessor != default && HttpContextAccessor.Current() != default)
+            {
+                if (HttpContextAccessor.Current().Request.Headers.ContainsKey("Authorization"))
+                {
+                    authorization = HttpContextAccessor.Current().Request.Headers["Authorization"].ToString();
+                }
+                if (string.IsNullOrEmpty(authorization) || !JwtToken.IsBearerValidJwt(authorization))
+                {
+                    if (HttpContextAccessor.Current().Request.Query.ContainsKey("Authorization"))
+                    {
+                        authorization = HttpContextAccessor.Current().Request.Query["Authorization"].ToString();
+                    }
+                }
+            }
+            #endregion
+
+            IClientTransport transport = null;
+            try
+            {
+                var dic = !string.IsNullOrEmpty(data.McpHeaders) ? data.McpHeaders.ToObject<Dictionary<string, string>>() : new Dictionary<string, string>();
+                if (dic == default)
+                {
+                    dic = new Dictionary<string, string>();
+                }
+                if (!string.IsNullOrEmpty(authorization) && !dic.ContainsKey("Authorization"))
+                {
+                    dic.Add("Authorization", authorization);
+                }
+
+                switch (data.McpType.ToLowerInvariant())
+                {
+                    case "http":
+                    case "https":
+                        if (string.IsNullOrEmpty(data.McpUrl))
+                            throw new UserFriendlyException("HTTP 模式需要提供 McpUrl");
+                        transport = new HttpClientTransport(new HttpClientTransportOptions
+                        {
+                            Endpoint = new Uri(data.McpUrl),
+                            TransportMode = HttpTransportMode.StreamableHttp,
+                            AdditionalHeaders = dic
+                        });
+                        break;
+
+                    case "sse":
+                        if (string.IsNullOrEmpty(data.McpUrl))
+                            throw new UserFriendlyException("SSE 模式需要提供 McpUrl");
+                        transport = new HttpClientTransport(new HttpClientTransportOptions
+                        {
+                            Endpoint = new Uri(data.McpUrl),
+                            TransportMode = HttpTransportMode.Sse,
+                            AdditionalHeaders = dic
+                        });
+                        break;
+
+                    case "stdio":
+                        if (string.IsNullOrEmpty(data.McpCommand))
+                            throw new UserFriendlyException("Stdio 模式需要提供 McpCommand");
+                        var stdioOptions = new StdioClientTransportOptions
+                        {
+                            Command = data.McpCommand,
+                            Arguments = data.McpArguments?.Split(",").ToList(),
+                            EnvironmentVariables = data.McpEnvironment?.ToObject<Dictionary<string, string?>>() ?? default
+                        };
+                        transport = new StdioClientTransport(stdioOptions);
+                        break;
+
+                    default:
+                        throw new UserFriendlyException($"不支持的传输类型: {data.McpType}");
+                }
+
+                //测试连接：连接并拉取工具后立即释放客户端，不保留长连接
+                await using var mcpClient = await McpClient.CreateAsync(transport);
+                var mcpTools = await mcpClient.ListToolsAsync();
+                var result = mcpTools.Select(t => new McpToolDto
+                {
+                    Name = t.Name,
+                    Description = t.Description
+                }).ToList();
+
+                if (result.Count == 0)
+                {
+                    throw new UserFriendlyException("连接成功，但该Mcp服务未返回任何工具");
+                }
+                return result;
+            }
+            catch (UserFriendlyException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Kevin.log4Net.LogHelper.logger.Error(ex + string.Format("测试 MCP 连接失败, 类型: {0}, URL: {1}", data.McpType, data.McpUrl));
+                throw new UserFriendlyException($"Mcp连接测试失败：{ex.Message}");
+            }
         }
 
         /// <summary>

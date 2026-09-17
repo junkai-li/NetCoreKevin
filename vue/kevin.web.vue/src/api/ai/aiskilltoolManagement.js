@@ -27,3 +27,7 @@ export const GetAllSkills = () => {
 export const GetAllMcps = () => {
   return http.get('/api/AISkillToolManagement/GetAllMcps');
 };
+//测试Mcp连接并返回该Mcp服务下的全部工具
+export const testMcpConnection = (data) => {
+  return http.post('/api/AISkillToolManagement/TestMcpConnection', data);
+};

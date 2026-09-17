@@ -381,7 +381,12 @@ namespace kevin.Application.Services.AI
                     try
                     {
                         var mcpTools = await mcpClient.ListToolsAsync();
-                        aiTools.AddRange(mcpTools.Cast<AITool>());
+                        //AI运行时只加载用户勾选的工具；勾选列表为空（历史数据未测试）时回退为加载全部，避免破坏既有智能体
+                        var selectedTools = ParseSelectedTools(item.McpSelectedTools);
+                        var toolsToAdd = mcpTools.Cast<AITool>()
+                            .Where(t => selectedTools.Count == 0 || selectedTools.Contains(t.Name))
+                            .ToList();
+                        aiTools.AddRange(toolsToAdd);
                     }
                     catch
                     {
@@ -398,6 +403,26 @@ namespace kevin.Application.Services.AI
                 }
             }
             return aiTools;
+        }
+
+        /// <summary>
+        /// 解析Mcp勾选启用的工具名称（JSON字符串数组），非法或空时返回空列表
+        /// </summary>
+        private static List<string> ParseSelectedTools(string? json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return new List<string>();
+            }
+            try
+            {
+                var list = JsonSerializer.Deserialize<List<string>>(json);
+                return list?.Where(t => !string.IsNullOrWhiteSpace(t)).Select(t => t.Trim()).ToList() ?? new List<string>();
+            }
+            catch
+            {
+                return new List<string>();
+            }
         }
 
         public async Task<List<string>> GetAIAgentSkillsAsync(string agentId)

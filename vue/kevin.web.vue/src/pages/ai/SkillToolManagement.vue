@@ -125,7 +125,7 @@
       :mask-closable="!skillScanning"
       :keyboard="!skillScanning"
       :cancel-button-props="skillScanning ? { style: { display: 'none' } } : {}"
-      width="600px"
+      width="820px"
     >
       <a-alert
         v-if="skillScanning"
@@ -196,6 +196,57 @@
         <a-form-item v-if="form.skillToolType === 3 && form.mcpType === 'stdio'" label="McpEnvironment">
           <a-textarea v-model:value="form.mcpEnvironment" :rows="3" placeholder="键值对Json格式" />
         </a-form-item>
+        <a-form-item v-if="form.skillToolType === 3" label="Mcp工具" v-bind="validateInfos.mcpSelectedTools">
+          <div style="margin-bottom: 8px">
+            <a-button type="primary" ghost :loading="mcpTesting" :disabled="skillScanning" @click="handleTestMcp">
+              <template #icon>
+                <ApiOutlined />
+              </template>
+              测试连接
+            </a-button>
+            <a-tag v-if="mcpTested" color="green" style="margin-left: 12px">
+              连接成功，共 {{ mcpToolList.length }} 个工具
+            </a-tag>
+            <span style="margin-left: 12px; color: #999; font-size: 12px">
+              测试连接后勾选需要启用的工具，AI 只会加载勾选的工具
+            </span>
+          </div>
+          <a-spin :spinning="mcpTesting">
+            <div v-if="mcpToolList.length > 0" class="mcp-tool-list">
+              <a-input-search
+                v-model:value="mcpToolKeyword"
+                placeholder="搜索Mcp工具名称或描述"
+                allow-clear
+                style="margin-bottom: 8px"
+              />
+              <div style="margin-bottom: 8px; border-bottom: 1px solid #f0f0f0; padding-bottom: 6px">
+                <a-checkbox
+                  :checked="allFilteredChecked"
+                  :indeterminate="someFilteredChecked && !allFilteredChecked"
+                  :disabled="filteredMcpToolList.length === 0"
+                  @change="onCheckAllMcpTools"
+                >
+                  全选（已选 {{ form.mcpSelectedTools.length }}/{{ mcpToolList.length }}）
+                </a-checkbox>
+              </div>
+              <a-checkbox-group v-model:value="form.mcpSelectedTools" style="width: 100%">
+                <div v-for="tool in filteredMcpToolList" :key="tool.name" style="margin-bottom: 6px">
+                  <a-checkbox :value="tool.name">
+                    <span style="font-weight: 500">{{ tool.name }}</span>
+                    <span v-if="tool.description" style="color: #999; margin-left: 8px">{{ tool.description }}</span>
+                  </a-checkbox>
+                </div>
+              </a-checkbox-group>
+              <div v-if="filteredMcpToolList.length === 0" style="color: #999; padding: 8px 0">
+                没有匹配“{{ mcpToolKeyword }}”的工具
+              </div>
+            </div>
+            <div v-else style="color: #999; padding: 8px 0">
+              尚未测试连接，请点击“测试连接”加载该 Mcp 服务下的工具列表
+            </div>
+          </a-spin>
+
+        </a-form-item>
         <a-form-item label="描述">
           <a-textarea v-model:value="form.description" :rows="4" placeholder="请输入描述" :maxlength="500" show-count />
         </a-form-item>
@@ -241,6 +292,12 @@
         <a-descriptions-item label="McpCommand" v-if="viewItem?.skillToolType === 3 && viewItem?.mcpType === 'stdio'">{{ viewItem?.mcpCommand || '无' }}</a-descriptions-item>
         <a-descriptions-item label="McpArguments" v-if="viewItem?.skillToolType === 3 && viewItem?.mcpType === 'stdio'">{{ viewItem?.mcpArguments || '无' }}</a-descriptions-item>
         <a-descriptions-item label="McpEnvironment" v-if="viewItem?.skillToolType === 3 && viewItem?.mcpType === 'stdio'">{{ viewItem?.mcpEnvironment || '无' }}</a-descriptions-item>
+        <a-descriptions-item label="启用工具" v-if="viewItem?.skillToolType === 3">
+          <template v-if="parseSelectedTools(viewItem?.mcpSelectedTools).length > 0">
+            <a-tag v-for="t in parseSelectedTools(viewItem?.mcpSelectedTools)" :key="t" color="blue" style="margin-bottom: 4px">{{ t }}</a-tag>
+          </template>
+          <span v-else>无</span>
+        </a-descriptions-item>
       </a-descriptions>
     </a-modal>
   </div>
@@ -248,7 +305,7 @@
 
 <script setup>
 import "../../css/CardTable.css";
-import { ref, reactive, computed, watch, onMounted, onUnmounted, h } from "vue";
+import { ref, reactive, computed, watch, onMounted, onUnmounted, nextTick, h } from "vue";
 import {
   ToolOutlined,
   PlusOutlined,
@@ -257,6 +314,7 @@ import {
   EllipsisOutlined,
   EyeOutlined,
   LoadingOutlined,
+  ApiOutlined,
 } from "@ant-design/icons-vue";
 import { message, Modal } from "ant-design-vue";
 import { Form } from "ant-design-vue";
@@ -264,6 +322,7 @@ import {
   getAISkillToolManagementPageData, 
   addEditAISkillToolManagement,
   deleteAISkillToolManagement,
+  testMcpConnection,
 } from "@/api/ai/aiskilltoolManagement";
 import { GetSnowflakeId } from "@/api/baseapi";
 import FileUpload from "@/components/FileUpload.vue";
@@ -327,7 +386,113 @@ const form = reactive({
   mcpCommand: "",
   mcpArguments: "",
   mcpEnvironment: "",
+  mcpSelectedTools: [],
 });
+
+// Mcp测试连接状态：mcpToolList为测试返回的全部工具，mcpTested标记本次是否测试成功
+const mcpTesting = ref(false);
+const mcpTested = ref(false);
+const mcpToolList = ref([]);
+// Mcp工具搜索关键字（按名称/描述过滤，仅影响展示，不影响已勾选结果）
+const mcpToolKeyword = ref("");
+// 编辑回显期间抑制“配置变更即清空测试结果”的watch，避免刚回填就被清掉
+const mcpRestoring = ref(false);
+
+// 按关键字过滤后的Mcp工具列表（不区分大小写，匹配名称或描述）
+const filteredMcpToolList = computed(() => {
+  const kw = (mcpToolKeyword.value || "").trim().toLowerCase();
+  if (!kw) return mcpToolList.value;
+  return mcpToolList.value.filter(
+    (t) =>
+      (t.name || "").toLowerCase().includes(kw) ||
+      (t.description || "").toLowerCase().includes(kw)
+  );
+});
+
+// 当前筛选结果是否已全选/部分选中
+const allFilteredChecked = computed(
+  () =>
+    filteredMcpToolList.value.length > 0 &&
+    filteredMcpToolList.value.every((t) => form.mcpSelectedTools.includes(t.name))
+);
+const someFilteredChecked = computed(() =>
+  filteredMcpToolList.value.some((t) => form.mcpSelectedTools.includes(t.name))
+);
+
+
+// 解析后端存储的JSON字符串数组（勾选工具/全部工具名），非法或空返回[]
+const parseJsonArray = (json) => {
+  if (!json) return [];
+  try {
+    const arr = JSON.parse(json);
+    return Array.isArray(arr) ? arr.filter((t) => t) : [];
+  } catch (e) {
+    return [];
+  }
+};
+
+// 预览弹窗展示已勾选工具名
+const parseSelectedTools = (json) => parseJsonArray(json);
+
+const onCheckAllMcpTools = (e) => {
+  // 全选/取消仅作用于当前筛选出的工具，不影响筛选外的已勾选项
+  const names = filteredMcpToolList.value.map((t) => t.name);
+  if (e.target.checked) {
+    form.mcpSelectedTools = Array.from(new Set([...form.mcpSelectedTools, ...names]));
+  } else {
+    form.mcpSelectedTools = form.mcpSelectedTools.filter((n) => !names.includes(n));
+  }
+};
+
+const handleTestMcp = async () => {
+  if (!form.mcpType) {
+    message.warning("请先选择Mcp类型");
+    return;
+  }
+  if (form.mcpType !== "stdio" && !form.mcpUrl) {
+    message.warning("请先填写Mcp地址");
+    return;
+  }
+  if (form.mcpType === "stdio" && !form.mcpCommand) {
+    message.warning("请先填写McpCommand");
+    return;
+  }
+  mcpTesting.value = true;
+  mcpToolKeyword.value = "";
+  try {
+    const response = await testMcpConnection({
+      mcpUrl: form.mcpUrl,
+      mcpType: form.mcpType,
+      mcpHeaders: form.mcpHeaders,
+      mcpCommand: form.mcpCommand,
+      mcpArguments: form.mcpArguments,
+      mcpEnvironment: form.mcpEnvironment,
+    });
+    if (response && response.code === 200 && Array.isArray(response.data)) {
+      mcpToolList.value = response.data.map((t) => ({
+        name: t.name,
+        description: t.description || "",
+      }));
+      // 保留仍然存在的已勾选工具，测试新返回的工具默认不勾选
+      const names = mcpToolList.value.map((t) => t.name);
+      form.mcpSelectedTools = (form.mcpSelectedTools || []).filter((n) => names.includes(n));
+      mcpTested.value = true;
+      clearValidate("mcpSelectedTools");
+      message.success(`连接成功，返回 ${mcpToolList.value.length} 个工具`);
+    } else {
+      mcpToolList.value = [];
+      mcpTested.value = false;
+      message.error(response?.err_msg || "测试连接失败");
+    }
+  } catch (error) {
+    mcpToolList.value = [];
+    mcpTested.value = false;
+    message.error("测试连接失败: " + (error?.message || "未知错误"));
+  } finally {
+    mcpTesting.value = false;
+  }
+};
+
 
 const validateSkillFile = (rule, value) => {
   if (form.skillToolType !== 2) {
@@ -361,6 +526,19 @@ const validateSkillFileName = (rule, value) => {
   return Promise.resolve();
 };
 
+// Mcp必须先测试连接成功并至少勾选一个工具，AI运行时只会加载勾选的工具
+const validateMcpSelectedTools = (rule, value) => {
+  if (form.skillToolType !== 3) return Promise.resolve();
+  if (mcpToolList.value.length === 0) {
+    return Promise.reject("请先点击“测试连接”并成功返回Mcp工具");
+  }
+  if (!value || value.length === 0) {
+    return Promise.reject("请至少勾选一个Mcp工具");
+  }
+  return Promise.resolve();
+};
+
+
 const rules = computed(() => ({
   name: [
     { required: true, message: "请输入名称" },
@@ -376,13 +554,27 @@ const rules = computed(() => ({
   mcpUrl: (form.skillToolType === 3 && form.mcpType !== 'stdio') ? [{ required: true, message: "请输入Mcp地址" }] : [],
   mcpType: form.skillToolType === 3 ? [{ required: true, message: "请选择Mcp类型" }] : [],
   mcpCommand: (form.skillToolType === 3 && form.mcpType === 'stdio') ? [{ required: true, message: "请输入McpCommand" }] : [],
+  mcpSelectedTools: form.skillToolType === 3 ? [{ required: true, validator: validateMcpSelectedTools, trigger: "change" }] : [],
 }));
 
 const { validate: validateForm, validateInfos, clearValidate } = useForm(form, rules);
 
 watch(() => form.skillToolType, () => {
-  clearValidate(["classMethod", "skillFile", "mcpUrl", "mcpType", "mcpHeaders", "mcpCommand", "mcpArguments", "mcpEnvironment"]);
+  clearValidate(["classMethod", "skillFile", "mcpUrl", "mcpType", "mcpHeaders", "mcpCommand", "mcpArguments", "mcpEnvironment", "mcpSelectedTools"]);
 });
+
+// Mcp连接配置变更后，此前的测试结果与勾选失效，需重新测试连接
+watch(
+  () => [form.mcpUrl, form.mcpType, form.mcpHeaders, form.mcpCommand, form.mcpArguments, form.mcpEnvironment],
+  () => {
+    if (mcpRestoring.value) return;
+    mcpToolList.value = [];
+    form.mcpSelectedTools = [];
+    mcpTested.value = false;
+    mcpToolKeyword.value = "";
+  }
+);
+
 
 // Mcp类型切换时清空stdio相关验证
 watch(() => form.mcpType, () => {
@@ -445,6 +637,10 @@ const loadData = async () => {
 const showAddModal = async () => {
   modalTitle.value = "添加技能工具";
   currentRecord.value = null;
+  mcpRestoring.value = true;
+  mcpToolList.value = [];
+  mcpTested.value = false;
+  mcpToolKeyword.value = "";
   try {
     const snowflakeId = await GetSnowflakeId();
     Object.assign(form, {
@@ -461,6 +657,7 @@ const showAddModal = async () => {
       mcpCommand: "",
       mcpArguments: "",
       mcpEnvironment: "",
+      mcpSelectedTools: [],
     });
   } catch (error) {
     console.error("获取ID失败:", error);
@@ -478,9 +675,13 @@ const showAddModal = async () => {
       mcpCommand: "",
       mcpArguments: "",
       mcpEnvironment: "",
+      mcpSelectedTools: [],
     });
   }
   modalVisible.value = true;
+  nextTick(() => {
+    mcpRestoring.value = false;
+  });
 };
 
 const onFileUploadSuccess = (data) => {
@@ -523,6 +724,7 @@ const showEditModal = (record) => {
   }
   modalTitle.value = "编辑技能工具";
   currentRecord.value = record;
+  mcpRestoring.value = true;
   form.id = record.id || "";
   form.name = record.name || "";
   form.classMethod = record.classMethod || "";
@@ -536,7 +738,16 @@ const showEditModal = (record) => {
   form.mcpCommand = record.mcpCommand || "";
   form.mcpArguments = record.mcpArguments || "";
   form.mcpEnvironment = record.mcpEnvironment || "";
+  // 回显已保存的Mcp工具列表与勾选状态（描述需重新测试连接才会带出）
+  const savedToolNames = parseJsonArray(record.mcpTools);
+  mcpToolList.value = savedToolNames.map((n) => ({ name: n, description: "" }));
+  form.mcpSelectedTools = parseJsonArray(record.mcpSelectedTools).filter((n) => savedToolNames.includes(n));
+  mcpTested.value = mcpToolList.value.length > 0;
+  mcpToolKeyword.value = "";
   modalVisible.value = true;
+  nextTick(() => {
+    mcpRestoring.value = false;
+  });
 };
 
 const showDeleteConfirm = (record) => {
@@ -618,6 +829,8 @@ const submitForm = async () => {
     startScanTimer();
   }
   try {
+    const mcpToolsPayload = form.skillToolType === 3 ? JSON.stringify(mcpToolList.value.map((t) => t.name)) : "";
+    const mcpSelectedPayload = form.skillToolType === 3 ? JSON.stringify(form.mcpSelectedTools || []) : "";
     await addEditAISkillToolManagement(currentRecord.value ? {
       id: form.id,
       name: form.name,
@@ -631,6 +844,8 @@ const submitForm = async () => {
       mcpCommand: form.mcpCommand,
       mcpArguments: form.mcpArguments,
       mcpEnvironment: form.mcpEnvironment,
+      mcpTools: mcpToolsPayload,
+      mcpSelectedTools: mcpSelectedPayload,
     } : {
       id: form.id,
       name: form.name,
@@ -644,7 +859,10 @@ const submitForm = async () => {
       mcpCommand: form.mcpCommand,
       mcpArguments: form.mcpArguments,
       mcpEnvironment: form.mcpEnvironment,
+      mcpTools: mcpToolsPayload,
+      mcpSelectedTools: mcpSelectedPayload,
     });
+
 
     message.success(currentRecord.value ? "更新成功" : "添加成功");
     modalVisible.value = false;
@@ -697,3 +915,13 @@ onUnmounted(() => {
   stopScanTimer();
 });
 </script>
+
+<style scoped>
+.mcp-tool-list {
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+</style>

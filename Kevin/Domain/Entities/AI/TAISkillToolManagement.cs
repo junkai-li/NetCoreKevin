@@ -86,6 +86,18 @@ namespace kevin.Domain.Entities.AI
         [Description("McpEnvironment 键值对Json格式")]
         public String? McpEnvironment { get; set; } = "";
 
+        /// <summary>
+        /// Mcp测试连接成功后返回的全部工具名称（JSON字符串数组）
+        /// </summary> 
+        [Description("Mcp测试连接返回的全部工具名称 Json数组格式")]
+        public String? McpTools { get; set; } = "";
+
+        /// <summary>
+        /// Mcp勾选启用的工具名称（JSON数组，AI运行时仅加载这些工具）
+        /// </summary> 
+        [Description("Mcp勾选启用的工具名称 Json数组格式")]
+        public String? McpSelectedTools { get; set; } = "";
+
 
 
     }

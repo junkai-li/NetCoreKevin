@@ -539,6 +539,16 @@
             McpEnvironment
             </summary> 
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.McpTools">
+            <summary>
+            Mcp测试连接成功后返回的全部工具名称（JSON字符串数组）
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.McpSelectedTools">
+            <summary>
+            Mcp勾选启用的工具名称（JSON数组，AI运行时仅加载这些工具）
+            </summary> 
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.Description">
             <summary>
             描述
@@ -567,6 +577,61 @@
         <member name="M:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.Check">
             <summary>
             检验
+            </summary>
+        </member>
+        <member name="M:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.ParseJsonArray(System.String)">
+            <summary>
+            解析JSON字符串数组，非法或空时返回空列表
+            </summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.AI.McpConnectionTestDto">
+            <summary>
+            Mcp测试连接请求参数（仅连接相关字段，不含名称等必填业务字段）
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.McpConnectionTestDto.McpUrl">
+            <summary>
+            Mcp地址
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.McpConnectionTestDto.McpType">
+            <summary>
+            McpType https,sse,stdio
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.McpConnectionTestDto.McpHeaders">
+            <summary>
+            McpHeaders 键值对Json格式
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.McpConnectionTestDto.McpCommand">
+            <summary>
+            McpCommand
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.McpConnectionTestDto.McpArguments">
+            <summary>
+            McpArguments ,分隔
+            </summary> 
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.McpConnectionTestDto.McpEnvironment">
+            <summary>
+            McpEnvironment 键值对Json格式
+            </summary> 
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.AI.McpToolDto">
+            <summary>
+            Mcp测试连接返回的单个工具信息
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.McpToolDto.Name">
+            <summary>
+            工具名称
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.McpToolDto.Description">
+            <summary>
+            工具描述
             </summary>
         </member>
         <member name="T:kevin.Domain.Share.Dtos.Bases.CD_Dto">

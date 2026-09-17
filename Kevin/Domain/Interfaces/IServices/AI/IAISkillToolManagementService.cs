@@ -56,5 +56,12 @@ namespace kevin.Domain.Interfaces.IServices.AI
 
         Task<List<AISkillToolManagementDto>> GetNotDataPerAllMcps();
 
+        /// <summary>
+        /// 测试Mcp连接并返回该Mcp服务下的全部工具
+        /// </summary>
+        /// <param name="data">Mcp配置（McpType/McpUrl/McpHeaders/McpCommand/McpArguments/McpEnvironment）</param>
+        /// <returns>连接成功返回工具列表，失败抛出异常</returns>
+        Task<List<McpToolDto>> TestMcpConnection(McpConnectionTestDto data);
+
     }
 }

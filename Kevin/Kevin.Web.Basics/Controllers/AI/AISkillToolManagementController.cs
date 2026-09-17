@@ -85,15 +85,6 @@ namespace Kevin.Web.Basics.Controllers.AI
             return result;
         }
 
-        [HttpGet("GetAllMcps")]
-        [ActionDescription("获取AIMcp工具列表")]
-        [HttpLog("AI应用管理", "获取AIMcp工具列表")]
-        public async Task<List<AISkillToolManagementDto>> GetAllMcps()
-        {
-            var result = await _service.GetAllMcps();
-            return result;
-        }
-
         /// <summary>
         /// 删除AI技能工具
         /// </summary>
@@ -105,6 +96,30 @@ namespace Kevin.Web.Basics.Controllers.AI
         public async Task<bool> Delete([FromQuery][Required] long Id)
         {
             var result = await _service.Delete(Id);
+            return result;
+        }
+
+
+        [HttpGet("GetAllMcps")]
+        [ActionDescription("获取AIMcp工具列表")]
+        [HttpLog("AI应用管理", "获取AIMcp工具列表")]
+        public async Task<List<AISkillToolManagementDto>> GetAllMcps()
+        {
+            var result = await _service.GetAllMcps();
+            return result;
+        }
+
+        /// <summary>
+        /// 测试Mcp连接并返回该Mcp服务下的全部工具
+        /// </summary>
+        /// <param name="par"></param>
+        /// <returns></returns>
+        [HttpPost("TestMcpConnection")]
+        [ActionDescription("测试Mcp连接")]
+        [HttpLog("AI技能工具管理", "测试Mcp连接")]
+        public async Task<List<McpToolDto>> TestMcpConnection([FromBody] McpConnectionTestDto par)
+        {
+            var result = await _service.TestMcpConnection(par);
             return result;
         }
     }

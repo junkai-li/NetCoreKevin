@@ -231,6 +231,13 @@
             <param name="Id"></param>
             <returns></returns>
         </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.AISkillToolManagementController.TestMcpConnection(kevin.Domain.Share.Dtos.AI.McpConnectionTestDto)">
+            <summary>
+            测试Mcp连接并返回该Mcp服务下的全部工具
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
         <member name="T:Kevin.Web.Basics.Controllers.AI.AITasksController">
             <summary>
             AI自动任务管理
