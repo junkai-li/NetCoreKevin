@@ -1,6 +1,6 @@
 schema_version: 1
 module_path: app_project
-title: App 领域应用层（WebApi + Application + Domain + RepositorieRps + AppShare）
+title: 基于 kevin 框架的 .NET WebApi 分层应用
 scope:
     - App/
 source_files: []

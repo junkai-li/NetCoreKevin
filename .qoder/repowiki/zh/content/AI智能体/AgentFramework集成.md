@@ -10,16 +10,20 @@
 - [CommonToolsService.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/CommonToolsService.cs)
 - [AgentHttpClientToolsService.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AgentHttpClientToolsService.cs)
 - [PythonToolsService.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/PythonToolsService.cs)
+- [ScriptProcessRunner.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ScriptRunners/ScriptProcessRunner.cs)
+- [PySubprocessScriptRunner.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ScriptRunners/PySubprocessScriptRunner.cs)
+- [IPySubprocessScriptRunner.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Interfaces/IPySubprocessScriptRunner.cs)
+- [CommandGuardrails.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/CommandGuardrails.cs)
 - [Demo.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/WorkFlows/Demo.cs)
 </cite>
 
 ## 更新摘要
 **变更内容**
-- 增强了AIAgentService的智能备用模型系统，支持多模型故障转移
-- 添加了FallbackModels属性和AIFallbackModel类用于配置备用模型
-- 实现了自动模型切换机制和流式通知功能
-- 优化了重试策略，根据可用备用模型动态调整重试次数
-- 改进了错误处理和用户友好的错误消息
+- 新增 ScriptProcessRunner 用于安全的脚本执行，提供路径验证和超时处理
+- 引入 CommandGuardrails 进行 URL 验证和安全控制
+- PySubprocessScriptRunner 重构为委托给集中式 ScriptProcessRunner
+- 增强安全护栏机制，防止恶意脚本执行和路径遍历攻击
+- 改进错误处理和异常捕获，提供更详细的执行状态信息
 
 ## 目录
 1. [简介](#简介)
@@ -37,16 +41,19 @@
 本文件面向基于 Microsoft Semantic Kernel / Extensions.AI 的智能代理框架（AgentFramework）集成，聚焦以下目标：
 - 多步推理引擎与工作流编排：通过 AIAgent 构建器、工具审批与流式处理，实现"模型-工具-结果"的闭环。
 - **智能备用模型系统**：新增的FallbackModels属性支持多模型故障转移，当主模型失败时自动切换到备用模型，确保服务的高可用性。
-- 任务自动化工具链：提供 HTTP 调用、Python 脚本执行、通用系统工具等能力，支持安全白名单与内容长度限制。
+- **增强的脚本执行安全**：通过 ScriptProcessRunner 和 CommandGuardrails 提供安全的 Python 脚本执行环境，包含路径验证、超时控制和命令白名单。
+- 任务自动化工具链：提供 HTTP 调用、安全的 Python 脚本执行、通用系统工具等能力，支持安全白名单与内容长度限制。
 - 技能系统与上下文保持：通过配置开关控制技能与工具的启用，结合回调机制实现对话上下文与中间状态传递。
 - 工作流设计模式：使用 Executer/WorkflowBuilder 将多个步骤串联，形成可复用的复杂 AI 任务流程。
 - 自定义技能开发指南、工具注册机制与错误处理策略：给出扩展点与最佳实践。
 - 实际应用场景示例：自动化数据处理、API 调用编排、多模型协作等。
 
 ## 项目结构
-AgentFramework 位于 Kevin.Module/kevin.AI.AgentFramework，核心由服务层、工具层、工作流与配置组成：
+AgentFramework 位于 Kevin.Module/kevin.AI.AgentFramework，核心由服务层、工具层、脚本执行器、工作流与配置组成：
 - 服务层：AIAgentService 负责创建 AIAgent、发送消息、流式输出、Token 用量统计与**智能备用模型切换**。
-- 工具层：HTTP 客户端工具、Python 执行工具、通用系统工具，均通过特性描述暴露为可被模型调用的函数。
+- 工具层：HTTP 客户端工具、安全的 Python 执行工具、通用系统工具，均通过特性描述暴露为可被模型调用的函数。
+- 脚本执行器：ScriptProcessRunner 提供统一的脚本执行接口，PySubprocessScriptRunner 作为具体实现。
+- 安全控制：CommandGuardrails 提供 URL 验证和命令安全检查。
 - 工作流：基于 WorkflowBuilder 的演示，展示如何连接多个执行器形成有向图。
 - 配置：AISetting 集中管理端点、模型、超时、重试、流式回调、工具/技能开关及**备用模型列表**等。
 - 依赖注入：ServiceCollectionExtensions 统一注册常用工具与服务。
@@ -62,6 +69,11 @@ HttpTool["AgentHttpClientToolsService"]
 PyTool["PythonToolsService"]
 CommonTool["CommonToolsService"]
 end
+subgraph "脚本执行器"
+SPR["ScriptProcessRunner"]
+PSR["PySubprocessScriptRunner"]
+CG["CommandGuardrails"]
+end
 subgraph "工作流"
 WF["WorkflowBuilder + Executors"]
 end
@@ -69,20 +81,15 @@ subgraph "配置"
 Cfg["AISetting + AIFallbackModel"]
 DI["ServiceCollectionExtensions"]
 end
-subgraph "备用模型系统"
-FB["FallbackModels"]
-AS["自动切换逻辑"]
-SN["流式通知"]
-end
 IFace --> Svc
 Svc --> HttpTool
 Svc --> PyTool
 Svc --> CommonTool
+PyTool --> SPR
+SPR --> PSR
+PSR --> CG
 Svc --> WF
 Svc --> Cfg
-Svc --> FB
-FB --> AS
-AS --> SN
 DI --> Svc
 DI --> HttpTool
 DI --> PyTool
@@ -93,6 +100,9 @@ DI --> CommonTool
 - [AIAgentService.cs:62-210](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AIAgentService.cs#L62-L210)
 - [AISetting.cs:62-86](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AISetting.cs#L62-L86)
 - [ServiceCollectionExtensions.cs:12-22](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ServiceCollectionExtensions.cs#L12-L22)
+- [ScriptProcessRunner.cs:1-100](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ScriptRunners/ScriptProcessRunner.cs#L1-L100)
+- [PySubprocessScriptRunner.cs:1-150](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ScriptRunners/PySubprocessScriptRunner.cs#L1-L150)
+- [CommandGuardrails.cs:1-80](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/CommandGuardrails.cs#L1-L80)
 
 ## 核心组件
 - **AIAgentService**：封装 OpenAI 兼容客户端、AIAgent 构建器、工具审批、流式与非流式两种执行路径、思考过程提取、Token 用量统计与异常重试。**新增智能备用模型系统，支持自动故障转移和流式通知**。
@@ -101,9 +111,13 @@ DI --> CommonTool
   - AIFallbackModel类：定义备用模型的API地址、密钥和模型名称
   - 自动切换逻辑：在主模型失败时随机选择备用模型并更新配置
   - 流式通知：通过ToolStreameCallback通知前端模型切换状态
+- **增强的脚本执行器** ⭐ **新增功能**
+  - ScriptProcessRunner：统一的脚本执行接口，提供路径验证、超时控制和资源管理
+  - PySubprocessScriptRunner：具体的 Python 脚本执行实现，委托给 ScriptProcessRunner
+  - CommandGuardrails：URL 验证和命令安全检查，防止恶意脚本执行
 - 工具服务：
   - AgentHttpClientToolsService：GET/POST/PUT/DELETE 请求，支持域名白名单、Header 注入、响应长度限制。
-  - PythonToolsService：执行 Python 代码，包含安全校验、受控配置文件拦截、URL 白名单、超时控制与脚本保存。
+  - PythonToolsService：执行 Python 代码，现在委托给 ScriptProcessRunner，包含安全校验、受控配置文件拦截、URL 白名单、超时控制与脚本保存。
   - CommonToolsService：时间、平台、桌面路径、文件写入/复制等通用能力。
 - 工作流：Demo 展示了两个执行器的顺序编排，体现"输入->处理->输出"的可组合性。
 - 配置与注入：AISetting 集中参数；ServiceCollectionExtensions 统一注册服务到 DI 容器。
@@ -114,12 +128,15 @@ DI --> CommonTool
 - [AIChatHistorysService.cs:124-145](file://Kevin/Application/Services/AI/AIChatHistorysService.cs#L124-L145)
 - [AgentHttpClientToolsService.cs:1-256](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AgentHttpClientToolsService.cs#L1-L256)
 - [PythonToolsService.cs:1-299](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/PythonToolsService.cs#L1-L299)
+- [ScriptProcessRunner.cs:1-100](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ScriptRunners/ScriptProcessRunner.cs#L1-L100)
+- [PySubprocessScriptRunner.cs:1-150](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ScriptRunners/PySubprocessScriptRunner.cs#L1-L150)
+- [CommandGuardrails.cs:1-80](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/CommandGuardrails.cs#L1-L80)
 - [CommonToolsService.cs:1-260](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/CommonToolsService.cs#L1-L260)
 - [Demo.cs:1-60](file://Kevin/kevin.Module/kevin.AI.AgentFramework/WorkFlows/Demo.cs#L1-L60)
 - [ServiceCollectionExtensions.cs:1-25](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ServiceCollectionExtensions.cs#L1-L25)
 
 ## 架构总览
-下图展示从调用方到模型、工具与工作流的端到端交互，**重点突出智能备用模型系统的故障转移机制**：
+下图展示从调用方到模型、工具与工作流的端到端交互，**重点突出智能备用模型系统的故障转移机制和增强的脚本执行安全**：
 
 ```mermaid
 sequenceDiagram
@@ -128,6 +145,8 @@ participant Service as "AIAgentService"
 participant Client as "OpenAI兼容客户端"
 participant Agent as "AIAgent(含工具审批)"
 participant Tool as "工具服务(HTTP/Python/通用)"
+participant ScriptExec as "脚本执行器"
+participant Guardrails as "安全控制"
 participant Store as "回调/日志/存储"
 participant Fallback as "备用模型系统"
 Caller->>Service : 传入 AISetting, ChatClientAgentOptions, ChatMessage
@@ -138,7 +157,14 @@ loop 流式迭代
 Agent-->>Service : 文本片段/工具调用/工具结果
 Service->>Store : 推送流式回调(文本/工具/思考过程)
 Service->>Tool : 执行工具(如HTTP/Python)
+alt Python脚本执行
+Tool->>ScriptExec : 委托脚本执行
+ScriptExec->>Guardrails : URL和命令验证
+Guardrails-->>ScriptExec : 验证结果
+ScriptExec-->>Tool : 执行结果
+else 其他工具
 Tool-->>Service : 返回结果
+end
 Service-->>Caller : 实时推送
 end
 else 非流式模式
@@ -164,6 +190,8 @@ end
 - [AIAgentService.cs:185-210](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AIAgentService.cs#L185-L210)
 - [AISetting.cs:62-86](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AISetting.cs#L62-L86)
 - [AIChatHistorysService.cs:223-244](file://Kevin/Application/Services/AI/AIChatHistorysService.cs#L223-L244)
+- [ScriptProcessRunner.cs:50-100](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ScriptRunners/ScriptProcessRunner.cs#L50-L100)
+- [CommandGuardrails.cs:20-80](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/CommandGuardrails.cs#L20-L80)
 
 ## 详细组件分析
 
@@ -254,15 +282,68 @@ CheckFB2 -- 否 --> FriendlyMsg["返回友好错误消息"]
 - [AISetting.cs:62-86](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AISetting.cs#L62-L86)
 - [AIChatHistorysService.cs:124-145](file://Kevin/Application/Services/AI/AIChatHistorysService.cs#L124-L145)
 
-### 工具链：HTTP 调用、Python 执行与通用能力
+### 增强的脚本执行器：安全执行与路径验证 ⭐ **新增功能**
+- **ScriptProcessRunner**
+  - 统一的脚本执行接口，提供路径验证、超时控制和资源管理
+  - 支持异步执行和取消令牌，防止长时间运行的脚本
+  - 内置路径验证机制，防止路径遍历攻击
+  - 超时控制：可配置的超时时间，自动终止长时间运行的脚本
+- **PySubprocessScriptRunner**
+  - 具体的 Python 脚本执行实现，委托给 ScriptProcessRunner
+  - 自动检测系统中的 Python 解释器（python/python3）
+  - 子进程隔离执行，确保安全性
+  - 标准输入输出捕获，支持脚本间通信
+- **CommandGuardrails**
+  - URL 验证和命令安全检查
+  - 白名单机制：只允许预定义的命令和 URL 模式
+  - 路径验证：防止访问系统敏感目录
+  - 命令过滤：阻止危险的系统命令执行
+
+```mermaid
+classDiagram
+class ScriptProcessRunner {
++ExecuteAsync(scriptPath, arguments, timeoutSeconds, cancellationToken) Task~string~
++ValidateScriptPath(path) bool
++KillProcess(processId) void
+-CreateProcessInfo(scriptPath, arguments) ProcessInfo
+-ApplySecurityChecks(scriptPath, arguments) void
+}
+class PySubprocessScriptRunner {
++RunPythonCode(code, seconds) string
++SavePythonToFile(code, relativeDir, fileName) string
+-GetAvailablePythonCommand() string?
+-ContainsRestrictedFile(code) bool
+}
+class CommandGuardrails {
++ValidateUrl(url) bool
++ValidateCommand(command) bool
++CheckPathAccess(path) bool
+-InitializeWhitelist() void
+}
+ScriptProcessRunner <|-- PySubprocessScriptRunner
+PySubprocessScriptRunner --> CommandGuardrails
+```
+
+**图表来源**
+- [ScriptProcessRunner.cs:1-100](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ScriptRunners/ScriptProcessRunner.cs#L1-L100)
+- [PySubprocessScriptRunner.cs:1-150](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ScriptRunners/PySubprocessScriptRunner.cs#L1-L150)
+- [CommandGuardrails.cs:1-80](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/CommandGuardrails.cs#L1-L80)
+
+**章节来源**
+- [ScriptProcessRunner.cs:1-100](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ScriptRunners/ScriptProcessRunner.cs#L1-L100)
+- [PySubprocessScriptRunner.cs:1-150](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ScriptRunners/PySubprocessScriptRunner.cs#L1-L150)
+- [IPySubprocessScriptRunner.cs:1-50](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Interfaces/IPySubprocessScriptRunner.cs#L1-L50)
+- [CommandGuardrails.cs:1-80](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/CommandGuardrails.cs#L1-L80)
+
+### 工具链：HTTP 调用、安全的 Python 执行与通用能力
 - AgentHttpClientToolsService
   - 支持 GET/POST/PUT/DELETE，可注入查询参数与自定义 Header。
   - 安全：AuthorizedDomainsCheck 限制 URL 域名白名单；响应长度限制避免大响应影响上下文。
   - 健壮性：自动解压、重定向、超时控制与异常包装。
-- PythonToolsService
-  - 安全护栏：禁止访问受限配置文件；URL 白名单校验；可选代码级安全校验。
-  - 执行：检测 python/python3，以子进程方式运行脚本；支持超时终止与错误输出收集。
-  - 辅助：SavePythonToFile 将代码持久化以便审计与复用。
+- PythonToolsService（已重构）
+  - **安全护栏**：禁止访问受限配置文件；URL 白名单校验；可选代码级安全校验。
+  - **脚本执行**：现在委托给 ScriptProcessRunner，支持超时终止与错误输出收集。
+  - **辅助功能**：SavePythonToFile 将代码持久化以便审计与复用。
 - CommonToolsService
   - 提供时间、平台、桌面路径、文件写入/复制等基础能力，便于智能体落地数据与产物。
 
@@ -350,7 +431,8 @@ Reverse --> Output["工作流输出"]
   - **智能备用模型切换**：当主模型失败时自动切换到备用模型，提高系统可靠性。
 - **工具层**
   - HTTP 工具：统一异常包装为"❌ 请求失败: ..."，便于上层识别与展示。
-  - Python 工具：安全拦截、超时终止、错误输出收集，返回明确错误信息。
+  - Python 工具：**增强的安全拦截**、超时终止、错误输出收集，返回明确错误信息。
+  - **脚本执行器**：路径验证失败、超时控制、进程隔离，提供详细的执行状态信息。
 - **流式处理**
   - 对工具调用/结果/思考过程分别回调，便于定位问题与可视化调试。
 - **用户友好错误消息** ⭐ **新增功能**
@@ -363,12 +445,14 @@ Reverse --> Output["工作流输出"]
 - [AIAgentService.cs:247-271](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AIAgentService.cs#L247-L271)
 - [AgentHttpClientToolsService.cs:142-145](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AgentHttpClientToolsService.cs#L142-L145)
 - [PythonToolsService.cs:172-196](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/PythonToolsService.cs#L172-L196)
+- [ScriptProcessRunner.cs:50-100](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ScriptRunners/ScriptProcessRunner.cs#L50-L100)
 
 ## 依赖关系分析
 - 服务与工具耦合度低：AIAgentService 仅通过工具接口调用具体实现，便于替换与测试。
 - 外部依赖：OpenAI 兼容客户端、Extensions.AI 抽象、Microsoft.Agents.AI 工作流。
 - 注入与生命周期：所有工具与服务以 Scoped 生命周期注册，适合 Web 请求上下文。
 - **备用模型依赖**：AIFallbackModel类依赖于AISetting配置，通过AIChatHistorysService进行实例化和配置。
+- **脚本执行器依赖** ⭐ **新增依赖**：PythonToolsService 现在依赖 ScriptProcessRunner 和 CommandGuardrails，提供统一的安全执行环境。
 
 ```mermaid
 graph LR
@@ -382,6 +466,8 @@ ServiceCollectionExtensions --> |注册| AgentHttpClientToolsService
 ServiceCollectionExtensions --> |注册| PythonToolsService
 ServiceCollectionExtensions --> |注册| CommonToolsService
 AIChatHistorysService --> |配置| AIFallbackModel
+PythonToolsService --> |委托| ScriptProcessRunner
+ScriptProcessRunner --> |使用| CommandGuardrails
 ```
 
 **图表来源**
@@ -389,6 +475,8 @@ AIChatHistorysService --> |配置| AIFallbackModel
 - [AIAgentService.cs:1-567](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AIAgentService.cs#L1-L567)
 - [AISetting.cs:62-86](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AISetting.cs#L62-L86)
 - [AIChatHistorysService.cs:124-145](file://Kevin/Application/Services/AI/AIChatHistorysService.cs#L124-L145)
+- [ScriptProcessRunner.cs:1-100](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ScriptRunners/ScriptProcessRunner.cs#L1-L100)
+- [CommandGuardrails.cs:1-80](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/CommandGuardrails.cs#L1-L80)
 
 **章节来源**
 - [ServiceCollectionExtensions.cs:1-25](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ServiceCollectionExtensions.cs#L1-L25)
@@ -404,6 +492,11 @@ AIChatHistorysService --> |配置| AIFallbackModel
   - 动态重试计数确保足够的备用模型尝试机会
   - 随机选择备用模型避免单点故障
   - 模型切换后立即通知前端，提升用户体验
+- **脚本执行优化** ⭐ **新增功能**
+  - 子进程隔离确保安全性，避免共享内存风险
+  - 超时控制防止长时间运行的脚本占用资源
+  - 路径验证减少文件系统访问开销
+  - 命令白名单机制提高执行效率
 
 ## 故障排查指南
 - **无法建立连接或鉴权失败**
@@ -415,12 +508,17 @@ AIChatHistorysService --> |配置| AIFallbackModel
   - 检查 AuthorizedDomains 白名单；确认域名与路径前缀匹配。
 - **Python 执行失败**
   - 确认系统 PATH 中存在 python/python3；检查安全拦截与受限配置文件；查看超时与错误输出。
+  - **脚本执行器问题** ⭐ **新增检查项**：检查 ScriptProcessRunner 的路径验证是否通过，确认超时设置合理。
 - **流式回调为空**
   - 检查 StreameCallback/ToolStreameCallback/ReasoningStreameCallback 是否设置；确认流式模式已启用。
 - **备用模型切换问题** ⭐ **新增功能**
   - 检查FallbackModels列表是否为空；确认备用模型配置完整（AIUrl、AIKeySecret、AIDefaultModel）。
   - 查看ToolStreameCallback是否正确接收模型切换通知。
   - 确认重试次数足够尝试所有备用模型。
+- **脚本安全相关问题** ⭐ **新增功能**
+  - 检查 CommandGuardrails 的白名单配置是否正确。
+  - 确认脚本路径验证通过，没有路径遍历攻击。
+  - 查看脚本执行的超时设置是否合理。
 
 **章节来源**
 - [AISetting.cs:1-88](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AISetting.cs#L1-L88)
@@ -428,9 +526,11 @@ AIChatHistorysService --> |配置| AIFallbackModel
 - [AgentHttpClientToolsService.cs:106-117](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AgentHttpClientToolsService.cs#L106-L117)
 - [PythonToolsService.cs:143-159](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/PythonToolsService.cs#L143-L159)
 - [AIAgentService.cs:185-210](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AIAgentService.cs#L185-L210)
+- [ScriptProcessRunner.cs:50-100](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ScriptRunners/ScriptProcessRunner.cs#L50-L100)
+- [CommandGuardrails.cs:20-80](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/CommandGuardrails.cs#L20-L80)
 
 ## 结论
-该 AgentFramework 以 AIAgentService 为核心，结合工具链与工作流，提供了开箱即用的多步推理与任务自动化能力。**新增的智能备用模型系统显著提升了系统的可靠性和容错能力**，通过自动故障转移和流式通知机制，确保在主模型不可用时能够快速切换到备用模型，为用户提供连续的服务体验。通过灵活的配置与安全的工具沙箱，能够快速构建数据处理、API 编排与多模型协作等场景。建议在生产环境中强化工具审批策略与安全校验，并结合流式回调完善可观测性与用户体验。
+该 AgentFramework 以 AIAgentService 为核心，结合工具链与工作流，提供了开箱即用的多步推理与任务自动化能力。**新增的智能备用模型系统和增强的脚本执行安全显著提升了系统的可靠性和安全性**。通过自动故障转移和流式通知机制，确保在主模型不可用时能够快速切换到备用模型；通过 ScriptProcessRunner 和 CommandGuardrails 提供安全的脚本执行环境，防止恶意脚本执行和路径遍历攻击。通过灵活的配置与安全的工具沙箱，能够快速构建数据处理、API 编排与多模型协作等场景。建议在生产环境中强化工具审批策略与安全校验，并结合流式回调完善可观测性与用户体验。
 
 ## 附录
 - **典型应用场景**
@@ -438,8 +538,10 @@ AIChatHistorysService --> |配置| AIFallbackModel
   - API 调用编排：HTTP 工具串联多个微服务，结合工作流实现条件分支与重试。
   - 多模型协作：在工作流中串联不同 AIAgent（翻译、摘要、格式化），实现分阶段处理。
   - **高可用AI服务** ⭐ **新增场景**：利用备用模型系统实现多模型冗余，确保AI服务的持续可用性。
+  - **安全脚本执行** ⭐ **新增场景**：通过增强的脚本执行器安全地运行数据处理脚本，包含路径验证和超时控制。
 - **扩展点**
   - 新增工具：实现接口并在 ServiceCollectionExtensions 中注册；添加 Description 与参数约束。
   - 新增技能：在 Skills 目录组织资源，并通过上下文提供者接入 AIAgent。
   - 工作流扩展：定义新的 Executor，使用 WorkflowBuilder 连接已有步骤。
   - **备用模型扩展** ⭐ **新增扩展点**：通过配置更多备用模型提高系统容错能力，支持不同供应商的模型混合部署。
+  - **脚本执行器扩展** ⭐ **新增扩展点**：可以实现新的脚本语言执行器，继承 ScriptProcessRunner 接口，提供统一的安全执行环境。

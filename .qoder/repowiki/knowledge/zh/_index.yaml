@@ -3,11 +3,11 @@ schema_version: 1
 locale: zh-CN
 branch: master
 nodes_managed: true
-exported_at: "2026-08-26T01:41:40Z"
+exported_at: "2026-09-17T06:59:40Z"
 modules:
     "":
-        dir_name: NetCoreKevin 企业级 AI 中台解决方案
-        title: NetCoreKevin 企业级 AI 中台解决方案
+        dir_name: NetCoreKevin 企业级 AI 中台 SaaS 工程根
+        title: NetCoreKevin 企业级 AI 中台 SaaS 工程根
         scope:
             - SYSTEM_DOCUMENTATION.md
             - .dockerignore
@@ -27,8 +27,8 @@ modules:
         depends_on: []
         related_to: []
     app_project:
-        dir_name: App 领域应用层（WebApi + Application + Domain + RepositorieRps + AppShare）
-        title: App 领域应用层（WebApi + Application + Domain + RepositorieRps + AppShare）
+        dir_name: 基于 kevin 框架的 .NET WebApi 分层应用
+        title: 基于 kevin 框架的 .NET WebApi 分层应用
         scope:
             - App/
         source_files: []
@@ -39,8 +39,8 @@ modules:
             - path: frontend_vue
             - path: tests
     docs_and_init_data:
-        dir_name: 项目文档与初始化数据
-        title: 项目文档与初始化数据
+        dir_name: 项目文档与初始化静态数据
+        title: 项目文档与初始化静态数据
         scope:
             - Doc/
             - InitData/

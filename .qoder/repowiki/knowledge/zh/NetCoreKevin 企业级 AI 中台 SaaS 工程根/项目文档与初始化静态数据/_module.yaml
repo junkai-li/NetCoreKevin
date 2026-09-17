@@ -1,6 +1,6 @@
 schema_version: 1
 module_path: docs_and_init_data
-title: 项目文档与初始化数据
+title: 项目文档与初始化静态数据
 scope:
     - Doc/
     - InitData/

@@ -16,15 +16,21 @@
 - [TAIKmss.cs](file://Kevin/Domain/Entities/AI/TAIKmss.cs)
 - [AIAppsService.cs](file://Kevin/Application/Services/AI/AIAppsService.cs)
 - [TokenConsumptionInfo.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Dto/TokenConsumptionInfo.cs)
+- [AIQdrantAgentMemoryService.cs](file://Kevin/Application/Services/AI/AIQdrantAgentMemoryService.cs)
+- [AIAgentMemoryService.cs](file://Kevin/Application/Services/AI/AIAgentMemoryService.cs)
+- [AIShareInfoService.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AIShareInfoService.cs)
+- [TAIAgentMemory.cs](file://Kevin/Domain/Entities/AI/TAIAgentMemory.cs)
+- [AIShareInfoDto.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Dto/AIShareInfoDto.cs)
+- [IAIShareInfoService.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Interfaces/IAIShareInfoService.cs)
 </cite>
 
 ## 更新摘要
 **变更内容**
-- 新增AI代理自动模式功能，支持多模型环境下的智能切换和故障转移
-- 实现备选模型列表机制，当主模型调用失败时自动随机切换到备用模型
-- 增强重试机制，确保能够尝试所有配置的备选模型
-- 添加模型切换通知回调，支持前端实时显示切换状态
-- 优化错误处理，提供友好的用户提示信息
+- 新增AIQdrantAgentMemoryService实现基于Qdrant的向量语义检索，提供高性能的记忆搜索能力
+- 增强AIAgentMemoryService采用双存储架构（MySQL + 可选Qdrant），支持自动降级机制
+- 新增AIShareInfoService实现AI组件间的上下文数据共享，支持安全域名拦截
+- 实现智能体记忆的三维隔离（租户+智能体+用户），确保数据安全
+- 集成Ollama嵌入模型和可选重排序服务，提升语义检索精度
 
 ## 目录
 1. [简介](#简介)
@@ -41,12 +47,12 @@
 ## 简介
 本文件面向 NetCoreKevin AI智能体系统，聚焦基于 AgentFramework 的智能代理能力：多步推理、任务自动化、技能与工具管理；知识库系统（Qdrant向量数据库、RAG检索增强、文档处理与索引构建）；AI模型配置与管理（支持多种提供商与本地模型）；从用户输入到AI响应的完整工作流；以及自定义工具开发、技能管理与性能优化建议，并给出实际应用场景与最佳实践。
 
-**更新** 系统现已支持AI代理自动模式，具备智能模型选择、故障转移和多模型环境下的可靠性保障能力。
+**更新** 系统现已支持AI代理自动模式，具备智能模型选择、故障转移和多模型环境下的可靠性保障能力。**新增向量记忆系统**，通过Qdrant向量数据库实现语义级别的用户记忆检索，结合MySQL持久化存储，提供高性能、高可用的记忆管理能力。
 
 ## 项目结构
 系统采用分层模块化组织：
-- 应用服务层：AI相关服务（Agent、RAG、知识库、模型、技能工具等）
-- 领域实体：AI模型、知识库、技能工具等数据模型
+- 应用服务层：AI相关服务（Agent、RAG、知识库、模型、技能工具、记忆管理等）
+- 领域实体：AI模型、知识库、技能工具、记忆等数据模型
 - RAG模块：存储抽象、重排序、Ollama嵌入、Qdrant客户端设置
 - Agent框架：代理创建、流式输出、工具调用、重试与日志
 - Web接口：控制器暴露AI能力（不在本次重点展开）
@@ -58,6 +64,9 @@ AAS["AI模型服务<br/>AIModelsService"]
 AKS["知识库服务<br/>AIKmssService"]
 AST["技能工具管理<br/>AISkillToolManagementService"]
 AASV["AI应用服务<br/>AIAppsService"]
+AMS["记忆管理服务<br/>AIAgentMemoryService"]
+AQMS["向量记忆服务<br/>AIQdrantAgentMemoryService"]
+AIS["共享信息服务<br/>AIShareInfoService"]
 end
 subgraph "RAG模块"
 RS["RAG服务<br/>RAGService"]
@@ -65,7 +74,7 @@ IRSS["存储接口<br/>IRAGStorageService"]
 ARS["重排序服务<br/>AliRerankService"]
 end
 subgraph "Agent框架"
-AIS["AI代理服务<br/>AIAgentService"]
+AIGS["AI代理服务<br/>AIAgentService"]
 SET["服务注册扩展<br/>ServiceCollectionExtensions"]
 ASG["AI设置<br/>AISetting"]
 end
@@ -74,17 +83,22 @@ M["AI模型实体<br/>TAIModels"]
 K["知识库配置<br/>TAIKmss"]
 S["技能工具配置<br/>TAISkillToolManagement"]
 T["Token消费信息<br/>TokenConsumptionInfo"]
+AM["记忆实体<br/>TAIAgentMemory"]
+AID["共享信息DTO<br/>AIShareInfoDto"]
 end
 AAS --> M
 AKS --> K
 AST --> S
-AASV --> AIS
+AASV --> AIGS
+AMS --> AM
+AMS --> AIS
+AQMS --> AMS
 RS --> IRSS
 RS --> ARS
-AIS --> ASG
+AIGS --> ASG
 AKS --> RS
 AKS --> AAS
-AIS --> T
+AIGS --> T
 ```
 
 图表来源
@@ -101,6 +115,11 @@ AIS --> T
 - [AIKmssService.cs:1-449](file://Kevin/Application/Services/AI/AIKmssService.cs#L1-L449)
 - [TAIKmss.cs:1-47](file://Kevin/Domain/Entities/AI/TAIKmss.cs#L1-L47)
 - [TokenConsumptionInfo.cs:1-44](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Dto/TokenConsumptionInfo.cs#L1-L44)
+- [AIQdrantAgentMemoryService.cs:1-378](file://Kevin/Application/Services/AI/AIQdrantAgentMemoryService.cs#L1-L378)
+- [AIAgentMemoryService.cs:1-470](file://Kevin/Application/Services/AI/AIAgentMemoryService.cs#L1-L470)
+- [AIShareInfoService.cs:1-40](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AIShareInfoService.cs#L1-L40)
+- [TAIAgentMemory.cs:1-71](file://Kevin/Domain/Entities/AI/TAIAgentMemory.cs#L1-L71)
+- [AIShareInfoDto.cs:1-64](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Dto/AIShareInfoDto.cs#L1-L64)
 
 章节来源
 - [AIAgentService.cs:1-567](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AIAgentService.cs#L1-L567)
@@ -113,10 +132,12 @@ AIS --> T
 ## 核心组件
 - AI代理与流式推理：通过AIAgentService创建OpenAI兼容的ChatClient并装配为AIAgent，支持流式文本、工具调用回调、思考过程提取与Token用量统计，具备重试与HTTP请求拦截日志能力。
 - **新增自动模式**：支持多模型环境下的智能切换，当主模型调用失败时自动随机切换到备选模型，提升系统可靠性和容错能力。
+- **新增向量记忆系统**：AIQdrantAgentMemoryService基于Qdrant向量数据库实现语义级记忆检索，结合AIAgentMemoryService的双存储架构（MySQL + Qdrant），提供高性能、高可用的记忆管理能力。
 - RAG检索增强：RAGService根据集合名与问题向量检索文档块，可选接入重排序服务提升相关性，最终组装上下文提示词供LLM使用。
 - 知识库索引与入库：AIKmssService负责文档解析、分块、向量化（Ollama Embedding）、写入Qdrant（通过IRAGStorageService），并维护导入状态。
 - 模型配置与管理：AIModelsService提供模型的增删改查，持久化至TAIModels，包含端点、名称、密钥、Embedding维度等。
 - 技能与工具管理：AISkillToolManagementService管理内置/自定义技能与工具，支持MCP协议参数、附件包解压与启用控制。
+- **新增上下文数据共享**：AIShareInfoService实现AI组件间的安全上下文传递，支持域名授权和安全拦截。
 
 章节来源
 - [AIAgentService.cs:1-567](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AIAgentService.cs#L1-L567)
@@ -126,21 +147,36 @@ AIS --> T
 - [AIKmssService.cs:1-449](file://Kevin/Application/Services/AI/AIKmssService.cs#L1-L449)
 - [AIModelsService.cs:1-160](file://Kevin/Application/Services/AI/AIModelsService.cs#L1-L160)
 - [AISkillToolManagementService.cs:1-254](file://Kevin/Application/Services/AI/AISkillToolManagementService.cs#L1-L254)
+- [AIQdrantAgentMemoryService.cs:1-378](file://Kevin/Application/Services/AI/AIQdrantAgentMemoryService.cs#L1-L378)
+- [AIAgentMemoryService.cs:1-470](file://Kevin/Application/Services/AI/AIAgentMemoryService.cs#L1-L470)
+- [AIShareInfoService.cs:1-40](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AIShareInfoService.cs#L1-L40)
 
 ## 架构总览
-下图展示从用户输入到AI响应的主流程，包括RAG检索、重排序、Agent执行、工具调用与流式输出，以及新增的自动模式故障转移机制。
+下图展示从用户输入到AI响应的主流程，包括RAG检索、重排序、Agent执行、工具调用与流式输出，以及新增的自动模式故障转移机制和向量记忆系统。
 
 ```mermaid
 sequenceDiagram
 participant U as "用户"
 participant API as "业务服务"
+participant MEM as "记忆服务"
+participant VMEM as "向量记忆服务"
 participant RAG as "RAGService"
 participant STORE as "IRAGStorageService(Qdrant)"
 participant RE as "重排序(AliRerankService)"
 participant AG as "AIAgentService"
 participant LLM as "AI模型(OpenAI兼容)"
 participant FALLBACK as "备选模型"
+participant SHARE as "共享信息服务"
 U->>API : "发送问题"
+API->>SHARE : "获取上下文信息"
+API->>MEM : "SearchMemoryAsync(关键词, 类型)"
+alt "Qdrant可用"
+MEM->>VMEM : "SearchMemoryVectorAsync(语义检索)"
+VMEM-->>MEM : "语义搜索结果"
+else "Qdrant不可用或无结果"
+MEM-->>MEM : "降级到数据库关键词搜索"
+end
+MEM-->>API : "记忆结果"
 API->>RAG : "GetRAGSystemPrompt(集合, 问题向量, topK, 阈值)"
 RAG->>STORE : "Search(集合, 向量, limit)"
 STORE-->>RAG : "候选文档块列表"
@@ -168,6 +204,9 @@ API-->>U : "返回答案"
 - [IRAGStorageService.cs:1-30](file://Kevin/kevin.Module/kevin.RAG/Interfaces/IRAGStorageService.cs#L1-L30)
 - [AliRerankService.cs:1-99](file://Kevin/kevin.Module/kevin.RAG/Rerank/AliRerankService.cs#L1-L99)
 - [AIAgentService.cs:1-567](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AIAgentService.cs#L1-L567)
+- [AIQdrantAgentMemoryService.cs:1-378](file://Kevin/Application/Services/AI/AIQdrantAgentMemoryService.cs#L1-L378)
+- [AIAgentMemoryService.cs:1-470](file://Kevin/Application/Services/AI/AIAgentMemoryService.cs#L1-L470)
+- [AIShareInfoService.cs:1-40](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AIShareInfoService.cs#L1-L40)
 
 ## 详细组件分析
 
@@ -251,6 +290,86 @@ AISetting --> AIFallbackModel
 章节来源
 - [AISetting.cs:1-88](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AISetting.cs#L1-L88)
 - [AIAgentService.cs:1-567](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AIAgentService.cs#L1-L567)
+
+### 向量记忆系统（AIQdrantAgentMemoryService + AIAgentMemoryService）
+**新增功能** 系统实现了基于Qdrant的向量记忆系统，提供高性能的语义检索能力：
+
+- **双存储架构**：AIAgentMemoryService作为统一入口，优先使用AIQdrantAgentMemoryService进行向量检索，失败时自动降级到MySQL关键词搜索
+- **三维隔离**：按租户+智能体+用户维度隔离记忆数据，确保多租户环境下的数据安全
+- **语义检索**：通过Ollama嵌入模型将记忆内容转换为向量，使用余弦相似度进行语义匹配
+- **可选重排序**：集成AliRerankService对搜索结果进行相关性重排序，提升检索精度
+- **异步同步**：记忆CRUD操作以MySQL为主，成功后异步同步向量到Qdrant，失败不影响主流程
+- **过期管理**：支持短期记忆（task类型）的过期时间管理，自动过滤已过期记忆
+
+```mermaid
+flowchart TD
+Save["保存记忆"] --> Validate["验证输入参数"]
+Validate --> Persist["持久化到MySQL"]
+Persist --> SyncVector["异步同步到Qdrant"]
+SyncVector --> VectorStore["Qdrant向量存储"]
+VectorStore --> Done["完成"]
+Search["搜索记忆"] --> CheckQdrant{"Qdrant可用?"}
+CheckQdrant --> |是| VectorSearch["向量语义检索"]
+VectorSearch --> Filter["过滤过期记忆"]
+Filter --> ReRank{"需要重排序?"}
+ReRank --> |是| Rerank["AliRerankService重排序"]
+ReRank --> |否| Format["格式化结果"]
+ReRank --> Format
+Format --> Return["返回结果"]
+CheckQdrant --> |否| KeywordSearch["MySQL关键词搜索"]
+KeywordSearch --> Fallback["最近记忆回退"]
+Fallback --> Return
+```
+
+图表来源
+- [AIQdrantAgentMemoryService.cs:1-378](file://Kevin/Application/Services/AI/AIQdrantAgentMemoryService.cs#L1-L378)
+- [AIAgentMemoryService.cs:1-470](file://Kevin/Application/Services/AI/AIAgentMemoryService.cs#L1-L470)
+
+章节来源
+- [AIQdrantAgentMemoryService.cs:1-378](file://Kevin/Application/Services/AI/AIQdrantAgentMemoryService.cs#L1-L378)
+- [AIAgentMemoryService.cs:1-470](file://Kevin/Application/Services/AI/AIAgentMemoryService.cs#L1-L470)
+- [TAIAgentMemory.cs:1-71](file://Kevin/Domain/Entities/AI/TAIAgentMemory.cs#L1-L71)
+
+### 上下文数据共享（AIShareInfoService）
+**新增功能** 系统实现了AI组件间的上下文数据共享机制：
+
+- **安全上下文传递**：AIShareInfoService提供线程安全的上下文数据存储和访问
+- **域名授权管理**：支持配置允许的域名列表，防止敏感信息泄露
+- **安全拦截机制**：可配置是否开启安全拦截，默认启用以防止恶意请求
+- **多维度上下文**：包含用户信息、租户信息、智能体信息、聊天会话信息等
+- **灵活配置**：支持动态配置内容长度限制、消息限制条数等参数
+
+```mermaid
+classDiagram
+class AIShareInfoDto {
++long AIChatsId
++long AIChatHistorysId
++long AIAppsId
++int TenantId
++bool IsSecurityIntercept
++long UserId
++string UserName
++int ChatMessageLimit
++string AuthorizedDomains
++string[] AuthorizedDomainsList
++object RequestData
++int ContentLengthLimit
+}
+class AIShareInfoService {
++AIShareInfoDto GetData()
++void InitData(AIShareInfoDto data)
+}
+AIShareInfoService --> AIShareInfoDto
+```
+
+图表来源
+- [AIShareInfoService.cs:1-40](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AIShareInfoService.cs#L1-L40)
+- [AIShareInfoDto.cs:1-64](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Dto/AIShareInfoDto.cs#L1-L64)
+
+章节来源
+- [AIShareInfoService.cs:1-40](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AIShareInfoService.cs#L1-L40)
+- [AIShareInfoDto.cs:1-64](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Dto/AIShareInfoDto.cs#L1-L64)
+- [IAIShareInfoService.cs:1-29](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Interfaces/IAIShareInfoService.cs#L1-L29)
 
 ### RAG检索与重排序（RAGService + AliRerankService）
 - 检索流程：按集合名与问题向量搜索文档块，支持topK与相似度阈值过滤。
@@ -393,6 +512,7 @@ AISkillToolManagementService --> TAISkillToolManagement : "CRUD"
 ## 依赖关系分析
 - AIAgentService依赖AISetting进行连接与行为配置，并通过服务注册扩展注入工具服务。
 - **新增自动模式依赖**：AIAgentService现在依赖备选模型列表进行故障转移，增强了系统的可靠性。
+- **新增记忆系统依赖**：AIAgentMemoryService依赖AIQdrantAgentMemoryService进行向量检索，依赖AIShareInfoService获取上下文信息。
 - RAGService依赖IRAGStorageService与可选的重排序服务，解耦存储实现。
 - AIKmssService依赖AIModelsService（选择嵌入模型）、OllamaApiService（嵌入）、IRAGStorageService（Qdrant）与文件服务。
 - 领域实体作为数据契约被服务层引用，保证一致性。
@@ -402,6 +522,10 @@ graph LR
 AIS["AIAgentService"] --> ASG["AISetting"]
 AIS --> SVC["工具服务(注册扩展)"]
 AIS --> FM["备选模型列表"]
+AMS["AIAgentMemoryService"] --> AQMS["AIQdrantAgentMemoryService"]
+AMS --> AIS["AIShareInfoService"]
+AQMS --> OLL["OllamaApiService"]
+AQMS --> RERANK["AliRerankService"]
 RS["RAGService"] --> IRSS["IRAGStorageService"]
 RS --> ARS["AliRerankService"]
 AKS["AIKmssService"] --> AMS["AIModelsService"]
@@ -416,6 +540,8 @@ AASV["AIAppsService"] --> AIS
 - [AIKmssService.cs:1-449](file://Kevin/Application/Services/AI/AIKmssService.cs#L1-L449)
 - [AISetting.cs:1-88](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AISetting.cs#L1-L88)
 - [AIAppsService.cs:370-565](file://Kevin/Application/Services/AI/AIAppsService.cs#L370-L565)
+- [AIQdrantAgentMemoryService.cs:1-378](file://Kevin/Application/Services/AI/AIQdrantAgentMemoryService.cs#L1-L378)
+- [AIAgentMemoryService.cs:1-470](file://Kevin/Application/Services/AI/AIAgentMemoryService.cs#L1-L470)
 
 章节来源
 - [ServiceCollectionExtensions.cs:1-22](file://Kevin/kevin.Module/kevin.AI.AgentFramework/ServiceCollectionExtensions.cs#L1-L22)
@@ -427,28 +553,34 @@ AASV["AIAppsService"] --> AIS
 ## 性能考量
 - 流式输出与增量渲染：优先使用流式模式降低首字延迟，结合工具调用回调与思考过程提取提升交互体验。
 - **新增自动模式性能优化**：智能重试机制确保在多模型环境下的高可用性，减少单点故障影响。
+- **新增向量记忆性能优化**：Qdrant向量检索提供O(1)复杂度的相似性搜索，远优于传统关键词匹配的O(n)复杂度。
 - 重试与超时：合理设置最大重试次数与网络超时，避免瞬时抖动导致失败。
 - 检索规模控制：RAG检索先扩大候选集（如topK*10）再重排序，减少漏检；同时设置相似度阈值过滤低质片段。
 - 分块策略：依据文档类型与语义调整段落长度与重叠标记数，平衡召回与上下文窗口限制。
 - 并发入库：使用分布式锁避免重复处理，批量写入向量库减少往返开销。
 - 资源隔离：不同知识库使用独立集合命名空间，避免冲突与热点。
+- **内存管理**：向量记忆系统支持短期记忆的自动过期清理，避免无限增长。
 
 ## 故障排查指南
 - 流式异常回退：当流式调用抛出异常时，服务会回退为非流式调用并重试，检查日志定位网络或模型端问题。
 - **新增自动模式故障排查**：检查备选模型配置是否正确，确认模型API地址和密钥有效，查看模型切换通知是否正常触发。
+- **新增向量记忆故障排查**：检查Qdrant连接配置、Ollama嵌入服务可用性，查看向量同步日志，确认三维隔离是否正确。
 - 思考过程为空：若未提取到reasoning字段，检查原始响应结构与字段名兼容性。
 - 重排序失败：确认重排序服务URL、模型与鉴权头配置正确，捕获错误信息并提示。
 - 知识库入库失败：查看导入状态与错误信息，核对文件类型、解析器与嵌入模型配置；必要时重新触发处理。
 - 技能工具不可用：检查启用状态、系统内置保护与MCP参数完整性。
 - **新增错误提示优化**：系统现在提供友好的错误提示信息，包括API Key无效、限流、Token限制等常见问题的明确指导。
+- **上下文共享故障排查**：检查AIShareInfoService初始化是否正确，域名授权配置是否生效，安全拦截是否正常工作。
 
 章节来源
 - [AIAgentService.cs:1-567](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AIAgentService.cs#L1-L567)
 - [AliRerankService.cs:1-99](file://Kevin/kevin.Module/kevin.RAG/Rerank/AliRerankService.cs#L1-L99)
 - [AIKmssService.cs:1-449](file://Kevin/Application/Services/AI/AIKmssService.cs#L1-L449)
+- [AIQdrantAgentMemoryService.cs:1-378](file://Kevin/Application/Services/AI/AIQdrantAgentMemoryService.cs#L1-L378)
+- [AIAgentMemoryService.cs:1-470](file://Kevin/Application/Services/AI/AIAgentMemoryService.cs#L1-L470)
 
 ## 结论
-NetCoreKevin AI智能体系统以AgentFramework为核心，结合RAG检索增强与知识库索引，形成从"问题→检索→重排→推理→工具"的闭环链路。**新增的自动模式功能**显著提升了系统在多模型环境下的可靠性和容错能力，通过智能模型选择和故障转移机制，确保AI服务的持续可用性。通过灵活的模型配置、完善的技能工具管理与稳健的流式处理能力，满足企业级AI应用的多场景需求。建议在生产环境结合重试、超时、阈值与分块策略调优，并获得自动模式的故障转移优势，以获得稳定高效的AI服务能力。
+NetCoreKevin AI智能体系统以AgentFramework为核心，结合RAG检索增强与知识库索引，形成从"问题→检索→重排→推理→工具"的闭环链路。**新增的自动模式功能**显著提升了系统在多模型环境下的可靠性和容错能力，通过智能模型选择和故障转移机制，确保AI服务的持续可用性。**新增的向量记忆系统**通过Qdrant向量数据库实现高性能的语义检索，结合MySQL持久化存储，提供了企业级的记忆管理能力。**上下文数据共享机制**确保了AI组件间的安全通信和数据传递。通过灵活的模型配置、完善的技能工具管理与稳健的流式处理能力，满足企业级AI应用的多场景需求。建议在生产环境结合重试、超时、阈值与分块策略调优，并获得自动模式的故障转移优势与向量记忆的高性能检索能力，以获得稳定高效的AI服务能力。
 
 ## 附录
 - 自定义工具开发指南
@@ -463,8 +595,21 @@ NetCoreKevin AI智能体系统以AgentFramework为核心，结合RAG检索增强
   - 设置合理的最大重试次数，确保能够尝试所有备选模型
   - 配置流式回调函数，实现前端模型切换状态的实时显示
   - 在生产环境中建议配置至少2-3个备选模型，提高系统可用性
+- **新增向量记忆配置指南**
+  - 配置Qdrant连接信息（URL、ApiKey、证书指纹）
+  - 设置Ollama嵌入模型配置，确保向量维度一致
+  - 配置重排序服务（可选），提升语义检索精度
+  - 设置合适的SearchFetchLimit和MaxReturnCount参数
+  - 配置短期记忆过期策略，避免数据无限增长
+- **新增上下文共享配置指南**
+  - 配置AuthorizedDomains域名白名单，限制API调用来源
+  - 设置IsSecurityIntercept开关，控制安全拦截行为
+  - 配置ContentLengthLimit限制，防止过大数据传输
+  - 设置ChatMessageLimit限制对话消息数量
 - 实际应用场景与最佳实践
   - 客服问答：RAG检索企业内部文档，重排序提升准确性，Agent调用查询工具补充实时数据。
   - 代码助手：结合代码仓库与文档，利用工具执行编译/测试，流式反馈逐步生成代码。
   - 数据分析：读取Excel/CSV，生成洞察报告，必要时调用计算工具进行指标聚合。
   - **高可用场景**：利用自动模式实现多模型冗余，确保关键业务AI服务的连续性。
+  - **个性化服务**：通过向量记忆系统记住用户偏好和历史对话，提供个性化的AI服务体验。
+  - **多租户场景**：利用三维隔离机制，确保不同租户间的数据完全隔离。
