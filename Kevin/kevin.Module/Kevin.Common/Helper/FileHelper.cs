@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 namespace NetCore.Util
 {
@@ -42,6 +43,126 @@ namespace NetCore.Util
                 // 处理异常（记录日志等）
                 throw new Exception($"下载文件失败: {ex.Message}", ex);
             }
+        }
+
+        /// <summary>
+        /// 下载远程文件并返回带 MIME 与文件名的结果。
+        /// <para>
+        /// 与 <see cref="GetRemoteFileStreamAsync"/> 的区别：这里显式携带 HTTP Content-Type，
+        /// 供 <c>Microsoft.Extensions.AI.DataContent.LoadFromAsync(stream, mimeType)</c> 直接使用，
+        /// 避免 MemoryStream 没有 Name 导致 MIME 推断失败（图片/音频送入模型时会被判为未知类型）。
+        /// </para>
+        /// <para>
+        /// 兜底策略：Content-Type 为空或 <c>application/octet-stream</c> 时按 URL 扩展名推断；
+        /// 都失败时回落到 <c>application/octet-stream</c>，由调用方决定是否拒收。
+        /// </para>
+        /// </summary>
+        /// <param name="url">远程文件 URL</param>
+        /// <param name="cancellationToken">取消令牌</param>
+        /// <returns>包含流、MIME、文件名、字节数的结果对象</returns>
+        public static async Task<RemoteFileResult> GetRemoteFileAsync(string url, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                using var response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                response.EnsureSuccessStatusCode();
+                byte[] data = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                var mime = response.Content.Headers.ContentType?.MediaType;
+                if (string.IsNullOrWhiteSpace(mime) || string.Equals(mime, "application/octet-stream", StringComparison.OrdinalIgnoreCase))
+                {
+                    mime = GuessMimeByExtension(url);
+                }
+                string fileName;
+                try
+                {
+                    fileName = Path.GetFileName(new Uri(url).LocalPath);
+                }
+                catch
+                {
+                    fileName = string.Empty;
+                }
+                if (string.IsNullOrWhiteSpace(fileName))
+                {
+                    fileName = "file";
+                }
+                return new RemoteFileResult(new MemoryStream(data), mime ?? "application/octet-stream", fileName, data.LongLength);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"下载文件失败: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// 按 URL/文件名扩展名推断 MIME 类型。
+        /// <para>
+        /// 用于 OSS/MinIO 返回 <c>application/octet-stream</c> 时的兜底，覆盖图片/音频/常见文档三大类；
+        /// 未识别的扩展名统一回落到 <c>application/octet-stream</c>，由上层决定是否拒收。
+        /// </para>
+        /// </summary>
+        /// <param name="urlOrFileName">URL 或文件名</param>
+        /// <returns>MIME 字符串，始终非空</returns>
+        public static string GuessMimeByExtension(string urlOrFileName)
+        {
+            if (string.IsNullOrWhiteSpace(urlOrFileName))
+                return "application/octet-stream";
+            string extension;
+            try
+            {
+                // URL 可能带查询串，先用 Uri 取 LocalPath 再拿扩展名；失败则退回字符串截取
+                if (Uri.TryCreate(urlOrFileName, UriKind.Absolute, out var uri))
+                {
+                    extension = Path.GetExtension(uri.LocalPath).ToLowerInvariant();
+                }
+                else
+                {
+                    extension = Path.GetExtension(urlOrFileName).ToLowerInvariant();
+                }
+            }
+            catch
+            {
+                extension = Path.GetExtension(urlOrFileName).ToLowerInvariant();
+            }
+            return extension switch
+            {
+                // 图片
+                ".png" => "image/png",
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".gif" => "image/gif",
+                ".bmp" => "image/bmp",
+                ".webp" => "image/webp",
+                ".tiff" or ".tif" => "image/tiff",
+                ".svg" => "image/svg+xml",
+                ".ico" => "image/x-icon",
+                // 音频
+                ".mp3" => "audio/mpeg",
+                ".wav" => "audio/wav",
+                ".m4a" => "audio/mp4",
+                ".ogg" or ".oga" => "audio/ogg",
+                ".flac" => "audio/flac",
+                ".aac" => "audio/aac",
+                ".opus" => "audio/opus",
+                ".amr" => "audio/amr",
+                // 视频（预留，本次未实现视频模态但 MIME 表先备齐）
+                ".mp4" => "video/mp4",
+                ".mov" => "video/quicktime",
+                ".webm" => "video/webm",
+                ".avi" => "video/x-msvideo",
+                ".mkv" => "video/x-matroska",
+                // 文档
+                ".pdf" => "application/pdf",
+                ".txt" or ".log" => "text/plain",
+                ".md" or ".markdown" => "text/markdown",
+                ".html" or ".htm" => "text/html",
+                ".csv" => "text/csv",
+                ".json" => "application/json",
+                ".xml" => "application/xml",
+                ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                ".xls" => "application/vnd.ms-excel",
+                ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                ".doc" => "application/msword",
+                _ => "application/octet-stream"
+            };
         }
 
         public async static Task<string> GetRealFileNameFromUrlAsync(string url)
@@ -253,6 +374,9 @@ namespace NetCore.Util
             return extension switch
             {
                 ".png" or ".jpg" or ".jpeg" or ".gif" or ".bmp" or ".webp" or ".tiff" or ".tif" or ".svg" or ".ico" => "image",
+                // 音频：由 kevin.AI.AgentFramework/Modality 抽象层负责转成 DataContent(audio/*) 送入模型，
+                // 不能落到默认的 "text" 分支（会用 TextStreamReader 把二进制字节当 UTF-8 读出乱码撑爆上下文）
+                ".mp3" or ".wav" or ".m4a" or ".ogg" or ".oga" or ".flac" or ".aac" or ".opus" or ".amr" => "audio",
                 ".xlsx" or ".xls" => "excel",
                 ".pdf" => "pdf",
                 ".doc" or ".docx" => "word",

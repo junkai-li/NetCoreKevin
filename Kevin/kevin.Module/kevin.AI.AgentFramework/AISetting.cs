@@ -40,6 +40,12 @@
         public bool IsMemory { get; set; } = false;
 
         /// <summary>
+        /// 是否允许音频输入：由 <c>AIModels.AIModelType.HasFlag(AudioUnderstanding)</c> 决定，
+        /// 关闭时即便用户上传了音频也会走"不支持"分支，避免把音频塞给不懂音频的模型触发 400
+        /// </summary>
+        public bool EnableAudioInput { get; set; } = false;
+
+        /// <summary>
         /// 最大重试次数
         /// </summary>
         public int MaxRetries { get; set; } = 3;

@@ -268,6 +268,35 @@
             </a-form-item>
           </a-col>
         </a-row>
+        <a-row :gutter="16">
+          <a-col :span="6">
+            <a-form-item label="文生图">
+              <a-tooltip title="开启后挂载 GenerateImage 工具，模型可自主决定何时生成图片，默认关闭">
+                <a-switch v-model:checked="form.isImageGeneration" :disabled="isViewMode" />
+              </a-tooltip>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12" v-if="form.isImageGeneration">
+            <a-form-item label="文生图模型">
+              <a-select
+                v-model:value="form.imageGenModelID"
+                placeholder="请选择文生图模型"
+                allow-clear
+                show-search
+                optionFilterProp="label"
+                :disabled="isViewMode"
+              >
+                <a-select-option 
+                  v-for="model in imageGenModelList" 
+                  :key="model.id" 
+                  :value="model.id"
+                >
+                  {{ model.modelDescription }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
         <a-tabs v-model:activeKey="skillToolTabKey">
           <a-tab-pane key="tools" tab="Tools工具" :disabled="!form.isAITools">
             <a-table
@@ -487,6 +516,8 @@ const form = reactive({
   isSkill: true,
   isMcp: true,
   isMemory: false,
+  isImageGeneration: false,
+  imageGenModelID: undefined,
   tools: [],
   skills: [],
   mcps: [],
@@ -538,6 +569,7 @@ const { validate, validateInfos, resetFields } = useForm(form, rules);
 
 // 模型列表
 const modelList = ref([]);
+const imageGenModelList = ref([]); // 文生图模型列表（AIModelType 含 ImageGeneration=8）
 const promptList = ref([]);
 const kmsList = ref([]); // 知识库列表
 const userList = ref([]);
@@ -888,6 +920,8 @@ watch(() => props.open, (newVal) => {
         isSkill: true,
         isMcp: true,
         isMemory: false,
+        isImageGeneration: false,
+        imageGenModelID: undefined,
         tools: [],
         skills: [],
         mcps: [],
@@ -958,6 +992,8 @@ const handleOk = () => {
         isSkill: form.isSkill,
         isMcp: form.isMcp,
         isMemory: form.isMemory,
+        isImageGeneration: form.isImageGeneration,
+        imageGenModelID: form.isImageGeneration ? form.imageGenModelID : undefined,
         tools: form.isAITools ? buildSelectedData(form.tools || [], toolsList.value) : [],
         skills: form.isSkill ? buildSelectedData(form.skills || [], skillsList.value) : [],
         mcps: form.isMcp ? buildSelectedData(form.mcps || [], mcpList.value) : [],
@@ -1005,6 +1041,18 @@ const loadModelList = async () => {
     }
   } catch (error) {
     console.error('加载模型列表失败:', error);
+  }
+};
+
+// 加载文生图模型列表（AIModelType=8 ImageGeneration）
+const loadImageGenModelList = async () => {
+  try {
+    const response = await getAIModelsALLList(8);
+    if (response && response.code === 200 && response.data) {
+      imageGenModelList.value = response.data;
+    }
+  } catch (error) {
+    console.error('加载文生图模型列表失败:', error);
   }
 };
 
@@ -1084,6 +1132,7 @@ const loadMcpsList = async () => {
 // 组件挂载时加载数据
 onMounted(() => {
   loadModelList();
+  loadImageGenModelList();
   loadPromptList();
   loadKmsList();
   loadUserList();

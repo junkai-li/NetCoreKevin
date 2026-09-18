@@ -204,6 +204,16 @@
             是否开启智能体记忆，开启后会注入记忆管理协议提示词和记忆工具，默认不开启
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.IsImageGeneration">
+            <summary>
+            是否开启文生图能力，开启后会挂载 GenerateImage 工具，模型可自主决定何时生成图片
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.ImageGenModelID">
+            <summary>
+            文生图模型 ID，指向 AIModelType 含 ImageGeneration 标记的记录；为空时按当前 ChatModel 同厂商默认图模型回落
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysBindLogDto.AIChatHistorysId">
             <summary>
             对话记录id
@@ -1337,6 +1347,23 @@
         <member name="T:kevin.Domain.Share.Enums.AIModelType">
             <summary>
             模型类型
+            <para>
+            采用位标记语义：Chat/Embedding/Rerank 是"主用途"互斥值；
+            AudioUnderstanding/ImageGeneration 是"能力叠加"标记，可与主用途按位或组合。
+            例如"支持音频输入的对话模型" = Chat | AudioUnderstanding = 17。
+            </para>
+            </summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.AIModelType.ImageGeneration">
+            <summary>
+            文生图能力（DALL-E / CogView / 通义万相 OpenAI-compat），
+            通常作为独立模型条目存在，不与 Chat 组合
+            </summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.AIModelType.AudioUnderstanding">
+            <summary>
+            音频理解能力（gpt-4o-audio / qwen2-audio / glm-4-voice），
+            一般与 Chat 组合使用（Chat | AudioUnderstanding）标记"能听音频的对话模型"
             </summary>
         </member>
         <member name="T:kevin.Domain.Share.Enums.EmployeeStatus">
@@ -1398,6 +1425,31 @@
             获取全部合法类型的描述字符串，用于接口 [Description] 或提示词拼接
             </summary>
             <returns>形如 "preference偏好/fact事实/task任务/decision决策/pitfall踩坑/skill技能/other其他"</returns>
+        </member>
+        <member name="T:kevin.Domain.Share.Enums.ModalityKind">
+            <summary>
+            消息模态类型：标识一段内容属于哪种感官通道。
+            <para>
+            由 kevin.AI.AgentFramework/Modality 抽象层用于分类构造 <c>Microsoft.Extensions.AI.AIContent</c>：
+            Text/Document → <c>TextContent</c>，Image/Audio → <c>DataContent</c>（携带对应 MIME），
+            Video 预留位（本次未实现），避免后续加视频模态时再动接口签名。
+            </para>
+            </summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.ModalityKind.Text">
+            <summary>纯文本内容</summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.ModalityKind.Image">
+            <summary>图片：png/jpg/webp 等，走 DataContent + image/* MIME</summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.ModalityKind.Audio">
+            <summary>音频：mp3/wav/m4a 等，走 DataContent + audio/* MIME，由 OpenAI-compat 客户端映射为 input_audio</summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.ModalityKind.Document">
+            <summary>文档：excel/pdf/word/html/markdown/text，先解析为纯文本再作为 TextContent 送入模型</summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.ModalityKind.Video">
+            <summary>视频：预留位，本次未实现</summary>
         </member>
         <member name="T:kevin.Domain.Share.Enums.OrganizationalStatus">
             <summary>

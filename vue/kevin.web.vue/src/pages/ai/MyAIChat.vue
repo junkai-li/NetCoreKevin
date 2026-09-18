@@ -98,7 +98,7 @@
           </div>
         </div>
 
-        <div class="chat-messages" ref="messagesContainer" v-if="activeConversation">
+        <div class="chat-messages" ref="messagesContainer" v-if="activeConversation" @click="handleMessageImgClick">
           <div
             v-for="message in messages"
             :key="message.id"
@@ -129,7 +129,8 @@
               <!-- 气泡和复制键包成一行：复制键以气泡为锚点（用户挂左侧、AI 挂右上），不会被同列里更宽的元素甩开 -->
               <div class="message-bubble-line">
                 <!-- 非语音模式：文字正常显示 -->
-                <div class="message-text" v-if="message.isSend === false && !isVoiceMode" v-html="message.content"></div>
+                <!-- AI 消息 content 是原始 markdown（含 ![generated](url) 文生图链接），走 renderMarkdown 转 HTML 后 v-html 渲染；用户消息保持原样 -->
+                <div class="message-text" v-if="message.isSend === false && !isVoiceMode" v-html="renderMarkdown(message.content)"></div>
                 <div class="message-text" v-else-if="message.isSend === true" v-html="message.content"></div>
                 <!-- 工具条：默认每个图标 hover 才出现，失败时的 ⚠ / ⟳ 另外常显（见 MyAIChat.css） -->
                 <div class="message-actions">
@@ -186,7 +187,7 @@
                 </div>
               </div>
               <!-- 语音模式 + 转文字：文字显示在语音条下方 -->
-              <div v-if="isVoiceMode && showTextInVoiceMode && message.isSend === false && message.content" class="message-text voice-expanded-text" v-html="message.content"></div>
+              <div v-if="isVoiceMode && showTextInVoiceMode && message.isSend === false && message.content" class="message-text voice-expanded-text" v-html="renderMarkdown(message.content)"></div>
               <a-collapse v-if="message.aiReasoningContent" class="message-collapse" ghost :default-active-key="expandedReasoning ? ['reasoning'] : []">
                 <a-collapse-panel key="reasoning" header="思考过程">
                   <div class="collapse-content">
@@ -207,10 +208,17 @@
                 <a-collapse-panel key="files" header="附件">
                   <div class="collapse-content file-list-content">
                     <div v-for="(fileName, index) in message.fileNames.split(',')" :key="index" class="file-item">
-                      <FileTextOutlined />
-                      <a :href="message.contentFileUrls.split(',')[index]" target="_blank" class="file-link">
-                        {{ fileName }}
-                      </a>
+                      <template v-if="isAudioFile(fileName)">
+                        <SoundOutlined />
+                        <audio controls :src="message.contentFileUrls.split(',')[index]" class="audio-player"></audio>
+                        <span class="file-name">{{ fileName }}</span>
+                      </template>
+                      <template v-else>
+                        <FileTextOutlined />
+                        <a :href="message.contentFileUrls.split(',')[index]" target="_blank" class="file-link">
+                          {{ fileName }}
+                        </a>
+                      </template>
                     </div>
                   </div>
                 </a-collapse-panel>
@@ -256,8 +264,9 @@
                 <span></span>
               </div>
               <!-- 流式中的回复也包一层 .message-bubble-line，跟说完的气泡走同一套宽度/长词换行规则 -->
+              <!-- 流式期间也走 renderMarkdown，让文生图 markdown 链接一到达就能实时渲染成 <img>，不用等流结束 -->
               <div v-if="isSending && (!isVoiceMode || showTextInVoiceMode)" class="message-bubble-line">
-                <div class="message-text message-text-stream">{{ aimessage2 }}</div>
+                <div class="message-text message-text-stream" v-html="renderMarkdown(aimessage2)"></div>
               </div>
               <!-- 流式播放中的语音条 -->
               <div v-if="isVoiceMode && isSpeaking && streamingTtsActive" class="voice-msg-bar voice-msg-bar-streaming">
@@ -349,7 +358,7 @@
                   sign="chat"
                   :multiple="true"
                   :disabled="isSending"
-                  :accept="'.txt,.pdf,.md,.docx,.html,.doc,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.bmp,.webp,.svg'"
+                  :accept="'.txt,.pdf,.md,.docx,.html,.doc,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.bmp,.webp,.svg,.mp3,.wav,.m4a,.ogg,.flac,.aac,.opus,.amr'"
                   :show-upload-list="false"
                   upload-button-text="上传文件"
                   @upload-success="handleFileUploadSuccess"
@@ -585,6 +594,18 @@
         <span class="phone-restore-dot" :class="{ active: isRecording }"></span>
       </div>
     </Teleport>
+
+    <!-- AI 气泡里 markdown 图片的预览控制器：v-html 生成的 <img> 没有 Vue 实例绑事件，
+         改由 .chat-messages 事件委托捕获 IMG 点击 → 更新 previewImageUrl + previewVisible →
+         这个隐藏的 <a-image> 通过 preview.visible 双向绑定弹出 ant-design-vue 的图片预览遮罩（自带缩放/旋转/下载）。 -->
+    <a-image
+      :src="previewImageUrl"
+      :style="{ display: 'none' }"
+      :preview="{
+        visible: previewVisible,
+        onVisibleChange: (v) => (previewVisible = v),
+      }"
+    />
 </template>
 
 <script setup>
@@ -620,6 +641,45 @@ import * as signalR from '@microsoft/signalr';
 import { GetSnowflakeId } from '../../api/baseapi';
 import { getAliAsrToken } from '../../api/ai/aliasr.js';
 import { AliAsrAdapter } from '../../utils/aliAsrAdapter.js';
+import { marked } from 'marked';
+
+// marked 配置：GFM 语法 + 换行转 <br>，让模型返回的 markdown（含 ![generated](url) 文生图链接）能正确渲染成 HTML
+// breaks:true 让单个 \n 也换行，符合聊天场景的直觉；gfm:true 打开 GitHub Flavored Markdown（表格、删除线、任务列表等）
+marked.setOptions({ gfm: true, breaks: true });
+
+/**
+ * 把 AI 返回的 markdown 字符串转成 HTML 供 v-html 渲染。
+ * 仅用于 AI 消息（message.isSend === false）与流式预览，用户消息保持原样避免破坏既有行为。
+ * null / undefined / 空串兜底返回空串，防止 marked 抛错。
+ */
+const renderMarkdown = (text) => {
+  if (!text) return '';
+  try {
+    return marked.parse(text);
+  } catch (e) {
+    // 极端情况下（比如流式中间截断出现异常 markdown）降级为纯文本，避免整个气泡消失
+    console.warn('markdown 渲染失败，降级为纯文本:', e);
+    return String(text);
+  }
+};
+
+// 图片预览状态：由隐藏的 <a-image> 触发 ant-design-vue 预览遮罩
+const previewVisible = ref(false);
+const previewImageUrl = ref('');
+
+/**
+ * 消息列表点击事件委托：v-html 注入的 <img> 没有 Vue 实例绑事件，只能靠父容器捕获冒泡。
+ * 只在 .message-text 里的 img 上触发（避开头像、内嵌 SVG 图标等其他 img），
+ * 命中后把 src 塞进 previewImageUrl 并打开预览遮罩。
+ */
+const handleMessageImgClick = (e) => {
+  const img = e.target;
+  if (!img || img.tagName !== 'IMG') return;
+  if (!img.closest('.message-text')) return;
+  previewImageUrl.value = img.currentSrc || img.src;
+  previewVisible.value = true;
+};
+
 // 模拟数据
 const conversations = ref([]);
 const activeConversationId = ref(null);
@@ -1596,8 +1656,14 @@ const playAIVoice = (message) => {
   resetSpeakingState();
 
   // 去除HTML标签获取纯文本
+  // 现在 message.content 是原始 markdown（含 ![generated](url) 文生图链接），需要先转成 HTML 再去标签，
+  // 否则 TTS 会读出"感叹号 方括号 generated 圆括号 https..."这种垃圾内容。
+  // 图片语法先替换成"[图片]"，避免 marked 转成 <img alt="generated"> 后 textContent 读出"generated"这个无意义的 alt 文字。
+  const textForTTS = message.content
+    .replace(/!\[.*?\]\(.*?\)/g, '[图片]')  // 图片 → [图片]
+    .replace(/\[([^\]]*)\]\(.*?\)/g, '$1'); // 链接 [text](url) → text（只读链接文字，不读 URL）
   const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = message.content;
+  tempDiv.innerHTML = renderMarkdown(textForTTS);
   const plainText = (tempDiv.textContent || tempDiv.innerText || '').trim();
   if (!plainText) return;
 
@@ -2660,6 +2726,14 @@ const showDetailModal = (title, content) => {
 const truncateContent = (content, maxLength = 350) => {
   if (!content || content.length <= maxLength) return content;
   return content.substring(0, maxLength) + '...';
+};
+
+// 判断文件是否为音频类型
+const isAudioFile = (fileName) => {
+  if (!fileName) return false;
+  const audioExtensions = ['.mp3', '.wav', '.m4a', '.ogg', '.flac', '.aac', '.opus', '.amr'];
+  const lowerName = fileName.toLowerCase();
+  return audioExtensions.some(ext => lowerName.endsWith(ext));
 };
 
 // 获取日志类型名称

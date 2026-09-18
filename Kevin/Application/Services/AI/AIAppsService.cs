@@ -1,14 +1,17 @@
 ﻿using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Dto;
+using kevin.AI.AgentFramework.ImageGeneration;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.ScriptRunners;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
+using kevin.Domain.Share.Enums;
 using Kevin.AI.Dto;
 using Kevin.Common.Extension;
+using Kevin.log4Net;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 
@@ -34,11 +37,22 @@ namespace kevin.Application.Services.AI
         public readonly IAIChatMessageStoreCompactionRp _aIChatMessageStoreCompactionRp;
         public readonly IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService;
         public readonly IPySubprocessScriptRunner _pySubprocessScriptRunner;
+
+        /// <summary>
+        /// 文生图工具工厂：按智能体绑定的模型配置生成 GenerateImage AIFunction。
+        /// <para>
+        /// 独立于 <see cref="IAIAgentToolSkillService"/> 的通用工具管道：文生图工具依赖具体模型配置（endpoint/key/model），
+        /// 需要在挂载时按 <c>aiapp.ImageGenModelID</c> 动态解析，不适合作为静态工具库注册。
+        /// </para>
+        /// </summary>
+        private readonly IImageGenToolFactory _imageGenToolFactory;
+
         public AIAppsService(IHttpContextAccessor _httpContextAccessor, IAIAppsRp _aIAppsRp,
             IAISkillToolManagementService aISkillToolManagementService, IAISkillToolBindIdService aISkillToolBindIdService, IAIAppsBindIdService aIAppsBindIdService,
             IKevinAIChatMessageStore kevinAIChatMessageStore, IAIAgentToolSkillService aIAgentToolSkillService, IAIModelsService aIModelsService, IAIPromptsService aIPromptsService,
             IAIAgentService aIAgentService, IAIChatMessageStoreRp aIChatMessageStoreRp, IAIChatMessageStoreCompactionRp aIChatMessageStoreCompactionRp,
-            IAIChatMessageStoreCompactionService aIChatMessageStoreCompactionService, IPySubprocessScriptRunner pySubprocessScriptRunner) : base(_httpContextAccessor)
+            IAIChatMessageStoreCompactionService aIChatMessageStoreCompactionService, IPySubprocessScriptRunner pySubprocessScriptRunner,
+            IImageGenToolFactory imageGenToolFactory) : base(_httpContextAccessor)
         {
             this.aIAppsRp = _aIAppsRp;
             this.aISkillToolManagementService = aISkillToolManagementService;
@@ -53,6 +67,7 @@ namespace kevin.Application.Services.AI
             this._aIChatMessageStoreCompactionRp = aIChatMessageStoreCompactionRp;
             this._aIChatMessageStoreCompactionService = aIChatMessageStoreCompactionService;
             this._pySubprocessScriptRunner = pySubprocessScriptRunner;
+            this._imageGenToolFactory = imageGenToolFactory;
         }
 
         /// <summary>
@@ -244,6 +259,8 @@ namespace kevin.Application.Services.AI
                     msg.ReasoningOutput = par.ReasoningOutput;
                     msg.IsMcp = par.IsMcp;
                     msg.IsMemory = par.IsMemory;
+                    msg.IsImageGeneration = par.IsImageGeneration;
+                    msg.ImageGenModelID = par.ImageGenModelID;   
                 }
                 else
                 {
@@ -392,6 +409,12 @@ namespace kevin.Application.Services.AI
                 systemPrompt += "\n" + SystemPrompt.MemoryPromptText;
             }
             #endregion
+            #region 文生图协议提示词（仅在开启 IsImageGeneration 时注入，约束模型把工具返回的 markdown 图片链接原样透传）
+            if (aiapp.IsImageGeneration)
+            {
+                systemPrompt += "\n" + SystemPrompt.ImageGenerationPromptText;
+            }
+            #endregion
             #region 获取压缩聊天记录提示词
             if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
             {
@@ -461,6 +484,9 @@ namespace kevin.Application.Services.AI
                 chatAgOs.ChatOptions.Tools.AddRange(await _aIAgentToolSkillService.GetMemoryToolsAsync());
             }
             #endregion
+            #region 文生图工具（仅在开启 IsImageGeneration 时注入，独立于 IsAITools）
+            await TryMountImageGenToolAsync(aiapp, chatAgOs);
+            #endregion
             if (aiapp.IsSkill)
             {
                 var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result;
@@ -515,6 +541,11 @@ namespace kevin.Application.Services.AI
             {
                 systemPrompt += "\n" + SystemPrompt.MemoryPromptText;
             }
+            // 文生图协议提示词（仅在开启 IsImageGeneration 时注入，约束模型把工具返回的 markdown 图片链接原样透传）
+            if (aiapp.IsImageGeneration)
+            {
+                systemPrompt += "\n" + SystemPrompt.ImageGenerationPromptText;
+            }
             // 获取压缩聊天记录提示词
             systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString());
             var chatAgOs = new ChatClientAgentOptions
@@ -563,6 +594,9 @@ namespace kevin.Application.Services.AI
                 chatAgOs.ChatOptions.Tools.AddRange(await _aIAgentToolSkillService.GetMemoryToolsAsync());
             }
             #endregion
+            #region 文生图工具（仅在开启 IsImageGeneration 时注入，独立于 IsAITools）
+            await TryMountImageGenToolAsync(aiapp, chatAgOs);
+            #endregion
             if (aiapp.IsSkill)
             {
                 var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result;
@@ -599,6 +633,57 @@ namespace kevin.Application.Services.AI
                 IsAITools = aiapp.IsAITools
             }, chatAgOs,
           cancellationToken: cancellationToken));
+        }
+
+        /// <summary>
+        /// 按智能体配置挂载 GenerateImage AIFunction（<see cref="GetAppAIAgentOptions"/> 与 <see cref="GetAppAIAgent"/> 共用）。
+        /// <para>
+        /// 容错策略：任何一环缺失都不抛异常打断主流程 ——
+        /// <list type="bullet">
+        ///   <item><description><c>IsImageGeneration=false</c>：直接跳过</description></item>
+        ///   <item><description><c>ImageGenModelID</c> 未设置：跳过并写警告日志（避免用户开了开关没选模型时对话直接失败）</description></item>
+        ///   <item><description>模型不存在或类型不含 <see cref="AIModelType.ImageGeneration"/> 标记：跳过并写警告日志</description></item>
+        ///   <item><description>模型 EndPoint 为空：跳过并写警告日志</description></item>
+        /// </list>
+        /// 只有配置齐全时才真正把工具加进 <see cref="ChatClientAgentOptions"/>，避免模型看到工具但调用时才发现配置错误。
+        /// </para>
+        /// </summary>
+        private async Task TryMountImageGenToolAsync(AIAppsDto aiapp, ChatClientAgentOptions chatAgOs)
+        {
+            if (!aiapp.IsImageGeneration) return;
+            if (chatAgOs.ChatOptions == null) return;
+
+            if (!aiapp.ImageGenModelID.HasValue || aiapp.ImageGenModelID.Value <= 0)
+            {
+                LogHelper.logger.Warn($"智能体 {aiapp.Name}(Id={aiapp.Id}) 开启了 IsImageGeneration 但未绑定 ImageGenModelID，跳过 GenerateImage 工具挂载");
+                return;
+            }
+
+            AIModelsDto imageModel;
+            try
+            {
+                imageModel = await aIModelsService.GetNoPerDetails(aiapp.ImageGenModelID.Value);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.logger.Warn($"智能体 {aiapp.Name}(Id={aiapp.Id}) 绑定的文生图模型 Id={aiapp.ImageGenModelID} 解析失败，跳过 GenerateImage 工具挂载: {ex.Message}");
+                return;
+            }
+
+            if (!imageModel.AIModelType.HasFlag(AIModelType.ImageGeneration))
+            {
+                LogHelper.logger.Warn($"智能体 {aiapp.Name}(Id={aiapp.Id}) 绑定的模型 {imageModel.ModelName} AIModelType={imageModel.AIModelType} 不含 ImageGeneration 标记，跳过挂载");
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(imageModel.EndPoint))
+            {
+                LogHelper.logger.Warn($"智能体 {aiapp.Name}(Id={aiapp.Id}) 绑定的文生图模型 {imageModel.ModelName} EndPoint 为空，跳过挂载");
+                return;
+            }
+
+            var config = new ImageGenModelConfig(imageModel.EndPoint, imageModel.ModelName, imageModel.ModelKey);
+            chatAgOs.ChatOptions.Tools ??= new List<AITool>();
+            chatAgOs.ChatOptions.Tools.Add(_imageGenToolFactory.BuildGenerateFunction(config));
         }
     }
 }

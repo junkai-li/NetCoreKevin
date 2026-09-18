@@ -4,6 +4,7 @@ using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Interfaces.Safety;
+using kevin.AI.AgentFramework.Modality;
 using kevin.AI.AgentFramework.Safety;
 using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Entities.AI;
@@ -52,12 +53,22 @@ namespace kevin.Application.Services.AI
 
         private readonly IAIInputOutputSafetyService _aIInputOutputSafetyService;
 
+        /// <summary>
+        /// 多模态内容构造器：把远程文件 URL 转成 AIContent（图片/音频）或纯文本片段（文档）。
+        /// <para>
+        /// 抽出去之前 AIFileUrlsHandle 直接调 FileHelper.DetermineFileType + 5 个 Reader，
+        /// 加音频模态时不得不动 Service 主流程；封装后 Service 只管 await 结果并按 Kind 分桶归集。
+        /// </para>
+        /// </summary>
+        private readonly IModalityContentBuilder _modalityContentBuilder;
+
         public AIChatHistorysService(IHttpContextAccessor _httpContextAccessor, IAIChatHistorysRp _aIChatHistorysRp,
             IAIAgentService _aIAgentService, IAIModelsService _aIModelsService, IAIPromptsService _aIPromptsService,
             IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore,
             IRAGService _rAGService, IAIKmssService _aIKmssService, IOllamaApiService _ollamaApiService, ISignalRMsgService _signalRMsgService,
             IHttpClientFactory _httpClientFactory, IAIChatHistorysBindLogService _aIChatHistorysBindLogService,
-            IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService, IAIShareInfoService aIShareInfoService, IAIInputOutputSafetyService aIInputOutputSafetyService
+            IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService, IAIShareInfoService aIShareInfoService, IAIInputOutputSafetyService aIInputOutputSafetyService,
+            IModalityContentBuilder modalityContentBuilder
             ) : base(_httpContextAccessor)
         {
             this.aIChatHistorysRp = _aIChatHistorysRp;
@@ -75,6 +86,7 @@ namespace kevin.Application.Services.AI
             this._aIChatHistorysBindLogService = _aIChatHistorysBindLogService;
             this._aIShareInfoService = aIShareInfoService;
             this._aIInputOutputSafetyService = aIInputOutputSafetyService;
+            this._modalityContentBuilder = modalityContentBuilder;
         }
 
         /// <summary>
@@ -280,13 +292,11 @@ namespace kevin.Application.Services.AI
                 });
                 #region 文件处理
 
-                var ImgUrls = new List<string>();
-                var aiFilData = await AIFileUrlsHandle(add, aiapp, addAi);
-                if (aiFilData.Item1.Count > 0)
-                    OtherContents.AddRange(aiFilData.Item1);
-
-                if (aiFilData.Item2.Count > 0)
-                    ImgUrls.AddRange(aiFilData.Item2);
+                // 音频模态门禁：由模型 AIModelType 位标记决定；关闭时 Builder 会把音频转成文本提示，避免向不支持音频的模型发送 DataContent 触发 400
+                var enableAudioInput = aIModels.AIModelType.HasFlag(AIModelType.AudioUnderstanding);
+                var aiFilData = await AIFileUrlsHandle(add, aiapp, addAi, enableAudioInput, cancellationToken);
+                if (aiFilData.ExtractedTexts.Count > 0)
+                    OtherContents.AddRange(aiFilData.ExtractedTexts);
 
                 #endregion
 
@@ -302,15 +312,24 @@ namespace kevin.Application.Services.AI
                 #endregion
                 // 按提问Token预算裁剪补充上下文，确保输入总量不超过模型的上下文窗口预算（模型配置的MaxAskPromptSize）
                 OtherContents = TrimContentsByAskTokenBudget(OtherContents, systemPrompt, add.Content, aIModels.MaxAskPromptSize, aIModels.AnswerTokens);
-                // 空输入保护：模型的输入长度区间是双边的（如 “Range of input length should be [1, N]”），正文、上下文、图片全为空时输入长度为 0，同样会被模型直接拒掉，
+                // 空输入保护：模型的输入长度区间是双边的（如 “Range of input length should be [1, N]”），正文、上下文、图片/音频全为空时输入长度为 0，同样会被模型直接拒掉，
                 // 这里按业务异常提前拦下，让前端拿到可读提示而不是模型报错
-                if (string.IsNullOrWhiteSpace(add.Content) && OtherContents.Count == 0 && ImgUrls.Count == 0)
+                if (string.IsNullOrWhiteSpace(add.Content) && OtherContents.Count == 0 && aiFilData.MediaContents.Count == 0)
                 {
                     throw new UserFriendlyException("请输入要咨询的内容（或上传可解析的文件）后再发送。");
                 }
-                ChatMessage mgs = new(ChatRole.User, [new TextContent($"{add.Content}"),
-                        .. OtherContents.Where(t => !string.IsNullOrEmpty(t)).Select(t => new TextContent(t)).ToList(),
-                        .. ImgUrls.Where(t => !string.IsNullOrEmpty(t)).Select(url => DataContent.LoadFromAsync(FileHelper.GetRemoteFileStreamAsync(url).Result).Result).ToList()]);
+                // 零 .Result 构造消息：媒体内容已在 AIFileUrlsHandle 内部 await 完成（Bug 1 根治点）；
+                // DataContent 携带显式 MIME，不再依赖 MemoryStream.Name 推断（Bug 2 根治点）
+                var userContents = new List<AIContent>(1 + OtherContents.Count + aiFilData.MediaContents.Count)
+                {
+                    new TextContent(add.Content ?? "")
+                };
+                foreach (var text in OtherContents)
+                {
+                    if (!string.IsNullOrEmpty(text)) userContents.Add(new TextContent(text));
+                }
+                userContents.AddRange(aiFilData.MediaContents);
+                ChatMessage mgs = new(ChatRole.User, userContents);
                 var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par);
                 switch (aIModels.AIType)
                 {
@@ -332,6 +351,8 @@ namespace kevin.Application.Services.AI
                             IsAITools = aiapp.IsAITools,
                             IsMcpTools = aiapp.IsMcp,
                             IsMemory = aiapp.IsMemory,
+                            // 音频输入能力传递给 AIAgentService：模型不支持时可用于日志/降级判定
+                            EnableAudioInput = enableAudioInput,
                             FallbackModels = fallbackModels,
                             StreameCallback = async (msg) =>
                             {
@@ -565,82 +586,127 @@ namespace kevin.Application.Services.AI
 
         }
         /// <summary>
-        /// AI文件url处理
+        /// AI文件url处理结果：把"文本上下文"和"二进制媒体附件"分桶归集，
+        /// 让 <see cref="Add"/> 主流程能直接拼 <see cref="ChatMessage"/>，不需要在业务层再判 fileType。
         /// </summary>
-        private async Task<(List<string>, List<string>)> AIFileUrlsHandle(TAIChatHistorys add, AIAppsDto aiapp, TAIChatHistorys addAi)
+        /// <param name="ExtractedTexts">文档解析后的文本片段（已按 ContentLengthLimit 截断），后续按 Token 预算再裁一次</param>
+        /// <param name="MediaContents">图片/音频的 <see cref="AIContent"/>（内部是 DataContent + 显式 MIME），可直接送入模型</param>
+        /// <param name="MediaCount">实际归集的媒体附件数，用于日志/统计</param>
+        private sealed record FileHandleResult(List<string> ExtractedTexts, List<AIContent> MediaContents, int MediaCount);
+
+        /// <summary>
+        /// AI文件url处理。
+        /// <para>
+        /// 改造要点（相对旧实现）：
+        /// 1. Bug 1 根治：所有文件并发 <see cref="Task.WhenAll(IEnumerable{Task})"/> 处理，主流程零 <c>.Result</c> 阻塞；
+        /// 2. Bug 2 根治：<see cref="IModalityContentBuilder"/> 内部走 <c>FileHelper.GetRemoteFileAsync</c> 拿到 HTTP Content-Type，
+        ///    再传给 <c>DataContent.LoadFromAsync(stream, mimeType)</c>，避免 MemoryStream 无 Name 导致 MIME 推断失败；
+        /// 3. 音频模态：模型不支持时（<paramref name="enableAudioInput"/>=false）转成文本提示，不把二进制塞给不懂音频的模型；
+        /// 4. 附件数量守卫：单条消息媒体附件超过 <see cref="ModalityOptions.MaxMediaAttachmentsPerMessage"/> 时后续忽略。
+        /// </para>
+        /// </summary>
+        private async Task<FileHandleResult> AIFileUrlsHandle(TAIChatHistorys add, AIAppsDto aiapp, TAIChatHistorys addAi, bool enableAudioInput, CancellationToken ct)
         {
-            var OtherContents = new List<string>();
-            var ImgUrls = new List<string>();
-            if (!string.IsNullOrWhiteSpace(add.ContentFileUrls))
+            var extractedTexts = new List<string>();
+            var mediaContents = new List<AIContent>();
+            if (string.IsNullOrWhiteSpace(add.ContentFileUrls))
             {
-                var fileUrls = add.ContentFileUrls.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                var fileNames = !string.IsNullOrWhiteSpace(add.FileNames)
-                    ? add.FileNames.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    : new string[fileUrls.Length];
-
-                await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"正在处理 {fileUrls.Length} 个上传文件...");
-
-                var fileContents = new StringBuilder();
-                for (int i = 0; i < fileUrls.Length; i++)
-                {
-                    var fileUrl = fileUrls[i].Trim();
-                    var fileName = i < fileNames.Length ? fileNames[i].Trim() : Path.GetFileName(fileUrl);
-
-                    try
-                    {
-                        await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"正在提取文件内容: {fileName}");
-                        var fileType = FileHelper.DetermineFileType(fileName);
-                        if (fileType != "image")
-                        {
-                            var stream = await FileHelper.GetRemoteFileStreamAsync(fileUrl);
-                            string content = "";
-                            switch (fileType)
-                            {
-                                case "excel":
-                                    content = ExcelReader.ReadExcelToMarkdown(stream, fileName);
-                                    break;
-                                case "pdf":
-                                    content = PDFReader.ReadPdfToMarkdown(stream);
-                                    break;
-                                case "word":
-                                    content = WordReader.ReadParagraphs(stream);
-                                    break;
-                                case "html":
-                                    content = await HtmlReader.ExtractTextFromStreamAsync(stream);
-                                    break;
-                                case "markdown":
-                                    content = TextStreamReader.ReadMarkdownFromStream(stream).RawContent;
-                                    break;
-                                case "text":
-                                default:
-                                    content = TextStreamReader.ReadTextFromStream(stream);
-                                    break;
-                            }
-                            if (i == 0)
-                            {
-                                fileContents.AppendLine("\n用户上传文件内容：");
-                            }
-                            fileContents.AppendLine($"\n文件名：【{fileName}】\n文件地址：【{fileUrl}】\n文件内容如下：");
-                            fileContents.AppendLine(content);
-                        }
-                        else
-                        {
-                            ImgUrls.Add(fileUrl);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        if (i == 0)
-                        {
-                            fileContents.AppendLine("\n用户上传文件内容：");
-                        }
-                        fileContents.AppendLine($"\n文件名：【{fileName}】\n文件地址：【{fileUrl}】\n(读取失败: {ex.Message})");
-                    }
-                }
-                await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = fileContents.ToString(), LogType = AIChatHistorysBindLogEnums.FileContent });
-                OtherContents.Add(StringHelper.SubstringText(fileContents.ToString(), aiapp.ContentLengthLimit));
+                return new FileHandleResult(extractedTexts, mediaContents, 0);
             }
-            return (OtherContents, ImgUrls);
+
+            var fileUrls = add.ContentFileUrls.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            var fileNames = !string.IsNullOrWhiteSpace(add.FileNames)
+                ? add.FileNames.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                : new string[fileUrls.Length];
+
+            await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"正在处理 {fileUrls.Length} 个上传文件...");
+
+            // 并发处理所有文件：单个失败已在 ModalityContentBuilder 内部转为 Error 结果，不会抛异常打断整批
+            var tasks = new List<Task<ModalityContentResult>>(fileUrls.Length);
+            for (int i = 0; i < fileUrls.Length; i++)
+            {
+                var url = fileUrls[i].Trim();
+                var name = i < fileNames.Length ? fileNames[i].Trim() : null;
+                tasks.Add(_modalityContentBuilder.BuildAsync(url, string.IsNullOrWhiteSpace(name) ? null : name, ct));
+            }
+            ModalityContentResult[] results;
+            try
+            {
+                results = await Task.WhenAll(tasks);
+            }
+            catch (OperationCanceledException)
+            {
+                throw; // 客户端中止要向上冒泡，让 Add 主流程走既有的取消处理路径
+            }
+
+            var options = ModalityOptions.Current;
+            var fileContents = new StringBuilder();
+            var mediaCount = 0;
+            var headerWritten = false;
+
+            for (int i = 0; i < results.Length; i++)
+            {
+                var r = results[i];
+                var originalUrl = fileUrls[i].Trim();
+                var originalName = i < fileNames.Length && !string.IsNullOrWhiteSpace(fileNames[i])
+                    ? fileNames[i].Trim()
+                    : r.FileName;
+
+                // 音频但模型不支持：转文本提示，不把 DataContent 塞给不懂音频的模型（会 400）
+                if (r.Kind == ModalityKind.Audio && !enableAudioInput)
+                {
+                    EnsureHeader();
+                    fileContents.AppendLine($"\n文件名：【{originalName}】\n文件地址：【{originalUrl}】\n(当前对话模型不支持音频输入，请管理员在模型配置上勾选 AudioUnderstanding 能力后重试)");
+                    continue;
+                }
+
+                // 媒体附件：数量守卫 + 直接归集
+                if (r.Content != null)
+                {
+                    if (mediaCount >= options.MaxMediaAttachmentsPerMessage)
+                    {
+                        EnsureHeader();
+                        fileContents.AppendLine($"\n文件名：【{originalName}】\n(超出单条消息媒体附件上限 {options.MaxMediaAttachmentsPerMessage}，已忽略)");
+                        continue;
+                    }
+                    mediaContents.Add(r.Content);
+                    mediaCount++;
+                    EnsureHeader();
+                    fileContents.AppendLine($"\n文件名：【{originalName}】\n文件地址：【{originalUrl}】\n({r.Kind} 附件，已作为多模态内容直接送入模型)");
+                    continue;
+                }
+
+                // 文档 / 错误：拼进文本上下文
+                EnsureHeader();
+                if (!string.IsNullOrEmpty(r.Error))
+                {
+                    fileContents.AppendLine($"\n文件名：【{originalName}】\n文件地址：【{originalUrl}】\n({r.Error})");
+                }
+                else if (!string.IsNullOrEmpty(r.ExtractedText))
+                {
+                    fileContents.AppendLine($"\n文件名：【{originalName}】\n文件地址：【{originalUrl}】\n文件内容如下：");
+                    fileContents.AppendLine(r.ExtractedText);
+                }
+            }
+
+            void EnsureHeader()
+            {
+                if (headerWritten) return;
+                fileContents.AppendLine("\n用户上传文件内容：");
+                headerWritten = true;
+            }
+
+            if (fileContents.Length > 0)
+            {
+                await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog()
+                {
+                    AIChatHistorysId = addAi.Id,
+                    LogContent = fileContents.ToString(),
+                    LogType = AIChatHistorysBindLogEnums.FileContent
+                });
+                extractedTexts.Add(StringHelper.SubstringText(fileContents.ToString(), aiapp.ContentLengthLimit));
+            }
+            return new FileHandleResult(extractedTexts, mediaContents, mediaCount);
         }
 
         /// <summary>

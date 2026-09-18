@@ -102,6 +102,13 @@ namespace kevin.Domain.Share.Dtos.AI
             {
                 throw new FieldValidationException("AI请求超时时间最小为1分钟");
             }
+            if (this.IsImageGeneration)
+            {
+                if (this.ImageGenModelID == default || this.ImageGenModelID == 0)
+                {
+                    throw new FieldValidationException("开启图片生成功能，请选择图片生成模型");
+                }
+            }
         }
 
         /// <summary>
@@ -267,5 +274,17 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary>
         [Description("是否开启智能体记忆，开启后会注入记忆管理协议提示词和记忆工具")]
         public bool IsMemory { get; set; } = false;
+
+        /// <summary>
+        /// 是否开启文生图能力，开启后会挂载 GenerateImage 工具，模型可自主决定何时生成图片
+        /// </summary>
+        [Description("是否开启文生图能力，开启后会挂载 GenerateImage 工具")]
+        public bool IsImageGeneration { get; set; } = false;
+
+        /// <summary>
+        /// 文生图模型 ID，指向 AIModelType 含 ImageGeneration 标记的记录；为空时按当前 ChatModel 同厂商默认图模型回落
+        /// </summary>
+        [Description("文生图模型ID，为空时回落使用 ChatModelID 同厂商默认图模型")]
+        public long? ImageGenModelID { get; set; }
     }
 }

@@ -570,6 +570,10 @@
   flex-direction: column;
   width: fit-content;
   max-width: 100%;
+  /* min-width: 0 覆盖 flex 子项默认 min-width: auto，否则遇到 <img> 这类 intrinsic 宽度很大
+     的不可断元素（比如文生图 1792x1024 横版），flex 会拒绝压缩到小于内容宽度，
+     导致下面整条 max-width:100% 链全部失效、气泡被撑破。 */
+  min-width: 0;
 }
 
 /* 气泡旁的工具条：AI 挂气泡右上角、用户挂气泡左侧外，绝对定位不占正文宽度 */
@@ -853,8 +857,62 @@
   text-decoration: none;
 }
 
+.audio-player {
+  height: 32px;
+  max-width: 200px;
+}
+
+.file-name {
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 12px;
+  margin-left: 4px;
+}
+
 .file-link:hover {
   text-decoration: underline;
+}
+
+/* AI 消息里的 markdown 图片（含文生图 ![generated](url)）兜底：
+   - max-width: min(100%, 400px) + max-height: 400px 让图小尺寸预览：
+     1) 大横版/竖版/方图都被压到最长边 400px，不会占满整个气泡高度；
+     2) 100% 兜底保证窄屏移动端不撑破父气泡；
+     3) 小图（比如表情包）仍按 intrinsic 尺寸显示，不会被 min() 强行放大。
+   - height:auto + object-fit:contain 保持宽高比不失真
+   - border-radius 与气泡视觉一致
+   - display:block + margin 让多张图之间有空隙，不粘在一起
+   - cursor:zoom-in 提示可点击查看（若后续接预览组件）
+   注：只动 img，不动 p/code/pre，避免影响纯文字回复的段落间距和代码块样式
+   注 2：必须用 :deep() 穿透 scoped 边界。因为 MyAIChat.vue 用 `<style scoped src="./MyAIChat.css">`
+   引入本文件，普通选择器会被编译成 `.message-text img[data-v-xxx]`；而 v-html 注入的 img
+   不带 data-v-xxx 属性，规则完全不命中，导致 img intrinsic 1792px 撑破气泡。
+   :deep() 让 img 部分绕过 scoped 哈希，命中 v-html 内容。 */
+.message-text :deep(img) {
+  max-width: min(100%, 600px);
+  max-height: 400px;
+  width: auto;
+  height: auto;
+  border-radius: 6px;
+  display: block;
+  margin: 6px 0;
+  object-fit: contain;
+  cursor: zoom-in;
+}
+
+/* marked 把每段文字都包在 <p> 里，浏览器 UA 默认 p { margin: 1em 0 }，
+   会让气泡上下各多出 ~16px 空白（原来 pre-wrap 时代是没这段空白的）。
+   归零后回归纯文本换行视觉。
+   同样需要 :deep() 穿透 scoped，因为 <p> 是 v-html 注入的。 */
+.message-text :deep(p) {
+  margin: 0;
+}
+
+/* 更底层的坑：.message-text 原本 pre-wrap 是为了让用户消息里的 \n 换行生效。
+   但 marked 自动格式化会在 </p> 和 <p> 之间插入 \n 缩进空白，这些 \n 在 pre-wrap
+   下被当成真实换行渲染成一行 line-height（~22px）空白，即使 p margin 归零也去不掉。
+   AI 消息的段落边界已经由 <p>/<ul>/<pre> 块级标签表达，不需要 \n 参与换行，
+   所以只对 AI 消息关闭 pre-wrap；用户消息仍保留原样（内容里可能有用户输入的 \n）。 */
+.message-item.ai-message .message-text {
+  white-space: normal;
 }
 
 .log-item {

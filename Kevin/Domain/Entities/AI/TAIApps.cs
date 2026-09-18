@@ -220,5 +220,19 @@ namespace kevin.Domain.Entities.AI
         [Description("是否开启智能体记忆，开启后会注入记忆管理协议提示词和记忆工具")]
         [DefaultValue(false)]
         public bool IsMemory { get; set; } = false;
+
+        /// <summary>
+        /// 是否开启文生图能力，开启后会挂载 GenerateImage 工具，模型可自主决定何时生成图片
+        /// </summary>
+        [Description("是否开启文生图能力，开启后会挂载 GenerateImage 工具")]
+        [DefaultValue(false)]
+        public bool IsImageGeneration { get; set; } = false;
+
+        /// <summary>
+        /// 文生图模型 ID，指向 TAIModels 中 AIModelType 含 ImageGeneration 标记的记录；
+        /// 为空时按当前 ChatModel 同厂商默认图模型回落
+        /// </summary>
+        [Description("文生图模型ID，为空时回落使用 ChatModelID 同厂商默认图模型")]
+        public long? ImageGenModelID { get; set; }
     }
 }
