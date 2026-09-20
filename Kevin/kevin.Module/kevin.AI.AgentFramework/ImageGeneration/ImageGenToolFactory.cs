@@ -21,21 +21,25 @@ namespace kevin.AI.AgentFramework.ImageGeneration
     {
         private readonly IImageGenerationClient _client;
         private readonly IFileStorage? _fileStorage;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         /// <summary>
         /// IFileStorage 用可选注入：未部署对象存储时文生图仍可工作，只是回落为 base64 内嵌 markdown
-        /// （<see cref="ImageGenerationOptions.AutoUploadToOss"/>=false 的行为）
+        /// （<see cref="ImageGenerationOptions.AutoUploadToOss"/>=false 的行为）。
+        /// IHttpClientFactory 用于把厂商只回 URL 的生成结果下载后转存 OSS（CogView 等厂商忽略
+        /// response_format=b64_json，只给带过期时间的临时 URL）。
         /// </summary>
-        public ImageGenToolFactory(IImageGenerationClient client, IFileStorage? fileStorage = null)
+        public ImageGenToolFactory(IImageGenerationClient client, IHttpClientFactory httpClientFactory, IFileStorage? fileStorage = null)
         {
             _client = client;
             _fileStorage = fileStorage;
+            _httpClientFactory = httpClientFactory;
         }
 
         /// <inheritdoc />
         public AITool BuildGenerateFunction(ImageGenModelConfig config)
         {
-            var tool = new ImageGenTool(_client, _fileStorage, config);
+            var tool = new ImageGenTool(_client, _fileStorage, _httpClientFactory, config);
             return AIFunctionFactory.Create(tool.GenerateImage, new AIFunctionFactoryOptions
             {
                 Name = "GenerateImage",
@@ -55,12 +59,14 @@ namespace kevin.AI.AgentFramework.ImageGeneration
         {
             private readonly IImageGenerationClient _client;
             private readonly IFileStorage? _fileStorage;
+            private readonly IHttpClientFactory _httpClientFactory;
             private readonly ImageGenModelConfig _config;
 
-            public ImageGenTool(IImageGenerationClient client, IFileStorage? fileStorage, ImageGenModelConfig config)
+            public ImageGenTool(IImageGenerationClient client, IFileStorage? fileStorage, IHttpClientFactory httpClientFactory, ImageGenModelConfig config)
             {
                 _client = client;
                 _fileStorage = fileStorage;
+                _httpClientFactory = httpClientFactory;
                 _config = config;
             }
 
@@ -121,14 +127,29 @@ namespace kevin.AI.AgentFramework.ImageGeneration
             /// 把单张生成图片落地为可访问 URL：
             /// <para>
             /// 优先级：b64 字节 → OSS 上传（若启用且 IFileStorage 可用） → 内嵌 data URL；
-            /// 若接口直接返回 url（少数不支持 b64 的厂商），透传该 url。
+            /// 接口只回 url 时（CogView 等厂商忽略 response_format=b64_json），同样下载字节后转存 OSS，
+            /// 因为厂商 URL 是带过期时间的临时地址，直接透传会让几小时后的聊天记录图片裂图；
+            /// 下载/转存失败或 OSS 未启用时才回落透传原 URL。
             /// </para>
             /// </summary>
             private async Task<string?> ResolveImageLinkAsync(GeneratedImage img, ImageGenerationOptions options)
             {
-                // 情况 1：接口返回了 URL（response_format=url 或 b64 失败回落）
+                // 情况 1：接口只返回了 URL（没有 b64 字节）：下载后转存 OSS 拿稳定链接
                 if (img.B64Bytes == null || img.B64Bytes.Length == 0)
                 {
+                    if (string.IsNullOrEmpty(img.Url)) return null;
+
+                    if (options.AutoUploadToOss && _fileStorage != null)
+                    {
+                        var bytes = await DownloadImageBytesAsync(img.Url);
+                        if (bytes is { Length: > 0 })
+                        {
+                            var ossUrl = TryUploadToOss(bytes, options.OssRemotePath, GuessExtensionFromUrl(img.Url, img.MimeType));
+                            if (!string.IsNullOrEmpty(ossUrl)) return ossUrl;
+                        }
+                        // 下载或转存失败不判死刑：透传原 URL 让用户至少现在能看到图（链接过期是后话）
+                        LogHelper.logger.Warn($"文生图 URL 转存 OSS 失败，回落透传原 URL: {img.Url}");
+                    }
                     return img.Url;
                 }
 
@@ -147,15 +168,50 @@ namespace kevin.AI.AgentFramework.ImageGeneration
             }
 
             /// <summary>
-            /// b64 → 临时文件 → <see cref="IFileStorage.FileUpload"/> → 稳定 URL。
+            /// 下载厂商临时图片 URL 的字节。失败返回 null 由调用方回落透传原 URL，不中断整个工具调用。
+            /// </summary>
+            private async Task<byte[]?> DownloadImageBytesAsync(string url)
+            {
+                try
+                {
+                    var client = _httpClientFactory.CreateClient(nameof(ImageGenToolFactory));
+                    // 下载的是已生成好的静态图，正常亚秒级；但跨云拉取可能慢，复用生成接口的超时配置兜底
+                    client.Timeout = TimeSpan.FromSeconds(ImageGenerationOptions.Current.HttpTimeoutSeconds);
+                    return await client.GetByteArrayAsync(url);
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.logger.Error($"下载文生图返回 URL 失败: {url}", ex);
+                    return null;
+                }
+            }
+
+            /// <summary>
+            /// 从图片 URL / MIME 猜文件扩展名：CogView 等常返回 .jpg，不能固定按 .png 存；
+            /// 认不出来时默认 .png（与 b64 路径 MimeType=image/png 的既有约定一致）。
+            /// </summary>
+            private static string GuessExtensionFromUrl(string url, string? mimeType)
+            {
+                var ext = Path.GetExtension(url.Split('?')[0]).ToLowerInvariant();
+                if (ext is ".png" or ".jpg" or ".jpeg" or ".webp") return ext;
+                return mimeType?.ToLowerInvariant() switch
+                {
+                    "image/jpeg" => ".jpg",
+                    "image/webp" => ".webp",
+                    _ => ".png",
+                };
+            }
+
+            /// <summary>
+            /// 字节 → 临时文件 → <see cref="IFileStorage.FileUpload"/> → 稳定 URL。
             /// <para>
             /// IFileStorage 只暴露 localPath 版本，没有 Stream 版本，所以必须落一次磁盘；
             /// 用完立即删除临时文件，避免堆积。
             /// </para>
             /// </summary>
-            private string? TryUploadToOss(byte[] bytes, string remotePathPrefix)
+            private string? TryUploadToOss(byte[] bytes, string remotePathPrefix, string extension = ".png")
             {
-                var tempPath = Path.Combine(Path.GetTempPath(), $"imagegen_{Guid.NewGuid():N}.png");
+                var tempPath = Path.Combine(Path.GetTempPath(), $"imagegen_{Guid.NewGuid():N}{extension}");
                 try
                 {
                     File.WriteAllBytes(tempPath, bytes);
@@ -163,7 +219,7 @@ namespace kevin.AI.AgentFramework.ImageGeneration
                         ? "/Files/ImageGen"
                         : remotePathPrefix.TrimEnd('/');
                     datePath += "/" + DateTime.Now.ToString("yyyy/MM/dd");
-                    var fileName = $"gen_{DateTime.Now:yyyyMMddHHmmss}_{Guid.NewGuid():N}.png";
+                    var fileName = $"gen_{DateTime.Now:yyyyMMddHHmmss}_{Guid.NewGuid():N}{extension}";
                     var (success, url) = _fileStorage!.FileUpload(tempPath, datePath, fileName);
                     return success ? url : null;
                 }
