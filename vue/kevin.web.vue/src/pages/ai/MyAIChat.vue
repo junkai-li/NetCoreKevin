@@ -2279,6 +2279,8 @@ const showAgentSelectionModal = (defaultAppId = null) => {
           placeholder: "请选择智能体",
           options: aiApps.value,
           value: selectedAiApp.value,
+          showSearch: true,
+          optionFilterProp: "label",
           "onUpdate:value": (value) => {
             selectedAiApp.value = value;
           },
