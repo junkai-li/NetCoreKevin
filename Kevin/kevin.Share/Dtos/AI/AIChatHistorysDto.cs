@@ -134,6 +134,6 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </para>
         /// </summary>
         [Description("是否开启推荐问题")]
-        public Boolean IsRecommendQuestion { get; set; } = true;
+        public Boolean IsRecommendQuestion { get; set; } = false;
     }
 }
