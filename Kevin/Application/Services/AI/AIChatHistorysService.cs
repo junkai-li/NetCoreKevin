@@ -16,6 +16,7 @@ using Kevin.RAG.Interfaces;
 using Kevin.RAG.Ollama;
 using Kevin.SignalR.Service;
 using Microsoft.Agents.AI;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -40,6 +41,8 @@ namespace kevin.Application.Services.AI
         private IRAGService rAGServicevice { get; set; }
         public IKevinAIChatMessageStore kevinAIChatMessageStore { get; set; }
         public ISignalRMsgService signalRMsgService { get; set; }
+        /// <summary>聊天室流式输出专用：把分片推给 ChatRoomHub 自己的房间分组。</summary>
+        public IHubContext<ChatRoomHub> chatRoomHub { get; set; }
 
         public IAIKmssService aIKmssService { get; set; }
 
@@ -68,7 +71,7 @@ namespace kevin.Application.Services.AI
             IRAGService _rAGService, IAIKmssService _aIKmssService, IOllamaApiService _ollamaApiService, ISignalRMsgService _signalRMsgService,
             IHttpClientFactory _httpClientFactory, IAIChatHistorysBindLogService _aIChatHistorysBindLogService,
             IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService, IAIShareInfoService aIShareInfoService, IAIInputOutputSafetyService aIInputOutputSafetyService,
-            IModalityContentBuilder modalityContentBuilder
+            IModalityContentBuilder modalityContentBuilder, IHubContext<ChatRoomHub> _chatRoomHub
             ) : base(_httpContextAccessor)
         {
             this.aIChatHistorysRp = _aIChatHistorysRp;
@@ -82,6 +85,7 @@ namespace kevin.Application.Services.AI
             this.aIKmssService = _aIKmssService;
             this.ollamaApiService = _ollamaApiService;
             this.signalRMsgService = _signalRMsgService;
+            this.chatRoomHub = _chatRoomHub;
             this.httpClientFactory = _httpClientFactory;
             this._aIChatHistorysBindLogService = _aIChatHistorysBindLogService;
             this._aIShareInfoService = aIShareInfoService;
@@ -156,6 +160,13 @@ namespace kevin.Application.Services.AI
         /// </summary>
         public Task<AIChatHistorysDto> Add(AIChatHistorysDto par, CancellationToken cancellationToken)
             => AddCoreAsync(par, identity => new SignalRChatStreamOutput(signalRMsgService, identity), cancellationToken);
+
+        /// <summary>
+        /// 聊天室发送（房间分组输出）：处理逻辑与 <see cref="Add"/> 完全共用 <see cref="AddCoreAsync"/>，
+        /// 仅把流式分片改为推给“房间分组”（组名 = roomId，即会话 chatId），并按 askId 标记以便前端多问并行路由。
+        /// </summary>
+        public Task<AIChatHistorysDto> AddToRoom(AIChatHistorysDto par, long roomId, CancellationToken cancellationToken)
+            => AddCoreAsync(par, askId => new RoomChatStreamOutput(chatRoomHub, roomId.ToString(), askId), cancellationToken);
 
         /// <summary>
         /// 新建聊天（SSE 流式输出）：处理逻辑与 <see cref="Add"/> 完全共用 <see cref="AddCoreAsync"/>，

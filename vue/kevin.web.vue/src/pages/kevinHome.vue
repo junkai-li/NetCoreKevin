@@ -318,7 +318,7 @@ import TenantManagement from "./TenantManagement.vue";
 import CodeGenerator from "./CodeGenerator.vue";
 import KevinDashboard from "./kevinDashboard.vue";
 import UserProfile from "./UserProfile.vue";
-
+import ChatRoom from "./ai/ChatRoom.vue";
 const router = useRouter();
 
 const collapsed = ref(false);
@@ -349,6 +349,7 @@ const routeComponentMap = {
   'ai-skilltoolmg': AiSkillToolMg,
   'my-message': MyMessages,
   'my-ai-chat': MyAIChat,
+  'my-ai-chat-room': ChatRoom,
   'my-ai-tasks': MyAITasks,
   'my-ai-agents': MyAgentList,
   'organizational-position': PositionManagement,
@@ -390,6 +391,7 @@ const pageTitleMap = {
   'my-message': '我的消息',
   'my-ai-chat': '我的AI对话',
   'my-ai-tasks': '我的AI自动任务',
+  'my-ai-chat-room': '智能体聊天室',
   'my-ai-agents': '我的可用智能体',
   'organizational-position': '岗位管理',
   'organizational-department': '部门管理',
@@ -461,6 +463,7 @@ const routePathMap = {
   'my-ai-chat': '/home/my/ai-chat',
   'my-ai-tasks': '/home/my/ai-tasks',
   'my-ai-agents': '/home/my/ai-agents',
+  'my-ai-chat-room': '/home/my/ai-chat-room',
   'organizational-position': '/home/position/management',
   'organizational-department': '/home/department/management',
   'system-tenant': '/home/system/tenant',
@@ -578,6 +581,7 @@ const menuList = ref([
     children: [
       { key: 'my-message', title: '我的消息', permission: 'Menu/MyMenu/MyMessage', icon: MessageOutlined },
       { key: 'my-ai-chat', title: '我的AI对话', permission: 'Menu/MyMenu/MyAiChat', icon: RobotOutlined },
+      { key: 'my-ai-chat-room', title: '智能体聊天室', permission: 'Menu/MyMenu/MyAiChat', icon: MessageOutlined },
       { key: 'my-ai-tasks', title: '我的AI自动任务', permission: 'Menu/MyMenu/MyAiTasks', icon: ScheduleOutlined },
       { key: 'my-ai-agents', title: '我的可用智能体', permission: 'Menu/MyMenu/MyAiAgents', icon: AppstoreOutlined }
     ]

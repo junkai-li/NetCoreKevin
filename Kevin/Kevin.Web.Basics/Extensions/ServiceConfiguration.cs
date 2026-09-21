@@ -1,4 +1,5 @@
-﻿using kevin.Cache;
+﻿using kevin.Application.Services.AI;
+using kevin.Cache;
 using kevin.CodeGenerator;
 using kevin.CodeGenerator.Dto;
 using kevin.DistributedLock;
@@ -322,6 +323,8 @@ namespace Web.Extension
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                   // 一对一智能体聊天室 Hub：与 MySignalRHub 走同一套 Redis 背板分组，只是多一个可双向收发的房间 Hub            
+                endpoints.MapHub<ChatRoomHub>("/api/ChatRoomHub");
             });
             app.UseKevinRedisSignalR(options =>
             {
@@ -334,6 +337,7 @@ namespace Web.Extension
                 options.hostname = newoptions.hostname;
                 options.cacheMySignalRKeyName = newoptions.cacheMySignalRKeyName;
             });
+            
             GlobalServices.Set(app.ApplicationServices);
             //静态助手（HttpClientHelper 等）要从容器取 IHttpClientFactory，这里显式把根容器喂进去：
             //Program 的请求中间件会把 GlobalServices.ServiceProvider 覆盖成逐个请求的作用域容器，

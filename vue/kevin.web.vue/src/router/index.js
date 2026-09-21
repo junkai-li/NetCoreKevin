@@ -9,6 +9,7 @@ import UnderDevelopment from '@/pages/UnderDevelopment.vue';
 import PermissionMg from '@/pages/PermissionMg.vue'; 
 import HttpLogMg from '@/pages/HttpLog.vue'; 
 import OSLogMG from '@/pages/OSLog.vue';   
+import ChatRoom from '@/pages/ai/ChatRoom.vue';
 // 消息管理相关页面
 import SystemAnnouncement from '@/pages/SystemAnnouncement.vue';
 import MyMessages from '@/pages/MyMessages.vue';
@@ -110,6 +111,11 @@ const routes = [
         path: 'my/ai-chat',
         name: 'MyAIChat',
         component: MyAIChat
+      },
+      {
+        path: 'my/ai-chat-room',
+        name: 'ChatRoom',
+        component: ChatRoom
       },
       {
         path: 'my/ai-tasks',
