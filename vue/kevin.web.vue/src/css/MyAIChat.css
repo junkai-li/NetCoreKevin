@@ -1544,6 +1544,48 @@
   background: rgba(100, 120, 150, 0.3) !important;
 }
 
+/* 流式输出方式选择器（SSE / SignalR）：药丸分段切换，与相邻开关/按钮同高 28px，主色跟随电话按钮 #10b981 */
+.stream-mode-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 28px;
+  padding: 3px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+
+.stream-mode-option {
+  padding: 1px 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-muted, rgba(100, 120, 150, 0.9));
+  border-radius: 11px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.stream-mode-option:hover {
+  color: var(--text-strong, #333);
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.stream-mode-option.active {
+  color: #fff;
+  background: #10b981;
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.35);
+}
+
+/* 发送中不可切换：沿用旧 a-select disabled 的视觉反馈 */
+.stream-mode-selector.disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
 /* 语音录制区域 */
 /* 语音模式输入区域 */
 .voice-input-area {

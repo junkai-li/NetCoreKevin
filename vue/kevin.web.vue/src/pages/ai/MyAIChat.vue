@@ -372,6 +372,15 @@
                   <template #checkedChildren>语音模式</template>
                   <template #unCheckedChildren>语音模式</template>
                 </a-switch>
+                <!-- 流式输出方式选择：SSE（默认）/ SignalR，药丸分段切换，和左侧开关同高 -->
+                <div class="stream-mode-selector" :class="{ disabled: isSending }">
+                  <span
+                    v-for="m in streamModeOptions"
+                    :key="m.value"
+                    :class="['stream-mode-option', { active: streamMode === m.value }]"
+                    @click="streamMode = m.value"
+                  >{{ m.label }}</span>
+                </div>
                 <a-button
                   class="phone-mode-btn"
                   @click="enterPhoneMode"
@@ -760,6 +769,13 @@ const detailModalContent = ref("");
 const detailModalTitle = ref("");
 // 添加联网搜索开关变量
 const isOnlineSearch = ref(false); // 默认为关闭状态
+// 流式输出方式：'sse'（默认，直连 AddSSE 接口读 HTTP 流）| 'signalr'（走 /api/MySignalRHub 旁路推送 + Add 接口）
+const streamMode = ref('sse');
+// 分段切换项：value 与上面发送逻辑里的 streamMode 判断保持一致
+const streamModeOptions = [
+  { value: 'sse', label: 'SSE 流式' },
+  { value: 'signalr', label: 'SignalR' },
+];
 
 // 语音模式相关变量
 const isVoiceMode = ref(false); // 语音模式开关
@@ -2586,87 +2602,31 @@ const postChatMessage = async (userMessage, par) => {
     if (isVoiceMode.value) {
       startStreamingTTS();
     }
-    // 必须 await：连接没建立就发提问，这一轮的流式输出会全部推空
-    await getAiMySignalRHubMsg(snowflakeId);
-    const reulst = await addAIChatHistorys({
-      aIChatsId: activeConversationId.value,
-      id:snowflakeId,
-      content: content,
-      isOnlineSearch: isOnlineSearch.value,
-      fileNames: fileNames.join(','),
-      contentFileUrls: contentFileUrls.join(','),
-      retryOfId: retryOfId,
-    }, abortController.signal);
-    if (reulst?.code !== 200 || !reulst?.data) {
-      throw new Error(reulst?.errMsg || '发送失败');
-    }
-    scrollToBottom();
-    lastSentMessage.value = "";
-    lastSentMessageId.value = null;
-    // 更新对话列表中的预览
-    const conversation = conversations.value.find(
-      (c) => c.id === activeConversationId.value
-    );
-    if (conversation) {
-      conversation.lastMessage = content;
-      conversation.updatedAt = new Date().toISOString();
-      if (!conversation.title) {
-        conversation.title =
-          content.substring(0, 20) + (content.length > 20 ? "..." : "");
+    // 按选择的流式方式下发：SSE 直连 AddSSE 读响应流；SignalR 先建连接再走 Add 接口
+    if (streamMode.value === 'sse') {
+      const data = await sendViaSSE(snowflakeId, {
+        content,
+        fileNames,
+        contentFileUrls,
+        retryOfId,
+      }, abortController.signal);
+      finalizeAiReply(data, userMessage, content, snowflakeId);
+    } else {
+      // 必须 await：连接没建立就发提问，这一轮的流式输出会全部推空
+      await getAiMySignalRHubMsg(snowflakeId);
+      const reulst = await addAIChatHistorys({
+        aIChatsId: activeConversationId.value,
+        id: snowflakeId,
+        content: content,
+        isOnlineSearch: isOnlineSearch.value,
+        fileNames: fileNames.join(','),
+        contentFileUrls: contentFileUrls.join(','),
+        retryOfId: retryOfId,
+      }, abortController.signal);
+      if (reulst?.code !== 200 || !reulst?.data) {
+        throw new Error(reulst?.errMsg || '发送失败');
       }
-    }
-    const data = reulst.data;
-    // 模型层的异常被转成“❌ …”正文后仍是 HTTP 200，只能靠 sendStatus 区分“真回复”和“报错”
-    const sendFail = data.sendStatus === 1 || data.sendStatus === 2;
-    userMessage.sendStatus = sendFail ? 1 : 0;
-    userMessage.failReason = data.failReason || '';
-    userMessage.retryCount = data.retryCount || 0;
-    const aiMessage = {
-      id: data.id,
-      conversationId: activeConversationId.value,
-      isSend: data.isSend,
-      content: data.content,
-      aiToolsContent: data.aiToolsContent,
-      aiReasoningContent: data.aiReasoningContent,
-      createdAt: data.createTime,
-      aIChatHistorysBindLogs: data.aIChatHistorysBindLogs || [],
-      cachedInputTokenCount: data.cachedInputTokenCount || 0,
-      inputTokenCount: data.inputTokenCount || 0,
-      outputTokenCount: data.outputTokenCount || 0,
-      totalTokenCount: data.totalTokenCount || 0,
-      reasoningTokenCount: data.reasoningTokenCount || 0,
-      dbId: data.id,
-      sendStatus: sendFail ? 1 : 0,
-      failReason: data.failReason || '',
-      retryCount: data.retryCount || 0,
-    };
-    if (aiMessage.aiReasoningContent) {
-      expandedReasoning.value = true;
-    }
-    if (aiMessage.aiToolsContent) {
-      expandedTools.value = true;
-    }
-    messages.value.push(aiMessage);
-    // 记下配对关系，重试时能精确把这次失败的回复换掉
-    userMessage.aiMsgId = aiMessage.id;
-    currentReceivingMsgId.value = aiMessage.id;
-    isSending.value = false;
-    
-    // 先保存流式文本（stopAiMySignalRHubMsg 会清空 aimessage2）
-    const streamedText = aimessage2.value;
-    
-    stopAiMySignalRHubMsg(snowflakeId);
-    
-    // 将流式接收的内容保存到AI消息对象中
-    const lastAiMsg = messages.value[messages.value.length - 1];
-    if (lastAiMsg && streamedText) {
-      lastAiMsg.content = streamedText;
-    }
-    
-    scrollToBottom();
-    // 语音模式下：完成流式播放剩余内容，或常规播放（报错文案不播报）
-    if (isVoiceMode.value && !sendFail) {
-      finishStreamingTTS(streamedText, lastAiMsg?.id);
+      finalizeAiReply(reulst.data, userMessage, content, snowflakeId);
     }
   } catch (error) {
     stopAiMySignalRHubMsg(snowflakeId);
@@ -2747,6 +2707,210 @@ const getLogTypeName = (logType) => {
   return types[logType] || '未知';
 };
 
+// ==== 流式分片 handler：SignalR 推送与 SSE 解析共用，保证两种模式的展示行为完全一致 ====
+const handleAiChunk = (msg) => {
+  // 使用nextTick确保DOM更新
+  nextTick(() => {
+    // 实现逐字显示效果
+    aimessage2.value += msg;
+    // 滚动到底部以显示最新内容
+    scrollToBottom();
+    // 流式播放语音：检测到完整句子就立即播放
+    if (isVoiceMode.value && streamingTtsActive) {
+      streamTTS(aimessage2.value);
+    }
+  });
+};
+const handleProcessMsg = (msg) => {
+  aimessage.value = msg;
+};
+const handleToolsChunk = (msg) => {
+  nextTick(() => {
+    aIToolsContentMsg.value += msg;
+    if (aIToolsContentMsg.value.length < 350) {
+      scrollToBottom();
+    }
+  });
+};
+const handleReasoningChunk = (msg) => {
+  nextTick(() => {
+    aIReasoningContentMsg.value += msg;
+    if (aIReasoningContentMsg.value.length < 350) {
+      scrollToBottom();
+    }
+  });
+};
+
+// 解析单个 SSE 帧（以空行分隔）：返回 { event, data }，data 可能多行（后端把换行拆成多条 data:）
+const parseSSEFrame = (frame) => {
+  let event = 'message';
+  const dataLines = [];
+  for (let line of frame.split('\n')) {
+    if (line.endsWith('\r')) line = line.slice(0, -1);
+    if (line === '' || line.startsWith(':')) continue; // 空行/心跳注释
+    if (line.startsWith('event:')) event = line.slice(6).trim();
+    else if (line.startsWith('data:')) dataLines.push(line.slice(5).replace(/^ /, ''));
+  }
+  if (dataLines.length === 0) return null;
+  return { event, data: dataLines.join('\n') };
+};
+
+// 把一个 SSE 事件按通道名分派到与 SignalR 相同的 handler
+const dispatchSSEEvent = ({ event, data }) => {
+  switch (event) {
+    case 'aimsg': handleAiChunk(data); break;
+    case 'processmsg': handleProcessMsg(data); break;
+    case 'aIToolsContentMsg': handleToolsChunk(data); break;
+    case 'aIReasoningContentMsg': handleReasoningChunk(data); break;
+  }
+};
+
+/**
+ * SSE 发送实现：POST /api/AIChatHistorys/AddSSE，边读流边把分片喂给共用 handler，
+ * 收到 done（携带与 Add 的 reulst.data 同构的最终记录）后返回它；error 事件则抛业务异常。
+ */
+const sendViaSSE = async (snowflakeId, par, signal) => {
+  const { content, fileNames = [], contentFileUrls = [], retryOfId = 0 } = par;
+  const resp = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/AIChatHistorys/AddSSE`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+    },
+    credentials: 'include',
+    signal,
+    body: JSON.stringify({
+      aIChatsId: activeConversationId.value,
+      id: snowflakeId,
+      content,
+      isOnlineSearch: isOnlineSearch.value,
+      fileNames: fileNames.join(','),
+      contentFileUrls: contentFileUrls.join(','),
+      retryOfId,
+    }),
+  });
+  if (!resp.ok || !resp.body) {
+    // 响应头尚未下发时的整体错误（如 401/403/500），尽量取后端提示
+    let errMsg = `发送失败（HTTP ${resp.status}）`;
+    try {
+      const j = await resp.json();
+      errMsg = j.errMsg || j.err_msg || errMsg;
+    } catch (e) { /* 非 JSON 错误体，沿用状态码提示 */ }
+    throw new Error(errMsg);
+  }
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder('utf-8');
+  let buffer = '';
+  let doneRecord = null;
+  let errMsg = '';
+  const drain = () => {
+    let idx;
+    while ((idx = buffer.indexOf('\n\n')) !== -1) {
+      const rawFrame = buffer.slice(0, idx);
+      buffer = buffer.slice(idx + 2);
+      const evt = parseSSEFrame(rawFrame);
+      if (!evt) continue;
+      if (evt.event === 'done') {
+        try { doneRecord = JSON.parse(evt.data); } catch (e) { /* 忽略无法解析的 done */ }
+      } else if (evt.event === 'error') {
+        errMsg = evt.data;
+      } else {
+        dispatchSSEEvent(evt);
+      }
+    }
+  };
+  // done / error 是本轮的终止事件：收到即收尾。服务端写完最后一个事件后会直接关闭连接
+  // （不带 chunked 终止块），Chrome 会把随后那次 reader.read() 判成
+  // ERR_INCOMPLETE_CHUNKED_ENCODING 并抛 network error——此时数据其实已收全，
+  // 不能再把这条“关流”错误冒泡成发送失败。
+  try {
+    while (!doneRecord && !errMsg) {
+      const { value, done } = await reader.read();
+      if (done) {
+        buffer += decoder.decode(); // 正常关流：冲掉解码器残留并解析最后一帧
+        drain();
+        break;
+      }
+      buffer += decoder.decode(value, { stream: true });
+      drain();
+    }
+  } catch (readErr) {
+    // 只有还没拿到任何终止事件时，读取异常才是真正的失败（含用户主动 abort）
+    if (!doneRecord && !errMsg) throw readErr;
+  }
+  if (errMsg) throw new Error(errMsg);
+  if (!doneRecord) throw new Error('SSE 未返回最终结果');
+  return doneRecord;
+};
+
+/**
+ * 拿到最终记录后统一收尾：更新对话预览、把回复入列、用已流式接收的文本覆盖展示、停掉旁路推送。
+ * SignalR 与 SSE 共用，data 需与 Add 接口的 reulst.data 同构（camelCase + 雪花Id为字符串）。
+ */
+const finalizeAiReply = (data, userMessage, content, snowflakeId) => {
+  scrollToBottom();
+  lastSentMessage.value = '';
+  lastSentMessageId.value = null;
+  // 更新对话列表中的预览
+  const conversation = conversations.value.find((c) => c.id === activeConversationId.value);
+  if (conversation) {
+    conversation.lastMessage = content;
+    conversation.updatedAt = new Date().toISOString();
+    if (!conversation.title) {
+      conversation.title = content.substring(0, 20) + (content.length > 20 ? '...' : '');
+    }
+  }
+  // 模型层的异常被转成“❌ …”正文后仍是 HTTP 200，只能靠 sendStatus 区分“真回复”和“报错”
+  const sendFail = data.sendStatus === 1 || data.sendStatus === 2;
+  userMessage.sendStatus = sendFail ? 1 : 0;
+  userMessage.failReason = data.failReason || '';
+  userMessage.retryCount = data.retryCount || 0;
+  const aiMessage = {
+    id: data.id,
+    conversationId: activeConversationId.value,
+    isSend: data.isSend,
+    content: data.content,
+    aiToolsContent: data.aiToolsContent,
+    aiReasoningContent: data.aiReasoningContent,
+    createdAt: data.createTime,
+    aIChatHistorysBindLogs: data.aIChatHistorysBindLogs || [],
+    cachedInputTokenCount: data.cachedInputTokenCount || 0,
+    inputTokenCount: data.inputTokenCount || 0,
+    outputTokenCount: data.outputTokenCount || 0,
+    totalTokenCount: data.totalTokenCount || 0,
+    reasoningTokenCount: data.reasoningTokenCount || 0,
+    dbId: data.id,
+    sendStatus: sendFail ? 1 : 0,
+    failReason: data.failReason || '',
+    retryCount: data.retryCount || 0,
+  };
+  if (aiMessage.aiReasoningContent) {
+    expandedReasoning.value = true;
+  }
+  if (aiMessage.aiToolsContent) {
+    expandedTools.value = true;
+  }
+  messages.value.push(aiMessage);
+  // 记下配对关系，重试时能精确把这次失败的回复换掉
+  userMessage.aiMsgId = aiMessage.id;
+  currentReceivingMsgId.value = aiMessage.id;
+  isSending.value = false;
+
+  // 先保存流式文本（stopAiMySignalRHubMsg 会清空 aimessage2）
+  const streamedText = aimessage2.value;
+  stopAiMySignalRHubMsg(snowflakeId);
+  // 将流式接收的内容保存到AI消息对象中
+  const lastAiMsg = messages.value[messages.value.length - 1];
+  if (lastAiMsg && streamedText) {
+    lastAiMsg.content = streamedText;
+  }
+  scrollToBottom();
+  // 语音模式下：完成流式播放剩余内容，或常规播放（报错文案不播报）
+  if (isVoiceMode.value && !sendFail) {
+    finishStreamingTTS(streamedText, lastAiMsg?.id);
+  }
+};
+
 var connectionServer=null;
 let connectionTimeout = null;
 
@@ -2771,48 +2935,11 @@ connectionServer.onclose(() => {})
 connectionServer.keepAliveIntervalInMilliseconds = 12e4
 // 服务端保持连接请求到客户端时间间隔
 connectionServer.serverTimeoutInMilliseconds = 24e4
-// 接收AI消息
-connectionServer.on('aimsg', (msg) => {
-  // 使用nextTick确保DOM更新
-  nextTick(() => {
-    // 实现逐字显示效果
-    aimessage2.value+=msg;
-     // 滚动到底部以显示最新内容
-        scrollToBottom();
-    // 流式播放语音：检测到完整句子就立即播放
-    if (isVoiceMode.value && streamingTtsActive) {
-      streamTTS(aimessage2.value);
-    }
-  });
-})
-// 接收AI消息
-connectionServer.on('processmsg', (msg) => {
-    aimessage.value=msg
-})
-// 接收AI工具调用内容（叠加）
-connectionServer.on('aIToolsContentMsg', (msg) => {
- // 使用nextTick确保DOM更新
-  nextTick(() => {
-    // 实现逐字显示效果
-    aIToolsContentMsg.value+=msg;
-     // 滚动到底部以显示最新内容
-     if (aIToolsContentMsg.value.length<350) {
-     scrollToBottom();
-    }
-  });
-})
-// 接收AI思考过程内容（叠加）
-connectionServer.on('aIReasoningContentMsg', (msg) => {
- // 使用nextTick确保DOM更新
-  nextTick(() => {
-    // 实现逐字显示效果
-    aIReasoningContentMsg.value+=msg;
-       // 滚动到底部以显示最新内容
-     if (aIReasoningContentMsg.value.length<350) {
-     scrollToBottom();
-    }
-  });
-})
+// 流式分片处理与 SSE 共用同一组 handler（见 handleAiChunk 等），SignalR 只是把 method 名当分发键
+connectionServer.on('aimsg', handleAiChunk)
+connectionServer.on('processmsg', handleProcessMsg)
+connectionServer.on('aIToolsContentMsg', handleToolsChunk)
+connectionServer.on('aIReasoningContentMsg', handleReasoningChunk)
 // 上面这些 on(...) 全部注册完才启动连接，否则抢在注册前到的分片会因为还没有监听者被直接丢掉
 // start 必须 await 到真正连上再返回：服务端推送目标是 SignalR 分组（组名=本次回答的雪花Id），
 // 没连上就发提问请求，本轮所有流式分片都推给一个还不存在的组员，前端只能等 HTTP 返回的整段回复。

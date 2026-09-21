@@ -63,6 +63,7 @@
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
+        <!-- Badly formed XML comment ignored for member "M:Kevin.Web.Basics.AI.AIChatHistorysController.AddSSE(kevin.Domain.Share.Dtos.AI.AIChatHistorysDto,System.Threading.CancellationToken)" -->
         <member name="M:Kevin.Web.Basics.AI.AIChatHistorysController.Delete(System.Int64)">
             <summary>
             删除AI对话聊天记录

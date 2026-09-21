@@ -5,7 +5,6 @@ using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Interfaces.Safety;
 using kevin.AI.AgentFramework.Modality;
-using kevin.AI.AgentFramework.Safety;
 using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IServices.AI;
@@ -18,7 +17,8 @@ using Kevin.RAG.Ollama;
 using Kevin.SignalR.Service;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
-using NetCore.Util;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using OpenAI;
 using Repository.Database;
 using System.ClientModel;
@@ -152,12 +152,77 @@ namespace kevin.Application.Services.AI
 
 
         /// <summary>
-        /// 新建聊天
+        /// 新建聊天（默认输出通道）：流式分片经 SignalR 按提问记录 Id 推送给前端。
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        /// <exception cref="UserFriendlyException"></exception>
-        public async Task<AIChatHistorysDto> Add(AIChatHistorysDto par, CancellationToken cancellationToken)
+        public Task<AIChatHistorysDto> Add(AIChatHistorysDto par, CancellationToken cancellationToken)
+            => AddCoreAsync(par, identity => new SignalRChatStreamOutput(signalRMsgService, identity), cancellationToken);
+
+        /// <summary>
+        /// 新建聊天（SSE 流式输出）：处理逻辑与 <see cref="Add"/> 完全共用 <see cref="AddCoreAsync"/>，
+        /// 仅把处理过程中的流式分片改为以 SSE（text/event-stream）写回当前 HTTP 响应。
+        /// <para>
+        /// 下发的事件名与 SignalR 通道一一对应：<c>processmsg</c> / <c>aimsg</c> / <c>aIToolsContentMsg</c> /
+        /// <c>aIReasoningContentMsg</c>；本轮结束时额外下发 <c>done</c>（data 为最终回复记录的 JSON），
+        /// 业务异常则以 <c>error</c> 事件回传可读提示。
+        /// </para>
+        /// </summary>
+        public async Task AddSSE(AIChatHistorysDto par, CancellationToken cancellationToken)
+        {
+            var response = HttpContextAccessor.HttpContext?.Response;
+            if (response == default)
+            {
+                throw new UserFriendlyException("SSE 输出需要在 HTTP 请求上下文中调用");
+            }
+            if (!response.HasStarted)
+            {
+                response.ContentType = "text/event-stream";
+                response.Headers["Cache-Control"] = "no-cache";
+                response.Headers["Connection"] = "keep-alive";
+                // Nginx 等反向代理默认会缓冲响应，关掉才能让分片实时下发
+                response.Headers["X-Accel-Buffering"] = "no";
+            }
+            var sseOutput = new SseChatStreamOutput(response);
+            try
+            {
+                var result = await AddCoreAsync(par, _ => sseOutput, cancellationToken);
+                await sseOutput.WriteAsync("done", SerializeForClient(result));
+            }
+            catch (UserFriendlyException ex)
+            {
+                // 响应头已下发，无法再走全局异常中间件返回 400，改以 SSE error 事件回传可读提示
+                await sseOutput.WriteAsync("error", ex.Message);
+            }
+            // 写完终止事件后显式结束响应，让 Kestrel 正常下发 chunked 终止块（0\r\n\r\n），
+            // 而不是等连接回收时才中断——否则前端 fetch 会把它判成 ERR_INCOMPLETE_CHUNKED_ENCODING。
+            // 客户端中途断开时 CompleteAsync 自身会抛，这里吞掉即可（流本就已断，无法再写）。
+            try
+            {
+                await response.CompleteAsync();
+            }
+            catch (Exception ex)
+            {
+                LogHelper.logger.Warn("SSE 响应收尾失败（可能客户端已断开）:", ex);
+            }
+        }
+
+        /// <summary>
+        /// 把最终记录序列化为 <c>done</c> 事件体：与 <c>Add</c> 接口的 HTTP 返回复用 MVC 同一套 JsonSerializerOptions
+        /// （camelCase + <see cref="Common.Json.LongConverter"/> long→字符串），
+        /// 保证前端从 SSE <c>done</c> 解出的对象与 SignalR 路径下的 <c>reulst.data</c> 字段完全一致，
+        /// 不会因默认序列化退化成 PascalCase、也不会把雪花 Id 写成会丢精度的数字。</summary>
+        private string SerializeForClient(AIChatHistorysDto result)
+        {
+            var jsonOptions = _serviceProvider
+                ?.GetService<IOptions<Microsoft.AspNetCore.Mvc.JsonOptions>>()?.Value?.JsonSerializerOptions;
+            return JsonSerializer.Serialize(result, jsonOptions);
+        }
+
+        /// <summary>
+        /// 聊天处理主流程：提问落库、RAG、文件、联网、模型调用、回复落库等逻辑全部在此，两种输出方式共用。
+        /// </summary>
+        /// <param name="outputFactory">入参为提问记录 Id（身份标识），返回本次请求使用的流式输出通道；
+        /// 由 <see cref="Add"/> 传入 SignalR 通道、由 <see cref="AddSSE"/> 传入 SSE 通道</param>
+        private async Task<AIChatHistorysDto> AddCoreAsync(AIChatHistorysDto par, Func<string, IChatStreamOutput> outputFactory, CancellationToken cancellationToken)
         {
             var reslutUserCheck = await _aIInputOutputSafetyService.CheckUserInput(par.Content);
             if (!reslutUserCheck.Item1)
@@ -238,6 +303,8 @@ namespace kevin.Application.Services.AI
             var aIPrompts = await aIPromptsService.GetDetails(aiapp.AIPromptID);
             var add = par.MapTo<TAIChatHistorys>();
             add.Id = par.Id == default ? SnowflakeIdService.GetNextId() : par.Id;
+            // 拿到提问记录 Id 后才能确定身份标识，据此构建本次请求的流式输出通道（SignalR 或 SSE）
+            var output = outputFactory(add.Id.ToString());
             add.IsDelete = false;
             add.CreateTime = DateTime.Now;
             add.CreateUserId = CurrentUser.UserId;
@@ -245,14 +312,16 @@ namespace kevin.Application.Services.AI
             add.IsSend = true;
             add.RetryCount = retryCount;
             //回复消息
-            var addAi = new TAIChatHistorys();
-            addAi.Id = SnowflakeIdService.GetNextId();
-            addAi.IsDelete = false;
-            addAi.CreateTime = DateTime.Now;
-            addAi.CreateUserId = CurrentUser.UserId;
-            addAi.TenantId = CurrentUser.TenantId;
-            addAi.IsSend = false;
-            addAi.AIChatsId = par.AIChatsId;
+            var addAi = new TAIChatHistorys
+            {
+                Id = SnowflakeIdService.GetNextId(),
+                IsDelete = false,
+                CreateTime = DateTime.Now,
+                CreateUserId = CurrentUser.UserId,
+                TenantId = CurrentUser.TenantId,
+                IsSend = false,
+                AIChatsId = par.AIChatsId
+            };
             // 两条记录都先按“失败”落库（重试中则记 2），拿到回复后才改回成功：RAG/文件/联网/模型/入库任一环节异常
             // （包括没人接的 500），这条提问都已经是一条带失败原因的可重试记录，
             // 不会再像以前那样 Add(add) 排在模型调用之后、一失败就整轮查无此事
@@ -272,7 +341,7 @@ namespace kevin.Application.Services.AI
 
                 if (aiapp.KmsId != default)
                 {
-                    var ksmData = await KmsRag(add, aiapp, addAi);
+                    var ksmData = await KmsRag(add, aiapp, addAi, output);
                     if (ksmData.Count > 0)
                     {
                         OtherContents.AddRange(ksmData);
@@ -294,7 +363,7 @@ namespace kevin.Application.Services.AI
 
                 // 音频模态门禁：由模型 AIModelType 位标记决定；关闭时 Builder 会把音频转成文本提示，避免向不支持音频的模型发送 DataContent 触发 400
                 var enableAudioInput = aIModels.AIModelType.HasFlag(AIModelType.AudioUnderstanding);
-                var aiFilData = await AIFileUrlsHandle(add, aiapp, addAi, enableAudioInput, cancellationToken);
+                var aiFilData = await AIFileUrlsHandle(add, aiapp, addAi, enableAudioInput, output, cancellationToken);
                 if (aiFilData.ExtractedTexts.Count > 0)
                     OtherContents.AddRange(aiFilData.ExtractedTexts);
 
@@ -303,7 +372,7 @@ namespace kevin.Application.Services.AI
                 #region 联网搜索
                 if (par.IsOnlineSearch)
                 {
-                    await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在联网搜索....");
+                    await output.WriteAsync("processmsg", "正在联网搜索....");
                     var http = new HttpClientFunction(aIAgentService, _serviceProvider);
                     var webseoData = await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey);
                     await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = webseoData, LogType = AIChatHistorysBindLogEnums.WebSeo });
@@ -337,7 +406,7 @@ namespace kevin.Application.Services.AI
                     case Domain.Share.Enums.AIType.ZhiPuAI:
                     case Domain.Share.Enums.AIType.AzureOpenAI:
                     default:
-                        await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在结合相关信息思考....");
+                        await output.WriteAsync("processmsg", "正在结合相关信息思考....");
                         aiSetting = new AISetting
                         {
                             AIUrl = aIModels.EndPoint,
@@ -356,7 +425,7 @@ namespace kevin.Application.Services.AI
                             FallbackModels = fallbackModels,
                             StreameCallback = async (msg) =>
                             {
-                                await signalRMsgService.SendIdentityIdMsg("aimsg", add.Id.ToString(), msg);
+                                await output.WriteAsync("aimsg", msg);
                             },
                             ToolStreameCallback = async (msg) =>
                             {
@@ -366,7 +435,7 @@ namespace kevin.Application.Services.AI
                                 addAi.AIToolsContent = AppendWithCap(addAi.AIToolsContent, toolLog, AIChatStorageSetting.Current.ToolsLogMaxLength);
                                 if (aiapp.IsToolLog)
                                 {
-                                    await signalRMsgService.SendIdentityIdMsg("aIToolsContentMsg", add.Id.ToString(), toolLog);
+                                    await output.WriteAsync("aIToolsContentMsg", toolLog);
                                 }
                             },
                             ReasoningStreameCallback = async (msg) =>
@@ -375,7 +444,7 @@ namespace kevin.Application.Services.AI
                                 addAi.AIReasoningContent = AppendWithCap(addAi.AIReasoningContent, reasoningLog, AIChatStorageSetting.Current.ReasoningLogMaxLength);
                                 if (aiapp.IsThinkingLog)
                                 {
-                                    await signalRMsgService.SendIdentityIdMsg("aIReasoningContentMsg", add.Id.ToString(), reasoningLog);
+                                    await output.WriteAsync("aIReasoningContentMsg", reasoningLog);
                                 }
                             },
                         };
@@ -414,7 +483,7 @@ namespace kevin.Application.Services.AI
                 // 非业务异常（模型客户端构造失败、上下文处理报错、客户端中止等）：以失败态收尾并正常返回，
                 // 让前端当场就能在提问上重试并看到报错，而不是只弹一条 message.error 后刷新就什么都看不到了
                 var failReason = BuildFailReason(ex, aiSetting, add.RetryCount);
-                await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "发送失败，可点红色按钮重试");
+                await output.WriteAsync("processmsg", "发送失败，可点红色按钮重试");
                 SetSendStatus(add, addAi, true, failReason);
                 aIChatHistorysRp.Add(addAi);
                 // 这里不能用 cancellationToken：客户端中止进来时它已被置位，用它写库会直接抛回异常
@@ -531,10 +600,10 @@ namespace kevin.Application.Services.AI
         /// <summary>
         /// 知识库搜索
         /// </summary>
-        private async Task<List<string>> KmsRag(TAIChatHistorys add, AIAppsDto aiapp, TAIChatHistorys addAi)
+        private async Task<List<string>> KmsRag(TAIChatHistorys add, AIAppsDto aiapp, TAIChatHistorys addAi, IChatStreamOutput output)
         {
             var OtherContents = new List<string>();
-            await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在查询知识库....");
+            await output.WriteAsync("processmsg", "正在查询知识库....");
             var kmss = await aIKmssService.GetDetails(aiapp.KmsId.GetValueOrDefault());
             if (kmss != default)
             {
@@ -546,7 +615,7 @@ namespace kevin.Application.Services.AI
                         ollamaApiService = new OllamaApiService(aimode.EndPoint, aimode.ModelName, aimode.ModelKey);
                     }
                 }
-                await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), "正在检索相关文档...");
+                await output.WriteAsync("processmsg", "正在检索相关文档...");
                 if (kmss.aIRerankModelsId == default)
                 {
                     var systemPromptData = await rAGServicevice.GetRAGSystemPrompt("AIKmss-" + kmss.Id.ToString(),
@@ -555,7 +624,7 @@ namespace kevin.Application.Services.AI
                     {
                         await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = systemPromptData.Item2, LogType = AIChatHistorysBindLogEnums.Kmss });
                         OtherContents.Add(StringHelper.SubstringText(systemPromptData.Item2, aiapp.ContentLengthLimit));
-                        await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"找到 {systemPromptData.Item3.Count} 个相关文档");
+                        await output.WriteAsync("processmsg", $"找到 {systemPromptData.Item3.Count} 个相关文档");
                     }
                 }
                 else
@@ -574,7 +643,7 @@ namespace kevin.Application.Services.AI
                                 {
                                     OtherContents.Add(StringHelper.SubstringText(systemPromptData.Item2, aiapp.ContentLengthLimit));
                                     await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = systemPromptData.Item2, LogType = AIChatHistorysBindLogEnums.Kmss });
-                                    await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"找到 {systemPromptData.Item3.Count} 个相关文档");
+                                    await output.WriteAsync("processmsg", $"找到 {systemPromptData.Item3.Count} 个相关文档");
                                 }
                                 break;
                         }
@@ -605,7 +674,7 @@ namespace kevin.Application.Services.AI
         /// 4. 附件数量守卫：单条消息媒体附件超过 <see cref="ModalityOptions.MaxMediaAttachmentsPerMessage"/> 时后续忽略。
         /// </para>
         /// </summary>
-        private async Task<FileHandleResult> AIFileUrlsHandle(TAIChatHistorys add, AIAppsDto aiapp, TAIChatHistorys addAi, bool enableAudioInput, CancellationToken ct)
+        private async Task<FileHandleResult> AIFileUrlsHandle(TAIChatHistorys add, AIAppsDto aiapp, TAIChatHistorys addAi, bool enableAudioInput, IChatStreamOutput output, CancellationToken ct)
         {
             var extractedTexts = new List<string>();
             var mediaContents = new List<AIContent>();
@@ -619,7 +688,7 @@ namespace kevin.Application.Services.AI
                 ? add.FileNames.Split(',', StringSplitOptions.RemoveEmptyEntries)
                 : new string[fileUrls.Length];
 
-            await signalRMsgService.SendIdentityIdMsg("processmsg", add.Id.ToString(), $"正在处理 {fileUrls.Length} 个上传文件...");
+            await output.WriteAsync("processmsg", $"正在处理 {fileUrls.Length} 个上传文件...");
 
             // 并发处理所有文件：单个失败已在 ModalityContentBuilder 内部转为 Error 结果，不会抛异常打断整批
             var tasks = new List<Task<ModalityContentResult>>(fileUrls.Length);
