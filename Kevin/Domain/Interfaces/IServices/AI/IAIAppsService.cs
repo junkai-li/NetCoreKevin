@@ -27,8 +27,21 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// <param name="systemPrompt"></param>
         /// <param name="par"></param>
         /// <param name="parAi"></param>
+        /// <param name="withCapabilities">是否挂载工具/技能/记忆/文生图</param>
+        /// <param name="readOnlyHistory">会话历史是否只读（只读不写回）</param>
         /// <returns></returns>
-        Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default);
+        Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default, bool withCapabilities = true, bool readOnlyHistory = false);
+
+        /// <summary>
+        /// 一次性调用当前智能体用的配置：同模型、同提示词、同会话历史，但不挂工具且历史只读（供推荐问题这类元任务用）
+        /// </summary>
+        /// <param name="aiapp"></param>
+        /// <param name="aIPrompts"></param>
+        /// <param name="systemPrompt"></param>
+        /// <param name="par"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<ChatClientAgentOptions> GetOneShotAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// 新增初始化

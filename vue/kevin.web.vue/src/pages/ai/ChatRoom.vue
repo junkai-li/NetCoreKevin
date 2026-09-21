@@ -62,6 +62,15 @@
               <div v-if="m.sending" class="typing">● 正在输入…</div>
               <div v-if="m.error && !m.sending" class="ai-error pre-wrap">{{ m.error }}</div>
               <div v-if="!m.sending && m.totalTokenCount" class="msg-meta">tokens: {{ m.totalTokenCount }}</div>
+              <!-- 推荐问题：实时走 chatmsg 的 recommendmsg 分片、历史从回复记录的绑定日志回显，点一下直接发送 -->
+              <div v-if="m.recommend && m.recommend.length && m.key === lastAiMsgKey" class="recommend-questions">
+                <span
+                  v-for="(q, qi) in m.recommend"
+                  :key="qi"
+                  class="recommend-chip"
+                  @click="useRecommend(q)"
+                >{{ q }}</span>
+              </div>
             </template>
           </div>
         </div>
@@ -69,6 +78,8 @@
 
       <div class="composer">
         <div class="composer-tools">
+          <a-switch v-model:checked="recommendOn" size="small" />
+          <span class="tool-label">推荐问题</span>
           <a-switch v-model:checked="onlineSearch" size="small" />
           <span class="tool-label">联网搜索</span>
         </div>
@@ -109,6 +120,8 @@ const chatId = ref('');
 const roomName = ref('聊天室');
 const draft = ref('');
 const onlineSearch = ref(false);
+// 推荐问题开关：与智能体聊天页一致默认开启，关掉就不再二次问 AI（本轮回答也就不用多等那几秒）
+const recommendOn = ref(true);
 const messages = reactive([]);
 const msgListRef = ref(null);
 
@@ -158,6 +171,35 @@ const scrollToBottom = () => {
     if (el) el.scrollTop = el.scrollHeight;
   });
 };
+
+// ==== 推荐问题 ====
+// 绑定日志里存推荐问题的类型值（后端 AIChatHistorysBindLogEnums.RecommendQuestions），logContent 为 JSON 字符串数组
+const RECOMMEND_LOG_TYPE = 5;
+const parseRecommend = (raw) => {
+  if (!raw) return [];
+  try {
+    const list = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    return Array.isArray(list) ? list.filter((t) => t && String(t).trim()).slice(0, 3) : [];
+  } catch (e) {
+    return []; // 非法 payload 当没有推荐处理
+  }
+};
+const extractRecommendFromLogs = (logs) => {
+  const target = (logs || []).find((l) => l.logType === RECOMMEND_LOG_TYPE);
+  return parseRecommend(target && target.logContent);
+};
+// 点一下：直接发起这一轮提问（走 sendOne，和手动发送同一条链路；上一轮推荐已经回灌给模型，能被理解为追问）
+const useRecommend = (q) => {
+  sendOne({ content: q });
+};
+// 只给最后一条 AI 回复留推荐 chip：点一下就直接发送，旧回复上的推荐误触代价太高
+// （房间内多问并行，按入列顺序取最后一条，即最后一次提问的回答）
+const lastAiMsgKey = computed(() => {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (!messages[i].isSend) return messages[i].key;
+  }
+  return '';
+});
 
 // ==== 加载可用智能体 ====
 const loadAgents = async () => {
@@ -222,6 +264,8 @@ const onChatMsg = (payloadStr) => {
     case 'processmsg': m.process = p.msg; break;
     case 'aIToolsContentMsg': appendStreamField(m, 'tools', 'toolsActiveKey', 'toolsAutoCollapsed', p.msg); break;
     case 'aIReasoningContentMsg': appendStreamField(m, 'reasoning', 'reasoningActiveKey', 'reasoningAutoCollapsed', p.msg); break;
+    // 推荐问题：本房间通道上它与其它分片一样走 chatmsg，携带 askId 所以能精确归到对应气泡
+    case 'recommendmsg': m.recommend = parseRecommend(p.msg); break;
   }
   scrollToBottom();
 };
@@ -293,7 +337,7 @@ const sendOne = async ({ content, retryOfId = '' }) => {
   const aiMsg = reactive({
     key: nextKey(), askId, isSend: false, content: '', reasoning: '', tools: '',
     reasoningActiveKey: [], toolsActiveKey: [], reasoningAutoCollapsed: false, toolsAutoCollapsed: false,
-    process: '排队中…', sending: true, error: '', dbId: '', totalTokenCount: 0,
+    process: '排队中…', sending: true, error: '', dbId: '', totalTokenCount: 0, recommend: [],
   });
   messages.push(userMsg, aiMsg);
   scrollToBottom();
@@ -304,6 +348,7 @@ const sendOne = async ({ content, retryOfId = '' }) => {
     askId,
     content: text,
     isOnlineSearch: onlineSearch.value,
+    isRecommendQuestion: recommendOn.value,
     fileNames: '',
     contentFileUrls: '',
     retryOfId: String(retryOfId || ''),
@@ -362,6 +407,8 @@ const loadHistory = async () => {
         process: '',
         sending: false,
         error: '',
+        // 刷新后从回复记录的绑定日志里回显推荐问题
+        recommend: extractRecommendFromLogs(item.aIChatHistorysBindLogs),
         sendStatus: item.sendStatus ?? 0,
         failReason: item.failReason || '',
         totalTokenCount: item.totalTokenCount || 0,
@@ -527,6 +574,50 @@ onBeforeUnmount(() => {
 .typing { color: #1677ff; font-size: 12px; margin-top: 4px; }
 .ai-error { color: #d4380d; margin-top: 4px; }
 .msg-meta { color: #aaa; font-size: 11px; margin-top: 6px; }
+/* 推荐问题：与 MyAIChat.css「推荐问题」一节逐条同值（MyAIChat 是 scoped 引入，对本页不生效，故在此复刻） */
+.recommend-questions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+/* 白底药丸：透明底在本页 #f4f5f7 的 AI 气泡上看不出边界，与 MyAIChat 同一考虑 */
+.recommend-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 4px 12px 4px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  background: #fff;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 12px;
+  line-height: 18px;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.recommend-chip::before {
+  content: "→";
+  margin-right: 6px;
+  color: rgba(0, 0, 0, 0.25);
+  font-size: 12px;
+  line-height: 18px;
+  transition: color 0.2s ease;
+}
+.recommend-chip:hover {
+  color: #1677ff;
+  border-color: rgba(22, 119, 255, 0.45);
+  background: rgba(22, 119, 255, 0.05);
+  box-shadow: 0 1px 4px rgba(22, 119, 255, 0.1);
+}
+.recommend-chip:hover::before {
+  color: #1677ff;
+}
+.recommend-chip:active {
+  background: rgba(22, 119, 255, 0.1);
+  box-shadow: none;
+}
 .ask-fail { margin-top: 6px; }
 .composer {
   border-top: 1px solid #eee;
@@ -539,6 +630,13 @@ onBeforeUnmount(() => {
   margin-bottom: 6px;
 }
 .tool-label { font-size: 12px; color: #666; }
+/* 联网搜索 / 推荐问题开关：配色跟智能体聊天页的语音模式开关（MyAIChat.css 里的 .voice-mode-switch）保持一致 */
+:deep(.composer-tools .ant-switch.ant-switch-checked) {
+  background: #10b981 !important;
+}
+:deep(.composer-tools .ant-switch.ant-switch-unchecked) {
+  background: rgba(100, 120, 150, 0.3) !important;
+}
 .composer-actions {
   display: flex;
   justify-content: flex-end;

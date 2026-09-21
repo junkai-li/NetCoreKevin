@@ -236,6 +236,15 @@
                   </div>
                 </a-collapse-panel>
               </a-collapse>
+              <!-- 推荐问题：后端二次问 AI 生成，实时走 recommendmsg 事件、历史从回复记录的绑定日志回显，点一下直接作为一轮提问发送 -->
+              <div v-if="message.isSend === false && message.id === lastAiReplyId && message.recommendQuestions && message.recommendQuestions.length" class="recommend-questions">
+                <span
+                  v-for="(q, qi) in message.recommendQuestions"
+                  :key="qi"
+                  class="recommend-chip"
+                  @click="useRecommendQuestion(q)"
+                >{{ q }}</span>
+              </div>
               <div class="message-time">
                 {{ formatTime(message.createdAt) }}
                 <span v-if="message.totalTokenCount" class="token-count">消耗: {{ formatTokenCount(message.totalTokenCount) }} tokens</span>
@@ -364,6 +373,10 @@
                   @upload-success="handleFileUploadSuccess"
                   @upload-error="handleFileUploadError"
                 />
+                <a-switch v-model:checked="isRecommendQuestion" class="recommend-question-switch">
+                  <template #checkedChildren>推荐问题</template>
+                  <template #unCheckedChildren>推荐问题</template>
+                </a-switch>
                 <a-switch v-model:checked="isOnlineSearch" class="online-search-switch">
                   <template #checkedChildren>联网搜索</template>
                   <template #unCheckedChildren>联网搜索</template>
@@ -769,6 +782,57 @@ const detailModalContent = ref("");
 const detailModalTitle = ref("");
 // 添加联网搜索开关变量
 const isOnlineSearch = ref(false); // 默认为关闭状态
+// 推荐问题开关：默认开启，开启后服务端在提问时就并行“二次问 AI”生成 3 个追问建议，回答结束后一并下发
+const isRecommendQuestion = ref(true);
+// recommendmsg 在 done 之前到达（那时回复气泡还没入列），先缓存起来，由 finalizeAiReply 入列时挂上去
+const pendingRecommend = ref([]);
+// 推荐问题 chip 点击：直接当一轮提问发出去（复用 sendMessage，与手输回车走同一条链路，
+// 上一轮推荐已经回灌给模型，所以这轮能被理解为追问）
+const useRecommendQuestion = (q) => {
+  newMessage.value = q;
+  sendMessage();
+};
+// 只给最后一条 AI 回复留推荐 chip：点一下就直接发送，旧回复上的推荐误触代价太高
+const lastAiReplyId = computed(() => {
+  for (let i = messages.value.length - 1; i >= 0; i--) {
+    if (messages.value[i].isSend === false) return messages.value[i].id;
+  }
+  return null;
+});
+// 推荐问题落库形态：回复行的绑定日志里 logType=5 的那条（logContent 为 JSON 字符串数组）
+// 历史回显时把它从「AI相关日志」面板里摘出来单独渲染成 chip，避免同一份数据展示两遍
+const RECOMMEND_LOG_TYPE = 5;
+const extractRecommendLogs = (logs) => {
+  const list = logs || [];
+  const target = list.find((l) => l.logType === RECOMMEND_LOG_TYPE);
+  let recommend = [];
+  if (target) {
+    try {
+      const parsed = JSON.parse(target.logContent);
+      if (Array.isArray(parsed)) recommend = parsed.slice(0, 3);
+    } catch (e) { /* 非法 JSON 当没有推荐处理 */ }
+  }
+  return {
+    recommend,
+    logs: list.filter((l) => l.logType !== RECOMMEND_LOG_TYPE),
+  };
+};
+// recommendmsg 事件（SSE/SignalR 共用）：解析 JSON 数组后挂到对应 AI 回复气泡
+const handleRecommendMsg = (msg) => {
+  let list = [];
+  try {
+    list = JSON.parse(msg);
+  } catch (e) {
+    return; // 非法 payload 直接丢弃
+  }
+  if (!Array.isArray(list) || list.length === 0) return;
+  pendingRecommend.value = list.slice(0, 3);
+  const target = messages.value.find((m) => m.id === currentReceivingMsgId.value);
+  if (target && target.isSend === false) {
+    target.recommendQuestions = pendingRecommend.value;
+  }
+  // 回复气泡还没入列（done 事件尚未到达）时先缓存在 pendingRecommend，由 finalizeAiReply 入列时补挂
+};
 // 流式输出方式：'sse'（默认，直连 AddSSE 接口读 HTTP 流）| 'signalr'（走 /api/MySignalRHub 旁路推送 + Add 接口）
 const streamMode = ref('sse');
 // 分段切换项：value 与上面发送逻辑里的 streamMode 判断保持一致
@@ -2393,28 +2457,33 @@ const loadChatHistory = async (chatId, page) => {
       const historyData = response.data.data || [];
 
       // 处理消息格式
-      const historyMessages = historyData.map((item) => ({
-        id: item.id,
-        conversationId: item.aIChatsId,
-        isSend: item.isSend,
-        content: item.content,
-        aiReasoningContent: item.aiReasoningContent,
-        aiToolsContent: item.aiToolsContent,
-        fileNames: item.fileNames || '',
-        contentFileUrls: item.contentFileUrls || '',
-        aIChatHistorysBindLogs: item.aIChatHistorysBindLogs || [],
-        // dbId 是服务端那条提问的主键，重试时作为 retryOfId 回传（本地新发的消息用列表 key，两者分开）
-        dbId: item.id,
-        sendStatus: item.sendStatus ?? 0,
-        failReason: item.failReason || '',
-        retryCount: item.retryCount || 0,
-        createdAt: item.createTime || new Date().toISOString(),
-        cachedInputTokenCount: item.cachedInputTokenCount || 0, 
-        inputTokenCount: item.inputTokenCount || 0,
-        outputTokenCount: item.outputTokenCount || 0,
-        totalTokenCount: item.totalTokenCount || 0,
-        reasoningTokenCount: item.reasoningTokenCount || 0,
-      }));
+      const historyMessages = historyData.map((item) => {
+        const rec = extractRecommendLogs(item.aIChatHistorysBindLogs);
+        return {
+          id: item.id,
+          conversationId: item.aIChatsId,
+          isSend: item.isSend,
+          content: item.content,
+          aiReasoningContent: item.aiReasoningContent,
+          aiToolsContent: item.aiToolsContent,
+          fileNames: item.fileNames || '',
+          contentFileUrls: item.contentFileUrls || '',
+          aIChatHistorysBindLogs: rec.logs,
+          // 刷新后从绑定日志里回显推荐问题
+          recommendQuestions: rec.recommend,
+          // dbId 是服务端那条提问的主键，重试时作为 retryOfId 回传（本地新发的消息用列表 key，两者分开）
+          dbId: item.id,
+          sendStatus: item.sendStatus ?? 0,
+          failReason: item.failReason || '',
+          retryCount: item.retryCount || 0,
+          createdAt: item.createTime || new Date().toISOString(),
+          cachedInputTokenCount: item.cachedInputTokenCount || 0,
+          inputTokenCount: item.inputTokenCount || 0,
+          outputTokenCount: item.outputTokenCount || 0,
+          totalTokenCount: item.totalTokenCount || 0,
+          reasoningTokenCount: item.reasoningTokenCount || 0,
+        };
+      });
 
       // 如果是第一页，直接替换消息列表，否则添加到列表开头（历史消息在前）
       if (page === 1) {
@@ -2588,6 +2657,7 @@ const postChatMessage = async (userMessage, par) => {
   aimessage2.value='';
   aIToolsContentMsg.value='';
   aIReasoningContentMsg.value='';
+  pendingRecommend.value = [];
   lastSentMessage.value = content;
   lastSentMessageId.value = userMessage.id;
   abortController = new AbortController();
@@ -2621,6 +2691,7 @@ const postChatMessage = async (userMessage, par) => {
         id: snowflakeId,
         content: content,
         isOnlineSearch: isOnlineSearch.value,
+        isRecommendQuestion: isRecommendQuestion.value,
         fileNames: fileNames.join(','),
         contentFileUrls: contentFileUrls.join(','),
         retryOfId: retryOfId,
@@ -2764,6 +2835,7 @@ const dispatchSSEEvent = ({ event, data }) => {
     case 'processmsg': handleProcessMsg(data); break;
     case 'aIToolsContentMsg': handleToolsChunk(data); break;
     case 'aIReasoningContentMsg': handleReasoningChunk(data); break;
+    case 'recommendmsg': handleRecommendMsg(data); break;
   }
 };
 
@@ -2786,6 +2858,7 @@ const sendViaSSE = async (snowflakeId, par, signal) => {
       id: snowflakeId,
       content,
       isOnlineSearch: isOnlineSearch.value,
+      isRecommendQuestion: isRecommendQuestion.value,
       fileNames: fileNames.join(','),
       contentFileUrls: contentFileUrls.join(','),
       retryOfId,
@@ -2867,6 +2940,7 @@ const finalizeAiReply = (data, userMessage, content, snowflakeId) => {
   userMessage.sendStatus = sendFail ? 1 : 0;
   userMessage.failReason = data.failReason || '';
   userMessage.retryCount = data.retryCount || 0;
+  const recFromLogs = extractRecommendLogs(data.aIChatHistorysBindLogs);
   const aiMessage = {
     id: data.id,
     conversationId: activeConversationId.value,
@@ -2875,7 +2949,7 @@ const finalizeAiReply = (data, userMessage, content, snowflakeId) => {
     aiToolsContent: data.aiToolsContent,
     aiReasoningContent: data.aiReasoningContent,
     createdAt: data.createTime,
-    aIChatHistorysBindLogs: data.aIChatHistorysBindLogs || [],
+    aIChatHistorysBindLogs: recFromLogs.logs,
     cachedInputTokenCount: data.cachedInputTokenCount || 0,
     inputTokenCount: data.inputTokenCount || 0,
     outputTokenCount: data.outputTokenCount || 0,
@@ -2885,6 +2959,7 @@ const finalizeAiReply = (data, userMessage, content, snowflakeId) => {
     sendStatus: sendFail ? 1 : 0,
     failReason: data.failReason || '',
     retryCount: data.retryCount || 0,
+    recommendQuestions: recFromLogs.recommend,
   };
   if (aiMessage.aiReasoningContent) {
     expandedReasoning.value = true;
@@ -2893,6 +2968,10 @@ const finalizeAiReply = (data, userMessage, content, snowflakeId) => {
     expandedTools.value = true;
   }
   messages.value.push(aiMessage);
+  // 推荐问题先于 done 到达时挂在流式占位上，这里入列后补挂一次
+  if (pendingRecommend.value.length) {
+    aiMessage.recommendQuestions = pendingRecommend.value;
+  }
   // 记下配对关系，重试时能精确把这次失败的回复换掉
   userMessage.aiMsgId = aiMessage.id;
   currentReceivingMsgId.value = aiMessage.id;
@@ -2942,6 +3021,7 @@ connectionServer.on('aimsg', handleAiChunk)
 connectionServer.on('processmsg', handleProcessMsg)
 connectionServer.on('aIToolsContentMsg', handleToolsChunk)
 connectionServer.on('aIReasoningContentMsg', handleReasoningChunk)
+connectionServer.on('recommendmsg', handleRecommendMsg)
 // 上面这些 on(...) 全部注册完才启动连接，否则抢在注册前到的分片会因为还没有监听者被直接丢掉
 // start 必须 await 到真正连上再返回：服务端推送目标是 SignalR 分组（组名=本次回答的雪花Id），
 // 没连上就发提问请求，本轮所有流式分片都推给一个还不存在的组员，前端只能等 HTTP 返回的整段回复。
@@ -2956,6 +3036,7 @@ try {
 const stopAiMySignalRHubMsg=(id)=>{
   aimessage.value='';
   aimessage2.value='';
+  pendingRecommend.value = [];
   // 不重置 streamingTtsActive，由 finishStreamingTTS 控制
   expandedReasoning.value = false;
   expandedTools.value = false;

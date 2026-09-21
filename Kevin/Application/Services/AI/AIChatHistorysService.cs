@@ -26,6 +26,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 namespace kevin.Application.Services.AI
 {
 
@@ -343,6 +344,8 @@ namespace kevin.Application.Services.AI
             addAi.FailReason = SendInterruptedReason;
             aIChatHistorysRp.Add(add);
             await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
+            // 推荐问题的生成任务在上下文就绪后发起（见下面 chatAgOs 之后），与本轮回答并行；这里先声明占位，因为收割在 try 之外
+            Task<string?>? recommendTask = null;
             AISetting? aiSetting = default;
             try
             {
@@ -390,6 +393,8 @@ namespace kevin.Application.Services.AI
                     OtherContents.Add(StringHelper.SubstringText(webseoData, aiapp.ContentLengthLimit));
                 }
                 #endregion
+                // 上一轮推荐问题：先取出来，下面再追加进本轮上下文（让“用你推荐的第二个问题”这类指代能被模型理解）
+                var lastRecommendContext = await BuildLastRecommendQuestionsContextAsync(par.AIChatsId, add.CreateTime, cancellationToken);
                 // 按提问Token预算裁剪补充上下文，确保输入总量不超过模型的上下文窗口预算（模型配置的MaxAskPromptSize）
                 OtherContents = TrimContentsByAskTokenBudget(OtherContents, systemPrompt, add.Content, aIModels.MaxAskPromptSize, aIModels.AnswerTokens);
                 // 空输入保护：模型的输入长度区间是双边的（如 “Range of input length should be [1, N]”），正文、上下文、图片/音频全为空时输入长度为 0，同样会被模型直接拒掉，
@@ -398,6 +403,9 @@ namespace kevin.Application.Services.AI
                 {
                     throw new UserFriendlyException("请输入要咨询的内容（或上传可解析的文件）后再发送。");
                 }
+                // 推荐问题上下文必须在上面那个守卫之后追加：否则“只发了上一轮推荐、本轮其实什么都没问”的请求会被它放行；
+                // 同时也不再参与预算裁剪（不足 200 字，且是指代理解的必要信息，被截掉就失去意义）
+                if (!string.IsNullOrEmpty(lastRecommendContext)) OtherContents.Add(lastRecommendContext);
                 // 零 .Result 构造消息：媒体内容已在 AIFileUrlsHandle 内部 await 完成（Bug 1 根治点）；
                 // DataContent 携带显式 MIME，不再依赖 MemoryStream.Name 推断（Bug 2 根治点）
                 var userContents = new List<AIContent>(1 + OtherContents.Count + aiFilData.MediaContents.Count)
@@ -411,6 +419,12 @@ namespace kevin.Application.Services.AI
                 userContents.AddRange(aiFilData.MediaContents);
                 ChatMessage mgs = new(ChatRole.User, userContents);
                 var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par);
+                // 推荐问题交给当前智能体自己生成，并在主模型调用之前发起，与本轮回答并行跑；
+                // 回答结束后只做收割（见下面），done 事件不再被它拖住
+                if (par.IsRecommendQuestion)
+                {
+                    recommendTask = GenerateRecommendedQuestionsAsync(aiapp, aIPrompts, aIModels, systemPrompt, par, add.Content ?? "", cancellationToken);
+                }
                 switch (aIModels.AIType)
                 {
                     case Domain.Share.Enums.AIType.OpenAI:
@@ -502,6 +516,40 @@ namespace kevin.Application.Services.AI
                 var failData = addAi.MapTo<AIChatHistorysDto>();
                 failData.aIChatHistorysBindLogs = await _aIChatHistorysBindLogService.GetByIds(new List<long> { addAi.Id });
                 return failData;
+            }
+            // 收割上面并行发起的推荐问题：开关开启且本轮回答成功时才下发（回答失败时前端只有报错和重试，推追问没意义）。
+            // 位置必须在下面取 logdata 之前：这样日志能随本轮最终记录一起回给前端，历史接口也无需再改。
+            // 回答失败的分支不走到这里，那个任务会自行跑完并丢弃（方法内异常全接，不会成为未观察异常）。
+            if (recommendTask != null && addAi.SendStatus == AIChatHistorysSendStatusEnums.Success && !string.IsNullOrWhiteSpace(addAi.Content))
+            {
+                try
+                {
+                    var questionsJson = await recommendTask;
+                    if (!string.IsNullOrEmpty(questionsJson))
+                    {
+                        try
+                        {
+                            await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog
+                            {
+                                AIChatHistorysId = addAi.Id,
+                                LogType = AIChatHistorysBindLogEnums.RecommendQuestions,
+                                LogContent = questionsJson,
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            // 写库失败只是刷新后看不到回显、下一轮也无法指代引用，不影响本轮已经拿到的推荐
+                            LogHelper.logger.Info("推荐问题入库失败（已忽略）:" + ex.Message);
+                        }
+                        await output.WriteAsync("recommendmsg", questionsJson);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 这层兜底不可省：本块位于 addAi 入库之前，推送异常（客户端已断开最常见）一旦上抛，
+                    // 本轮已经生成的回答就会存不进库
+                    LogHelper.logger.Info("推荐问题下发失败（已忽略）:" + ex.Message);
+                }
             }
             var logdata = await _aIChatHistorysBindLogService.GetByIds(new List<long> { addAi.Id });
             aIChatHistorysRp.Add(addAi);
@@ -907,6 +955,152 @@ namespace kevin.Application.Services.AI
             }
             return result;
         }
+        /// <summary>
+        /// 提取模型输出里的 JSON 数组部分：小模型偶尔会包一层 markdown 代码块或前后缀说明，
+        /// 从第一个 '[' 取到最后一个 ']' 再反序列化，避免整段解析失败。
+        /// </summary>
+        private static readonly Regex RecommendJsonArrayRegex = new(@"\[[\s\S]*\]", RegexOptions.Compiled);
+
+        /// <summary>
+        /// 把上一轮回复的推荐问题拼成本轮运行时上下文：模型侧根本不知道推荐过什么，
+        /// 不拼回去的话用户说“用你推荐的第二个问题”就只能瞎答。
+        /// <para>
+        /// 只取最近一条回复（同会话、本轮提问之前）的那条 <see cref="AIChatHistorysBindLogEnums.RecommendQuestions"/> 日志，
+        /// 多条历史推荐全塞进去既撑 token 又让指代歧义（“第二个”到底是哪一轮的）。
+        /// </para>
+        /// <para>它不写聊天记录正文，只作为本次请求的补充上下文（与知识库/联网结果同一通道）。</para>
+        /// </summary>
+        private async Task<string?> BuildLastRecommendQuestionsContextAsync(long aiChatsId, DateTime currentAskTime, CancellationToken cancellationToken)
+        {
+            // 本轮回复还没落库，按“早于本次提问的最近一条回复”取就是上一轮；
+            // 重试场景下旧问答已在前面的环节被软删，IsDelete==false 自然把它排除
+            var prevAnswer = await aIChatHistorysRp.Query().Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId
+                    && t.AIChatsId == aiChatsId && t.IsSend == false && t.CreateTime < currentAskTime)
+                .OrderByDescending(t => t.CreateTime)
+                .FirstOrDefaultAsync(cancellationToken);
+            if (prevAnswer == default) return null;
+            var prevLogs = await _aIChatHistorysBindLogService.GetByIds(new List<long> { prevAnswer.Id }, cancellationToken);
+            var raw = prevLogs.FirstOrDefault(t => t.LogType == (int)AIChatHistorysBindLogEnums.RecommendQuestions)?.LogContent;
+            if (string.IsNullOrWhiteSpace(raw)) return null;
+            List<string>? questions;
+            try
+            {
+                questions = JsonSerializer.Deserialize<List<string>>(raw);
+            }
+            catch (JsonException)
+            {
+                return null; // 日志内容不是预期数组，当没有推荐处理
+            }
+            var valid = (questions ?? new List<string>()).Where(q => !string.IsNullOrWhiteSpace(q)).Select(q => q.Trim()).ToList();
+            if (valid.Count == 0) return null;
+            var sb = new StringBuilder();
+            sb.Append("【上一轮你给用户的推荐追问（按序号）】\n");
+            for (var i = 0; i < valid.Count; i++)
+            {
+                sb.Append(i + 1).Append(". ").Append(valid[i]).Append('\n');
+            }
+            sb.Append("用户本轮可能用“第一个/第二个问题”“就用你推荐的那个”等指代上面某条；若是，请直接按对应原文理解并回答。这些推荐只是候选，不是用户已经问过的问题。");
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 交给智能体的元指令：只要求它预告追问并约束输出形状，不在此处重复人设（人设本就跟着它的系统提示词走）
+        /// </summary>
+        private static string BuildRecommendedQuestionsPrompt(string ask)
+        {
+            var sb = new StringBuilder();
+            sb.Append("【系统任务：生成追问推荐，不要回答用户】\n")
+              .Append("用户接下来会问下面这个问题。请结合已进行的对话，预测他问完之后最可能继续追问的 3 个问题。要求：\n")
+              .Append("1. 每个问题不超过 30 字，是围绕该主题的延伸追问，彼此不重复；\n")
+              .Append("2. 不要复述原问题，不要写成对回答的评价；\n")
+              .Append("3. 只输出一个 JSON 字符串数组，不要任何解释、markdown 代码块或其他文字。\n\n")
+              .Append("【用户问题】\n").Append(StringHelper.SubstringText(ask, 500)).Append("\n\n")
+              .Append("示例输出：[\"问题一\", \"问题二\", \"问题三\"]");
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 用当前智能体本身生成推荐问题：同模型、同系统提示词、同会话历史（只读），返回 JSON 字符串数组，
+        /// 无结果或异常返回 null。
+        /// <para>
+        /// 不再另起裸模型客户端：智能体的人设与业务提示词直接决定追问贴不贴合，裸调用只能泛泛而谈。
+        /// 取的是 <see cref="IAIAppsService.GetOneShotAIAgentOptions"/> 那份独立配置：不挂工具（预告追问不需要调工具），
+        /// 并且会话历史只读 —— 这条元指令与它的回复不是真实对话，不能写回会话历史。
+        /// </para>
+        /// <para>
+        /// 与本轮回答并行，所以它看到的是“截至上一轮的对话 + 本次提问”，看不到本轮刚生成的回答；
+        /// 要贴着回答推荐就得改成回答结束后再生成（done 会相应晚 1~3 秒）。
+        /// </para>
+        /// <para>
+        /// 异常全部内部接住：推荐只是锦上添花，不能把已拿到的回答拖垮；也正因为不会抛出，
+        /// 回答失败时调用方不去 await 它也不会产生未观察异常（它全程只读，请求结束后自己跑完也无害）。
+        /// </para>
+        /// <para>
+        /// 特意开一个独立 DI 作用域：本任务与本轮回答并行，而 DbContext 不是线程安全的 ——
+        /// 若沿用请求作用域的服务，取智能体配置与读会话历史就可能在主回答同一个 DbContext 上并发读写，
+        /// 撞出的“second operation started”会落正在跑的主流程头上，把整轮回答误判为失败。
+        /// </para>
+        /// </summary>
+        private async Task<string?> GenerateRecommendedQuestionsAsync(AIAppsDto aiapp, AIPromptsDto aIPrompts, AIModelsDto aIModels, string systemPrompt, AIChatHistorysDto par, string ask, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(ask)) return null;
+                using var scope = _serviceProvider.CreateScope();
+                var appsService = scope.ServiceProvider.GetRequiredService<IAIAppsService>();
+                var agentService = scope.ServiceProvider.GetRequiredService<IAIAgentService>();
+                var recommendOptions = await appsService.GetOneShotAIAgentOptions(aiapp, aIPrompts, systemPrompt, par, cancellationToken);
+                if (recommendOptions.ChatOptions != default)
+                {
+                    // 只约束输出形状，Temperature 等仍沿用智能体自己的配置
+                    recommendOptions.ChatOptions.ResponseFormat = ChatResponseFormat.Json;
+                }
+                var recommendSetting = new AISetting
+                {
+                    AIUrl = aIModels.EndPoint,
+                    AIKeySecret = aIModels.ModelKey,
+                    AIDefaultModel = aIModels.ModelName,
+                    // 不走流式：推荐内容绝不能混进本轮 aimsg 回答气泡
+                    IsStreame = false,
+                    // 不开 HTTP 日志：避免与主回答的拦截器互相干扰
+                    IsHttpLog = false,
+                    MaxRetries = 1,
+                    // 单位是分钟（CreateOpenAIAgentAndSendMSG 里 FromMinutes）：推荐问题不值得按主回答的超时等
+                    NetworkTimeout = 1,
+                    IsAISkills = true,
+                    // 工具/技能/记忆全关：上面的 recommendOptions 本就未挂载，这里同步告知代理不需要能力层
+                    IsAITools = false,
+                    IsMcpTools = false,
+                    IsMemory = false,
+                };
+                var result = await agentService.CreateOpenAIAgentAndSendMSG(recommendSetting, recommendOptions,
+                    new ChatMessage(ChatRole.User, BuildRecommendedQuestionsPrompt(ask)), cancellationToken: cancellationToken);
+                return ExtractRecommendedQuestionsJson(result.Item2);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.logger.Info("生成推荐问题失败（已忽略）:" + ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 从模型输出里提取推荐问题 JSON 数组：开了智能体后它很可能带一句人设开场白或 markdown 代码块，
+        /// 从第一个 '[' 取到最后一个 ']' 再反序列化，去重后最多留 3 条。
+        /// </summary>
+        private static string? ExtractRecommendedQuestionsJson(string? text)
+        {
+            var match = RecommendJsonArrayRegex.Match(text ?? "");
+            if (!match.Success) return null;
+            var questions = (JsonSerializer.Deserialize<List<string>>(match.Value) ?? new List<string>())
+                .Select(t => t?.Trim() ?? "")
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .Distinct()
+                .Take(3)
+                .ToList();
+            return questions.Count == 0 ? null : JsonSerializer.Serialize(questions);
+        }
+
         /// <summary>
         /// 异步消息压缩
         /// </summary>

@@ -101,6 +101,7 @@ namespace kevin.Application.Services.AI
                     Content = req.Content,
                     IsSend = true,
                     IsOnlineSearch = req.IsOnlineSearch,
+                    IsRecommendQuestion = req.IsRecommendQuestion,
                     FileNames = req.FileNames,
                     ContentFileUrls = req.ContentFileUrls,
                     RetryOfId = retryOfId,
@@ -154,6 +155,8 @@ namespace kevin.Application.Services.AI
         public string Content { get; set; } = "";
         /// <summary>是否联网搜索</summary>
         public bool IsOnlineSearch { get; set; }
+        /// <summary>是否开启推荐问题（与智能体聊天页保持一致，默认开）：关闭则不再二次问 AI 生成追问建议</summary>
+        public bool IsRecommendQuestion { get; set; } = true;
         /// <summary>文件名，多个用,隔开</summary>
         public string? FileNames { get; set; }
         /// <summary>文件 url，多个用,隔开</summary>

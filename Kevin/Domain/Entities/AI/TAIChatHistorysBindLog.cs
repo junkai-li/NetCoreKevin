@@ -22,7 +22,7 @@ namespace kevin.Domain.Entities.AI
         /// <summary>
         /// 日志类型
         /// </summary>
-        [Description("日志类型 1.知识库，2.网络搜索，3.系统提示词，文件内容 ")]
+        [Description("日志类型 1.知识库，2.网络搜索，3.系统提示词，4.文件内容，5.推荐问题 ")]
         public AIChatHistorysBindLogEnums LogType { get; set; }
 
         /// <summary>

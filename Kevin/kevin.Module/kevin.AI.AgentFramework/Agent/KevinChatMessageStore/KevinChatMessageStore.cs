@@ -27,6 +27,12 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         /// </summary>
         public int ToolResultLengthLimit { get; set; } = 0;
         /// <summary>
+        /// 会话历史只读：true 时本次调用照常读到完整历史，但不把输入与回复写回去。
+        /// <para>给“在一次已有会话上追加一个元任务”用（如让当前智能体生成推荐问题）：
+        /// 这类指令与它的回复不是真实对话，写回去会污染后续上下文，但不开只读又拿不到会话历史。</para>
+        /// </summary>
+        public bool ReadOnlyHistory { get; set; } = false;
+        /// <summary>
         /// 入库副本的兜底上限（字符）：ContentLengthLimit 配为 0 的含义是“发给模型时不截断”，
         /// 但历史入库不能因此完全不封顶：一条几 MB 的工具结果会把那行 INSERT 撑过 max_allowed_packet（默认 4MB），
         /// 并在后续每一轮重复全量计入模型输入。当轮交给模型的内容不受这里影响。
@@ -109,6 +115,8 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         }
         protected override async ValueTask StoreChatHistoryAsync(InvokedContext context, CancellationToken cancellationToken = default)
         {
+            // 只读会话（如推荐问题这类元任务）：本次输入输出不进对话历史
+            if (ReadOnlyHistory) return;
             var responseMessages = context.ResponseMessages ?? Array.Empty<ChatMessage>();
             var allNewMessages = context.RequestMessages.Concat(responseMessages).ToList();
             if (allNewMessages.Count() > 0)

@@ -400,8 +400,10 @@ namespace kevin.Application.Services.AI
         /// <param name="systemPrompt"></param>
         /// <param name="par"></param>
         /// <param name="parAi"></param>
+        /// <param name="withCapabilities">是否挂载工具/技能/记忆/文生图：一次性元任务（如推荐问题）传 false，省掉一轮工具枚举</param>
+        /// <param name="readOnlyHistory">会话历史是否只读：true 时本次调用读得到历史但不写回去，不至于把元指令污染进对话</param>
         /// <returns></returns>
-        public async Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default)
+        public async Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default, bool withCapabilities = true, bool readOnlyHistory = false)
         {
             #region 记忆管理协议提示词（仅在开启智能体记忆 IsMemory 时注入）
             if (aiapp.IsMemory)
@@ -433,14 +435,21 @@ namespace kevin.Application.Services.AI
                 aiapp.ChatModelID = allModels[new Random().Next(allModels.Count)].Id.ToString();
             }
             var aiModel = await aIModelsService.GetNoPerDetails(aiapp.ChatModelID.ToTryInt64());
+            var historyProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, GetAskTokenBudget(aiModel.MaxAskPromptSize, aiModel.AnswerTokens, systemPrompt), aiapp.ContentLengthLimit)
+            {
+                ReadOnlyHistory = readOnlyHistory
+            };
             var chatAgOs = new ChatClientAgentOptions
             {
                 Name = aiapp.Name,
                 Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
                 ChatOptions = GetAppChatOptions(aiapp, aiModel, systemPrompt),
-                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, GetAskTokenBudget(aiModel.MaxAskPromptSize, aiModel.AnswerTokens, systemPrompt), aiapp.ContentLengthLimit)
+                ChatHistoryProvider = historyProvider
             };
             #region AI配置
+            // 一次性元任务（推荐问题等）不挂能力：既要工具也没用，还会白跑一轮 MCP 工具枚举；
+            // 下面全部能力挂载都在本 region 内，到这里 chatAgOs 已经完整，直接返回即可
+            if (!withCapabilities) return chatAgOs;
             if (aiapp.IsAITools)
             {
                 if (chatAgOs.ChatOptions != default)
@@ -511,6 +520,18 @@ namespace kevin.Application.Services.AI
             #endregion
             return chatAgOs;
         }
+
+        /// <summary>
+        /// 一次性调用当前智能体用的配置：与主对话同模型、同系统提示词、同会话历史窗口，
+        /// 但不挂工具/技能/记忆，且会话历史只读。
+        /// <para>
+        /// 用于“推荐问题”这类元任务：它的输入输出不是真实对话，写回去会污染后续上下文；
+        /// 又必须是一份独立实例，因为 CreateOpenAIAgentAndSendMSG 会按入参就地清空传入 options 的工具与技能上下文，
+        /// 与主回答共用同一个对象会把本轮回答的能力一起清掉。
+        /// </para>
+        /// </summary>
+        public Task<ChatClientAgentOptions> GetOneShotAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default)
+            => GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par, cancellationToken, withCapabilities: false, readOnlyHistory: true);
 
         /// <summary>
         /// 获取子ai应用

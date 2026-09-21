@@ -334,6 +334,16 @@
             <para>不落库，仅作为 <c>Add</c> 的入参使用，为 0 表示这是一次普通发送。</para>
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.IsRecommendQuestion">
+            <summary>
+            是否开启推荐问题：本轮一开始就后台“二次问一次 AI”（只看用户提问，与本轮回答并行）生成 3 个追问建议，
+            回答结束后经流式通道 <c>recommendmsg</c> 事件下发。
+            <para>
+            该开关本身不落库；推荐结果不写聊天记录正文，只以一条绑定日志（日志类型 5）挂在回复记录上：
+            既供前端历史回显，也会作为下一轮的“上一轮推荐追问”上下文回给模型，以便“用你推荐的第二个问题”这类指代能被理解。
+            </para>
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIChatsDto">
             <summary>
             对话
