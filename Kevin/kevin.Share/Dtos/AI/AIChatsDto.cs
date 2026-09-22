@@ -41,6 +41,12 @@ namespace kevin.Domain.Share.Dtos.AI
         public String LastMessage { get; set; }
 
         /// <summary>
+        /// 是否异步加载智能体：新建对话后在后台预热该智能体的技能/工具/MCP，避免第一次发消息时冷启动加载慢（仅作为入参，不落库）
+        /// </summary>
+        [Description("是否异步加载智能体")]
+        public bool IsAsyncLoadAgent { get; set; } = true;
+
+        /// <summary>
         /// 对话下的所有聊天记录
         /// </summary>
         public virtual List<AIChatHistorysDto>? AIChatHistorysList { get; set; }
