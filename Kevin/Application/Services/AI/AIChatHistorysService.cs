@@ -12,8 +12,6 @@ using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using Kevin.AI.Dto;
 using Kevin.log4Net;
-using Kevin.RAG.Interfaces;
-using Kevin.RAG.Ollama;
 using Kevin.SignalR.Service;
 using Microsoft.Agents.AI;
 using Microsoft.AspNetCore.SignalR;
@@ -39,17 +37,12 @@ namespace kevin.Application.Services.AI
         public IAIPromptsService aIPromptsService { get; set; }
         public IAIChatsService aIChatsService { get; set; }
         public IAIAppsService aIAppsService { get; set; }
-        private IRAGService rAGServicevice { get; set; }
         public IKevinAIChatMessageStore kevinAIChatMessageStore { get; set; }
         public ISignalRMsgService signalRMsgService { get; set; }
         /// <summary>聊天室流式输出专用：把分片推给 ChatRoomHub 自己的房间分组。</summary>
         public IHubContext<ChatRoomHub> chatRoomHub { get; set; }
 
-        public IAIKmssService aIKmssService { get; set; }
-
         public IHttpClientFactory httpClientFactory { get; set; }
-
-        private IOllamaApiService ollamaApiService;
 
         private readonly IAIChatHistorysBindLogService _aIChatHistorysBindLogService;
 
@@ -69,7 +62,7 @@ namespace kevin.Application.Services.AI
         public AIChatHistorysService(IHttpContextAccessor _httpContextAccessor, IAIChatHistorysRp _aIChatHistorysRp,
             IAIAgentService _aIAgentService, IAIModelsService _aIModelsService, IAIPromptsService _aIPromptsService,
             IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore,
-            IRAGService _rAGService, IAIKmssService _aIKmssService, IOllamaApiService _ollamaApiService, ISignalRMsgService _signalRMsgService,
+            ISignalRMsgService _signalRMsgService,
             IHttpClientFactory _httpClientFactory, IAIChatHistorysBindLogService _aIChatHistorysBindLogService,
             IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService, IAIShareInfoService aIShareInfoService, IAIInputOutputSafetyService aIInputOutputSafetyService,
             IModalityContentBuilder modalityContentBuilder, IHubContext<ChatRoomHub> _chatRoomHub
@@ -82,9 +75,6 @@ namespace kevin.Application.Services.AI
             this.aIPromptsService = _aIPromptsService;
             this.aIAppsService = _aIAppsService;
             this.kevinAIChatMessageStore = _kevinAIChatMessageStore;
-            this.rAGServicevice = _rAGService;
-            this.aIKmssService = _aIKmssService;
-            this.ollamaApiService = _ollamaApiService;
             this.signalRMsgService = _signalRMsgService;
             this.chatRoomHub = _chatRoomHub;
             this.httpClientFactory = _httpClientFactory;
@@ -353,14 +343,7 @@ namespace kevin.Application.Services.AI
                 await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = systemPrompt, LogType = AIChatHistorysBindLogEnums.SystemPrompt });
                 List<string> OtherContents = new List<string>();
 
-                if (aiapp.KmsId != default)
-                {
-                    var ksmData = await KmsRag(add, aiapp, addAi, output);
-                    if (ksmData.Count > 0)
-                    {
-                        OtherContents.AddRange(ksmData);
-                    }
-                }
+                // 知识库不再预注入：绑定知识库时 AIAppsService 会挂载 SearchKnowledge 工具，由模型按需检索
                 _aIShareInfoService.InitData(new AIShareInfoDto
                 {
                     AIAppsId = aiapp.Id,
@@ -656,63 +639,6 @@ namespace kevin.Application.Services.AI
             }
         }
 
-        /// <summary>
-        /// 知识库搜索
-        /// </summary>
-        private async Task<List<string>> KmsRag(TAIChatHistorys add, AIAppsDto aiapp, TAIChatHistorys addAi, IChatStreamOutput output)
-        {
-            var OtherContents = new List<string>();
-            await output.WriteAsync("processmsg", "正在查询知识库....");
-            var kmss = await aIKmssService.GetDetails(aiapp.KmsId.GetValueOrDefault());
-            if (kmss != default)
-            {
-                if (kmss.aIModelsId != default)
-                {
-                    var aimode = await aIModelsService.GetNoPerDetails(kmss.aIModelsId.GetValueOrDefault());
-                    if (aimode?.AIModelType == AIModelType.Embedding)
-                    {
-                        ollamaApiService = new OllamaApiService(aimode.EndPoint, aimode.ModelName, aimode.ModelKey);
-                    }
-                }
-                await output.WriteAsync("processmsg", "正在检索相关文档...");
-                if (kmss.aIRerankModelsId == default)
-                {
-                    var systemPromptData = await rAGServicevice.GetRAGSystemPrompt("AIKmss-" + kmss.Id.ToString(),
-                        await ollamaApiService.GetEmbedding(add.Content), add.Content, false, aiapp.MaxMatchesCount, (aiapp.Relevance / 100));
-                    if (systemPromptData.Item1)
-                    {
-                        await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = systemPromptData.Item2, LogType = AIChatHistorysBindLogEnums.Kmss });
-                        OtherContents.Add(StringHelper.SubstringText(systemPromptData.Item2, aiapp.ContentLengthLimit));
-                        await output.WriteAsync("processmsg", $"找到 {systemPromptData.Item3.Count} 个相关文档");
-                    }
-                }
-                else
-                {
-                    var aIReankModels = await aIModelsService.GetNoPerDetails(kmss.aIRerankModelsId.ToTryInt64());
-                    if (aIReankModels.AIModelType == AIModelType.Rerank)
-                    {
-                        switch (aIReankModels.AIType)
-                        {
-                            case AIType.AliRerank:
-                            case AIType.BgeRerank:
-                            default:
-                                var systemPromptData = await rAGServicevice.GetRAGAliReankSystemPrompt("AIKmss-" + kmss.Id.ToString(),
-                                await ollamaApiService.GetEmbedding(add.Content), add.Content, aiapp.MaxMatchesCount, (aiapp.Relevance / 100), aIReankModels.EndPoint, aIReankModels.ModelKey, aIReankModels.ModelName);
-                                if (systemPromptData.Item1)
-                                {
-                                    OtherContents.Add(StringHelper.SubstringText(systemPromptData.Item2, aiapp.ContentLengthLimit));
-                                    await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = systemPromptData.Item2, LogType = AIChatHistorysBindLogEnums.Kmss });
-                                    await output.WriteAsync("processmsg", $"找到 {systemPromptData.Item3.Count} 个相关文档");
-                                }
-                                break;
-                        }
-                    }
-                }
-
-            }
-            return OtherContents;
-
-        }
         /// <summary>
         /// AI文件url处理结果：把"文本上下文"和"二进制媒体附件"分桶归集，
         /// 让 <see cref="Add"/> 主流程能直接拼 <see cref="ChatMessage"/>，不需要在业务层再判 fileType。
@@ -1067,11 +993,12 @@ namespace kevin.Application.Services.AI
                     MaxRetries = 1,
                     // 单位是分钟（CreateOpenAIAgentAndSendMSG 里 FromMinutes）：推荐问题不值得按主回答的超时等
                     NetworkTimeout = 1,
-                    IsAISkills = true,
+                    IsAISkills = aiapp.IsSkill,
                     // 工具/技能/记忆全关：上面的 recommendOptions 本就未挂载，这里同步告知代理不需要能力层
-                    IsAITools = false,
-                    IsMcpTools = false,
-                    IsMemory = false,
+                    IsAITools = aiapp.IsAITools,
+                    IsMcpTools = aiapp.IsMcp, 
+                    IsMemory = aiapp.IsMemory,
+                    IsKnowledgeBase = aiapp.KmsId.HasValue && aiapp.KmsId.Value > 0,
                 };
                 var result = await agentService.CreateOpenAIAgentAndSendMSG(recommendSetting, recommendOptions,
                     new ChatMessage(ChatRole.User, BuildRecommendedQuestionsPrompt(ask)), cancellationToken: cancellationToken);

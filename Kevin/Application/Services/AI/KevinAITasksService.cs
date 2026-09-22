@@ -37,7 +37,7 @@ namespace kevin.Application.Services.AI
         private readonly IAIModelsRp _aIModelsRp;
         private readonly IAIPromptsRp _aIPromptsRp;
         private readonly IAIShareInfoService _aIShareInfoService;
-        private IDistributedLockProvider distLock { get; set; } 
+        private IDistributedLockProvider distLock { get; set; }
 
         public KevinAITasksService(IHttpContextAccessor _httpContextAccessor, IRecurringJobManager recurringJobManager, IBackgroundJobClient backgroundJobClient, JobStorage jobStorage, IMessageService messageService,
             IAIAgentService aIAgentService, IAIModelsRp aIModelsRp, IAIPromptsRp aIPromptsRp, IAIChatsRp aIChatsRp, IServiceProvider serviceProvider,
@@ -338,7 +338,8 @@ namespace kevin.Application.Services.AI
                                         IsAISkills = aiapp.IsSkill,
                                         IsAITools = aiapp.IsAITools,
                                         IsMcpTools = aiapp.IsMcp,
-                                        IsMemory= aiapp.IsMemory,
+                                        IsMemory = aiapp.IsMemory,
+                                        IsKnowledgeBase = aiapp.KmsId.HasValue && aiapp.KmsId.Value > 0,
                                         NetworkTimeout = aiapp.NetworkTimeout,
                                     }, chatAgOs, new(ChatRole.User, [new TextContent($"{taskContent} \n 必须根据相关技能，一次性完成所有步骤在返回结果")])).Result.Item2;
                                     break;

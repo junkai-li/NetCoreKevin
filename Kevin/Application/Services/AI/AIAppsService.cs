@@ -47,12 +47,18 @@ namespace kevin.Application.Services.AI
         /// </summary>
         private readonly IImageGenToolFactory _imageGenToolFactory;
 
+        /// <summary>
+        /// 知识库搜索工具工厂：智能体绑定了知识库（KmsId）时挂载一个 SearchKnowledge 可搜索工具，
+        /// 由模型按需检索，替代旧版发消息前固定预注入知识库上下文的方案。
+        /// </summary>
+        private readonly IAKnowledgeSearchToolService _knowledgeSearchToolService;
+
         public AIAppsService(IHttpContextAccessor _httpContextAccessor, IAIAppsRp _aIAppsRp,
             IAISkillToolManagementService aISkillToolManagementService, IAISkillToolBindIdService aISkillToolBindIdService, IAIAppsBindIdService aIAppsBindIdService,
             IKevinAIChatMessageStore kevinAIChatMessageStore, IAIAgentToolSkillService aIAgentToolSkillService, IAIModelsService aIModelsService, IAIPromptsService aIPromptsService,
             IAIAgentService aIAgentService, IAIChatMessageStoreRp aIChatMessageStoreRp, IAIChatMessageStoreCompactionRp aIChatMessageStoreCompactionRp,
             IAIChatMessageStoreCompactionService aIChatMessageStoreCompactionService, IPySubprocessScriptRunner pySubprocessScriptRunner,
-            IImageGenToolFactory imageGenToolFactory) : base(_httpContextAccessor)
+            IImageGenToolFactory imageGenToolFactory, IAKnowledgeSearchToolService knowledgeSearchToolService) : base(_httpContextAccessor)
         {
             this.aIAppsRp = _aIAppsRp;
             this.aISkillToolManagementService = aISkillToolManagementService;
@@ -68,6 +74,7 @@ namespace kevin.Application.Services.AI
             this._aIChatMessageStoreCompactionService = aIChatMessageStoreCompactionService;
             this._pySubprocessScriptRunner = pySubprocessScriptRunner;
             this._imageGenToolFactory = imageGenToolFactory;
+            this._knowledgeSearchToolService = knowledgeSearchToolService;
         }
 
         /// <summary>
@@ -486,6 +493,9 @@ namespace kevin.Application.Services.AI
                     chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
                 }
             }
+            #region 知识库工具（绑定了 KmsId 就挂载，独立于 IsAITools）
+            await TryMountKnowledgeSearchToolAsync(aiapp, chatAgOs);
+            #endregion
             #region 记忆工具（仅在开启智能体记忆 IsMemory 时注入，独立于 IsAITools）
             if (aiapp.IsMemory)
             {
@@ -608,6 +618,9 @@ namespace kevin.Application.Services.AI
                     chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
                 }
             }
+            #region 知识库工具（绑定了 KmsId 就挂载，独立于 IsAITools）
+            await TryMountKnowledgeSearchToolAsync(aiapp, chatAgOs);
+            #endregion
             #region 记忆工具（仅在开启智能体记忆 IsMemory 时注入，独立于 IsAITools）
             if (aiapp.IsMemory)
             {
@@ -654,6 +667,35 @@ namespace kevin.Application.Services.AI
                 IsAITools = aiapp.IsAITools
             }, chatAgOs,
           cancellationToken: cancellationToken));
+        }
+
+        /// <summary>
+        /// 按智能体绑定的知识库挂载 SearchKnowledge AIFunction（<see cref="GetAppAIAgentOptions"/> 与 <see cref="GetAppAIAgent"/> 共用）。
+        /// <para>
+        /// 容错策略与文生图工具一致：未绑定知识库、知识库不存在或构建异常都不抛错打断主流程，只写警告日志跳过挂载。
+        /// </para>
+        /// </summary>
+        private async Task TryMountKnowledgeSearchToolAsync(AIAppsDto aiapp, ChatClientAgentOptions chatAgOs)
+        {
+            if (aiapp.KmsId == default) return;
+            if (chatAgOs.ChatOptions == null) return;
+            try
+            {
+                var kmsTool = await _knowledgeSearchToolService.BuildSearchFunction(aiapp);
+                if (kmsTool != null)
+                {
+                    chatAgOs.ChatOptions.Tools ??= new List<AITool>();
+                    chatAgOs.ChatOptions.Tools.Add(kmsTool);
+                }
+                else
+                {
+                    LogHelper.logger.Warn($"智能体 {aiapp.Name}(Id={aiapp.Id}) 绑定了知识库 KmsId={aiapp.KmsId} 但知识库不存在或不可用，跳过 SearchKnowledge 工具挂载");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.logger.Warn($"智能体 {aiapp.Name}(Id={aiapp.Id}) 挂载知识库搜索工具失败，跳过: {ex.Message}");
+            }
         }
 
         /// <summary>

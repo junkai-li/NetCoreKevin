@@ -40,6 +40,11 @@
         public bool IsMemory { get; set; } = false;
 
         /// <summary>
+        /// 是否启用知识库功能
+        /// </summary>
+        public bool IsKnowledgeBase { get; set; } = true;
+
+        /// <summary>
         /// 是否允许音频输入：由 <c>AIModels.AIModelType.HasFlag(AudioUnderstanding)</c> 决定，
         /// 关闭时即便用户上传了音频也会走"不支持"分支，避免把音频塞给不懂音频的模型触发 400
         /// </summary>

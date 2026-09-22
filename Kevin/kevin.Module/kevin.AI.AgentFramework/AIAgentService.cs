@@ -43,7 +43,7 @@ namespace kevin.AI.AgentFramework
                 HttpClientAutoInterceptor.StartInterception();
             }
             #region AI工具
-            if (!aISetting.IsAITools && !aISetting.IsMcpTools && !aISetting.IsMemory)
+            if (!aISetting.IsAITools && !aISetting.IsMcpTools && !aISetting.IsMemory&& !aISetting.IsKnowledgeBase)
             {
                 if (chatClientAgentOptions.ChatOptions != default)
                 {
@@ -319,7 +319,7 @@ namespace kevin.AI.AgentFramework
                 }
             };
             #region AI工具
-            if (!aISetting.IsAITools)
+            if (!aISetting.IsAITools && !aISetting.IsMcpTools && !aISetting.IsMemory && !aISetting.IsKnowledgeBase)
             {
                 if (chatClientAgentOptions.ChatOptions != default)
                 {
