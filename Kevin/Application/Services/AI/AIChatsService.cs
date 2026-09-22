@@ -113,14 +113,14 @@ namespace kevin.Application.Services.AI
                 AIChatsId = add.Id,
                 Content = "你好,请开始你的对话..."
             };
-            aIChatHistorysRp.Add(addHist); 
+            aIChatHistorysRp.Add(addHist);
             await aIChatHistorysRp.SaveChangesAsync();
             // 选择“异步加载智能体”：在线程池里先把该智能体的工具/MCP/技能挂载好并调用一次，
             // 用户第一次发消息时不再承担冷启动加载耗时（实现方式与 AIChatHistorysService 里后台智能体调用同源）
             if (par.IsAsyncLoadAgent)
             {
                 LoadAgentInBackground(aiapp, aIPrompts, aIModels, add.Id, addHist.Id, CurrentUser.UserId, CurrentUser.UserName, CurrentUser.TenantId);
-            } 
+            }
             return addHist.MapTo<AIChatHistorysDto>();
         }
 
@@ -152,6 +152,15 @@ namespace kevin.Application.Services.AI
             {
                 try
                 {
+                    // 关键：切断请求事务的流入。TransactionScopeFilter 用了 TransactionScopeAsyncFlowOption.Enabled，
+                    // 会把请求的 Ambient Transaction（Transaction.Current）经 ExecutionContext 带进本 Task.Run，
+                    // 后台新建作用域的 DbContext 连接因此与请求那条尚未提交的事务缠在一起，
+                    // EF 报 “This connection was used with an ambient transaction ... used outside of it”。
+                    // Suppress 让本块内 Transaction.Current 变 null，后台预热不加入请求事务，独立开连接；
+                    // 必须带 AsyncFlowOption.Enabled，否则跨过第一个 await 后抑制状态丢失、事务又会流回来。
+                    using var suppressTx = new System.Transactions.TransactionScope(
+                        System.Transactions.TransactionScopeOption.Suppress,
+                        System.Transactions.TransactionScopeAsyncFlowOption.Enabled);
                     using var scope = scopeFactory.CreateScope();
                     var provider = scope.ServiceProvider;
                     provider.GetService<IAIShareInfoService>()?.InitData(new AIShareInfoDto
@@ -166,7 +175,7 @@ namespace kevin.Application.Services.AI
                         IsSecurityIntercept = aiapp.IsSecurityIntercept,
                         ChatMessageLimit = aiapp.ChatMessageLimit
                     });
-                    string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt; 
+                    string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
                     var chatAgOs = await provider.GetRequiredService<IAIAppsService>().GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt,
                         new AIChatHistorysDto { Id = historyId, AIChatsId = aiChatsId, CreateTime = DateTime.Now });
                     var aiSetting = new AISetting
@@ -185,10 +194,10 @@ namespace kevin.Application.Services.AI
                         IsAITools = aiapp.IsAITools,
                         IsMcpTools = aiapp.IsMcp,
                         IsMemory = aiapp.IsMemory,
-                        IsKnowledgeBase= aiapp.KmsId.HasValue && aiapp.KmsId.Value > 0,
+                        IsKnowledgeBase = aiapp.KmsId.HasValue && aiapp.KmsId.Value > 0,
                     };
                     await provider.GetRequiredService<IAIAgentService>().CreateOpenAIAgentAndSendMSG(aiSetting, chatAgOs,
-                        new ChatMessage(ChatRole.User, "系统初始化预热：请调用 load_skill、read_skill_resource 获取技能指令与资源内容，加载完所有技能后仅回复“初始化完成”。")); 
+                        new ChatMessage(ChatRole.User, "系统初始化预热：请调用 load_skill、read_skill_resource 获取技能指令与资源内容，加载完所有技能后仅回复“初始化完成”。"));
                 }
                 catch (Exception ex)
                 {
@@ -225,7 +234,7 @@ namespace kevin.Application.Services.AI
                     ai.UpdateTime = DateTime.Now;
                     ai.UpdateUserId = CurrentUser.UserId;
                     db.Set<TAIChats>().Update(ai);
-                    db.SaveChanges(); 
+                    db.SaveChanges();
                 }
             }
             catch (Exception ex)

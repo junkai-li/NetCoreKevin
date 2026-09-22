@@ -89,7 +89,7 @@ namespace kevin.Application.Services.AI
             var data = aIAppsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
-                data = data.Where(t => t.Name.Contains(dtoPage.searchKey)||t.Describe.Contains(dtoPage.searchKey));
+                data = data.Where(t => t.Name.Contains(dtoPage.searchKey) || t.Describe.Contains(dtoPage.searchKey));
             }
             result.total = await data.CountAsync();
             var dbdata = await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPage.pageSize).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
@@ -267,7 +267,7 @@ namespace kevin.Application.Services.AI
                     msg.IsMcp = par.IsMcp;
                     msg.IsMemory = par.IsMemory;
                     msg.IsImageGeneration = par.IsImageGeneration;
-                    msg.ImageGenModelID = par.ImageGenModelID;   
+                    msg.ImageGenModelID = par.ImageGenModelID;
                 }
                 else
                 {
@@ -463,7 +463,7 @@ namespace kevin.Application.Services.AI
                 {
                     // 🔑 能力层：工具
                     chatAgOs.ChatOptions.Tools ??= new List<AITool>();
-                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
+                    chatAgOs.ChatOptions.Tools.AddRange(await _aIAgentToolSkillService.GetUserAIAgentToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()));
                     if (aiapp.BindIds.Where(x => x.Contains("agent_")).Count() > 0)
                     {
                         var agentIds = aiapp.BindIds.Where(x => x.Contains("agent_")).Select(t => t.Replace("agent_", "")).ToList();
@@ -475,7 +475,7 @@ namespace kevin.Application.Services.AI
                         }
                     }
                     if (!aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
-                    { 
+                    {
                         chatAgOs.ChatOptions.Tools.Add(AIFunctionFactory.Create(_aIChatMessageStoreCompactionService.GetAIToolThreadPrompt, new AIFunctionFactoryOptions
                         {
                             Name = "GetAIToolThreadPrompt",
@@ -490,7 +490,7 @@ namespace kevin.Application.Services.AI
                 if (chatAgOs.ChatOptions != default)
                 {
                     chatAgOs.ChatOptions.Tools ??= new List<AITool>();
-                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
+                    chatAgOs.ChatOptions.Tools.AddRange(await _aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()));
                 }
             }
             #region 知识库工具（绑定了 KmsId 就挂载，独立于 IsAITools）
@@ -508,7 +508,7 @@ namespace kevin.Application.Services.AI
             #endregion
             if (aiapp.IsSkill)
             {
-                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result;
+                var skillPaths = await _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString());
                 var skillsProvider = new AgentSkillsProviderBuilder()
                                          .UseOptions(t =>
                                          {
@@ -593,7 +593,7 @@ namespace kevin.Application.Services.AI
                 {
                     // 🔑 能力层：工具
                     chatAgOs.ChatOptions.Tools ??= new List<AITool>();
-                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
+                    chatAgOs.ChatOptions.Tools.AddRange(await _aIAgentToolSkillService.GetUserAIAgentToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()));
                     if (referenceDepth < MaxReferenceDepth)
                     {
                         if (aiapp.BindIds.Where(x => x.Contains("agent_")).Count() > 0)
@@ -615,7 +615,7 @@ namespace kevin.Application.Services.AI
                 if (chatAgOs.ChatOptions != default)
                 {
                     chatAgOs.ChatOptions.Tools ??= new List<AITool>();
-                    chatAgOs.ChatOptions.Tools.AddRange(_aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result);
+                    chatAgOs.ChatOptions.Tools.AddRange(await _aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()));
                 }
             }
             #region 知识库工具（绑定了 KmsId 就挂载，独立于 IsAITools）
@@ -633,7 +633,7 @@ namespace kevin.Application.Services.AI
             #endregion
             if (aiapp.IsSkill)
             {
-                var skillPaths = _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()).Result;
+                var skillPaths = await _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString());
                 var skillsProvider = new AgentSkillsProviderBuilder()
                                        .UseOptions(t =>
                                        {
