@@ -129,9 +129,16 @@ namespace kevin.Application.Services.AI
         /// <c>GetAppAIAgentOptions</c> 挂载工具/MCP/记忆/技能，再创建智能体调用一次，让技能与工具连接提前就绪。
         /// <para>
         /// 请求作用域会在响应结束后释放，所以后台任务必须自己建作用域；无 HttpContext 时 MCP 取 Authorization
-        /// 依赖 <see cref="IAIShareInfoService"/> 里的用户信息（与定时任务 RunTask 同做法）；
-        /// 会话历史按只读传入，预热的问答不会写进本对话；预热结果直接丢弃。
-        /// 后台任务内异常全部接住只记日志：预热失败不影响正常对话（第一次发消息时会现加载）。
+        /// 依赖 <see cref="IAIShareInfoService"/> 里的用户信息（与定时任务 RunTask 同做法）。
+        /// </para>
+        /// <para>
+        /// 预热**不传 readOnlyHistory**（默认写入）：这一轮“加载技能”的问答会落进消息存储 <c>TAIChatMessageStore</c>，
+        /// 从第一次真实消息起就作为上下文提交给 AI，模型据此知道 load_skill / 工具结果已就绪，无需再重走加载轮次
+        /// ——这才是预热的价值所在。它只进消息存储、不进聊天列表（<c>TAIChatHistorys</c> 仍只有 Add 写的那条欢迎语），
+        /// 所以不会出现在对话窗口里。
+        /// </para>
+        /// <para>
+        /// 后台任务内异常全部接住只记日志：预热失败则退化为第一次发消息时现加载，不影响正常对话。
         /// </para>
         /// </summary>
         private void LoadAgentInBackground(AIAppsDto aiapp, AIPromptsDto aIPrompts, AIModelsDto aIModels, long aiChatsId, long historyId, long userId, string userName, int tenantId)
@@ -159,7 +166,7 @@ namespace kevin.Application.Services.AI
                         IsSecurityIntercept = aiapp.IsSecurityIntercept,
                         ChatMessageLimit = aiapp.ChatMessageLimit
                     });
-                    string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt; 
+                    string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
                     var chatAgOs = await provider.GetRequiredService<IAIAppsService>().GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt,
                         new AIChatHistorysDto { Id = historyId, AIChatsId = aiChatsId, CreateTime = DateTime.Now });
                     var aiSetting = new AISetting
@@ -167,7 +174,7 @@ namespace kevin.Application.Services.AI
                         AIUrl = aIModels.EndPoint,
                         AIKeySecret = aIModels.ModelKey,
                         AIDefaultModel = aIModels.ModelName,
-                        // 预热不需要流式输出与推送回调，同步请求一次并丢弃结果
+                        // 预热不需要流式输出与推送回调：同步跑完一轮即可，回复由历史提供器落进消息存储供后续复用
                         IsStreame = false,
                         // 不开 HTTP 日志：避免与其他并发请求的拦截器互相干扰
                         IsHttpLog = false,
