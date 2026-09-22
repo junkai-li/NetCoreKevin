@@ -159,10 +159,9 @@ namespace kevin.Application.Services.AI
                         IsSecurityIntercept = aiapp.IsSecurityIntercept,
                         ChatMessageLimit = aiapp.ChatMessageLimit
                     });
-                    string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
-                    // 只读历史：预热的“提问/回复”不是真实对话，不能写回本会话污染第一条消息
+                    string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt; 
                     var chatAgOs = await provider.GetRequiredService<IAIAppsService>().GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt,
-                        new AIChatHistorysDto { Id = historyId, AIChatsId = aiChatsId, CreateTime = DateTime.Now }, readOnlyHistory: true);
+                        new AIChatHistorysDto { Id = historyId, AIChatsId = aiChatsId, CreateTime = DateTime.Now });
                     var aiSetting = new AISetting
                     {
                         AIUrl = aIModels.EndPoint,
