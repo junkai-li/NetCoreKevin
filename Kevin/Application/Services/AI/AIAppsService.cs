@@ -550,9 +550,9 @@ namespace kevin.Application.Services.AI
         /// <param name="parAi"></param>
         /// <param name="par"></param>
         /// <param name="cancellationToken"></param>
-        /// <param name="referenceDepth">深度为0时可以获取到子ai应用，深度为1时可以获取到子ai应用的子ai应用，以此类推 最多三级引用</param>
+        /// <param name="referenceDepth">深度为0时可以获取到子ai应用，深度为1时可以获取到子ai应用的子ai应用，以此类推 最多八级引用</param>
         /// <returns></returns>
-        public async Task<AIAgent> GetAppAIAgent(AIAppsDto aiapp, AIChatHistorysDto par, CancellationToken cancellationToken = default, int referenceDepth = 0, int MaxReferenceDepth = 3)
+        public async Task<AIAgent> GetAppAIAgent(AIAppsDto aiapp, AIChatHistorysDto par, CancellationToken cancellationToken = default, int referenceDepth = 0, int MaxReferenceDepth = 8)
         {
             // Auto模式：子智能体随机选择一个模型
             if (string.Equals(aiapp.ChatModelID, "auto", StringComparison.OrdinalIgnoreCase))
