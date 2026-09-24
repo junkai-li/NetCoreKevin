@@ -664,7 +664,10 @@ namespace kevin.Application.Services.AI
                 MaxRetries = aiapp.MaxRetries,
                 NetworkTimeout = aiapp.NetworkTimeout,
                 IsAISkills = aiapp.IsSkill,
-                IsAITools = aiapp.IsAITools
+                IsAITools = aiapp.IsAITools,
+                IsMcpTools = aiapp.IsMcp,
+                IsMemory = aiapp.IsMemory,
+                IsKnowledgeBase = aiapp.KmsId.HasValue && aiapp.KmsId.Value > 0,
             }, chatAgOs,
           cancellationToken: cancellationToken));
         }

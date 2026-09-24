@@ -428,6 +428,7 @@ namespace kevin.Application.Services.AI
                             IsAITools = aiapp.IsAITools,
                             IsMcpTools = aiapp.IsMcp,
                             IsMemory = aiapp.IsMemory,
+                            IsKnowledgeBase = aiapp.KmsId.HasValue && aiapp.KmsId.Value > 0,
                             // 音频输入能力传递给 AIAgentService：模型不支持时可用于日志/降级判定
                             EnableAudioInput = enableAudioInput,
                             FallbackModels = fallbackModels,
@@ -996,7 +997,7 @@ namespace kevin.Application.Services.AI
                     IsAISkills = aiapp.IsSkill,
                     // 工具/技能/记忆全关：上面的 recommendOptions 本就未挂载，这里同步告知代理不需要能力层
                     IsAITools = aiapp.IsAITools,
-                    IsMcpTools = aiapp.IsMcp, 
+                    IsMcpTools = aiapp.IsMcp,
                     IsMemory = aiapp.IsMemory,
                     IsKnowledgeBase = aiapp.KmsId.HasValue && aiapp.KmsId.Value > 0,
                 };
