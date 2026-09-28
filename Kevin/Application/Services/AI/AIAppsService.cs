@@ -578,7 +578,10 @@ namespace kevin.Application.Services.AI
                 systemPrompt += "\n" + SystemPrompt.ImageGenerationPromptText;
             }
             // 获取压缩聊天记录提示词
-            systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString());
+            if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
+            {
+                systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString());
+            }
             var chatAgOs = new ChatClientAgentOptions
             {
                 Name = aiapp.Name,
