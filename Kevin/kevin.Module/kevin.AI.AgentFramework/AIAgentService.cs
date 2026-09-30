@@ -43,7 +43,7 @@ namespace kevin.AI.AgentFramework
                 HttpClientAutoInterceptor.StartInterception();
             }
             #region AI工具
-            if (!aISetting.IsAITools && !aISetting.IsMcpTools && !aISetting.IsMemory&& !aISetting.IsKnowledgeBase)
+            if (!aISetting.IsAITools && !aISetting.IsMcpTools && !aISetting.IsMemory && !aISetting.IsKnowledgeBase)
             {
                 if (chatClientAgentOptions.ChatOptions != default)
                 {
@@ -82,7 +82,7 @@ namespace kevin.AI.AgentFramework
             };
             // 当无 keySecret（本地模型无鉴权）时，尝试使用不带凭据的客户端；若构造失败则给出明确异常提示  
             var ai = new OpenAIClient(new ApiKeyCredential(string.IsNullOrWhiteSpace(aISetting.AIKeySecret) ? "local" : aISetting.AIKeySecret), openAIClientOptions);
-#pragma warning disable MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
+
             var aiAgent = ai.GetChatClient(aISetting.AIDefaultModel).AsIChatClient().AsAIAgent(chatClientAgentOptions)
                 .AsBuilder()
                 .UseToolApproval(new ToolApprovalAgentOptions
@@ -97,7 +97,6 @@ namespace kevin.AI.AgentFramework
                                         }
                 })
                 .Build();
-#pragma warning restore MAAI001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
             var reslut = new AgentResponse();
             var tokenConsumptionInfo = new TokenConsumptionInfo();
             var resultText = string.Empty;
@@ -141,6 +140,21 @@ namespace kevin.AI.AgentFramework
                                                 case TextContent textContent:
                                                     // 3. 普通文本输出 
                                                     break;
+                                                case TextReasoningContent reasoningContent:
+                                                    // 4. 思考过程输出 
+                                                    if (aISetting.ReasoningStreameCallback != default)
+                                                    {
+                                                        await aISetting.ReasoningStreameCallback.Invoke(reasoningContent.Text);
+                                                    }
+                                                    break;
+                                                case UsageContent usageContent:
+                                                    // 5. 消耗token信息
+                                                    tokenConsumptionInfo.CachedInputTokenCount = usageContent.Details.CachedInputTokenCount;
+                                                    tokenConsumptionInfo.InputTokenCount = usageContent.Details.InputTokenCount;
+                                                    tokenConsumptionInfo.OutputTokenCount = usageContent.Details.OutputTokenCount;
+                                                    tokenConsumptionInfo.TotalTokenCount = usageContent.Details.TotalTokenCount;
+                                                    tokenConsumptionInfo.ReasoningTokenCount = usageContent.Details.ReasoningTokenCount;
+                                                    break;
                                             }
                                         }
                                     }
@@ -150,23 +164,7 @@ namespace kevin.AI.AgentFramework
                                     // 回调必须 await：既保证分片按模型输出顺序下发，也让回调内异常回到下面的 catch
                                     await aISetting.StreameCallback.Invoke(update.Text);
                                     resultText += update.Text;
-                                }
-                                else
-                                {
-                                    if (aISetting.ReasoningStreameCallback != default)
-                                    {
-                                        var reasoningStr = await GetReasoningTextAsync(update);
-                                        if (!string.IsNullOrEmpty(reasoningStr))
-                                        {
-                                            await aISetting.ReasoningStreameCallback.Invoke(reasoningStr);
-                                        }
-                                    }
-
-                                }
-                                if (TryExtractUsageFromUpdate(update, out var usage))
-                                {
-                                    tokenConsumptionInfo = usage;
-                                }
+                                }  
                             }
                         }
                     }
@@ -349,247 +347,6 @@ namespace kevin.AI.AgentFramework
                 })
                 .Build();
             return aiAgent;
-        }
-
-        /// <summary>
-        ///获取模型思考过程文本（适用于流式输出时从原始响应中提取reasoning字段）
-        /// </summary>
-        /// <param name="update">流式更新对象</param>
-        /// <returns>思考过程文本</returns>
-        private async Task<string> GetReasoningTextAsync(AgentResponseUpdate update)
-        {
-            try
-            {
-                var reasoningBuilder = new StringBuilder();
-                // 仅处理无文本输出、包含原始响应的更新
-                if (update.RawRepresentation is Microsoft.Extensions.AI.ChatResponseUpdate streamingChatCompletionUpdate
-                    && streamingChatCompletionUpdate.RawRepresentation is OpenAI.Chat.StreamingChatCompletionUpdate chatCompletionUpdate)
-                {
-                    // 从原始JSON中提取 reasoning 字段
-#pragma warning disable SCME0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。
-                    ref JsonPatch patch = ref chatCompletionUpdate.Patch;
-#pragma warning restore SCME0001 // 类型仅用于评估，在将来的更新中可能会被更改或删除。取消此诊断以继续。  
-                    // 1. 从 patch 中获取更上层的 choices 片段，然后遍历每个 choice 的 delta 查找 reasoning
-                    var jsonPathBytes = System.Text.Encoding.UTF8.GetBytes("$.choices");
-                    var jsonPathSpan = new ReadOnlySpan<byte>(jsonPathBytes);
-                    // 2. 调用 TryGetJson（获取 choices 数组片段）
-                    if (patch.TryGetJson(jsonPathSpan, out var data))
-                    {
-                        // 将 ReadOnlyMemory<byte> 转为字符串，便于调试输出
-                        var jsonString = System.Text.Encoding.UTF8.GetString(data.ToArray());
-
-                        using var doc = JsonDocument.Parse(jsonString);
-                        var root = doc.RootElement;
-
-                        // 遍历 choices 数组，查找 delta 下的 reasoning 字段（兼容字符串或对象）
-                        if (root.ValueKind == JsonValueKind.Array)
-                        {
-                            foreach (var choice in root.EnumerateArray())
-                            {
-                                if (choice.TryGetProperty("delta", out var delta))
-                                {
-                                    // 支持两种字段名：reasoning 或 reasoning_content
-                                    if (!delta.TryGetProperty("reasoning", out var reasoningProp)
-                                        && !delta.TryGetProperty("reasoning_content", out reasoningProp))
-                                    {
-                                        continue;
-                                    }
-
-                                    string reasoningText = reasoningProp.ValueKind == JsonValueKind.String
-                                        ? reasoningProp.GetString() ?? string.Empty
-                                        : reasoningProp.GetRawText();
-
-                                    if (!string.IsNullOrEmpty(reasoningText))
-                                    {
-                                        reasoningBuilder.Append(reasoningText);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // 如果返回的不是数组，尝试按对象结构解析（兼容性保护）
-                            if (root.TryGetProperty("choices", out var choices) && choices.ValueKind == JsonValueKind.Array)
-                            {
-                                foreach (var choice in choices.EnumerateArray())
-                                {
-                                    if (choice.TryGetProperty("delta", out var delta))
-                                    {
-                                        // 支持两种字段名：reasoning 或 reasoning_content
-                                        if (!delta.TryGetProperty("reasoning", out var reasoningProp)
-                                            && !delta.TryGetProperty("reasoning_content", out reasoningProp))
-                                        {
-                                            continue;
-                                        }
-
-                                        string reasoningText = reasoningProp.ValueKind == JsonValueKind.String
-                                            ? reasoningProp.GetString() ?? string.Empty
-                                            : reasoningProp.GetRawText();
-                                        if (!string.IsNullOrEmpty(reasoningText))
-                                        {
-                                            reasoningBuilder.Append(reasoningText);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                return (reasoningBuilder?.ToString() ?? "").Replace("null", "\n").Replace("\n", "");
-            }
-            catch (Exception)
-            {
-
-                return "";
-            }
-
-        }
-
-
-        /// <summary>
-        /// 尝试从更新中提取 token 使用信息
-        /// </summary>
-        /// <param name="update"></param>
-        /// <param name="info"></param>
-        /// <returns></returns>
-        private static bool TryExtractUsageFromUpdate(AgentResponseUpdate update, out TokenConsumptionInfo info)
-        {
-            try
-            {
-                info = new TokenConsumptionInfo();
-                if (update == null) return false;
-
-                // 1) Common case: wrapper ChatResponseUpdate -> underlying OpenAI streaming update
-                if (update.RawRepresentation is Microsoft.Extensions.AI.ChatResponseUpdate chatResp &&
-                    chatResp.RawRepresentation is OpenAI.Chat.StreamingChatCompletionUpdate openAiInner)
-                {
-                    if (openAiInner.Usage != null)
-                    {
-                        info.InputTokenCount = openAiInner.Usage.InputTokenCount;
-                        info.OutputTokenCount = openAiInner.Usage.OutputTokenCount;
-                        info.TotalTokenCount = openAiInner.Usage.TotalTokenCount;
-                        return true;
-                    }
-                }
-
-                // 2) Raw is directly OpenAI streaming update
-                if (update.RawRepresentation is OpenAI.Chat.StreamingChatCompletionUpdate openAiDirect)
-                {
-                    if (openAiDirect.Usage != null)
-                    {
-                        info.InputTokenCount = openAiDirect.Usage.InputTokenCount;
-                        info.OutputTokenCount = openAiDirect.Usage.OutputTokenCount;
-                        info.TotalTokenCount = openAiDirect.Usage.TotalTokenCount;
-                        return true;
-                    }
-                }
-
-                // 3) Try reflection: a Usage property on update or its RawRepresentation
-                object? candidate = null;
-                var usageProp = update.GetType().GetProperty("Usage") ?? update.GetType().GetProperty("usage");
-                if (usageProp != null) candidate = usageProp.GetValue(update);
-                else if (update.RawRepresentation != null)
-                {
-                    var rpType = update.RawRepresentation.GetType();
-                    var rpUsageProp = rpType.GetProperty("Usage") ?? rpType.GetProperty("usage");
-                    if (rpUsageProp != null) candidate = rpUsageProp.GetValue(update.RawRepresentation);
-                }
-
-                if (candidate != null)
-                {
-                    int? GetInt(object? o, string name)
-                    {
-                        var p = o?.GetType().GetProperty(name);
-                        if (p == null) return null;
-                        var v = p.GetValue(o);
-                        return v switch
-                        {
-                            int i => i,
-                            long l => (int)l,
-                            System.Text.Json.JsonElement je when je.ValueKind == System.Text.Json.JsonValueKind.Number && je.TryGetInt32(out var vi) => vi,
-                            _ => null
-                        };
-                    }
-
-                    info.InputTokenCount = GetInt(candidate, "InputTokenCount") ?? GetInt(candidate, "PromptTokens") ?? 0;
-                    info.OutputTokenCount = GetInt(candidate, "OutputTokenCount") ?? GetInt(candidate, "CompletionTokens") ?? 0;
-                    info.TotalTokenCount = GetInt(candidate, "TotalTokenCount") ?? GetInt(candidate, "TotalTokens") ?? (info.InputTokenCount + info.OutputTokenCount);
-                    return info.TotalTokenCount > 0;
-                }
-
-                // 4) 最后：尝试把 RawRepresentation 序列化为 JSON 并查找 usage 节点
-                try
-                {
-                    string? json = null;
-                    if (update.RawRepresentation is string s) json = s;
-                    else if (update.RawRepresentation is System.Text.Json.JsonElement je) json = je.GetRawText();
-                    else if (update.RawRepresentation != null) json = System.Text.Json.JsonSerializer.Serialize(update.RawRepresentation);
-
-                    if (!string.IsNullOrEmpty(json))
-                    {
-                        using var doc = System.Text.Json.JsonDocument.Parse(json);
-                        if (TryFindUsageElement(doc.RootElement, out var usageEl))
-                        {
-                            int? GetIntFromJson(System.Text.Json.JsonElement el, string name)
-                            {
-                                if (el.ValueKind != System.Text.Json.JsonValueKind.Object) return null;
-                                if (el.TryGetProperty(name, out var p) && p.ValueKind == System.Text.Json.JsonValueKind.Number && p.TryGetInt32(out var v)) return v;
-                                return null;
-                            }
-
-                            info.InputTokenCount = GetIntFromJson(usageEl, "prompt_tokens") ?? GetIntFromJson(usageEl, "input_tokens") ?? 0;
-                            info.OutputTokenCount = GetIntFromJson(usageEl, "completion_tokens") ?? GetIntFromJson(usageEl, "output_tokens") ?? 0;
-                            info.TotalTokenCount = GetIntFromJson(usageEl, "total_tokens") ?? (info.InputTokenCount + info.OutputTokenCount);
-                            return info.TotalTokenCount > 0;
-                        }
-                    }
-                }
-                catch
-                {
-                    // ignore parse errors
-                }
-                return false;
-            }
-            catch (Exception)
-            {
-                info = new TokenConsumptionInfo();
-            }
-            return false;
-            static bool TryFindUsageElement(System.Text.Json.JsonElement root, out System.Text.Json.JsonElement usage)
-            {
-                if (root.ValueKind == System.Text.Json.JsonValueKind.Object && root.TryGetProperty("usage", out usage)) return true;
-                var stack = new Stack<System.Text.Json.JsonElement>();
-                stack.Push(root);
-                while (stack.Count > 0)
-                {
-                    var node = stack.Pop();
-                    if (node.ValueKind == System.Text.Json.JsonValueKind.Object)
-                    {
-                        foreach (var prop in node.EnumerateObject())
-                        {
-                            if (string.Equals(prop.Name, "usage", StringComparison.OrdinalIgnoreCase))
-                            {
-                                usage = prop.Value;
-                                return true;
-                            }
-                            if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.Object || prop.Value.ValueKind == System.Text.Json.JsonValueKind.Array)
-                                stack.Push(prop.Value);
-                        }
-                    }
-                    else if (node.ValueKind == System.Text.Json.JsonValueKind.Array)
-                    {
-                        foreach (var item in node.EnumerateArray())
-                        {
-                            if (item.ValueKind == System.Text.Json.JsonValueKind.Object || item.ValueKind == System.Text.Json.JsonValueKind.Array)
-                                stack.Push(item);
-                        }
-                    }
-                }
-                usage = default;
-                return false;
-            }
-        }
-
-
+        }  
     }
 }
