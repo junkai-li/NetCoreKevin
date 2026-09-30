@@ -152,7 +152,7 @@ onMounted(() => {
   display: block;
   font-size: 26px;
   font-weight: 600;
-  color: #1677ff;
+  color: var(--accent);
 }
 
 .stat-label {

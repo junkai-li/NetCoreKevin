@@ -25,15 +25,21 @@
       </template>
 
       <div class="cards-container">
-        <a-row :gutter="[24, 24]">
-          <a-col :xs="24" :sm="12" :md="12" :lg="8" :xl="6" v-for="model in modelList" :key="model.id">
-            <a-card class="model-card" hoverable>
-              <template #title>
-                <div class="card-title">
-                  <span class="model-name">{{ model.modelName }}</span>
+        <div class="octop-card-grid">
+          <div class="octop-card" v-for="model in modelList" :key="model.id">
+            <div class="octop-card-accent"></div>
+            <div class="octop-card-header">
+              <div class="octop-card-icon">
+                <DatabaseOutlined />
+              </div>
+              <div class="octop-card-title-block">
+                <div class="octop-card-name">{{ model.modelName }}</div>
+                <div class="octop-card-meta">
+                  <span class="octop-card-pill">{{ getModelTypeName(model.aiModelType) }}</span>
+                  <span class="octop-card-pill">{{ getAITypeName(model.aiType) }}</span>
                 </div>
-              </template>
-              <template #extra>
+              </div>
+              <div class="octop-card-tools">
                 <a-dropdown>
                   <a class="ant-dropdown-link" @click.prevent>
                     <EllipsisOutlined />
@@ -49,46 +55,27 @@
                     </a-menu>
                   </template>
                 </a-dropdown>
-              </template>
-              <div @click="showEditModelModal(model)" class="card-content">
-                <div class="model-info horizontal-layout">
-                  <div class="info-item horizontal">
-                    <span class="info-label">AI类型:</span>
-                    <span class="info-value">{{ getAITypeName(model.aiType) }}</span>
-                  </div>
-                  <div class="info-item horizontal">
-                    <span class="info-label">模型类型:</span>
-                    <span class="info-value">{{ getModelTypeName(model.aiModelType) }}</span>
-                  </div>
+              </div>
+            </div>
+            <div class="octop-card-body" @click="showEditModelModal(model)">
+              <div class="octop-card-desc">{{ model.modelDescription }}</div>
+              <div class="octop-card-rows">
+                <div class="octop-card-row">
+                  <span class="octop-card-row-label">地址</span>
+                  <span class="octop-card-code">{{ model.endPoint }}</span>
                 </div>
-                <div class="model-info horizontal-layout">
-                  <div class="info-item horizontal">
-                    <span class="info-label">模型地址:</span>
-                    <span class="info-value url-value">{{ model.endPoint }}</span>
-                  </div>
-                  <div class="info-item horizontal">
-                    <span class="info-label">部署名:</span>
-                    <span class="info-value">{{ model.modelDescription }}</span>
-                  </div>
-                </div>
-                <div class="model-info horizontal-layout" v-if="model.aiModelType === 2">
-                  <div class="info-item horizontal">
-                    <span class="info-label">矢量精度:</span>
-                    <span class="info-value">{{ model.embeddingValueSize }}</span>
-                  </div>
-                </div>
-                <div class="model-info horizontal-layout" v-if="model.createUser || model.updateUser">
-                  <div class="info-item horizontal">
-                    <span class="info-label" v-if="model.createUser">创建人:</span>
-                    <span class="info-value" v-if="model.createUser">{{ model.createUser }}</span>
-                    <span class="info-label" v-if="model.updateUser" style="margin-left: 16px;">更新人:</span>
-                    <span class="info-value" v-if="model.updateUser">{{ model.updateUser }}</span>
-                  </div>
+                <div class="octop-card-row" v-if="model.aiModelType === 2">
+                  <span class="octop-card-row-label">矢量精度</span>
+                  <span class="octop-card-row-value">{{ model.embeddingValueSize }}</span>
                 </div>
               </div>
-            </a-card>
-          </a-col>
-        </a-row>
+            </div>
+            <div class="octop-card-footer" v-if="model.createUser || model.updateUser">
+              <span v-if="model.createUser">创建人 {{ model.createUser }}</span>
+              <span v-if="model.updateUser">更新人 {{ model.updateUser }}</span>
+            </div>
+          </div>
+        </div>
         
         <a-empty v-if="modelList.length === 0" description="暂无模型配置数据" />
         
@@ -98,6 +85,7 @@
             v-model:page-size="pagination.pageSize"
             :total="pagination.total"
             show-size-changer
+            :page-size-options="['8', '10', '20', '50', '100']"
             show-quick-jumper
             :show-total="(total) => `共 ${total} 条记录`"
             @change="handlePageChange"

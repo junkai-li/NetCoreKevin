@@ -36,19 +36,24 @@
       </template>
 
       <div class="cards-container">
-        <a-row :gutter="[24, 24]">
-          <a-col :xs="24" :sm="12" :md="12" :lg="8" :xl="6" v-for="item in dataList" :key="item.id">
-            <a-card class="model-card" hoverable>
-              <template #title>
-                <div class="card-title">
-                  <span class="model-name">{{ item.name }}</span>
-                  <a-tag :color="item.activeStatus === 1 ? 'green' : 'red'" style="margin-left: 8px">
+        <div class="octop-card-grid">
+          <div class="octop-card" v-for="item in dataList" :key="item.id">
+            <div class="octop-card-accent"></div>
+            <div class="octop-card-header">
+              <div class="octop-card-icon">
+                <ToolOutlined />
+              </div>
+              <div class="octop-card-title-block">
+                <div class="octop-card-name">{{ item.name }}</div>
+                <div class="octop-card-meta">
+                  <span class="octop-card-pill">{{ getSkillToolTypeName(item.skillToolType) }}</span>
+                  <a-tag :color="item.activeStatus === 1 ? 'green' : 'red'">
                     {{ item.activeStatus === 1 ? '启用' : '禁用' }}
                   </a-tag>
-                  <a-tag v-if="item.isSystem" color="blue" style="margin-left: 4px">系统内置</a-tag>
+                  <a-tag v-if="item.isSystem" color="blue">系统内置</a-tag>
                 </div>
-              </template>
-              <template #extra>
+              </div>
+              <div class="octop-card-tools">
                 <a-dropdown>
                   <a class="ant-dropdown-link" @click.prevent>
                     <EllipsisOutlined />
@@ -67,36 +72,23 @@
                     </a-menu>
                   </template>
                 </a-dropdown>
-              </template>
-              <div @click="showEditModal(item)" class="card-content">
-                <div class="model-info horizontal-layout">
-                  <div class="info-item horizontal">
-                    <span class="info-label">类型:</span>
-                    <span class="info-value">{{ getSkillToolTypeName(item.skillToolType) }}</span>
-                  </div>
-                  <div class="info-item horizontal">
-                    <span class="info-label">方法:</span>
-                    <span class="info-value">{{ item.classMethod }}</span>
-                  </div>
-                </div>
-                <div class="model-info horizontal-layout">
-                  <div class="info-item horizontal">
-                    <span class="info-label">描述:</span>
-                    <span class="info-value">{{ item.description }}</span>
-                  </div>
-                </div>
-                <div class="model-info horizontal-layout" v-if="item.createUser || item.updateUser">
-                  <div class="info-item horizontal">
-                    <span class="info-label" v-if="item.createUser">创建人:</span>
-                    <span class="info-value" v-if="item.createUser">{{ item.createUser }}</span>
-                    <span class="info-label" v-if="item.updateUser" style="margin-left: 16px;">更新人:</span>
-                    <span class="info-value" v-if="item.updateUser">{{ item.updateUser }}</span>
-                  </div>
+              </div>
+            </div>
+            <div class="octop-card-body" @click="showEditModal(item)">
+              <div class="octop-card-desc">{{ item.description }}</div>
+              <div class="octop-card-rows">
+                <div class="octop-card-row">
+                  <span class="octop-card-row-label">方法</span>
+                  <span class="octop-card-code">{{ item.classMethod }}</span>
                 </div>
               </div>
-            </a-card>
-          </a-col>
-        </a-row>
+            </div>
+            <div class="octop-card-footer" v-if="item.createUser || item.updateUser">
+              <span v-if="item.createUser">创建人 {{ item.createUser }}</span>
+              <span v-if="item.updateUser">更新人 {{ item.updateUser }}</span>
+            </div>
+          </div>
+        </div>
 
         <a-empty v-if="dataList.length === 0" description="暂无技能工具数据" />
 
@@ -106,6 +98,7 @@
             v-model:page-size="pagination.pageSize"
             :total="pagination.total"
             show-size-changer
+            :page-size-options="['8', '10', '20', '50', '100']"
             show-quick-jumper
             :show-total="(total) => `共 ${total} 条记录`"
             @change="handlePageChange"

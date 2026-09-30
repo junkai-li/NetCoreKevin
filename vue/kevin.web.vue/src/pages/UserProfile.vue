@@ -251,7 +251,7 @@ onMounted(() => {
 .title-icon {
   margin-right: 8px;
   font-size: 20px;
-  color: #1677ff;
+  color: var(--accent);
 }
 
 .profile-content {
@@ -311,9 +311,9 @@ onMounted(() => {
 }
 
 :deep(.ant-tag) {
-  color: #1677ff;
-  background: #e6f4ff;
-  border: 1px solid #91caff;
+  color: var(--accent);
+  background: var(--fn-color-brand-light);
+  border: 1px solid var(--fn-color-brand-border);
 }
 
 .action-buttons {

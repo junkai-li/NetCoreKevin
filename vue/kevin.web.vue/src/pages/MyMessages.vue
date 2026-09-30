@@ -557,7 +557,7 @@ onMounted(() => {
 
 .title-icon {
   margin-right: 8px;
-  color: #1677ff;
+  color: var(--accent);
 }
 
 .tab-content {
@@ -592,15 +592,15 @@ onMounted(() => {
 }
 
 :deep(.ant-tabs-tab:hover) {
-  color: #1677ff !important;
+  color: var(--accent) !important;
 }
 
 :deep(.ant-tabs-tab-active),
 :deep(.ant-tabs-tab-active .ant-tabs-tab-btn) {
-  color: #1677ff !important;
+  color: var(--accent) !important;
 }
 
 :deep(.ant-tabs-ink-bar) {
-  background: #1677ff !important;
+  background: var(--accent) !important;
 }
 </style>

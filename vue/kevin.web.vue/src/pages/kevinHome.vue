@@ -6,14 +6,15 @@
       :trigger="null"
       collapsible
       class="sider"
-      width="256"
+      width="220"
+      :collapsed-width="56"
       :style="{ position: 'fixed', height: '100vh', left: 0, top: 0, bottom: 0 }"
     >
       <div class="logo">
         <div class="logo-wrapper">
           <img :src="logoImage" alt="Logo" class="logo-image" />
         </div>
-        <span v-if="!collapsed" class="logo-text">AI智能体后台管理系统</span>
+        <span v-if="!collapsed" class="logo-text">AI多智能体管理系统</span>
       </div>
 
       <div class="menu-wrapper">
@@ -42,19 +43,10 @@
           </template>
         </a-menu>
       </div>
-    </a-layout-sider>
 
-    <!-- 右侧内容区域 -->
-    <a-layout
-      class="main-layout"
-      :style="{
-        marginLeft: collapsed ? '80px' : '256px',
-        transition: 'margin-left 0.3s ease',
-      }"
-    >
-      <!-- 头部 -->
-      <a-layout-header class="header">
-        <div class="header-left">
+      <!-- 侧栏底部：工具行 + 用户区（Octop 布局：无桌面顶栏，控件收进侧栏） -->
+      <div class="sider-bottom">
+        <div class="sider-tools">
           <menu-unfold-outlined
             v-if="collapsed"
             class="trigger"
@@ -65,14 +57,10 @@
             class="trigger"
             @click="() => (collapsed = !collapsed)"
           />
-        </div>
 
-        <div class="header-right">
-          <!-- 主题切换下拉菜单 -->
-          <a-dropdown>
-            <a-button type="text" class="theme-switch-button">
+          <a-dropdown placement="topRight">
+            <a-button type="text" class="tool-btn">
               <BgColorsOutlined />
-              主题
             </a-button>
             <template #overlay>
               <a-menu class="theme-menu">
@@ -122,11 +110,9 @@
             </template>
           </a-dropdown>
 
-          <!-- 页面浏览模式切换 -->
-          <a-dropdown>
-            <a-button type="text" class="theme-switch-button">
+          <a-dropdown placement="topRight">
+            <a-button type="text" class="tool-btn">
               <AppstoreOutlined />
-              浏览模式
             </a-button>
             <template #overlay>
               <a-menu class="theme-menu">
@@ -146,14 +132,14 @@
             </template>
           </a-dropdown>
 
-          <a-button type="text" class="theme-switch-button" @click="toggleFullScreen">
+          <a-button type="text" class="tool-btn" @click="toggleFullScreen">
             <FullscreenOutlined v-if="!isFullScreen" />
             <FullscreenExitOutlined v-else />
           </a-button>
 
-          <a-dropdown>
+          <a-dropdown placement="topRight">
             <a-badge :dot="noReadCount > 0">
-              <BellOutlined class="header-icon" />
+              <BellOutlined class="tool-btn bell-btn" />
             </a-badge>
             <template #overlay>
               <a-menu class="notification-menu">
@@ -161,33 +147,42 @@
               </a-menu>
             </template>
           </a-dropdown>
-
-          <a-dropdown>
-            <div class="user-info">
-              <a-avatar :src="userInfo.avatar" />
-              <span class="user-name">{{ userInfo.name }}</span>
-            </div>
-            <template #overlay>
-              <a-menu class="user-menu">
-                <a-menu-item @click="handleUserInfo" key="profile">
-                  <UserOutlined />
-                  个人中心
-                </a-menu-item>
-                <a-menu-item key="settings">
-                  <SettingOutlined />
-                  设置
-                </a-menu-item>
-                <a-menu-divider />
-                <a-menu-item key="logout" @click="handleLogout">
-                  <LogoutOutlined />
-                  退出登录
-                </a-menu-item>
-              </a-menu>
-            </template>
-          </a-dropdown>
         </div>
-      </a-layout-header>
 
+        <a-dropdown placement="topLeft">
+          <div class="user-info">
+            <a-avatar :size="28" :src="userInfo.avatar" />
+            <span v-if="!collapsed" class="user-name">{{ userInfo.name }}</span>
+          </div>
+          <template #overlay>
+            <a-menu class="user-menu">
+              <a-menu-item @click="handleUserInfo" key="profile">
+                <UserOutlined />
+                个人中心
+              </a-menu-item>
+              <a-menu-item key="settings">
+                <SettingOutlined />
+                设置
+              </a-menu-item>
+              <a-menu-divider />
+              <a-menu-item key="logout" @click="handleLogout">
+                <LogoutOutlined />
+                退出登录
+              </a-menu-item>
+            </a-menu>
+          </template>
+        </a-dropdown>
+      </div>
+    </a-layout-sider>
+
+    <!-- 右侧内容区域 -->
+    <a-layout
+      class="main-layout"
+      :style="{
+        marginLeft: collapsed ? '56px' : '220px',
+        transition: 'margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+      }"
+    >
       <!-- 标签页导航 -->
       <div class="tab-navigation" v-if="openTabs.length > 0">
         <div class="tab-list">
@@ -241,13 +236,6 @@
           <router-view v-else />
         </div>
       </a-layout-content>
-
-      <!-- 底部 -->
-      <a-layout-footer class="footer">
-        <div class="footer-content">
-          <span>© 2026 AI智能体后台管理系统. All Rights Reserved.</span>
-        </div>
-      </a-layout-footer>
     </a-layout>
   </a-layout>
 </template>

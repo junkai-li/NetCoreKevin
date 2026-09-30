@@ -40,13 +40,13 @@
 .pagination-container .ant-pagination-item-active,
 .my-table .ant-pagination-item-active,
 .ant-table-wrapper .ant-pagination-item-active {
-  border-color: #1677ff !important;
+  border-color: var(--accent) !important;
 }
 
 .pagination-container .ant-pagination-item-active a,
 .my-table .ant-pagination-item-active a,
 .ant-table-wrapper .ant-pagination-item-active a {
-  color: #1677ff !important;
+  color: var(--accent) !important;
 }
 
 .pagination-container .ant-pagination-next .ant-pagination-item-link,

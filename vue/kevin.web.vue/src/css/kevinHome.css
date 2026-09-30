@@ -1,9 +1,20 @@
 @import './themes.css';
 @import './buttons.css';
 
+/* ===================================================================
+   主布局（移植 Octop 桌面骨架）：
+   - 侧栏 220 / 折叠 56，白底右描边，纵向三段：logo / 导航 / 底部工具+用户
+   - 桌面端无全局顶栏、无页脚：折叠、主题、页模式、全屏、消息、用户
+     全部收进侧栏底部
+   - 内容区为单一白色卡片（radius 8 / padding 24 / 仅卡片内滚动）
+   历史遗留的 .header / .footer / .breadcrumb / .:deep() 死规则已随
+   模板重构一并移除（全局检索确认无其他页面引用）。
+   =================================================================== */
+
+/* ---------- 整体 ---------- */
 .layout-container {
   min-height: 100vh;
-  background: var(--page-bg);
+  background: var(--fn-bg-layout);
   position: relative;
   overflow: hidden;
 }
@@ -12,25 +23,31 @@
   position: relative;
   z-index: 1;
   min-height: 100vh;
-  background: var(--page-bg) !important;
+  background: var(--fn-bg-layout) !important;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
 }
 
+/* ---------- 侧栏 ---------- */
 .sider {
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+  background: var(--fn-sidebar-bg) !important;
+  border-right: 1px solid var(--fn-sidebar-border);
+  box-shadow: none;
   z-index: 10;
-  background: var(--sider-bg) !important;
-  border-right: 1px solid var(--sider-logo-border);
+}
+
+.sider .ant-layout-sider-children {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .logo {
-  height: 64px;
+  height: 56px;
   display: flex;
   align-items: center;
   padding: 0 16px;
-  border-bottom: 1px solid var(--sider-logo-border);
   overflow: hidden;
   flex-shrink: 0;
   background: transparent;
@@ -39,150 +56,196 @@
 .logo-wrapper {
   display: flex;
   justify-content: center;
-  margin-right: 12px;
+  margin-right: 10px;
   flex-shrink: 0;
 }
 
 .logo-image {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   object-fit: contain;
 }
 
 .logo-text {
   font-size: 14px;
   font-weight: 600;
+  color: var(--fn-text-primary);
   white-space: nowrap;
   letter-spacing: 0.02em;
 }
 
-:deep(.ant-layout-sider-children) {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+.menu-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 0;
 }
 
-:deep(.ant-menu-dark) {
+.menu-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.menu-wrapper::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, rgba(0, 0, 0, 0.15));
+  border-radius: 3px;
+}
+
+.menu-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover, rgba(0, 0, 0, 0.25));
+}
+
+/* ---------- 导航菜单（统一 light/dark 皮肤为 Octop 浅色项） ----------
+   menuTheme 仍由 JS 控制，这里纯 CSS 把 ant-menu-dark 拉回白底观感 */
+.sider .ant-menu,
+.sider .ant-menu-dark,
+.sider .ant-menu-dark.ant-menu-inline,
+.sider .ant-menu-sub.ant-menu-inline,
+.sider .ant-menu-dark .ant-menu-sub.ant-menu-inline {
   background: transparent !important;
+  border-inline-end: 0 !important;
 }
 
-:deep(.ant-menu-dark.ant-menu-inline) {
-  background: transparent !important;
+/* 几何规则只针对展开态：折叠态（ant-menu-inline-collapsed）的 margin/padding
+   交给 antd 原生居中逻辑，否则图标会被 padding 顶出 56px 窄栏被裁掉 */
+.sider .ant-menu-inline:not(.ant-menu-inline-collapsed) .ant-menu-item,
+.sider .ant-menu-inline:not(.ant-menu-inline-collapsed) .ant-menu-submenu-title {
+  height: 40px;
+  line-height: 40px;
+  margin: 2px 8px;
+  width: calc(100% - 16px);
+  border-radius: var(--fn-radius-md);
+  font-size: 13px;
+  color: var(--fn-text-primary) !important;
+  transition: background var(--fn-transition), color var(--fn-transition);
 }
 
-:deep(.ant-menu-dark .ant-menu-sub.ant-menu-inline) {
-  background: rgba(0, 0, 0, 0.15) !important;
+.sider .ant-menu .ant-menu-item:hover,
+.sider .ant-menu .ant-menu-submenu-title:hover {
+  background: var(--fn-sidebar-item-hover) !important;
+  color: var(--fn-text-primary) !important;
 }
 
-:deep(.ant-menu-dark .ant-menu-item:hover),
-:deep(.ant-menu-dark .ant-menu-submenu-title:hover) {
-  background: rgba(255, 255, 255, 0.08) !important;
+.sider .ant-menu .ant-menu-item-selected {
+  background: var(--fn-sidebar-item-active-bg) !important;
+  color: var(--fn-sidebar-item-active-text) !important;
+  font-weight: 500;
 }
 
-:deep(.ant-menu-dark .ant-menu-item-selected) {
-  background: rgba(22, 119, 255, 0.22) !important;
+.sider .ant-menu-item .anticon,
+.sider .ant-menu-submenu-title .anticon {
+  color: inherit;
+  font-size: 15px;
 }
 
-.layout-container.theme-green :deep(.ant-menu-dark .ant-menu-item-selected),
-.layout-container.theme-purple :deep(.ant-menu-dark .ant-menu-item-selected) {
-  background: var(--accent-soft) !important;
+.sider .ant-menu .ant-menu-submenu-arrow {
+  color: var(--fn-text-tertiary) !important;
 }
 
-.header {
-  background: var(--header-bg) !important;
-  border-bottom: 1px solid var(--header-border);
-  padding: 0 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 64px;
+/* ---------- 侧栏底部：工具行 + 用户区 ---------- */
+.sider-bottom {
   flex-shrink: 0;
-  z-index: 9;
-  line-height: 64px;
+  border-top: 1px solid var(--fn-sidebar-border);
+  padding: 6px 8px 8px;
 }
 
-:deep(.ant-layout-header) {
-  background: var(--header-bg) !important;
-  border-bottom: 1px solid var(--header-border);
-  padding: 0 24px;
-  height: 64px;
-  line-height: 64px;
-}
-
-.header-left {
+.sider-tools {
   display: flex;
   align-items: center;
+  gap: 2px;
+  padding: 0 2px 6px;
 }
 
 .trigger {
-  font-size: 18px;
-  padding: 0 12px 0 0;
-  cursor: pointer;
-  transition: color 0.2s;
+  font-size: 16px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
-  height: 64px;
-}
-
-.breadcrumb {
-  margin-left: 8px;
-}
-
-:deep(.ant-breadcrumb),
-:deep(.ant-breadcrumb a),
-:deep(.ant-breadcrumb .ant-breadcrumb-link) {
-  color: var(--text-muted);
-}
-
-:deep(.ant-breadcrumb span:last-child),
-:deep(.ant-breadcrumb .ant-breadcrumb-link:last-child) {
-  color: var(--text-strong);
-}
-
-:deep(.ant-breadcrumb-separator) {
-  color: rgba(0, 0, 0, 0.25);
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.header-icon {
-  font-size: 18px;
+  justify-content: center;
+  border-radius: var(--fn-radius-sm);
+  color: var(--fn-text-secondary);
   cursor: pointer;
-  padding: 8px;
-  border-radius: 6px;
-  transition: color 0.2s, background 0.2s;
+  transition: color var(--fn-transition), background var(--fn-transition);
 }
 
-.header-icon:hover {
-  background: rgba(0, 0, 0, 0.04);
+.trigger:hover {
+  color: var(--fn-color-brand);
+  background: var(--fn-bg-hover);
+}
+
+.tool-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--fn-radius-sm);
+  font-size: 16px;
+  color: var(--fn-text-secondary) !important;
+  transition: color var(--fn-transition), background var(--fn-transition);
+}
+
+.tool-btn:hover {
+  color: var(--fn-color-brand) !important;
+  background: var(--fn-bg-hover) !important;
+}
+
+.bell-btn {
+  font-size: 16px;
+  padding: 6px;
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  cursor: pointer;
   gap: 8px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: background 0.2s;
+  padding: 6px 8px;
+  border-radius: var(--fn-radius-md);
+  cursor: pointer;
+  transition: background var(--fn-transition);
 }
 
 .user-info:hover {
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--fn-sidebar-item-hover);
 }
 
 .user-name {
-  font-size: 14px;
+  font-size: 13px;
+  color: var(--fn-text-primary);
   max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* 折叠态：logo 与底部工具居中 */
+.sider.ant-layout-sider-collapsed .logo {
+  justify-content: center;
+  padding: 0;
+}
+
+.sider.ant-layout-sider-collapsed .logo-wrapper {
+  margin-right: 0;
+}
+
+.sider.ant-layout-sider-collapsed .sider-tools {
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sider.ant-layout-sider-collapsed .user-info {
+  justify-content: center;
+  padding: 6px 0;
+}
+
+/* 折叠态：不动 margin/padding/width（保住图标居中），只补上胶囊圆角 */
+.sider .ant-menu-inline-collapsed > .ant-menu-item,
+.sider .ant-menu-inline-collapsed > .ant-menu-submenu > .ant-menu-submenu-title {
+  border-radius: var(--fn-radius-md);
+}
+
+/* ---------- 右侧内容区 ---------- */
 .content {
   margin: 16px;
   overflow: initial;
@@ -195,105 +258,21 @@
   flex-direction: column;
 }
 
-:deep(.ant-layout-content) {
-  background: transparent !important;
-}
-
 .content-wrapper {
   flex: 1;
   padding: 24px;
-  background: var(--content-surface);
-  border: 1px solid var(--content-border);
-  border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  color: var(--text-strong);
+  background: var(--fn-bg-container);
+  border: 1px solid var(--fn-border-secondary);
+  border-radius: var(--fn-radius-md);
+  box-shadow: var(--fn-shadow-xs);
+  color: var(--fn-text-primary);
   overflow: auto;
 }
 
-.footer {
-  text-align: center;
-  padding: 16px 24px;
-  background: var(--page-bg);
-  margin-top: 0;
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
-}
-
-:deep(.ant-layout-footer) {
-  background: transparent !important;
-  color: var(--footer-text);
-  padding: 16px 24px;
-}
-
-.footer-content {
-  color: var(--footer-text);
-  font-size: 13px;
-}
-
-.menu-wrapper {
-  flex: 1;
-  height: calc(100% - 64px);
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.menu-wrapper::-webkit-scrollbar {
-  width: 6px;
-}
-
-.menu-wrapper::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb, rgba(255, 255, 255, 0.2));
-  border-radius: 3px;
-}
-
-.menu-wrapper::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover, rgba(255, 255, 255, 0.28));
-}
-
-:deep(.theme-switch-button) {
-  color: var(--text-muted) !important;
-}
-
-:deep(.theme-switch-button:hover) {
-  color: var(--accent) !important;
-  background: rgba(0, 0, 0, 0.04) !important;
-}
-
-.page-mode-option {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-width: 140px;
-}
-
-.page-mode-check {
-  color: var(--accent);
-  margin-left: 8px;
-}
-
-@media (max-width: 768px) {
-  .sider {
-    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.12);
-  }
-
-  .header {
-    padding: 0 12px;
-  }
-
-  .content {
-    margin: 12px 8px;
-  }
-
-  .content-wrapper {
-    padding: 16px;
-  }
-}
-
-/* 标签页导航样式 */
+/* ---------- 标签页导航 ---------- */
 .tab-navigation {
-  background: var(--content-surface);
-  border-bottom: 1px solid var(--content-border);
+  background: var(--fn-bg-container);
+  border-bottom: 1px solid var(--fn-border-secondary);
   padding: 8px 16px 0;
   margin-bottom: 0;
   flex-shrink: 0;
@@ -310,10 +289,10 @@
   display: flex;
   align-items: center;
   padding: 8px 16px;
-  background: var(--content-surface);
-  border: 1px solid var(--content-border);
+  background: var(--fn-bg-container);
+  border: 1px solid var(--fn-border-secondary);
   border-bottom: none;
-  border-radius: 8px 8px 0 0;
+  border-radius: var(--fn-radius-md) var(--fn-radius-md) 0 0;
   cursor: pointer;
   transition: all 0.2s;
   flex: 0 1 140px;
@@ -324,24 +303,24 @@
 }
 
 .tab-item:hover {
-  background: var(--hover-bg);
+  background: var(--fn-bg-secondary);
   z-index: 1;
 }
 
 .tab-item.active {
-  background: var(--page-bg);
-  border-bottom: 1px solid var(--page-bg);
+  background: var(--fn-bg-layout);
+  border-bottom: 1px solid var(--fn-bg-layout);
   z-index: 2;
 }
 
 .tab-item.active .tab-title {
-  color: #000000;
+  color: var(--fn-color-brand);
   font-weight: 500;
 }
 
 .tab-title {
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--fn-text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -361,7 +340,7 @@
 }
 
 .tab-close:hover {
-  background: rgba(0, 0, 0, 0.1);
+  background: var(--fn-bg-active);
 }
 
 .tab-action {
@@ -374,25 +353,44 @@
   opacity: 1;
 }
 
-.tab-content {
-  min-height: calc(100vh - 64px - 48px - 57px - 32px);
-}
-
-.tab-pane {
-  width: 100%;
-  height: 100%;
-}
-
 /* 隐藏滚动条但保持功能 */
 .tab-list::-webkit-scrollbar {
   height: 4px;
 }
 
 .tab-list::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb, rgba(0, 0, 0, 0.2));
+  background: var(--scrollbar-thumb, rgba(0, 0, 0, 0.15));
   border-radius: 2px;
 }
 
 .tab-list::-webkit-scrollbar-track {
   background: transparent;
+}
+
+/* ---------- 页模式切换菜单（弹层内容） ---------- */
+.page-mode-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 140px;
+}
+
+.page-mode-check {
+  color: var(--accent);
+  margin-left: 8px;
+}
+
+/* ---------- 窄窗口降级 ---------- */
+@media (max-width: 768px) {
+  .sider {
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .content {
+    margin: 12px 8px;
+  }
+
+  .content-wrapper {
+    padding: 16px;
+  }
 }

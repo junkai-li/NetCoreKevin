@@ -1,340 +1,364 @@
 <template>
   <div class="ai-chat-container">
-    <!-- 粒子背景 -->
-    <div class="particles-bg">
-      <div v-for="(style, i) in particleStyles" :key="'p'+i" class="particle" :style="style"></div>
-    </div>
-
-    <div class="chat-layout">
-      <!-- 左侧对话列表 -->
+    <div class="chat-page">
+      <!-- 左侧对话列表（Octop 侧栏式：紧凑行 + hover ⋮ 菜单） -->
       <div class="chat-sidebar">
-        <div class="sidebar-header">
-          <div class="sidebar-title-group">
-            <div class="sidebar-icon">
-              <span class="icon-pulse"></span>
-              <MessageOutlined />
-            </div>
-            <h3>对话中心</h3>
-          </div>
-          <a-button
-            type="primary"
-            @click="() => showAgentSelectionModal()"
-            size="small"
-            class="add-button"
-            :disabled="isSending"
-          >
-            <template #icon>
-              <PlusOutlined />
-            </template>
-            新建对话
-          </a-button>
+        <div class="session-header">
+          <h3 class="session-title">对话中心</h3>
+          <button class="session-add-btn" title="新建对话" @click="() => showAgentSelectionModal()">
+            <PlusOutlined />
+          </button>
         </div>
-        <div class="conversation-list">
-          <a-list
-            :data-source="conversations"
-            :loading="loadingConversations"
-            :pagination="false"
-          >
-            <template #renderItem="{ item }">
-              <a-list-item
-                class="conversation-item"
-                :class="{ active: item.id === activeConversationId, disabled: isSending }"
-                @click="!isSending && selectConversation(item)"
-              >
-                <div class="conversation-content">
-                  <div class="conversation-title">{{ item.title || "新对话" }}</div>
-                  <div class="conversation-preview">
-                    {{ item.lastMessage || "开始新的对话..." }}
-                  </div>
-                  <div class="conversation-time">
-                    {{ formatDate(item.updatedAt) }}
-                  </div>
+        <div class="session-list">
+          <div v-if="loadingConversations" class="session-loading">加载对话中…</div>
+          <template v-else>
+            <div
+              v-for="item in sortedConversations"
+              :key="item.id"
+              class="session-row"
+              :class="{ active: item.id === activeConversationId }"
+              @click="selectConversation(item)"
+            >
+              <template v-if="renamingId === item.id">
+                <input
+                  class="session-name-input"
+                  v-model="renameDraft"
+                  @click.stop
+                  @keyup.enter="commitSessionRename"
+                  @keyup.esc="renamingId = null"
+                  @blur="commitSessionRename"
+                />
+              </template>
+              <template v-else>
+                <div class="session-row-title">
+                  <PushpinFilled v-if="pinnedIds.includes(item.id)" class="session-row-pin" />
+                  <span class="session-row-text">{{ item.title || "新对话" }}</span>
                 </div>
-                <div class="conversation-actions" @click.stop>
-                  <a-button
-                    type="text"
-                    class="delete-btn"
-                    @click="(event) => deleteConversation(item.id, event)"
-                  >
-                    <template #icon>
-                      <DeleteOutlined />
-                    </template>
-                  </a-button>
-                </div>
-              </a-list-item>
-            </template>
-            <template #renderEmpty>
-              <div class="empty-conversations">
-                <a-empty description="暂无对话记录" />
-              </div>
-            </template>
-          </a-list>
+                <a-dropdown :trigger="['click']" placement="bottomRight">
+                  <button class="session-row-more" @click.stop aria-label="更多操作">
+                    <MoreOutlined />
+                  </button>
+                  <template #overlay>
+                    <a-menu @click="({ key }) => onSessionMenu(key, item)">
+                      <a-menu-item key="pin">{{ pinnedIds.includes(item.id) ? '取消置顶' : '置顶' }}</a-menu-item>
+                      <a-menu-item key="rename">重命名</a-menu-item>
+                      <a-menu-item key="delete">删除对话</a-menu-item>
+                    </a-menu>
+                  </template>
+                </a-dropdown>
+              </template>
+            </div>
+            <div v-if="conversations.length === 0" class="session-empty">暂无对话，点右上角 + 开始</div>
+          </template>
         </div>
       </div>
 
-      <!-- 右侧聊天区域 -->
+      <!-- 右侧聊天区（Octop 式：标题栏 + 960 中轴列） -->
       <div class="chat-main">
-        <div class="chat-header" v-if="activeConversation">
-          <div class="header-left">
-            <div>
-              <div class="agent-info" v-if="activeConversation.appId">
-                <div class="ai-robot-mini">
-                  <div class="robot-head-mini">
-                    <div class="robot-eye-left-mini"></div>
-                    <div class="robot-eye-right-mini"></div>
-                    <div class="robot-mouth-mini"></div>
-                  </div>
-                  <div class="robot-antenna-mini">
-                    <div class="antenna-dot-mini"></div>
-                  </div>
-                </div>
-                <span>{{ getAiAppName(activeConversation.appId) }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="header-status">
-            <span class="status-dot"></span>
-            <span class="status-text">在线</span>
-          </div>
-        </div>
-
-        <div class="chat-messages" ref="messagesContainer" v-if="activeConversation" @click="handleMessageImgClick">
-          <div
-            v-for="message in messages"
-            :key="message.id"
-            class="message-item"
-            :class="{
-              'user-message': message.isSend === true,
-              'ai-message': message.isSend === false,
-            }"
-          >
-            <div class="message-avatar" :class="{ 'avatar-ai': message.isSend === false, 'avatar-user': message.isSend === true }">
-              <!-- antd 图标集里没有实心人像（只有细线条的 UserOutlined），小尺寸下发虚，所以自己画一个填充式头像 -->
-              <svg v-if="message.isSend === true" class="avatar-user-glyph" viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="7" r="4" fill="currentColor" />
-                <path d="M3.6 20.2c0-4.3 3.77-7.2 8.4-7.2s8.4 2.9 8.4 7.2z" fill="currentColor" />
-              </svg>
-              <div v-else class="ai-robot-mini">
-                <div class="robot-head-mini">
-                  <div class="robot-eye-left-mini"></div>
-                  <div class="robot-eye-right-mini"></div>
-                  <div class="robot-mouth-mini"></div>
-                </div>
-                <div class="robot-antenna-mini">
-                  <div class="antenna-dot-mini"></div>
-                </div>
-              </div>
-            </div>
-            <div class="message-content">
-              <!-- 气泡和复制键包成一行：复制键以气泡为锚点（用户挂左侧、AI 挂右上），不会被同列里更宽的元素甩开 -->
-              <div class="message-bubble-line">
-                <!-- 非语音模式：文字正常显示 -->
-                <!-- AI 消息 content 是原始 markdown（含 ![generated](url) 文生图链接），走 renderMarkdown 转 HTML 后 v-html 渲染；用户消息保持原样 -->
-                <div class="message-text" v-if="message.isSend === false && !isVoiceMode" v-html="renderMarkdown(message.content)"></div>
-                <div class="message-text" v-else-if="message.isSend === true" v-html="message.content"></div>
-                <!-- 工具条：默认每个图标 hover 才出现，失败时的 ⚠ / ⟳ 另外常显（见 MyAIChat.css） -->
-                <div class="message-actions">
-                  <a-button
-                    type="text"
-                    size="small"
-                    @click="copyMessageContent(message.content)"
-                    class="copy-button">
-                    <template #icon>
-                      <CopyOutlined />
-                    </template>
-                  </a-button>
-                  <a-tooltip
-                    v-if="isMsgFailed(message)"
-                    :title="`发送失败：${failReasonBrief(message.failReason, 140)}`"
-                    :overlay-style="{ maxWidth: '420px' }">
-                    <a-button
-                      type="text"
-                      danger
-                      size="small"
-                      class="fail-detail-button"
-                      @click="showFailDetail(message)">
-                      <template #icon>
-                        <ExclamationCircleFilled />
-                      </template>
-                    </a-button>
-                  </a-tooltip>
-                  <a-tooltip v-if="isMsgFailed(message)" :title="retryTitle(message)">
-                    <a-button
-                      type="text"
-                      danger
-                      size="small"
-                      class="retry-button"
-                      :loading="retryingMsgId === message.id"
-                      @click="retryMessage(message)">
-                      <template #icon>
-                        <RedoOutlined />
-                      </template>
-                    </a-button>
-                  </a-tooltip>
-                </div>
-              </div>
-              <!-- AI 语音条 -->
-              <div
-                v-if="isVoiceMode && message.isSend === false && message.content"
-                class="voice-msg-bar"
-              >
-                <div class="voice-msg-left" @click.stop="playAIVoice(message)">
-                  <SoundOutlined class="voice-msg-icon" />
-                  <div :class="['voice-msg-wave', { playing: isSpeaking && currentSpeakingMsgId === message.id }]">
-                    <span v-for="i in 8" :key="i" class="voice-wave-bar" :style="{ animationDelay: (i * 0.1) + 's' }"></span>
-                  </div>
-                  <span v-if="isSpeaking && currentSpeakingMsgId === message.id" class="voice-msg-duration">播放中...</span>
-                </div>
-              </div>
-              <!-- 语音模式 + 转文字：文字显示在语音条下方 -->
-              <div v-if="isVoiceMode && showTextInVoiceMode && message.isSend === false && message.content" class="message-text voice-expanded-text" v-html="renderMarkdown(message.content)"></div>
-              <a-collapse v-if="message.aiReasoningContent" class="message-collapse" ghost :default-active-key="expandedReasoning ? ['reasoning'] : []">
-                <a-collapse-panel key="reasoning" header="思考过程">
-                  <div class="collapse-content">
-                    <div v-if="message.aiReasoningContent.length > 350">{{ truncateContent(message.aiReasoningContent) }}<a @click="showDetailModal('思考过程详情', message.aiReasoningContent)">点击查看详情</a></div>
-                    <div v-else>{{ message.aiReasoningContent }}</div>
-                  </div>
-                </a-collapse-panel>
-              </a-collapse>
-              <a-collapse v-if="message.aiToolsContent" class="message-collapse" ghost :default-active-key="expandedTools ? ['tools'] : []">
-                <a-collapse-panel key="tools" header="工具调用">
-                  <div class="collapse-content">
-                    <div v-if="message.aiToolsContent.length > 350">{{ truncateContent(message.aiToolsContent) }}<a @click="showDetailModal('工具调用详情', message.aiToolsContent)">点击查看详情</a></div>
-                    <div v-else>{{ message.aiToolsContent }}</div>
-                  </div>
-                </a-collapse-panel>
-              </a-collapse>
-              <a-collapse v-if="message.fileNames && message.contentFileUrls" class="message-collapse" ghost>
-                <a-collapse-panel key="files" header="附件">
-                  <div class="collapse-content file-list-content">
-                    <div v-for="(fileName, index) in message.fileNames.split(',')" :key="index" class="file-item">
-                      <template v-if="isAudioFile(fileName)">
-                        <SoundOutlined />
-                        <audio controls :src="message.contentFileUrls.split(',')[index]" class="audio-player"></audio>
-                        <span class="file-name">{{ fileName }}</span>
-                      </template>
-                      <template v-else>
-                        <FileTextOutlined />
-                        <a :href="message.contentFileUrls.split(',')[index]" target="_blank" class="file-link">
-                          {{ fileName }}
-                        </a>
-                      </template>
-                    </div>
-                  </div>
-                </a-collapse-panel>
-              </a-collapse>
-              <a-collapse v-if="message.aIChatHistorysBindLogs && message.aIChatHistorysBindLogs.length > 0" class="message-collapse" ghost>
-                <a-collapse-panel key="logs" header="AI相关日志">
-                  <div class="collapse-content">
-                    <div v-for="(log, index) in message.aIChatHistorysBindLogs" :key="index" class="log-item">
-                      <span class="log-type-tag">{{ getLogTypeName(log.logType) }}</span>
-                      <template v-if="log.logContent && log.logContent.length > 200">
-                        {{ truncateContent(log.logContent) }}<a @click="showDetailModal('AI相关日志详情', log.logContent)">点击查看详情</a>
-                      </template>
-                      <template v-else>{{ log.logContent }}</template>
-                    </div>
-                  </div>
-                </a-collapse-panel>
-              </a-collapse>
-              <!-- 推荐问题：后端二次问 AI 生成，实时走 recommendmsg 事件、历史从回复记录的绑定日志回显，点一下直接作为一轮提问发送 -->
-              <div v-if="message.isSend === false && message.id === lastAiReplyId && message.recommendQuestions && message.recommendQuestions.length" class="recommend-questions">
-                <span
-                  v-for="(q, qi) in message.recommendQuestions"
-                  :key="qi"
-                  class="recommend-chip"
-                  @click="useRecommendQuestion(q)"
-                >{{ q }}</span>
-              </div>
-              <div class="message-time">
-                {{ formatTime(message.createdAt) }}
-                <span v-if="message.totalTokenCount" class="token-count">消耗: {{ formatTokenCount(message.totalTokenCount) }} tokens</span>
-                <span v-if="tokenDetail(message)" class="token-count token-detail">{{ tokenDetail(message) }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div v-if="isSending" class="message-item ai-message">
-            <div class="message-avatar avatar-ai">
-              <div class="ai-robot-mini thinking">
-                <div class="robot-head-mini">
-                  <div class="robot-eye-left-mini"></div>
-                  <div class="robot-eye-right-mini"></div>
-                  <div class="robot-mouth-mini"></div>
-                </div>
-                <div class="robot-antenna-mini">
-                  <div class="antenna-dot-mini"></div>
-                </div>
-              </div>
-            </div>
-            <div class="message-content">
-              <div class="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-              <!-- 流式中的回复也包一层 .message-bubble-line，跟说完的气泡走同一套宽度/长词换行规则 -->
-              <!-- 流式期间也走 renderMarkdown，让文生图 markdown 链接一到达就能实时渲染成 <img>，不用等流结束 -->
-              <div v-if="isSending && (!isVoiceMode || showTextInVoiceMode)" class="message-bubble-line">
-                <div class="message-text message-text-stream" v-html="renderMarkdown(aimessage2)"></div>
-              </div>
-              <!-- 流式播放中的语音条 -->
-              <div v-if="isVoiceMode && isSpeaking && streamingTtsActive" class="voice-msg-bar voice-msg-bar-streaming">
-                <div class="voice-msg-left">
-                  <SoundOutlined class="voice-msg-icon" />
-                  <div class="voice-msg-wave playing">
-                    <span v-for="i in 8" :key="i" class="voice-wave-bar" :style="{ animationDelay: (i * 0.1) + 's' }"></span>
-                  </div>
-                  <span class="voice-msg-duration">播放中...</span>
-                </div>
-              </div>
-              <div class="message-time stream-status">{{ aimessage}}</div>
-                <a-collapse v-model:active-key="reasoningActiveKey" class="message-collapse" ghost v-if="aIReasoningContentMsg">
-                <a-collapse-panel key="reasoning" header="思考过程">
-                  <div class="collapse-content">
-                    <div v-if="aIReasoningContentMsg.length > 350">{{ truncateContent(aIReasoningContentMsg) }}<a @click="showDetailModal('思考过程详情', aIReasoningContentMsg)">点击查看详情</a></div>
-                    <div v-else>{{ aIReasoningContentMsg }}</div>
-                  </div>
-                </a-collapse-panel>
-              </a-collapse>
-              <a-collapse v-model:active-key="toolsActiveKey" class="message-collapse" ghost v-if="aIToolsContentMsg">
-                <a-collapse-panel key="tools" header="工具调用">
-                  <div class="collapse-content">
-                    <div v-if="aIToolsContentMsg.length > 350">{{ truncateContent(aIToolsContentMsg) }}<a @click="showDetailModal('工具调用详情', aIToolsContentMsg)">点击查看详情</a></div>
-                    <div v-else>{{ aIToolsContentMsg }}</div>
-                  </div>
-                </a-collapse-panel>
-              </a-collapse>
-            </div>
-          </div>
-        </div>
-
-        <div class="chat-input-area" v-if="activeConversation">
-          <div class="input-group">
-            <!-- 文字输入框（仅语音模式关闭时显示） -->
-            <a-textarea
-              v-if="!isVoiceMode"
-              v-model:value="newMessage"
-              :placeholder="'输入消息...'"
-              class="message-input"
-              @pressEnter="handlePressEnter"
-              :disabled="isSending"
-              :auto-size="{ minRows: 3, maxRows: 6 }"
-              allow-clear
+        <div class="chat-title-bar" v-if="activeConversation">
+          <div class="chat-title-left">
+            <template v-if="!titleEditing">
+              <h1 class="chat-title-text">{{ activeConversation.title || "新对话" }}</h1>
+              <button class="chat-title-edit-btn" title="重命名（仅本地生效，刷新后恢复服务端标题）" @click="startTitleEdit">
+                <EditOutlined />
+              </button>
+              <span class="chat-title-agent" v-if="activeConversation.appId">{{ getAiAppName(activeConversation.appId) }}</span>
+            </template>
+            <input
+              v-else
+              ref="titleInputRef"
+              class="chat-title-input"
+              v-model="titleDraft"
+              @keyup.enter="commitTitleRename"
+              @keyup.esc="cancelTitleRename"
+              @blur="commitTitleRename"
             />
-            <!-- 语音模式: 录音预览 + 发送提示 -->
-            <div v-if="isVoiceMode" class="voice-input-area">
-              <!-- 录音中显示识别文字预览 -->
-              <div v-if="isRecording || isRecognizing" class="voice-preview">
-                <span class="voice-preview-label">{{ isRecording ? '录音中...' : '正在识别...' }}</span>
-                <span class="voice-preview-text">{{ recognizedPreviewText || '...' }}</span>
+          </div>
+          <div class="chat-title-right">
+            <a-tooltip title="删除该对话">
+              <button class="chat-title-more-btn" @click="deleteConversation(activeConversation.id)">
+                <DeleteOutlined />
+              </button>
+            </a-tooltip>
+          </div>
+        </div>
+
+        <div class="chat-content">
+          <!-- 欢迎页：未选中对话时展示 -->
+          <div class="welcome" v-if="!activeConversation">
+            <div class="welcome-inner">
+              <div class="welcome-logo"><RobotOutlined /></div>
+              <h2 class="welcome-title">你好，我是 <span class="welcome-agent-mention">AI 助手</span></h2>
+              <p class="welcome-subtitle">新建一个对话，或从左侧选择已有会话开始聊天</p>
+              <a-button type="primary" @click="() => showAgentSelectionModal()" class="welcome-new-chat">
+                <template #icon>
+                  <PlusOutlined />
+                </template>
+                新建对话
+              </a-button>
+              <div class="quick-section" v-if="aiApps.length > 0">
+                <div class="quick-section-title">用智能体开始</div>
+                <div class="quick-cards">
+                  <button
+                    v-for="app in aiApps.slice(0, 6)"
+                    :key="app.value"
+                    class="quick-card"
+                    @click="showAgentSelectionModal(app.value)"
+                  >
+                    <span class="quick-card-icon"><RobotOutlined /></span>
+                    <span class="quick-card-body">
+                      <span class="quick-card-title">{{ app.label }}</span>
+                      <span class="quick-card-desc">与该智能体开启新对话</span>
+                    </span>
+                  </button>
+                </div>
               </div>
-              <!-- 发送后提示 -->
-              <div v-else-if="voiceSentHint" class="voice-sent-hint">
-                <CheckCircleFilled v-if="voiceSentHint.includes('已发送')" class="voice-sent-icon success" />
-                <InfoCircleFilled v-else class="voice-sent-icon warning" />
-                <span>{{ voiceSentHint }}</span>
+            </div>
+          </div>
+
+          <div v-else class="message-list" ref="messagesContainer" @click="handleMessageImgClick">
+            <div v-if="hasMoreMessages" class="history-load-more">
+              <LoadingOutlined v-if="loadingMessages" />
+              <span>{{ loadingMessages ? "正在加载更早的消息…" : "向上滚动加载更早的消息" }}</span>
+            </div>
+            <div class="message-list-inner">
+              <div
+                v-for="message in messages"
+                :key="message.id"
+                class="message-row"
+                :class="message.isSend === true ? 'row-user' : 'row-ai'"
+              >
+                <div class="msg-avatar">
+                  <!-- antd 图标集里没有实心人像，用户头像自己画一个填充式 glyph -->
+                  <svg v-if="message.isSend === true" class="avatar-user-glyph" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="7" r="4" fill="currentColor" />
+                    <path d="M3.6 20.2c0-4.3 3.77-7.2 8.4-7.2s8.4 2.9 8.4 7.2z" fill="currentColor" />
+                  </svg>
+                  <RobotOutlined v-else class="avatar-ai-glyph" />
+                </div>
+                <div class="msg-col">
+                  <div class="msg-bubble" :class="message.isSend === true ? 'bubble-user' : 'bubble-ai'">
+                    <!-- AI 消息 content 是原始 markdown（含 ![generated](url) 文生图链接），走 renderMarkdown 转 HTML 后 v-html 渲染；用户消息保持原样 -->
+                    <div class="msg-text" v-if="message.isSend === false && !isVoiceMode" v-html="renderMarkdown(message.content)"></div>
+                    <div class="msg-text" v-else-if="message.isSend === true" v-html="message.content"></div>
+                  </div>
+                  <!-- AI 语音条 -->
+                  <div
+                    v-if="isVoiceMode && message.isSend === false && message.content"
+                    class="voice-msg-bar"
+                  >
+                    <div class="voice-msg-left" @click.stop="playAIVoice(message)">
+                      <SoundOutlined class="voice-msg-icon" />
+                      <div :class="['voice-msg-wave', { playing: isSpeaking && currentSpeakingMsgId === message.id }]">
+                        <span v-for="i in 8" :key="i" class="voice-wave-bar" :style="{ animationDelay: (i * 0.1) + 's' }"></span>
+                      </div>
+                      <span v-if="isSpeaking && currentSpeakingMsgId === message.id" class="voice-msg-duration">播放中...</span>
+                    </div>
+                  </div>
+                  <!-- 语音模式 + 转文字：文字显示在语音条下方 -->
+                  <div v-if="isVoiceMode && showTextInVoiceMode && message.isSend === false && message.content" class="msg-text voice-expanded-text" v-html="renderMarkdown(message.content)"></div>
+                  <a-collapse v-if="message.aiReasoningContent" class="message-collapse" ghost :default-active-key="expandedReasoning ? ['reasoning'] : []">
+                    <a-collapse-panel key="reasoning" header="思考过程">
+                      <div class="collapse-content">
+                        <div v-if="message.aiReasoningContent.length > 350">{{ truncateContent(message.aiReasoningContent) }}<a @click="showDetailModal('思考过程详情', message.aiReasoningContent)">点击查看详情</a></div>
+                        <div v-else>{{ message.aiReasoningContent }}</div>
+                      </div>
+                    </a-collapse-panel>
+                  </a-collapse>
+                  <a-collapse v-if="message.aiToolsContent" class="message-collapse" ghost :default-active-key="expandedTools ? ['tools'] : []">
+                    <a-collapse-panel key="tools" header="工具调用">
+                      <div class="collapse-content">
+                        <div v-if="message.aiToolsContent.length > 350">{{ truncateContent(message.aiToolsContent) }}<a @click="showDetailModal('工具调用详情', message.aiToolsContent)">点击查看详情</a></div>
+                        <div v-else>{{ message.aiToolsContent }}</div>
+                      </div>
+                    </a-collapse-panel>
+                  </a-collapse>
+                  <a-collapse v-if="message.fileNames && message.contentFileUrls" class="message-collapse" ghost>
+                    <a-collapse-panel key="files" header="附件">
+                      <div class="collapse-content file-list-content">
+                        <div v-for="(fileName, index) in message.fileNames.split(',')" :key="index" class="file-item">
+                          <template v-if="isAudioFile(fileName)">
+                            <SoundOutlined />
+                            <audio controls :src="message.contentFileUrls.split(',')[index]" class="audio-player"></audio>
+                            <span class="file-name">{{ fileName }}</span>
+                          </template>
+                          <template v-else>
+                            <FileTextOutlined />
+                            <a :href="message.contentFileUrls.split(',')[index]" target="_blank" class="file-link">
+                              {{ fileName }}
+                            </a>
+                          </template>
+                        </div>
+                      </div>
+                    </a-collapse-panel>
+                  </a-collapse>
+                  <a-collapse v-if="message.aIChatHistorysBindLogs && message.aIChatHistorysBindLogs.length > 0" class="message-collapse" ghost>
+                    <a-collapse-panel key="logs" header="AI相关日志">
+                      <div class="collapse-content">
+                        <div v-for="(log, index) in message.aIChatHistorysBindLogs" :key="index" class="log-item">
+                          <span class="log-type-tag">{{ getLogTypeName(log.logType) }}</span>
+                          <template v-if="log.logContent && log.logContent.length > 200">
+                            {{ truncateContent(log.logContent) }}<a @click="showDetailModal('AI相关日志详情', log.logContent)">点击查看详情</a>
+                          </template>
+                          <template v-else>{{ log.logContent }}</template>
+                        </div>
+                      </div>
+                    </a-collapse-panel>
+                  </a-collapse>
+                  <!-- 推荐问题：后端二次问 AI 生成，实时走 recommendmsg 事件、历史从回复记录的绑定日志回显，点一下直接作为一轮提问发送 -->
+                  <div v-if="message.isSend === false && message.id === lastAiReplyId && message.recommendQuestions && message.recommendQuestions.length" class="recommend-questions">
+                    <span
+                      v-for="(q, qi) in message.recommendQuestions"
+                      :key="qi"
+                      class="recommend-chip"
+                      @click="useRecommendQuestion(q)"
+                    >{{ q }}</span>
+                  </div>
+                  <!-- hover 操作行：默认隐藏，悬停消息行时出现；失败时的 ⚠ / ⟳ 常显 -->
+                  <div class="msg-actions-row">
+                    <button class="msg-action-btn" title="复制" @click="copyMessageContent(message.content)">
+                      <CopyOutlined />
+                    </button>
+                    <button v-if="message.isSend === true" class="msg-action-btn" title="编辑重发（回填输入框）" @click="quoteMessage(message)">
+                      <EditOutlined />
+                    </button>
+                    <a-tooltip
+                      v-if="isMsgFailed(message)"
+                      :title="`发送失败：${failReasonBrief(message.failReason, 140)}`"
+                      :overlay-style="{ maxWidth: '420px' }">
+                      <button class="msg-action-btn always fail-detail-button" @click="showFailDetail(message)">
+                        <ExclamationCircleFilled />
+                      </button>
+                    </a-tooltip>
+                    <a-tooltip v-if="isMsgFailed(message)" :title="retryTitle(message)">
+                      <button
+                        class="msg-action-btn always retry-button"
+                        :disabled="retryingMsgId === message.id"
+                        @click="retryMessage(message)">
+                        <LoadingOutlined v-if="retryingMsgId === message.id" />
+                        <RedoOutlined v-else />
+                      </button>
+                    </a-tooltip>
+                    <button
+                      v-if="message.isSend === false && message.id === lastAiReplyId && !isSending"
+                      class="msg-action-btn"
+                      title="重新生成"
+                      @click="regenerateLast">
+                      <RedoOutlined />
+                    </button>
+                  </div>
+                  <div class="msg-meta">
+                    {{ formatTime(message.createdAt) }}
+                    <span v-if="message.totalTokenCount" class="token-count">消耗: {{ formatTokenCount(message.totalTokenCount) }} tokens</span>
+                    <span v-if="tokenDetail(message)" class="token-count token-detail">{{ tokenDetail(message) }}</span>
+                  </div>
+                </div>
               </div>
-              <div v-else class="voice-hint-text">按住下方按钮开始说话，说完松开自动发送</div>
+
+              <!-- 流式生成占位：与普通 AI 消息同一套行式结构 -->
+              <div v-if="isSending" class="message-row row-ai">
+                <div class="msg-avatar">
+                  <RobotOutlined class="avatar-ai-glyph thinking" />
+                </div>
+                <div class="msg-col">
+                  <div class="thinking-dots">
+                    <span></span><span></span><span></span>
+                  </div>
+                  <!-- 流式期间也走 renderMarkdown，让文生图 markdown 链接一到达就能实时渲染成 <img>，不用等流结束 -->
+                  <div v-if="isSending && (!isVoiceMode || showTextInVoiceMode) && aimessage2" class="msg-bubble bubble-ai">
+                    <div class="msg-text msg-text-stream" v-html="renderMarkdown(aimessage2)"></div>
+                  </div>
+                  <!-- 流式播放中的语音条 -->
+                  <div v-if="isVoiceMode && isSpeaking && streamingTtsActive" class="voice-msg-bar voice-msg-bar-streaming">
+                    <div class="voice-msg-left">
+                      <SoundOutlined class="voice-msg-icon" />
+                      <div class="voice-msg-wave playing">
+                        <span v-for="i in 8" :key="i" class="voice-wave-bar" :style="{ animationDelay: (i * 0.1) + 's' }"></span>
+                      </div>
+                      <span class="voice-msg-duration">播放中...</span>
+                    </div>
+                  </div>
+                  <div class="msg-meta stream-status">{{ aimessage }}</div>
+                  <a-collapse v-model:active-key="reasoningActiveKey" class="message-collapse" ghost v-if="aIReasoningContentMsg">
+                    <a-collapse-panel key="reasoning" header="思考过程">
+                      <div class="collapse-content">
+                        <div v-if="aIReasoningContentMsg.length > 350">{{ truncateContent(aIReasoningContentMsg) }}<a @click="showDetailModal('思考过程详情', aIReasoningContentMsg)">点击查看详情</a></div>
+                        <div v-else>{{ aIReasoningContentMsg }}</div>
+                      </div>
+                    </a-collapse-panel>
+                  </a-collapse>
+                  <a-collapse v-model:active-key="toolsActiveKey" class="message-collapse" ghost v-if="aIToolsContentMsg">
+                    <a-collapse-panel key="tools" header="工具调用">
+                      <div class="collapse-content">
+                        <div v-if="aIToolsContentMsg.length > 350">{{ truncateContent(aIToolsContentMsg) }}<a @click="showDetailModal('工具调用详情', aIToolsContentMsg)">点击查看详情</a></div>
+                        <div v-else>{{ aIToolsContentMsg }}</div>
+                      </div>
+                    </a-collapse-panel>
+                  </a-collapse>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 等待队列：流式期间不锁输入，新消息先排队，当前回复结束后自动逐条发送 -->
+        <div class="queued-messages" v-if="queuedMessages.length > 0">
+          <div class="queued-label">等待队列 {{ queuedMessages.length }}/{{ QUEUE_MAX_ITEMS }} · 当前回复结束后自动发送</div>
+          <div v-for="(q, qi) in queuedMessages" :key="q.id" class="queued-item">
+            <span class="queued-index">{{ qi + 1 }}</span>
+            <span class="queued-text">{{ q.content }}</span>
+            <span v-if="q.files.length" class="queued-files"><FileTextOutlined /> {{ q.files.length }}</span>
+            <button class="queued-btn" title="取回编辑" @click="reclaimQueued(qi)">
+              <EditOutlined />
+            </button>
+            <button class="queued-btn" title="删除" @click="removeQueued(qi)">
+              <CloseOutlined />
+            </button>
+          </div>
+        </div>
+
+        <div class="chat-input" v-if="activeConversation">
+          <div class="input-wrapper">
+            <div v-if="uploadedFileList.length > 0" class="uploaded-files-bar">
+              <a-tag
+                v-for="(file, index) in uploadedFileList"
+                :key="index"
+                closable
+                @close="removeUploadedFile(index)"
+              >
+                <a :href="file.url" target="_blank" download="{{ file.name }}" class="file-download-link">
+                  <FileTextOutlined />
+                  {{ file.name }}
+                </a>
+              </a-tag>
+            </div>
+            <div class="input-row">
+              <!-- 文字输入框（仅语音模式关闭时显示）；流式期间不再锁定，回车入队 -->
+              <a-textarea
+                v-if="!isVoiceMode"
+                v-model:value="newMessage"
+                :placeholder="isSending ? '输入消息…（生成中，回车加入等待队列）' : '输入消息…'"
+                class="msg-input"
+                @pressEnter="handlePressEnter"
+                :auto-size="{ minRows: 2, maxRows: 6 }"
+                allow-clear
+              />
+              <!-- 语音模式: 录音预览 + 发送提示 -->
+              <div v-if="isVoiceMode" class="voice-input-area">
+                <!-- 录音中显示识别文字预览 -->
+                <div v-if="isRecording || isRecognizing" class="voice-preview">
+                  <span class="voice-preview-label">{{ isRecording ? '录音中...' : '正在识别...' }}</span>
+                  <span class="voice-preview-text">{{ recognizedPreviewText || '...' }}</span>
+                </div>
+                <!-- 发送后提示 -->
+                <div v-else-if="voiceSentHint" class="voice-sent-hint">
+                  <CheckCircleFilled v-if="voiceSentHint.includes('已发送')" class="voice-sent-icon success" />
+                  <InfoCircleFilled v-else class="voice-sent-icon warning" />
+                  <span>{{ voiceSentHint }}</span>
+                </div>
+                <div v-else class="voice-hint-text">按住下方按钮开始说话，说完松开自动发送</div>
+              </div>
             </div>
             <!-- 语音录制按钮（按住说话，松开自动发送） -->
             <div v-if="isVoiceMode" class="voice-recorder-area">
@@ -358,18 +382,17 @@
                 <span class="recording-text">{{ isRecording ? '正在录音...' : '正在识别...' }}</span>
               </div>
             </div>
-            <div class="input-options">
-              <div class="input-options-left">
+            <div class="actions-row">
+              <div class="actions-left">
                 <FileUpload
                   ref="fileUploadRef"
                   business="AIChat"
                   :key-value="activeConversationId || ''"
                   sign="chat"
                   :multiple="true"
-                  :disabled="isSending"
                   :accept="'.txt,.pdf,.md,.docx,.html,.doc,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.bmp,.webp,.svg,.mp3,.wav,.m4a,.ogg,.flac,.aac,.opus,.amr'"
                   :show-upload-list="false"
-                  upload-button-text="上传文件"
+                  upload-button-text=""
                   @upload-success="handleFileUploadSuccess"
                   @upload-error="handleFileUploadError"
                 />
@@ -386,7 +409,7 @@
                   <template #unCheckedChildren>语音模式</template>
                 </a-switch>
                 <!-- 流式输出方式选择：SSE（默认）/ SignalR，药丸分段切换，和左侧开关同高 -->
-                <div class="stream-mode-selector" :class="{ disabled: isSending }">
+                <div class="stream-mode-selector">
                   <span
                     v-for="m in streamModeOptions"
                     :key="m.value"
@@ -419,105 +442,25 @@
                   <template #unCheckedChildren>转文字</template>
                 </a-switch>
               </div>
-              <a-button
-                type="primary"
-                @click="isSending ? stopMessage() : sendMessage()"
-                :disabled="!newMessage.trim() && !isSending && uploadedFileList.length === 0"
-                :class="['send-button', { stopping: isSending }]"
-              >
-                <template #icon>
-                  <SendOutlined v-if="!isSending" />
-                  <StopOutlined v-else />
-                </template>
-              </a-button>
-            </div>
-            <div v-if="uploadedFileList.length > 0" class="uploaded-files-bar">
-              <a-tag
-                v-for="(file, index) in uploadedFileList"
-                :key="index"
-                closable
-                @close="removeUploadedFile(index)"
-              >
-                <a :href="file.url" target="_blank" download="{{ file.name }}" class="file-download-link">
-                  <FileTextOutlined />
-                  {{ file.name }}
-                </a>
-              </a-tag>
-            </div>
-          </div>
-        </div>
-
-        <div class="chat-placeholder" v-else>
-          <!-- AI 机器人动画 -->
-          <div class="ai-robot">
-            <div class="robot-body">
-              <!-- 天线 -->
-              <div class="robot-antenna">
-                <div class="antenna-line"></div>
-                <div class="antenna-dot">
-                  <div class="antenna-glow"></div>
-                </div>
-              </div>
-              <!-- 头部 -->
-              <div class="robot-head">
-                <div class="head-top-bar"></div>
-                <div class="robot-face">
-                  <div class="robot-eye left-eye">
-                    <div class="eye-glow"></div>
-                  </div>
-                  <div class="robot-eye right-eye">
-                    <div class="eye-glow"></div>
-                  </div>
-                  <div class="robot-mouth">
-                    <div class="mouth-wave"></div>
-                  </div>
-                </div>
-                <div class="head-ear left-ear"></div>
-                <div class="head-ear right-ear"></div>
-              </div>
-              <!-- 脖子 -->
-              <div class="robot-neck">
-                <div class="neck-ring"></div>
-              </div>
-              <!-- 身体 -->
-              <div class="robot-torso">
-                <div class="torso-core">
-                  <div class="core-ring core-ring-1"></div>
-                  <div class="core-ring core-ring-2"></div>
-                  <div class="core-center"></div>
-                </div>
-                <div class="torso-chest-line"></div>
-                <div class="torso-chest-line line-2"></div>
-              </div>
-              <!-- 手臂 -->
-              <div class="robot-arm left-arm">
-                <div class="arm-upper"></div>
-                <div class="arm-lower"></div>
-                <div class="arm-hand"></div>
-              </div>
-              <div class="robot-arm right-arm">
-                <div class="arm-upper"></div>
-                <div class="arm-lower"></div>
-                <div class="arm-hand"></div>
-              </div>
-              <!-- 底座/悬浮环 -->
-              <div class="robot-base">
-                <div class="base-ring"></div>
-                <div class="base-ring base-ring-2"></div>
+              <div class="actions-right">
+                <a-button v-if="isSending" class="stop-btn" title="停止生成" @click="stopMessage()">
+                  <template #icon>
+                    <StopOutlined />
+                  </template>
+                </a-button>
+                <a-button
+                  type="primary"
+                  class="send-btn"
+                  @click="sendMessage()"
+                  :disabled="!newMessage.trim()"
+                  :title="isSending ? '加入等待队列' : '发送'"
+                >
+                  <template #icon>
+                    <SendOutlined />
+                  </template>
+                </a-button>
               </div>
             </div>
-            <!-- 机器人底部的光效 -->
-            <div class="robot-hover-glow"></div>
-          </div>
-          <div class="placeholder-content">
-            <p class="placeholder-title">你好，我是 AI 助手</p>
-            <p class="placeholder-sub">选择一个对话或创建新对话，开始我们的智能之旅</p>
-            <a-button type="primary" @click="() => showAgentSelectionModal()" class="add-button-large" :disabled="isSending">
-              <template #icon>
-                <PlusOutlined />
-              </template>
-              新建对话
-            </a-button>
           </div>
         </div>
 
@@ -618,7 +561,7 @@
     </Teleport>
 
     <!-- AI 气泡里 markdown 图片的预览控制器：v-html 生成的 <img> 没有 Vue 实例绑事件，
-         改由 .chat-messages 事件委托捕获 IMG 点击 → 更新 previewImageUrl + previewVisible →
+         改由 .message-list 事件委托捕获 IMG 点击 → 更新 previewImageUrl + previewVisible →
          这个隐藏的 <a-image> 通过 preview.visible 双向绑定弹出 ant-design-vue 的图片预览遮罩（自带缩放/旋转/下载）。 -->
     <a-image
       :src="previewImageUrl"
@@ -636,7 +579,6 @@ import { ref, onMounted, nextTick, watch, h, onUnmounted, computed } from "vue";
 import {
   PlusOutlined,
   RobotOutlined,
-  MessageOutlined,
   DeleteOutlined,
   CopyOutlined,
   LoadingOutlined,
@@ -650,6 +592,10 @@ import {
   PhoneOutlined,
   RedoOutlined,
   ExclamationCircleFilled,
+  EditOutlined,
+  MoreOutlined,
+  PushpinFilled,
+  CloseOutlined,
 } from "@ant-design/icons-vue";
 import FileUpload from "../../components/FileUpload.vue";
 import { message, Modal, Select } from "ant-design-vue";
@@ -691,13 +637,13 @@ const previewImageUrl = ref('');
 
 /**
  * 消息列表点击事件委托：v-html 注入的 <img> 没有 Vue 实例绑事件，只能靠父容器捕获冒泡。
- * 只在 .message-text 里的 img 上触发（避开头像、内嵌 SVG 图标等其他 img），
+ * 只在 .msg-text 里的 img 上触发（避开头像、内嵌 SVG 图标等其他 img），
  * 命中后把 src 塞进 previewImageUrl 并打开预览遮罩。
  */
 const handleMessageImgClick = (e) => {
   const img = e.target;
   if (!img || img.tagName !== 'IMG') return;
-  if (!img.closest('.message-text')) return;
+  if (!img.closest('.msg-text')) return;
   previewImageUrl.value = img.currentSrc || img.src;
   previewVisible.value = true;
 };
@@ -711,16 +657,6 @@ const newMessage = ref("");
 const loadingConversations = ref(false);
 const isSending = ref(false);
 const messagesContainer = ref(null);
-
-// 粒子背景样式预计算（避免每次渲染 Math.random() 触发 Vue 重算）
-const particleStyles = Array.from({ length: 30 }, () => ({
-  left: (Math.random() * 100) + '%',
-  top: (Math.random() * 100) + '%',
-  animationDelay: (Math.random() * 5) + 's',
-  animationDuration: (3 + Math.random() * 6) + 's',
-  width: (2 + Math.random() * 3) + 'px',
-  height: (2 + Math.random() * 3) + 'px',
-}));
 const aimessage=ref("");
 const aimessage2=ref("");
 const aIToolsContentMsg=ref("");
@@ -1570,13 +1506,7 @@ const unlockSpeechSynthesis = () => {
 };
 const getBestChineseVoice = () => {
   if (cachedBestVoice) return cachedBestVoice;
-  const voices = window.speechSynthesis.getVoices();
-
-  // 打印可用语音用于调试
-  console.log('[TTS] 可用语音列表:');
-  voices.forEach((v) => {
-    console.log(`  - "${v.name}" lang=${v.lang} local=${v.localService}`);
-  });
+  const voices = window.speechSynthesis.getVoices();  
 
   // 只选择普通话语音（严格排除粤语/台湾/繁体）
   const mandarinVoices = voices.filter((v) => {
@@ -1588,10 +1518,7 @@ const getBestChineseVoice = () => {
     if (lang === 'zh-cn' || lang === 'cmn-hans-cn') return true;
     // 其他 zh-* 只在明确排除了粤语的情况下才接受
     return lang.startsWith('zh') && !lang.includes('hk') && !lang.includes('tw');
-  });
-
-  console.log('[TTS] 筛选后普通话语音:', mandarinVoices.map(v => `${v.name} (${v.lang})`));
-
+  }); 
   if (mandarinVoices.length === 0) {
     console.warn('[TTS] 未找到任何普通话语音！将使用 utterance.lang 让浏览器自动选择');
     cachedBestVoice = null;
@@ -2424,6 +2351,11 @@ const getAiAppName = (appId) => {
 
 // 选择对话
 const selectConversation = async (conversation) => {
+  // 流式回复直接落在当前消息列表上（本后端没有按会话独立的流），生成中切换会让回复串台
+  if (isSending.value) {
+    message.warning('回复生成中，请等待完成或先停止生成');
+    return;
+  }
   activeConversationId.value = conversation.id;
   activeConversation.value = conversation;
 
@@ -2559,8 +2491,13 @@ const handlePressEnter = (e) => {
 
 // 发送消息
 const sendMessage = async () => {
-  if (!newMessage.value.trim() || isSending.value) return;
+  if (!newMessage.value.trim()) return;
   const messageToSend = newMessage.value.trim();
+  // 对齐 Octop：流式期间不锁输入，新消息先进等待队列，当前回复结束后再逐条发出
+  if (isSending.value) {
+    enqueueMessage(messageToSend);
+    return;
+  }
   const currentFileNames = [...pendingFileNames.value];
   const currentFileUrls = [...pendingFileUrls.value];
   clearUploadedFiles();
@@ -3111,28 +3048,6 @@ const stopMessage = () => {
 }
 
 
-// 格式化日期
-const formatDate = (dateString) => {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  const now = new Date();
-
-  const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const currentDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const diffTime = currentDate - targetDate;
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) {
-    return "今天";
-  } else if (diffDays === 1) {
-    return "昨天";
-  } else if (diffDays <= 7) {
-    return `${diffDays}天前`;
-  } else {
-    return date.toLocaleDateString("zh-CN");
-  }
-}; 
-
 const formatTime = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -3204,9 +3119,138 @@ onUnmounted(() => {
   connectionServer?.stop();
 });
 
+// ===== Octop 式交互扩展：等待队列 / 本地置顶重命名 / 重新生成 / 引用重发 =====
+
+// 流式期间的等待队列（与 Octop CHAT_QUEUE_MAX_ITEMS 对齐，上限 10 条）
+const QUEUE_MAX_ITEMS = 10;
+const queuedMessages = ref([]);
+
+const enqueueMessage = (text) => {
+  if (queuedMessages.value.length >= QUEUE_MAX_ITEMS) {
+    message.warning(`等待队列最多 ${QUEUE_MAX_ITEMS} 条，请等当前回复完成后再发`);
+    return;
+  }
+  queuedMessages.value.push({
+    id: Date.now(),
+    content: text,
+    files: [...uploadedFileList.value],
+    fileNames: [...pendingFileNames.value],
+    fileUrls: [...pendingFileUrls.value],
+  });
+  newMessage.value = "";
+  clearUploadedFiles();
+};
+
+const removeQueued = (index) => {
+  queuedMessages.value.splice(index, 1);
+};
+
+// 取回：队首项回到输入框与附件区，继续编辑
+const reclaimQueued = (index) => {
+  const [q] = queuedMessages.value.splice(index, 1);
+  if (!q) return;
+  newMessage.value = q.content;
+  uploadedFileList.value = [...q.files];
+  pendingFileNames.value = [...q.fileNames];
+  pendingFileUrls.value = [...q.fileUrls];
+};
+
+// 当前回复结束（成功/失败/停止）后自动放行队首；用户正在编辑草稿时让位，等下一次空闲
+watch(isSending, (sending) => {
+  if (sending || !queuedMessages.value.length) return;
+  if (newMessage.value.trim()) return;
+  const [q] = queuedMessages.value.splice(0, 1);
+  newMessage.value = q.content;
+  uploadedFileList.value = [...q.files];
+  pendingFileNames.value = [...q.fileNames];
+  pendingFileUrls.value = [...q.fileUrls];
+  sendMessage();
+});
+
+// 本地置顶（后端无 pin 接口，仅影响当前会话内的列表顺序，刷新后恢复）
+const pinnedIds = ref([]);
+const sortedConversations = computed(() =>
+  [...conversations.value].sort((a, b) => {
+    const pa = pinnedIds.value.includes(a.id) ? 1 : 0;
+    const pb = pinnedIds.value.includes(b.id) ? 1 : 0;
+    if (pa !== pb) return pb - pa;
+    return new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime();
+  })
+);
+
+const togglePin = (id) => {
+  const i = pinnedIds.value.indexOf(id);
+  if (i === -1) pinnedIds.value.push(id);
+  else pinnedIds.value.splice(i, 1);
+};
+
+// 会话行内重命名（后端无 Update/rename 接口，仅本地生效，刷新后恢复服务端标题）
+const renamingId = ref(null);
+const renameDraft = ref("");
+
+const commitSessionRename = () => {
+  const target = conversations.value.find((c) => c.id === renamingId.value);
+  const text = renameDraft.value.trim();
+  if (target && text) target.title = text;
+  renamingId.value = null;
+};
+
+const onSessionMenu = (key, item) => {
+  if (key === "pin") togglePin(item.id);
+  else if (key === "rename") {
+    renamingId.value = item.id;
+    renameDraft.value = item.title || "";
+  } else if (key === "delete") deleteConversation(item.id);
+};
+
+// 标题栏重命名：与行内重命名同一套本地降级语义
+const titleEditing = ref(false);
+const titleDraft = ref("");
+const titleInputRef = ref(null);
+
+const startTitleEdit = () => {
+  if (!activeConversation.value) return;
+  titleDraft.value = activeConversation.value.title || "";
+  titleEditing.value = true;
+  nextTick(() => titleInputRef.value?.focus());
+};
+
+const cancelTitleRename = () => {
+  titleEditing.value = false;
+};
+
+const commitTitleRename = () => {
+  if (!titleEditing.value) return;
+  const text = titleDraft.value.trim();
+  if (text && activeConversation.value) {
+    activeConversation.value.title = text;
+    const c = conversations.value.find((x) => x.id === activeConversationId.value);
+    if (c) c.title = text;
+  }
+  titleEditing.value = false;
+};
+
+// 重新生成：最后一条 AI 回复就地去掉它，再重试配对的那条提问（复用 retryMessage 的 retryOfId 链路）
+const regenerateLast = () => {
+  if (isSending.value || retryingMsgId.value) return;
+  const idx = messages.value.length - 1;
+  const aiMsg = messages.value[idx];
+  if (!aiMsg || aiMsg.isSend !== false) return;
+  const userMsg = messages.value[idx - 1];
+  if (!userMsg || userMsg.isSend !== true) return;
+  messages.value.splice(idx, 1);
+  retryMessage(userMsg);
+};
+
+// 引用重发：把用户提问回填输入框，作为新一轮发送（后端无编辑/fork 能力，不改历史）
+const quoteMessage = (msg) => {
+  if (msg.isSend !== true) return;
+  newMessage.value = msg.content;
+};
+
 // 删除对话
 const deleteConversation = async (conversationId, event) => {
-  event.stopPropagation(); // 阻止事件冒泡，避免触发选择对话
+  event?.stopPropagation?.(); // 阻止事件冒泡，避免触发选择对话（菜单入口无事件对象）
 
   try {
     await Modal.confirm({

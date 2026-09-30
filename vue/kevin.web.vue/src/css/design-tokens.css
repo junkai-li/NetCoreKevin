@@ -1,0 +1,187 @@
+/* ===================================================================
+   设计系统令牌（移植自 Octop Dashboard 设计系统 v3）
+   基础层 --fn-bg/text/border，语义层 --fn-color-*，区域层 --fn-sidebar/chat
+   品牌派生值一律用 color-mix 从 --fn-color-brand 自动推导；
+   换品牌色只需覆盖 --fn-color-brand / --fn-color-brand-hover / --fn-text-brand
+   （见 themes.css 中各 theme-* 类，等价 Octop 的 data-palette 机制）。
+   本文件由 enterprise-surface.css @import，随 main.js 全局加载。
+   =================================================================== */
+
+:root {
+  /* ---- Backgrounds ---- */
+  --fn-bg-primary: #ffffff;
+  --fn-bg-secondary: #f7f8fa;
+  --fn-bg-tertiary: #f0f1f3;
+  --fn-bg-elevated: #ffffff;
+  --fn-bg-layout: #f5f6f8;
+  --fn-bg-container: #ffffff;
+  --fn-bg-code: #f5f6f8;
+  --fn-bg-toolbar: #fafbfc;
+  --fn-bg-toolbar-hover: #f0f1f3;
+  --fn-bg-input-label: #f7f8fa;
+  --fn-bg-success-light: #ecfdf5;
+  --fn-bg-danger-light: #fef2f2;
+  --fn-bg-warning-light: #fffbeb;
+  --fn-bg-info-light: #eff6ff;
+  --fn-bg-glass: rgba(255, 255, 255, 0.8);
+
+  /* ---- Brand（默认 Elegant Rose，palette 在 themes.css 覆盖） ---- */
+  --fn-color-brand: #e85d75;
+  --fn-color-brand-hover: #d14a62;
+  --fn-color-brand-soft: #d14a62;
+  --fn-color-on-brand: #ffffff;
+  --fn-color-brand-light: #fde8ec;
+  --fn-color-brand-border: color-mix(in srgb, var(--fn-color-brand) 28%, transparent);
+  --fn-color-brand-bg: color-mix(in srgb, var(--fn-color-brand) 6%, transparent);
+  --fn-color-brand-shadow: color-mix(in srgb, var(--fn-color-brand) 15%, transparent);
+  --fn-color-brand-glow: color-mix(in srgb, var(--fn-color-brand) 8%, transparent);
+
+  /* 品牌交互底色：hover/active/selected 从品牌色低透明度推导 */
+  --fn-bg-hover: color-mix(in srgb, var(--fn-color-brand) 4%, transparent);
+  --fn-bg-active: color-mix(in srgb, var(--fn-color-brand) 8%, transparent);
+  --fn-bg-selected: color-mix(in srgb, var(--fn-color-brand) 6%, transparent);
+
+  /* ---- Text ---- */
+  --fn-text-primary: #111827;
+  --fn-text-secondary: #4b5563;
+  --fn-text-tertiary: #9ca3af;
+  --fn-text-quaternary: #d1d5db;
+  --fn-text-placeholder: #c0c5ce;
+  --fn-text-disabled: #d1d5db;
+  --fn-text-inverse: #ffffff;
+  --fn-text-brand: var(--fn-color-brand);
+
+  /* ---- Borders ---- */
+  --fn-border-primary: #e5e7eb;
+  --fn-border-secondary: #f3f4f6;
+  --fn-border-tertiary: #f9fafb;
+  --fn-border-input: #d1d5db;
+  --fn-border-input-alt: #e5e7eb;
+  --fn-border-focus: var(--fn-color-brand);
+
+  /* ---- Semantic ---- */
+  --fn-color-success: #10b981;
+  --fn-color-success-border: #6ee7b7;
+  --fn-color-success-glow: rgba(16, 185, 129, 0.2);
+  --fn-color-danger: #ef4444;
+  --fn-color-danger-border: #fca5a5;
+  --fn-color-warning: #f59e0b;
+  --fn-color-warning-border: #fcd34d;
+  --fn-color-warning-text: #d97706;
+  --fn-color-info: #3b82f6;
+  --fn-color-info-border: #93c5fd;
+
+  /* ---- AI 消息气泡（frosted glass，随品牌自动换色） ---- */
+  --fn-assistant-bubble-bg: rgba(255, 255, 255, 0.45);
+  --fn-assistant-bubble-bg-gradient: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--fn-color-brand) 6%, transparent) 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    color-mix(in srgb, var(--fn-color-brand) 5%, transparent) 100%
+  );
+  --fn-assistant-bubble-border: color-mix(in srgb, var(--fn-color-brand) 12%, transparent);
+
+  /* ---- Shadows ---- */
+  --fn-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --fn-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --fn-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06),
+    0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --fn-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.07),
+    0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --fn-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.07),
+    0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --fn-shadow-brand: 0 4px 14px var(--fn-color-brand-shadow);
+  --fn-focus-ring: 0 0 0 3px var(--fn-color-brand-glow);
+
+  /* ---- 选中行 ---- */
+  --fn-row-selected-bg: color-mix(in srgb, var(--fn-color-brand) 5%, transparent);
+  --fn-row-selected-hover: color-mix(in srgb, var(--fn-color-brand) 9%, transparent);
+  --fn-row-selected-border: var(--fn-color-brand);
+
+  /* ---- Cards ---- */
+  --fn-card-border-normal: #e5e7eb;
+  --fn-card-shadow-normal: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --fn-card-radius: 12px;
+
+  /* ---- Sidebar（Octop 契约：220/56、白底、分组、选中品牌浅底） ---- */
+  --fn-sidebar-width: 220px;
+  --fn-sidebar-collapsed-width: 56px;
+  --fn-sidebar-bg: #ffffff;
+  --fn-sidebar-border: #ebebeb;
+  --fn-sidebar-item-hover: #f5f5f5;
+  --fn-sidebar-item-active-bg: var(--fn-color-brand-light);
+  --fn-sidebar-item-active-text: var(--fn-color-brand);
+  --fn-sidebar-group-text: #b0b5be;
+
+  /* ---- Transitions ---- */
+  --fn-transition-fast: 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+  --fn-transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  --fn-transition-sm: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  --fn-transition-slow: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  --fn-transition-spring: 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ---- Radius ---- */
+  --fn-radius-sm: 5px;
+  --fn-radius-md: 8px;
+  --fn-radius-lg: 12px;
+  --fn-radius-xl: 18px;
+  --fn-radius-full: 9999px;
+
+  /* ---- Scrollbar ---- */
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.25);
+
+  /* ============ 旧变量名桥接（不动 JS，历史 CSS 无缝吃到新色） ============ */
+  --accent: var(--fn-color-brand);
+  --accent-hover: var(--fn-color-brand-hover);
+  --accent-soft: var(--fn-bg-active);
+  --page-bg: var(--fn-bg-layout);
+  --sider-bg: var(--fn-sidebar-bg);
+  --sider-logo-border: var(--fn-sidebar-border);
+  --header-bg: var(--fn-bg-container);
+  --header-border: var(--fn-border-secondary);
+  --content-surface: var(--fn-bg-container);
+  --content-border: var(--fn-border-secondary);
+  --text-strong: var(--fn-text-primary);
+  --text-muted: var(--fn-text-secondary);
+  --hover-bg: var(--fn-bg-secondary);
+  --danger: var(--fn-color-danger);
+}
+
+/* ============ 主题局部重算 ============
+   CSS 自定义属性在声明元素上完成 var() 求值：:root 里的派生值
+   不会跟随 .theme-* 对 --fn-color-brand 的覆盖。因此在承载主题类的
+   .layout-container 上重新声明一次所有品牌派生值与桥接变量，
+   侧栏/内容区内部的历史 var(--accent) 等引用即可随主题换色。
+   （antd 弹层 render 到 body 下，仍吃 :root 默认品牌色，属已知限制。） */
+.layout-container {
+  --fn-color-brand-light: color-mix(in srgb, var(--fn-color-brand) 10%, white);
+  --fn-text-brand: var(--fn-color-brand-hover);
+  --fn-color-brand-border: color-mix(in srgb, var(--fn-color-brand) 28%, transparent);
+  --fn-color-brand-bg: color-mix(in srgb, var(--fn-color-brand) 6%, transparent);
+  --fn-color-brand-shadow: color-mix(in srgb, var(--fn-color-brand) 15%, transparent);
+  --fn-color-brand-glow: color-mix(in srgb, var(--fn-color-brand) 8%, transparent);
+  --fn-bg-hover: color-mix(in srgb, var(--fn-color-brand) 4%, transparent);
+  --fn-bg-active: color-mix(in srgb, var(--fn-color-brand) 8%, transparent);
+  --fn-bg-selected: color-mix(in srgb, var(--fn-color-brand) 6%, transparent);
+  --fn-border-focus: var(--fn-color-brand);
+  --fn-sidebar-item-active-bg: var(--fn-color-brand-light);
+  --fn-sidebar-item-active-text: var(--fn-color-brand);
+  --fn-row-selected-bg: color-mix(in srgb, var(--fn-color-brand) 5%, transparent);
+  --fn-row-selected-hover: color-mix(in srgb, var(--fn-color-brand) 9%, transparent);
+  --fn-row-selected-border: var(--fn-color-brand);
+  --fn-shadow-brand: 0 4px 14px var(--fn-color-brand-shadow);
+  --fn-focus-ring: 0 0 0 3px var(--fn-color-brand-glow);
+  --fn-assistant-bubble-bg-gradient: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--fn-color-brand) 6%, transparent) 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    color-mix(in srgb, var(--fn-color-brand) 5%, transparent) 100%
+  );
+  --fn-assistant-bubble-border: color-mix(in srgb, var(--fn-color-brand) 12%, transparent);
+
+  /* 桥接变量同样重算，旧样式里的 var(--accent) 系跟随主题 */
+  --accent: var(--fn-color-brand);
+  --accent-hover: var(--fn-color-brand-hover);
+  --accent-soft: var(--fn-bg-active);
+}

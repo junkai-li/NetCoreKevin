@@ -299,7 +299,7 @@ onMounted(() => {
 }
 
 :deep(.ant-table-tbody > tr.ant-table-row-selected > td) {
-  background: #e6f4ff !important;
+  background: var(--fn-color-brand-light) !important;
 }
 
 :deep(.ant-table-wrapper) {
@@ -307,13 +307,13 @@ onMounted(() => {
 }
 
 :deep(.ant-btn-primary) {
-  background: #1677ff;
-  border: 1px solid #1677ff;
+  background: var(--accent);
+  border: 1px solid var(--accent);
 }
 
 :deep(.ant-btn-primary:hover) {
-  background: #0958d9;
-  border: 1px solid #0958d9;
+  background: var(--accent-hover);
+  border: 1px solid var(--accent-hover);
 }
 
 :deep(.ant-btn) {

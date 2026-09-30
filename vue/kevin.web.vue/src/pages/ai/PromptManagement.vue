@@ -25,15 +25,17 @@
       </template>
 
       <div class="cards-container">
-        <a-row :gutter="[24, 24]">
-          <a-col :xs="24" :sm="12" :md="12" :lg="8" :xl="6" v-for="prompt in promptList" :key="prompt.id">
-            <a-card class="prompt-card" hoverable>
-              <template #title>
-                <div class="card-title">
-                  <span class="prompt-name">{{ prompt.name }}</span>
-                </div>
-              </template>
-              <template #extra>
+        <div class="octop-card-grid">
+          <div class="octop-card" v-for="prompt in promptList" :key="prompt.id">
+            <div class="octop-card-accent"></div>
+            <div class="octop-card-header">
+              <div class="octop-card-icon">
+                <MessageOutlined />
+              </div>
+              <div class="octop-card-title-block">
+                <div class="octop-card-name">{{ prompt.name }}</div>
+              </div>
+              <div class="octop-card-tools">
                 <a-dropdown>
                   <a class="ant-dropdown-link" @click.prevent>
                     <EllipsisOutlined />
@@ -49,28 +51,23 @@
                     </a-menu>
                   </template>
                 </a-dropdown>
-              </template>
-              <div @click="showEditPromptModal(prompt)" class="card-content">
-                <div class="prompt-info">
-                  <div class="prompt-section horizontal">
-                    <div class="section-label">提示词:</div>
-                    <div class="section-content">{{ prompt.prompt }}</div>
-                  </div>
-                  <div class="prompt-section horizontal">
-                    <div class="section-label">描述:</div>
-                    <div class="section-content">{{ prompt.description }}</div>
-                  </div>
-                  <div class="prompt-section horizontal" v-if="prompt.createUser || prompt.updateUser">
-                    <div class="section-label" v-if="prompt.createUser">创建人:</div>
-                    <div class="section-content" v-if="prompt.createUser">{{ prompt.createUser }}</div>
-                    <div class="section-label" v-if="prompt.updateUser" style="margin-left: 16px;">更新人:</div>
-                    <div class="section-content" v-if="prompt.updateUser">{{ prompt.updateUser }}</div>
-                  </div>
+              </div>
+            </div>
+            <div class="octop-card-body" @click="showEditPromptModal(prompt)">
+              <div class="octop-card-desc">{{ prompt.prompt }}</div>
+              <div class="octop-card-rows">
+                <div class="octop-card-row" v-if="prompt.description">
+                  <span class="octop-card-row-label">描述</span>
+                  <span class="octop-card-row-value">{{ prompt.description }}</span>
                 </div>
               </div>
-            </a-card>
-          </a-col>
-        </a-row>
+            </div>
+            <div class="octop-card-footer" v-if="prompt.createUser || prompt.updateUser">
+              <span v-if="prompt.createUser">创建人 {{ prompt.createUser }}</span>
+              <span v-if="prompt.updateUser">更新人 {{ prompt.updateUser }}</span>
+            </div>
+          </div>
+        </div>
         
         <a-empty v-if="promptList.length === 0" description="暂无提示词数据" />
         
@@ -80,6 +77,7 @@
             v-model:page-size="pagination.pageSize"
             :total="pagination.total"
             show-size-changer
+            :page-size-options="['8', '10', '20', '50', '100']"
             show-quick-jumper
             :show-total="(total) => `共 ${total} 条记录`"
             @change="handlePageChange"

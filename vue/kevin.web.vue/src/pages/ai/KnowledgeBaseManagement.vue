@@ -26,23 +26,22 @@
       </template>
 
       <div class="cards-container">
-        <a-row :gutter="[24, 24]">
-          <a-col 
-            :xs="24" 
-            :sm="12" 
-            :md="12" 
-            :lg="8" 
-            :xl="6" 
-            v-for="kb in knowledgeBaseList" 
-            :key="kb.id"
-          >
-            <a-card class="knowledge-base-card" hoverable>
-              <template #title>
-                <div class="card-title">
-                  <span class="kb-name">{{ kb.name }}</span>
+        <div class="octop-card-grid">
+          <div class="octop-card" v-for="kb in knowledgeBaseList" :key="kb.id">
+            <div class="octop-card-accent"></div>
+            <div class="octop-card-header">
+              <div class="octop-card-icon">
+                <BookOutlined />
+              </div>
+              <div class="octop-card-title-block">
+                <div class="octop-card-name">{{ kb.name }}</div>
+                <div class="octop-card-meta">
+                  <a-tag :color="getStatusColor(kb.status)">
+                    {{ getStatusText(kb.status) }}
+                  </a-tag>
                 </div>
-              </template>
-              <template #extra>
+              </div>
+              <div class="octop-card-tools">
                 <a-dropdown>
                   <a class="ant-dropdown-link" @click.prevent>
                     <EllipsisOutlined />
@@ -54,49 +53,38 @@
                       </a-menu-item>
                       <a-menu-item @click="handleDelete(kb)">
                         <DeleteOutlined /> 删除
-                      </a-menu-item> 
+                      </a-menu-item>
                     </a-menu>
                   </template>
                 </a-dropdown>
-              </template>
-              
-              <div @click="handleEdit(kb)" class="card-content">
-                <div class="kb-info">
-                  <div class="kb-section horizontal">
-                    <div class="section-label">段落最大Token数:</div>
-                    <div class="section-content">{{ kb.maxTokensPerParagraph }}</div>
-                  </div>
-                  <div class="kb-section horizontal">
-                    <div class="section-label">每行最大Token数:</div>
-                    <div class="section-content">{{ kb.maxTokensPerLine }}</div>
-                  </div>
-                  <div class="kb-section horizontal">
-                    <div class="section-label">段落重叠Token数:</div>
-                    <div class="section-content">{{ kb.overlappingTokens }}</div>
-                  </div>
-                  <div class="kb-section horizontal">
-                    <div class="section-label">文档数量:</div>
-                    <div class="section-content">{{ kb.documentCount || 0 }}</div>
-                  </div>
-                  <div class="kb-section horizontal">
-                    <div class="section-label">状态:</div>
-                    <div class="section-content">
-                      <a-tag :color="getStatusColor(kb.status)">
-                        {{ getStatusText(kb.status) }}
-                      </a-tag>
-                    </div>
-                  </div>
-                  <div class="kb-section horizontal" v-if="kb.createUser || kb.updateUser">
-                    <div class="section-label" v-if="kb.createUser">创建人:</div>
-                    <div class="section-content" v-if="kb.createUser">{{ kb.createUser }}</div>
-                    <div class="section-label" v-if="kb.updateUser" style="margin-left: 16px;">更新人:</div>
-                    <div class="section-content" v-if="kb.updateUser">{{ kb.updateUser }}</div>
-                  </div>
+              </div>
+            </div>
+            <div class="octop-card-body" @click="handleEdit(kb)">
+              <div class="octop-card-rows">
+                <div class="octop-card-row">
+                  <span class="octop-card-row-label">段落Token</span>
+                  <span class="octop-card-row-value">{{ kb.maxTokensPerParagraph }}</span>
+                </div>
+                <div class="octop-card-row">
+                  <span class="octop-card-row-label">行Token</span>
+                  <span class="octop-card-row-value">{{ kb.maxTokensPerLine }}</span>
+                </div>
+                <div class="octop-card-row">
+                  <span class="octop-card-row-label">重叠Token</span>
+                  <span class="octop-card-row-value">{{ kb.overlappingTokens }}</span>
+                </div>
+                <div class="octop-card-row">
+                  <span class="octop-card-row-label">文档数量</span>
+                  <span class="octop-card-row-value">{{ kb.documentCount || 0 }}</span>
                 </div>
               </div>
-            </a-card>
-          </a-col>
-        </a-row>
+            </div>
+            <div class="octop-card-footer" v-if="kb.createUser || kb.updateUser">
+              <span v-if="kb.createUser">创建人 {{ kb.createUser }}</span>
+              <span v-if="kb.updateUser">更新人 {{ kb.updateUser }}</span>
+            </div>
+          </div>
+        </div>
         
         <a-empty v-if="knowledgeBaseList.length === 0" description="暂无知识库数据" />
         
@@ -106,6 +94,7 @@
             v-model:page-size="pagination.pageSize"
             :total="pagination.total"
             show-size-changer
+            :page-size-options="['8', '10', '20', '50', '100']"
             show-quick-jumper
             :show-total="(total) => `共 ${total} 条记录`"
             @change="handlePageChange"
@@ -334,7 +323,7 @@ onMounted(() => {
 .title-icon {
   margin-right: 8px;
   font-size: 18px;
-  color: #1677ff;
+  color: var(--accent);
 }
 
 .header-actions {
@@ -357,81 +346,165 @@ onMounted(() => {
   color: rgba(0, 0, 0, 0.88);
 }
 
-:deep(.ant-card-hoverable:hover) {
-  border-color: #d9d9d9;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+/* ===================================================================
+   Octop 卡片网格（与 CardTable.css 一致，本页未 import 故 scoped 自带）
+   =================================================================== */
+.cards-container {
+  padding: 20px;
 }
 
-.knowledge-base-card {
-  min-height: 240px;
+.octop-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  row-gap: 16px;
+  column-gap: 12px;
+}
+
+.octop-card {
+  position: relative;
+  background: var(--fn-bg-primary);
+  border: 1px solid var(--fn-card-border-normal);
+  border-radius: var(--fn-radius-lg);
   display: flex;
   flex-direction: column;
-}
-
-.card-title {
-  word-break: break-all;
-  font-weight: 600;
-}
-
-.kb-name {
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.88);
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
+  min-height: 196px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s,
+    border-color 0.15s;
 }
 
-.kb-info {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 8px;
-  width: 100%;
-  overflow: hidden;
+.octop-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  border-color: color-mix(
+    in srgb,
+    var(--fn-color-brand) 22%,
+    var(--fn-card-border-normal)
+  );
 }
 
-.kb-section {
-  margin-bottom: 0;
-}
-
-.kb-section.horizontal {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
+.octop-card-accent {
+  height: 2px;
+  background: var(--fn-color-brand);
   flex-shrink: 0;
 }
 
-.section-label {
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.55);
-  white-space: nowrap;
-  text-align: left;
-  min-width: 50px;
-  font-size: 14px;
+.octop-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px 10px;
+  min-width: 0;
 }
 
-.section-content {
-  color: rgba(0, 0, 0, 0.88);
+.octop-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 20px;
+  color: var(--fn-color-brand);
+  background: var(--fn-color-brand-light);
+}
+
+.octop-card-title-block {
   flex: 1;
+  min-width: 0;
+}
+
+.octop-card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fn-text-primary);
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-align: left;
-  font-size: 14px;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  white-space: nowrap;
-  margin: 0;
-  padding: 0;
+  line-height: 1.3;
 }
 
-.card-content {
+.octop-card-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.octop-card-tools {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.octop-card-tools .ant-dropdown-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 6px;
+  border-radius: var(--fn-radius-sm);
+  color: var(--fn-text-tertiary);
+  transition:
+    color 0.15s,
+    background 0.15s;
+}
+
+.octop-card-tools .ant-dropdown-link:hover {
+  color: var(--fn-text-primary);
+  background: var(--fn-sidebar-item-hover);
+}
+
+.octop-card-body {
+  flex: 1;
+  min-width: 0;
+  padding: 0 16px 2px;
+  cursor: pointer;
+}
+
+.octop-card-rows {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 4px;
+}
+
+.octop-card-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.octop-card-row-label {
+  flex-shrink: 0;
+  width: 56px;
+  color: var(--fn-text-tertiary);
+}
+
+.octop-card-row-value {
+  flex: 1;
+  min-width: 0;
+  color: var(--fn-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.octop-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px 14px;
+  margin-top: auto;
+  font-size: 11px;
+  color: var(--fn-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .pagination-container {

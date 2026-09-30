@@ -538,12 +538,12 @@ onMounted(() => {
 }
 
 :deep(.org-node-actions .ant-btn-link) {
-  color: #1677ff;
+  color: var(--accent);
   padding: 0;
 }
 
 :deep(.org-node-actions .ant-btn-link:hover) {
-  color: #0958d9;
+  color: var(--accent-hover);
 }
 
 :deep(.org-node-actions .ant-btn-dangerous) {

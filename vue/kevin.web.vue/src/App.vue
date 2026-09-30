@@ -5,12 +5,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { theme } from 'ant-design-vue';
 
-const colorPrimary = ref('#1677ff');
+// 默认品牌色与 design-tokens.css 的 --fn-color-brand 一致（Elegant Rose）
+const DEFAULT_BRAND = '#e85d75';
+const colorPrimary = ref(DEFAULT_BRAND);
 
-const antdTheme = {
+// 必须是 computed：切换主题时 colorPrimary 变化要让 ConfigProvider 重新生成
+// antd 组件样式（按钮 / 下拉 / 选中态 / 聚焦环等，含 teleport 到 body 的弹层）。
+const antdTheme = computed(() => ({
   algorithm: theme.defaultAlgorithm,
   token: {
     colorPrimary: colorPrimary.value,
@@ -19,24 +23,52 @@ const antdTheme = {
       "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif",
     colorBgLayout: '#f0f2f5',
   },
+}));
+
+// 读取当前生效的品牌色：主题类挂在 .layout-container 上（kevinHome 的 :class 绑定），
+// 该元素的 --fn-color-brand 即当前主题色；不存在时（登录页）回退默认色。
+const readBrand = () => {
+  const host = document.querySelector('.layout-container') || document.documentElement;
+  const brand = getComputedStyle(host).getPropertyValue('--fn-color-brand').trim();
+  return /^#[0-9a-fA-F]{3,8}$/.test(brand) ? brand : DEFAULT_BRAND;
 };
 
-const updateColorPrimary = () => {
-  const styles = getComputedStyle(document.documentElement);
-  const accent = styles.getPropertyValue('--accent').trim();
-  if (accent) {
-    colorPrimary.value = accent;
-  }
+const syncBrand = () => {
+  const brand = readBrand();
+  if (brand === colorPrimary.value) return;
+  colorPrimary.value = brand;
+  // 同步到 :root，让自定义 CSS 里 var(--accent) 及品牌派生值在 teleport 到 body
+  // 的弹层（模态框、下拉菜单、选择框面板）中也解析成当前主题色。
+  document.documentElement.style.setProperty('--fn-color-brand', brand);
 };
 
+let observer = null;
 onMounted(() => {
-  updateColorPrimary();
-  setTimeout(updateColorPrimary, 100);
-  setTimeout(updateColorPrimary, 500);
+  syncBrand();
+  setTimeout(syncBrand, 100);
+  setTimeout(syncBrand, 500);
+  // switchTheme 只改 .layout-container 的 class（同标签页不触发 storage 事件），
+  // 用 MutationObserver 监听主题类变化后重读品牌色。
+  observer = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      if (
+        m.type === 'attributes' &&
+        m.target instanceof Element &&
+        m.target.classList.contains('layout-container')
+      ) {
+        syncBrand();
+        break;
+      }
+    }
+  });
+  observer.observe(document.documentElement, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class'],
+  });
 });
-
-window.addEventListener('storage', () => {
-  setTimeout(updateColorPrimary, 50);
+onBeforeUnmount(() => {
+  if (observer) observer.disconnect();
 });
 </script>
 

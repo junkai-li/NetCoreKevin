@@ -19,51 +19,49 @@
       </template>
 
       <div class="cards-container">
-        <a-row :gutter="[24, 24]">
-          <a-col :xs="24" :sm="12" :md="12" :lg="8" :xl="6" v-for="agent in agentList" :key="agent.id">
-            <a-card class="agent-card" hoverable>
-              <template #title>
-                <div class="card-title">
-                  <span class="agent-name">{{ agent.name }}</span>
+        <div class="octop-card-grid">
+          <div class="octop-card" v-for="agent in agentList" :key="agent.id">
+            <div class="octop-card-accent"></div>
+            <div class="octop-card-header">
+              <div class="octop-card-icon">
+                <RobotOutlined />
+              </div>
+              <div class="octop-card-title-block">
+                <div class="octop-card-name">{{ agent.name }}</div>
+                <div class="octop-card-meta">
+                  <span class="octop-card-pill" v-if="agent.type">{{ agent.type }}</span>
                 </div>
-              </template>
-              <div @click="showPreviewModal(agent)" class="card-content"> 
-                <div class="agent-info">
-                  <div class="info-item horizontal">
-                    <span class="info-label">描述:</span>
-                    <span class="info-value">{{ agent.describe }}</span>
+              </div>
+            </div>
+            <div class="octop-card-body" @click="showPreviewModal(agent)">
+              <div class="octop-card-desc">{{ agent.describe }}</div>
+              <div class="octop-card-rows">
+                <div class="octop-card-row">
+                  <span class="octop-card-row-label">温度</span>
+                  <div class="progress-wrapper">
+                    <a-progress
+                      :percent="agent.temperature"
+                      :format="percent => `${percent}°`"
+                      size="small"
+                      :stroke-color="getTemperatureColor(agent.temperature)"
+                    />
                   </div>
-                  <div class="info-item horizontal">
-                    <span class="info-label">类型:</span>
-                    <span class="info-value">{{ agent.type }}</span>
-                  </div>
-                  <div class="info-item horizontal">
-                    <span class="info-label">温度:</span>
-                    <div class="progress-wrapper">
-                      <a-progress
-                        :percent="agent.temperature"
-                        :format="percent => `${percent}°`"
-                        size="small"
-                        :stroke-color="getTemperatureColor(agent.temperature)"
-                      />
-                    </div>
-                  </div>
-                  <div class="info-item horizontal">
-                    <span class="info-label">相似度:</span>
-                    <div class="progress-wrapper">
-                      <a-progress
-                        :percent="agent.relevance"
-                        :format="percent => `${percent}%`"
-                        size="small"
-                        :stroke-color="getRelevanceColor(agent.relevance)"
-                      />
-                    </div>
+                </div>
+                <div class="octop-card-row">
+                  <span class="octop-card-row-label">相似度</span>
+                  <div class="progress-wrapper">
+                    <a-progress
+                      :percent="agent.relevance"
+                      :format="percent => `${percent}%`"
+                      size="small"
+                      :stroke-color="getRelevanceColor(agent.relevance)"
+                    />
                   </div>
                 </div>
               </div>
-            </a-card>
-          </a-col>
-        </a-row>
+            </div>
+          </div>
+        </div>
 
         <a-empty v-if="agentList.length === 0" description="暂无可用智能体数据" />
 
@@ -217,7 +215,7 @@ onMounted(() => {
 
 .title-icon {
   font-size: 20px;
-  color: #1890ff;
+  color: var(--accent);
 }
 
 .header-actions {
@@ -227,77 +225,6 @@ onMounted(() => {
 
 .cards-container {
   min-height: 400px;
-}
-
-.agent-card {
-  border-radius: 8px;
-  transition: all 0.3s;
-}
-
-.agent-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.card-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.agent-name {
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.card-content {
-  cursor: pointer;
-}
-
-.agent-icon {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 80px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 8px;
-  margin-bottom: 12px;
-}
-
-.icon-element {
-  font-size: 36px;
-  color: white;
-}
-
-.agent-info {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.info-item.horizontal {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.info-label {
-  color: #8c8c8c;
-  font-size: 12px;
-  min-width: 50px;
-}
-
-.info-value {
-  color: #262626;
-  font-size: 12px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.progress-wrapper {
-  flex: 1;
 }
 
 .pagination-container {

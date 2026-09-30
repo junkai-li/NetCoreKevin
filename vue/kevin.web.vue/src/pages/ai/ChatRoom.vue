@@ -561,7 +561,7 @@ onBeforeUnmount(() => {
   word-break: break-all;
 }
 .collapse-content a {
-  color: #1677ff;
+  color: var(--accent);
 }
 /* 详情弹窗：与 MyAIChat.css .detail-modal-body 同值 */
 .detail-modal-body {
@@ -571,7 +571,7 @@ onBeforeUnmount(() => {
   word-break: break-all;
 }
 .msg-content { line-height: 1.6; }
-.typing { color: #1677ff; font-size: 12px; margin-top: 4px; }
+.typing { color: var(--accent); font-size: 12px; margin-top: 4px; }
 .ai-error { color: #d4380d; margin-top: 4px; }
 .msg-meta { color: #aaa; font-size: 11px; margin-top: 6px; }
 /* 推荐问题：与 MyAIChat.css「推荐问题」一节逐条同值（MyAIChat 是 scoped 引入，对本页不生效，故在此复刻） */
@@ -606,16 +606,16 @@ onBeforeUnmount(() => {
   transition: color 0.2s ease;
 }
 .recommend-chip:hover {
-  color: #1677ff;
-  border-color: rgba(22, 119, 255, 0.45);
-  background: rgba(22, 119, 255, 0.05);
-  box-shadow: 0 1px 4px rgba(22, 119, 255, 0.1);
+  color: var(--accent);
+  border-color: var(--fn-color-brand-border);
+  background: var(--fn-color-brand-bg);
+  box-shadow: 0 1px 4px var(--fn-color-brand-shadow);
 }
 .recommend-chip:hover::before {
-  color: #1677ff;
+  color: var(--accent);
 }
 .recommend-chip:active {
-  background: rgba(22, 119, 255, 0.1);
+  background: var(--fn-bg-active);
   box-shadow: none;
 }
 .ask-fail { margin-top: 6px; }

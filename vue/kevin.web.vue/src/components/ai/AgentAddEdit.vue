@@ -1172,12 +1172,12 @@ defineExpose({
 
 .checkbox-grid :deep(.ant-checkbox-wrapper:hover) {
   background: rgba(255, 255, 255, 0.1);
-  border-color: #1890ff;
+  border-color: var(--accent);
 }
 
 .checkbox-grid :deep(.ant-checkbox-wrapper-checked) {
-  background: rgba(24, 144, 255, 0.15);
-  border-color: #1890ff;
+  background: var(--fn-color-brand-light);
+  border-color: var(--accent);
 }
 
 .slider-container {
@@ -1197,6 +1197,6 @@ defineExpose({
   background: #f0f0f0;
   border-radius: 4px;
   font-size: 12px;
-  color: #1890ff;
+  color: var(--accent);
 }
 </style>

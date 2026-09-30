@@ -1,3 +1,5 @@
+@import './design-tokens.css';
+
 /* 业务页历史样式多为深色玻璃风，在浅色内容区内统一为企业风表格与卡片 */
 
 .content-wrapper .user-management-container,
@@ -32,7 +34,7 @@
 }
 
 .content-wrapper .title-icon {
-  color: #1677ff !important;
+  color: var(--accent) !important;
 }
 
 .content-wrapper .toolbar {
@@ -65,7 +67,7 @@
 
 .content-wrapper .ant-table-tbody > tr.ant-table-row-selected > td,
 .content-wrapper .my-table .ant-table-tbody > tr.ant-table-row-selected > td {
-  background: #e6f4ff !important;
+  background: var(--fn-color-brand-light) !important;
 }
 
 .content-wrapper .ant-pagination,
@@ -105,8 +107,8 @@
 }
 
 .content-wrapper .search-input .ant-input:focus {
-  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.15);
-  border-color: #1677ff;
+  box-shadow: var(--fn-focus-ring);
+  border-color: var(--accent);
 }
 
 .content-wrapper .search-input .ant-input-search-button {
@@ -199,8 +201,8 @@
 }
 
 .content-wrapper .conversation-item.active {
-  background: #e6f4ff !important;
-  border-color: #91caff !important;
+  background: var(--fn-color-brand-light) !important;
+  border-color: var(--fn-color-brand-border) !important;
 }
 
 .content-wrapper .conversation-title {
@@ -239,7 +241,7 @@
 .content-wrapper .message-avatar:not(.avatar-user) {
   background: #fff !important;
   border-color: #d9d9d9 !important;
-  color: #1677ff !important;
+  color: var(--accent) !important;
 }
 
 .content-wrapper .message-avatar.avatar-ai {
@@ -286,7 +288,7 @@
 }
 
 .content-wrapper .copy-button:hover {
-  color: #1677ff !important;
+  color: var(--accent) !important;
 }
 
 .content-wrapper .chat-input-area {

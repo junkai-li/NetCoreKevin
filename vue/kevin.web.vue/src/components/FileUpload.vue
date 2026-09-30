@@ -927,7 +927,7 @@ defineExpose({
 
 .file-icon {
   margin-right: 8px;
-  color: #1890ff;
+  color: var(--accent);
 }
 
 .file-name {
@@ -942,7 +942,7 @@ defineExpose({
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: #1890ff;
+  color: var(--accent);
   text-decoration: none;
 }
 
@@ -1127,7 +1127,7 @@ defineExpose({
 }
 
 .tree-item.selected {
-  background-color: #e6f7ff;
+  background-color: var(--fn-color-brand-light);
 }
 
 .tree-item.file-item-directory {
@@ -1136,7 +1136,7 @@ defineExpose({
 
 .file-icon {
   margin-right: 8px;
-  color: #1890ff;
+  color: var(--accent);
 }
 
 .file-icon.icon-directory {

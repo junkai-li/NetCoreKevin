@@ -25,15 +25,20 @@
       </template>
 
       <div class="cards-container">
-        <a-row :gutter="[24, 24]">
-          <a-col :xs="24" :sm="12" :md="12" :lg="8" :xl="6" v-for="agent in agentList" :key="agent.id">
-            <a-card class="agent-card" hoverable>
-              <template #title>
-                <div class="card-title">
-                  <span class="agent-name">{{ agent.name }}</span>
+        <div class="octop-card-grid">
+          <div class="octop-card" v-for="agent in agentList" :key="agent.id">
+            <div class="octop-card-accent"></div>
+            <div class="octop-card-header">
+              <div class="octop-card-icon">
+                <RobotOutlined />
+              </div>
+              <div class="octop-card-title-block">
+                <div class="octop-card-name">{{ agent.name }}</div>
+                <div class="octop-card-meta">
+                  <span class="octop-card-pill" v-if="agent.type">{{ agent.type }}</span>
                 </div>
-              </template>
-              <template #extra>
+              </div>
+              <div class="octop-card-tools">
                 <a-dropdown>
                   <a class="ant-dropdown-link" @click.prevent>
                     <EllipsisOutlined />
@@ -49,53 +54,41 @@
                     </a-menu>
                   </template>
                 </a-dropdown>
-              </template>
-              <div @click="showEditAgentModal(agent)" class="card-content">
-                <div class="agent-icon">
-                  <component :is="agent.icon" class="icon-element" />
+              </div>
+            </div>
+            <div class="octop-card-body" @click="showEditAgentModal(agent)">
+              <div class="octop-card-desc">{{ agent.describe }}</div>
+              <div class="octop-card-rows">
+                <div class="octop-card-row">
+                  <span class="octop-card-row-label">温度</span>
+                  <div class="progress-wrapper">
+                    <a-progress
+                      :percent="agent.temperature"
+                      :format="percent => `${percent}°`"
+                      size="small"
+                      :stroke-color="getTemperatureColor(agent.temperature)"
+                    />
+                  </div>
                 </div>
-                <div class="agent-info">
-                  <div class="info-item horizontal">
-                    <span class="info-label">描述:</span>
-                    <span class="info-value">{{ agent.describe }}</span>
-                  </div>
-                  <div class="info-item horizontal">
-                    <span class="info-label">类型:</span>
-                    <span class="info-value">{{ agent.type }}</span>
-                  </div>
-                  <div class="info-item horizontal">
-                    <span class="info-label">温度:</span>
-                    <div class="progress-wrapper">
-                      <a-progress 
-                        :percent="agent.temperature" 
-                        :format="percent => `${percent}°`" 
-                        size="small" 
-                        :stroke-color="getTemperatureColor(agent.temperature)"
-                      />
-                    </div>
-                  </div>
-                  <div class="info-item horizontal">
-                    <span class="info-label">相似度:</span>
-                    <div class="progress-wrapper">
-                      <a-progress 
-                        :percent="agent.relevance" 
-                        :format="percent => `${percent}%`" 
-                        size="small" 
-                        :stroke-color="getRelevanceColor(agent.relevance)"
-                      />
-                    </div>
-                  </div>
-                  <div class="info-item horizontal" v-if="agent.createUser || agent.updateUser">
-                    <span class="info-label" v-if="agent.createUser">创建人:</span>
-                    <span class="info-value" v-if="agent.createUser">{{ agent.createUser }}</span>
-                    <span class="info-label" v-if="agent.updateUser" style="margin-left: 16px;">更新人:</span>
-                    <span class="info-value" v-if="agent.updateUser">{{ agent.updateUser }}</span>
+                <div class="octop-card-row">
+                  <span class="octop-card-row-label">相似度</span>
+                  <div class="progress-wrapper">
+                    <a-progress
+                      :percent="agent.relevance"
+                      :format="percent => `${percent}%`"
+                      size="small"
+                      :stroke-color="getRelevanceColor(agent.relevance)"
+                    />
                   </div>
                 </div>
               </div>
-            </a-card>
-          </a-col>
-        </a-row>
+            </div>
+            <div class="octop-card-footer" v-if="agent.createUser || agent.updateUser">
+              <span v-if="agent.createUser">创建人 {{ agent.createUser }}</span>
+              <span v-if="agent.updateUser">更新人 {{ agent.updateUser }}</span>
+            </div>
+          </div>
+        </div>
         
         <a-empty v-if="agentList.length === 0" description="暂无智能体数据" />
         
@@ -105,6 +98,7 @@
             v-model:page-size="pagination.pageSize"
             :total="pagination.total"
             show-size-changer
+            :page-size-options="['8', '10', '20', '50', '100']"
             show-quick-jumper
             :show-total="(total) => `共 ${total} 条记录`"
             @change="handlePageChange"

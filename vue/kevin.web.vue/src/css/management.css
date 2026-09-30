@@ -46,7 +46,7 @@
 
 .title-icon {
   margin-right: 8px;
-  color: #1677ff;
+  color: var(--accent);
 }
 
 .header-actions {
@@ -150,7 +150,7 @@
 }
 
 .avatar-uploader .ant-upload.ant-upload-select-picture-card:hover{
-  border-color: #1677ff;
+  border-color: var(--accent);
 }
 
 @media (max-width: 768px){
