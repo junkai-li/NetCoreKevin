@@ -13,7 +13,13 @@
           <div v-if="loadingConversations" class="session-loading">加载对话中…</div>
           <template v-else>
             <div
-              v-for="item in sortedConversations"
+              v-for="group in groupedConversations"
+              :key="group.label"
+              class="session-group"
+            >
+              <div class="session-group-title">{{ group.label }}</div>
+              <div
+              v-for="item in group.items"
               :key="item.id"
               class="session-row"
               :class="{ active: item.id === activeConversationId }"
@@ -47,6 +53,7 @@
                   </template>
                 </a-dropdown>
               </template>
+            </div>
             </div>
             <div v-if="conversations.length === 0" class="session-empty">暂无对话，点右上角 + 开始</div>
           </template>
@@ -3177,6 +3184,38 @@ const sortedConversations = computed(() =>
     return new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime();
   })
 );
+
+// 按时间分组：置顶单独一组排最上，其余按 updatedAt 落在滚动窗口桶里
+// 今天 / 昨天 / 过去 7 天 / 过去 30 天 / 更早
+const DAY_MS = 24 * 60 * 60 * 1000;
+const calendarDaysAgo = (iso) => {
+  const d = new Date(iso || 0);
+  if (Number.isNaN(d.getTime())) return Infinity; // 无效时间归入"更早"
+  const now = new Date();
+  const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startThat = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  return Math.round((startToday - startThat) / DAY_MS);
+};
+const bucketOf = (iso) => {
+  const diff = calendarDaysAgo(iso);
+  if (diff <= 0) return "今天";
+  if (diff === 1) return "昨天";
+  if (diff < 7) return "过去 7 天";
+  if (diff < 30) return "过去 30 天";
+  return "更早";
+};
+const GROUP_ORDER = ["置顶", "今天", "昨天", "过去 7 天", "过去 30 天", "更早"];
+const groupedConversations = computed(() => {
+  const buckets = {};
+  for (const it of sortedConversations.value) {
+    const key = pinnedIds.value.includes(it.id) ? "置顶" : bucketOf(it.updatedAt);
+    (buckets[key] ||= []).push(it);
+  }
+  return GROUP_ORDER.filter((label) => buckets[label]?.length).map((label) => ({
+    label,
+    items: buckets[label],
+  }));
+});
 
 const togglePin = (id) => {
   const i = pinnedIds.value.indexOf(id);

@@ -114,6 +114,26 @@
   color: rgba(0, 0, 0, 0.35);
 }
 
+/* 时间分组：组内会话行堆叠，组与组之间留标题行 */
+.session-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.session-group + .session-group {
+  margin-top: 8px;
+}
+
+.session-group-title {
+  padding: 4px 10px 2px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--fn-text-tertiary, rgba(0, 0, 0, 0.45));
+  user-select: none;
+}
+
 .session-row {
   display: flex;
   align-items: center;
