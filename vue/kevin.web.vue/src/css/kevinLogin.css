@@ -18,9 +18,9 @@
   width: 200%;
   height: 200%;
   background:
-    radial-gradient(circle at 20% 20%, rgba(22, 119, 255, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(102, 126, 234, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(22, 119, 255, 0.05) 0%, transparent 50%);
+    radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--fn-color-brand) 8%, transparent) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--fn-color-brand) 8%, transparent) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--fn-color-brand) 5%, transparent) 0%, transparent 50%);
   animation: rotate 60s linear infinite;
   pointer-events: none;
 }
@@ -33,8 +33,8 @@
   right: 0;
   bottom: 0;
   background-image:
-    linear-gradient(rgba(22, 119, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(22, 119, 255, 0.02) 1px, transparent 1px);
+    linear-gradient(color-mix(in srgb, var(--fn-color-brand) 2%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--fn-color-brand) 2%, transparent) 1px, transparent 1px);
   background-size: 60px 60px;
   pointer-events: none;
 }
@@ -45,10 +45,10 @@
   padding: 40px 36px 32px;
   background: #ffffff;
   border-radius: 12px;
-  border: 1px solid rgba(22, 119, 255, 0.15);
+  border: 1px solid color-mix(in srgb, var(--fn-color-brand) 15%, transparent);
   box-shadow:
     0 4px 24px rgba(0, 0, 0, 0.06),
-    0 0 60px rgba(22, 119, 255, 0.05);
+    0 0 60px color-mix(in srgb, var(--fn-color-brand) 5%, transparent);
   position: relative;
   z-index: 1;
 }
@@ -68,10 +68,11 @@
 }
 
 .login-header .logo-image {
-  width: 56px;
-  height: 56px;
-  object-fit: contain;
-  filter: drop-shadow(0 2px 8px rgba(22, 119, 255, 0.2));
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 50%;
+  filter: drop-shadow(0 2px 8px color-mix(in srgb, var(--fn-color-brand) 20%, transparent));
 }
 
 .login-header .title {
@@ -92,30 +93,37 @@
   margin-top: 8px;
 }
 
-.login-tabs :deep(.ant-tabs-nav) {
+/* 本文件是 import 进来的普通 CSS，不走 SFC 样式编译，:deep() 是无效选择器（整条规则会被浏览器丢弃），
+   故以下全部用后代选择器；硬编码蓝均换成品牌变量，跟随主题 */
+.login-tabs .ant-tabs-nav {
   margin-bottom: 20px;
 }
 
-.login-tabs :deep(.ant-tabs-tab) {
+.login-tabs .ant-tabs-tab {
   font-size: 15px;
   color: rgba(0, 0, 0, 0.55);
   transition: all 0.3s ease;
 }
 
-.login-tabs :deep(.ant-tabs-tab:hover) {
-  color: #1677ff;
+.login-tabs .ant-tabs-tab:hover {
+  color: var(--fn-color-brand);
 }
 
-.login-tabs :deep(.ant-tabs-tab-active .ant-tabs-tab-btn) {
-  color: #1677ff !important;
+.login-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--fn-color-brand) !important;
 }
 
-.login-tabs :deep(.ant-tabs-ink-bar) {
-  background: linear-gradient(90deg, #1677ff, #4096ff);
-  box-shadow: 0 0 8px rgba(22, 119, 255, 0.4);
+/* ink-bar 用后代选择器 + !important 覆盖 antd（antd 用 :where() 优先级极低，且运行时注入在打包样式之后） */
+.login-tabs .ant-tabs-ink-bar {
+  background: linear-gradient(
+    90deg,
+    var(--fn-color-brand),
+    color-mix(in srgb, var(--fn-color-brand) 75%, #ffffff)
+  ) !important;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--fn-color-brand) 40%, transparent) !important;
 }
 
-.login-tabs :deep(.ant-tabs-nav::before) {
+.login-tabs .ant-tabs-nav::before {
   border-bottom-color: rgba(0, 0, 0, 0.08);
 }
 
@@ -127,13 +135,13 @@
 }
 
 .forgot-link {
-  color: #1677ff;
+  color: var(--fn-color-brand);
   font-size: 14px;
   transition: color 0.3s ease;
 }
 
 .forgot-link:hover {
-  color: #4096ff;
+  color: var(--fn-color-brand-hover);
 }
 
 .captcha-wrapper {
@@ -142,7 +150,7 @@
   align-items: flex-start;
 }
 
-.captcha-wrapper :deep(.ant-form-item-control-input-content) {
+.captcha-wrapper .ant-form-item-control-input-content {
   display: flex;
   gap: 10px;
   width: 100%;
@@ -155,15 +163,15 @@
 .captcha-button {
   flex-shrink: 0;
   height: 40px;
-  background: #1677ff;
+  background: var(--fn-color-brand);
   border: none;
   color: white;
   transition: all 0.3s ease;
 }
 
 .captcha-button:hover:not(:disabled) {
-  background: #0958d9;
-  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
+  background: var(--fn-color-brand-hover);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--fn-color-brand) 30%, transparent);
 }
 
 .captcha-button:disabled {
@@ -175,16 +183,20 @@
   height: 44px;
   font-size: 16px;
   font-weight: 500;
-  background: linear-gradient(135deg, #1677ff, #4096ff);
+  background: linear-gradient(
+    135deg,
+    var(--fn-color-brand),
+    color-mix(in srgb, var(--fn-color-brand) 75%, #ffffff)
+  );
   border: none;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.25);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--fn-color-brand) 25%, transparent);
   transition: all 0.3s ease;
 }
 
 .login-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #0958d9, #1677ff);
-  box-shadow: 0 6px 20px rgba(22, 119, 255, 0.4);
+  background: linear-gradient(135deg, var(--fn-color-brand-hover), var(--fn-color-brand));
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--fn-color-brand) 40%, transparent);
   transform: translateY(-1px);
 }
 
@@ -196,38 +208,41 @@
 }
 
 .register-link {
-  color: #1677ff;
+  color: var(--fn-color-brand);
   margin-left: 4px;
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
 .register-link:hover {
-  color: #4096ff;
+  color: var(--fn-color-brand-hover);
 }
 
-.custom-input :deep(.ant-input) {
+.custom-input .ant-input {
   border-radius: 6px;
   transition: all 0.3s ease;
 }
 
-.custom-input :deep(.ant-input:focus) {
-  border-color: #1677ff;
-  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+.custom-input .ant-input:focus {
+  border-color: var(--fn-color-brand);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--fn-color-brand) 10%, transparent);
 }
 
-.custom-input :deep(.ant-input-prefix) {
+.custom-input .ant-input-prefix {
   color: rgba(0, 0, 0, 0.25);
 }
 
-.custom-input :deep(.ant-input-affix-wrapper) {
+/* custom-input 对 a-input-password 落在 affix-wrapper 自身，用复合类选择器（不带空格） */
+.custom-input.ant-input-affix-wrapper {
   border-radius: 6px;
 }
 
-.custom-input :deep(.ant-input-affix-wrapper:focus),
-.custom-input :deep(.ant-input-affix-wrapper-focused) {
-  border-color: #1677ff;
-  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+/* antd 对 affix 包裹输入框：内层 input 的聚焦环被 !important 强制压制，环画在外层 wrapper 上，
+   而 wrapper 的 :where 规则与本规则同级、且运行时后注入会赢，故这里也加 !important 保证品牌色环生效 */
+.custom-input.ant-input-affix-wrapper:focus,
+.custom-input.ant-input-affix-wrapper-focused {
+  border-color: var(--fn-color-brand) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--fn-color-brand) 10%, transparent) !important;
 }
 
 @media (max-width: 480px) {

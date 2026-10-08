@@ -1,11 +1,11 @@
 ﻿<template>
-  <div class="login-container">
+  <div class="login-container" :class="loginTheme">
     <div class="login-card">
       <div class="login-header">
         <div class="logo">
           <img :src="logoImage" alt="Logo" class="logo-image" />
         </div>
-        <h1 class="title">AI智能体后台管理系统</h1>
+        <h1 class="title">NetCoreKevin</h1>
         <p class="subtitle">欢迎登录AI智能体开源框架系统后台</p>
       </div>
 
@@ -181,6 +181,14 @@ defineOptions({ name: "KevinLogin" });
 const activeTab = ref("password");
 const loading = ref(false);
 const router = useRouter();
+
+// 登录页主题：沿用首页写入 localStorage 的主题选择，让按钮/超链接跟随品牌色。
+// 这里在 setup 阶段同步求值（不进 onMounted），保证 App.vue 读 --fn-color-brand 时
+// 主题类已经在 DOM 上，antd 的 colorPrimary 首屏就是主题色。
+const ALLOWED_THEMES = ["enterprise", "blackblue", "default", "green", "purple", "darkblue", "simple-white"];
+const savedTheme = localStorage.getItem("app-theme");
+const loginTheme =
+  savedTheme && ALLOWED_THEMES.includes(savedTheme) ? `theme-${savedTheme}` : "theme-simple-white";
 // 密码登录表单
 const passwordForm = reactive({
   username: "",

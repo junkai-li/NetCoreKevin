@@ -25,10 +25,11 @@ const antdTheme = computed(() => ({
   },
 }));
 
-// 读取当前生效的品牌色：主题类挂在 .layout-container 上（kevinHome 的 :class 绑定），
-// 该元素的 --fn-color-brand 即当前主题色；不存在时（登录页）回退默认色。
+// 读取当前生效的品牌色：主题类挂在 .layout-container（首页）或 .login-container（登录页）上，
+// 该元素的 --fn-color-brand 即当前主题色；两处都不存在时回退默认色。
+const THEME_HOST = '.layout-container, .login-container';
 const readBrand = () => {
-  const host = document.querySelector('.layout-container') || document.documentElement;
+  const host = document.querySelector(THEME_HOST) || document.documentElement;
   const brand = getComputedStyle(host).getPropertyValue('--fn-color-brand').trim();
   return /^#[0-9a-fA-F]{3,8}$/.test(brand) ? brand : DEFAULT_BRAND;
 };
@@ -47,14 +48,14 @@ onMounted(() => {
   syncBrand();
   setTimeout(syncBrand, 100);
   setTimeout(syncBrand, 500);
-  // switchTheme 只改 .layout-container 的 class（同标签页不触发 storage 事件），
+  // switchTheme 只改主题宿元素的 class（同标签页不触发 storage 事件），
   // 用 MutationObserver 监听主题类变化后重读品牌色。
   observer = new MutationObserver((mutations) => {
     for (const m of mutations) {
       if (
         m.type === 'attributes' &&
         m.target instanceof Element &&
-        m.target.classList.contains('layout-container')
+        m.target.matches(THEME_HOST)
       ) {
         syncBrand();
         break;

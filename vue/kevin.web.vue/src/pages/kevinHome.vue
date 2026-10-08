@@ -14,7 +14,7 @@
         <div class="logo-wrapper">
           <img :src="logoImage" alt="Logo" class="logo-image" />
         </div>
-        <span v-if="!collapsed" class="logo-text">AI多智能体管理系统</span>
+        <span v-if="!collapsed" class="logo-text">Agents</span>
       </div>
 
       <div class="menu-wrapper">
