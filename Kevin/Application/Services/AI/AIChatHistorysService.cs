@@ -160,6 +160,13 @@ namespace kevin.Application.Services.AI
             => AddCoreAsync(par, askId => new RoomChatStreamOutput(chatRoomHub, roomId.ToString(), askId), cancellationToken);
 
         /// <summary>
+        /// 使用调用方自备的输出通道处理一条提问：与 <see cref="AddSSE"/> / <see cref="AddToRoom"/> 同一模式，
+        /// 主流程零改动，输出通道由 Web 层按协议需求自建（如 OpenAI 协议兼容接口的 chat.completion.chunk 适配器）。
+        /// </summary>
+        public Task<AIChatHistorysDto> AddWithStreamOutput(AIChatHistorysDto par, Func<string, IChatStreamOutput> outputFactory, CancellationToken cancellationToken)
+            => AddCoreAsync(par, outputFactory, cancellationToken);
+
+        /// <summary>
         /// 新建聊天（SSE 流式输出）：处理逻辑与 <see cref="Add"/> 完全共用 <see cref="AddCoreAsync"/>，
         /// 仅把处理过程中的流式分片改为以 SSE（text/event-stream）写回当前 HTTP 响应。
         /// <para>
@@ -997,7 +1004,7 @@ namespace kevin.Application.Services.AI
                     IsAISkills = aiapp.IsSkill,
                     // 工具/技能/记忆全关：上面的 recommendOptions 本就未挂载，这里同步告知代理不需要能力层
                     IsAITools = aiapp.IsAITools,
-                    IsMcpTools = aiapp.IsMcp,
+                    IsMcpTools = aiapp.IsMcp, 
                     IsMemory = aiapp.IsMemory,
                     IsKnowledgeBase = aiapp.KmsId.HasValue && aiapp.KmsId.Value > 0,
                 };

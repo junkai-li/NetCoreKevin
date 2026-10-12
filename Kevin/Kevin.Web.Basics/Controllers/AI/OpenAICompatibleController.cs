@@ -1,0 +1,477 @@
+using kevin.Cache.Service;
+using kevin.Domain.Interfaces.IServices.AI;
+using kevin.Domain.Share.Dtos.AI;
+using kevin.Permission.Permisson.Attributes;
+using Kevin.Common.Helper;
+using Kevin.log4Net;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using Web.Filters;
+using Web.Global.Exceptions;
+using Web.Global.User;
+
+namespace Kevin.Web.Basics.AI
+{
+    /// <summary>
+    /// OpenAI 协议兼容接口：外部客户端以 OpenAI Chat Completions 协议接入平台智能体。
+    /// <para>
+    /// 鉴权：Authorization: Bearer {api_key}（appsettings 的 OpenAICompatibleSetting.ApiKeys 配置密钥，
+    /// 每个密钥绑定一个平台用户与租户；请求内自动换成该用户的内部凭证，权限/MCP/落库行为与网页端一致）。
+    /// </para>
+    /// <para>
+    /// 接口：GET /v1/models（列出当前身份可用的智能体）、POST /v1/chat/completions（stream 支持流式/非流式）。
+    /// 会话衔接：优先请求头 X-Conversation-Id、其次 body 的会话标识字段、再其次 OpenAI 标准 user 字段，
+    /// 都没有时按“首条 user 消息指纹”识别同一聊天窗口的后续轮次；映射存 Redis，默认 24 小时过期。
+    /// </para>
+    /// </summary>
+    [ApiVersionNeutral]
+    [Route("v1")]
+    [AllowAnonymous]
+    [SkipAuthority]
+    [SkipResultFilter]
+    [OpenAICompatibleApiKeyFilter]
+    public class OpenAICompatibleController : ControllerBase
+    {
+        private static readonly JsonSerializerOptions ProtocolJsonOptions = new()
+        {
+            // 中文内容按原文下发，不转成 \uXXXX 转义
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        };
+
+        private readonly IAIChatHistorysService _aIChatHistorysService;
+        private readonly IAIChatsService _aIChatsService;
+        private readonly IAIAppsService _aIAAppsService;
+        private readonly ICacheService _cacheService;
+        private readonly ICurrentUser _currentUser;
+
+        public OpenAICompatibleController(
+            IAIChatHistorysService aIChatHistorysService,
+            IAIChatsService aIChatsService,
+            IAIAppsService aIAAppsService,
+            ICacheService cacheService,
+            ICurrentUser currentUser)
+        {
+            _aIChatHistorysService = aIChatHistorysService;
+            _aIChatsService = aIChatsService;
+            _aIAAppsService = aIAAppsService;
+            _cacheService = cacheService;
+            _currentUser = currentUser;
+        }
+
+        /// <summary>
+        /// 模型列表：把当前身份可用的智能体映射为 OpenAI 模型条目，客户端据此选择 model。
+        /// </summary>
+        [HttpGet("models")]
+        public async Task Models()
+        {
+            var myApps = await _aIAAppsService.GetMyALLList();
+            var list = new OpenAICompatibleModelList
+            {
+                Data = myApps.Select(t => new OpenAICompatibleModelItem
+                {
+                    // 模型 Id 即智能体 Id（雪花 id 字符串），客户端原样回传以定位智能体
+                    Id = t.Id.ToString(),
+                    Created = t.CreateTime == default ? 0 : new DateTimeOffset(t.CreateTime).ToUnixTimeSeconds(),
+                    OwnedBy = "net_ai_web",
+                }).ToList()
+            };
+            await WriteJsonAsync(list, StatusCodes.Status200OK);
+        }
+
+        /// <summary>
+        /// 聊天补全：与网页端共用同一套智能体处理管线（见 <see cref="IAIChatHistorysService.AddWithStreamOutput"/>），
+        /// stream=true 时把回答分片翻译成 OpenAI 流式帧，否则返回完整 chat.completion。
+        /// </summary>
+        [HttpPost("chat/completions")]
+        public async Task ChatCompletions([FromBody] OpenAICompatibleChatRequest req, CancellationToken cancellationToken)
+        {
+            OpenAICompatibleChatStreamOutput? streamOutput = null;
+            try
+            {
+                if (req?.Messages == null || req.Messages.Count == 0)
+                {
+                    throw new OpenAIProtocolException(400, "messages 不能为空");
+                }
+                if (string.IsNullOrWhiteSpace(req.Model))
+                {
+                    throw new OpenAIProtocolException(400, "model 不能为空：请传智能体 Id（可从 GET /v1/models 获取）");
+                }
+
+                // 最后一条 user 消息即本轮提问；首条 user 消息文本用于“无任何会话标识”时的窗口指纹
+                var lastUser = FindLastUserMessage(req.Messages);
+                if (lastUser == null || (string.IsNullOrWhiteSpace(lastUser.Text) && lastUser.ImageUrls.Count == 0))
+                {
+                    throw new OpenAIProtocolException(400, "messages 中未找到有效的 user 消息内容");
+                }
+                var firstUserText = FindFirstUserText(req.Messages);
+
+                // 智能体定位 + 当前身份可用性校验（密钥绑定用户的权限范围）
+                var myApps = await _aIAAppsService.GetMyALLList();
+                var app = ResolveAgent(myApps, req.Model!);
+                if (app == null)
+                {
+                    throw new OpenAIProtocolException(404, $"模型 {req.Model} 不存在或当前身份无权使用（可用列表见 GET /v1/models）", code: "model_not_found");
+                }
+
+                // 会话衔接：命中已有会话则续聊，否则自动新建（API 会话对网页端隐藏）
+                var aiChatsId = await ResolveOrCreateSessionAsync(app, req, firstUserText);
+
+                var par = new AIChatHistorysDto
+                {
+                    AIChatsId = aiChatsId,
+                    Content = lastUser.Text,
+                    IsSend = true,
+                    // 推荐问题是给网页端的额外模型调用，API 场景关闭
+                    IsRecommendQuestion = false,
+                    ContentFileUrls = lastUser.ImageUrls.Count > 0 ? string.Join(",", lastUser.ImageUrls) : null,
+                };
+
+                var setting = GetSetting();
+                if (!req.Stream)
+                {
+                    // 非流式：分片全部忽略，从落库的最终回复组装完整响应
+                    var output = new OpenAICompatibleChatStreamOutput(Response, req.Model!, setting.ReasoningOutput, streamEnabled: false);
+                    var result = await _aIChatHistorysService.AddWithStreamOutput(par, _ => output, cancellationToken);
+                    var content = result?.Content ?? "";
+                    if (string.IsNullOrWhiteSpace(content) && !string.IsNullOrWhiteSpace(result?.FailReason))
+                    {
+                        // 失败路径没有可展示的正文：按错误回传，客户端可据 message 提示重试
+                        throw new OpenAIProtocolException(500, result!.FailReason!, "server_error");
+                    }
+                    var payload = new OpenAICompatibleCompletion
+                    {
+                        Id = "chatcmpl-" + Guid.NewGuid().ToString("N"),
+                        Created = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                        Model = req.Model!,
+                        Choices = new List<OpenAICompatibleCompletionChoice>
+                        {
+                            new()
+                            {
+                                Message = new OpenAICompatibleCompletionMessage
+                                {
+                                    Content = content,
+                                    ReasoningContent = setting.ReasoningOutput && !string.IsNullOrWhiteSpace(result?.AIReasoningContent) ? result!.AIReasoningContent : null,
+                                }
+                            }
+                        },
+                        Usage = new OpenAICompatibleUsage
+                        {
+                            PromptTokens = result?.InputTokenCount ?? 0,
+                            CompletionTokens = result?.OutputTokenCount ?? 0,
+                            TotalTokens = result?.TotalTokenCount ?? ((result?.InputTokenCount ?? 0) + (result?.OutputTokenCount ?? 0)),
+                        }
+                    };
+                    await WriteJsonAsync(payload, StatusCodes.Status200OK);
+                    return;
+                }
+
+                // 流式：分片按 chat.completion.chunk 帧实时下发，结束补 finish 帧 + [DONE]
+                SetSseHeaders();
+                streamOutput = new OpenAICompatibleChatStreamOutput(Response, req.Model!, setting.ReasoningOutput, streamEnabled: true);
+                await _aIChatHistorysService.AddWithStreamOutput(par, _ => streamOutput, cancellationToken);
+                await streamOutput.CompleteAsync();
+            }
+            catch (OpenAIProtocolException ex)
+            {
+                await WriteProtocolErrorAsync(ex, streamOutput);
+            }
+            catch (UserFriendlyException ex)
+            {
+                await WriteProtocolErrorAsync(new OpenAIProtocolException(400, ex.Message), streamOutput);
+            }
+            catch (OperationCanceledException)
+            {
+                // 客户端主动断开：响应已无意义，静默结束（管线内部会自行落一条失败记录供网页端查阅）
+            }
+            catch (Exception ex)
+            {
+                LogHelper.logger.Error("OpenAI兼容接口处理异常:" + ex.Message, ex);
+                await WriteProtocolErrorAsync(new OpenAIProtocolException(500, "服务内部异常：" + ex.Message, "server_error"), streamOutput);
+            }
+        }
+
+        #region 会话衔接
+
+        /// <summary>
+        /// 会话解析：按会话键查 Redis 映射 → 校验会话存在则续期复用；否则新建隐藏会话并写入映射。
+        /// <para>Redis 抖动只退化为“本轮新建会话”，不打断对话。</para>
+        /// </summary>
+        private async Task<long> ResolveOrCreateSessionAsync(AIAppsDto app, OpenAICompatibleChatRequest req, string firstUserText)
+        {
+            var conversationKey = BuildConversationKeyRaw(req, firstUserText);
+            var cacheKey = BuildSessionCacheKey(app.Id, conversationKey);
+
+            var cachedChatId = await TryGetSessionAsync(cacheKey);
+            if (cachedChatId > 0)
+            {
+                try
+                {
+                    // 校验会话仍存在且属于当前租户；失效（被删除/跨租户/Redis 脏数据）则删映射走新建
+                    await _aIChatsService.GetDetails(cachedChatId);
+                    TouchSession(cacheKey, cachedChatId);
+                    return cachedChatId;
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.logger.Info($"OpenAI兼容接口会话映射已失效（chatId={cachedChatId}，按新会话处理）：{ex.Message}");
+                    TryRemoveSession(cacheKey);
+                }
+            }
+
+            var created = await _aIChatsService.Add(new AIChatsDto
+            {
+                AppId = app.Id,
+                Name = BuildSessionName(firstUserText),
+                // API 会话不进网页端聊天列表（列表查询本就过滤隐藏会话）
+                IsHidden = true,
+                // 新建后同请求内立刻发首条消息：不做后台预热，避免预热与首条消息并发重复加载 MCP/技能
+                IsAsyncLoadAgent = false,
+            });
+            var chatId = created.AIChatsId;
+            TouchSession(cacheKey, chatId);
+            return chatId;
+        }
+
+        /// <summary>会话键原始值：请求头 &gt; 扩展字段（下划线/驼峰）&gt; OpenAI 标准 user 字段 &gt; 首条 user 消息指纹</summary>
+        private string BuildConversationKeyRaw(OpenAICompatibleChatRequest req, string firstUserText)
+        {
+            var headerConversationId = Request.Headers["X-Conversation-Id"].ToString();
+            if (!string.IsNullOrWhiteSpace(headerConversationId)) return "hdr:" + headerConversationId.Trim();
+            if (!string.IsNullOrWhiteSpace(req.ConversationId)) return "ext:" + req.ConversationId.Trim();
+            if (!string.IsNullOrWhiteSpace(req.ConversationIdCamel)) return "ext:" + req.ConversationIdCamel.Trim();
+            if (!string.IsNullOrWhiteSpace(req.User)) return "usr:" + req.User.Trim();
+            // 指纹兜底：同一聊天窗口首条用户消息恒定，哈希后即可跨请求稳定识别同一会话；
+            // 客户端重发完整历史时天然满足，历史被裁剪导致指纹变化时按新会话处理（可传会话标识避免）
+            return "fp:" + Sha256Hex(firstUserText);
+        }
+
+        /// <summary>会话映射 Redis 键：按“用户 + 智能体”隔离，防止不同用户/智能体的指纹碰撞串会话</summary>
+        private string BuildSessionCacheKey(long appId, string conversationKeyRaw)
+            => $"openai_compatible:chat:{_currentUser.UserId}:{appId}:{Sha256Hex(conversationKeyRaw)}";
+
+        private async Task<long> TryGetSessionAsync(string cacheKey)
+        {
+            try
+            {
+                var cached = await _cacheService.GetStringAsync(cacheKey);
+                return long.TryParse(cached, out var chatId) ? chatId : 0;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.logger.Info("OpenAI兼容接口读取会话映射失败（按新会话处理）：" + ex.Message);
+                return 0;
+            }
+        }
+
+        /// <summary>写入/续期会话映射（滑动过期：每次命中都按配置时长重新计时）</summary>
+        private void TouchSession(string cacheKey, long chatId)
+        {
+            try
+            {
+                var ttl = TimeSpan.FromHours(Math.Max(1, GetSetting().SessionExpirationHours));
+                _cacheService.SetString(cacheKey, chatId.ToString(), ttl);
+            }
+            catch (Exception ex)
+            {
+                // 写映射失败只影响下次能否复用会话，不影响本轮对话
+                LogHelper.logger.Info("OpenAI兼容接口写入会话映射失败（不影响本轮对话）：" + ex.Message);
+            }
+        }
+
+        private void TryRemoveSession(string cacheKey)
+        {
+            try
+            {
+                _cacheService.Remove(cacheKey);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.logger.Info("OpenAI兼容接口删除会话映射失败：" + ex.Message);
+            }
+        }
+
+        private static string BuildSessionName(string firstUserText)
+        {
+            var name = (firstUserText ?? "").Trim().ReplaceLineEndings(" ");
+            if (string.IsNullOrEmpty(name)) return "API对话";
+            return name.Length <= 50 ? name : name.Substring(0, 50);
+        }
+
+        #endregion
+
+        #region 协议解析
+
+        private static OpenAICompatibleSetting GetSetting()
+            => ConfigHelper.GetSection<OpenAICompatibleSetting>("OpenAICompatibleSetting") ?? new OpenAICompatibleSetting();
+
+        /// <summary>智能体解析：model 即智能体 Id；兼容 agent-{id} 写法与名称匹配（先区分大小写、再忽略大小写）</summary>
+        private static AIAppsDto? ResolveAgent(List<AIAppsDto> myApps, string model)
+        {
+            var name = model.Trim();
+            // 主用法：model 即智能体 Id（GET /v1/models 的 id 字段）；agent-{id} 为历史写法，一并兼容
+            var idText = name.StartsWith("agent-", StringComparison.OrdinalIgnoreCase) ? name.Substring("agent-".Length) : name;
+            if (long.TryParse(idText, out var agentId))
+            {
+                var byId = myApps.FirstOrDefault(t => t.Id == agentId);
+                if (byId != null) return byId;
+            }
+            // 容错：仍接受智能体名称
+            return myApps.FirstOrDefault(t => string.Equals(t.Name, name, StringComparison.Ordinal))
+                ?? myApps.FirstOrDefault(t => string.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static CapturedUserMessage? FindLastUserMessage(List<OpenAICompatibleMessage> messages)
+        {
+            for (var i = messages.Count - 1; i >= 0; i--)
+            {
+                var message = messages[i];
+                if (message == null || !string.Equals(message.Role, "user", StringComparison.OrdinalIgnoreCase)) continue;
+                var (text, imageUrls) = ExtractContent(message.Content);
+                return new CapturedUserMessage(text, imageUrls);
+            }
+            return null;
+        }
+
+        private static string FindFirstUserText(List<OpenAICompatibleMessage> messages)
+        {
+            foreach (var message in messages)
+            {
+                if (message == null || !string.Equals(message.Role, "user", StringComparison.OrdinalIgnoreCase)) continue;
+                var (text, imageUrls) = ExtractContent(message.Content);
+                if (string.IsNullOrWhiteSpace(text) && imageUrls.Count > 0)
+                {
+                    // 纯图片消息：用图片地址参与指纹，避免所有纯图片会话指纹相同
+                    return "img:" + imageUrls[0];
+                }
+                if (!string.IsNullOrWhiteSpace(text)) return text;
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// 解析消息内容：content 可能是字符串（常规）或内容块数组（多模态）。
+        /// 文本块（text/input_text）合并为正文；图片块（image_url）只接受 http(s) 远程地址
+        /// （data: 内联图片会随请求体膨胀且不符合管线取数方式，直接忽略），交给管线的文件处理复用既有模态能力。
+        /// </summary>
+        private static (string Text, List<string> ImageUrls) ExtractContent(JsonElement content)
+        {
+            var text = new StringBuilder();
+            var imageUrls = new List<string>();
+            switch (content.ValueKind)
+            {
+                case JsonValueKind.String:
+                    text.Append(content.GetString());
+                    break;
+                case JsonValueKind.Array:
+                    foreach (var part in content.EnumerateArray())
+                    {
+                        if (part.ValueKind != JsonValueKind.Object) continue;
+                        var type = part.TryGetProperty("type", out var typeEl) && typeEl.ValueKind == JsonValueKind.String ? typeEl.GetString() : null;
+                        if (string.Equals(type, "text", StringComparison.OrdinalIgnoreCase) || string.Equals(type, "input_text", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (part.TryGetProperty("text", out var textEl) && textEl.ValueKind == JsonValueKind.String)
+                            {
+                                if (text.Length > 0) text.Append('\n');
+                                text.Append(textEl.GetString());
+                            }
+                        }
+                        else if (string.Equals(type, "image_url", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // 兼容 {"image_url":{"url":...}} 与 {"image_url":"..."} 两种写法
+                            string? url = null;
+                            if (part.TryGetProperty("image_url", out var imageEl))
+                            {
+                                if (imageEl.ValueKind == JsonValueKind.Object && imageEl.TryGetProperty("url", out var urlEl) && urlEl.ValueKind == JsonValueKind.String)
+                                {
+                                    url = urlEl.GetString();
+                                }
+                                else if (imageEl.ValueKind == JsonValueKind.String)
+                                {
+                                    url = imageEl.GetString();
+                                }
+                            }
+                            if (!string.IsNullOrWhiteSpace(url)
+                                && (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || url.StartsWith("https://", StringComparison.OrdinalIgnoreCase)))
+                            {
+                                imageUrls.Add(url);
+                            }
+                        }
+                    }
+                    break;
+            }
+            return (text.ToString(), imageUrls);
+        }
+
+        private static string Sha256Hex(string text)
+        {
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(text ?? ""));
+            return Convert.ToHexString(bytes).ToLowerInvariant();
+        }
+
+        private sealed record CapturedUserMessage(string Text, List<string> ImageUrls);
+
+        #endregion
+
+        #region 响应输出
+
+        private void SetSseHeaders()
+        {
+            Response.ContentType = "text/event-stream";
+            Response.Headers["Cache-Control"] = "no-cache";
+            Response.Headers["Connection"] = "keep-alive";
+            // 反向代理默认缓冲响应会破坏流式实时性（与 AddSSE 一致）
+            Response.Headers["X-Accel-Buffering"] = "no";
+        }
+
+        private async Task WriteJsonAsync(object payload, int statusCode)
+        {
+            Response.StatusCode = statusCode;
+            Response.ContentType = "application/json; charset=utf-8";
+            await Response.WriteAsync(JsonSerializer.Serialize(payload, ProtocolJsonOptions));
+        }
+
+        /// <summary>错误输出：流未开始则以 JSON 错误 + 状态码返回；流已开始只能按 OpenAI 流式约定塞 error 数据帧</summary>
+        private async Task WriteProtocolErrorAsync(OpenAIProtocolException ex, OpenAICompatibleChatStreamOutput? streamOutput)
+        {
+            try
+            {
+                if (streamOutput != null && streamOutput.StreamStarted)
+                {
+                    await streamOutput.WriteErrorAsync(ex.Message);
+                    return;
+                }
+                await WriteJsonAsync(new OpenAICompatibleErrorResponse
+                {
+                    Error = new OpenAICompatibleErrorBody { Message = ex.Message, Type = ex.ErrType, Code = ex.Code }
+                }, ex.StatusCode);
+            }
+            catch (Exception writeEx)
+            {
+                // 客户端可能已断开：错误提示送不到就算了，避免二次异常盖掉原始日志
+                LogHelper.logger.Info("OpenAI兼容接口错误响应写出失败（已忽略）：" + writeEx.Message);
+            }
+        }
+
+        /// <summary>本接口内部的协议异常：携带 HTTP 状态码与 OpenAI 错误类型，统一在入口处转为错误响应</summary>
+        private sealed class OpenAIProtocolException : Exception
+        {
+            public int StatusCode { get; }
+            public string ErrType { get; }
+            public string? Code { get; }
+
+            public OpenAIProtocolException(int statusCode, string message, string errType = "invalid_request_error", string? code = null) : base(message)
+            {
+                StatusCode = statusCode;
+                ErrType = errType;
+                Code = code;
+            }
+        }
+
+        #endregion
+    }
+}

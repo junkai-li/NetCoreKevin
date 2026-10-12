@@ -24,6 +24,16 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// <param name="cancellationToken">连接中止令牌</param>
         Task<AIChatHistorysDto> AddToRoom(AIChatHistorysDto par, long roomId, CancellationToken cancellationToken);
 
+        /// <summary>
+        /// 使用调用方自备的输出通道处理一条提问：与 <see cref="Add"/> / <see cref="AddSSE"/> / <see cref="AddToRoom"/>
+        /// 共用同一套处理逻辑，仅由调用方决定流式分片的输出方式。
+        /// <para>供 Web 层的协议适配器（如 OpenAI 协议兼容接口）复用整条智能体管线，新增输出协议时无需改动本服务。</para>
+        /// </summary>
+        /// <param name="par">聊天入参</param>
+        /// <param name="outputFactory">入参为提问记录 Id（身份标识），返回本次请求使用的流式输出通道</param>
+        /// <param name="cancellationToken">请求中止令牌</param>
+        Task<AIChatHistorysDto> AddWithStreamOutput(AIChatHistorysDto par, Func<string, IChatStreamOutput> outputFactory, CancellationToken cancellationToken);
+
         Task<bool> Delete(long id);
     }
 }
