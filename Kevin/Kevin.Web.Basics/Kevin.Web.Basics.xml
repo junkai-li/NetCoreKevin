@@ -189,135 +189,6 @@
             <param name="Id"></param>
             <returns></returns>
         </member>
-        <member name="T:Kevin.Web.Basics.AI.OpenAICompatibleChatStreamOutput">
-            <summary>
-            OpenAI 协议流式输出适配器：实现智能体管线的 <see cref="T:kevin.Domain.Interfaces.IServices.AI.IChatStreamOutput"/> 端口，
-            把各通道分片翻译成 OpenAI 流式响应帧（chat.completion.chunk + 结尾 data: [DONE]）写入当前 HTTP 响应。
-            <para>
-            通道映射：aimsg → delta.content；aIReasoningContentMsg → delta.reasoning_content（可开关）；
-            processmsg / aIToolsContentMsg / recommendmsg 属于智能体内部过程信息，不进入协议输出。
-            </para>
-            <para>
-            非流式请求时传 streamEnabled=false，实例退化为空实现（完整回复由控制器从落库结果组装）。
-            </para>
-            </summary>
-        </member>
-        <member name="P:Kevin.Web.Basics.AI.OpenAICompatibleChatStreamOutput.StreamStarted">
-            <summary>流式响应是否已开始写数据（控制器据此判断出错时还能否改写状态码返回 JSON 错误）</summary>
-        </member>
-        <member name="M:Kevin.Web.Basics.AI.OpenAICompatibleChatStreamOutput.CompleteAsync">
-            <summary>正常收尾：finish 分片 + [DONE]</summary>
-        </member>
-        <member name="M:Kevin.Web.Basics.AI.OpenAICompatibleChatStreamOutput.WriteErrorAsync(System.String)">
-            <summary>流式处理中途出错：按 OpenAI 流式错误约定下发 error 数据帧后关闭流</summary>
-        </member>
-        <member name="M:Kevin.Web.Basics.AI.OpenAICompatibleChatStreamOutput.WriteChunkAsync(Kevin.Web.Basics.AI.OpenAICompatibleDelta,System.String)">
-            <summary>下发一条 chunk；首个分片前先补一条带 role 的声明帧（OpenAI 流式约定，部分客户端依赖）</summary>
-        </member>
-        <member name="T:Kevin.Web.Basics.AI.OpenAICompatibleController">
-            <summary>
-            OpenAI 协议兼容接口：外部客户端以 OpenAI Chat Completions 协议接入平台智能体。
-            <para>
-            鉴权：Authorization: Bearer {api_key}（appsettings 的 OpenAICompatibleSetting.ApiKeys 配置密钥，
-            每个密钥绑定一个平台用户与租户；请求内自动换成该用户的内部凭证，权限/MCP/落库行为与网页端一致）。
-            </para>
-            <para>
-            接口：GET /v1/models（列出当前身份可用的智能体）、POST /v1/chat/completions（stream 支持流式/非流式）。
-            会话衔接：优先请求头 X-Conversation-Id、其次 body 的会话标识字段、再其次 OpenAI 标准 user 字段，
-            都没有时按“首条 user 消息指纹”识别同一聊天窗口的后续轮次；映射存 Redis，默认 24 小时过期。
-            </para>
-            </summary>
-        </member>
-        <member name="M:Kevin.Web.Basics.AI.OpenAICompatibleController.Models">
-            <summary>
-            模型列表：把当前身份可用的智能体映射为 OpenAI 模型条目，客户端据此选择 model。
-            </summary>
-        </member>
-        <member name="M:Kevin.Web.Basics.AI.OpenAICompatibleController.ChatCompletions(Kevin.Web.Basics.AI.OpenAICompatibleChatRequest,System.Threading.CancellationToken)">
-            <summary>
-            聊天补全：与网页端共用同一套智能体处理管线（见 <see cref="M:kevin.Domain.Interfaces.IServices.AI.IAIChatHistorysService.AddWithStreamOutput(kevin.Domain.Share.Dtos.AI.AIChatHistorysDto,System.Func{System.String,kevin.Domain.Interfaces.IServices.AI.IChatStreamOutput},System.Threading.CancellationToken)"/>），
-            stream=true 时把回答分片翻译成 OpenAI 流式帧，否则返回完整 chat.completion。
-            </summary>
-        </member>
-        <member name="M:Kevin.Web.Basics.AI.OpenAICompatibleController.ResolveOrCreateSessionAsync(kevin.Domain.Share.Dtos.AI.AIAppsDto,Kevin.Web.Basics.AI.OpenAICompatibleChatRequest,System.String)">
-            <summary>
-            会话解析：按会话键查 Redis 映射 → 校验会话存在则续期复用；否则新建隐藏会话并写入映射。
-            <para>Redis 抖动只退化为“本轮新建会话”，不打断对话。</para>
-            </summary>
-        </member>
-        <member name="M:Kevin.Web.Basics.AI.OpenAICompatibleController.BuildConversationKeyRaw(Kevin.Web.Basics.AI.OpenAICompatibleChatRequest,System.String)">
-            <summary>会话键原始值：请求头 &gt; 扩展字段（下划线/驼峰）&gt; OpenAI 标准 user 字段 &gt; 首条 user 消息指纹</summary>
-        </member>
-        <member name="M:Kevin.Web.Basics.AI.OpenAICompatibleController.BuildSessionCacheKey(System.Int64,System.String)">
-            <summary>会话映射 Redis 键：按“用户 + 智能体”隔离，防止不同用户/智能体的指纹碰撞串会话</summary>
-        </member>
-        <member name="M:Kevin.Web.Basics.AI.OpenAICompatibleController.TouchSession(System.String,System.Int64)">
-            <summary>写入/续期会话映射（滑动过期：每次命中都按配置时长重新计时）</summary>
-        </member>
-        <member name="M:Kevin.Web.Basics.AI.OpenAICompatibleController.ResolveAgent(System.Collections.Generic.List{kevin.Domain.Share.Dtos.AI.AIAppsDto},System.String)">
-            <summary>智能体解析：model 即智能体 Id；兼容 agent-{id} 写法与名称匹配（先区分大小写、再忽略大小写）</summary>
-        </member>
-        <member name="M:Kevin.Web.Basics.AI.OpenAICompatibleController.ExtractContent(System.Text.Json.JsonElement)">
-            <summary>
-            解析消息内容：content 可能是字符串（常规）或内容块数组（多模态）。
-            文本块（text/input_text）合并为正文；图片块（image_url）只接受 http(s) 远程地址
-            （data: 内联图片会随请求体膨胀且不符合管线取数方式，直接忽略），交给管线的文件处理复用既有模态能力。
-            </summary>
-        </member>
-        <member name="M:Kevin.Web.Basics.AI.OpenAICompatibleController.WriteProtocolErrorAsync(Kevin.Web.Basics.AI.OpenAICompatibleController.OpenAIProtocolException,Kevin.Web.Basics.AI.OpenAICompatibleChatStreamOutput)">
-            <summary>错误输出：流未开始则以 JSON 错误 + 状态码返回；流已开始只能按 OpenAI 流式约定塞 error 数据帧</summary>
-        </member>
-        <member name="T:Kevin.Web.Basics.AI.OpenAICompatibleController.OpenAIProtocolException">
-            <summary>本接口内部的协议异常：携带 HTTP 状态码与 OpenAI 错误类型，统一在入口处转为错误响应</summary>
-        </member>
-        <member name="T:Kevin.Web.Basics.AI.OpenAICompatibleChatRequest">
-            <summary>
-            OpenAI 协议聊天请求：只解析本接口用到的字段，temperature/top_p/max_tokens/tools 等
-            其余协议字段一律忽略（交由智能体自身配置决定模型参数与工具能力）。
-            </summary>
-        </member>
-        <member name="P:Kevin.Web.Basics.AI.OpenAICompatibleChatRequest.Model">
-            <summary>模型名：即智能体 Id，取值来自 GET /v1/models 返回的列表</summary>
-        </member>
-        <member name="P:Kevin.Web.Basics.AI.OpenAICompatibleChatRequest.Messages">
-            <summary>消息列表：取最后一条 role=user 的消息作为本轮提问，其余历史仅用于识别会话</summary>
-        </member>
-        <member name="P:Kevin.Web.Basics.AI.OpenAICompatibleChatRequest.Stream">
-            <summary>是否流式输出（true 时按 SSE 下发 chat.completion.chunk 分片）</summary>
-        </member>
-        <member name="P:Kevin.Web.Basics.AI.OpenAICompatibleChatRequest.User">
-            <summary>会话标识（OpenAI 标准字段）：客户端传同一个值即复用同一会话，作为会话键的最后兜底来源</summary>
-        </member>
-        <member name="P:Kevin.Web.Basics.AI.OpenAICompatibleChatRequest.ConversationId">
-            <summary>会话标识扩展字段（下划线命名）：会话键的第一来源，优先于 user 字段</summary>
-        </member>
-        <member name="P:Kevin.Web.Basics.AI.OpenAICompatibleChatRequest.ConversationIdCamel">
-            <summary>会话标识扩展字段（驼峰命名容错别名）：与 conversation_id 等价</summary>
-        </member>
-        <member name="T:Kevin.Web.Basics.AI.OpenAICompatibleMessage">
-            <summary>
-            OpenAI 协议消息：content 可能是字符串或内容块数组（如 text/image_url 块），
-            这里原样保留 JsonElement，由控制器按需解析。
-            </summary>
-        </member>
-        <member name="T:Kevin.Web.Basics.AI.OpenAICompatibleChunk">
-            <summary>流式分片：chat.completion.chunk</summary>
-        </member>
-        <member name="T:Kevin.Web.Basics.AI.OpenAICompatibleDelta">
-            <summary>流式增量：role 只在首帧出现；思考过程以 reasoning_content 字段下发（不支持的客户端会自动忽略）</summary>
-        </member>
-        <member name="T:Kevin.Web.Basics.AI.OpenAICompatibleCompletion">
-            <summary>非流式完整响应：chat.completion</summary>
-        </member>
-        <member name="P:Kevin.Web.Basics.AI.OpenAICompatibleCompletionMessage.ReasoningContent">
-            <summary>思考过程（开启智能体思考日志时才有值）</summary>
-        </member>
-        <member name="T:Kevin.Web.Basics.AI.OpenAICompatibleModelList">
-            <summary>模型列表：GET /v1/models 响应</summary>
-        </member>
-        <member name="T:Kevin.Web.Basics.AI.OpenAICompatibleErrorResponse">
-            <summary>OpenAI 风格错误响应：{"error":{"message","type","param","code"}}</summary>
-        </member>
         <member name="T:Kevin.Web.Basics.AI.Organizational.DepartmentController">
             <summary>
             部门管理
@@ -390,6 +261,135 @@
             执行我的AI任务
              </summary> 
              <returns></returns>
+        </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatStreamOutput">
+            <summary>
+            OpenAI 协议流式输出适配器：实现智能体管线的 <see cref="T:kevin.Domain.Interfaces.IServices.AI.IChatStreamOutput"/> 端口，
+            把各通道分片翻译成 OpenAI 流式响应帧（chat.completion.chunk + 结尾 data: [DONE]）写入当前 HTTP 响应。
+            <para>
+            通道映射：aimsg → delta.content；aIReasoningContentMsg → delta.reasoning_content（可开关）；
+            processmsg / aIToolsContentMsg / recommendmsg 属于智能体内部过程信息，不进入协议输出。
+            </para>
+            <para>
+            非流式请求时传 streamEnabled=false，实例退化为空实现（完整回复由控制器从落库结果组装）。
+            </para>
+            </summary>
+        </member>
+        <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatStreamOutput.StreamStarted">
+            <summary>流式响应是否已开始写数据（控制器据此判断出错时还能否改写状态码返回 JSON 错误）</summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatStreamOutput.CompleteAsync">
+            <summary>正常收尾：finish 分片 + [DONE]</summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatStreamOutput.WriteErrorAsync(System.String)">
+            <summary>流式处理中途出错：按 OpenAI 流式错误约定下发 error 数据帧后关闭流</summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatStreamOutput.WriteChunkAsync(Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleDelta,System.String)">
+            <summary>下发一条 chunk；首个分片前先补一条带 role 的声明帧（OpenAI 流式约定，部分客户端依赖）</summary>
+        </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController">
+            <summary>
+            OpenAI 协议兼容接口：外部客户端以 OpenAI Chat Completions 协议接入平台智能体。
+            <para>
+            鉴权：Authorization: Bearer {api_key}（appsettings 的 OpenAICompatibleSetting.ApiKeys 配置密钥，
+            每个密钥绑定一个平台用户与租户；请求内自动换成该用户的内部凭证，权限/MCP/落库行为与网页端一致）。
+            </para>
+            <para>
+            接口：GET /v1/models（列出当前身份可用的智能体）、POST /v1/chat/completions（stream 支持流式/非流式）。
+            会话衔接：优先请求头 X-Conversation-Id、其次 body 的会话标识字段、再其次 OpenAI 标准 user 字段，
+            都没有时按“首条 user 消息指纹”识别同一聊天窗口的后续轮次；映射存 Redis，默认 24 小时过期。
+            </para>
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.Models">
+            <summary>
+            模型列表：把当前身份可用的智能体映射为 OpenAI 模型条目，客户端据此选择 model。
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.ChatCompletions(Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatRequest,System.Threading.CancellationToken)">
+            <summary>
+            聊天补全：与网页端共用同一套智能体处理管线（见 <see cref="M:kevin.Domain.Interfaces.IServices.AI.IAIChatHistorysService.AddWithStreamOutput(kevin.Domain.Share.Dtos.AI.AIChatHistorysDto,System.Func{System.String,kevin.Domain.Interfaces.IServices.AI.IChatStreamOutput},System.Threading.CancellationToken)"/>），
+            stream=true 时把回答分片翻译成 OpenAI 流式帧，否则返回完整 chat.completion。
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.ResolveOrCreateSessionAsync(kevin.Domain.Share.Dtos.AI.AIAppsDto,Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatRequest,System.String)">
+            <summary>
+            会话解析：按会话键查 Redis 映射 → 校验会话存在则续期复用；否则新建隐藏会话并写入映射。
+            <para>Redis 抖动只退化为“本轮新建会话”，不打断对话。</para>
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.BuildConversationKeyRaw(Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatRequest,System.String)">
+            <summary>会话键原始值：请求头 &gt; 扩展字段（下划线/驼峰）&gt; OpenAI 标准 user 字段 &gt; 首条 user 消息指纹</summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.BuildSessionCacheKey(System.Int64,System.String)">
+            <summary>会话映射 Redis 键：按“用户 + 智能体”隔离，防止不同用户/智能体的指纹碰撞串会话</summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.TouchSession(System.String,System.Int64)">
+            <summary>写入/续期会话映射（滑动过期：每次命中都按配置时长重新计时）</summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.ResolveAgent(System.Collections.Generic.List{kevin.Domain.Share.Dtos.AI.AIAppsDto},System.String)">
+            <summary>智能体解析：model 即智能体 Id；兼容 agent-{id} 写法与名称匹配（先区分大小写、再忽略大小写）</summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.ExtractContent(System.Text.Json.JsonElement)">
+            <summary>
+            解析消息内容：content 可能是字符串（常规）或内容块数组（多模态）。
+            文本块（text/input_text）合并为正文；图片块（image_url）只接受 http(s) 远程地址
+            （data: 内联图片会随请求体膨胀且不符合管线取数方式，直接忽略），交给管线的文件处理复用既有模态能力。
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.WriteProtocolErrorAsync(Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.OpenAIProtocolException,Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatStreamOutput)">
+            <summary>错误输出：流未开始则以 JSON 错误 + 状态码返回；流已开始只能按 OpenAI 流式约定塞 error 数据帧</summary>
+        </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.OpenAIProtocolException">
+            <summary>本接口内部的协议异常：携带 HTTP 状态码与 OpenAI 错误类型，统一在入口处转为错误响应</summary>
+        </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatRequest">
+            <summary>
+            OpenAI 协议聊天请求：只解析本接口用到的字段，temperature/top_p/max_tokens/tools 等
+            其余协议字段一律忽略（交由智能体自身配置决定模型参数与工具能力）。
+            </summary>
+        </member>
+        <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatRequest.Model">
+            <summary>模型名：即智能体 Id，取值来自 GET /v1/models 返回的列表</summary>
+        </member>
+        <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatRequest.Messages">
+            <summary>消息列表：取最后一条 role=user 的消息作为本轮提问，其余历史仅用于识别会话</summary>
+        </member>
+        <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatRequest.Stream">
+            <summary>是否流式输出（true 时按 SSE 下发 chat.completion.chunk 分片）</summary>
+        </member>
+        <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatRequest.User">
+            <summary>会话标识（OpenAI 标准字段）：客户端传同一个值即复用同一会话，作为会话键的最后兜底来源</summary>
+        </member>
+        <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatRequest.ConversationId">
+            <summary>会话标识扩展字段（下划线命名）：会话键的第一来源，优先于 user 字段</summary>
+        </member>
+        <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatRequest.ConversationIdCamel">
+            <summary>会话标识扩展字段（驼峰命名容错别名）：与 conversation_id 等价</summary>
+        </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleMessage">
+            <summary>
+            OpenAI 协议消息：content 可能是字符串或内容块数组（如 text/image_url 块），
+            这里原样保留 JsonElement，由控制器按需解析。
+            </summary>
+        </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChunk">
+            <summary>流式分片：chat.completion.chunk</summary>
+        </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleDelta">
+            <summary>流式增量：role 只在首帧出现；思考过程以 reasoning_content 字段下发（不支持的客户端会自动忽略）</summary>
+        </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleCompletion">
+            <summary>非流式完整响应：chat.completion</summary>
+        </member>
+        <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleCompletionMessage.ReasoningContent">
+            <summary>思考过程（开启智能体思考日志时才有值）</summary>
+        </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleModelList">
+            <summary>模型列表：GET /v1/models 响应</summary>
+        </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleErrorResponse">
+            <summary>OpenAI 风格错误响应：{"error":{"message","type","param","code"}}</summary>
         </member>
         <member name="T:Kevin.Web.Basics.Controllers.AliAsrController">
             <summary>

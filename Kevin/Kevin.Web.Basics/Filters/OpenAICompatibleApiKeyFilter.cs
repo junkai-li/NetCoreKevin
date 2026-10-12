@@ -2,6 +2,7 @@ using kevin.Domain.Interfaces.IServices;
 using Kevin.Common.Helper;
 using Kevin.log4Net;
 using Kevin.Web.Basics.AI;
+using Kevin.Web.Basics.Controllers.AI.OpenAI;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;

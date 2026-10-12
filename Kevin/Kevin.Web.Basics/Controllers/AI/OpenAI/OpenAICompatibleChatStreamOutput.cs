@@ -4,7 +4,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
-namespace Kevin.Web.Basics.AI
+namespace Kevin.Web.Basics.Controllers.AI.OpenAI
 {
     /// <summary>
     /// OpenAI 协议流式输出适配器：实现智能体管线的 <see cref="IChatStreamOutput"/> 端口，

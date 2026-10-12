@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Kevin.Web.Basics.AI
+namespace Kevin.Web.Basics.Controllers.AI.OpenAI
 {
     #region 请求模型（OpenAI Chat Completions 协议子集）
 

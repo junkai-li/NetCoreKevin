@@ -15,7 +15,7 @@ using Web.Filters;
 using Web.Global.Exceptions;
 using Web.Global.User;
 
-namespace Kevin.Web.Basics.AI
+namespace Kevin.Web.Basics.Controllers.AI.OpenAI
 {
     /// <summary>
     /// OpenAI 协议兼容接口：外部客户端以 OpenAI Chat Completions 协议接入平台智能体。
