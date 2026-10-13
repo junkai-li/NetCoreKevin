@@ -148,6 +148,15 @@ namespace kevin.Application.Services.AI
             {
                 return;
             }
+            // 关键：切断请求执行上下文（ExecutionContext）向后台任务的传播。Task.Run 默认会捕获当前线程的
+            // ExecutionContext，把 IHttpContextAccessor 里残留的请求 HttpContext 一并带进任务体；请求结束、
+            // 其 RequestServices 作用域释放后，后台新建作用域解析服务时 BaseService 构造函数会从这个
+            // 已释放的 HttpContext.RequestServices 取 ICurrentUser，抛 ObjectDisposedException:
+            // Cannot access a disposed object（'IServiceProvider'）。抑制后任务体在空上下文里运行：
+            // HttpContext 为 null，服务走“非请求上下文”分支（与定时任务同路径，CurrentUser.UserId 降级为 0），
+            // 预热所需身份由任务体内显式调用 IAIShareInfoService.InitData 注入。
+            // 抑制只影响 Task.Run 对上下文的捕获，方法返回时自动恢复，不影响请求线程本身。
+            using var suppressFlow = ExecutionContext.SuppressFlow();
             _ = Task.Run(async () =>
             {
                 try
