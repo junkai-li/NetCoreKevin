@@ -982,6 +982,11 @@
         <member name="P:Web.Filters.OpenAICompatibleSetting.ReasoningOutput">
             <summary>是否把模型思考过程以 reasoning_content 字段流式下发（不支持的客户端会自动忽略该字段）</summary>
         </member>
+        <member name="P:Web.Filters.OpenAICompatibleSetting.AIChatIsHidden">
+            <summary>
+            //是否隐藏 AI 聊天对话（null=不限制，true=隐藏，false=显示）
+            </summary>
+        </member>
         <member name="T:Web.Filters.OpenAICompatibleApiKey">
             <summary>单个 API 密钥配置</summary>
         </member>

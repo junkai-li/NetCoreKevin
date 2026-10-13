@@ -30,7 +30,7 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
     /// </para>
     /// </summary>
     [ApiVersionNeutral]
-    [Route("v1")]
+    [Route("api/v1")]
     [AllowAnonymous]
     [SkipAuthority]
     [SkipResultFilter]
@@ -227,8 +227,7 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
             {
                 AppId = app.Id,
                 Name = BuildSessionName(firstUserText),
-                // API 会话不进网页端聊天列表（列表查询本就过滤隐藏会话）
-                IsHidden = true,
+                IsHidden = GetSetting().AIChatIsHidden,
                 // 新建后同请求内立刻发首条消息：不做后台预热，避免预热与首条消息并发重复加载 MCP/技能
                 IsAsyncLoadAgent = false,
             });

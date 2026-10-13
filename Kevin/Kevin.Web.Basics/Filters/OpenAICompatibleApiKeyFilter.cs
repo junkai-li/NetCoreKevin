@@ -26,6 +26,11 @@ namespace Web.Filters
 
         /// <summary>是否把模型思考过程以 reasoning_content 字段流式下发（不支持的客户端会自动忽略该字段）</summary>
         public bool ReasoningOutput { get; set; } = true;
+
+        /// <summary>
+        /// //是否隐藏 AI 聊天对话（null=不限制，true=隐藏，false=显示）
+        /// </summary>
+        public bool AIChatIsHidden { get; set; } = true;
     }
 
     /// <summary>单个 API 密钥配置</summary>
@@ -137,5 +142,17 @@ namespace Web.Filters
                 Content = payload
             };
         }
+    }
+
+    public class OpenAICompatibleErrorResponse
+    {
+        public OpenAICompatibleErrorBody Error { get; set; }
+    }
+
+    public class OpenAICompatibleErrorBody
+    {
+        public string Message { get; set; }
+        public string Type { get; set; }
+        public string Code { get; set; }
     }
 }
