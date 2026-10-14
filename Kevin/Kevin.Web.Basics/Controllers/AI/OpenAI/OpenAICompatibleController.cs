@@ -104,7 +104,11 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
 
                 // 最后一条 user 消息即本轮提问；首条 user 消息文本用于“无任何会话标识”时的窗口指纹
                 var lastUser = FindLastUserMessage(req.Messages);
-                if (lastUser == null || (string.IsNullOrWhiteSpace(lastUser.Text) && lastUser.ImageUrls.Count == 0))
+                // 工具结果续轮：尾部连续的 role=tool 消息（客户端执行完上一轮 tool_calls 回传的结果）
+                var toolResults = CollectTrailingToolResults(req.Messages);
+                // 既没有 user 文本/图片、也没有工具结果时，没有可处理的内容
+                var hasUserContent = lastUser != null && (!string.IsNullOrWhiteSpace(lastUser.Text) || lastUser.ImageUrls.Count > 0);
+                if (!hasUserContent && toolResults.Count == 0)
                 {
                     throw new OpenAIProtocolException(400, "messages 中未找到有效的 user 消息内容");
                 }
@@ -121,15 +125,27 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
                 // 会话衔接：命中已有会话则续聊，否则自动新建（API 会话对网页端隐藏）
                 var aiChatsId = await ResolveOrCreateSessionAsync(app, req, firstUserText);
 
+                // 透传工具（OpenAI tools）：本轮附带的调用方工具声明，网关只透传不执行
+                var externalTools = ParseExternalTools(req.Tools);
+
                 var par = new AIChatHistorysDto
                 {
                     AIChatsId = aiChatsId,
-                    Content = lastUser.Text,
+                    // 工具续轮：本轮真正的模型输入是工具结果（不是新提问），提问行用占位文案，避免会话里落一条重复问题
+                    Content = toolResults.Count > 0 ? BuildToolTurnPlaceholder(toolResults) : lastUser!.Text,
                     IsSend = true,
                     // 推荐问题是给网页端的额外模型调用，API 场景关闭
                     IsRecommendQuestion = false,
-                    ContentFileUrls = lastUser.ImageUrls.Count > 0 ? string.Join(",", lastUser.ImageUrls) : null,
+                    // 工具续轮不是新的用户提问：不携带上一轮的图片
+                    ContentFileUrls = toolResults.Count == 0 && (lastUser?.ImageUrls.Count ?? 0) > 0 ? string.Join(",", lastUser!.ImageUrls) : null,
+                    ExternalTools = externalTools,
+                    ExternalMessages = toolResults.Count > 0 ? toolResults : null,
                 };
+                // tool_choice 只在透传工具场景生效：避免影响智能体自身工具能力的默认行为
+                if (externalTools != null)
+                {
+                    ApplyToolChoice(req.ToolChoice, par);
+                }
 
                 var setting = GetSetting();
                 if (!req.Stream)
@@ -143,6 +159,9 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
                         // 失败路径没有可展示的正文：按错误回传，客户端可据 message 提示重试
                         throw new OpenAIProtocolException(500, result!.FailReason!, "server_error");
                     }
+                    // 透传工具调用轮：按 OpenAI 协议以 message.tool_calls + finish_reason=tool_calls 返回，
+                    // 客户端执行完工具后把 role=tool 结果消息发回继续对话
+                    var toolCalls = output.CollectedToolCalls;
                     var payload = new OpenAICompatibleCompletion
                     {
                         Id = "chatcmpl-" + Guid.NewGuid().ToString("N"),
@@ -152,10 +171,12 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
                         {
                             new()
                             {
+                                FinishReason = toolCalls.Count > 0 ? "tool_calls" : "stop",
                                 Message = new OpenAICompatibleCompletionMessage
                                 {
                                     Content = content,
                                     ReasoningContent = setting.ReasoningOutput && !string.IsNullOrWhiteSpace(result?.AIReasoningContent) ? result!.AIReasoningContent : null,
+                                    ToolCalls = toolCalls.Count > 0 ? toolCalls.ToList() : null,
                                 }
                             }
                         },
@@ -226,7 +247,7 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
             var created = await _aIChatsService.Add(new AIChatsDto
             {
                 AppId = app.Id,
-                Name = BuildSessionName(firstUserText),
+                Name = BuildSessionName(firstUserText), 
                 IsHidden = GetSetting().AIChatIsHidden,
                 // 新建后同请求内立刻发首条消息：不做后台预热，避免预热与首条消息并发重复加载 MCP/技能
                 IsAsyncLoadAgent = false,
@@ -350,6 +371,101 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
                 if (!string.IsNullOrWhiteSpace(text)) return text;
             }
             return "";
+        }
+
+        /// <summary>
+        /// 收集尾部待决的工具结果消息：从末尾往前取连续 role=tool 的消息（恢复原顺序返回）。
+        /// 再往前的 assistant 工具调用帧已随上一轮回复入库，历史加载时会先行下发，这里不再重复携带；
+        /// 多批调用时只有最后一批（最后一个 assistant 调用帧之后的 tool 消息）属于本轮待决。
+        /// </summary>
+        private static List<AIExternalMessageDto> CollectTrailingToolResults(List<OpenAICompatibleMessage> messages)
+        {
+            var results = new List<AIExternalMessageDto>();
+            for (var i = messages.Count - 1; i >= 0; i--)
+            {
+                var message = messages[i];
+                if (message == null || !string.Equals(message.Role, "tool", StringComparison.OrdinalIgnoreCase))
+                {
+                    break;
+                }
+                if (string.IsNullOrEmpty(message.ToolCallId))
+                {
+                    // 缺 tool_call_id 的结果无法关联 assistant 调用帧，忽略该条继续扫描
+                    continue;
+                }
+                var (text, _) = ExtractContent(message.Content);
+                results.Add(new AIExternalMessageDto
+                {
+                    Role = "tool",
+                    ToolCallId = message.ToolCallId.Trim(),
+                    Content = text,
+                });
+            }
+            results.Reverse();
+            return results;
+        }
+
+        /// <summary>
+        /// 解析请求 tools：只接受 type=function 且 name 非空的条目（parameters 保留 JSON Schema 原文）；
+        /// 返回 null 表示本轮没有工具透传需求（行为与改造前完全一致）。
+        /// </summary>
+        private static List<AIExternalToolDto>? ParseExternalTools(List<OpenAICompatibleTool>? tools)
+        {
+            if (tools == null || tools.Count == 0) return null;
+            var list = new List<AIExternalToolDto>(tools.Count);
+            foreach (var tool in tools)
+            {
+                if (tool == null || !string.Equals(tool.Type, "function", StringComparison.OrdinalIgnoreCase)) continue;
+                var name = tool.Function?.Name?.Trim();
+                if (string.IsNullOrEmpty(name)) continue;
+                list.Add(new AIExternalToolDto
+                {
+                    Name = name,
+                    Description = tool.Function!.Description,
+                    ParametersJson = tool.Function.Parameters is { } parameters && parameters.ValueKind != JsonValueKind.Undefined
+                        ? parameters.GetRawText()
+                        : null,
+                });
+            }
+            return list.Count > 0 ? list : null;
+        }
+
+        /// <summary>
+        /// tool_choice → 本轮工具选择策略："none"/"required" 直接映射，
+        /// {"type":"function","function":{"name":"..."}} 映射为指定函数，其余（含 auto/缺省）按默认 auto。
+        /// </summary>
+        private static void ApplyToolChoice(JsonElement? toolChoice, AIChatHistorysDto par)
+        {
+            if (toolChoice == null) return;
+            var choice = toolChoice.Value;
+            if (choice.ValueKind == JsonValueKind.String)
+            {
+                var value = choice.GetString()?.Trim().ToLowerInvariant();
+                if (value == "none") par.ToolMode = "none";
+                else if (value == "required") par.ToolMode = "required";
+                else par.ToolMode = "auto";
+                return;
+            }
+            var function = default(JsonElement);
+            if (choice.ValueKind == JsonValueKind.Object
+                && choice.TryGetProperty("function", out function)
+                && function.ValueKind == JsonValueKind.Object
+                && function.TryGetProperty("name", out var nameEl)
+                && nameEl.ValueKind == JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(nameEl.GetString()))
+            {
+                par.ToolMode = "function";
+                par.ToolModeFunctionName = nameEl.GetString()!.Trim();
+            }
+        }
+
+        /// <summary>工具续轮提问行占位文案：让会话记录一眼能看出这轮是工具结果回传，而不是重复提问</summary>
+        private static string BuildToolTurnPlaceholder(List<AIExternalMessageDto> toolResults)
+        {
+            var preview = toolResults.FirstOrDefault(t => !string.IsNullOrWhiteSpace(t.Content))?.Content ?? "";
+            preview = preview.ReplaceLineEndings(" ").Trim();
+            if (preview.Length > 120) preview = preview.Substring(0, 120);
+            return string.IsNullOrEmpty(preview) ? "（外部工具结果回传）" : $"（外部工具结果回传）{preview}";
         }
 
         /// <summary>

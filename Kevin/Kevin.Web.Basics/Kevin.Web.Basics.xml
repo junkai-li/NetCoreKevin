@@ -278,8 +278,14 @@
         <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatStreamOutput.StreamStarted">
             <summary>流式响应是否已开始写数据（控制器据此判断出错时还能否改写状态码返回 JSON 错误）</summary>
         </member>
+        <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatStreamOutput.CollectedToolCalls">
+            <summary>本轮已收集的透传工具调用（非流式响应组装 message.tool_calls 用；流式下已随 delta 帧下发，此处保留供核对）</summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatStreamOutput.ParseToolCall(System.String)">
+            <summary>解析透传工具调用 payload：{"id","name","arguments"}（arguments 为 JSON 字符串）</summary>
+        </member>
         <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatStreamOutput.CompleteAsync">
-            <summary>正常收尾：finish 分片 + [DONE]</summary>
+            <summary>正常收尾：finish 分片 + [DONE]；本轮有透传工具调用时 finish_reason 按 OpenAI 协议用 tool_calls</summary>
         </member>
         <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatStreamOutput.WriteErrorAsync(System.String)">
             <summary>流式处理中途出错：按 OpenAI 流式错误约定下发 error 数据帧后关闭流</summary>
@@ -330,6 +336,28 @@
         <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.ResolveAgent(System.Collections.Generic.List{kevin.Domain.Share.Dtos.AI.AIAppsDto},System.String)">
             <summary>智能体解析：model 即智能体 Id；兼容 agent-{id} 写法与名称匹配（先区分大小写、再忽略大小写）</summary>
         </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.CollectTrailingToolResults(System.Collections.Generic.List{Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleMessage})">
+            <summary>
+            收集尾部待决的工具结果消息：从末尾往前取连续 role=tool 的消息（恢复原顺序返回）。
+            再往前的 assistant 工具调用帧已随上一轮回复入库，历史加载时会先行下发，这里不再重复携带；
+            多批调用时只有最后一批（最后一个 assistant 调用帧之后的 tool 消息）属于本轮待决。
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.ParseExternalTools(System.Collections.Generic.List{Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleTool})">
+            <summary>
+            解析请求 tools：只接受 type=function 且 name 非空的条目（parameters 保留 JSON Schema 原文）；
+            返回 null 表示本轮没有工具透传需求（行为与改造前完全一致）。
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.ApplyToolChoice(System.Nullable{System.Text.Json.JsonElement},kevin.Domain.Share.Dtos.AI.AIChatHistorysDto)">
+            <summary>
+            tool_choice → 本轮工具选择策略："none"/"required" 直接映射，
+            {"type":"function","function":{"name":"..."}} 映射为指定函数，其余（含 auto/缺省）按默认 auto。
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.BuildToolTurnPlaceholder(System.Collections.Generic.List{kevin.Domain.Share.Dtos.AI.AIExternalMessageDto})">
+            <summary>工具续轮提问行占位文案：让会话记录一眼能看出这轮是工具结果回传，而不是重复提问</summary>
+        </member>
         <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.ExtractContent(System.Text.Json.JsonElement)">
             <summary>
             解析消息内容：content 可能是字符串（常规）或内容块数组（多模态）。
@@ -367,11 +395,44 @@
         <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatRequest.ConversationIdCamel">
             <summary>会话标识扩展字段（驼峰命名容错别名）：与 conversation_id 等价</summary>
         </member>
+        <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatRequest.Tools">
+            <summary>
+            调用方声明的工具（OpenAI tools 字段）：网关以“声明型工具”原样透传给上游模型，
+            模型调用时网关不执行、按 tool_calls 响应交回调用方自行执行（function calling 透传）。
+            </summary>
+        </member>
+        <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatRequest.ToolChoice">
+            <summary>
+            工具选择策略（OpenAI tool_choice）："auto" / "none" / "required"，
+            或 {"type":"function","function":{"name":"..."}} 指定具体函数；缺省为 auto。
+            </summary>
+        </member>
         <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleMessage">
             <summary>
             OpenAI 协议消息：content 可能是字符串或内容块数组（如 text/image_url 块），
             这里原样保留 JsonElement，由控制器按需解析。
             </summary>
+        </member>
+        <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleMessage.ToolCalls">
+            <summary>assistant 消息携带的工具调用（客户端回传完整历史时附带；网关不重复转发，仅解析保留）</summary>
+        </member>
+        <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleMessage.ToolCallId">
+            <summary>tool 结果消息对应的工具调用 id（role=tool 时必填，用于关联 assistant 的调用帧）</summary>
+        </member>
+        <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleMessage.Name">
+            <summary>可选的名称（OpenAI 协议字段）</summary>
+        </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleTool">
+            <summary>OpenAI 协议工具定义：{"type":"function","function":{"name","description","parameters"}}</summary>
+        </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleFunctionDefinition">
+            <summary>工具的函数定义：parameters 为 JSON Schema，原样透传给上游模型</summary>
+        </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleToolCall">
+            <summary>工具调用（非流式响应 message.tool_calls 与解析历史 assistant 消息共用）：{"id","type","function"}</summary>
+        </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleFunctionCall">
+            <summary>工具调用的函数部分：arguments 为 JSON 字符串（OpenAI 协议约定）</summary>
         </member>
         <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChunk">
             <summary>流式分片：chat.completion.chunk</summary>
@@ -379,11 +440,20 @@
         <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleDelta">
             <summary>流式增量：role 只在首帧出现；思考过程以 reasoning_content 字段下发（不支持的客户端会自动忽略）</summary>
         </member>
+        <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleDelta.ToolCalls">
+            <summary>工具调用增量：每个元素按 index 分组，携带完整调用内容（网关侧已聚合，一次给全）</summary>
+        </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleDeltaToolCall">
+            <summary>流式工具调用增量：index 分组 + 完整调用（id/type/function{name,arguments}）</summary>
+        </member>
         <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleCompletion">
             <summary>非流式完整响应：chat.completion</summary>
         </member>
         <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleCompletionMessage.ReasoningContent">
             <summary>思考过程（开启智能体思考日志时才有值）</summary>
+        </member>
+        <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleCompletionMessage.ToolCalls">
+            <summary>工具调用：模型请求调用调用方声明的工具时返回（网关不执行），客户端执行后以 role=tool 消息回传</summary>
         </member>
         <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleModelList">
             <summary>模型列表：GET /v1/models 响应</summary>

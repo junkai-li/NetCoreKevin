@@ -1,4 +1,5 @@
 using HttpMataki.NET.Auto;
+using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
 using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.Interfaces;
 using Kevin.AI.Dto;
@@ -34,10 +35,23 @@ namespace kevin.AI.AgentFramework
         /// <param name="OtherContents">其他内容：用来存放一些需要传递给代理的内容 比如文件内容 互联网信息等</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<(AIAgent, string, TokenConsumptionInfo)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, ChatMessage messages, CancellationToken cancellationToken = default)
+        public Task<(AIAgent, string, TokenConsumptionInfo)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, ChatMessage messages, CancellationToken cancellationToken = default)
+            => CreateOpenAIAgentAndSendMSG(aISetting, chatClientAgentOptions, new[] { messages }, cancellationToken);
+
+        /// <summary>
+        /// 创建代理并发送消息（多消息重载）：支持 OpenAI function calling 续轮，把调用方回传的工具结果作为本轮输入
+        /// </summary>
+        /// <param name="aISetting"></param>
+        /// <param name="chatClientAgentOptions"></param>
+        /// <param name="messages">本轮发送给模型的消息集合：普通提问为单条 user 消息，工具续轮为工具结果（tool）消息</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<(AIAgent, string, TokenConsumptionInfo)> CreateOpenAIAgentAndSendMSG(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, IEnumerable<ChatMessage> messages, CancellationToken cancellationToken = default)
         {
 
             cancellationToken.ThrowIfCancellationRequested();//是否已经中止，若已请求取消则抛出异常
+            // 流式/非流式分支只消费一次入参，先物化避免 IEnumerable 被延迟多次枚举
+            var turnMessages = messages as IReadOnlyList<ChatMessage> ?? messages.ToList();
             if (aISetting.IsHttpLog)
             {
                 HttpClientAutoInterceptor.StartInterception();
@@ -47,7 +61,8 @@ namespace kevin.AI.AgentFramework
             {
                 if (chatClientAgentOptions.ChatOptions != default)
                 {
-                    chatClientAgentOptions.ChatOptions.Tools = new List<AITool>();
+                    // 外部声明型工具（function calling 透传）不受能力开关影响：只声明不执行、由调用方执行，清掉将永远收不到 tool_calls
+                    chatClientAgentOptions.ChatOptions.Tools = KeepDeclaredOnlyTools(chatClientAgentOptions.ChatOptions.Tools);
                 }
             }
             #endregion
@@ -68,6 +83,11 @@ namespace kevin.AI.AgentFramework
             var retries = 1;
         aiRun:
             aISetting.AttemptCount = retries;
+            // 工具调用收集器：收集本轮全部调用（外部+自带），每次模型尝试（含失败重试/切换模型）都重置，避免上一轮残留混入本轮回传。
+            // 轮结束时分类处理：外部工具调用回传调用方执行；自带工具在"终止轮"（存在外部调用交还、框架跳过全部执行）做补偿执行
+            var collectedToolCalls = new Dictionary<string, (string Name, Dictionary<string, object?> Arguments)>(StringComparer.Ordinal);
+            // 框架已执行完成的调用集合：补偿执行时据此跳过，避免重复执行
+            var completedToolCallIds = new HashSet<string>(StringComparer.Ordinal);
             // openAIClientOptions 必须在 aiRun 内创建，确保模型切换后使用新的 Endpoint
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions()
             {
@@ -107,7 +127,7 @@ namespace kevin.AI.AgentFramework
                 {
                     if (aISetting.StreameCallback != default)
                     {
-                        await foreach (var update in aiAgent.RunStreamingAsync(messages, cancellationToken: cancellationToken))
+                        await foreach (var update in aiAgent.RunStreamingAsync(turnMessages, cancellationToken: cancellationToken))
                         {
                             if (update != default)
                             {
@@ -126,6 +146,8 @@ namespace kevin.AI.AgentFramework
                                                     {
                                                         await aISetting.ToolStreameCallback.Invoke($"\n [工具调用] 名称：{funcCall.Name}，调用ID：{funcCall.CallId}，参数：（ {string.Join(", ", funcCall.Arguments?.Select(a => $"{a.Key}: {a.Value}") ?? [])}） {err}");
                                                     }
+                                                    // 收集全部工具调用，轮结束时分类：外部工具回传调用方执行；自带工具在终止轮由网关补偿执行
+                                                    AccumulateToolCall(collectedToolCalls, funcCall);
                                                     break;
 
                                                 case FunctionResultContent funcResult:
@@ -134,6 +156,11 @@ namespace kevin.AI.AgentFramework
                                                     if (aISetting.ToolStreameCallback != default)
                                                     {
                                                         await aISetting.ToolStreameCallback.Invoke($"\n [工具返回] 调用ID：{funcResult.CallId}，结果：{funcResult.Result?.ToString()} {errr} ");
+                                                    }
+                                                    // 记录框架已执行完成的调用：终止轮补偿执行时据此跳过，避免重复执行
+                                                    if (funcResult.CallId != default)
+                                                    {
+                                                        completedToolCallIds.Add(funcResult.CallId);
                                                     }
                                                     break;
 
@@ -167,11 +194,16 @@ namespace kevin.AI.AgentFramework
                                 }
                             }
                         }
+                        // 一轮模型交互结束后，把外部工具调用一次性回传：调用方执行工具后以工具结果回传续轮
+                        await EmitExternalToolCallsAsync(aISetting, collectedToolCalls);
+                        // 终止轮补偿：框架交还外部工具调用时会跳过本轮全部工具调用，这里把被跳过的自带工具就地执行并落库，
+                        // 让自带工具照常直接运行、且下一轮续轮时工具调用与结果完整配对
+                        await ExecuteSkippedLocalToolCallsAsync(aISetting, chatClientAgentOptions, collectedToolCalls, completedToolCallIds, cancellationToken);
                     }
                 }
                 else
                 {
-                    reslut = await aiAgent.RunAsync(messages, cancellationToken: cancellationToken);
+                    reslut = await aiAgent.RunAsync(turnMessages, cancellationToken: cancellationToken);
 
                     resultText = reslut.Text;
                     if (reslut.Usage != default)
@@ -201,6 +233,8 @@ namespace kevin.AI.AgentFramework
                                                 {
                                                     await aISetting.ToolStreameCallback.Invoke($"\n [工具调用] 名称：{funcCall.Name}，调用ID：{funcCall.CallId}，参数：（ {string.Join(", ", funcCall.Arguments?.Select(a => $"{a.Key}: {a.Value}") ?? [])}） {err}");
                                                 }
+                                                // 收集全部工具调用（与流式同逻辑），轮结束时分类：外部回传调用方，自带在终止轮补偿执行
+                                                AccumulateToolCall(collectedToolCalls, funcCall);
                                                 break;
 
                                             case FunctionResultContent funcResult:
@@ -210,20 +244,29 @@ namespace kevin.AI.AgentFramework
                                                 {
                                                     await aISetting.ToolStreameCallback.Invoke($"\n [工具返回] 调用ID：{funcResult.CallId}，结果：{funcResult.Result?.ToString()} {errr} ");
                                                 }
-                                                break;
+                                                // 记录框架已执行完成的调用：终止轮补偿执行时据此跳过，避免重复执行
+                                                if (funcResult.CallId != default)
+                                                {
+                                                    completedToolCallIds.Add(funcResult.CallId);
+                                                }
+                                                break; 
                                             case TextReasoningContent reasoningContent:
                                                 //思考过程输出 
                                                 if (aISetting.ReasoningStreameCallback != default)
                                                 {
                                                     await aISetting.ReasoningStreameCallback.Invoke(reasoningContent.Text);
                                                 }
-                                                break;
+                                                break; 
                                         }
                                     }
                                 }
                             }
                         }
                     }
+                    // 非流式路径同样回传外部工具调用：模型仅调工具不产出正文时 resultText 为空，调用必须独立回传
+                    await EmitExternalToolCallsAsync(aISetting, collectedToolCalls);
+                    // 终止轮补偿（与流式同逻辑）：被跳过的自带工具就地执行并落库
+                    await ExecuteSkippedLocalToolCallsAsync(aISetting, chatClientAgentOptions, collectedToolCalls, completedToolCallIds, cancellationToken);
                 }
             }
             catch (Exception ex)
@@ -287,6 +330,153 @@ namespace kevin.AI.AgentFramework
             }
 
             return (aiAgent, resultText, tokenConsumptionInfo);
+        }
+
+        /// <summary>
+        /// 智能体未开启任何工具能力时清空工具，但保留外部声明型工具（AIFunctionDeclaration：只声明、不执行）：
+        /// 它们是 OpenAI function calling 的透传载体，由调用方执行，一并清掉会导致调用方永远收不到 tool_calls
+        /// </summary>
+        private static List<AITool> KeepDeclaredOnlyTools(IEnumerable<AITool>? tools)
+        {
+            var declaredOnly = tools?.Where(t => t is AIFunctionDeclaration && t is not AIFunction).ToList();
+            return declaredOnly is { Count: > 0 } ? declaredOnly : new List<AITool>();
+        }
+
+        /// <summary>
+        /// 收集模型发出的工具调用（外部+自带都收，按 CallId 聚合以兼容流式分片），轮结束时再分类：
+        /// 外部工具（AISetting.ExternalToolNames 命中的声明型工具）由 FunctionInvokingChatClient 原样交还、
+        /// 回传给调用方执行；自带工具在终止轮被框架跳过，由网关补偿执行
+        /// </summary>
+        private static void AccumulateToolCall(Dictionary<string, (string Name, Dictionary<string, object?> Arguments)> collectedToolCalls, FunctionCallContent funcCall)
+        {
+            if (funcCall == default || funcCall.CallId == default) return;
+            var hasEntry = collectedToolCalls.TryGetValue(funcCall.CallId, out var entry);
+            if (!string.IsNullOrEmpty(funcCall.Name))
+            {
+                if (!hasEntry)
+                {
+                    entry = (funcCall.Name, new Dictionary<string, object?>(StringComparer.Ordinal));
+                }
+                entry.Name = funcCall.Name;
+            }
+            else if (!hasEntry)
+            {
+                // 无名帧且尚未建立条目：无法判定归属，忽略（流式首帧必带名称）
+                return;
+            }
+            if (funcCall.Arguments != default)
+            {
+                foreach (var kv in funcCall.Arguments)
+                {
+                    entry.Arguments[kv.Key] = kv.Value;
+                }
+            }
+            collectedToolCalls[funcCall.CallId] = entry;
+        }
+
+        /// <summary>
+        /// 一轮模型交互结束后，把收集到的外部工具调用逐个回调给调用方（网关侧），由调用方执行并决定是否以工具结果续轮；
+        /// 只有外部工具才回传：自带工具由网关就地执行，调用方只认识自己声明的工具
+        /// </summary>
+        private static async Task EmitExternalToolCallsAsync(AISetting aISetting, Dictionary<string, (string Name, Dictionary<string, object?> Arguments)> collectedToolCalls)
+        {
+            if (aISetting.ExternalToolCallCallback == default || collectedToolCalls.Count == 0) return;
+            foreach (var kv in collectedToolCalls)
+            {
+                if (!IsExternalToolCall(aISetting, kv.Value.Name)) continue;
+                // 回调格式与 OpenAI tool_calls 对齐：arguments 为 JSON 字符串
+                var payload = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    id = kv.Key,
+                    name = kv.Value.Name,
+                    arguments = System.Text.Json.JsonSerializer.Serialize(kv.Value.Arguments)
+                });
+                await aISetting.ExternalToolCallCallback.Invoke(payload);
+            }
+        }
+
+        /// <summary>
+        /// 判断是否为外部工具调用（调用方声明的透传工具：由调用方执行，网关只负责回传 tool_calls）
+        /// </summary>
+        private static bool IsExternalToolCall(AISetting aISetting, string name)
+            => !string.IsNullOrEmpty(name) && aISetting.ExternalToolNames?.Contains(name) == true;
+
+        /// <summary>
+        /// 终止轮补偿执行：本轮把外部工具调用交还调用方时，FunctionInvokingChatClient 会跳过本轮全部工具调用
+        /// （含智能体自带工具，模型同轮混调两类工具即命中），这里把"被跳过且未执行"的自带工具就地执行：
+        /// 1) 结果追加落库（紧跟终止轮的助手调用帧之后），保证调用方续轮时工具调用与结果完整配对；
+        /// 2) 执行结果照常输出"工具返回"日志，前端观感与框架执行一致。
+        /// 补偿过程吞掉自身异常（执行失败转为错误结果），不影响本轮正常返回、不触发外层重试
+        /// </summary>
+        private async Task ExecuteSkippedLocalToolCallsAsync(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, Dictionary<string, (string Name, Dictionary<string, object?> Arguments)> collectedToolCalls, HashSet<string> completedToolCallIds, CancellationToken cancellationToken)
+        {
+            if (collectedToolCalls.Count == 0) return;
+            // 只有"存在外部工具调用交还"才可能发生跳过；否则自带工具已被框架正常执行完毕
+            var hasExternal = false;
+            var pending = new List<(string CallId, string Name, Dictionary<string, object?> Arguments)>();
+            foreach (var kv in collectedToolCalls)
+            {
+                if (IsExternalToolCall(aISetting, kv.Value.Name))
+                {
+                    hasExternal = true;
+                    continue;
+                }
+                if (completedToolCallIds.Contains(kv.Key)) continue;
+                pending.Add((kv.Key, kv.Value.Name, kv.Value.Arguments));
+            }
+            if (!hasExternal || pending.Count == 0) return;
+
+            var tools = chatClientAgentOptions.ChatOptions?.Tools;
+            var results = new List<FunctionResultContent>(pending.Count);
+            foreach (var (callId, name, arguments) in pending)
+            {
+                object? result = default;
+                string? errorMsg = default;
+                // 与框架执行一致：只执行可执行的 AIFunction；声明型/找不到的给出错误结果兜底（保证配对完整）
+                var function = tools?.OfType<AIFunction>().FirstOrDefault(t => string.Equals(t.Name, name, StringComparison.Ordinal));
+                if (function == default)
+                {
+                    result = $"Error: Requested function \"{name}\" not found.";
+                }
+                else
+                {
+                    try
+                    {
+                        result = await function.InvokeAsync(new AIFunctionArguments(arguments), cancellationToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        errorMsg = ex.Message;
+                        result = $"Error: Function failed. Exception: {ex.Message}";
+                    }
+                }
+                result ??= "Success: Function completed.";
+                if (aISetting.ToolStreameCallback != default)
+                {
+                    try
+                    {
+                        // 与框架执行的"工具返回"日志格式保持一致
+                        await aISetting.ToolStreameCallback.Invoke($"\n [工具返回] 调用ID：{callId}，结果：{result} {(string.IsNullOrEmpty(errorMsg) ? "" : "异常信息：" + errorMsg)} ");
+                    }
+                    catch
+                    {
+                        // 日志回调异常不影响补偿结果落库
+                    }
+                }
+                results.Add(new FunctionResultContent(callId, result));
+            }
+            // 结果落库：框架的 StoreChatHistoryAsync 已先落助手调用帧，这里追加更晚写入的工具结果，读取顺序正确
+            if (chatClientAgentOptions.ChatHistoryProvider is KevinChatMessageStore kevinChatMessageStore)
+            {
+                try
+                {
+                    await kevinChatMessageStore.AppendToolResultsAsync(results, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    Ailogger?.LogWarning(ex, "终止轮自带工具结果落库失败，下一轮续轮可能缺少工具结果配对，模型：{Model}", aISetting.AIDefaultModel);
+                }
+            }
         }
 
         /// <summary>
@@ -363,7 +553,8 @@ namespace kevin.AI.AgentFramework
             {
                 if (chatClientAgentOptions.ChatOptions != default)
                 {
-                    chatClientAgentOptions.ChatOptions.Tools = new List<AITool>();
+                    // 外部声明型工具（function calling 透传）不受能力开关影响：只声明不执行、由调用方执行，清掉将永远收不到 tool_calls
+                    chatClientAgentOptions.ChatOptions.Tools = KeepDeclaredOnlyTools(chatClientAgentOptions.ChatOptions.Tools);
                 }
             }
             #endregion

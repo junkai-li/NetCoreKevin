@@ -30,6 +30,20 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
         /// <summary>会话标识扩展字段（驼峰命名容错别名）：与 conversation_id 等价</summary>
         [JsonPropertyName("conversationId")]
         public string? ConversationIdCamel { get; set; }
+
+        /// <summary>
+        /// 调用方声明的工具（OpenAI tools 字段）：网关以“声明型工具”原样透传给上游模型，
+        /// 模型调用时网关不执行、按 tool_calls 响应交回调用方自行执行（function calling 透传）。
+        /// </summary>
+        [JsonPropertyName("tools")]
+        public List<OpenAICompatibleTool>? Tools { get; set; }
+
+        /// <summary>
+        /// 工具选择策略（OpenAI tool_choice）："auto" / "none" / "required"，
+        /// 或 {"type":"function","function":{"name":"..."}} 指定具体函数；缺省为 auto。
+        /// </summary>
+        [JsonPropertyName("tool_choice")]
+        public JsonElement? ToolChoice { get; set; }
     }
 
     /// <summary>
@@ -41,6 +55,64 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
         public string? Role { get; set; }
 
         public JsonElement Content { get; set; }
+
+        /// <summary>assistant 消息携带的工具调用（客户端回传完整历史时附带；网关不重复转发，仅解析保留）</summary>
+        [JsonPropertyName("tool_calls")]
+        public List<OpenAICompatibleToolCall>? ToolCalls { get; set; }
+
+        /// <summary>tool 结果消息对应的工具调用 id（role=tool 时必填，用于关联 assistant 的调用帧）</summary>
+        [JsonPropertyName("tool_call_id")]
+        public string? ToolCallId { get; set; }
+
+        /// <summary>可选的名称（OpenAI 协议字段）</summary>
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+    }
+
+    /// <summary>OpenAI 协议工具定义：{"type":"function","function":{"name","description","parameters"}}</summary>
+    public class OpenAICompatibleTool
+    {
+        [JsonPropertyName("type")]
+        public string? Type { get; set; }
+
+        [JsonPropertyName("function")]
+        public OpenAICompatibleFunctionDefinition? Function { get; set; }
+    }
+
+    /// <summary>工具的函数定义：parameters 为 JSON Schema，原样透传给上游模型</summary>
+    public class OpenAICompatibleFunctionDefinition
+    {
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
+
+        [JsonPropertyName("parameters")]
+        public JsonElement? Parameters { get; set; }
+    }
+
+    /// <summary>工具调用（非流式响应 message.tool_calls 与解析历史 assistant 消息共用）：{"id","type","function"}</summary>
+    public class OpenAICompatibleToolCall
+    {
+        [JsonPropertyName("id")]
+        public string Id { get; set; } = "";
+
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = "function";
+
+        [JsonPropertyName("function")]
+        public OpenAICompatibleFunctionCall? Function { get; set; }
+    }
+
+    /// <summary>工具调用的函数部分：arguments 为 JSON 字符串（OpenAI 协议约定）</summary>
+    public class OpenAICompatibleFunctionCall
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = "";
+
+        [JsonPropertyName("arguments")]
+        public string Arguments { get; set; } = "";
     }
 
     #endregion
@@ -92,6 +164,30 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
         [JsonPropertyName("reasoning_content")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? ReasoningContent { get; set; }
+
+        /// <summary>工具调用增量：每个元素按 index 分组，携带完整调用内容（网关侧已聚合，一次给全）</summary>
+        [JsonPropertyName("tool_calls")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<OpenAICompatibleDeltaToolCall>? ToolCalls { get; set; }
+    }
+
+    /// <summary>流式工具调用增量：index 分组 + 完整调用（id/type/function{name,arguments}）</summary>
+    public class OpenAICompatibleDeltaToolCall
+    {
+        [JsonPropertyName("index")]
+        public int Index { get; set; }
+
+        [JsonPropertyName("id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Id { get; set; }
+
+        [JsonPropertyName("type")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Type { get; set; }
+
+        [JsonPropertyName("function")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public OpenAICompatibleFunctionCall? Function { get; set; }
     }
 
     /// <summary>非流式完整响应：chat.completion</summary>
@@ -140,6 +236,11 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
         [JsonPropertyName("reasoning_content")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? ReasoningContent { get; set; }
+
+        /// <summary>工具调用：模型请求调用调用方声明的工具时返回（网关不执行），客户端执行后以 role=tool 消息回传</summary>
+        [JsonPropertyName("tool_calls")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<OpenAICompatibleToolCall>? ToolCalls { get; set; }
     }
 
     public class OpenAICompatibleUsage

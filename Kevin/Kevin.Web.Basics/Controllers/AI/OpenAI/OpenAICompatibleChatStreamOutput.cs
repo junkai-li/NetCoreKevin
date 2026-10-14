@@ -34,6 +34,8 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
         // 同一个响应体的写操作必须串行：模型分片与思考分片来自并发的回调时不能交错破坏帧格式
         private readonly SemaphoreSlim _writeLock = new(1, 1);
         private bool _firstChunkSent;
+        // 本轮透传工具调用（网关不执行，收齐后下发/组装，由客户端执行）
+        private readonly List<OpenAICompatibleToolCall> _collectedToolCalls = new();
 
         public OpenAICompatibleChatStreamOutput(HttpResponse response, string model, bool thinkingEnabled, bool streamEnabled)
         {
@@ -48,21 +50,48 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
         /// <summary>流式响应是否已开始写数据（控制器据此判断出错时还能否改写状态码返回 JSON 错误）</summary>
         public bool StreamStarted { get; private set; }
 
+        /// <summary>本轮已收集的透传工具调用（非流式响应组装 message.tool_calls 用；流式下已随 delta 帧下发，此处保留供核对）</summary>
+        public IReadOnlyList<OpenAICompatibleToolCall> CollectedToolCalls => _collectedToolCalls;
+
         public async Task WriteAsync(string channel, string message)
         {
-            if (!_streamEnabled || string.IsNullOrEmpty(message))
+            if (string.IsNullOrEmpty(message))
             {
                 return;
             }
             switch (channel)
             {
                 case "aimsg":
-                    await WriteChunkAsync(new OpenAICompatibleDelta { Content = message }, null);
+                    if (_streamEnabled)
+                    {
+                        await WriteChunkAsync(new OpenAICompatibleDelta { Content = message }, null);
+                    }
                     break;
                 case "aIReasoningContentMsg":
-                    if (_thinkingEnabled)
+                    if (_streamEnabled && _thinkingEnabled)
                     {
                         await WriteChunkAsync(new OpenAICompatibleDelta { ReasoningContent = message }, null);
+                    }
+                    break;
+                case "toolcalls":
+                    // 透传工具调用：非流式（streamEnabled=false）下也要收集，控制器据此组装非流式响应；
+                    // 流式下逐条下发 delta.tool_calls（网关侧已按 CallId 聚合，单帧携带完整调用，index 分组）
+                    var toolCall = ParseToolCall(message);
+                    if (toolCall == default)
+                    {
+                        break;
+                    }
+                    var index = _collectedToolCalls.Count;
+                    _collectedToolCalls.Add(toolCall);
+                    if (_streamEnabled)
+                    {
+                        await WriteChunkAsync(new OpenAICompatibleDelta
+                        {
+                            ToolCalls = new List<OpenAICompatibleDeltaToolCall>
+                            {
+                                new() { Index = index, Id = toolCall.Id, Type = toolCall.Type, Function = toolCall.Function }
+                            }
+                        }, null);
                     }
                     break;
                 default:
@@ -71,14 +100,41 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
             }
         }
 
-        /// <summary>正常收尾：finish 分片 + [DONE]</summary>
+        /// <summary>解析透传工具调用 payload：{"id","name","arguments"}（arguments 为 JSON 字符串）</summary>
+        private static OpenAICompatibleToolCall? ParseToolCall(string message)
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(message);
+                var root = doc.RootElement;
+                if (root.ValueKind != JsonValueKind.Object) return null;
+                var id = root.TryGetProperty("id", out var idEl) && idEl.ValueKind == JsonValueKind.String ? idEl.GetString() : null;
+                var name = root.TryGetProperty("name", out var nameEl) && nameEl.ValueKind == JsonValueKind.String ? nameEl.GetString() : null;
+                if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(name)) return null;
+                var arguments = root.TryGetProperty("arguments", out var argsEl) && argsEl.ValueKind == JsonValueKind.String ? argsEl.GetString() : null;
+                return new OpenAICompatibleToolCall
+                {
+                    Id = id!,
+                    Type = "function",
+                    // OpenAI 协议要求 arguments 为合法 JSON 字符串：缺失时退化为空对象
+                    Function = new OpenAICompatibleFunctionCall { Name = name!, Arguments = string.IsNullOrEmpty(arguments) ? "{}" : arguments },
+                };
+            }
+            catch (JsonException)
+            {
+                // payload 是网关内部回调产物，格式异常说明上游代码有 bug：忽略该条不至于打断整个流
+                return null;
+            }
+        }
+
+        /// <summary>正常收尾：finish 分片 + [DONE]；本轮有透传工具调用时 finish_reason 按 OpenAI 协议用 tool_calls</summary>
         public async Task CompleteAsync()
         {
             if (!_streamEnabled)
             {
                 return;
             }
-            await WriteChunkAsync(new OpenAICompatibleDelta(), "stop");
+            await WriteChunkAsync(new OpenAICompatibleDelta(), _collectedToolCalls.Count > 0 ? "tool_calls" : "stop");
             await WriteRawAsync("data: [DONE]\n\n");
         }
 

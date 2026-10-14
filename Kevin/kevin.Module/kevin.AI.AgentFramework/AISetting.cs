@@ -80,6 +80,19 @@
         public Func<string, Task>? ToolStreameCallback { get; set; }
 
         /// <summary>
+        /// 透传工具名集合：命中这些名称的 <c>FunctionCallContent</c> 是外部客户端声明的“声明型工具”
+        /// （只描述、不可执行，网关不执行），由 <see cref="ExternalToolCallCallback"/> 回传给调用方。
+        /// <para>为 null/空时全部按智能体自身工具处理，行为与改造前一致。</para>
+        /// </summary>
+        public HashSet<string>? ExternalToolNames { get; set; }
+
+        /// <summary>
+        /// 透传工具调用回调：外部客户端声明的工具被模型调用时触发，入参为单个调用的 JSON
+        /// （{"id","name","arguments"}，arguments 为 JSON 字符串）；语义同 <see cref="StreameCallback"/>。
+        /// </summary>
+        public Func<string, Task>? ExternalToolCallCallback { get; set; }
+
+        /// <summary>
         /// 思考过程流式请求回调（语义同 <see cref="StreameCallback"/>）
         /// </summary>
         public Func<string, Task>? ReasoningStreameCallback { get; set; }

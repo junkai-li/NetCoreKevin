@@ -14,6 +14,7 @@ using Kevin.Common.Extension;
 using Kevin.log4Net;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
+using System.Text.Json;
 
 namespace kevin.Application.Services.AI
 {
@@ -89,7 +90,7 @@ namespace kevin.Application.Services.AI
             var data = aIAppsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
-                data = data.Where(t => t.Name.Contains(dtoPage.searchKey) || t.Describe.Contains(dtoPage.searchKey));
+                data = data.Where(t => t.Name.Contains(dtoPage.searchKey)||t.Describe.Contains(dtoPage.searchKey));
             }
             result.total = await data.CountAsync();
             var dbdata = await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPage.pageSize).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
@@ -267,7 +268,7 @@ namespace kevin.Application.Services.AI
                     msg.IsMcp = par.IsMcp;
                     msg.IsMemory = par.IsMemory;
                     msg.IsImageGeneration = par.IsImageGeneration;
-                    msg.ImageGenModelID = par.ImageGenModelID;
+                    msg.ImageGenModelID = par.ImageGenModelID;   
                 }
                 else
                 {
@@ -386,6 +387,28 @@ namespace kevin.Application.Services.AI
             };
         }
         /// <summary>
+        /// 解析调用方提供的参数 JSON Schema 原文；非法或缺省时退化为空对象 schema（{"type":"object","properties":{}}），
+        /// 保证工具照常声明给模型（参数由模型自由生成）
+        /// </summary>
+        private static JsonElement BuildExternalToolSchema(string? parametersJson)
+        {
+            if (!string.IsNullOrWhiteSpace(parametersJson))
+            {
+                try
+                {
+                    using var doc = JsonDocument.Parse(parametersJson);
+                    if (doc.RootElement.ValueKind == JsonValueKind.Object) return doc.RootElement.Clone();
+                }
+                catch (JsonException)
+                {
+                    // 调用方传入的 schema 不是合法 JSON：忽略，走下方兜底
+                }
+            }
+            using var fallback = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{}}");
+            return fallback.RootElement.Clone();
+        }
+
+        /// <summary>
         /// 计算历史消息的提问Token预算 = 提问Token上限 - 系统提示词 - 预留回答Token。
         /// <para>
         /// 算出 ≤0（说明模型配置的提问Token本就放不下提示词与回答预留）时退化为提问Token上限的 60%：
@@ -475,7 +498,7 @@ namespace kevin.Application.Services.AI
                         }
                     }
                     if (!aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
-                    {
+                    { 
                         chatAgOs.ChatOptions.Tools.Add(AIFunctionFactory.Create(_aIChatMessageStoreCompactionService.GetAIToolThreadPrompt, new AIFunctionFactoryOptions
                         {
                             Name = "GetAIToolThreadPrompt",
@@ -526,6 +549,32 @@ namespace kevin.Application.Services.AI
                 }
                 var sk = skillsProvider.Build();
                 chatAgOs.AIContextProviders = [sk];
+            }
+            #endregion
+            #region 外部声明型工具（OpenAI function calling 透传：调用方声明的工具以“只声明、不可执行”注入，模型调用后由网关原样交回调用方执行）
+            if (par.ExternalTools is { Count: > 0 } && chatAgOs.ChatOptions != default)
+            {
+                chatAgOs.ChatOptions.Tools ??= new List<AITool>();
+                foreach (var externalTool in par.ExternalTools)
+                {
+                    if (externalTool == default || string.IsNullOrWhiteSpace(externalTool.Name)) continue;
+                    // 与智能体自身工具同名时以外部声明为准：移除同名可执行工具，避免被框架当成可执行工具而误执行
+                    foreach (var existed in chatAgOs.ChatOptions.Tools.Where(t => string.Equals(t.Name, externalTool.Name, StringComparison.Ordinal)).ToList())
+                    {
+                        chatAgOs.ChatOptions.Tools.Remove(existed);
+                    }
+                    chatAgOs.ChatOptions.Tools.Add(AIFunctionFactory.CreateDeclaration(externalTool.Name, externalTool.Description ?? "", BuildExternalToolSchema(externalTool.ParametersJson), null));
+                }
+            }
+            if (chatAgOs.ChatOptions != default && !string.IsNullOrWhiteSpace(par.ToolMode))
+            {
+                chatAgOs.ChatOptions.ToolMode = par.ToolMode switch
+                {
+                    "none" => ChatToolMode.None,
+                    "required" => ChatToolMode.RequireAny,
+                    "function" when !string.IsNullOrWhiteSpace(par.ToolModeFunctionName) => ChatToolMode.RequireSpecific(par.ToolModeFunctionName!),
+                    _ => ChatToolMode.Auto,
+                };
             }
             #endregion
             return chatAgOs;
@@ -581,7 +630,7 @@ namespace kevin.Application.Services.AI
             if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
             {
                 systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString());
-            }
+            } 
             var chatAgOs = new ChatClientAgentOptions
             {
                 Name = aiapp.Name,

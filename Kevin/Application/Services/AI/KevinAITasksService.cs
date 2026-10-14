@@ -341,7 +341,7 @@ namespace kevin.Application.Services.AI
                                         IsMemory = aiapp.IsMemory,
                                         IsKnowledgeBase = aiapp.KmsId.HasValue && aiapp.KmsId.Value > 0,
                                         NetworkTimeout = aiapp.NetworkTimeout,
-                                    }, chatAgOs, new(ChatRole.User, [new TextContent($"{taskContent} \n 必须根据相关技能，一次性完成所有步骤在返回结果")])).Result.Item2;
+                                    }, chatAgOs, new ChatMessage(ChatRole.User, [new TextContent($"{taskContent} \n 必须根据相关技能，一次性完成所有步骤在返回结果")])).Result.Item2;
                                     break;
                             }
                         }

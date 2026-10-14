@@ -344,6 +344,53 @@
             </para>
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.ExternalTools">
+            <summary>
+            外部客户端声明的透传工具（OpenAI 兼容接口的 tools 字段）：非空时这些工具以“声明型工具”
+            （只描述、不可执行）挂到本轮顶层智能体调用上，模型调用后由网关原样交回调用方执行（网关不执行）。
+            <para>仅作为本轮入参使用，不落库。</para>
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.ExternalMessages">
+            <summary>
+            外部协议工具结果消息（OpenAI 兼容接口 role=tool 的续轮消息）：非空时本轮模型输入用它们
+            替代普通用户消息（该调用的 assistant 工具调用帧已随上一轮回复入库，历史会先行下发）。
+            <para>仅作为本轮入参使用，不落库。</para>
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.ToolMode">
+            <summary>
+            tool_choice 映射的本轮工具选择策略：auto / none / required / function（空=沿用默认 auto）。
+            <para>仅 OpenAI 兼容接口使用，不落库。</para>
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.ToolModeFunctionName">
+            <summary>tool_choice 指定函数时的函数名（<see cref="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.ToolMode"/> 为 function 时生效）</summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.AI.AIExternalToolDto">
+            <summary>外部客户端声明的透传工具定义（OpenAI 兼容接口 tools[] 的 function 部分）</summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIExternalToolDto.Name">
+            <summary>函数名</summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIExternalToolDto.Description">
+            <summary>函数描述（发给模型用于语义判断）</summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIExternalToolDto.ParametersJson">
+            <summary>参数 JSON Schema 原文（原样透传给上游模型）</summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.AI.AIExternalMessageDto">
+            <summary>外部协议消息（OpenAI 兼容接口 role=tool 的工具结果）</summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIExternalMessageDto.Role">
+            <summary>角色（当前仅 tool）</summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIExternalMessageDto.ToolCallId">
+            <summary>对应 assistant 工具调用的 id</summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIExternalMessageDto.Content">
+            <summary>工具结果文本</summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIChatsDto">
             <summary>
             对话

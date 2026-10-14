@@ -463,8 +463,16 @@ namespace kevin.Application.Services.AI
                                     await output.WriteAsync("aIReasoningContentMsg", reasoningLog);
                                 }
                             },
+                            // 外部声明型工具（OpenAI function calling 透传）：工具名集合用于回传判定，命中后经回调把调用原样交给调用方执行
+                            ExternalToolNames = par.ExternalTools is { Count: > 0 } ? new HashSet<string>(par.ExternalTools.Where(t => t != default && !string.IsNullOrWhiteSpace(t.Name)).Select(t => t.Name), StringComparer.Ordinal) : null,
+                            ExternalToolCallCallback = async (json) =>
+                            {
+                                await output.WriteAsync("toolcalls", json);
+                            },
                         };
-                        var reslut = (await aIAgentService.CreateOpenAIAgentAndSendMSG(aiSetting, chatAgOs, mgs, cancellationToken: cancellationToken));
+                        // 工具续轮：调用方回传了工具结果时，本轮模型输入用工具结果消息替代普通用户消息（assistant 调用帧已随上一轮回复入库）
+                        var turnMessages = BuildTurnMessages(par, mgs);
+                        var reslut = (await aIAgentService.CreateOpenAIAgentAndSendMSG(aiSetting, chatAgOs, turnMessages, cancellationToken: cancellationToken));
                         var reslutAiCheck = await _aIInputOutputSafetyService.CheckAIOutput(reslut.Item2);
                         if (!reslutAiCheck.Item1)
                         {
@@ -626,6 +634,23 @@ namespace kevin.Application.Services.AI
                 detail += $"｜已是第 {retryCount + 1} 次发送";
             }
             return StringHelper.SubstringText(detail, FailReasonMaxLength, "...");
+        }
+
+        /// <summary>
+        /// 构建本轮发送给模型的消息集合：调用方回传了外部工具结果（OpenAI role=tool）时，以工具结果消息替代普通用户消息；
+        /// 该调用的 assistant 工具调用帧已随上一轮回复入库，历史加载时会先行下发，这里无需重复补齐。
+        /// <para>未回传工具结果（普通提问）时仍为用户消息，行为与改造前一致。</para>
+        /// </summary>
+        private static List<ChatMessage> BuildTurnMessages(AIChatHistorysDto par, ChatMessage userMessage)
+        {
+            if (par.ExternalMessages == null || par.ExternalMessages.Count == 0) return new List<ChatMessage> { userMessage };
+            var messages = new List<ChatMessage>(par.ExternalMessages.Count);
+            foreach (var item in par.ExternalMessages)
+            {
+                if (item == default || string.IsNullOrEmpty(item.ToolCallId)) continue;
+                messages.Add(new ChatMessage(ChatRole.Tool, new List<AIContent> { new FunctionResultContent(item.ToolCallId, item.Content ?? "") }));
+            }
+            return messages.Count > 0 ? messages : new List<ChatMessage> { userMessage };
         }
 
         /// <summary>

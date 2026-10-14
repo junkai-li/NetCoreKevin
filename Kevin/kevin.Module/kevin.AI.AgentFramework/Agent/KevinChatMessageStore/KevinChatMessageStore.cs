@@ -136,6 +136,38 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         }
 
         /// <summary>
+        /// 追加"框架外产生的工具执行结果"到会话历史（如终止轮中网关侧补偿执行的自带工具结果）：
+        /// 使下一轮续轮时，助手消息里的工具调用与工具结果保持完整配对（模型侧要求每个调用都有对应结果）。
+        /// 写入时间晚于框架已落库的助手调用帧，读取排序（按 CreateTime）天然排在调用帧之后
+        /// </summary>
+        public async Task AppendToolResultsAsync(IReadOnlyList<FunctionResultContent> results, CancellationToken cancellationToken = default)
+        {
+            // 只读会话与 StoreChatHistoryAsync 行为一致：本次调用不落库
+            if (ReadOnlyHistory || results == null || results.Count == 0) return;
+            var adddata = new List<ChatHistoryItemDto>(results.Count);
+            foreach (var result in results)
+            {
+                // MessageId 必须唯一：主键 Key = ThreadDbKey + MessageId，缺省值会与其它消息撞主键
+                var message = ShrinkToolResultsForStore(new ChatMessage(ChatRole.Tool, new List<AIContent> { result })
+                {
+                    MessageId = Guid.NewGuid().ToString("N"),
+                    CreatedAt = DateTimeOffset.Now,
+                });
+                adddata.Add(new ChatHistoryItemDto()
+                {
+                    Key = this.ThreadDbKey + message.MessageId,
+                    Timestamp = message.CreatedAt,
+                    ThreadId = this.ThreadDbKey,
+                    MessageId = message.MessageId,
+                    Role = message.Role.Value,
+                    SerializedMessage = JsonSerializer.Serialize(message),
+                    MessageText = message.Text
+                });
+            }
+            await _chatMessageStore.AddMessagesAsync(adddata, cancellationToken);
+        }
+
+        /// <summary>
         /// 估算一条消息实际占用的输入长度（保守按字符数≈Token数），涵盖文本、工具调用参数、工具结果与二进制内容
         /// </summary>
         private int EstimateMessageSize(ChatMessage? message)
