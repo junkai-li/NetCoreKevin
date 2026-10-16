@@ -194,11 +194,6 @@ namespace kevin.AI.AgentFramework
                                 }
                             }
                         }
-                        // 一轮模型交互结束后，把外部工具调用一次性回传：调用方执行工具后以工具结果回传续轮
-                        await EmitExternalToolCallsAsync(aISetting, collectedToolCalls);
-                        // 终止轮补偿：框架交还外部工具调用时会跳过本轮全部工具调用，这里把被跳过的自带工具就地执行并落库，
-                        // 让自带工具照常直接运行、且下一轮续轮时工具调用与结果完整配对
-                        await ExecuteSkippedLocalToolCallsAsync(aISetting, chatClientAgentOptions, collectedToolCalls, completedToolCallIds, cancellationToken);
                     }
                 }
                 else
@@ -249,33 +244,30 @@ namespace kevin.AI.AgentFramework
                                                 {
                                                     completedToolCallIds.Add(funcResult.CallId);
                                                 }
-                                                break; 
+                                                break;
                                             case TextReasoningContent reasoningContent:
                                                 //思考过程输出 
                                                 if (aISetting.ReasoningStreameCallback != default)
                                                 {
                                                     await aISetting.ReasoningStreameCallback.Invoke(reasoningContent.Text);
                                                 }
-                                                break; 
+                                                break;
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                    // 非流式路径同样回传外部工具调用：模型仅调工具不产出正文时 resultText 为空，调用必须独立回传
-                    await EmitExternalToolCallsAsync(aISetting, collectedToolCalls);
-                    // 终止轮补偿（与流式同逻辑）：被跳过的自带工具就地执行并落库
-                    await ExecuteSkippedLocalToolCallsAsync(aISetting, chatClientAgentOptions, collectedToolCalls, completedToolCallIds, cancellationToken);
-                    // 关键补丁：智能体配置为非流式输出（MsgType != 2）时，RunAsync 是一次性返回、不触发任何流式回调。
-                    // 上面已经把文本写进 addAi.Content（DB）供网页端 done 事件读取，但 OpenAI 协议适配器是按“流式回调”组装输出帧的，
-                    // 不调 StreameCallback = OpenAI 客户端收不到正文（addAi.Content 是“哑库存”，帧面看不到）。
-                    // 这里把完整文本一次性补发给输出通道，让非流式智能体也能驱动流式输出场景。
+                    // 关键补丁：智能体配置为非流式输出（MsgType != 2）时，RunAsync 是一次性返回、不触发任何流式回调。 
                     if (!string.IsNullOrEmpty(resultText) && aISetting.StreameCallback != default)
                     {
                         await aISetting.StreameCallback.Invoke(resultText);
                     }
                 }
+                // 非流式路径同样回传外部工具调用：模型仅调工具不产出正文时 resultText 为空，调用必须独立回传
+                await EmitExternalToolCallsAsync(aISetting, collectedToolCalls);
+                // 终止轮补偿（与流式同逻辑）：被跳过的自带工具就地执行并落库
+                await ExecuteSkippedLocalToolCallsAsync(aISetting, chatClientAgentOptions, collectedToolCalls, completedToolCallIds, cancellationToken);
             }
             catch (Exception ex)
             {
