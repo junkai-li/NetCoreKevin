@@ -119,6 +119,22 @@ namespace kevin.Domain.BaseDatas
                IsManual=true,
                CreateUserId=TUserBaseData.TUsers[0].Id
            },
+            new TPermission() {
+               Id=TenantHelper.GetSettingsTenantId()+"/Menu/MyMenu/MyOpenAICompatibleKey",
+               PermissionType= 1,
+               Area="Menu",
+               AreaName="菜单",
+               Module="MyMenu",
+               ModuleName="我的",
+               Action="MyOpenAICompatibleKey",
+               ActionName="OpenAI对接密钥",
+               FullName="菜单/我的/OpenAI对接密钥",
+               TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
+               CreateTime = DateTime.Parse("2020-01-01 00:00:01"),
+               IsDelete=false,
+               IsManual=true,
+               CreateUserId=TUserBaseData.TUsers[0].Id
+           },
                new TPermission() {
                Id=TenantHelper.GetSettingsTenantId()+"/Menu/AIManagement",
                PermissionType= 1,

@@ -267,6 +267,14 @@ namespace kevin.AI.AgentFramework
                     await EmitExternalToolCallsAsync(aISetting, collectedToolCalls);
                     // 终止轮补偿（与流式同逻辑）：被跳过的自带工具就地执行并落库
                     await ExecuteSkippedLocalToolCallsAsync(aISetting, chatClientAgentOptions, collectedToolCalls, completedToolCallIds, cancellationToken);
+                    // 关键补丁：智能体配置为非流式输出（MsgType != 2）时，RunAsync 是一次性返回、不触发任何流式回调。
+                    // 上面已经把文本写进 addAi.Content（DB）供网页端 done 事件读取，但 OpenAI 协议适配器是按“流式回调”组装输出帧的，
+                    // 不调 StreameCallback = OpenAI 客户端收不到正文（addAi.Content 是“哑库存”，帧面看不到）。
+                    // 这里把完整文本一次性补发给输出通道，让非流式智能体也能驱动流式输出场景。
+                    if (!string.IsNullOrEmpty(resultText) && aISetting.StreameCallback != default)
+                    {
+                        await aISetting.StreameCallback.Invoke(resultText);
+                    }
                 }
             }
             catch (Exception ex)

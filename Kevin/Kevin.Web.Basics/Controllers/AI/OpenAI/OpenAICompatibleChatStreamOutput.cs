@@ -36,6 +36,12 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
         private bool _firstChunkSent;
         // 本轮透传工具调用（网关不执行，收齐后下发/组装，由客户端执行）
         private readonly List<OpenAICompatibleToolCall> _collectedToolCalls = new();
+        // 流式兑底：记录本轮是否真的下发过 delta.content，以及累加的 reasoning 文本。
+        // reasoning 模型（如 DeepSeek-R1 / Qwen3）有时只输出思考过程、不输出最终 TextContent，
+        // 此时 OpenAI 客户端不读 reasoning_content 字段会看到空 content = “无回复”。
+        // CompleteAsync 阶段如果发现 content 一帧都没发过而 reasoning 有内容，就补一条 content 帧。
+        private bool _contentChunkSent;
+        private readonly StringBuilder _accumulatedReasoning = new();
 
         public OpenAICompatibleChatStreamOutput(HttpResponse response, string model, bool thinkingEnabled, bool streamEnabled)
         {
@@ -64,12 +70,14 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
                 case "aimsg":
                     if (_streamEnabled)
                     {
+                        _contentChunkSent = true;
                         await WriteChunkAsync(new OpenAICompatibleDelta { Content = message }, null);
                     }
                     break;
                 case "aIReasoningContentMsg":
                     if (_streamEnabled && _thinkingEnabled)
                     {
+                        _accumulatedReasoning.Append(message);
                         await WriteChunkAsync(new OpenAICompatibleDelta { ReasoningContent = message }, null);
                     }
                     break;
@@ -133,6 +141,13 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
             if (!_streamEnabled)
             {
                 return;
+            }
+            // reasoning 模型兑底：全程没下发过 delta.content 但 reasoning 有内容，
+            // 补一条 content 帧供不识别 reasoning_content 字段的 OpenAI 客户端读取。
+            if (!_contentChunkSent && _accumulatedReasoning.Length > 0)
+            {
+                var fallback = "（模型仅输出思考过程，未产出最终回答。以下为思考内容）\n" + _accumulatedReasoning;
+                await WriteChunkAsync(new OpenAICompatibleDelta { Content = fallback }, null);
             }
             await WriteChunkAsync(new OpenAICompatibleDelta(), _collectedToolCalls.Count > 0 ? "tool_calls" : "stop");
             await WriteRawAsync("data: [DONE]\n\n");

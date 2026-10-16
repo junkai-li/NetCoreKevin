@@ -103,6 +103,8 @@ namespace Web.Extension
             ConfigHelper.Initialize(Configuration);
             //注册HttpContext
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            //IMemoryCache 供 OpenAI 兼容接口网关层按租户缓存启用中的 Key 列表（避免每次请求都走 DB + AES 解密）
+            services.AddMemoryCache();
             #endregion
 
             services.AddControllers()

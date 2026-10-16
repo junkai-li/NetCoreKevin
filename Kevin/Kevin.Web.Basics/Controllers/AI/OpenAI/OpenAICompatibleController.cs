@@ -159,6 +159,13 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
                         // 失败路径没有可展示的正文：按错误回传，客户端可据 message 提示重试
                         throw new OpenAIProtocolException(500, result!.FailReason!, "server_error");
                     }
+                    // reasoning 模型兼容：模型只产出了思考过程（TextReasoningContent）而没产出最终 TextContent 时，
+                    // 传统 OpenAI 客户端不读 reasoning_content 字段会看到空 content = “无回复”。
+                    // 这里把思考过程以提示文案作为 content 兑底，确保调用方总能看到点什么（同时原 reasoning_content 字段仍保留给识别该字段的客户端）。
+                    if (string.IsNullOrWhiteSpace(content) && !string.IsNullOrWhiteSpace(result?.AIReasoningContent))
+                    {
+                        content = "（模型仅输出思考过程，未产出最终回答。以下为思考内容）\n" + result!.AIReasoningContent;
+                    }
                     // 透传工具调用轮：按 OpenAI 协议以 message.tool_calls + finish_reason=tool_calls 返回，
                     // 客户端执行完工具后把 role=tool 结果消息发回继续对话
                     var toolCalls = output.CollectedToolCalls;

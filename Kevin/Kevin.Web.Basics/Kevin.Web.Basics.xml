@@ -461,6 +461,49 @@
         <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleErrorResponse">
             <summary>OpenAI 风格错误响应：{"error":{"message","type","param","code"}}</summary>
         </member>
+        <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleKeyController">
+            <summary>
+            OpenAI 协议兼容接口的"我的 Key"管理：当前用户生成、查看、启用/禁用、对接文档。
+            <para>
+            每个登录用户至多一条 Key；Key 落库为 AES 加密密文，外部命中由网关层解密匹配。
+            </para>
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleKeyController.GetMyKey">
+            <summary>
+            获取当前用户的 Key 信息（不含明文）
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleKeyController.Generate(Kevin.Web.Basics.Controllers.AI.OpenAI.GenerateOpenAIKeyRequest)">
+            <summary>
+            生成或重新生成当前用户的 Key，返回明文（仅此次返回明文）。
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleKeyController.Reveal">
+            <summary>
+            查看当前 Key 明文（用户主动点击"显示"时调用）
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleKeyController.UpdateName(Kevin.Web.Basics.Controllers.AI.OpenAI.UpdateOpenAIKeyNameRequest)">
+            <summary>
+            更新备注名
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleKeyController.SetEnabled(Kevin.Web.Basics.Controllers.AI.OpenAI.SetOpenAIKeyEnabledRequest)">
+            <summary>
+            启用 / 禁用当前 Key
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleKeyController.Delete">
+            <summary>
+            删除（作废）当前 Key
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleKeyController.GetIntegrationDoc">
+            <summary>
+            获取对接文档：Base URL、可调用的智能体列表、cURL/Python/Node.js 示例
+            </summary>
+        </member>
         <member name="T:Kevin.Web.Basics.Controllers.AliAsrController">
             <summary>
             Asr语音识别
@@ -1039,12 +1082,13 @@
         </member>
         <member name="T:Web.Filters.OpenAICompatibleSetting">
             <summary>
-            OpenAI 协议兼容接口的配置节（appsettings.json 的 OpenAICompatibleSetting）：
+            OpenAI 协议兼容接口的非鉴权设置项（appsettings.json 的 OpenAICompatibleSetting）：
             外部客户端用 Authorization: Bearer {Key} 调用 /v1/chat/completions 等接口。
+            <para>
+            注意：ApiKey 列表（ApiKeys）已下线，Key 改为由 <c>OpenAICompatibleKeyController</c> 维护、
+            落库到 <c>TAIOpenAICompatibleKey</c>（AES 加密）。本类只保留网关运行所需的非鉴权设置项。
+            </para>
             </summary>
-        </member>
-        <member name="P:Web.Filters.OpenAICompatibleSetting.ApiKeys">
-            <summary>API 密钥列表：每个密钥绑定平台内的一个用户+租户，请求内自动换成该用户的内部凭证</summary>
         </member>
         <member name="P:Web.Filters.OpenAICompatibleSetting.SessionExpirationHours">
             <summary>会话映射（会话标识 → 内部会话）的有效期，单位小时；过期后同一会话标识会自动新建会话</summary>
@@ -1057,28 +1101,30 @@
             //是否隐藏 AI 聊天对话（null=不限制，true=隐藏，false=显示）
             </summary>
         </member>
-        <member name="T:Web.Filters.OpenAICompatibleApiKey">
-            <summary>单个 API 密钥配置</summary>
-        </member>
-        <member name="P:Web.Filters.OpenAICompatibleApiKey.Key">
-            <summary>密钥原文（建议 sk- 开头，仅配置在服务端）</summary>
-        </member>
-        <member name="P:Web.Filters.OpenAICompatibleApiKey.Name">
-            <summary>备注名（仅用于识别）</summary>
-        </member>
-        <member name="P:Web.Filters.OpenAICompatibleApiKey.UserId">
-            <summary>密钥绑定的平台用户 Id：调用时的权限（可用智能体等）与落库身份都按该用户计算</summary>
-        </member>
-        <member name="P:Web.Filters.OpenAICompatibleApiKey.TenantId">
-            <summary>密钥绑定的租户 code（如 1000）</summary>
-        </member>
         <member name="T:Web.Filters.OpenAICompatibleApiKeyFilter">
             <summary>
             OpenAI 协议兼容接口的 API 密钥鉴权过滤器：
-            校验 Authorization: Bearer {Key} 是否命中配置（OpenAICompatibleSetting.ApiKeys），
-            命中后用“密钥绑定的用户+租户”签发内部 JWT 并重写请求的 Authorization 头，
+            校验 Authorization: Bearer {Key} 是否命中数据库 <c>TAIOpenAICompatibleKey</c>（AES 加密存储）。
+            命中后用"密钥绑定的用户+租户"签发内部 JWT 并重写请求的 Authorization 头，
             使下游整条既有管线（CurrentUser / 智能体权限 / MCP 工具取数）与网页端登录用户完全同路径。
+            <para>
+            性能：按租户缓存 5 分钟；缓存命中时跳过 DB 查询与 AES 解密匹配过程。
+            </para>
             <para>校验失败按 OpenAI 错误格式返回 401。</para>
+            </summary>
+        </member>
+        <member name="F:Web.Filters.OpenAICompatibleApiKeyFilter.KeyCacheTtl">
+            <summary>Key 缓存滑动过期时间：足够短以保证禁用/删除几秒后即生效，又足以挡住短时间内的连续请求</summary>
+        </member>
+        <member name="M:Web.Filters.OpenAICompatibleApiKeyFilter.TryMatchAsync(kevin.Domain.Interfaces.IRepositories.ITAIOpenAICompatibleKeyRp,Microsoft.Extensions.Caching.Memory.IMemoryCache,System.String,System.Threading.CancellationToken)">
+            <summary>
+            匹配入口：先按租户拿启用中的 Key 列表（带 5 分钟内存缓存），再逐条 AES 解密做常量时间比较。
+            </summary>
+        </member>
+        <member name="M:Web.Filters.OpenAICompatibleApiKeyFilter.UpdateLastUsedTimeInNewScopeAsync(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory,System.Int64)">
+            <summary>
+            后台更新 Key 最近使用时间：在独立作用域里跑，避免与请求作用域的 DbContext 争抢资源。
+            缓存 5 分钟内会跳过重复更新（接收到“应该更新”的请求数过多时这个调用的次数会指数级放大），所以“晚几秒入库”是可接受的。
             </summary>
         </member>
         <member name="T:Web.Filters.PublicPortAuthorizeFilters">
