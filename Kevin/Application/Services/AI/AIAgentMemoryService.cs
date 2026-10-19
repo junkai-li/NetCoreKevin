@@ -3,6 +3,7 @@ using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Enums;
+using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
@@ -29,21 +30,54 @@ namespace kevin.Application.Services.AI
         /// </summary>
         public IAIQdrantAgentMemoryService? QdrantVectorService { get; set; }
 
-        public AIAgentMemoryService(IHttpContextAccessor _httpContextAccessor, IAIAgentMemoryRp _AIAgentMemoryRp, IAIShareInfoService aIShareInfoService) : base(_httpContextAccessor)
+        /// <summary>
+        /// 数据库无精确匹配时 fallback 返回的最低重要度（9-10 核心约束 / 7-8 重要决策偏好）
+        /// </summary>
+        private const int FallbackMinImportance = 7;
+
+        /// <summary>
+        /// 单条记忆内容的最大长度（字符），超出直接拒绝而不是截断，避免静默丢信息
+        /// </summary>
+        private const int MaxContentLength = 4000;
+
+        /// <summary>
+        /// 关键词最大长度，与实体 TAIAgentMemory.Keywords 的 MaxLength(200) 保持一致
+        /// </summary>
+        private const int MaxKeywordsLength = 200;
+
+        public AIAgentMemoryService(IHttpContextAccessor _httpContextAccessor, IAIAgentMemoryRp _AIAgentMemoryRp, IAIShareInfoService aIShareInfoService, IServiceProvider serviceProvider) : base(_httpContextAccessor)
         {
             this.AIAgentMemoryRp = _AIAgentMemoryRp;
             AIShareInfoService = aIShareInfoService;
-            // 从服务容器解析 Qdrant 向量服务（可选依赖，未注册时为 null，自动降级到数据库搜索）
-            QdrantVectorService = _serviceProvider?.GetService(typeof(IAIQdrantAgentMemoryService)) as IAIQdrantAgentMemoryService;
+            // 从服务容器解析 Qdrant 向量服务（可选依赖，未注册时为 null，自动降级到数据库搜索）。
+            // HTTP 请求内优先用请求作用域；Hangfire 等无 HttpContext 场景回退到 DI 注入的容器。
+            var provider = _serviceProvider ?? serviceProvider;
+            QdrantVectorService = provider.GetService(typeof(IAIQdrantAgentMemoryService)) as IAIQdrantAgentMemoryService;
         }
 
         public async Task<dtoPageData<TAIAgentMemory>> GetPageData(dtoPagePar<string> dtoPagePar)
         {
             int skip = dtoPagePar.GetSkip();
             var result = new dtoPageData<TAIAgentMemory>();
-            var data = AIAgentMemoryRp.Query(isDataPer: true).Where(t => t.IsDelete == false);
+            var now = DateTime.Now;
+            // 列表只展示未删除且未过期的记忆（过期短期记忆由清理任务软删除）
+            var data = AIAgentMemoryRp.Query(isDataPer: true)
+                .Where(t => t.IsDelete == false && (t.ExpireTime == null || t.ExpireTime > now));
+
+            // searchKey 模糊匹配关键词或内容（原先该参数未生效）
+            var keyword = dtoPagePar.searchKey?.Trim();
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                data = data.Where(t => t.Keywords.Contains(keyword) || t.Content.Contains(keyword));
+            }
+
             result.total = await data.CountAsync();
-            result.data = await data.Skip(skip).Take(dtoPagePar.pageSize).OrderByDescending(x => x.CreateTime).ToListAsync();
+            // 先排序再分页，保证跳页顺序稳定（原实现是先分页再排序）
+            result.data = await data
+                .OrderByDescending(x => x.CreateTime)
+                .Skip(skip)
+                .Take(dtoPagePar.pageSize)
+                .ToListAsync();
             result.pageSize = dtoPagePar.pageSize;
             result.pageNum = dtoPagePar.pageNum;
             return result;
@@ -53,7 +87,7 @@ namespace kevin.Application.Services.AI
         /// 保存记忆
         /// </summary>
         /// <remarks>
-        /// 校验顺序：用户身份 → content 非空 → memoryType 合法性 → importance 范围 → expireTime 解析与类型匹配 → 去重检查 → 写入。
+        /// 校验顺序：用户身份 → content 非空/长度 → memoryType 合法性 → importance 范围 → keywords 非空/长度 → expireTime 解析与类型匹配 → 去重检查 → 写入。
         /// task 是跨会话可复用的短期记忆，必须设置 expireTime；其他类型为长期记忆，禁止设置 expireTime。
         /// 去重规则：用 keywords 查询同用户/租户/智能体下已有记忆，若 content 高度相似（互相包含或前 30 字符相同）则拒绝并提示改用 UpdateMemory。
         /// </remarks>
@@ -67,20 +101,28 @@ namespace kevin.Application.Services.AI
             {
                 return "❌ 保存记忆失败：记忆内容不能为空。";
             }
+            if (content.Trim().Length > MaxContentLength)
+            {
+                return $"❌ 保存记忆失败：内容过长（{content.Trim().Length} 字符），请精简到 {MaxContentLength} 字符以内。";
+            }
             // memoryType 合法性校验（7 种：preference/fact/task/decision/pitfall/skill/other）
             if (!MemoryTypes.IsValid(memoryType))
             {
-                return $"❌ 保存记忆失败：memoryType “{memoryType}” 非法。合法值：{MemoryTypes.GetDescriptionText()}。详见系统提示词 4.3 分类表。";
+                return $"❌ 保存记忆失败：memoryType “{memoryType}” 非法。合法值：{MemoryTypes.GetDescriptionText()}。";
             }
             var normalizedType = MemoryTypes.Normalize(memoryType);
             // importance 范围校验（0-10）
             if (importance < 0 || importance > 10)
             {
-                return $"❌ 保存记忆失败：importance 必须在 0-10 之间，当前值 {importance}。详见系统提示词 4.4 打分表。";
+                return $"❌ 保存记忆失败：importance 必须在 0-10 之间，当前值 {importance}。评分参考：9-10 核心约束 / 7-8 重要决策偏好 / 5-6 一般事实经验 / 3-4 边缘信息 / 0-2 低价值。";
             }
             if (string.IsNullOrWhiteSpace(keywords))
             {
                 return "❌ 保存记忆失败：keywords 不能为空，请提供 2-5 个核心实体/概念/技术术语，英文逗号分隔。";
+            }
+            if (keywords.Trim().Length > MaxKeywordsLength)
+            {
+                return $"❌ 保存记忆失败：keywords 过长（{keywords.Trim().Length} 字符），请精简到 {MaxKeywordsLength} 字符以内（2-5 个核心词即可）。";
             }
             // task 是短期记忆，必须设置 expireTime；其他类型是长期记忆，禁止设置 expireTime。
             var hasExpireTime = !string.IsNullOrWhiteSpace(expireTime);
@@ -257,18 +299,20 @@ namespace kevin.Application.Services.AI
                 .ToListAsync();
             if (list.Count == 0)
             {
-                // Fallback：无精确匹配时返回用户最近的记忆（按 importance + createTime），供 AI 自行判断相关性
+                // Fallback：无精确匹配时仅返回高重要度记忆（≥7），供 AI 判断相关性；
+                // 不再无差别返回最近记忆，避免用户记忆增多后把无关信息注入模型造成误用
                 var fallback = await query
+                    .Where(t => t.Importance >= FallbackMinImportance)
                     .OrderByDescending(t => t.Importance)
                     .ThenByDescending(t => t.CreateTime)
                     .Take(5)
                     .ToListAsync();
                 if (fallback.Count == 0)
                 {
-                    return $"未找到与「{keyword}」相关的记忆，且当前用户无任何历史记忆。";
+                    return $"未找到与「{keyword}」相关的记忆。";
                 }
                 var sbFallback = new System.Text.StringBuilder();
-                sbFallback.AppendLine($"未找到与「{keyword}」精确匹配的记忆。以下是当前用户最近的历史记忆，请判断是否相关：");
+                sbFallback.AppendLine($"未找到与「{keyword}」精确匹配的记忆。以下是当前用户的重要记忆（重要度≥{FallbackMinImportance}），请判断是否相关：");
                 for (int i = 0; i < fallback.Count; i++)
                 {
                     var m = fallback[i];
@@ -308,8 +352,20 @@ namespace kevin.Application.Services.AI
             {
                 return "❌ 更新记忆失败：记忆内容不能为空。";
             }
+            if (content.Trim().Length > MaxContentLength)
+            {
+                return $"❌ 更新记忆失败：内容过长（{content.Trim().Length} 字符），请精简到 {MaxContentLength} 字符以内。";
+            }
+            if (!string.IsNullOrWhiteSpace(keywords) && keywords.Trim().Length > MaxKeywordsLength)
+            {
+                return $"❌ 更新记忆失败：keywords 过长（{keywords.Trim().Length} 字符），请精简到 {MaxKeywordsLength} 字符以内（2-5 个核心词即可）。";
+            }
+            // 归属校验与搜索/保存保持一致：租户+智能体+用户三维，防止跨智能体操作自己的记忆
             var data = await AIAgentMemoryRp.Query(isDataPer: false, isTenant: false)
-                .Where(t => t.IsDelete == false && t.Id == id && t.UserId == AIShareInfoService.GetData().UserId)
+                .Where(t => t.IsDelete == false && t.Id == id
+                    && t.UserId == AIShareInfoService.GetData().UserId
+                    && t.TenantId == AIShareInfoService.GetData().TenantId
+                    && t.AIAppsId == AIShareInfoService.GetData().AIAppsId)
                 .FirstOrDefaultAsync();
             if (data == default)
             {
@@ -321,7 +377,7 @@ namespace kevin.Application.Services.AI
                 data.Keywords = keywords.Trim();
             }
             data.UpdateTime = DateTime.Now;
-            AIAgentMemoryRp.SaveChanges();
+            await AIAgentMemoryRp.SaveChangesAsync();
 
             // 同步向量到 Qdrant（内容/关键词变更后需更新向量）
             await TrySyncVectorAsync(data);
@@ -338,8 +394,12 @@ namespace kevin.Application.Services.AI
             {
                 return "❌ 删除记忆失败：无法获取当前用户，请在登录后使用。";
             }
+            // 归属校验与搜索/保存保持一致：租户+智能体+用户三维，防止跨智能体操作自己的记忆
             var data = await AIAgentMemoryRp.Query(isDataPer: false, isTenant: false)
-                .Where(t => t.IsDelete == false && t.Id == id && t.UserId == AIShareInfoService.GetData().UserId)
+                .Where(t => t.IsDelete == false && t.Id == id
+                    && t.UserId == AIShareInfoService.GetData().UserId
+                    && t.TenantId == AIShareInfoService.GetData().TenantId
+                    && t.AIAppsId == AIShareInfoService.GetData().AIAppsId)
                 .FirstOrDefaultAsync();
             if (data == default)
             {
@@ -347,7 +407,7 @@ namespace kevin.Application.Services.AI
             }
             data.IsDelete = true;
             data.DeleteTime = DateTime.Now;
-            AIAgentMemoryRp.SaveChanges();
+            await AIAgentMemoryRp.SaveChangesAsync();
 
             // 同步删除 Qdrant 中的向量
             await TryDeleteVectorAsync(data);
@@ -357,6 +417,14 @@ namespace kevin.Application.Services.AI
 
         public async Task<bool> AddEdit(TAIAgentMemory data)
         {
+            if (!string.IsNullOrWhiteSpace(data.Content) && data.Content.Trim().Length > MaxContentLength)
+            {
+                throw new UserFriendlyException($"记忆内容过长，最多 {MaxContentLength} 字符");
+            }
+            if (!string.IsNullOrWhiteSpace(data.Keywords) && data.Keywords.Trim().Length > MaxKeywordsLength)
+            {
+                throw new UserFriendlyException($"记忆关键词过长，最多 {MaxKeywordsLength} 字符");
+            }
             var isAdd = data.Id == default;
             if (!isAdd)
             {
@@ -366,6 +434,7 @@ namespace kevin.Application.Services.AI
                     isAdd = true;
                 }
             }
+            TAIAgentMemory affected;
             if (isAdd)
             {
                 var add = data.MapTo<TAIAgentMemory>();
@@ -374,15 +443,27 @@ namespace kevin.Application.Services.AI
                 add.CreateTime = DateTime.Now;
                 add.AIChatsId = AIShareInfoService.GetData().AIChatsId;
                 add.AIAppsId = AIShareInfoService.GetData().AIAppsId;
+                // 归属用户兜底：管理端未显式指定 UserId 时取当前登录用户，避免 UserId=0 的记忆任何用户都检索不到
+                if (add.UserId <= 0)
+                {
+                    add.UserId = AIShareInfoService.GetData().UserId;
+                }
                 AIAgentMemoryRp.Add(add);
+                affected = add;
             }
             else
             {
                 var upData = AIAgentMemoryRp.Query(isDataPer: false, isTenant: false).Where(t => t.IsDelete == false && t.Id == data.Id).FirstOrDefault();
                 if (upData != default)
                 {
+                    var originalUserId = upData.UserId;
+                    var originalTenantId = upData.TenantId;
                     upData = data.MapTo(upData);
+                    // 编辑时前端未传归属字段会把 UserId/TenantId 覆盖为 0，这里保留原值防止记忆失去归属
+                    if (upData.UserId <= 0) upData.UserId = originalUserId;
+                    if (upData.TenantId <= 0) upData.TenantId = originalTenantId;
                     upData.UpdateTime = DateTime.Now;
+                    affected = upData;
                 }
                 else
                 {
@@ -390,6 +471,9 @@ namespace kevin.Application.Services.AI
                 }
             }
             await AIAgentMemoryRp.SaveChangesAsync();
+
+            // 同步向量到 Qdrant（新增或内容变更后更新向量，失败静默降级不影响数据库主流程）
+            await TrySyncVectorAsync(affected);
             return true;
         }
 
@@ -401,12 +485,50 @@ namespace kevin.Application.Services.AI
                 data.IsDelete = true;
                 data.DeleteTime = DateTime.Now;
                 AIAgentMemoryRp.SaveChangesWithSaveLog();
+
+                // 同步删除 Qdrant 向量，避免已删除记忆仍被语义搜索命中（失败静默降级不影响数据库主流程）
+                await TryDeleteVectorAsync(data);
             }
             else
             {
                 throw new UserFriendlyException("数据不存在或已删除");
             }
             return true;
+        }
+
+        /// <summary>
+        /// 清理已过期的短期记忆（由 Hangfire 定时任务调用）。
+        /// <para>
+        /// 过期记忆在检索时已被过滤，但仍会占用数据库与向量存储；这里按批软删除并同步删除 Qdrant 向量。
+        /// 操作幂等，可重复执行。
+        /// </para>
+        /// </summary>
+        public async Task CleanupExpiredMemoriesAsync()
+        {
+            const int batchSize = 500;
+            var now = DateTime.Now;
+            var expired = await AIAgentMemoryRp.Query(isDataPer: false, isTenant: false)
+                .Where(t => t.IsDelete == false && t.ExpireTime != null && t.ExpireTime <= now)
+                .OrderBy(t => t.ExpireTime)
+                .Take(batchSize)
+                .ToListAsync();
+            if (expired.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var memory in expired)
+            {
+                memory.IsDelete = true;
+                memory.DeleteTime = now;
+            }
+            await AIAgentMemoryRp.SaveChangesAsync();
+
+            // 同步删除 Qdrant 向量（失败静默降级，残留向量会被检索时的过期过滤拦截）
+            foreach (var memory in expired)
+            {
+                await TryDeleteVectorAsync(memory);
+            }
         }
 
         #region 向量同步辅助方法（Qdrant 降级保护）

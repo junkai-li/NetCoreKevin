@@ -27,8 +27,8 @@ namespace kevin.Domain.Interfaces.IServices.AI
         Task<string> SaveMemoryAsync(
             [Description("记忆内容，用一句话完整描述要记住的信息，说明“是什么/为什么”")][Required] string content,
             [Description("记忆关键词，2-5 个核心实体/概念/技术术语，英文逗号分隔，优先专有名词避免泛词，如：UserFriendlyException,HTTP 400,登录失败")][Required] string keywords,
-            [Description("记忆类型（必填，禁止全用 other）：preference偏好/fact事实/task短期记忆/decision决策/pitfall踩坑/skill技能/other其他。详见系统提示词 4.3 分类表")][Required] string memoryType,
-            [Description("重要程度 0-10（必填）：9-10核心约束/7-8重要决策偏好/5-6一般事实经验/3-4边缘信息/0-2低价值不该保存。详见系统提示词 4.4 打分表")][Required] int importance,
+            [Description("记忆类型（必填，禁止全用 other）：preference偏好/fact事实/task短期记忆/decision决策/pitfall踩坑/skill技能/other其他")][Required] string memoryType,
+            [Description("重要程度 0-10（必填）：9-10核心约束/7-8重要决策偏好/5-6一般事实经验/3-4边缘信息/0-2低价值不该保存")][Required] int importance,
             [Description("短期记忆（task）必须传过期时间字符串；长期记忆不得传。支持格式：yyyy-MM-dd HH:mm，yyyy-MM-dd HH:mm:ss，ISO 8601。例如：2026-12-31 23:59。必须大于当前时间，否则拒绝")] string expireTime = "");
 
         /// <summary>
@@ -76,5 +76,11 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// <param name="id"></param>
         /// <returns></returns>
         Task<bool> Delete(long id);
+
+        /// <summary>
+        /// 清理已过期的短期记忆（Hangfire 定时任务调用）
+        /// </summary>
+        /// <returns></returns>
+        Task CleanupExpiredMemoriesAsync();
     }
 }

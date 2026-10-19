@@ -1,6 +1,7 @@
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IServices.AI;
+using kevin.Domain.Share.Enums;
 using Kevin.RAG.Ollama;
 using Kevin.RAG.Qdrant.Models;
 using Kevin.RAG.Rerank;
@@ -45,6 +46,17 @@ namespace kevin.Application.Services.AI
         /// 最终返回给调用方的最大记忆条数
         /// </summary>
         private const int MaxReturnCount = 10;
+
+        /// <summary>
+        /// Qdrant 相似度阈值：低于该值的候选视为无关噪声直接丢弃（余弦相似度 0~1，可按 embedding 模型调整）
+        /// </summary>
+        private const float MinVectorScore = 0.4f;
+
+        /// <summary>
+        /// 综合排序权重：相关性得分占 70%，importance（0-10 归一化）占 30%
+        /// </summary>
+        private const double RelevanceWeight = 0.7;
+        private const double ImportanceWeight = 0.3;
 
         public AIQdrantAgentMemoryService(IServiceProvider serviceProvider)
         {
@@ -140,7 +152,7 @@ namespace kevin.Application.Services.AI
         /// <summary>
         /// 语义搜索记忆（Qdrant 向量检索 + 可选 Rerank 重排）。
         /// <para>
-        /// 流程：生成查询向量 → Qdrant 相似度检索 → 防御性校验(userId/tenantId/aiAppsId) → Rerank 重排 → 取 TopN
+        /// 流程：生成查询向量 → memoryType 下推为 Qdrant filter + 相似度阈值 → 防御性校验(userId/tenantId/aiAppsId) → 过期过滤 → Rerank 重排 → 相关性+importance 综合排序 → 取 TopN
         /// </para>
         /// </summary>
         /// <returns>格式化的记忆文本，可直接返回给 AI；null 表示无结果或异常（调用方应降级）</returns>
@@ -155,38 +167,44 @@ namespace kevin.Application.Services.AI
             if (!await IsCollectionExistsAsync(collectionName))
                 return null;
 
-            // ② Qdrant 相似度检索（集合已按 租户+智能体+用户 隔离，候选均为当前用户记忆）
+            // ② 构建过滤条件：memoryType 下推到 Qdrant 层（多类型为 OR），
+            // 避免“先取候选再过滤”导致目标类型记忆被其他类型挤出召回范围
+            Filter? filter = null;
+            var validTypes = ParseMemoryTypes(memoryType ?? "");
+            if (validTypes.Count > 0)
+            {
+                filter = new Filter { Must = { Conditions.Match("memoryType", validTypes) } };
+            }
+
+            // ③ Qdrant 相似度检索（集合已按 租户+智能体+用户 隔离，候选均为当前用户记忆；
+            // scoreThreshold 过滤低相似度噪声，避免无关记忆进入结果）
             var searchResults = await Client.SearchAsync(
                 collectionName,
                 queryEmbedding.Vector,
-                limit: SearchFetchLimit);
+                filter: filter,
+                limit: SearchFetchLimit,
+                // 显式要求返回 payload，避免服务端默认值变化导致过滤与内容展示失效
+                payloadSelector: new WithPayloadSelector { Enable = true },
+                scoreThreshold: MinVectorScore);
 
-            // ③ 防御性校验并过滤过期短期记忆（集合已三维隔离，此处为双重保险）
+            // ④ 防御性校验并过滤过期短期记忆（集合已三维隔离，此处为双重保险）
             var candidates = FilterByOwnerScope(searchResults, userId, tenantId, aiAppsId);
             candidates = FilterUnexpired(candidates);
 
             if (candidates.Count == 0)
                 return null;
 
-            // ④ 可选 Rerank 重排（提高语义相关性排序精度）
+            // ⑤ 可选 Rerank 重排（提高语义相关性排序精度）
             if (_rerankService != null)
             {
                 candidates = await RerankCandidatesAsync(keyword, candidates);
             }
 
-            // ⑤ 按 memoryType 过滤 + 取 TopN
-            if (!string.IsNullOrWhiteSpace(memoryType))
-            {
-                var validTypes = ParseMemoryTypes(memoryType);
-                if (validTypes.Count > 0)
-                {
-                    candidates = candidates
-                        .Where(c => validTypes.Contains(GetPayloadString(c, "memoryType")))
-                        .ToList();
-                }
-            }
-
-            var topResults = candidates.Take(MaxReturnCount).ToList();
+            // ⑥ 综合排序（相关性为主 + importance 为辅）后取 TopN
+            var topResults = candidates
+                .OrderByDescending(GetCombinedScore)
+                .Take(MaxReturnCount)
+                .ToList();
             if (topResults.Count == 0)
                 return null;
 
@@ -309,9 +327,20 @@ namespace kevin.Application.Services.AI
                 if (rerankResult?.results == null || rerankResult.results.Count == 0)
                     return candidates;
 
+                // 把 Rerank 分数写回 Score，供后续综合排序（相关性 + importance）使用
+                foreach (var r in rerankResult.results)
+                {
+                    if (r.index >= 0 && r.index < candidates.Count)
+                    {
+                        candidates[r.index].Score = (float)r.relevance_score;
+                    }
+                }
+
+                // 按 relevance_score 降序取重排结果，再用 index 映射回候选；
+                // 若按 index 排序会打回 Qdrant 原始相似度顺序，等于重排失效
                 return rerankResult.results
                     .Where(r => r.index >= 0 && r.index < candidates.Count)
-                    .OrderBy(r => r.index)
+                    .OrderByDescending(r => r.relevance_score)
                     .Select(r => candidates[r.index])
                     .ToList();
             }
@@ -330,6 +359,7 @@ namespace kevin.Application.Services.AI
             return memoryType
                 .Split(new[] { ',', '，', '|', '、', ' ', ' ' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Select(t => t.ToLowerInvariant())
+                .Where(t => MemoryTypes.IsValid(t))
                 .Distinct()
                 .ToList();
         }
@@ -342,6 +372,16 @@ namespace kevin.Application.Services.AI
             if (point.Payload == null || !point.Payload.ContainsKey(key))
                 return string.Empty;
             return point.Payload[key].StringValue ?? string.Empty;
+        }
+
+        /// <summary>
+        /// 综合排序分：相关性得分 × 70% + importance（0-10 归一化）× 30%。
+        /// 让“重要约束”在同等相关性下优先出现，但不喧宾夺主。
+        /// </summary>
+        private static double GetCombinedScore(ScoredPoint point)
+        {
+            var importance = int.TryParse(GetPayloadString(point, "importance"), out var value) ? value : 5;
+            return point.Score * RelevanceWeight + Math.Clamp(importance, 0, 10) / 10.0 * ImportanceWeight;
         }
 
         /// <summary>

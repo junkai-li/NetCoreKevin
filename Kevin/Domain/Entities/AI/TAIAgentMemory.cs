@@ -20,15 +20,15 @@ namespace kevin.Domain.Entities.AI
     public class TAIAgentMemory : CUD
     {
         /// <summary>
-        /// 记忆归属用户Id（检索主维度，跨智能体、跨会话共享）
+        /// 记忆归属用户Id（隔离维度之一，与 TenantId、AIAppsId 共同隔离检索范围）
         /// </summary>
         [Description("记忆归属用户Id")]
         public long UserId { get; set; }
 
         /// <summary>
-        /// 写入记忆时的智能体Id（仅记录来源）
+        /// 记忆归属智能体Id（隔离维度之一，不同智能体的记忆互不可见）
         /// </summary>
-        [Description("写入记忆时的智能体Id")]
+        [Description("记忆归属智能体Id")]
         public long AIAppsId { get; set; }
 
         /// <summary>
