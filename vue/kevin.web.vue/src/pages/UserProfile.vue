@@ -69,6 +69,40 @@
             </a-descriptions> 
           </a-col>
         </a-row>
+
+        <!-- 本月 AI Token 额度 -->
+        <div class="token-quota-section">
+          <div class="quota-header">
+            <div class="header-title">
+              <ThunderboltOutlined class="title-icon" />
+              <span>本月 AI Token 额度</span>
+            </div>
+            <span class="quota-month">{{ quotaMonthText }}</span>
+          </div>
+          <a-row :gutter="24" class="quota-stats">
+            <a-col :span="8">
+              <div class="quota-item">
+                <div class="quota-label">本月额度</div>
+                <div class="quota-value">{{ formatToken(quota.totalQuota) }}</div>
+              </div>
+            </a-col>
+            <a-col :span="8">
+              <div class="quota-item">
+                <div class="quota-label">已用额度</div>
+                <div class="quota-value quota-used">{{ formatToken(quota.usedQuota) }}</div>
+              </div>
+            </a-col>
+            <a-col :span="8">
+              <div class="quota-item">
+                <div class="quota-label">剩余额度</div>
+                <div class="quota-value quota-remaining">{{ formatToken(quota.remainingQuota) }}</div>
+              </div>
+            </a-col>
+          </a-row>
+          <a-progress :percent="usedPercent" :status="usedPercent >= 100 ? 'exception' : 'normal'" :show-info="false"
+            :stroke-color="progressStrokeColor" trail-color="#f0f0f0" :size="12" class="quota-progress" />
+          <div class="quota-tip">额度每月 1 日自动更新，用量按每轮对话的输入 + 输出 Token 累计</div>
+        </div>
       </div>
     </a-card> 
 
@@ -92,10 +126,11 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
-import { UserOutlined } from '@ant-design/icons-vue';
+import { ref, reactive, computed, onMounted } from 'vue';
+import { UserOutlined, ThunderboltOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import { changePassword } from '@/api/userapi';
+import { getMyTokenQuota } from '@/api/ai/aiTokenQuota';
 
 // 定义用户数据
 const user = ref({
@@ -113,6 +148,54 @@ const user = ref({
 });
 
 const defaultAvatar = '/img/hede.4f50e202.png';
+
+// 本月 AI Token 额度（long 在接口中序列化为字符串，展示前统一转数字）
+const quota = ref({
+  quotaMonth: 0,
+  totalQuota: 0,
+  usedQuota: 0,
+  remainingQuota: 0
+});
+
+const quotaMonthText = computed(() => {
+  const month = Number(quota.value.quotaMonth || 0);
+  if (!month) return '';
+  return `${Math.floor(month / 100)} 年 ${month % 100} 月`;
+});
+
+const usedPercent = computed(() => {
+  const total = Number(quota.value.totalQuota || 0);
+  if (total <= 0) return 0;
+  const percent = (Number(quota.value.usedQuota || 0) / total) * 100;
+  // 保留两位小数，避免四舍五入成整数后进度条看起来没动
+  return Math.min(100, Math.round(percent * 100) / 100);
+});
+
+// 消耗进度条颜色：80% 起预警变橙，用完交给 exception 状态色（红），其余用主题强调色
+const progressStrokeColor = computed(() => {
+  if (usedPercent.value >= 100) return undefined;
+  return usedPercent.value >= 80 ? '#faad14' : 'var(--accent)';
+});
+
+const formatToken = (value) => {
+  const num = Number(value || 0);
+  if (num >= 100000000) return `${(num / 100000000).toFixed(2)} 亿`;
+  if (num >= 10000) return `${(num / 10000).toFixed(2)} 万`;
+  return num.toLocaleString();
+};
+
+// 获取当月 Token 额度
+const fetchTokenQuota = async () => {
+  try {
+    const res = await getMyTokenQuota();
+    // http 拦截器返回完整响应包 {code, msg, isSuccess, data}
+    if (res && res.code === 200 && res.data) {
+      quota.value = res.data;
+    }
+  } catch (error) {
+    console.error('获取Token额度失败:', error);
+  }
+};
    
 
 // 修改密码相关
@@ -201,6 +284,7 @@ const cancelChangePassword = () => {
 // 组件挂载时获取用户信息
 onMounted(() => {
   fetchUserProfile();
+  fetchTokenQuota();
 });
 </script>
 
@@ -286,6 +370,60 @@ onMounted(() => {
 
 .info-section {
   padding-top: 20px;
+}
+
+.token-quota-section {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.quota-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.quota-month {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 14px;
+}
+
+.quota-item {
+  text-align: center;
+}
+
+.quota-label {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.quota-value {
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.quota-used {
+  color: var(--accent);
+}
+
+.quota-remaining {
+  color: #52c41a;
+}
+
+.quota-progress {
+  margin-top: 16px;
+}
+
+.quota-tip {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+  margin-top: 8px;
 }
 
 :deep(.info-section .ant-descriptions-item-label) {

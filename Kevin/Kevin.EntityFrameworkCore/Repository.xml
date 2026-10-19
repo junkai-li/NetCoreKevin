@@ -205,16 +205,16 @@
         <member name="M:Kevin.EntityFrameworkCore.Migrations.新增全模态字段.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
-        <member name="T:Kevin.EntityFrameworkCore.Migrations.智能体对外OpenAI协议网关">
+        <member name="T:Kevin.EntityFrameworkCore.Migrations.用户月度Token额度">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.智能体对外OpenAI协议网关.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.用户月度Token额度.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.智能体对外OpenAI协议网关.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.用户月度Token额度.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:Kevin.EntityFrameworkCore.Migrations.智能体对外OpenAI协议网关.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.用户月度Token额度.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
         <member name="T:Kevin.EntityFrameworkCore._.Data.Repository`2">

@@ -7,6 +7,8 @@ using kevin.AI.AgentFramework.Interfaces.Safety;
 using kevin.AI.AgentFramework.Modality;
 using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Entities.AI;
+using kevin.Domain.EventBus;
+using kevin.Domain.Events;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
@@ -59,13 +61,16 @@ namespace kevin.Application.Services.AI
         /// </summary>
         private readonly IModalityContentBuilder _modalityContentBuilder;
 
+        /// <summary>用户月度 Token 额度服务：聊天前置校验当月额度是否已用完</summary>
+        private readonly IAITokenQuotaService _aITokenQuotaService;
+
         public AIChatHistorysService(IHttpContextAccessor _httpContextAccessor, IAIChatHistorysRp _aIChatHistorysRp,
             IAIAgentService _aIAgentService, IAIModelsService _aIModelsService, IAIPromptsService _aIPromptsService,
             IAIChatsService _aIChatsService, IAIAppsService _aIAppsService, IKevinAIChatMessageStore _kevinAIChatMessageStore,
             ISignalRMsgService _signalRMsgService,
             IHttpClientFactory _httpClientFactory, IAIChatHistorysBindLogService _aIChatHistorysBindLogService,
             IAIChatMessageStoreCompactionService _aIChatMessageStoreCompactionService, IAIShareInfoService aIShareInfoService, IAIInputOutputSafetyService aIInputOutputSafetyService,
-            IModalityContentBuilder modalityContentBuilder, IHubContext<ChatRoomHub> _chatRoomHub
+            IModalityContentBuilder modalityContentBuilder, IHubContext<ChatRoomHub> _chatRoomHub, IAITokenQuotaService aITokenQuotaService
             ) : base(_httpContextAccessor)
         {
             this.aIChatHistorysRp = _aIChatHistorysRp;
@@ -82,6 +87,7 @@ namespace kevin.Application.Services.AI
             this._aIShareInfoService = aIShareInfoService;
             this._aIInputOutputSafetyService = aIInputOutputSafetyService;
             this._modalityContentBuilder = modalityContentBuilder;
+            this._aITokenQuotaService = aITokenQuotaService;
         }
 
         /// <summary>
@@ -233,6 +239,8 @@ namespace kevin.Application.Services.AI
         /// 由 <see cref="Add"/> 传入 SignalR 通道、由 <see cref="AddSSE"/> 传入 SSE 通道</param>
         private async Task<AIChatHistorysDto> AddCoreAsync(AIChatHistorysDto par, Func<string, IChatStreamOutput> outputFactory, CancellationToken cancellationToken)
         {
+            // 额度前置校验：当月额度用完直接挂友好提示，避免空跑一整轮模型调用与落库
+            await _aITokenQuotaService.EnsureQuotaAvailableAsync();
             var reslutUserCheck = await _aIInputOutputSafetyService.CheckUserInput(par.Content);
             if (!reslutUserCheck.Item1)
             {
@@ -383,12 +391,14 @@ namespace kevin.Application.Services.AI
                     OtherContents.Add(StringHelper.SubstringText(webseoData, aiapp.ContentLengthLimit));
                 }
                 #endregion
+
                 // 上一轮推荐问题：先取出来，下面再追加进本轮上下文（让“用你推荐的第二个问题”这类指代能被模型理解）
                 var lastRecommendContext = await BuildLastRecommendQuestionsContextAsync(par.AIChatsId, add.CreateTime, cancellationToken);
+
                 // 按提问Token预算裁剪补充上下文，确保输入总量不超过模型的上下文窗口预算（模型配置的MaxAskPromptSize）
                 OtherContents = TrimContentsByAskTokenBudget(OtherContents, systemPrompt, add.Content, aIModels.MaxAskPromptSize, aIModels.AnswerTokens);
-                // 空输入保护：模型的输入长度区间是双边的（如 “Range of input length should be [1, N]”），正文、上下文、图片/音频全为空时输入长度为 0，同样会被模型直接拒掉，
-                // 这里按业务异常提前拦下，让前端拿到可读提示而不是模型报错
+
+                // 空输入保护
                 if (string.IsNullOrWhiteSpace(add.Content) && OtherContents.Count == 0 && aiFilData.MediaContents.Count == 0)
                 {
                     throw new UserFriendlyException("请输入要咨询的内容（或上传可解析的文件）后再发送。");
@@ -396,12 +406,14 @@ namespace kevin.Application.Services.AI
                 // 推荐问题上下文必须在上面那个守卫之后追加：否则“只发了上一轮推荐、本轮其实什么都没问”的请求会被它放行；
                 // 同时也不再参与预算裁剪（不足 200 字，且是指代理解的必要信息，被截掉就失去意义）
                 if (!string.IsNullOrEmpty(lastRecommendContext)) OtherContents.Add(lastRecommendContext);
+
                 // 零 .Result 构造消息：媒体内容已在 AIFileUrlsHandle 内部 await 完成（Bug 1 根治点）；
                 // DataContent 携带显式 MIME，不再依赖 MemoryStream.Name 推断（Bug 2 根治点）
                 var userContents = new List<AIContent>(1 + OtherContents.Count + aiFilData.MediaContents.Count)
                 {
                     new TextContent(add.Content ?? "")
                 };
+
                 foreach (var text in OtherContents)
                 {
                     if (!string.IsNullOrEmpty(text)) userContents.Add(new TextContent(text));
@@ -516,9 +528,7 @@ namespace kevin.Application.Services.AI
                 failData.aIChatHistorysBindLogs = await _aIChatHistorysBindLogService.GetByIds(new List<long> { addAi.Id });
                 return failData;
             }
-            // 收割上面并行发起的推荐问题：开关开启且本轮回答成功时才下发（回答失败时前端只有报错和重试，推追问没意义）。
-            // 位置必须在下面取 logdata 之前：这样日志能随本轮最终记录一起回给前端，历史接口也无需再改。
-            // 回答失败的分支不走到这里，那个任务会自行跑完并丢弃（方法内异常全接，不会成为未观察异常）。
+            // 收割上面并行发起的推荐问题：开关开启且本轮回答成功时才下发（回答失败时前端只有报错和重试，推追问没意义）。 
             if (recommendTask != null && addAi.SendStatus == AIChatHistorysSendStatusEnums.Success && !string.IsNullOrWhiteSpace(addAi.Content))
             {
                 try
@@ -536,21 +546,23 @@ namespace kevin.Application.Services.AI
                             });
                         }
                         catch (Exception ex)
-                        {
-                            // 写库失败只是刷新后看不到回显、下一轮也无法指代引用，不影响本轮已经拿到的推荐
+                        { 
                             LogHelper.logger.Info("推荐问题入库失败（已忽略）:" + ex.Message);
                         }
                         await output.WriteAsync("recommendmsg", questionsJson);
                     }
                 }
                 catch (Exception ex)
-                {
-                    // 这层兜底不可省：本块位于 addAi 入库之前，推送异常（客户端已断开最常见）一旦上抛，
-                    // 本轮已经生成的回答就会存不进库
+                { 
                     LogHelper.logger.Info("推荐问题下发失败（已忽略）:" + ex.Message);
                 }
             }
             var logdata = await _aIChatHistorysBindLogService.GetByIds(new List<long> { addAi.Id });
+            // 聊天完成入库前发布领域事件：处理器按聊天历史记录 Id 记录 Token 使用明细并累加当月已用额度
+            if ((addAi.InputTokenCount ?? 0) + (addAi.OutputTokenCount ?? 0) > 0&& aichas.IsHidden==false)
+            {
+                addAi.AddDomainEvent(new TAIChatHistorysCreatedEvent(addAi), EventBusEnums.Add);
+            }
             aIChatHistorysRp.Add(addAi);
             await aIChatHistorysRp.SaveChangesAsync(cancellationToken);
             await aIChatsService.UpdateNameAndMsg(par.AIChatsId, count == 1 ? par.Content : "", addAi.Content);
