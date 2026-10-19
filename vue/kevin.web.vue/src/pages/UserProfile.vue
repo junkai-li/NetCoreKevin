@@ -132,8 +132,8 @@ import { message } from 'ant-design-vue';
 import { changePassword } from '@/api/userapi';
 import { getMyTokenQuota } from '@/api/ai/aiTokenQuota';
 
-// 定义用户数据
-const user = ref({
+// 用户数据默认结构（后端 dtoUserInfo 等字段可为 null，模板取值前必须兜底）
+const createDefaultUser = () => ({
   id: '',
   name: '',
   nickName: '',
@@ -142,10 +142,12 @@ const user = ref({
   roles: [],
   createTime: '',
   headImgs: [],
-  dtoUserInfo:{},
-  positions:[],
-
+  dtoUserInfo: {},
+  positions: [],
 });
+
+// 定义用户数据
+const user = ref(createDefaultUser());
 
 const defaultAvatar = '/img/hede.4f50e202.png';
 
@@ -208,11 +210,20 @@ const changePasswordForm = reactive({
 });
 
 // 获取用户信息
+// 获取用户信息
 const fetchUserProfile = async () => {
   try {
-    const response = JSON.parse(localStorage.getItem('user'));
-    console.log(response);
-    user.value = response;
+    const response = JSON.parse(localStorage.getItem('user') || 'null');
+    if (!response || typeof response !== 'object') return;
+    user.value = {
+      ...createDefaultUser(),
+      ...response,
+      // 这些字段接口可能返回 null，直接渲染会导致模板取值报错
+      headImgs: Array.isArray(response.headImgs) ? response.headImgs : [],
+      roles: Array.isArray(response.roles) ? response.roles : [],
+      positions: Array.isArray(response.positions) ? response.positions : [],
+      dtoUserInfo: response.dtoUserInfo || {},
+    };
   } catch (error) {
     console.error('获取用户信息失败:', error);
   }

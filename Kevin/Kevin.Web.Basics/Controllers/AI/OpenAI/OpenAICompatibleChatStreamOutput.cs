@@ -146,7 +146,8 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
             // 补一条 content 帧供不识别 reasoning_content 字段的 OpenAI 客户端读取。
             if (!_contentChunkSent && _accumulatedReasoning.Length > 0)
             {
-                var fallback = "（模型仅输出思考过程，未产出最终回答。以下为思考内容）\n" + _accumulatedReasoning;
+                //兜底规定：如果 reasoning_content 有内容但 content 没有，补一条 content 帧，内容为“不太明白你的意思，请再详细描述一下。”
+                var fallback = "不太明白你的意思，请再详细描述一下。";
                 await WriteChunkAsync(new OpenAICompatibleDelta { Content = fallback }, null);
             }
             await WriteChunkAsync(new OpenAICompatibleDelta(), _collectedToolCalls.Count > 0 ? "tool_calls" : "stop");
