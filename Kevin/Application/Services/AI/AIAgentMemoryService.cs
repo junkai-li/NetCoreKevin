@@ -66,9 +66,41 @@ namespace kevin.Application.Services.AI
         private const int AutoRecallMaxContentLength = 400;
 
         /// <summary>
-        /// 自动召回：短于该长度的提问（问候、单字补充）不检索，避免无意义开销
+        /// 自动召回：去掉空白/标点后的有效字符数低于该值（“嗯”“好”“ok”）不检索，避免无意义开销。
+        /// 这是快速过滤下界，中文 2 字、英文 2 位即可承载信息，不再用统一的 4 字门槛
         /// </summary>
-        private const int AutoRecallMinQueryLength = 4;
+        private const int AutoRecallMinQueryLength = 2;
+
+        /// <summary>
+        /// 自动召回：有效字符数低于该值的算短查询。短查询默认不召回，
+        /// 只有命中记忆触发词（<see cref="AutoRecallCueWords"/>）或含英文/数字词（Go、AI、NY、v2）时才放行
+        /// </summary>
+        private const int AutoRecallShortQueryLength = 6;
+
+        /// <summary>
+        /// 自动召回：纯寒暄、确认、继续类输入（按有效字符精确匹配）直接跳过。
+        /// 用词表而不是长度排除，避免误杀“怕冷”“用Go”这类短但含信息的提问
+        /// </summary>
+        private static readonly string[] AutoRecallFillerQueries =
+        {
+            "嗯", "嗯嗯", "哦", "哦哦", "啊", "好", "好的", "好滴", "好吧", "行", "行吧", "可以",
+            "继续", "对的", "是的", "是", "收到", "明白", "了解了", "谢谢", "多谢", "哈哈", "在吗", "你好", "早",
+            "ok", "okay", "k", "yes", "no", "hi", "hello", "thanks", "thx"
+        };
+
+        /// <summary>
+        /// 自动召回：短查询放行的记忆触发词。
+        /// 覆盖回忆意图（之前/上次/记得）、删除与纠正意图（别记/忘记/删除/不对）、
+        /// 第一人称稳定陈述（我/用/怕/住）和偏好/项目类话题——出现这些词时短句也可能承载关键信息
+        /// </summary>
+        private static readonly string[] AutoRecallCueWords =
+        {
+            "之前", "上次", "上回", "以前", "刚才", "刚刚", "还是按",
+            "记得", "记住", "别忘了", "别记", "不要记", "不用记", "忘记", "忘掉",
+            "删除", "删掉", "更正", "纠正", "我说过", "不是这样", "不对",
+            "我的", "我有", "偏好", "喜欢", "讨厌", "习惯", "项目", "以后", "将来",
+            "我", "怕", "用", "住"
+        };
 
         public AIAgentMemoryService(IHttpContextAccessor _httpContextAccessor, IAIAgentMemoryRp _AIAgentMemoryRp, IAIShareInfoService aIShareInfoService, IServiceProvider serviceProvider) : base(_httpContextAccessor)
         {
@@ -371,6 +403,8 @@ namespace kevin.Application.Services.AI
         /// 自动召回：按当前提问检索高相关记忆并格式化为可直接注入系统提示词的文本块。
         /// <para>
         /// 只在 Qdrant 可用时执行（数据库关键词搜索依赖模型给关键词，无法处理整句提问）；
+        /// 召回门槛见 <see cref="ShouldAutoRecall"/>：寒暄/确认类输入直接跳过，短查询须命中记忆触发词
+        /// 或含英文/数字词才放行。该门槛只限制自动召回，显式 SearchMemory 与保存前查重不受影响。
         /// 命中后累加 HitCount/LastHitTime 作为高频经验信号；任何异常都降级为空字符串，不影响主流程。
         /// </para>
         /// </summary>
@@ -381,7 +415,7 @@ namespace kevin.Application.Services.AI
             if (QdrantVectorService?.IsAvailable != true) return "";
 
             var q = (query ?? "").Trim();
-            if (q.Length < AutoRecallMinQueryLength) return "";
+            if (!ShouldAutoRecall(q)) return "";
             if (q.Length > AutoRecallMaxQueryLength) q = q.Substring(0, AutoRecallMaxQueryLength);
 
             List<AIQdrantMemoryHit> hits;
@@ -409,6 +443,74 @@ namespace kevin.Application.Services.AI
             }
             sb.AppendLine("使用规则：与本次任务相关的记忆必须遵守；与当前代码、配置、工具结果或用户当前指令冲突时以当前事实为准，并立即用 UpdateMemory 更正或 DeleteMemory 删除；不相关则忽略。不要向用户提及自动召回过程。");
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// 判断本轮提问是否值得自动召回：
+        /// 有效字符过短或纯寒暄/确认输入（嗯、好、继续）直接跳过；
+        /// 正常长度的提问直接召回；短查询只有在命中记忆触发词或含英文/数字词时才放行。
+        /// 该门槛只作用于自动召回，不限制显式 SearchMemory 与保存前查重。
+        /// </summary>
+        private static bool ShouldAutoRecall(string query)
+        {
+            var compact = CompactQuery(query);
+            if (compact.Length < AutoRecallMinQueryLength) return false;
+            if (IsFillerQuery(compact)) return false;
+            if (compact.Length >= AutoRecallShortQueryLength) return true;
+            return ContainsCueWord(compact) || ContainsLatinOrDigitToken(compact);
+        }
+
+        /// <summary>
+        /// 去掉空白、标点、符号与控制/代理字符，只保留有信息量的内容（“嗯...”归一为“嗯”）
+        /// </summary>
+        private static string CompactQuery(string query)
+        {
+            var sb = new System.Text.StringBuilder(query.Length);
+            foreach (var c in query)
+            {
+                if (char.IsWhiteSpace(c) || char.IsPunctuation(c) || char.IsSymbol(c) || char.IsControl(c) || char.IsSurrogate(c)) continue;
+                sb.Append(c);
+            }
+            return sb.ToString();
+        }
+
+        private static bool IsFillerQuery(string compact)
+        {
+            foreach (var filler in AutoRecallFillerQueries)
+            {
+                if (string.Equals(compact, filler, StringComparison.OrdinalIgnoreCase)) return true;
+            }
+            return false;
+        }
+
+        private static bool ContainsCueWord(string compact)
+        {
+            foreach (var cue in AutoRecallCueWords)
+            {
+                if (compact.Contains(cue, StringComparison.OrdinalIgnoreCase)) return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 是否含英文/数字词（两位以上，如 Go、AI、NY、v2）：短查询里的语言名、缩写、版本号往往本身就是关键信息
+        /// </summary>
+        private static bool ContainsLatinOrDigitToken(string compact)
+        {
+            var run = 0;
+            foreach (var c in compact)
+            {
+                if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
+                {
+                    run++;
+                    if (run >= 2) return true;
+                }
+                else
+                {
+                    run = 0;
+                }
+            }
+            return false;
         }
 
         /// <summary>
