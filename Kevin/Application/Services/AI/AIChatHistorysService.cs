@@ -420,7 +420,8 @@ namespace kevin.Application.Services.AI
                 }
                 userContents.AddRange(aiFilData.MediaContents);
                 ChatMessage mgs = new(ChatRole.User, userContents);
-                var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par);
+                // 传入本轮用户提问：开启记忆的智能体会先自动召回高相关记忆再构建系统提示词
+                var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par, userQuery: add.Content);
                 // 推荐问题交给当前智能体自己生成，并在主模型调用之前发起，与本轮回答并行跑；
                 // 回答结束后只做收割（见下面），done 事件不再被它拖住
                 if (par.IsRecommendQuestion)
@@ -546,20 +547,20 @@ namespace kevin.Application.Services.AI
                             });
                         }
                         catch (Exception ex)
-                        { 
+                        {
                             LogHelper.logger.Info("推荐问题入库失败（已忽略）:" + ex.Message);
                         }
                         await output.WriteAsync("recommendmsg", questionsJson);
                     }
                 }
                 catch (Exception ex)
-                { 
+                {
                     LogHelper.logger.Info("推荐问题下发失败（已忽略）:" + ex.Message);
                 }
             }
             var logdata = await _aIChatHistorysBindLogService.GetByIds(new List<long> { addAi.Id });
             // 聊天完成入库前发布领域事件：处理器按聊天历史记录 Id 记录 Token 使用明细并累加当月已用额度
-            if ((addAi.InputTokenCount ?? 0) + (addAi.OutputTokenCount ?? 0) > 0&& aichas.IsHidden==false)
+            if ((addAi.InputTokenCount ?? 0) + (addAi.OutputTokenCount ?? 0) > 0 && aichas.IsHidden == false)
             {
                 addAi.AddDomainEvent(new TAIChatHistorysCreatedEvent(addAi), EventBusEnums.Add);
             }
@@ -1041,7 +1042,7 @@ namespace kevin.Application.Services.AI
                     IsAISkills = aiapp.IsSkill,
                     // 工具/技能/记忆全关：上面的 recommendOptions 本就未挂载，这里同步告知代理不需要能力层
                     IsAITools = aiapp.IsAITools,
-                    IsMcpTools = aiapp.IsMcp, 
+                    IsMcpTools = aiapp.IsMcp,
                     IsMemory = aiapp.IsMemory,
                     IsKnowledgeBase = aiapp.KmsId.HasValue && aiapp.KmsId.Value > 0,
                 };

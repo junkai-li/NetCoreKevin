@@ -29,8 +29,9 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// <param name="parAi"></param>
         /// <param name="withCapabilities">是否挂载工具/技能/记忆/文生图</param>
         /// <param name="readOnlyHistory">会话历史是否只读（只读不写回）</param>
+        /// <param name="userQuery">当前用户提问：开启记忆时用于自动召回高相关记忆，为空则跳过召回</param>
         /// <returns></returns>
-        Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default, bool withCapabilities = true, bool readOnlyHistory = false);
+        Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default, bool withCapabilities = true, bool readOnlyHistory = false, string? userQuery = null);
 
         /// <summary>
         /// 一次性调用当前智能体用的配置：同模型、同提示词、同会话历史，但不挂工具且历史只读（供推荐问题这类元任务用）
@@ -66,6 +67,6 @@ namespace kevin.Domain.Interfaces.IServices.AI
         ///  获取我有权限的所有智能体
         /// </summary>
         /// <returns></returns>
-        Task<List<AIAppsDto>> GetMyALLList(); 
+        Task<List<AIAppsDto>> GetMyALLList();
     }
 }

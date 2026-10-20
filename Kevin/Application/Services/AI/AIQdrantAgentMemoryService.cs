@@ -156,16 +156,57 @@ namespace kevin.Application.Services.AI
         /// </para>
         /// </summary>
         /// <returns>格式化的记忆文本，可直接返回给 AI；null 表示无结果或异常（调用方应降级）</returns>
-        public async Task<string?> SearchMemoryVectorAsync(string keyword, long userId, int tenantId, long aiAppsId, string? memoryType = null)
+        public async Task<string?> SearchMemoryVectorAsync(string keyword, long userId, int tenantId, long aiAppsId, string? memoryType = null, int maxReturnCount = MaxReturnCount)
         {
-            if (!IsAvailable) return null;
+            var topResults = await SearchVectorCoreAsync(keyword, userId, tenantId, aiAppsId, memoryType, SearchFetchLimit, MinVectorScore, useRerank: true, topN: maxReturnCount);
+            if (topResults.Count == 0)
+                return null;
+
+            return FormatSearchResults(keyword, topResults);
+        }
+
+        /// <summary>
+        /// 语义搜索记忆并返回结构化命中（自动召回用）。
+        /// <para>
+        /// 与工具搜索的区别：相似度阈值更高（减少噪声）、不做 Rerank（省一次模型调用，控制每轮时延）、只取 TopN。
+        /// </para>
+        /// </summary>
+        public async Task<List<AIQdrantMemoryHit>> SearchMemoryVectorHitsAsync(string keyword, long userId, int tenantId, long aiAppsId, int topN = 3, float minScore = 0.55f)
+        {
+            if (topN <= 0)
+                return new List<AIQdrantMemoryHit>();
+
+            var points = await SearchVectorCoreAsync(keyword, userId, tenantId, aiAppsId, memoryType: null, fetchLimit: Math.Max(topN * 4, 10), minScore: minScore, useRerank: false, topN: topN);
+            var hits = new List<AIQdrantMemoryHit>(points.Count);
+            foreach (var point in points)
+            {
+                long.TryParse(point.Id.Num.ToString(), out var id);
+                var importance = int.TryParse(GetPayloadString(point, "importance"), out var value) ? value : 5;
+                hits.Add(new AIQdrantMemoryHit(
+                    Id: id,
+                    Content: GetPayloadString(point, "content"),
+                    Keywords: GetPayloadString(point, "keywords"),
+                    MemoryType: GetPayloadString(point, "memoryType"),
+                    Importance: importance,
+                    Score: GetCombinedScore(point)));
+            }
+            return hits;
+        }
+
+        /// <summary>
+        /// 向量检索核心流程：Embedding → Qdrant 过滤检索 → 三维归属校验 → 过期过滤 → 可选 Rerank → 综合排序取 TopN。
+        /// 供工具搜索（带 Rerank、默认阈值）与自动召回（高阈值、无 Rerank）复用。
+        /// </summary>
+        private async Task<List<ScoredPoint>> SearchVectorCoreAsync(string keyword, long userId, int tenantId, long aiAppsId, string? memoryType, int fetchLimit, float minScore, bool useRerank, int topN)
+        {
+            if (!IsAvailable) return new List<ScoredPoint>();
 
             // ① 生成查询向量
             var queryEmbedding = await _ollamaApiService!.GetEmbedding(keyword);
             var collectionName = GetCollectionName(tenantId, aiAppsId, userId);
 
             if (!await IsCollectionExistsAsync(collectionName))
-                return null;
+                return new List<ScoredPoint>();
 
             // ② 构建过滤条件：memoryType 下推到 Qdrant 层（多类型为 OR），
             // 避免“先取候选再过滤”导致目标类型记忆被其他类型挤出召回范围
@@ -182,33 +223,29 @@ namespace kevin.Application.Services.AI
                 collectionName,
                 queryEmbedding.Vector,
                 filter: filter,
-                limit: SearchFetchLimit,
+                limit: (ulong)fetchLimit,
                 // 显式要求返回 payload，避免服务端默认值变化导致过滤与内容展示失效
                 payloadSelector: new WithPayloadSelector { Enable = true },
-                scoreThreshold: MinVectorScore);
+                scoreThreshold: minScore);
 
             // ④ 防御性校验并过滤过期短期记忆（集合已三维隔离，此处为双重保险）
             var candidates = FilterByOwnerScope(searchResults, userId, tenantId, aiAppsId);
             candidates = FilterUnexpired(candidates);
 
             if (candidates.Count == 0)
-                return null;
+                return candidates;
 
-            // ⑤ 可选 Rerank 重排（提高语义相关性排序精度）
-            if (_rerankService != null)
+            // ⑤ 可选 Rerank 重排（自动召回关闭，省一次模型调用）
+            if (useRerank && _rerankService != null)
             {
                 candidates = await RerankCandidatesAsync(keyword, candidates);
             }
 
             // ⑥ 综合排序（相关性为主 + importance 为辅）后取 TopN
-            var topResults = candidates
+            return candidates
                 .OrderByDescending(GetCombinedScore)
-                .Take(MaxReturnCount)
+                .Take(topN)
                 .ToList();
-            if (topResults.Count == 0)
-                return null;
-
-            return FormatSearchResults(keyword, topResults);
         }
 
         #endregion

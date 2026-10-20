@@ -54,12 +54,17 @@ namespace kevin.Application.Services.AI
         /// </summary>
         private readonly IAKnowledgeSearchToolService _knowledgeSearchToolService;
 
+        /// <summary>
+        /// 记忆服务：用于按当前提问自动召回高相关记忆（不依赖模型主动调用 SearchMemory）
+        /// </summary>
+        private readonly IAIAgentMemoryService _aIAgentMemoryService;
+
         public AIAppsService(IHttpContextAccessor _httpContextAccessor, IAIAppsRp _aIAppsRp,
             IAISkillToolManagementService aISkillToolManagementService, IAISkillToolBindIdService aISkillToolBindIdService, IAIAppsBindIdService aIAppsBindIdService,
             IKevinAIChatMessageStore kevinAIChatMessageStore, IAIAgentToolSkillService aIAgentToolSkillService, IAIModelsService aIModelsService, IAIPromptsService aIPromptsService,
             IAIAgentService aIAgentService, IAIChatMessageStoreRp aIChatMessageStoreRp, IAIChatMessageStoreCompactionRp aIChatMessageStoreCompactionRp,
             IAIChatMessageStoreCompactionService aIChatMessageStoreCompactionService, IPySubprocessScriptRunner pySubprocessScriptRunner,
-            IImageGenToolFactory imageGenToolFactory, IAKnowledgeSearchToolService knowledgeSearchToolService) : base(_httpContextAccessor)
+            IImageGenToolFactory imageGenToolFactory, IAKnowledgeSearchToolService knowledgeSearchToolService, IAIAgentMemoryService aIAgentMemoryService) : base(_httpContextAccessor)
         {
             this.aIAppsRp = _aIAppsRp;
             this.aISkillToolManagementService = aISkillToolManagementService;
@@ -76,6 +81,7 @@ namespace kevin.Application.Services.AI
             this._pySubprocessScriptRunner = pySubprocessScriptRunner;
             this._imageGenToolFactory = imageGenToolFactory;
             this._knowledgeSearchToolService = knowledgeSearchToolService;
+            this._aIAgentMemoryService = aIAgentMemoryService;
         }
 
         /// <summary>
@@ -90,7 +96,7 @@ namespace kevin.Application.Services.AI
             var data = aIAppsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
-                data = data.Where(t => t.Name.Contains(dtoPage.searchKey)||t.Describe.Contains(dtoPage.searchKey));
+                data = data.Where(t => t.Name.Contains(dtoPage.searchKey) || t.Describe.Contains(dtoPage.searchKey));
             }
             result.total = await data.CountAsync();
             var dbdata = await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPage.pageSize).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
@@ -268,7 +274,7 @@ namespace kevin.Application.Services.AI
                     msg.IsMcp = par.IsMcp;
                     msg.IsMemory = par.IsMemory;
                     msg.IsImageGeneration = par.IsImageGeneration;
-                    msg.ImageGenModelID = par.ImageGenModelID;   
+                    msg.ImageGenModelID = par.ImageGenModelID;
                 }
                 else
                 {
@@ -432,13 +438,24 @@ namespace kevin.Application.Services.AI
         /// <param name="parAi"></param>
         /// <param name="withCapabilities">是否挂载工具/技能/记忆/文生图：一次性元任务（如推荐问题）传 false，省掉一轮工具枚举</param>
         /// <param name="readOnlyHistory">会话历史是否只读：true 时本次调用读得到历史但不写回去，不至于把元指令污染进对话</param>
+        /// <param name="userQuery">当前用户提问：开启记忆时用于自动召回高相关记忆，为空则跳过召回</param>
         /// <returns></returns>
-        public async Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default, bool withCapabilities = true, bool readOnlyHistory = false)
+        public async Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default, bool withCapabilities = true, bool readOnlyHistory = false, string? userQuery = null)
         {
             #region 记忆管理协议提示词（仅在开启智能体记忆 IsMemory 时注入）
             if (aiapp.IsMemory)
             {
                 systemPrompt += "\n" + SystemPrompt.MemoryPromptText;
+            }
+            #endregion
+            #region 记忆自动召回（按当前提问召回高相关记忆并注入，避免依赖模型主动调用 SearchMemory）
+            if (aiapp.IsMemory && withCapabilities && !string.IsNullOrWhiteSpace(userQuery))
+            {
+                var recallContext = await _aIAgentMemoryService.BuildAutoRecallContextAsync(userQuery!);
+                if (!string.IsNullOrWhiteSpace(recallContext))
+                {
+                    systemPrompt += "\n" + recallContext;
+                }
             }
             #endregion
             #region 文生图协议提示词（仅在开启 IsImageGeneration 时注入，约束模型把工具返回的 markdown 图片链接原样透传）
@@ -498,7 +515,7 @@ namespace kevin.Application.Services.AI
                         }
                     }
                     if (!aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
-                    { 
+                    {
                         chatAgOs.ChatOptions.Tools.Add(AIFunctionFactory.Create(_aIChatMessageStoreCompactionService.GetAIToolThreadPrompt, new AIFunctionFactoryOptions
                         {
                             Name = "GetAIToolThreadPrompt",
@@ -630,7 +647,7 @@ namespace kevin.Application.Services.AI
             if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
             {
                 systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString());
-            } 
+            }
             var chatAgOs = new ChatClientAgentOptions
             {
                 Name = aiapp.Name,

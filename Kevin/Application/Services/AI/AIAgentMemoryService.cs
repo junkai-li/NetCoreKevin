@@ -45,6 +45,31 @@ namespace kevin.Application.Services.AI
         /// </summary>
         private const int MaxKeywordsLength = 200;
 
+        /// <summary>
+        /// 自动召回：注入上下文的最大条数（过多会挤占 token 并引入噪声）
+        /// </summary>
+        private const int AutoRecallTopN = 3;
+
+        /// <summary>
+        /// 自动召回：Qdrant 相似度阈值（高于工具搜索的 0.4，宁可不召回也不注入无关记忆）
+        /// </summary>
+        private const float AutoRecallMinScore = 0.55f;
+
+        /// <summary>
+        /// 自动召回：参与向量化的提问最大长度，超长截断以控制 Embedding 成本
+        /// </summary>
+        private const int AutoRecallMaxQueryLength = 500;
+
+        /// <summary>
+        /// 自动召回：单条记忆注入时的最大展示长度（完整内容可在需要时用 SearchMemory 获取）
+        /// </summary>
+        private const int AutoRecallMaxContentLength = 400;
+
+        /// <summary>
+        /// 自动召回：短于该长度的提问（问候、单字补充）不检索，避免无意义开销
+        /// </summary>
+        private const int AutoRecallMinQueryLength = 4;
+
         public AIAgentMemoryService(IHttpContextAccessor _httpContextAccessor, IAIAgentMemoryRp _AIAgentMemoryRp, IAIShareInfoService aIShareInfoService, IServiceProvider serviceProvider) : base(_httpContextAccessor)
         {
             this.AIAgentMemoryRp = _AIAgentMemoryRp;
@@ -167,6 +192,7 @@ namespace kevin.Application.Services.AI
                     .Where(t => t.IsDelete == false && t.UserId == userId && t.TenantId == tenantId && t.AIAppsId == aiAppsId && (t.ExpireTime == null || t.ExpireTime > now))
                     .Where(keyPredicate)
                     .OrderByDescending(t => t.Importance)
+                    .ThenByDescending(t => t.HitCount)
                     .ThenByDescending(t => t.CreateTime)
                     .Take(5)
                     .ToListAsync();
@@ -294,6 +320,7 @@ namespace kevin.Application.Services.AI
             var keyPredicate = BuildKeywordPredicate(words);
             var list = await query.Where(keyPredicate)
                 .OrderByDescending(t => t.Importance)
+                .ThenByDescending(t => t.HitCount)
                 .ThenByDescending(t => t.CreateTime)
                 .Take(10)
                 .ToListAsync();
@@ -304,6 +331,7 @@ namespace kevin.Application.Services.AI
                 var fallback = await query
                     .Where(t => t.Importance >= FallbackMinImportance)
                     .OrderByDescending(t => t.Importance)
+                    .ThenByDescending(t => t.HitCount)
                     .ThenByDescending(t => t.CreateTime)
                     .Take(5)
                     .ToListAsync();
@@ -340,9 +368,86 @@ namespace kevin.Application.Services.AI
         }
 
         /// <summary>
+        /// 自动召回：按当前提问检索高相关记忆并格式化为可直接注入系统提示词的文本块。
+        /// <para>
+        /// 只在 Qdrant 可用时执行（数据库关键词搜索依赖模型给关键词，无法处理整句提问）；
+        /// 命中后累加 HitCount/LastHitTime 作为高频经验信号；任何异常都降级为空字符串，不影响主流程。
+        /// </para>
+        /// </summary>
+        public async Task<string> BuildAutoRecallContextAsync(string query)
+        {
+            var share = AIShareInfoService.GetData();
+            if (share.UserId <= 0) return "";
+            if (QdrantVectorService?.IsAvailable != true) return "";
+
+            var q = (query ?? "").Trim();
+            if (q.Length < AutoRecallMinQueryLength) return "";
+            if (q.Length > AutoRecallMaxQueryLength) q = q.Substring(0, AutoRecallMaxQueryLength);
+
+            List<AIQdrantMemoryHit> hits;
+            try
+            {
+                hits = await QdrantVectorService.SearchMemoryVectorHitsAsync(q, share.UserId, share.TenantId, share.AIAppsId, AutoRecallTopN, AutoRecallMinScore);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AIAgentMemory] 自动召回失败，本轮跳过: {ex.Message}");
+                return "";
+            }
+            if (hits.Count == 0) return "";
+
+            var hitCounts = await TouchHitsAsync(hits.Select(t => t.Id).ToList());
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("## 自动召回的用户记忆");
+            sb.AppendLine("以下记忆由系统按当前提问自动召回，可能不完全相关：");
+            for (int i = 0; i < hits.Count; i++)
+            {
+                var h = hits[i];
+                var hitInfo = hitCounts.TryGetValue(h.Id, out var count) ? $" [已命中:{count}]" : "";
+                sb.AppendLine($"{i + 1}. [Id:{h.Id}] [类型:{h.MemoryType}] [重要度:{h.Importance}]{hitInfo} {Truncate(h.Content, AutoRecallMaxContentLength)}");
+            }
+            sb.AppendLine("使用规则：与本次任务相关的记忆必须遵守；与当前代码、配置、工具结果或用户当前指令冲突时以当前事实为准，并立即用 UpdateMemory 更正或 DeleteMemory 删除；不相关则忽略。不要向用户提及自动召回过程。");
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 累加自动召回命中次数（最近一次命中时间同步更新）。
+        /// 计数仅用于识别高频经验，失败只记日志，不影响本轮回答。
+        /// </summary>
+        private async Task<Dictionary<long, int>> TouchHitsAsync(List<long> ids)
+        {
+            var result = new Dictionary<long, int>();
+            if (ids.Count == 0) return result;
+            try
+            {
+                var share = AIShareInfoService.GetData();
+                var list = await AIAgentMemoryRp.Query(isDataPer: false, isTenant: false)
+                    .Where(t => t.IsDelete == false && ids.Contains(t.Id)
+                        && t.UserId == share.UserId && t.TenantId == share.TenantId && t.AIAppsId == share.AIAppsId)
+                    .ToListAsync();
+                if (list.Count == 0) return result;
+
+                var now = DateTime.Now;
+                foreach (var memory in list)
+                {
+                    memory.HitCount += 1;
+                    memory.LastHitTime = now;
+                    result[memory.Id] = memory.HitCount;
+                }
+                await AIAgentMemoryRp.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AIAgentMemory] 召回命中计数更新失败（不影响召回结果）: {ex.Message}");
+            }
+            return result;
+        }
+
+        /// <summary>
         /// 更新记忆
         /// </summary>
-        public async Task<string> UpdateMemoryAsync(long id, string content, string keywords = "")
+        public async Task<string> UpdateMemoryAsync(long id, string content, string keywords = "", int importance = -1)
         {
             if (AIShareInfoService.GetData().UserId <= 0)
             {
@@ -360,6 +465,11 @@ namespace kevin.Application.Services.AI
             {
                 return $"❌ 更新记忆失败：keywords 过长（{keywords.Trim().Length} 字符），请精简到 {MaxKeywordsLength} 字符以内（2-5 个核心词即可）。";
             }
+            // importance：-1 表示不修改；其余按 0-10 校验
+            if (importance < -1 || importance > 10)
+            {
+                return $"❌ 更新记忆失败：importance 必须在 0-10 之间（传 -1 表示不修改），当前值 {importance}。";
+            }
             // 归属校验与搜索/保存保持一致：租户+智能体+用户三维，防止跨智能体操作自己的记忆
             var data = await AIAgentMemoryRp.Query(isDataPer: false, isTenant: false)
                 .Where(t => t.IsDelete == false && t.Id == id
@@ -375,6 +485,10 @@ namespace kevin.Application.Services.AI
             if (!string.IsNullOrWhiteSpace(keywords))
             {
                 data.Keywords = keywords.Trim();
+            }
+            if (importance >= 0)
+            {
+                data.Importance = importance;
             }
             data.UpdateTime = DateTime.Now;
             await AIAgentMemoryRp.SaveChangesAsync();
@@ -458,10 +572,15 @@ namespace kevin.Application.Services.AI
                 {
                     var originalUserId = upData.UserId;
                     var originalTenantId = upData.TenantId;
+                    var originalHitCount = upData.HitCount;
+                    var originalLastHitTime = upData.LastHitTime;
                     upData = data.MapTo(upData);
                     // 编辑时前端未传归属字段会把 UserId/TenantId 覆盖为 0，这里保留原值防止记忆失去归属
                     if (upData.UserId <= 0) upData.UserId = originalUserId;
                     if (upData.TenantId <= 0) upData.TenantId = originalTenantId;
+                    // 命中次数由自动召回维护，管理端编辑不感知这两个字段，映射后回填防止被清零
+                    upData.HitCount = originalHitCount;
+                    upData.LastHitTime = originalLastHitTime;
                     upData.UpdateTime = DateTime.Now;
                     affected = upData;
                 }

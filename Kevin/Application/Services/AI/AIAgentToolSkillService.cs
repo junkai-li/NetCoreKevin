@@ -304,7 +304,7 @@ namespace kevin.Application.Services.AI
                 }
             }
             else
-            { 
+            {
                 if (_aIShareInfoService.GetData().UserId > 0 && _aIShareInfoService.GetData().TenantId > 0)
                 {
                     Authorization = "Bearer " + await _authorizeService.GetTokenById(_aIShareInfoService.GetData().UserId, _aIShareInfoService.GetData().TenantId);
@@ -489,7 +489,7 @@ namespace kevin.Application.Services.AI
                 AIFunctionFactory.Create(_aiAgentMemoryService.SearchMemoryAsync,
                     new AIFunctionFactoryOptions { Name = "SearchMemory", Description = "搜索当前用户有效记忆（长期与未过期短期记忆）；可按 memoryType 过滤（多类型逗号分隔）。" }),
                 AIFunctionFactory.Create(_aiAgentMemoryService.UpdateMemoryAsync,
-                    new AIFunctionFactoryOptions { Name = "UpdateMemory", Description = "用户纠正或记忆变化时更新；先 SearchMemory 获取记忆Id。" }),
+                    new AIFunctionFactoryOptions { Name = "UpdateMemory", Description = "用户纠正、记忆变化或需要强化时更新；可改 content、keywords、importance（传 -1 表示不修改，0-10 为有效值），类型与过期时间不可改；content 是覆盖写入，只改重要度时必须原样回传现有 content，不得缩写；先 SearchMemory 获取记忆Id。" }),
                 AIFunctionFactory.Create(_aiAgentMemoryService.DeleteMemoryAsync,
                     new AIFunctionFactoryOptions { Name = "DeleteMemory", Description = "用户要求忘记、记忆失效或重复时删除；先 SearchMemory 获取记忆Id。" })
             };

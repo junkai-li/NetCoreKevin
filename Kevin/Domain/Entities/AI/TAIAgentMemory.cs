@@ -68,5 +68,17 @@ namespace kevin.Domain.Entities.AI
         /// </summary>
         [Description("短期记忆过期时间，为空表示长期记忆永久有效")]
         public DateTime? ExpireTime { get; set; }
+
+        /// <summary>
+        /// 被自动召回命中的次数（每次注入上下文前 +1，用于识别高频经验与排序参考）
+        /// </summary>
+        [Description("自动召回命中次数")]
+        public int HitCount { get; set; }
+
+        /// <summary>
+        /// 最近一次被自动召回的时间
+        /// </summary>
+        [Description("最近一次自动召回时间")]
+        public DateTime? LastHitTime { get; set; }
     }
 }

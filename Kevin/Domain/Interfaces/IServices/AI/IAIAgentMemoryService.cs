@@ -48,19 +48,29 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// <param name="id">记忆Id（先通过搜索获取）</param>
         /// <param name="content">新的记忆内容</param>
         /// <param name="keywords">新的关键词</param>
+        /// <param name="importance">新的重要程度 0-10；传 -1 表示不修改</param>
         /// <returns></returns>
-        [Description("更新已有的长期记忆。当记忆内容发生变化时调用，Id 需要先通过搜索记忆获取。")]
+        [Description("更新已有的记忆。当记忆内容变化、用户纠正或需要强化重要度时调用，Id 需要先通过搜索记忆获取。可修改 content、keywords、importance；importance 传 -1 表示不修改。记忆类型与过期时间不可修改")]
         Task<string> UpdateMemoryAsync(
             [Description("要更新的记忆Id")][Required] long id,
             [Description("新的记忆内容")][Required] string content,
-            [Description("新的关键词，逗号分隔")] string keywords = "");
+            [Description("新的关键词，逗号分隔")] string keywords = "",
+            [Description("新的重要程度 0-10；传 -1 表示不修改。同一教训再次发生时应提高该值（最高 10）")] int importance = -1);
+
+        /// <summary>
+        /// 自动召回：按当前用户提问检索高相关记忆，返回可直接注入系统提示词的文本块（命中后会给对应记忆累加 HitCount）。
+        /// 无相关记忆、未开启向量检索或检索异常时返回空字符串，不影响主流程。
+        /// </summary>
+        /// <param name="query">当前用户提问</param>
+        /// <returns>可直接追加到系统提示词的记忆块；空字符串表示无召回</returns>
+        Task<string> BuildAutoRecallContextAsync(string query);
 
         /// <summary>
         /// 删除记忆
         /// </summary>
         /// <param name="id">记忆Id（先通过搜索获取）</param>
         /// <returns></returns>
-        [Description("删除不再需要的长期记忆。当用户明确要求忘记某事或记忆已失效时调用，Id 需要先通过搜索记忆获取。")]
+        [Description("删除不再需要的记忆（长期或短期）。当用户明确要求忘记某事或记忆已失效时调用，Id 需要先通过搜索记忆获取。")]
         Task<string> DeleteMemoryAsync([Description("要删除的记忆Id")][Required] long id);
 
         /// <summary>
