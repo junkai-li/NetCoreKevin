@@ -443,11 +443,17 @@ docker run -d --name qdrant -p 6333:6333 -v qdrant_storage:/qdrant/storage qdran
 | `/api/AIKmss/AddEdit` / `GetDetails` / `Delete` | POST/GET/DELETE | 知识库维护 |
 | `/api/AIModels/GetPageData` / `GetALLList` | POST/GET | 模型分页 / 按类型全量（缓存 60s） |
 | `/api/AIModels/AddEdit` / `Delete` | POST/DELETE | 模型维护 |
-| `/api/AIPrompts/*` | - | 提示词管理（对应 `AIPromptsController`） |
-| `/api/AISkillToolManagement/GetAllTools` / `GetAllSkills` / `GetAllMcps` | GET | 技能/工具/MCP 列表 |
+| `/api/AIPrompts/GetPageData` / `GetALLList` | POST/GET | 提示词分页 / 全量 |
+| `/api/AIPrompts/AddEdit` / `Delete` | POST/DELETE | 提示词维护 |
+| `/api/AISkillToolManagement/GetPageData` / `GetById` | POST/GET | 技能工具分页 / 详情 |
+| `/api/AISkillToolManagement/AddEdit` / `Delete` | POST/DELETE | 技能工具维护 |
+| `/api/AISkillToolManagement/GetAllTools` / `GetAllSkills` / `GetAllMcps` | GET | 工具 / 技能 / MCP 列表 |
 | `/api/AISkillToolManagement/TestMcpConnection` | POST | 测试 MCP 连接并列出工具 |
 | `/api/AIUserTokenQuota/GetMyQuota` | GET | 我的当月 Token 额度与用量 |
-| `/api/OpenAICompatibleKey/*` | - | 生成 / 查看 / 启停 / 删除用户 Key，获取对接文档 |
+| `/api/OpenAICompatibleKey/GetMyKey` | GET | 查询我的 Key 状态 |
+| `/api/OpenAICompatibleKey/Generate` / `Reveal` | POST | 生成 Key / 查看明文（AES 解密） |
+| `/api/OpenAICompatibleKey/UpdateName` / `SetEnabled` | POST | 改名 / 启停 |
+| `/api/OpenAICompatibleKey/GetIntegrationDoc` | GET | 获取对接文档（BaseUrl、示例代码） |
 | `GET /api/v1/models` | GET | OpenAI 协议：可用智能体列表 |
 | `POST /api/v1/chat/completions` | POST | OpenAI 协议：对话（支持 stream） |
 
