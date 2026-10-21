@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="NetCoreKevin logo">
+  <title>NetCoreKevin</title>
+  <defs>
+    <linearGradient id="nk-k" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#ff9db1"/>
+      <stop offset="0.5" stop-color="#e85d75"/>
+      <stop offset="1" stop-color="#b06fe0"/>
+    </linearGradient>
+    <linearGradient id="nk-shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.34"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="nk-node" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd9e0"/>
+      <stop offset="1" stop-color="#e85d75"/>
+    </linearGradient>
+    <radialGradient id="nk-glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#e85d75" stop-opacity="0.12"/>
+      <stop offset="0.6" stop-color="#e85d75" stop-opacity="0.04"/>
+      <stop offset="1" stop-color="#e85d75" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="nk-soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#e85d75" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <circle cx="256" cy="256" r="228" fill="url(#nk-glow)"/>
+
+  <g fill="none" stroke="#e85d75" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke-opacity="0.34">
+      <path d="M256 80 L409 168 L409 344 L256 432 L103 344 L103 168 Z"/>
+      <path d="M256 80 L409 344 M409 168 L256 432 M103 168 L256 432 M103 344 L256 80"/>
+    </g>
+    <g stroke-opacity="0.20">
+      <path d="M409 168 L103 344 M103 168 L409 344"/>
+    </g>
+  </g>
+
+  <g fill="url(#nk-node)" stroke="#ffffff" stroke-opacity="0.7" stroke-width="2.5">
+    <circle cx="256" cy="80" r="14"/>
+    <circle cx="409" cy="168" r="14"/>
+    <circle cx="409" cy="344" r="14"/>
+    <circle cx="256" cy="432" r="14"/>
+    <circle cx="103" cy="344" r="14"/>
+    <circle cx="103" cy="168" r="14"/>
+  </g>
+
+  <g filter="url(#nk-soft)" transform="translate(256 256) scale(0.90) translate(-256 -256)">
+    <path d="M168 120 H218 V238 L316 120 H374 L268 250 L382 392 H320 L218 254 V392 H168 Z"
+          fill="url(#nk-k)" stroke="url(#nk-k)" stroke-width="12" stroke-linejoin="round"/>
+    <path d="M168 120 H218 V238 L316 120 H374 L268 250 L382 392 H320 L218 254 V392 H168 Z"
+          fill="url(#nk-shine)" stroke="url(#nk-shine)" stroke-width="12" stroke-linejoin="round"/>
+    <path d="M188 158 V212" stroke="#ffffff" stroke-opacity="0.16" stroke-width="9" stroke-linecap="round"/>
+    <path d="M248 208 L300 150" stroke="#ffffff" stroke-opacity="0.14" stroke-width="8" stroke-linecap="round"/>
+  </g>
+</svg>

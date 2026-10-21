@@ -1,75 +1,200 @@
+<div align="center">
+
+<img src="InitData/logo.png" width="140" alt="NetCoreKevin" />
+
 # NetCoreKevin
 
-> 是基于 .NET 9 构建的企业级 AI中台智能体 SaaS 前后端分离架构，集成了 AI 知识库智能体、多智能体协同、聊天记录压缩策略、Skill技能管理、本地离线AI模型调用、智能体技能可控加载、AI联网搜索、智能体权限管控、一库多租户、分布式系统、微服务架构等核心能力。
+**企业级 AI 智能体中台：.NET 9 做后端，Vue 3 做管理后台，知识库、技能、记忆、额度都在界面上配。**
 
----
+An enterprise AI-agent platform on .NET 9 — RAG, skills, memory, multi-tenancy and scheduled tasks, with a Vue admin console.
 
-## 📷 功能效果图
+<img src="https://img.shields.io/badge/status-actively--developed-orange" alt="status" />
+<img src="https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet&logoColor=white" alt=".NET 9" />
+<img src="https://img.shields.io/badge/Vue-3-4FC08D?logo=vuedotjs&logoColor=white" alt="Vue 3" />
+<img src="https://img.shields.io/badge/MySQL-8.0+-4479A1?logo=mysql&logoColor=white" alt="MySQL" />
+<img src="https://img.shields.io/badge/Redis-7.0+-DC382D?logo=redis&logoColor=white" alt="Redis" />
+<img src="https://img.shields.io/badge/Qdrant-vector_search-DC244C" alt="Qdrant" />
+<img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT" />
+
+</div>
+
+> [!NOTE]
+> NetCoreKevin 面向「要在企业内网里落一个 AI 助手 / SaaS 智能体中台」的场景：多租户、登录鉴权、权限点、审计日志、定时任务、模型接入这些地基已经铺好，你只需要接自己的业务数据和业务系统。如果你只是想调一次大模型接口，这个仓库对你来说太重了。
+
+<p align="center">
+  <img src="Doc/Img/list1/3.png" width="880" alt="NetCoreKevin 智能体对话" />
+</p>
+
+## NetCoreKevin 是什么
+
+把「企业里的 AI 助手」拆开，需要的东西其实就四样：
+
+- **后端**：`App/WebApi`。.NET 9 + EF Core + MySQL，按 Domain / Application / RepositorieRps / WebApi 四层拆分，API 带 v1、v2 版本。
+- **AI 能力**：`Kevin/kevin.Module`。kevin.AI.AgentFramework 基于 Microsoft Agent Framework，kevin.RAG 负责切分、向量化与重排，都在同一个进程里，不用额外起 Python 服务。
+- **管理后台**：`vue/kevin.web.vue`。Vue 3 + Ant Design Vue，租户、用户、角色、智能体、知识库、技能、任务、API Key 全在界面上配。
+- **底座**：25 个可插拔模块——权限、缓存、消息队列、分布式锁、SignalR、Hangfire、对象存储、短信、邮件、代码生成器。
+
+它不是脚手架 demo：装好依赖、跑完迁移就能登录后台，有菜单、有权限、有定时任务、有审计日志。
+
+## 特点
+
+### 智能体是配置出来的，不是写死的
+
+- **提示词 / 模型 / 参数**：每个智能体单独配置，对话模型与向量模型分开选，温度、上下文裁剪都能调。
+- **技能动态加载**：技能是 `SKILL.md` + 脚本（`.py` / `.ps1` / `.sh`），后台能新建、在线编辑、随时启停，改完不用重新编译。
+- **知识库（RAG）**：上传文档自动切分写入 Qdrant，检索结果过一遍 `qwen3-rerank` 重排再喂给模型。
+- **记忆**：按「租户 + 智能体 + 用户」三维隔离存在 Qdrant，是否使用记忆挂在智能体开关上。
+- **多智能体协同**：主智能体可以把子任务派给其他智能体执行。
+- **上下文压缩**：按配置阈值压缩历史消息，长期使用不会越聊越慢、越聊越贵。
+- **联网搜索**：接入火山引擎豆包搜索，模型需要新信息时自己去查。
+- **全模态**：图片理解、语音转写（阿里 ASR）、文生图（生成后自动上传 OSS）。
+
+### 能当企业底座用
+
+- **一库多租户**：共享库按 `TenantId` 隔离，接口层强制过滤，不用每个租户各建一套库。
+- **RBAC 权限**：菜单与 API 两个维度，权限点跟角色走；调试期可以用 `IsOpenPermission` 一把关掉。
+- **额度与审计**：每用户每月 Token 额度由定时任务颁发、请求时扣减；审计日志、慢查询告警、分环境文件日志都内置。
+- **对外集成**：腾讯云 / 阿里云 / 七牛三种对象存储，腾讯与阿里短信，钉钉消息，RabbitMQ / CAP 消息总线，Consul 服务发现，SignalR 实时推送。
+
+### 给别的客户端留了口子
+
+- **OpenAI 协议兼容接口**：`GET /v1/models`、`POST /v1/chat/completions`（支持 stream）。Cherry Studio、Dify、自研客户端只要配一个 `sk-` 开头的 Key 就能接进来；Key 在后台按用户和租户发放，权限校验、工具调用、聊天记录落库与网页端完全一致。
+- **MCP**：`App/WebApiMcp` 提供 MCP 服务端，配置里也支持把现有 HTTP 接口包装成 MCP 工具，或把外部 MCP 服务接成智能体工具。
+
+### 工程化
+
+- **25 个可插拔模块**：每个能力一个 csproj，通过 `IModuleInitializer` / `IModuleConfigTasks` 自行注册，加能力不用改入口文件。
+- **代码生成器**：按实体一键生成仓储接口、仓储实现、服务接口、服务实现与控制器。
+- **测试**：xUnit 单元测试 + 集成测试，共享测试基础设施。
+- **容器化**：`App/WebApi/Dockerfile` 可直接构建镜像。
+
+## 效果图
 
 ### AI 智能体技能工具管理
+
 | 动态管理 | 智能体配置 | 对话交互 |
-|---------|----------|---------|
+|---|---|---|
 | ![动态管理](Doc/Img/list1/1.png) | ![智能体配置](Doc/Img/list1/2.png) | ![对话交互](Doc/Img/list1/3.png) |
 
-### 多智能体协同和聊天记录压缩策略
-| 多智能体动态配置管理 | 压缩策略配置 | 对话交互 |
-|---------|----------|---------|
-| ![多智能体动态配置管理](Doc/Img/list7/1.png) | ![压缩策略配置](Doc/Img/list7/2.png) | ![对话交互](Doc/Img/list7/3.png) |
+### 多智能体协同与聊天记录压缩
 
-### Skill动态管理
+| 多智能体动态配置 | 压缩策略配置 | 对话交互 |
+|---|---|---|
+| ![多智能体动态配置](Doc/Img/list7/1.png) | ![压缩策略配置](Doc/Img/list7/2.png) | ![对话交互](Doc/Img/list7/3.png) |
+
+### Skill 动态管理
+
 | 界面管理 | 在线编辑 | 动态配置 |
-|---------|----------|---------|
+|---|---|---|
 | ![界面管理](Doc/Img/list6/1.png) | ![在线编辑](Doc/Img/list6/2.png) | ![动态配置](Doc/Img/list6/3.png) |
 
 ### AI 知识库系统
+
 | 知识库管理 | 文档上传 | 智能问答 |
-|-----------|---------|---------|
+|---|---|---|
 | ![知识库管理](Doc/Img/list2/1.png) | ![文档上传](Doc/Img/list2/2.png) | ![智能问答](Doc/Img/list2/3.png) |
 
 ### AI 智能体技能
+
 | 技能列表 | 技能配置 | 技能执行 |
-|---------|---------|---------|
+|---|---|---|
 | ![技能列表](Doc/Img/list3/1.png) | ![技能配置](Doc/Img/list3/2.png) | ![技能执行](Doc/Img/list3/3.png) |
 
 ### AI 智能体自动任务调度
+
 | 任务列表 | 任务配置 | 执行记录 |
-|---------|---------|---------|
+|---|---|---|
 | ![任务列表](Doc/Img/list4/1.png) | ![任务配置](Doc/Img/list4/2.png) | ![执行记录](Doc/Img/list4/3.png) |
 
-### 后台管理系统 (Vue3 + AntDesign)
-| 用户管理 | 角色管理 | 权限管理 | 系统配置 |
-|---------|---------|---------|---------|
+### 后台管理（Vue 3 + Ant Design Vue）
+
+| 用户管理 | 角色管理 | 权限管理 | 系统关键日志 |
+|---|---|---|---|
 | ![用户管理](Doc/Img/list5/1.png) | ![角色管理](Doc/Img/list5/2.png) | ![权限管理](Doc/Img/list5/3.png) | ![系统关键日志](Doc/Img/list5/4.png) |
 
----
+## 架构
 
-## ✨ 技术亮点
+```mermaid
+flowchart LR
+  subgraph FE["Vue 3 管理后台"]
+    UI["用户 / 租户 / 权限<br/>智能体 · 知识库 · 技能 · 任务"]
+  end
 
-| 技术点 | 说明 |
-|--------|------|
-| **.NET 9** | 最新 LTS 版本，性能更优，支持更多新特性 |
-| **DDD 架构** | 领域驱动设计，模块化结构，便于维护扩展 |
-| **微服务架构** | 基于 Consul、CAP、Hangfire 实现服务解耦 |
-| **AI 集成** | AgentFramework 1.9、Skill 动态管理、Ollama 本地模型支持 |
-| **RAG 检索增强** | Qdrant 向量数据库实现知识库问答 |
-| **多租户支持** | 一库多租户架构，数据隔离，接口层强制租户过滤 |
-| **分布式缓存** | Redis 缓存层，支持多种缓存策略，内置请求级响应缓存过滤器 |
-| **安全加固** | 时序安全密钥校验、密码哈希防重、权限安全默认策略 |
-| **日志系统** | log4net 日志框架，支持多级别日志，内置慢查询告警 |
- 
-## 🚀 快速开始
+  subgraph API["App.WebApi（.NET 9）"]
+    C["Controller v1 / v2<br/>JWT · 权限 · 全局异常"]
+    A["Application<br/>业务编排"]
+    D["Domain<br/>实体 / 接口契约"]
+    R["RepositorieRps<br/>EF Core 仓储"]
+  end
 
-### 环境要求
+  subgraph AI["AI 能力层（同进程）"]
+    AG["AgentFramework<br/>对话 · 技能 · 记忆"]
+    RG["RAG<br/>切分 · 向量化 · 重排"]
+    SK["Skill 脚本<br/>py · ps1 · sh"]
+  end
 
-- .NET SDK 9.0+
-- Node.js 16+（前端）
-- MySQL 8.0+
-- Redis 7.0+
-- Qdrant 1.7+（AI 功能）
+  subgraph INFRA["基础设施"]
+    M[("MySQL")]
+    RD[("Redis")]
+    Q[("Qdrant")]
+    MQ["RabbitMQ / CAP"]
+    HF["Hangfire"]
+    CS["Consul"]
+  end
 
-### 配置步骤
+  LLM["模型服务<br/>智谱 · Ollama · 豆包搜索 · 阿里 ASR / Rerank"]
 
-**1. 配置数据库连接**
+  UI <-->|"REST / SignalR"| C
+  C --> A
+  A --> D
+  A --> R
+  R --> M
+  A --- AI
+  AG --> LLM
+  RG --> Q
+  A --- RD
+  A --- MQ
+  A --- HF
+  A --- CS
+```
+
+各层通过自己的 `ModuleInitializer` 暴露注册逻辑，由上层统一调用完成 DI 装配：`WebApi` 只负责启动与管道，业务契约留在 `Domain`，实现落在 `Application` 与 `RepositorieRps`。
+
+## 目录
+
+| 路径 | 内容 |
+|---|---|
+| [`App/`](App/) | 业务应用：Domain、Application、RepositorieRps、WebApi、WebApiMcp |
+| [`Kevin/`](Kevin/) | 框架核心：EF Core（含慢查询拦截器）、Web 基础组件、25 个可插拔模块 |
+| [`vue/kevin.web.vue/`](vue/kevin.web.vue/) | Vue 3 + Ant Design Vue 管理后台 |
+| [`Test/`](Test/) | xUnit 单元测试、集成测试、共享测试基础设施 |
+| [`Doc/`](Doc/) | 截图与文档资源 |
+| [`InitData/`](InitData/) | logo（svg + png）与省市区镇等初始化数据 |
+
+## 快速开始
+
+### 你需要准备
+
+| 项 | 说明 |
+|---|---|
+| .NET SDK | 9.0+ |
+| Node.js | 16+，只跑管理后台时需要 |
+| MySQL | 8.0+，建议 `utf8mb4` |
+| Redis | 7.0+，缓存、Hangfire、SignalR 都用它 |
+| Qdrant | 1.7+，知识库与记忆功能需要 |
+| 模型服务 | 智谱（云端）或 Ollama（本地），二选一即可 |
+
+### 1. 克隆代码
+
+```bash
+git clone https://gitee.com/netkevin-li/NetCoreKevin.git
+cd NetCoreKevin
+dotnet restore
+```
+
+GitHub 镜像：<https://github.com/junkai-li/NetCoreKevin>
+
+### 2. 配置连接串
 
 编辑 `App/WebApi/appsettings.json`：
 
@@ -82,24 +207,34 @@
 }
 ```
 
-**2. 初始化数据库**
+同一个文件里还有 Hangfire、Consul、对象存储、模型服务等配置，按需覆盖；`appsettings.Development.json` 会覆盖同名项。
 
-在 **程序包管理控制台** 执行：
+### 3. 初始化数据库
+
+Visual Studio 的**程序包管理控制台**，默认项目选 `Kevin.EntityFrameworkCore`，启动项目选 `App.WebApi`：
 
 ```powershell
-# 选择 Kevin.EntityFrameworkCore 项目
-Add-Migration "初始化数据库"
 Update-Database
 ```
 
-**3. 启动后端**
+或者用 CLI：
 
 ```bash
-cd App/WebApi
-dotnet run --environment Development
+dotnet ef database update --project Kevin/Kevin.EntityFrameworkCore --startup-project App/WebApi
 ```
 
-**4. 启动前端（可选，管理后台）**
+> [!TIP]
+> 仓库里已经带了历次迁移记录，全新库直接 `Update-Database` 即可。只有改了实体才需要先 `Add-Migration "你的改动"` 再更新。
+
+### 4. 启动后端
+
+```bash
+dotnet run --project App/WebApi
+```
+
+`launchSettings.json` 里已经指定 `ASPNETCORE_ENVIRONMENT=Development` 与 `http://localhost:9901`。
+
+### 5. 启动管理后台
 
 ```bash
 cd vue/kevin.web.vue
@@ -107,100 +242,44 @@ npm install
 npm run serve
 ```
 
-前端开发服务器已将 `/VarApi` 反向代理到后端 `http://localhost:9901`，无需额外配置跨域。
+开发服务器已把 `/VarApi` 反向代理到 `http://localhost:9901`，不需要额外配跨域。
 
-**5. 访问地址**
+### 访问地址
 
 | 服务 | 地址 |
-|------|------|
-| API | http://localhost:9901 |
-| Swagger | http://localhost:9901/swagger |
-| Hangfire | http://localhost:9901/pchangfire|
-| 前端管理后台 | http://localhost:8080 |
+|---|---|
+| API | <http://localhost:9901> |
+| Swagger | <http://localhost:9901/swagger> |
+| Hangfire 面板 | <http://localhost:9901/pchangfire> |
+| 管理后台 | <http://localhost:8080> |
+
+Hangfire 面板默认走 Basic Auth，账号密码取 `appsettings.json` 的 `HangfireSetting.userSetting`（默认 `admin` / `admin`）。
 
 ### 默认账户
 
 | 用户名 | 密码 | 租户 |
-|--------|------|------|
+|---|---|---|
 | admin | 123456 | 1000 |
 
----
+> [!WARNING]
+> 以上都是本地开发默认值。上线前请替换数据库密码、`Jwt.Key`、Hangfire 账号，以及 `AESInfo` 的 Key / IV——Key 与 IV 必须是 16/24/32 与 16 字节，且一旦变更，历史密文将无法解密。
 
-## 🧠 AI 智能体配置
+## AI 能力配置
 
-### AI智能体教程
-
--   第一步
--   `请先完成上手教程在进行AI智能体教程`
--   第二步
--   `下载安装Qdrant--官网有教程 安装后配置json文件QdrantClientSetting 默认是localhost不需要动的`
--   第三步
--   `注册AI账户 教程以智谱AI为例 去[官网](https://open.bigmodel.cn)注册登录后获取APIKey`
--   第四步
--  `配置向量模型和对话模型默认如下`
-
-|![向量模型](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/7f97a2cb-3707-46f6-a8f7-bc48196ed941.png)|![对话模型](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/e0b7574a-0c47-45e7-b462-2d0e0707fe4d.png)|
-|--|--| 
-
--   第五步
--   `新建知识库选择向量模型(如果不选择请在json配置中配置)2048（默认）：最高精度，适合对准确性要求极高的场景===》配置智能体==》新建对话就OK了`
- 
-|![知识库模型配置](Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/image.png)|![智能体配置](Doc/Img/list1/2.png)|
-|--|--| 
-
-### 🧰基于Ollama部署本地模型
-
-- Ollama 支持多种操作系统，包括 macOS、Windows、Linux 以及通过 Docker 容器运行。
-- Ollama 对硬件要求不高，旨在让用户能够轻松地在本地运行、管理和与大型语言模型进行交互。
-- CPU：多核处理器（推荐 4 核或以上）。
-- GPU：如果你计划运行大型模型或进行微调，推荐使用具有较高计算能力的 GPU（如 NVIDIA 的 CUDA 支持）。
-- 内存：至少 8GB RAM，运行较大模型时推荐 16GB 或更高。
-- 存储：需要足够的硬盘空间来存储预训练模型，通常需要 10GB 至数百 GB 的空间，具体取决于模型的大小。 
-- Ollama 官方下载地址：[https://ollama.com/download](https://ollama.com/download)
-- 1.安装后运行模型 可根据电脑配置自由选择模型 可以使用qwen3:4b来进行测试
-- ollama run qwen3:4b
-- 系统配置如下
-- ![输入图片说明](Doc/localve.png)
- 
-###  自动任务配置（Hangfire）
-默认基于redis方式注册Hangfire可在Kevin.Hangfire.ServiceCollectionExtensions自行添加或调整注入方式
-
-1.继承IModuleConfigTasks类实现ConfigTasks会在项目启动时自动注册任务，并且自动任务可以基于接口类直接调用应用服务
-
-```
-    /// <summary>
-    /// AIKmssTasks配置任务设置
-    /// </summary>
-    public class AIKmssModuleConfigTasks : IModuleConfigTasks
-    {  
-        /// <summary>
-        /// 配置任务
-        /// </summary>
-        public Task<bool> ConfigTasks(IRecurringJobManager recurringJobManager)
-        {
-            recurringJobManager.AddOrUpdate<IAIKmssService>(
-                recurringJobId: "每6分钟检测是否有AI文档知识库需要处理",      // 唯一的 ID，用于后续修改或删除
-                (s) => s.ProcessKmssVectorData(default),
-                "0 0/6 0/1 * * ? ", new RecurringJobOptions
-                {
-                    TimeZone = TimeZoneInfo.Local,        // 指定时区（默认UTC） 
-                }
-            );
-            return Task.FromResult(true);
-        } 
-    }
-```
-
-### 1. 安装 Qdrant
+### 1. 启动 Qdrant
 
 ```bash
-# 使用 Docker 启动 Qdrant
-docker run -p 6333:6333 qdrant/qdrant
+docker run -d --name qdrant -p 6333:6333 -v qdrant_storage:/qdrant/storage qdrant/qdrant
 ```
 
-### 2. 配置 AI 模型
+`QdrantClientSetting` 默认指向 `localhost`，本机跑的话不用改。
 
-**智谱 AI：**
+### 2. 配置模型
+
+向量模型与对话模型在后台「模型管理」里配，也可以直接改 `appsettings.json`。
+
+**智谱 AI（云端，[注册地址](https://open.bigmodel.cn)）：**
+
 ```json
 {
   "OllamaApiSetting": {
@@ -211,7 +290,8 @@ docker run -p 6333:6333 qdrant/qdrant
 }
 ```
 
-**Ollama 本地模型：**
+**Ollama（本地，原生接口不传 ApiKey）：**
+
 ```json
 {
   "OllamaApiSetting": {
@@ -221,86 +301,147 @@ docker run -p 6333:6333 qdrant/qdrant
 }
 ```
 
-### 3. 使用流程
+重排模型走 `AliRerankApiSetting`（默认 `qwen3-rerank`），不配也能用，只是检索结果不做二次排序。
 
-1. 注册 AI 账户获取 API Key
-2. 在系统中配置模型
-3. 创建知识库并上传文档
-4. 配置智能体并绑定技能
-5. 开始智能对话
+### 3. 跑通第一个智能体
 
----
+1. 登录后台，进入模型管理，配置对话模型与向量模型。
+2. 新建知识库，选择向量模型（维度需与 `QdrantClientSetting.MemoryEmbeddingSize` 一致，默认 2048），上传文档等待向量化完成。
+3. 新建智能体：选对话模型，绑知识库，按需勾选技能与记忆。
+4. 新建对话，开始聊。
 
-## 📁 项目结构
+<p align="center">
+  <img src="Doc/%E9%A1%B9%E7%9B%AE%E7%9B%B8%E5%85%B3/image.png" width="440" alt="知识库模型配置" />
+  <img src="Doc/Img/list1/2.png" width="440" alt="智能体配置" />
+</p>
+
+### 4. 用 Ollama 跑本地模型（可选）
+
+- 支持 macOS、Windows、Linux 与 Docker 部署，官方下载：<https://ollama.com/download>
+- 硬件建议：4 核以上 CPU、16GB 以上内存、足够的磁盘空间；想跑大模型或微调再上 NVIDIA GPU。
+- 拉一个能跑得动的小模型先试：
+
+```bash
+ollama run qwen3:4b
+```
+
+然后在后台把对话模型的地址指向 `http://localhost:11434`。
+
+![本地模型配置](Doc/localve.png)
+
+### 5. 自动任务（Hangfire）
+
+默认以 Redis 作为 Hangfire 存储，注入方式可在 `Kevin.Hangfire/ServiceCollectionExtensions` 里调整。
+
+继承 `IModuleConfigTasks` 实现 `ConfigTasks`，任务会在启动时自动注册，并且可以直接调用应用服务：
+
+```csharp
+/// <summary>
+/// AIKmssTasks 配置任务设置
+/// </summary>
+public class AIKmssModuleConfigTasks : IModuleConfigTasks
+{
+    /// <summary>
+    /// 配置任务
+    /// </summary>
+    public Task<bool> ConfigTasks(IRecurringJobManager recurringJobManager)
+    {
+        recurringJobManager.AddOrUpdate<IAIKmssService>(
+            recurringJobId: "每6分钟检测是否有AI文档知识库需要处理",   // 唯一 ID，后续修改或删除都用它
+            (s) => s.ProcessKmssVectorData(default),
+            "0 0/6 0/1 * * ? ",
+            new RecurringJobOptions
+            {
+                TimeZone = TimeZoneInfo.Local,   // 指定时区，默认 UTC
+            }
+        );
+        return Task.FromResult(true);
+    }
+}
+```
+
+## 项目结构
 
 ```
 kevin.abp.core/
-├── App/                    # 业务应用模块
+├── App/                    # 业务应用
 │   ├── Application/        # 应用服务层
 │   ├── Domain/             # 领域层
 │   ├── RepositorieRps/     # 仓储实现
-│   └── WebApi/             # API 入口
-├── Kevin/                  # 核心框架模块
-│   ├── Application/        # 核心服务
-│   │   └── Services/AI/    # AI 相关服务
+│   ├── AppShare/           # 跨层共享 DTO
+│   ├── WebApi/             # API 入口
+│   └── WebApiMcp/          # MCP 服务端
+├── Kevin/                  # 框架核心
+│   ├── Application/        # 核心服务（含 AI）
 │   ├── Domain/             # 核心领域模型
-│   ├── Kevin.EntityFrameworkCore/  # EF Core 实现（含慢查询拦截器）
+│   ├── Kevin.EntityFrameworkCore/   # EF Core 实现（含慢查询拦截器、迁移）
 │   ├── Kevin.Web.Basics/   # Web 基础组件（控制器、全局过滤器）
 │   ├── RepositorieRps/     # 核心仓储实现
 │   ├── kevin.Share/        # 共享 DTO、枚举、常量
-│   └── kevin.Module/       # 可插拔功能模块
-│       ├── kevin.AI.AgentFramework/  # AI 智能体框架
-│       ├── Kevin.RAG/      # RAG 检索增强（Qdrant/Ollama/Rerank）
+│   └── kevin.Module/       # 可插拔模块（25 个）
+│       ├── kevin.AI.AgentFramework/  # 智能体框架
+│       ├── Kevin.RAG/                # 检索增强（Qdrant / Ollama / Rerank）
 │       ├── Kevin.Authentication.Jwt/ # JWT 认证
 │       ├── kevin.Permission/         # RBAC 权限
 │       ├── kevin.Cache/              # 缓存
 │       ├── Kevin.Hangfire/           # 任务调度
 │       ├── Kevin.SignalR/            # 实时通信
-│       └── ...             # 短信、邮件、雪花ID、分布式锁等 30+ 模块
+│       ├── kevin.Cap/ · kevin.RabbitMQ/  # 消息总线
+│       ├── Kevin.SMS/ · Kevin.Email/ · kevin.FileStorage/
+│       ├── kevin.DistributedLock/ · Kevin.SnowflakeId/
+│       └── ...                       # ASR、Consul、代码生成器等
 ├── Test/                   # 测试套件
 │   ├── Kevin.Web.Test/     # 单元测试（xUnit）
 │   ├── Kvin.Integration.Tests/  # 集成测试
 │   └── Testing.Shared/     # 共享测试基础设施
-├── vue/kevin.web.vue/      # 前端管理后台（Vue3 + Ant Design Vue）
-├── Doc/                    # 文档资源
+├── vue/kevin.web.vue/      # 管理后台（Vue 3 + Ant Design Vue）
+├── Doc/                    # 文档与截图
 └── InitData/               # 初始化数据
 ```
 
----
-
-## 🛠️ 功能模块
+## 功能模块
 
 | 模块 | 功能 | 状态 |
-|------|------|------|
-| **用户管理** | 用户CRUD、权限绑定 | ✅ |
-| **角色管理** | 角色CRUD、权限配置 | ✅ |
-| **权限管理** | 菜单权限、API权限 | ✅ |
-| **AI 智能体** | 智能对话、工具调用 | ✅ |
-| **知识库** | 文档管理、RAG检索 | ✅ |
-| **任务调度** | Hangfire定时任务 | ✅ |
-| **消息服务** | 钉钉消息推送 | ✅ |
-| **文件存储** | 多云存储支持 | ✅ |
+|---|---|---|
+| **用户 / 角色 / 权限** | 用户 CRUD、角色 CRUD、菜单与 API 权限点 | ✅ |
+| **多租户** | 一库多租户、租户级数据隔离 | ✅ |
+| **AI 智能体** | 智能对话、工具调用、多智能体协同、上下文压缩 | ✅ |
+| **知识库** | 文档上传、切分向量化、RAG 检索与重排 | ✅ |
+| **技能（Skill）** | 在线编辑、动态启停、脚本执行、地址白名单校验 | ✅ |
+| **记忆** | 租户 + 智能体 + 用户三维隔离 | ✅ |
+| **多模态** | 图片理解、语音转写、文生图 | ✅ |
+| **OpenAI 兼容** | `/v1/models`、`/v1/chat/completions`、Key 管理 | ✅ |
+| **任务调度** | Hangfire 定时任务与面板 | ✅ |
+| **Token 额度** | 月度额度颁发、请求扣减 | ✅ |
+| **文件存储** | 腾讯云 / 阿里云 / 七牛 | ✅ |
+| **消息服务** | 钉钉消息、站内 SignalR 推送 | ✅ |
 
----
+## 现状与不足
 
-## 📖 文档资源
+坦白说，下面这些是使用前应该知道的事实：
 
-- **项目 Wiki**: [项目解析以及详细教程](.qoder/repowiki/zh/content/快速开始.md) —— 位于 `.qoder/repowiki/zh/content/`，涵盖架构设计、核心模块、开发指南、API 接口文档、部署运维等全套文档
-- **快速入门详细文档**: [SYSTEM_DOCUMENTATION.md](SYSTEM_DOCUMENTATION.md)
-- **教学文档**: [CSDN 专栏](https://blog.csdn.net/weixin_42629287/category_13037923.html)
-- **新项目教程**: [基于 NetCoreKevin 二次开发](https://gitee.com/netkevin-li/ainet)
+- **向量维度绑定模型**：`MemoryEmbeddingSize` 默认 2048，对应智谱 `embedding-3`；换 embedding 模型要同步改维度并重建集合，否则检索会报维度不匹配。
+- **模型 Key 要自备**：`OllamaApiSetting`、`AliRerankApiSetting`、`AliyunAsr`、`DoubaoSearchApiSetting` 默认留空或指向智谱示例，没配的能力不可用，也不会伪造结果。
+- **迁移不会自动跑**：项目没有启动时自动迁移，升级代码后要自己 `Update-Database`。
+- **外部服务要自己开通**：短信、邮件、对象存储的密钥默认是空值，用到时再去 `appsettings.json` 填。
+- **一键部署还没做**：`docker-compose.yml` 目前是空文件，MySQL、Redis、Qdrant 需要自己准备，本地起三个容器即可。
+- **前端构建链偏旧**：Vue CLI 5（webpack），还没迁到 Vite。
+- **AI 默认值按通用场景给**：提示词、上下文压缩阈值、工具编排这些默认值不一定适合你的业务，需要按场景调。
 
----
+## 文档资源
 
-## 🤝 交流社区
+- **项目 Wiki**：[快速开始](.qoder/repowiki/zh/content/快速开始.md)——`.qoder/repowiki/zh/content/` 下覆盖架构设计、核心模块、开发指南、API 接口、数据库设计、部署运维
+- **系统文档**：[SYSTEM_DOCUMENTATION.md](SYSTEM_DOCUMENTATION.md)
+- **教学专栏**：[CSDN](https://blog.csdn.net/weixin_42629287/category_13037923.html)
+- **二次开发教程**：[基于 NetCoreKevin 新建项目](https://gitee.com/netkevin-li/ainet)
+
+## 交流社区
 
 | 微信 | 交流群 |
-|------|--------|
+|---|---|
 | ![微信](Doc/wx.jpeg) | ![交流群](Doc/wx_jiaoliuqun.JPG) |
 
----
-
-## 📊 Star History
+## Star History
 
 <a href="https://star-history.dera.page/#junkai-li/NetCoreKevin&type=timeline">
   <picture>
@@ -310,8 +451,10 @@ kevin.abp.core/
   </picture>
 </a>
 
----
+## License
 
-**版本**: v1.1（代码审查治理版）  
-**License**: MIT  
-**维护者**: NetCoreKevin 开发团队 
+MIT License，详见 [LICENSE](LICENSE)。
+
+欢迎提 Issue 和 PR。仓库还在持续迭代，改动会优先进入 `master` 分支。
+
+**版本**：v1.1（代码审查治理版）　**维护者**：NetCoreKevin 开发团队
