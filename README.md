@@ -142,7 +142,7 @@ flowchart LR
     CS["Consul"]
   end
 
-  LLM["模型服务<br/>智谱 · Ollama · 豆包搜索 · 阿里 ASR / Rerank"]
+  LLM["模型服务：任意 OpenAI 协议兼容<br/>（OpenAI · 智谱 · DeepSeek · Ollama）<br/>豆包搜索 · 阿里 ASR / Rerank"]
 
   UI <-->|"REST / SignalR"| C
   C --> A
@@ -182,7 +182,7 @@ flowchart LR
 | MySQL | 8.0+，建议 `utf8mb4` |
 | Redis | 7.0+，缓存、Hangfire、SignalR 都用它 |
 | Qdrant | 1.7+，知识库与记忆功能需要 |
-| 模型服务 | 智谱（云端）或 Ollama（本地），二选一即可 |
+| 模型服务 | 任意 OpenAI 协议兼容服务——OpenAI / 智谱 / DeepSeek / 通义等云端 API，或 Ollama 等本地部署，有一个即可 |
 
 ### 1. 克隆代码
 
@@ -276,9 +276,9 @@ docker run -d --name qdrant -p 6333:6333 -v qdrant_storage:/qdrant/storage qdran
 
 ### 2. 配置模型
 
-向量模型与对话模型在后台「模型管理」里配，也可以直接改 `appsettings.json`。
+向量模型与对话模型在后台「模型管理」里配，也可以直接改 `appsettings.json`。模型接入走 OpenAI 协议：只要服务商提供 OpenAI 兼容接口，填好地址、模型名和 Key 就能用——OpenAI、智谱、DeepSeek、通义、Kimi、vLLM、Ollama 都在支持范围内。下面以智谱和 Ollama 为例：
 
-**智谱 AI（云端，[注册地址](https://open.bigmodel.cn)）：**
+**云端服务（以智谱为例，[注册地址](https://open.bigmodel.cn)；换成其它 OpenAI 兼容服务的地址和 Key 即可）：**
 
 ```json
 {
