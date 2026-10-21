@@ -74,7 +74,7 @@ namespace Kevin.EntityFrameworkCore._.Data
                         if (CurrentUser != default && CurrentUser.TenantId > 0)
                         {
                             t_d_p_predicate = t_d_p_predicate.And(e => EF.Property<Int32>(e, "TenantId") == CurrentUser.TenantId);
-                        } 
+                        }
                     }
 
                 }
@@ -85,7 +85,7 @@ namespace Kevin.EntityFrameworkCore._.Data
                         var fieldInfo_t_create_userId = t.GetProperty("CreateUserId");
                         if (fieldInfo_t_create_userId != default)
                         {
-                            var userIds = CurrentUser.GetModuleDataPermissionsUserIds().Result;
+                            var userIds = CurrentUser.GetModuleDataPermissionsUserIdsSync();
                             if (userIds.Count > 0)
                             {
                                 t_d_p_predicate = t_d_p_predicate.And(e => userIds.Contains(EF.Property<long>(e, "CreateUserId")));
@@ -106,7 +106,7 @@ namespace Kevin.EntityFrameworkCore._.Data
             var exp = GetTenantDataPerExp(isTenant, isDataPer);
             if (exp != default)
             {
-                predicate.And(exp);
+                predicate = predicate.And(exp);
             }
             return DbSet.FirstOrDefault(predicate);
         }
@@ -115,7 +115,7 @@ namespace Kevin.EntityFrameworkCore._.Data
             var exp = GetTenantDataPerExp(isTenant, isDataPer);
             if (exp != default)
             {
-                predicate.And(exp);
+                predicate = predicate.And(exp);
             }
             return DbSet.Any(predicate);
         }
@@ -145,7 +145,10 @@ namespace Kevin.EntityFrameworkCore._.Data
         }
         public Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            return Context.SaveChangesAsync(false, cancellationToken);
+            //acceptAllChangesOnSuccess 必须传 true：保存后把实体状态重置为 Unchanged。
+            //传 false 时状态会停留在 Added/Modified，同一个 DbContext 再次 SaveChanges 会把已插入的实体重复 INSERT（主键冲突）。
+            //这里与改造前 base.SaveChanges() 的行为保持一致。
+            return Context.SaveChangesAsync(true, cancellationToken);
         }
 
         /// <summary>

@@ -94,6 +94,8 @@ namespace Web.Extension
             //注册全局过滤器
             services.AddMvc(config =>
             {
+                //数据权限预热：必须排在最前，保证后续仓储查询直接读请求缓存，而不是同步等待数据库
+                config.Filters.Add(typeof(DataPermissionWarmupFilter));
                 config.Filters.Add(new ResultFilter());
                 //添加过滤器
                 config.Filters.Add(typeof(HttpLogFilter));

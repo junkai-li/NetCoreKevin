@@ -130,6 +130,22 @@ namespace Web.Filters
             // 换成内部 JWT 后整条管线按该用户身份运作——这是本过滤器存在的全部意义
             http.Request.Headers["Authorization"] = "Bearer " + token;
 
+            //身份刚刚被重写，这里补一次数据权限预热：
+            //全局的 DataPermissionWarmupFilter 在本过滤器之前执行，那时还没有用户身份；
+            //不补的话下游仓储查询会走同步兜底分支阻塞线程
+            try
+            {
+                var currentUser = http.RequestServices.GetService<Web.Global.User.ICurrentUser>();
+                if (currentUser != null && currentUser.UserId > 0)
+                {
+                    await currentUser.GetModuleDataPermissionsUserIds();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.logger.Error($"OpenAI兼容接口数据权限预热失败：{ex.Message}", ex);
+            }
+
             // 命中即异步更新最近使用时间（不阻塞请求本身，失败仅记日志）
             // 必须用独立的 IServiceScopeFactory 拿一份新作用域里的 DbContext：
             // 这里的 keyRp 属于当前请求作用域，请求结束 DbContext 会被释放，

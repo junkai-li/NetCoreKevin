@@ -47,18 +47,38 @@ namespace kevin.Application
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
+        /// <summary>
+        /// 请求级权限缓存：同一次请求内鉴权、数据权限、业务代码共用同一份权限字典，
+        /// 避免一次请求里把 权限表/用户角色/角色权限 查多遍
+        /// </summary>
+        private sealed class UserPermissionCache
+        {
+            public string UserId { get; set; } = "";
+            public Dictionary<string, bool> Permissions { get; set; } = new();
+        }
+
+        private const string UserPermissionCacheKey = "Kevin_UserPermissions";
+
         public Dictionary<string, bool> GetUserPermissions(string userId)
         {
             if (string.IsNullOrEmpty(userId))
             {
                 return new();
             }
+
+            var cached = RequestCache.Get<UserPermissionCache>(HttpContextAccessor, UserPermissionCacheKey);
+            if (cached != null && cached.UserId == userId)
+            {
+                return cached.Permissions;
+            }
+
             using (var db = new KevinDbContext())
             {
                 var permList = GetAllPermissionIds();
                 var allRoleIds = GetUserRoleIds(userId);
                 var permissions = GetRolePermissions(allRoleIds);
                 var result = permList.ToDictionary(x => x, x => { return permissions.Contains(x); });
+                RequestCache.Set(HttpContextAccessor, UserPermissionCacheKey, new UserPermissionCache { UserId = userId, Permissions = result });
                 return result;
             }
         }

@@ -480,7 +480,7 @@ namespace Repository.Database
             }
 
             #endregion
-            return Task.FromResult(base.SaveChanges());
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
 
         /// <summary>

@@ -1035,6 +1035,19 @@
             </summary> 
             <returns></returns>
         </member>
+        <member name="T:Kevin.Web.Filters.DataPermissionWarmupFilter">
+            <summary>
+            数据权限预热过滤器。
+            仓储在构造查询表达式时是同步的（Expression 内无法 await），
+            这里先把「当前用户可查看的数据范围」异步算好放进请求级缓存，
+            后续 Query/FirstOrDefault/Any 直接读缓存，不再用 .Result 阻塞线程池线程。
+            </summary>
+        </member>
+        <member name="T:Kevin.Web.Filters.HttpLogFilter">
+            <summary>
+            请求日志过滤器（异步写入，不阻塞线程池线程）
+            </summary>
+        </member>
         <member name="T:Kevin.Web.Filters.TransactionScope.Attribute.TransactionalAttribute">
              <summary>
             启动事务
@@ -1063,7 +1076,7 @@
         </member>
         <member name="T:Web.Filters.CacheDataFilter`1">
             <summary>
-            缓存过滤器
+            缓存过滤器：Key 按「租户 + (可选)用户」隔离，未命中时用分布式锁防止缓存击穿
             </summary>
         </member>
         <member name="P:Web.Filters.CacheDataFilter`1.TTL">
@@ -1073,7 +1086,7 @@
         </member>
         <member name="P:Web.Filters.CacheDataFilter`1.UseToken">
             <summary>
-            是否使用 Token
+            是否按用户维度缓存（开启后 Key 追加当前登录用户 Id，不开启则同租户内共享）
             </summary>
         </member>
         <member name="P:Web.Filters.CacheDataFilter`1.UseBody">
@@ -1081,14 +1094,33 @@
             是否使用 Body
             </summary>
         </member>
-        <member name="F:Web.Filters.CacheDataFilter`1.CacheKeyItemName">
+        <member name="P:Web.Filters.CacheDataFilter`1.LockWaitMilliseconds">
             <summary>
-            存储在 HttpContext.Items 中的缓存键名称
+            缓存未命中时等待其他请求回填缓存的最长时间（毫秒）；小于等于 0 表示不等待（关闭防击穿）
             </summary>
         </member>
-        <member name="M:Web.Filters.CacheDataFilter`1.ComputeCacheKey(Microsoft.AspNetCore.Mvc.ActionContext)">
+        <member name="M:Web.Filters.CacheDataFilter`1.TryReadCache(kevin.Cache.Service.ICacheService,System.String,Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext)">
             <summary>
-            计算缓存键并存储到 HttpContext.Items 中，避免重复计算
+            读取缓存，命中时直接短路 Action
+            </summary>
+        </member>
+        <member name="M:Web.Filters.CacheDataFilter`1.TryAcquireLockAsync(Microsoft.AspNetCore.Mvc.ActionContext,System.String)">
+            <summary>
+            尝试获取分布式锁；未配置 Redis 或等待超时时返回 null，降级为不加锁
+            </summary>
+        </member>
+        <member name="M:Web.Filters.CacheDataFilter`1.BuildCacheKey(Microsoft.AspNetCore.Mvc.ActionContext)">
+            <summary>
+            生成缓存 Key：{租户Id}_{用户Id}_{Action}_{QueryString}_{Body}
+            1.租户 Id 始终参与计算，保证同接口不同租户之间不串数据；
+            2.UseToken 为 true 时追加当前登录用户 Id，保证同租户不同用户之间不串数据；
+            3.取 Claim 而不是 Authorization 原文，Token 续签/刷新后 Key 不变，缓存仍能命中；
+            4.取不到身份信息时返回 null，调用方跳过缓存，避免把个人数据写给其他请求。
+            </summary>
+        </member>
+        <member name="M:Web.Filters.CacheDataFilter`1.ReadRequestBody(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            读取请求 Body（依赖 Program 中开启的 EnableBuffering）
             </summary>
         </member>
         <member name="T:Web.Filters.OpenAICompatibleSetting">

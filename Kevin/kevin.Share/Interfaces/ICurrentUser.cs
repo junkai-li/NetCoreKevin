@@ -32,6 +32,12 @@ namespace Web.Global.User
         /// </summary>
         Task<List<long>> GetModuleDataPermissionsUserIds();
 
+        /// <summary>
+        /// 同步获取用户可查看数据范围（供仓储构造查询表达式使用）
+        /// 正常情况值已被预热，只读请求缓存不阻塞线程
+        /// </summary>
+        List<long> GetModuleDataPermissionsUserIdsSync();
+
         List<long>? RoleIds { get; }
 
     }
