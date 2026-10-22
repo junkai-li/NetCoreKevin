@@ -12,6 +12,10 @@ namespace kevin.AI.AgentFramework.TextLimits
     /// 入库类上限来自 <see cref="AIChatStorageSetting"/>（appsettings 的 AIChatStorageSetting 节，可热更新）；
     /// 其余是提示词、展示与工具结果的固定上限。
     /// </para>
+    /// <para>
+    /// 截断方法的长度语义：<see cref="AppendWithCap"/>、<see cref="ShrinkForDb"/> 把说明文字计入额度，返回值总长 ≤ maxChars；
+    /// <see cref="Truncate"/>、<see cref="TruncateToolResult"/> 是在 maxChars 之后再追加截断提示，返回值可能略超 maxChars。
+    /// </para>
     /// </summary>
     public static class CharLimits
     {

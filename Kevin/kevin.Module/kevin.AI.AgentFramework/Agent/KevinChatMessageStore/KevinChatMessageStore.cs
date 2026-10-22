@@ -1,4 +1,3 @@
-using Common;
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.Interfaces;
@@ -275,30 +274,36 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         };
 
         /// <summary>
-        /// 将任意内容转成参与预算计算的文本：字符串直接用原文，JsonElement 取原始文本，其他类型按不转义的序列化结果计量
+        /// 将任意内容转成参与预算计算的文本：字符串直接用原文，JsonElement 统一按不转义的方式重写，其他类型同理
         /// </summary>
         private static string SerializeSizeText(object? value)
         {
             if (value == null) return "";
             if (value is string s) return s;
-            // 历史回放读回的工具结果是 JsonElement：字符串取原文，对象/数组取原始 JSON，
-            // 不能再序列化一次（会多包一层引号，并把中文转义成 \uXXXX）
+            // 历史回放读回的工具结果是 JsonElement：字符串取原文；对象/数组必须重写一遍而不是 GetRawText()，
+            // 因为 GetRawText() 返回的是库里的原始片段，中文仍是 \uXXXX（1 个汉字 6 个字符），会让估算翻数倍。
+            // 字符串分支单独处理是为了避免多包一层引号；JsonElement 重写时走 SizeJsonOptions 的 Encoder，中文不会被转义。
             if (value is JsonElement element)
             {
                 return element.ValueKind switch
                 {
                     JsonValueKind.String => element.GetString() ?? "",
                     JsonValueKind.Null or JsonValueKind.Undefined => "",
-                    _ => element.GetRawText(),
+                    _ => TrySerialize(element),
                 };
             }
+            return TrySerialize(value);
+        }
+
+        private static string TrySerialize(object? value)
+        {
             try
             {
                 return JsonSerializer.Serialize(value, SizeJsonOptions);
             }
             catch
             {
-                return value.ToString() ?? "";
+                return value?.ToString() ?? "";
             }
         }
 
