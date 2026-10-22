@@ -1,4 +1,5 @@
 ﻿using kevin.AI.AgentFramework.Dto;
+using kevin.AI.AgentFramework.TextLimits;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
@@ -32,10 +33,9 @@ namespace kevin.Application.Services.AI
         public async Task<bool> AddEdit(TAIChatHistorysBindLog data)
         {
             // 单条日志封顶：系统提示词、知识库检索、联网搜索结果都直接来源于超长上下文，不封顶会让整个对话请求写入失败
-            var logLimit = AIChatStorageSetting.Current.BindLogContentMaxLength;
-            if (data.LogContent != null && data.LogContent.Length > logLimit)
+            if (data.LogContent != null)
             {
-                data.LogContent = data.LogContent.Substring(0, logLimit) + $"\n（日志已达 {logLimit} 字符入库上限，后续部分未入库）";
+                data.LogContent = CharLimits.ShrinkForDb(data.LogContent, CharLimits.BindLogContent);
             }
             var isAdd = data.Id == default;
             if (!isAdd)

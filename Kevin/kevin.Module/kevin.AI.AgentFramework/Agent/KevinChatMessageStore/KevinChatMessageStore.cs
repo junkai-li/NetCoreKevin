@@ -2,9 +2,11 @@ using Common;
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.Interfaces;
+using kevin.AI.AgentFramework.TextLimits;
 using kevin.AI.AgentFramework.TokenEstimation;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 
 namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
@@ -34,19 +36,9 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         /// </summary>
         public bool ReadOnlyHistory { get; set; } = false;
         /// <summary>
-        /// 入库副本的兜底上限（字符）：ContentLengthLimit 配为 0 的含义是“发给模型时不截断”，
-        /// 但历史入库不能因此完全不封顶：一条几 MB 的工具结果会把那行 INSERT 撑过 max_allowed_packet（默认 4MB），
-        /// 并在后续每一轮重复全量计入模型输入。当轮交给模型的内容不受这里影响。
-        /// </summary>
-        private const int StoreResultHardLimit = 200000;
-        /// <summary>
         /// 入库副本实际采用的工具结果上限
         /// </summary>
-        private int StoreResultLengthLimit => ToolResultLengthLimit > 0 ? ToolResultLengthLimit : StoreResultHardLimit;
-        /// <summary>
-        /// 单条二进制内容（图片/文件）的粗估输入开销（Token，不按字符折算）：真实 token 数由模型的分块策略决定，这里取一个与体积无关的保守固定值参与预算计算
-        /// </summary>
-        private const int BinaryContentEstimatedSize = 1000;
+        private int StoreResultLengthLimit => ToolResultLengthLimit > 0 ? ToolResultLengthLimit : CharLimits.ToolResultStoreFallback;
 
         public KevinChatMessageStore(
               IKevinAIChatMessageStore vectorStore,
@@ -241,7 +233,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         public static int EstimateMessageSize(ChatMessage? message, int storeResultLengthLimit = 0)
         {
             if (message?.Contents == null) return 0;
-            var resultLimit = storeResultLengthLimit > 0 ? storeResultLengthLimit : StoreResultHardLimit;
+            var resultLimit = storeResultLengthLimit > 0 ? storeResultLengthLimit : CharLimits.ToolResultStoreFallback;
             // 字符类内容先累计字符数，最后统一折算 Token；二进制内容按固定 Token 开销单独累加
             var charSize = 0;
             var fixedTokens = 0;
@@ -261,7 +253,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
                         charSize += Math.Min(SerializeSizeText(result.Result).Length, resultLimit);
                         break;
                     case DataContent or UriContent:
-                        fixedTokens += BinaryContentEstimatedSize;
+                        fixedTokens += TokenEstimator.BinaryContentTokens;
                         break;
                     default:
                         charSize += SerializeSize(content);
@@ -272,15 +264,37 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         }
 
         /// <summary>
-        /// 将任意内容转成参与预算计算的文本：字符串直接用长度，其他类型序列化后取长度
+        /// 估算/截断专用的序列化选项：只关心体积，必须关闭中文转义。
+        /// 默认编码器会把每个非 ASCII 字符写成 \uXXXX（1 个汉字变 6 个字符），
+        /// JSON 工具结果会被放大数倍，导致上下文用量虚高、压缩提前触发、历史被过度裁剪。
+        /// </summary>
+        private static readonly JsonSerializerOptions SizeJsonOptions = new()
+        {
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            WriteIndented = false,
+        };
+
+        /// <summary>
+        /// 将任意内容转成参与预算计算的文本：字符串直接用原文，JsonElement 取原始文本，其他类型按不转义的序列化结果计量
         /// </summary>
         private static string SerializeSizeText(object? value)
         {
             if (value == null) return "";
             if (value is string s) return s;
+            // 历史回放读回的工具结果是 JsonElement：字符串取原文，对象/数组取原始 JSON，
+            // 不能再序列化一次（会多包一层引号，并把中文转义成 \uXXXX）
+            if (value is JsonElement element)
+            {
+                return element.ValueKind switch
+                {
+                    JsonValueKind.String => element.GetString() ?? "",
+                    JsonValueKind.Null or JsonValueKind.Undefined => "",
+                    _ => element.GetRawText(),
+                };
+            }
             try
             {
-                return JsonSerializer.Serialize(value);
+                return JsonSerializer.Serialize(value, SizeJsonOptions);
             }
             catch
             {
@@ -316,7 +330,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
             foreach (var (index, result, text) in oversize)
             {
                 contents[index] = new FunctionResultContent(result.CallId,
-                    SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, limit));
+                    SystemPrompt.ContentLimitPromptText + CharLimits.Truncate(text, limit));
             }
             return new ChatMessage(message.Role, contents)
             {

@@ -6,6 +6,7 @@ using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Interfaces.Safety;
 using kevin.AI.AgentFramework.Modality;
+using kevin.AI.AgentFramework.TextLimits;
 using kevin.AI.AgentFramework.TokenEstimation;
 using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Entities.AI;
@@ -142,9 +143,8 @@ namespace kevin.Application.Services.AI
                 : null;
             if (aiModel != default && aiModel.MaxAskPromptSize > 0)
             {
-                var budget = aiModel.MaxAskPromptSize - aiModel.AnswerTokens;
-                // 与 AIAppsService.GetAskTokenBudget 一致：预算≤0 时按提问上限的 60% 兜底，0 在裁剪逻辑里代表“不限制”
-                result.MaxTokens = budget > 0 ? budget : (int)(aiModel.MaxAskPromptSize * 0.6);
+                // 与压缩触发、历史裁剪共用同一预算口径（展示口径不含系统提示词，只统计历史与摘要）
+                result.MaxTokens = TokenEstimator.ResolveAskBudget(aiModel.MaxAskPromptSize, aiModel.AnswerTokens);
             }
             var threadId = aIChatsId.ToString();
             // 只统计未被压缩的历史：已压缩消息已由摘要替代，再计入会重复
@@ -171,40 +171,6 @@ namespace kevin.Application.Services.AI
             result.LastInputTokens = (int)(lastInput ?? 0);
             return result;
         }
-
-        /// <summary>
-        /// 向累计日志追加文本：达到上限后不再追加（首次触顶时补一句说明）。
-        /// <para>
-        /// 字段虽然是 longtext，但单行 INSERT 的参数总量超过 MySQL max_allowed_packet（默认 4MB）就会以
-        /// DbUpdateException（Error submitting 4MB packet）失败并中断整个对话请求；中文按 3 字节/字估算，
-        /// 默认把回答 + 工具日志 + 思考日志合计控制在约 85 万字符（≤2.6MB）以内，留出协议开销余量
-        /// （各项上限可在 appsettings 的 AIChatStorageSetting 节调整）。
-        /// </para>
-        /// </summary>
-        private static string AppendWithCap(string? current, string msg, int maxLength)
-        {
-            current ??= "";
-            if (string.IsNullOrEmpty(msg)) return current;
-            if (current.Length >= maxLength) return current;
-            var room = maxLength - current.Length;
-            if (msg.Length <= room) return current + msg;
-            // 截断说明也要占额度，否则封顶后的实际长度反而超过 maxLength
-            var note = $"\n（日志已达 {maxLength} 字符入库上限，后续内容不再记录）";
-            return current + msg.Substring(0, Math.Max(0, room - note.Length)) + note;
-        }
-
-        /// <summary>
-        /// 入库前按上限截断（不超限时原样返回），只用于兜住单行 INSERT 体积
-        /// </summary>
-        private static string ShrinkForDb(string? text, int maxLength)
-        {
-            if (string.IsNullOrEmpty(text)) return "";
-            if (maxLength <= 0 || text.Length <= maxLength) return text;
-            // 同样把说明文字自身计入额度，保证返回值总长不超过 maxLength
-            var note = $"\n（内容已达 {maxLength} 字符入库上限，后续部分未入库）";
-            return text.Substring(0, Math.Max(0, maxLength - note.Length)) + note;
-        }
-
 
         /// <summary>
         /// 新建聊天（默认输出通道）：流式分片经 SignalR 按提问记录 Id 推送给前端。
@@ -337,7 +303,7 @@ namespace kevin.Application.Services.AI
             // 提问内容长度守卫：整行 INSERT 受 MySQL max_allowed_packet（默认 4MB）限制，过长提问会在写入用户消息时直接整请求失败，
             // 这里提前拦下给出可读提示，而不是静默截断用户原文（上限取自 AIChatStorageSetting）
             var askLength = par.Content?.Length ?? 0;
-            var askLimit = AIChatStorageSetting.Current.AskContentMaxLength;
+            var askLimit = CharLimits.AskContent;
             if (askLength > askLimit)
             {
                 throw new UserFriendlyException($"单条消息内容过长（{askLength} 字符，上限 {askLimit} 字符），请精简或分批发送。");
@@ -442,7 +408,7 @@ namespace kevin.Application.Services.AI
                     var http = new HttpClientFunction(aIAgentService, _serviceProvider);
                     var webseoData = await http.GetSeoAsync(add.Content, aIModels.EndPoint, aIModels.ModelName, aIModels.ModelKey);
                     await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = webseoData, LogType = AIChatHistorysBindLogEnums.WebSeo });
-                    OtherContents.Add(StringHelper.SubstringText(webseoData, aiapp.ContentLengthLimit));
+                    OtherContents.Add(CharLimits.Truncate(webseoData, aiapp.ContentLengthLimit));
                 }
                 #endregion
 
@@ -514,8 +480,8 @@ namespace kevin.Application.Services.AI
                             {
                                 // 单条事件按智能体内容长度上限截断后累加，同时整个字段封顶：
                                 // 一次几十万字的工具输出不能把整行记录撑到 MySQL 无法写入
-                                var toolLog = StringHelper.SubstringText(msg, aiapp.ContentLengthLimit);
-                                addAi.AIToolsContent = AppendWithCap(addAi.AIToolsContent, toolLog, AIChatStorageSetting.Current.ToolsLogMaxLength);
+                                var toolLog = CharLimits.Truncate(msg, aiapp.ContentLengthLimit);
+                                addAi.AIToolsContent = CharLimits.AppendWithCap(addAi.AIToolsContent, toolLog, CharLimits.ToolsLog);
                                 if (aiapp.IsToolLog)
                                 {
                                     await output.WriteAsync("aIToolsContentMsg", toolLog);
@@ -523,8 +489,8 @@ namespace kevin.Application.Services.AI
                             },
                             ReasoningStreameCallback = async (msg) =>
                             {
-                                var reasoningLog = StringHelper.SubstringText(msg, aiapp.ContentLengthLimit);
-                                addAi.AIReasoningContent = AppendWithCap(addAi.AIReasoningContent, reasoningLog, AIChatStorageSetting.Current.ReasoningLogMaxLength);
+                                var reasoningLog = CharLimits.Truncate(msg, aiapp.ContentLengthLimit);
+                                addAi.AIReasoningContent = CharLimits.AppendWithCap(addAi.AIReasoningContent, reasoningLog, CharLimits.ReasoningLog);
                                 if (aiapp.IsThinkingLog)
                                 {
                                     await output.WriteAsync("aIReasoningContentMsg", reasoningLog);
@@ -545,7 +511,7 @@ namespace kevin.Application.Services.AI
                         {
                             throw new UserFriendlyException($"AI输出内容非法：{reslutAiCheck.Item2?.SafetyMessage}");
                         }
-                        addAi.Content = ShrinkForDb(reslut.Item2, AIChatStorageSetting.Current.AnswerContentMaxLength);
+                        addAi.Content = CharLimits.ShrinkForDb(reslut.Item2, CharLimits.AnswerContent);
                         if (reslut.Item3 != default)
                         {
                             addAi.CachedInputTokenCount = reslut.Item3.CachedInputTokenCount;
@@ -662,11 +628,6 @@ namespace kevin.Application.Services.AI
         private const string SendInterruptedReason = "发送中断：未收到模型回复，可点击重试";
 
         /// <summary>
-        /// 失败原因入库长度上限：诊断文本不需要 longtext 的完整体积，也要给整行 INSERT 留出余量
-        /// </summary>
-        private const int FailReasonMaxLength = 2000;
-
-        /// <summary>
         /// 设置一轮问答（提问行 + 回复行）的发送状态：两条保持一致，前端在哪一条上展示报错和重试入口都能对上
         /// </summary>
         private static void SetSendStatus(TAIChatHistorys add, TAIChatHistorys addAi, bool isFail, string? failReason)
@@ -700,7 +661,7 @@ namespace kevin.Application.Services.AI
             {
                 detail += $"｜已是第 {retryCount + 1} 次发送";
             }
-            return StringHelper.SubstringText(detail, FailReasonMaxLength, "...");
+            return CharLimits.Truncate(detail, CharLimits.FailReason, "...");
         }
 
         /// <summary>
@@ -858,7 +819,7 @@ namespace kevin.Application.Services.AI
                     LogContent = fileContents.ToString(),
                     LogType = AIChatHistorysBindLogEnums.FileContent
                 });
-                extractedTexts.Add(StringHelper.SubstringText(fileContents.ToString(), aiapp.ContentLengthLimit));
+                extractedTexts.Add(CharLimits.Truncate(fileContents.ToString(), aiapp.ContentLengthLimit));
             }
             return new FileHandleResult(extractedTexts, mediaContents, mediaCount);
         }
@@ -951,7 +912,8 @@ namespace kevin.Application.Services.AI
             {
                 return contents;
             }
-            var budget = maxAskPromptSize - TokenEstimator.EstimateTokens(systemPrompt) - TokenEstimator.EstimateTokens(userContent) - answerTokens;
+            // 这里要的是原始差值：放不下就不放，不能走 60% 兜底（那会继续往已经超限的上下文里塞内容）
+            var budget = TokenEstimator.ComputeAskBudget(maxAskPromptSize, answerTokens, systemPrompt) - TokenEstimator.EstimateTokens(userContent);
             foreach (var content in contents)
             {
                 if (string.IsNullOrEmpty(content) || budget <= 0)
@@ -966,9 +928,9 @@ namespace kevin.Application.Services.AI
                 }
                 else
                 {
-                    // 当前段放不下时截断保留，复用 SubstringText 追加“已截断”提示，
+                    // 当前段放不下时截断保留，由 CharLimits 统一追加“已截断”提示，
                     // 避免模型把半截内容当成全文；后续内容不再纳入，避免半截上下文干扰模型
-                    result.Add(StringHelper.SubstringText(content, TokenEstimator.ToCharCount(budget)));
+                    result.Add(CharLimits.Truncate(content, TokenEstimator.ToCharCount(budget)));
                     break;
                 }
             }
@@ -1033,7 +995,7 @@ namespace kevin.Application.Services.AI
               .Append("1. 每个问题不超过 30 字，是围绕该主题的延伸追问，彼此不重复；\n")
               .Append("2. 不要复述原问题，不要写成对回答的评价；\n")
               .Append("3. 只输出一个 JSON 字符串数组，不要任何解释、markdown 代码块或其他文字。\n\n")
-              .Append("【用户问题】\n").Append(StringHelper.SubstringText(ask, 500)).Append("\n\n")
+              .Append("【用户问题】\n").Append(CharLimits.Truncate(ask, CharLimits.RecommendQuestionAsk)).Append("\n\n")
               .Append("示例输出：[\"问题一\", \"问题二\", \"问题三\"]");
             return sb.ToString();
         }
@@ -1131,12 +1093,8 @@ namespace kevin.Application.Services.AI
             //获取是否自动压缩
             if (!string.IsNullOrEmpty(thread_id) && aiapp.IsAIMessageCompaction)
             {
-                // 可用提问预算：提问上限 − 回答预留（调用方可传入 systemPrompt 进一步扣减；未传时略高估，
-                // 压缩会略晚触发，回放侧还有 Token 裁剪兜底）；差值≤0 时与 GetAskTokenBudget 一致退化到提问上限的60%
-                var rawBudget = aIModels.MaxAskPromptSize - aIModels.AnswerTokens - TokenEstimator.EstimateTokens(systemPrompt);
-                var askBudget = aIModels.MaxAskPromptSize > 0
-                    ? (rawBudget > 0 ? rawBudget : (int)(aIModels.MaxAskPromptSize * 0.6))
-                    : 0;
+                // 可用提问预算：提问上限 − 回答预留 − 系统提示词，≤0 时统一兜底为提问上限的60%
+                var askBudget = TokenEstimator.ResolveAskBudget(aIModels.MaxAskPromptSize, aIModels.AnswerTokens, systemPrompt);
                 if (askBudget <= 0)
                 {
                     // 模型不限制提问长度，无需压缩
@@ -1312,12 +1270,13 @@ namespace kevin.Application.Services.AI
             try
             {
                 var message = JsonSerializer.Deserialize<ChatMessage>(serializedMessage);
-                if (message == null) return serializedMessage.Length;
+                if (message == null) return TokenEstimator.EstimateTokens(serializedMessage);
                 return KevinChatMessageStore.EstimateMessageSize(message, toolResultLengthLimit);
             }
             catch
             {
-                return serializedMessage.Length;
+                // 反序列化失败时仍按统一口径折算，不用串本身的长度（那是转义后的体积，会虚高）
+                return TokenEstimator.EstimateTokens(serializedMessage);
             }
         }
 

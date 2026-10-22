@@ -3,6 +3,7 @@ using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Interfaces.Tools;
 using kevin.AI.AgentFramework.ScriptRunners;
+using kevin.AI.AgentFramework.TextLimits;
 using Kevin.Common.Helper;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -69,12 +70,8 @@ namespace kevin.AI.AgentFramework.Tools
                         var blockedList = string.Join("; ", validationResult.BlockedItems);
                         return $"❌ 安全校验失败: {blockedList}";
                     }
-                }
-
-                Console.WriteLine();
-                Console.WriteLine($"🔧 正在执行Py代码");
-                tempScriptPath = CreateTempScript(code);
-                Console.WriteLine($"🔧 正在执行Py脚本: {tempScriptPath}");
+                } 
+                tempScriptPath = CreateTempScript(code); 
 
                 var timeout = ResolveTimeout(seconds);
                 // 解释器选择、UTF-8 对齐、超时与进程树回收统一走 ScriptProcessRunner，
@@ -109,9 +106,7 @@ namespace kevin.AI.AgentFramework.Tools
                 var contentLimit = _aIShareInfoService.GetData()?.ContentLengthLimit ?? 0;
                 // 只有真的截断时才拼截断提示语：ContentLengthLimit 配成 0 时旧实现会把整段输出
                 // 换成一句提示词，模型看到的是“数据量过大无法展示”，而实际一个字都没截
-                var body = contentLimit > 0 && output.Length > contentLimit
-                    ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(output, contentLimit)
-                    : output;
+                var body = CharLimits.TruncateToolResult(output, contentLimit);
                 return $"执行结果如下：\n{body}";
             }
             catch (Exception ex)
@@ -204,8 +199,7 @@ namespace kevin.AI.AgentFramework.Tools
                 }
             }
             catch (Exception ex)
-            {
-                Console.WriteLine($"⚠️ 临时脚本清理失败：{tempScriptPath}，{ex.Message}");
+            { 
             }
         }
 
@@ -243,8 +237,7 @@ namespace kevin.AI.AgentFramework.Tools
                 string fullPath = Path.Combine(fullDir, fileName);
 
                 // 以 UTF-8 无 BOM 保存，保证跨平台兼容且 Python 能正确识别
-                File.WriteAllText(fullPath, code, new UTF8Encoding(false));
-                Console.WriteLine($"🔧 Python脚本已保存到: {fullPath}");
+                File.WriteAllText(fullPath, code, new UTF8Encoding(false)); 
                 return Task.FromResult(fullPath);
             }
             catch (Exception ex)

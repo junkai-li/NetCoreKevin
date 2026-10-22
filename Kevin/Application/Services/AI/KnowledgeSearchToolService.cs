@@ -1,4 +1,5 @@
 using Common;
+using kevin.AI.AgentFramework.TextLimits;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
@@ -125,7 +126,7 @@ namespace kevin.Application.Services.AI
                     {
                         return "❌ 知识库中未找到与该检索内容相关的文档，可换个检索词重试或如实告知用户知识库暂无相关资料";
                     }
-                    return StringHelper.SubstringText($"知识库「{_collectionName}」检索到 {result.Item3.Count} 个相关文档：{result.Item2}", _contentLengthLimit);
+                    return CharLimits.Truncate($"知识库「{_collectionName}」检索到 {result.Item3.Count} 个相关文档：{result.Item2}", _contentLengthLimit);
                 }
                 catch (Exception ex)
                 {

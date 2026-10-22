@@ -4,6 +4,7 @@ using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.ImageGeneration;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.ScriptRunners;
+using kevin.AI.AgentFramework.TextLimits;
 using kevin.AI.AgentFramework.TokenEstimation;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
@@ -417,18 +418,13 @@ namespace kevin.Application.Services.AI
         }
 
         /// <summary>
-        /// 计算历史消息的提问Token预算 = 提问Token上限 - 系统提示词 - 预留回答Token。
-        /// <para>
-        /// 算出 ≤0（说明模型配置的提问Token本就放不下提示词与回答预留）时退化为提问Token上限的 60%：
-        /// 不能直接返回 0，因为 0 在 KevinChatMessageStore 里的语义是“不限制”，那会把历史裁剪整体关掉，最经不起的就是长会话。
-        /// 模型未配置提问Token（上限 ≤0）时仍返回 0，表示没有预算依据、不裁剪。
-        /// </para>
+        /// 压缩摘要的字符上限：可用提问预算的 1/5（摘要也占 systemPrompt 预算），最少 2000 字符；
+        /// 模型未配置提问预算时给 20000（仅作兜底，不代表真实预算）。
         /// </summary>
-        private static int GetAskTokenBudget(int maxAskPromptSize, int answerTokens, string? systemPrompt)
+        private static int GetCompactionMaxLength(int maxAskPromptSize, int answerTokens, string? systemPrompt)
         {
-            if (maxAskPromptSize <= 0) return 0;
-            var budget = maxAskPromptSize - TokenEstimator.EstimateTokens(systemPrompt) - answerTokens;
-            return budget > 0 ? budget : (int)(maxAskPromptSize * 0.6);
+            var promptBudget = TokenEstimator.ResolveAskBudget(maxAskPromptSize, answerTokens, systemPrompt);
+            return promptBudget > 0 ? Math.Max(CharLimits.CompactionSummaryMin, TokenEstimator.ToCharCount(promptBudget / 5)) : CharLimits.CompactionSummaryNoBudget;
         }
         /// <summary>
         /// 获取ai应用配置
@@ -482,12 +478,11 @@ namespace kevin.Application.Services.AI
             if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
             {
                 // 摘要也占 systemPrompt 预算：先按不含摘要的提示词估算可用预算，摘要最多占其中的 1/5
-                var promptBudget = GetAskTokenBudget(aiModel.MaxAskPromptSize, aiModel.AnswerTokens, systemPrompt);
-                var compactionMaxLength = promptBudget > 0 ? Math.Max(2000, TokenEstimator.ToCharCount(promptBudget / 5)) : 20000;
+                var compactionMaxLength = GetCompactionMaxLength(aiModel.MaxAskPromptSize, aiModel.AnswerTokens, systemPrompt);
                 systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString(), compactionMaxLength);
             }
             #endregion
-            var historyProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, GetAskTokenBudget(aiModel.MaxAskPromptSize, aiModel.AnswerTokens, systemPrompt), aiapp.ContentLengthLimit)
+            var historyProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, TokenEstimator.ResolveAskBudget(aiModel.MaxAskPromptSize, aiModel.AnswerTokens, systemPrompt), aiapp.ContentLengthLimit)
             {
                 ReadOnlyHistory = readOnlyHistory
             };
@@ -652,8 +647,7 @@ namespace kevin.Application.Services.AI
             if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
             {
                 // 摘要也占 systemPrompt 预算：先按不含摘要的提示词估算可用预算，摘要最多占其中的 1/5
-                var promptBudget = GetAskTokenBudget(aIModels.MaxAskPromptSize, aIModels.AnswerTokens, systemPrompt);
-                var compactionMaxLength = promptBudget > 0 ? Math.Max(2000, TokenEstimator.ToCharCount(promptBudget / 5)) : 20000;
+                var compactionMaxLength = GetCompactionMaxLength(aIModels.MaxAskPromptSize, aIModels.AnswerTokens, systemPrompt);
                 systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), compactionMaxLength);
             } 
             var chatAgOs = new ChatClientAgentOptions
@@ -661,7 +655,7 @@ namespace kevin.Application.Services.AI
                 Name = aiapp.Name,
                 Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
                 ChatOptions = GetAppChatOptions(aiapp, aIModels, systemPrompt),
-                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, GetAskTokenBudget(aIModels.MaxAskPromptSize, aIModels.AnswerTokens, systemPrompt), aiapp.ContentLengthLimit)
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, TokenEstimator.ResolveAskBudget(aIModels.MaxAskPromptSize, aIModels.AnswerTokens, systemPrompt), aiapp.ContentLengthLimit)
             };
             #region AI配置
             if (aiapp.IsAITools)

@@ -2,6 +2,7 @@
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Interfaces.Tools;
+using kevin.AI.AgentFramework.TextLimits;
 using Microsoft.Agents.AI.Tools.Shell;
 using System.ComponentModel;
 using System.Text;
@@ -156,8 +157,7 @@ namespace kevin.AI.AgentFramework.Tools
             {
                 // 写临时脚本失败（目录无写权限、磁盘满、被杀软/AppLocker 拦截等）时回退为直接执行。
                 // 回退会让含双引号的命令退化成旧的错误语义，必须留痕，否则线上无从判断为何失效。
-                // scriptPath 若已赋值则保留，交给调用方 finally 清掉写一半的残留文件。
-                Console.WriteLine($"⚠️ 临时脚本写入失败，已回退为直接执行（双引号命令可能解析异常）：{ex.Message}");
+                // scriptPath 若已赋值则保留，交给调用方 finally 清掉写一半的残留文件。 
                 return command;
             }
         }
@@ -228,7 +228,8 @@ namespace kevin.AI.AgentFramework.Tools
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"⚠️ 临时脚本清理失败：{scriptPath}，{ex.Message}");
+              
+                // Console.WriteLine($"⚠️ 临时脚本清理失败：{scriptPath}，{ex.Message}");
             }
         }
 
@@ -253,9 +254,7 @@ namespace kevin.AI.AgentFramework.Tools
                 if (!decision.Allowed)
                 {
                     return string.IsNullOrWhiteSpace(decision.Reason) ? "❌ 安全拦截：命令已被安全策略阻止。" : decision.Reason!;
-                }
-
-                Console.WriteLine($"🔧 正在执行 Shell 命令：{command}");
+                } 
 
                 var contentLimit = _aIShareInfoService.GetData()?.ContentLengthLimit ?? 0;
                 var timeoutSeconds = seconds > 0 ? seconds : 600;
@@ -322,9 +321,7 @@ namespace kevin.AI.AgentFramework.Tools
 
                         var output = outputBuilder.Length > 0 ? outputBuilder.ToString() : "(命令执行成功，无输出)";
                         // 真正发生截断时才追加截断提示词，避免误导模型
-                        return contentLimit > 0 && output.Length > contentLimit
-                            ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(output, contentLimit)
-                            : output;
+                        return CharLimits.TruncateToolResult(output, contentLimit);
                     }
                 }
                 finally

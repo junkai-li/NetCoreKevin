@@ -1,4 +1,5 @@
 using kevin.AI.AgentFramework.Interfaces;
+using kevin.AI.AgentFramework.TextLimits;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
@@ -36,16 +37,6 @@ namespace kevin.Application.Services.AI
         private const int FallbackMinImportance = 7;
 
         /// <summary>
-        /// 单条记忆内容的最大长度（字符），超出直接拒绝而不是截断，避免静默丢信息
-        /// </summary>
-        private const int MaxContentLength = 4000;
-
-        /// <summary>
-        /// 关键词最大长度，与实体 TAIAgentMemory.Keywords 的 MaxLength(200) 保持一致
-        /// </summary>
-        private const int MaxKeywordsLength = 200;
-
-        /// <summary>
         /// 自动召回：注入上下文的最大条数（过多会挤占 token 并引入噪声）
         /// </summary>
         private const int AutoRecallTopN = 3;
@@ -54,16 +45,6 @@ namespace kevin.Application.Services.AI
         /// 自动召回：Qdrant 相似度阈值（高于工具搜索的 0.4，宁可不召回也不注入无关记忆）
         /// </summary>
         private const float AutoRecallMinScore = 0.55f;
-
-        /// <summary>
-        /// 自动召回：参与向量化的提问最大长度，超长截断以控制 Embedding 成本
-        /// </summary>
-        private const int AutoRecallMaxQueryLength = 500;
-
-        /// <summary>
-        /// 自动召回：单条记忆注入时的最大展示长度（完整内容可在需要时用 SearchMemory 获取）
-        /// </summary>
-        private const int AutoRecallMaxContentLength = 400;
 
         /// <summary>
         /// 自动召回：去掉空白/标点后的有效字符数低于该值（“嗯”“好”“ok”）不检索，避免无意义开销。
@@ -158,9 +139,9 @@ namespace kevin.Application.Services.AI
             {
                 return "❌ 保存记忆失败：记忆内容不能为空。";
             }
-            if (content.Trim().Length > MaxContentLength)
+            if (content.Trim().Length > CharLimits.MemoryContent)
             {
-                return $"❌ 保存记忆失败：内容过长（{content.Trim().Length} 字符），请精简到 {MaxContentLength} 字符以内。";
+                return $"❌ 保存记忆失败：内容过长（{content.Trim().Length} 字符），请精简到 {CharLimits.MemoryContent} 字符以内。";
             }
             // memoryType 合法性校验（7 种：preference/fact/task/decision/pitfall/skill/other）
             if (!MemoryTypes.IsValid(memoryType))
@@ -177,9 +158,9 @@ namespace kevin.Application.Services.AI
             {
                 return "❌ 保存记忆失败：keywords 不能为空，请提供 2-5 个核心实体/概念/技术术语，英文逗号分隔。";
             }
-            if (keywords.Trim().Length > MaxKeywordsLength)
+            if (keywords.Trim().Length > CharLimits.MemoryKeywords)
             {
-                return $"❌ 保存记忆失败：keywords 过长（{keywords.Trim().Length} 字符），请精简到 {MaxKeywordsLength} 字符以内（2-5 个核心词即可）。";
+                return $"❌ 保存记忆失败：keywords 过长（{keywords.Trim().Length} 字符），请精简到 {CharLimits.MemoryKeywords} 字符以内（2-5 个核心词即可）。";
             }
             // task 是短期记忆，必须设置 expireTime；其他类型是长期记忆，禁止设置 expireTime。
             var hasExpireTime = !string.IsNullOrWhiteSpace(expireTime);
@@ -233,7 +214,7 @@ namespace kevin.Application.Services.AI
                 {
                     if (IsContentHighlySimilar(m.Content, newContentTrim))
                     {
-                        return $"⚠️ 已存在类似记忆（Id:{m.Id}, 类型:{m.MemoryType}, 重要度:{m.Importance}, 内容:{Truncate(m.Content, 80)}）。请改用 UpdateMemory 更新而非重复保存。";
+                        return $"⚠️ 已存在类似记忆（Id:{m.Id}, 类型:{m.MemoryType}, 重要度:{m.Importance}, 内容:{CharLimits.Truncate(m.Content, CharLimits.MemoryDuplicatePreview, "...")}）。请改用 UpdateMemory 更新而非重复保存。";
                     }
                 }
             }
@@ -275,15 +256,6 @@ namespace kevin.Application.Services.AI
             var prefixLen = Math.Min(30, Math.Min(e.Length, i.Length));
             if (prefixLen >= 10 && string.Equals(e.Substring(0, prefixLen), i.Substring(0, prefixLen), StringComparison.OrdinalIgnoreCase)) return true;
             return false;
-        }
-
-        /// <summary>
-        /// 截断字符串用于错误提示展示
-        /// </summary>
-        private static string Truncate(string value, int maxLen)
-        {
-            if (string.IsNullOrEmpty(value)) return value ?? "";
-            return value.Length <= maxLen ? value : value.Substring(0, maxLen) + "...";
         }
 
         /// <summary>
@@ -416,7 +388,7 @@ namespace kevin.Application.Services.AI
 
             var q = (query ?? "").Trim();
             if (!ShouldAutoRecall(q)) return "";
-            if (q.Length > AutoRecallMaxQueryLength) q = q.Substring(0, AutoRecallMaxQueryLength);
+            q = CharLimits.Truncate(q, CharLimits.AutoRecallQuery, string.Empty);
 
             List<AIQdrantMemoryHit> hits;
             try
@@ -439,7 +411,7 @@ namespace kevin.Application.Services.AI
             {
                 var h = hits[i];
                 var hitInfo = hitCounts.TryGetValue(h.Id, out var count) ? $" [已命中:{count}]" : "";
-                sb.AppendLine($"{i + 1}. [Id:{h.Id}] [类型:{h.MemoryType}] [重要度:{h.Importance}]{hitInfo} {Truncate(h.Content, AutoRecallMaxContentLength)}");
+                sb.AppendLine($"{i + 1}. [Id:{h.Id}] [类型:{h.MemoryType}] [重要度:{h.Importance}]{hitInfo} {CharLimits.Truncate(h.Content, CharLimits.AutoRecallContent, "...")}");
             }
             sb.AppendLine("使用规则：与本次任务相关的记忆必须遵守；与当前代码、配置、工具结果或用户当前指令冲突时以当前事实为准，并立即用 UpdateMemory 更正或 DeleteMemory 删除；不相关则忽略。不要向用户提及自动召回过程。");
             return sb.ToString();
@@ -559,13 +531,13 @@ namespace kevin.Application.Services.AI
             {
                 return "❌ 更新记忆失败：记忆内容不能为空。";
             }
-            if (content.Trim().Length > MaxContentLength)
+            if (content.Trim().Length > CharLimits.MemoryContent)
             {
-                return $"❌ 更新记忆失败：内容过长（{content.Trim().Length} 字符），请精简到 {MaxContentLength} 字符以内。";
+                return $"❌ 更新记忆失败：内容过长（{content.Trim().Length} 字符），请精简到 {CharLimits.MemoryContent} 字符以内。";
             }
-            if (!string.IsNullOrWhiteSpace(keywords) && keywords.Trim().Length > MaxKeywordsLength)
+            if (!string.IsNullOrWhiteSpace(keywords) && keywords.Trim().Length > CharLimits.MemoryKeywords)
             {
-                return $"❌ 更新记忆失败：keywords 过长（{keywords.Trim().Length} 字符），请精简到 {MaxKeywordsLength} 字符以内（2-5 个核心词即可）。";
+                return $"❌ 更新记忆失败：keywords 过长（{keywords.Trim().Length} 字符），请精简到 {CharLimits.MemoryKeywords} 字符以内（2-5 个核心词即可）。";
             }
             // importance：-1 表示不修改；其余按 0-10 校验
             if (importance < -1 || importance > 10)
@@ -633,13 +605,13 @@ namespace kevin.Application.Services.AI
 
         public async Task<bool> AddEdit(TAIAgentMemory data)
         {
-            if (!string.IsNullOrWhiteSpace(data.Content) && data.Content.Trim().Length > MaxContentLength)
+            if (!string.IsNullOrWhiteSpace(data.Content) && data.Content.Trim().Length > CharLimits.MemoryContent)
             {
-                throw new UserFriendlyException($"记忆内容过长，最多 {MaxContentLength} 字符");
+                throw new UserFriendlyException($"记忆内容过长，最多 {CharLimits.MemoryContent} 字符");
             }
-            if (!string.IsNullOrWhiteSpace(data.Keywords) && data.Keywords.Trim().Length > MaxKeywordsLength)
+            if (!string.IsNullOrWhiteSpace(data.Keywords) && data.Keywords.Trim().Length > CharLimits.MemoryKeywords)
             {
-                throw new UserFriendlyException($"记忆关键词过长，最多 {MaxKeywordsLength} 字符");
+                throw new UserFriendlyException($"记忆关键词过长，最多 {CharLimits.MemoryKeywords} 字符");
             }
             var isAdd = data.Id == default;
             if (!isAdd)

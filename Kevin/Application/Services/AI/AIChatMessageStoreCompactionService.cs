@@ -1,4 +1,5 @@
 ﻿using kevin.AI.AgentFramework.Interfaces;
+using kevin.AI.AgentFramework.TextLimits;
 using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
@@ -142,7 +143,7 @@ namespace kevin.Application.Services.AI
         {
             var id = (_aIShareInfoService.GetData()?.AIChatsId.ToString() ?? "");
             // 工具结果同样受上下文限制：摘要太长时只返回最近的，避免一次工具调用撑爆输入
-            return await GetThreadPrompt(id, 20000);
+            return await GetThreadPrompt(id, CharLimits.CompactionToolPrompt);
         }
     }
 }

@@ -2,6 +2,7 @@
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Interfaces.Tools;
+using kevin.AI.AgentFramework.TextLimits;
 using System.ComponentModel;
 using System.Net;
 using System.Text;
@@ -95,9 +96,7 @@ namespace kevin.AI.AgentFramework.Tools
             [Description("自定义请求头字典（可为 null），Key/Value 均为字符串")] IDictionary<string, string>? headers = null,
             [Description("请求超时（秒），最小为 1 秒,默认三十秒")] int timeoutSeconds = 30,
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default)
-        {
-            Console.WriteLine();
-            Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.GetAsync -> {url}");
+        { 
             try
             {
                 queryParams ??= new Dictionary<string, string>();
@@ -109,7 +108,7 @@ namespace kevin.AI.AgentFramework.Tools
 
                 using var resp = await http.GetAsync(fullUrl, cancellationToken).ConfigureAwait(false);
                 var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-                return text.Length > aIShareInfoService.GetData().ContentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, aIShareInfoService.GetData().ContentLengthLimit) : text;
+                return CharLimits.TruncateToolResult(text, aIShareInfoService.GetData().ContentLengthLimit);
             }
             catch (Exception ex)
             {
@@ -126,9 +125,7 @@ namespace kevin.AI.AgentFramework.Tools
             [Description("自定义请求头字典（可为 null），Key/Value 均为字符串")] IDictionary<string, string>? headers = null,
             [Description("请求超时（秒），最小为 1 秒")] int timeoutSeconds = 30,
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default)
-        {
-            Console.WriteLine();
-            Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.PostAsync -> {url}");
+        { 
             try
             {
                 body ??= "";
@@ -149,7 +146,7 @@ namespace kevin.AI.AgentFramework.Tools
 
                 using var resp = await http.PostAsync(fullUrl, content, cancellationToken).ConfigureAwait(false);
                 var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false) ?? "";
-                return text.Length > aIShareInfoService.GetData().ContentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, aIShareInfoService.GetData().ContentLengthLimit) : text;
+                return CharLimits.TruncateToolResult(text, aIShareInfoService.GetData().ContentLengthLimit);
             }
             catch (Exception ex)
             {
@@ -166,9 +163,7 @@ namespace kevin.AI.AgentFramework.Tools
             [Description("自定义请求头字典（可为 null），Key/Value 均为字符串")] IDictionary<string, string>? headers = null,
             [Description("请求超时（秒），最小为 1 秒")] int timeoutSeconds = 30,
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default)
-        {
-            Console.WriteLine();
-            Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.PutAsync -> {url}");
+        { 
             try
             {
                 body ??= "";
@@ -188,7 +183,7 @@ namespace kevin.AI.AgentFramework.Tools
 
                 using var resp = await http.PutAsync(fullUrl, content, cancellationToken).ConfigureAwait(false);
                 var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false) ?? "";
-                return text.Length > aIShareInfoService.GetData().ContentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, aIShareInfoService.GetData().ContentLengthLimit) : text;
+                return CharLimits.TruncateToolResult(text, aIShareInfoService.GetData().ContentLengthLimit);
             }
             catch (Exception ex)
             {
@@ -203,9 +198,7 @@ namespace kevin.AI.AgentFramework.Tools
             [Description("自定义请求头字典（可为 null），Key/Value 均为字符串")] IDictionary<string, string>? headers = null,
             [Description("请求超时（秒），最小为 1 秒")] int timeoutSeconds = 30,
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default)
-        {
-            Console.WriteLine();
-            Console.WriteLine($"🔧 正在调用 AgentHttpClientTools.DeleteAsync -> {url}");
+        { 
             try
             {
                 queryParams ??= new Dictionary<string, string>();
@@ -217,7 +210,7 @@ namespace kevin.AI.AgentFramework.Tools
 
                 using var resp = await http.DeleteAsync(fullUrl, cancellationToken).ConfigureAwait(false);
                 var text = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false) ?? "";
-                return text.Length > aIShareInfoService.GetData().ContentLengthLimit ? SystemPrompt.ContentLimitPromptText + StringHelper.SubstringText(text, aIShareInfoService.GetData().ContentLengthLimit) : text;
+                return CharLimits.TruncateToolResult(text, aIShareInfoService.GetData().ContentLengthLimit);
             }
             catch (Exception ex)
             {

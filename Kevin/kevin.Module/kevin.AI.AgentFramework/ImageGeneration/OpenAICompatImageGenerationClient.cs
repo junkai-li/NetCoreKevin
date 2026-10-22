@@ -1,4 +1,5 @@
 using kevin.AI.AgentFramework.Dto;
+using kevin.AI.AgentFramework.TextLimits;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -74,13 +75,13 @@ namespace kevin.AI.AgentFramework.ImageGeneration
             var body = await httpResp.Content.ReadAsStringAsync(cancellationToken);
             if (!httpResp.IsSuccessStatusCode)
             {
-                throw new InvalidOperationException($"文生图接口返回 {(int)httpResp.StatusCode}: {TruncateForLog(body)}");
+                throw new InvalidOperationException($"文生图接口返回 {(int)httpResp.StatusCode}: {CharLimits.Truncate(body, CharLimits.HttpErrorBody, "...(truncated)")}");
             }
 
             var parsed = ParseResponse(body);
             if (parsed.Images.Count == 0)
             {
-                throw new InvalidOperationException($"文生图接口返回空 data 列表: {TruncateForLog(body)}");
+                throw new InvalidOperationException($"文生图接口返回空 data 列表: {CharLimits.Truncate(body, CharLimits.HttpErrorBody, "...(truncated)")}");
             }
             return parsed;
         }
@@ -132,15 +133,6 @@ namespace kevin.AI.AgentFramework.ImageGeneration
                 }
             }
             return new ImageGenerationResult(images);
-        }
-
-        /// <summary>
-        /// 日志/异常里裁剪响应体，防止超长 HTML 错误页把日志撑爆
-        /// </summary>
-        private static string TruncateForLog(string body, int max = 500)
-        {
-            if (string.IsNullOrEmpty(body)) return "";
-            return body.Length <= max ? body : body.Substring(0, max) + "...(truncated)";
         }
 
         /// <summary>

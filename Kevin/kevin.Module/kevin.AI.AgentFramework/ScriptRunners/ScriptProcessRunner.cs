@@ -1,3 +1,4 @@
+using kevin.AI.AgentFramework.TextLimits;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -18,11 +19,6 @@ namespace kevin.AI.AgentFramework.ScriptRunners
         /// 旧实现只跟随调用方 CancellationToken，调用方不传令牌时脚本挂死即永久占用请求。
         /// </summary>
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(10);
-
-        /// <summary>
-        /// 单个输出流保留的最大字符数，超出部分丢弃并标记截断，避免刷屏脚本打爆内存。
-        /// </summary>
-        public const int MaxOutputChars = 200_000;
 
         /// <summary>
         /// 探测系统命令是否可用时的超时，避免 where/which 自身卡住拖死整次调用
@@ -365,7 +361,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
             int ExitCode,
             bool TimedOut,
             bool Canceled);
-
+        
         /// <summary>
         /// 启动进程、采集输出、超时后连同子孙进程一起回收。
         /// 不抛业务异常（启动失败仍抛），供 RunAsync 与 Python 工具等复用同一套超时/回收/编码纪律。
@@ -377,9 +373,9 @@ namespace kevin.AI.AgentFramework.ScriptRunners
         {
             var executedTimeout = timeout ?? DefaultTimeout;
             using var process = new Process { StartInfo = startInfo };
-            var output = new CappedBuffer(MaxOutputChars);
-            var error = new CappedBuffer(MaxOutputChars);
-
+            var output = new CappedBuffer(CharLimits.ScriptOutputBuffer);
+            var error = new CappedBuffer(CharLimits.ScriptOutputBuffer);
+        
             process.OutputDataReceived += (_, e) =>
             {
                 if (e.Data != null) output.Append(e.Data);
@@ -388,11 +384,11 @@ namespace kevin.AI.AgentFramework.ScriptRunners
             {
                 if (e.Data != null) error.Append(e.Data);
             };
-
+        
             // 调用方令牌与超时令牌合并：任一触发都要把进程收掉，不能只抹异常留个孤儿
             using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             timeoutCts.CancelAfter(executedTimeout);
-
+        
             try
             {
                 process.Start();
@@ -420,10 +416,10 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                 KillProcessTree(process);
                 throw;
             }
-
+        
             return new ProcessExecution(output.ToString(), error.ToString(), process.ExitCode, false, false);
         }
-
+        
         /// <summary>
         /// 启动脚本进程、按技能脚本约定解释结果。
         /// 失败一律抛异常，由调用方转成 “❌ …” 文本，保持既有对模型的返回契约不变。
@@ -436,7 +432,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
         {
             var executedTimeout = timeout ?? DefaultTimeout;
             var execution = await ExecuteAsync(startInfo, executedTimeout, cancellationToken);
-
+        
             if (execution.TimedOut || execution.Canceled)
             {
                 var reason = execution.TimedOut
@@ -444,13 +440,13 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                     : $"脚本 {scriptName} 执行被取消";
                 throw new InvalidOperationException(BuildFailureMessage(reason, null, execution));
             }
-
+        
             if (execution.ExitCode != 0)
             {
                 throw new InvalidOperationException(
                     BuildFailureMessage($"脚本 {scriptName} 执行失败", execution.ExitCode, execution));
             }
-
+        
             // 尝试解析 JSON 返回结果，不是 JSON 就按原样返回字符串
             string stdOut = execution.StdOut;
             if (string.IsNullOrWhiteSpace(stdOut))
@@ -467,7 +463,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                 return stdOut;
             }
         }
-
+        
         /// <summary>
         /// 被强杀的进程可能已不可查，读不到退出码时返回 -1 而不是抛二次异常掩盖超时原因
         /// </summary>

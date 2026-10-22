@@ -1,3 +1,4 @@
+using kevin.AI.AgentFramework.TextLimits;
 using kevin.Cache.Service;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Dtos.AI;
@@ -319,7 +320,7 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
         {
             var name = (firstUserText ?? "").Trim().ReplaceLineEndings(" ");
             if (string.IsNullOrEmpty(name)) return "API对话";
-            return name.Length <= 50 ? name : name.Substring(0, 50);
+            return name.Length <= CharLimits.OpenAISessionName ? name : name.Substring(0, CharLimits.OpenAISessionName);
         }
 
         #endregion
@@ -464,7 +465,7 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
         {
             var preview = toolResults.FirstOrDefault(t => !string.IsNullOrWhiteSpace(t.Content))?.Content ?? "";
             preview = preview.ReplaceLineEndings(" ").Trim();
-            if (preview.Length > 120) preview = preview.Substring(0, 120);
+            if (preview.Length > CharLimits.ToolTurnPlaceholderPreview) preview = preview.Substring(0, CharLimits.ToolTurnPlaceholderPreview);
             return string.IsNullOrEmpty(preview) ? "（外部工具结果回传）" : $"（外部工具结果回传）{preview}";
         }
 

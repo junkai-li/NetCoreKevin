@@ -1,4 +1,5 @@
 ﻿using kevin.AI.AgentFramework.Interfaces.Tools;
+using kevin.AI.AgentFramework.TextLimits;
 using Microsoft.Extensions.Configuration;
 using System.ComponentModel;
 using System.Net.Http.Headers;
@@ -47,9 +48,7 @@ namespace kevin.AI.AgentFramework.Tools
             var apiKey = !string.IsNullOrWhiteSpace(_setting.GlobalApiKey) ? _setting.GlobalApiKey : _setting.ApiKey;
             if (string.IsNullOrWhiteSpace(apiKey))
                 return "❌ 搜索失败: 未配置豆包搜索ApiKey（配置节点 DoubaoSearchApiSetting）";
-
-            Console.WriteLine();
-            Console.WriteLine($"🔧 正在调用 DoubaoSearchGlobalAsync，关键词：{query}");
+             
             try
             {
                 var body = new
@@ -123,8 +122,7 @@ namespace kevin.AI.AgentFramework.Tools
             if (string.IsNullOrWhiteSpace(apiKey))
                 return "❌ 搜索失败: 未配置豆包搜索ApiKey（配置节点 DoubaoSearchApiSetting）";
 
-            Console.WriteLine();
-            Console.WriteLine($"🔧 正在调用 DoubaoSearchCustomAsync，关键词：{query}");
+          
             try
             {
                 var body = new
@@ -200,7 +198,7 @@ namespace kevin.AI.AgentFramework.Tools
             using var response = await _httpClient.SendAsync(request);
             var json = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)
-                throw new HttpRequestException($"HTTP {(int)response.StatusCode}: {Truncate(json, 200)}");
+                throw new HttpRequestException($"HTTP {(int)response.StatusCode}: {CharLimits.Truncate(json, CharLimits.WebSearchErrorBody, "...")}");
             return json;
         }
 
@@ -279,7 +277,7 @@ namespace kevin.AI.AgentFramework.Tools
                 return snippet.Replace("\n", " ").Trim();
             var summary = GetStringProperty(item, "Summary");
             if (!string.IsNullOrWhiteSpace(summary))
-                return Truncate(summary.Replace("\n", " ").Trim(), 500);
+                return CharLimits.Truncate(summary.Replace("\n", " ").Trim(), CharLimits.SearchSnippetPreview, "...");
             return null;
         }
 
@@ -296,12 +294,6 @@ namespace kevin.AI.AgentFramework.Tools
             return null;
         }
 
-        private static string Truncate(string text, int maxLength)
-        {
-            if (string.IsNullOrEmpty(text))
-                return text;
-            return text.Length <= maxLength ? text : text[..maxLength] + "...";
-        }
     }
 
     /// <summary>
