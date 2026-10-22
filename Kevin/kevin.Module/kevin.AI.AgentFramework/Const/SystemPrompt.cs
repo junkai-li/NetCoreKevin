@@ -113,6 +113,12 @@
                                                     ";
 
         /// <summary>
+        /// 上传文件解析文本的固定前缀：AIFileUrlsHandle 拼装文件内容时写入。
+        /// 历史裁剪据此识别“携带文件资料的 user 消息”，避免整条被裁掉后模型在后续轮次看不到文件。
+        /// </summary>
+        public const string UploadedFileContextHeader = "用户上传文件内容：";
+
+        /// <summary>
         /// 数据内容截断提示词  # 该提示词用于指导智能体在回答用户问题时，如果内容长度超过限制，则进行截断。
         /// </summary>
         public const string ContentLimitPromptText = @"#  

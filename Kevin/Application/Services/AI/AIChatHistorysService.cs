@@ -792,7 +792,7 @@ namespace kevin.Application.Services.AI
             void EnsureHeader()
             {
                 if (headerWritten) return;
-                fileContents.AppendLine("\n用户上传文件内容：");
+                fileContents.AppendLine("\n" + SystemPrompt.UploadedFileContextHeader);
                 headerWritten = true;
             }
 

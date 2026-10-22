@@ -67,7 +67,9 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
             var messages = data.OrderByDescending(t => t.CreateTime).ToList().ConvertAll(x => JsonSerializer.Deserialize<ChatMessage>(x.SerializedMessage!)!);
             messages.Reverse();
             messages = messages.ToList();
-            // 超出提问Token预算时，从最旧的消息开始丢弃，至少保留最近一条历史
+            // 超出提问Token预算时，从最旧的消息开始丢弃，至少保留最近一条历史；
+            // 携带上传文件解析文本的 user 消息（及其之后的对话）优先保护：文件资料只存在于那一轮消息里，
+            // 被整条裁掉后模型在后续轮次就再也看不到文件内容，只能回答“没看到文件”。
             var trimmed = false;
             if (MaxAskTokenBudget > 0 && messages.Count > 1)
             {
@@ -76,6 +78,23 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
                 var sizes = messages.Select(EstimateMessageSize).ToList();
                 var totalTokens = sizes.Sum();
                 var removeCount = 0;
+                // 最旧的含文件消息作为保护起点：它及其之后的对话尽量不裁
+                var protectedFrom = messages.Count;
+                for (var i = 0; i < messages.Count; i++)
+                {
+                    if (IsUploadedFileContextMessage(messages[i]))
+                    {
+                        protectedFrom = i;
+                        break;
+                    }
+                }
+                while (totalTokens > MaxAskTokenBudget && removeCount < messages.Count - 1)
+                {
+                    if (removeCount >= protectedFrom) break; // 再删就要动到文件资料了
+                    totalTokens -= sizes[removeCount];
+                    removeCount++;
+                }
+                // 保护文件资料仍放不下（文件本身太接近预算）时回退到原逻辑，保证模型输入不超限
                 while (totalTokens > MaxAskTokenBudget && removeCount < messages.Count - 1)
                 {
                     totalTokens -= sizes[removeCount];
@@ -165,6 +184,23 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
                 });
             }
             await _chatMessageStore.AddMessagesAsync(adddata, cancellationToken);
+        }
+
+        /// <summary>
+        /// 是否为携带上传文件解析文本的 user 消息（按 AIFileUrlsHandle 写入的固定前缀识别，
+        /// 兼容历史存量数据：这些消息入库时没有额外标记，只能靠文本前缀认出来）
+        /// </summary>
+        private static bool IsUploadedFileContextMessage(ChatMessage? message)
+        {
+            if (message?.Role != ChatRole.User || message.Contents == null) return false;
+            foreach (var content in message.Contents)
+            {
+                if (content is TextContent text && text.Text != null && text.Text.Contains(SystemPrompt.UploadedFileContextHeader))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>
