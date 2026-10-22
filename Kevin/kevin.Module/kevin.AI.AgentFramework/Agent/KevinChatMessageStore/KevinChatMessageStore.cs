@@ -224,7 +224,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         }
 
         /// <summary>
-        /// 估算一条消息实际占用的输入 Token（统一口径：1 字符≈0.6 Token），涵盖文本、工具调用参数、工具结果与二进制内容。
+        /// 估算一条消息实际占用的输入 Token（统一口径：1 字符≈0.6 Token），涵盖文本、思考内容、工具调用参数、工具结果与二进制内容。
         /// 压缩服务也复用本方法，保证"是否该压缩"与"是否该裁剪"用同一套口径。
         /// </summary>
         /// <param name="message">待估算的消息</param>
@@ -242,6 +242,12 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
                 {
                     case TextContent text:
                         charSize += text.Text?.Length ?? 0;
+                        break;
+                    // 思考内容不是 TextContent 的子类，落到 default 会按整个对象序列化的长度计入：
+                    // 流式响应每片思考内容都是一个独立对象，$type/ProtectedData/Annotations/AdditionalProperties
+                    // 这些空壳字段每片约 100 字符，会把估算放大几十倍，必须和正文一样只算文本长度
+                    case TextReasoningContent reasoning:
+                        charSize += reasoning.Text?.Length ?? 0;
                         break;
                     case FunctionCallContent call:
                         charSize += (call.Name?.Length ?? 0) + SerializeSize(call.Arguments);
