@@ -219,9 +219,10 @@ namespace kevin.Application.Services.AI
 
             // ③ Qdrant 相似度检索（集合已按 租户+智能体+用户 隔离，候选均为当前用户记忆；
             // scoreThreshold 过滤低相似度噪声，避免无关记忆进入结果）
-            var searchResults = await Client.SearchAsync(
+            // SearchAsync 已弃用，统一改走 QueryAsync：传 float[] 即按 Nearest 稠密向量做最近邻检索
+            var searchResults = await Client.QueryAsync(
                 collectionName,
-                queryEmbedding.Vector,
+                query: queryEmbedding.Vector.ToArray(),
                 filter: filter,
                 limit: (ulong)fetchLimit,
                 // 显式要求返回 payload，避免服务端默认值变化导致过滤与内容展示失效
