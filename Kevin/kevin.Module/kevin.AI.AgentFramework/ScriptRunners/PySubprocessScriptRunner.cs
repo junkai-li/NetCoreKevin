@@ -28,6 +28,10 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                 // 1. 解析并校验脚本文件路径（禁止越出技能目录）
                 string scriptFullPath = ScriptProcessRunner.ResolveScriptFullPath(skill.Path, script.FullPath);
 
+                // 工具 schema 里 arguments 没有类型声明，模型常把对象/数组再包一层 JSON 字符串，
+                // 先归一化，否则整段 JSON 文本会被当成一个裸参数传给脚本
+                arguments = ScriptProcessRunner.NormalizeScriptArguments(arguments);
+
                 // 🛡️ 安全护栏：脚本内容是仓库固定文件，参数是模型唯一可控的输入面，
                 //    拿它去读受限配置文件（如 --file appsettings.json）同样拦住
                 if (arguments.HasValue && CommandGuardrails.ContainsRestrictedFile(arguments.Value.ToString()))

@@ -63,6 +63,50 @@ namespace kevin.AI.AgentFramework.ScriptRunners
         }
 
         /// <summary>
+        /// 归一化模型传入的脚本参数。
+        /// run_skill_script 的 arguments 参数在工具 schema 中没有类型声明（只有 default:null），
+        /// 模型经常把对象/数组再包一层 JSON 字符串（如 "{\"full_name\":\"xx\"}"），
+        /// 此时 JsonElement 的 Kind 是 String，按对象/数组解析会直接判成非法参数。
+        /// 这里把字符串内容再按 JSON 解析一次：解析出对象/数组就返回新元素（Clone 脱离已释放的文档），
+        /// 其余情况原样返回，交给调用方按原有规则处理或报错。
+        /// 显式传入 null 与不传等价（schema 里该参数的默认值就是 null）。
+        /// </summary>
+        public static JsonElement? NormalizeScriptArguments(JsonElement? arguments)
+        {
+            if (arguments is not { } element)
+            {
+                return null;
+            }
+            if (element.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+            {
+                return null;
+            }
+            if (element.ValueKind != JsonValueKind.String)
+            {
+                return element;
+            }
+            var raw = element.GetString();
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                return arguments;
+            }
+            try
+            {
+                using var document = JsonDocument.Parse(raw);
+                var root = document.RootElement;
+                if (root.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
+                {
+                    return root.Clone();
+                }
+            }
+            catch (JsonException)
+            {
+                // 不是合法 JSON：保持原样，让调用方按错误格式提示模型
+            }
+            return arguments;
+        }
+
+        /// <summary>
         /// 创建进程启动信息。
         /// 输入流默认重定向并在启动后立即关闭（见 RunAsync），探测类命令可传 redirectInput:false。
         /// </summary>
@@ -321,7 +365,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
             int ExitCode,
             bool TimedOut,
             bool Canceled);
-        
+
         /// <summary>
         /// 启动进程、采集输出、超时后连同子孙进程一起回收。
         /// 不抛业务异常（启动失败仍抛），供 RunAsync 与 Python 工具等复用同一套超时/回收/编码纪律。
@@ -335,7 +379,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
             using var process = new Process { StartInfo = startInfo };
             var output = new CappedBuffer(MaxOutputChars);
             var error = new CappedBuffer(MaxOutputChars);
-        
+
             process.OutputDataReceived += (_, e) =>
             {
                 if (e.Data != null) output.Append(e.Data);
@@ -344,11 +388,11 @@ namespace kevin.AI.AgentFramework.ScriptRunners
             {
                 if (e.Data != null) error.Append(e.Data);
             };
-        
+
             // 调用方令牌与超时令牌合并：任一触发都要把进程收掉，不能只抹异常留个孤儿
             using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             timeoutCts.CancelAfter(executedTimeout);
-        
+
             try
             {
                 process.Start();
@@ -376,10 +420,10 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                 KillProcessTree(process);
                 throw;
             }
-        
+
             return new ProcessExecution(output.ToString(), error.ToString(), process.ExitCode, false, false);
         }
-        
+
         /// <summary>
         /// 启动脚本进程、按技能脚本约定解释结果。
         /// 失败一律抛异常，由调用方转成 “❌ …” 文本，保持既有对模型的返回契约不变。
@@ -392,7 +436,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
         {
             var executedTimeout = timeout ?? DefaultTimeout;
             var execution = await ExecuteAsync(startInfo, executedTimeout, cancellationToken);
-        
+
             if (execution.TimedOut || execution.Canceled)
             {
                 var reason = execution.TimedOut
@@ -400,13 +444,13 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                     : $"脚本 {scriptName} 执行被取消";
                 throw new InvalidOperationException(BuildFailureMessage(reason, null, execution));
             }
-        
+
             if (execution.ExitCode != 0)
             {
                 throw new InvalidOperationException(
                     BuildFailureMessage($"脚本 {scriptName} 执行失败", execution.ExitCode, execution));
             }
-        
+
             // 尝试解析 JSON 返回结果，不是 JSON 就按原样返回字符串
             string stdOut = execution.StdOut;
             if (string.IsNullOrWhiteSpace(stdOut))
@@ -423,7 +467,7 @@ namespace kevin.AI.AgentFramework.ScriptRunners
                 return stdOut;
             }
         }
-        
+
         /// <summary>
         /// 被强杀的进程可能已不可查，读不到退出码时返回 -1 而不是抛二次异常掩盖超时原因
         /// </summary>
