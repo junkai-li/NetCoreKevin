@@ -425,12 +425,36 @@
                 </a-form-item>
               </a-col>
               <a-col :span="12"> 
-                <a-form-item label="用户对话最大轮次">
+                <a-form-item>
+                  <template #label>
+                    <a-tooltip title="最近 N 轮完整对话会被保底保留，不会因 Token 裁剪被丢弃；实际是否压缩由可用提问预算与压缩触发比例决定">
+                      保底保留轮数
+                    </a-tooltip>
+                  </template>
                   <a-input-number
                     v-model:value="form.conversationTurnsExceed"
                     :min="1"
                     style="width: 100%"
-                    placeholder="默认10，超出最大轮次后自动压缩"  
+                    placeholder="默认10：最近N轮对话不参与压缩"
+                    :disabled="isViewMode"
+                  />
+                </a-form-item>
+              </a-col>
+            </a-row>
+            <a-row :gutter="16">
+              <a-col :span="12">
+                <a-form-item>
+                  <template #label>
+                    <a-tooltip title="未压缩历史估算 Token 达到可用提问预算（模型提问上限 − 回答预留）的该比例时自动压缩历史，后端取值范围 10-95">
+                      压缩触发比例（%）
+                    </a-tooltip>
+                  </template>
+                  <a-input-number
+                    v-model:value="form.compactionTriggerRatio"
+                    :min="10"
+                    :max="95"
+                    style="width: 100%"
+                    placeholder="默认70"
                     :disabled="isViewMode"
                   />
                 </a-form-item>
@@ -535,6 +559,7 @@ const form = reactive({
   reasoningEffort: undefined,
   reasoningOutput: undefined,
   conversationTurnsExceed: 10,
+  compactionTriggerRatio: 70,
   isAIMessageCompaction: false,
   isAutoGetAIMessageCompaction: false,
   aiMessageCompactionPrompt: '任务：信息精炼与结构化提取\n请将下方【原始内容】压缩至原文篇幅的20%以内，并**严格按以下四个字段**输出摘要。\n每个字段都必须出现，若原文无对应信息，请标注“无”。\n\n## 必输字段（顺序固定）\n1. **用户对话核心任务**：用户在此次交互中最主要的目标或诉求是什么？（一句话概括）\n2. **核心结论**：从整体内容中提炼出的最终判断、结果或关键事实。\n3. **核心思考过程**：推导出结论所依据的推理链条或关键分析步骤（简要逻辑流）。\n4. **工具返回关键信息**：需要输出工具名称，外部工具、系统或数据源返回的重要信息（如路径、数值、状态等）。\n\n## 输出格式要求\n- 每项内容尽量精简，去除所有修饰性描述、举例和过渡句。\n- 如某字段信息完全缺失，直接写“无”。\n\n## 示例输出（供参考）\n- **用户对话核心任务**：查询文件保存位置。\n- **核心结论**：文件已成功保存至桌面。\n- **核心思考过程**：根据系统反馈，路径存在且写入权限正常。\n- **工具返回关键信息**：调用“查询文件保存位置”工具，结果： `C:\\Users\\XXX\\Desktop`。\n\n---\n\n【原始内容】：'
@@ -897,6 +922,11 @@ watch(() => props.open, (newVal) => {
 
       // bindIds 包含用户、角色和智能体
       form.bindIds = props.agentData.bindIds || [];
+
+      // 老数据该字段可能为 0（后端按 70 兜底），表单里归一成默认值避免显示 0
+      if (!form.compactionTriggerRatio || form.compactionTriggerRatio < 10 || form.compactionTriggerRatio > 95) {
+        form.compactionTriggerRatio = 70;
+      }
     } else {
       // 添加模式，设置默认值
       Object.assign(form, {
@@ -938,6 +968,7 @@ watch(() => props.open, (newVal) => {
         reasoningEffort: undefined,
         reasoningOutput: undefined,
         conversationTurnsExceed: 10,
+        compactionTriggerRatio: 70,
         isAIMessageCompaction: false,
         isAutoGetAIMessageCompaction: false,
         aiMessageCompactionPrompt: '任务：信息精炼与结构化提取\n请将下方【原始内容】压缩至原文篇幅的20%以内，并**严格按以下四个字段**输出摘要。\n每个字段都必须出现，若原文无对应信息，请标注“无”。\n\n## 必输字段（顺序固定）\n1. **用户对话核心任务**：用户在此次交互中最主要的目标或诉求是什么？（一句话概括）\n2. **核心结论**：从整体内容中提炼出的最终判断、结果或关键事实。\n3. **核心思考过程**：推导出结论所依据的推理链条或关键分析步骤（简要逻辑流）。\n4. **工具返回关键信息**：需要输出工具名称，外部工具、系统或数据源返回的重要信息（如路径、数值、状态等）。\n\n## 输出格式要求\n- 每项内容尽量精简，去除所有修饰性描述、举例和过渡句。\n- 如某字段信息完全缺失，直接写“无”。\n\n## 示例输出（供参考）\n- **用户对话核心任务**：查询文件保存位置。\n- **核心结论**：文件已成功保存至桌面。\n- **核心思考过程**：根据系统反馈，路径存在且写入权限正常。\n- **工具返回关键信息**：调用“查询文件保存位置”工具，结果： `C:\\Users\\XXX\\Desktop`。\n\n---\n\n【原始内容】：'
@@ -1011,6 +1042,7 @@ const handleOk = () => {
         reasoningEffort: form.reasoningEffort,
         reasoningOutput: form.reasoningOutput,
         conversationTurnsExceed: form.conversationTurnsExceed,
+        compactionTriggerRatio: form.compactionTriggerRatio,
         isAIMessageCompaction: form.isAIMessageCompaction,
         isAutoGetAIMessageCompaction: form.isAutoGetAIMessageCompaction,
         aiMessageCompactionPrompt: form.aiMessageCompactionPrompt

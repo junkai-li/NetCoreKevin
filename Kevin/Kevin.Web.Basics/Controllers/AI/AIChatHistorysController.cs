@@ -43,6 +43,20 @@ namespace Kevin.Web.Basics.AI
         }
 
         /// <summary>
+        /// 获取当前对话上下文使用量（未压缩历史 + 压缩摘要估算 / 模型可用提问预算）
+        /// </summary>
+        /// <param name="AIChatsId">会话Id</param>
+        /// <returns></returns>
+        [HttpGet("GetContextUsage")]
+        [ActionDescription("获取当前对话上下文使用量")]
+        [SkipAuthority]
+        public async Task<AIContextUsageDto> GetContextUsage([FromQuery][Required] long AIChatsId)
+        {
+            var result = await _service.GetContextUsage(AIChatsId);
+            return result;
+        }
+
+        /// <summary>
         /// 新增AI对话聊天记录
         /// </summary>
         /// <param name="par"></param>
@@ -58,7 +72,8 @@ namespace Kevin.Web.Basics.AI
             var result = await _service.Add(par, cancellationToken: cancellationToken);
             return result;
         }
-        // <summary>
+
+        /// <summary>
         /// 新增AI对话聊天记录（SSE 流式输出）
         /// <para>与 <c>Add</c> 共用同一处理逻辑，仅把流式分片改为以 text/event-stream 写回响应；
         /// 响应事件名与 SignalR 通道一致：processmsg / aimsg / aIToolsContentMsg / aIReasoningContentMsg，

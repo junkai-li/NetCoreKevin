@@ -62,53 +62,20 @@ namespace kevin.Application.Services.AI
 
         public async Task<List<ChatHistoryItemDto>> GetMessagesAsync(string threadId, CancellationToken cancellationToken, int maxUserTurns = 0)
         {
-            if (maxUserTurns == 0)
+            // 只回放未压缩消息：被压缩的旧消息已由压缩摘要替代，再次回放会与摘要重复占用上下文预算。
+            // maxUserTurns 保留在签名中兼容调用方；“最近 N 轮保底”由 KevinChatMessageStore 在按 Token 裁剪时处理，
+            // 这里不再按轮数硬截断，避免固定轮数架空 Token 预算（大文件/大工具结果的轮次体积差异极大）。
+            return await aIChatMessageStoreRp.Query().Where(t => t.ThreadId == threadId && t.IsDelete == false && t.IsCompaction == false).Select(t => new ChatHistoryItemDto
             {
-                return await aIChatMessageStoreRp.Query().Where(t => t.ThreadId == threadId && t.IsDelete == false).Select(t => new ChatHistoryItemDto
-                {
-                    Key = t.Key,
-                    ThreadId = t.ThreadId,
-                    Timestamp = t.Timestamp,
-                    SerializedMessage = t.SerializedMessage,
-                    MessageText = t.MessageText,
-                    Role = t.Role,
-                    MessageId = t.MessageId,
-                    CreateTime = t.CreateTime
-                }).ToListAsync(cancellationToken);
-            }
-            else
-            {
-                var data = await aIChatMessageStoreRp.Query().Where(t => t.ThreadId == threadId && t.IsDelete == false).Select(t => new ChatHistoryItemDto
-                {
-                    Key = t.Key,
-                    ThreadId = t.ThreadId,
-                    Timestamp = t.Timestamp,
-                    SerializedMessage = t.SerializedMessage,
-                    MessageText = t.MessageText,
-                    Role = t.Role,
-                    MessageId = t.MessageId,
-                    CreateTime = t.CreateTime
-                }).OrderByDescending(t => t.Timestamp).ToListAsync(cancellationToken);
-                var reslutData = new List<ChatHistoryItemDto>();
-                int userTurns = 0;
-                foreach (var item in data)
-                {
-                    if (userTurns < maxUserTurns)
-                    {
-                        reslutData.Add(item);
-                        if (item.Role == ChatRole.User.Value)
-                        {
-                            userTurns++;
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                return reslutData;
-            }
-
+                Key = t.Key,
+                ThreadId = t.ThreadId,
+                Timestamp = t.Timestamp,
+                SerializedMessage = t.SerializedMessage,
+                MessageText = t.MessageText,
+                Role = t.Role,
+                MessageId = t.MessageId,
+                CreateTime = t.CreateTime
+            }).ToListAsync(cancellationToken);
         }
     }
 }

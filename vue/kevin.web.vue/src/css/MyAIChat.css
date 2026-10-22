@@ -1100,6 +1100,30 @@
   background: var(--fn-color-brand-bg, rgba(0, 0, 0, 0.03)) !important;
 }
 
+/* 上下文使用量：紧贴上传按钮的小圆环（hover 看明细） */
+.context-usage-ring {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  cursor: help;
+}
+
+.context-usage-ring :deep(.ant-progress-text) {
+  font-size: 10px !important;
+  line-height: 1;
+  color: var(--fn-text-tertiary, rgba(0, 0, 0, 0.45));
+}
+
+/* tooltip 内容会 teleport 到 body，scoped 选择器命中不到，必须用 :global */
+:global(.context-usage-tip) {
+  margin-top: 4px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
 /* Octop sendBtn：38px / radius 12 / 品牌阴影 */
 .send-btn.ant-btn-primary {
   display: inline-flex;

@@ -169,6 +169,11 @@
             是否开启安全拦截开启后会对python脚本和shell命令内容进行安全拦截，防止输入敏感信息，默认开启
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.CompactionTriggerRatio">
+            <summary>
+            压缩触发比例（%）：未压缩历史估算Token达到可用提问预算的该比例时触发压缩，默认70
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsDto.IsAIMessageCompaction">
             <summary>
             是否开启对话自动压缩，开启后会对历史对话，思考过程，工具结果，返回内容，自动压缩，默认不开启"
@@ -429,6 +434,46 @@
         <member name="P:kevin.Domain.Share.Dtos.AI.AIChatsDto.AIChatHistorysList">
             <summary>
             对话下的所有聊天记录
+            </summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.AI.AIContextUsageDto">
+            <summary>
+            当前会话的上下文使用量
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIContextUsageDto.UsedTokens">
+            <summary>
+            当前上下文估算 Token = 未压缩历史 + 压缩摘要（统一估算：1 字符≈0.6 Token）
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIContextUsageDto.MaxTokens">
+            <summary>
+            可用提问预算（模型提问上限 − 回答预留），0 表示模型未配置上限
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIContextUsageDto.HistoryTokens">
+            <summary>
+            未压缩历史消息估算 Token
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIContextUsageDto.CompactionTokens">
+            <summary>
+            压缩摘要估算 Token
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIContextUsageDto.LastInputTokens">
+            <summary>
+            最近一次真实请求的输入 Token（模型返回的 usage，仅供参考）
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIContextUsageDto.Percent">
+            <summary>
+            未压缩历史占可用提问预算的百分比（0-100），与自动压缩触发判定口径一致（不含压缩摘要）
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIContextUsageDto.TriggerRatio">
+            <summary>
+            自动压缩触发比例（未开启压缩时为 0）
             </summary>
         </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIKmsDetailsDto.FileId">

@@ -5,6 +5,13 @@ namespace kevin.Domain.Interfaces.IServices.AI
     public interface IAIChatHistorysService
     {
         Task<dtoPageData<AIChatHistorysDto>> GetPageData(dtoPagePar<string> dtoPage);
+
+        /// <summary>
+        /// 获取当前会话的上下文使用量：未压缩历史消息 + 压缩摘要的估算 Token，与模型可用提问预算对比。
+        /// <para>估算口径与历史裁剪/压缩判定一致（统一按 1 字符≈0.6 Token），不含系统提示词与工具定义。</para>
+        /// </summary>
+        /// <param name="aIChatsId">会话 Id</param>
+        Task<AIContextUsageDto> GetContextUsage(long aIChatsId);
         Task<AIChatHistorysDto> Add(AIChatHistorysDto par, CancellationToken cancellationToken);
 
         /// <summary>

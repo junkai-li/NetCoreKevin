@@ -2,6 +2,7 @@ using Common;
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.Interfaces;
+using kevin.AI.AgentFramework.TokenEstimation;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using System.Text.Json;
@@ -14,11 +15,11 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         private IKevinAIChatMessageStore _chatMessageStore;
         public string ThreadDbKey { get; private set; }
         /// <summary>
-        /// 最大用户轮次
+        /// 保底保留的用户轮数（0=不保底）：与 Token 预算配合，最近 N 轮完整对话尽量不裁
         /// </summary>
         public int MaxUserTurns { get; set; } = 0;
         /// <summary>
-        /// 提问Token预算（0=不限制），超出时从最旧的消息开始丢弃，优先保留最近的历史（保守估算：1个字符≈1个Token）
+        /// 提问Token预算（0=不限制），超出时从最旧的消息开始丢弃，优先保留最近的历史（统一估算口径：1个字符≈0.6个Token，见 TokenEstimator）
         /// </summary>
         public int MaxAskTokenBudget { get; set; } = 0;
         /// <summary>
@@ -43,7 +44,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         /// </summary>
         private int StoreResultLengthLimit => ToolResultLengthLimit > 0 ? ToolResultLengthLimit : StoreResultHardLimit;
         /// <summary>
-        /// 单条二进制内容（图片/文件）的粗估输入开销：真实 token 数由模型的分块策略决定，这里取一个与体积无关的保守固定值参与预算计算
+        /// 单条二进制内容（图片/文件）的粗估输入开销（Token，不按字符折算）：真实 token 数由模型的分块策略决定，这里取一个与体积无关的保守固定值参与预算计算
         /// </summary>
         private const int BinaryContentEstimatedSize = 1000;
 
@@ -67,18 +68,19 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
             var messages = data.OrderByDescending(t => t.CreateTime).ToList().ConvertAll(x => JsonSerializer.Deserialize<ChatMessage>(x.SerializedMessage!)!);
             messages.Reverse();
             messages = messages.ToList();
-            // 超出提问Token预算时，从最旧的消息开始丢弃，至少保留最近一条历史；
-            // 携带上传文件解析文本的 user 消息（及其之后的对话）优先保护：文件资料只存在于那一轮消息里，
-            // 被整条裁掉后模型在后续轮次就再也看不到文件内容，只能回答“没看到文件”。
+            // 超出提问Token预算时，从最旧的消息开始丢弃；
+            // 携带上传文件解析文本的 user 消息（及其之后的对话）与最近 MaxUserTurns 轮对话优先保护：
+            // 文件资料只存在于那一轮消息里，被整条裁掉后模型在后续轮次就再也看不到文件内容；
+            // 轮数保底则保证“最近几轮”不会因为 Token 裁剪被整个丢掉。
             var trimmed = false;
             if (MaxAskTokenBudget > 0 && messages.Count > 1)
             {
                 // 不能用 ChatMessage.Text 估算：它只拼接 TextContent，工具调用参数、工具结果、二进制内容全会被算成 0，
                 // 而恰恰是这些消息最容易撞爆模型输入上限（表现为模型报 "Range of input length should be [1, N]"）
-                var sizes = messages.Select(EstimateMessageSize).ToList();
+                var sizes = messages.Select(m => EstimateMessageSize(m, ToolResultLengthLimit)).ToList();
                 var totalTokens = sizes.Sum();
                 var removeCount = 0;
-                // 最旧的含文件消息作为保护起点：它及其之后的对话尽量不裁
+                // 保护起点：最旧的含文件消息 与 最近 MaxUserTurns 轮的起点，取更靠前者
                 var protectedFrom = messages.Count;
                 for (var i = 0; i < messages.Count; i++)
                 {
@@ -88,14 +90,41 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
                         break;
                     }
                 }
-                while (totalTokens > MaxAskTokenBudget && removeCount < messages.Count - 1)
+                if (MaxUserTurns > 0)
                 {
-                    if (removeCount >= protectedFrom) break; // 再删就要动到文件资料了
+                    var userTurns = 0;
+                    for (var i = messages.Count - 1; i >= 0; i--)
+                    {
+                        if (messages[i].Role == ChatRole.User)
+                        {
+                            userTurns++;
+                            if (userTurns >= MaxUserTurns)
+                            {
+                                protectedFrom = Math.Min(protectedFrom, i);
+                                break;
+                            }
+                        }
+                    }
+                }
+                // 删除上限：最后一条 user 之前，至少保留最近一轮完整的 user→assistant，避免留下无提问的孤立回复
+                var lastUserIndex = -1;
+                for (var i = messages.Count - 1; i >= 0; i--)
+                {
+                    if (messages[i].Role == ChatRole.User)
+                    {
+                        lastUserIndex = i;
+                        break;
+                    }
+                }
+                var maxRemove = lastUserIndex >= 0 ? lastUserIndex : messages.Count - 1;
+                while (totalTokens > MaxAskTokenBudget && removeCount < maxRemove)
+                {
+                    if (removeCount >= protectedFrom) break; // 再删就要动到受保护的历史了
                     totalTokens -= sizes[removeCount];
                     removeCount++;
                 }
-                // 保护文件资料仍放不下（文件本身太接近预算）时回退到原逻辑，保证模型输入不超限
-                while (totalTokens > MaxAskTokenBudget && removeCount < messages.Count - 1)
+                // 受保护内容仍放不下（如文件本身太接近预算）时回退，保证模型输入不超限
+                while (totalTokens > MaxAskTokenBudget && removeCount < maxRemove)
                 {
                     totalTokens -= sizes[removeCount];
                     removeCount++;
@@ -204,36 +233,42 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         }
 
         /// <summary>
-        /// 估算一条消息实际占用的输入长度（保守按字符数≈Token数），涵盖文本、工具调用参数、工具结果与二进制内容
+        /// 估算一条消息实际占用的输入 Token（统一口径：1 字符≈0.6 Token），涵盖文本、工具调用参数、工具结果与二进制内容。
+        /// 压缩服务也复用本方法，保证"是否该压缩"与"是否该裁剪"用同一套口径。
         /// </summary>
-        private int EstimateMessageSize(ChatMessage? message)
+        /// <param name="message">待估算的消息</param>
+        /// <param name="storeResultLengthLimit">工具结果入库时的截断长度（0=使用兜底上限），历史重发时按截断后体积计入</param>
+        public static int EstimateMessageSize(ChatMessage? message, int storeResultLengthLimit = 0)
         {
             if (message?.Contents == null) return 0;
-            var size = 0;
+            var resultLimit = storeResultLengthLimit > 0 ? storeResultLengthLimit : StoreResultHardLimit;
+            // 字符类内容先累计字符数，最后统一折算 Token；二进制内容按固定 Token 开销单独累加
+            var charSize = 0;
+            var fixedTokens = 0;
             foreach (var content in message.Contents)
             {
                 switch (content)
                 {
                     case TextContent text:
-                        size += text.Text?.Length ?? 0;
+                        charSize += text.Text?.Length ?? 0;
                         break;
                     case FunctionCallContent call:
-                        size += (call.Name?.Length ?? 0) + SerializeSize(call.Arguments);
+                        charSize += (call.Name?.Length ?? 0) + SerializeSize(call.Arguments);
                         break;
                     case FunctionResultContent result:
-                        size += result.CallId?.Length ?? 0;
+                        charSize += result.CallId?.Length ?? 0;
                         // 历史重发时拿到的是截断后的结果，预算也按截断后的体积计入
-                        size += Math.Min(SerializeSizeText(result.Result).Length, StoreResultLengthLimit);
+                        charSize += Math.Min(SerializeSizeText(result.Result).Length, resultLimit);
                         break;
                     case DataContent or UriContent:
-                        size += BinaryContentEstimatedSize;
+                        fixedTokens += BinaryContentEstimatedSize;
                         break;
                     default:
-                        size += SerializeSize(content);
+                        charSize += SerializeSize(content);
                         break;
                 }
             }
-            return size;
+            return TokenEstimator.EstimateTokensByCharCount(charSize) + fixedTokens;
         }
 
         /// <summary>

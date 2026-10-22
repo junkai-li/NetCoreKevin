@@ -24,8 +24,9 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// //获取历史聊天压缩记录 提示词
         /// </summary>
         /// <param name="threadId"></param>
+        /// <param name="maxLength">摘要总长度上限（0=不限制）；超长时优先保留最近的摘要</param>
         /// <returns></returns>
-        Task<String> GetThreadPrompt(string threadId);
+        Task<String> GetThreadPrompt(string threadId, int maxLength = 0);
 
         /// <summary>
         /// ������༭

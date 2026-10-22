@@ -403,6 +403,32 @@
                   @upload-success="handleFileUploadSuccess"
                   @upload-error="handleFileUploadError"
                 />
+                <!-- 上下文使用量：圆圈展示已用百分比，鼠标悬浮看明细（估算口径：未压缩历史 + 压缩摘要） -->
+                <a-tooltip
+                  v-if="contextUsage && contextUsage.maxTokens > 0"
+                  placement="top"
+                  :overlay-style="{ maxWidth: '400px' }"
+                >
+                  <template #title>
+                    <div>上下文（含摘要）：{{ formatUsageToken(contextUsage.usedTokens) }} / {{ formatUsageToken(contextUsage.maxTokens) }} tokens</div>
+                    <div>未压缩历史：约 {{ formatUsageToken(contextUsage.historyTokens) }} tokens（{{ contextUsagePercent }}%）</div>
+                    <div>压缩摘要：约 {{ formatUsageToken(contextUsage.compactionTokens) }} tokens</div>
+                    <div v-if="contextUsage.lastInputTokens">最近一次真实输入：{{ formatUsageToken(contextUsage.lastInputTokens) }} tokens</div>
+                    <div v-if="contextUsage.triggerRatio > 0">使用率达到 {{ contextUsage.triggerRatio }}% 时自动压缩历史</div>
+                    <div class="context-usage-tip">估算口径：1 字符≈0.6 Token，不含系统提示词与工具定义</div>
+                  </template>
+                  <div class="context-usage-ring">
+                    <a-progress
+                      type="circle"
+                      status="normal"
+                      :percent="contextUsagePercent"
+                      :size="32"
+                      :stroke-width="10"
+                      :stroke-color="contextUsageColor"
+                      :format="() => contextUsagePercent + '%'"
+                    />
+                  </div>
+                </a-tooltip>
                 <a-switch v-model:checked="isRecommendQuestion" class="recommend-question-switch">
                   <template #checkedChildren>推荐问题</template>
                   <template #unCheckedChildren>推荐问题</template>
@@ -611,6 +637,7 @@ import { getAIChatsMyPageData, addAIChats, deleteAIChats } from "../../api/ai/ai
 import {
   getAIChatHistorysPageData,
   addAIChatHistorys,
+  getAIChatContextUsage,
 } from "../../api/ai/aichathistorys.js";
 import * as signalR from '@microsoft/signalr';
 import { GetSnowflakeId } from '../../api/baseapi';
@@ -2092,6 +2119,53 @@ const pageSize = ref(20); // 每页消息数量
 const aiApps = ref([]); // 存储智能体列表
 const selectedAiApp = ref(null); // 存储选中的智能体
 
+// ==== 当前会话上下文使用量 ====
+const contextUsage = ref(null);
+
+const formatUsageToken = (count) => {
+  if (!count && count !== 0) return "0";
+  return Number(count).toLocaleString("zh-CN");
+};
+
+const contextUsagePercent = computed(() => {
+  const usage = contextUsage.value;
+  if (!usage || !usage.maxTokens) return 0;
+  const percent = usage.percent ?? Math.round(((usage.usedTokens || 0) * 100) / usage.maxTokens);
+  return Math.min(100, Math.max(0, percent));
+});
+
+// 达到自动压缩触发比例先变黄（提示即将压缩），90% 以上变红
+const contextUsageLevel = computed(() => {
+  const percent = contextUsagePercent.value;
+  if (percent >= 90) return "danger";
+  if (contextUsage.value?.triggerRatio > 0 && percent >= contextUsage.value.triggerRatio) return "warn";
+  return "normal";
+});
+
+// 圆圈颜色：与分级一致
+const contextUsageColor = computed(() => {
+  if (contextUsageLevel.value === "danger") return "#ff4d4f";
+  if (contextUsageLevel.value === "warn") return "#faad14";
+  return "#00c8ff";
+});
+
+const loadContextUsage = async () => {
+  const chatId = activeConversationId.value;
+  if (!chatId) {
+    contextUsage.value = null;
+    return;
+  }
+  try {
+    const response = await getAIChatContextUsage(chatId);
+    // 请求期间切换了会话就丢弃结果，避免把 A 会话的用量显示到 B 会话
+    if (chatId !== activeConversationId.value) return;
+    contextUsage.value = response?.code === 200 ? (response.data || null) : null;
+  } catch (error) {
+    // 用量只是辅助信息，获取失败不影响对话
+    console.warn("获取上下文使用量失败:", error);
+  }
+};
+
 // 复制功能
 const copyMessageContent = async (content) => {
   if (!content) {
@@ -2365,6 +2439,8 @@ const selectConversation = async (conversation) => {
   }
   activeConversationId.value = conversation.id;
   activeConversation.value = conversation;
+  // 切换会话时先清掉上一个会话的用量，避免请求返回前显示成旧会话的数据
+  contextUsage.value = null;
 
   // 重置分页参数
   currentPage.value = 1;
@@ -2373,6 +2449,7 @@ const selectConversation = async (conversation) => {
 
   // 加载聊天记录
   await loadChatHistory(conversation.id, 1);
+  await loadContextUsage();
 
   // 等待DOM更新后滚动到底部
   nextTick(() => {
@@ -2934,6 +3011,8 @@ const finalizeAiReply = (data, userMessage, content, snowflakeId) => {
   if (isVoiceMode.value && !sendFail) {
     finishStreamingTTS(streamedText, lastAiMsg?.id);
   }
+  // 本轮问答已落库，刷新上下文使用量圆环
+  loadContextUsage();
 };
 
 var connectionServer=null;

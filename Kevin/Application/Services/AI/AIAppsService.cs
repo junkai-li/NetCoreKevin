@@ -4,6 +4,7 @@ using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.ImageGeneration;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.ScriptRunners;
+using kevin.AI.AgentFramework.TokenEstimation;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
@@ -96,7 +97,7 @@ namespace kevin.Application.Services.AI
             var data = aIAppsRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.TenantId == CurrentUser.TenantId);
             if (!string.IsNullOrEmpty(dtoPage.searchKey))
             {
-                data = data.Where(t => t.Name.Contains(dtoPage.searchKey) || t.Describe.Contains(dtoPage.searchKey));
+                data = data.Where(t => t.Name.Contains(dtoPage.searchKey)||t.Describe.Contains(dtoPage.searchKey));
             }
             result.total = await data.CountAsync();
             var dbdata = await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPage.pageSize).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
@@ -265,6 +266,7 @@ namespace kevin.Application.Services.AI
                     msg.IsSecurityIntercept = par.IsSecurityIntercept;
                     msg.MaxRetries = par.MaxRetries;
                     msg.ConversationTurnsExceed = par.ConversationTurnsExceed;
+                    msg.CompactionTriggerRatio = par.CompactionTriggerRatio;
                     msg.IsAIMessageCompaction = par.IsAIMessageCompaction;
                     msg.IsAutoGetAIMessageCompaction = par.IsAutoGetAIMessageCompaction;
                     msg.AIMessageCompactionPrompt = par.AIMessageCompactionPrompt;
@@ -274,7 +276,7 @@ namespace kevin.Application.Services.AI
                     msg.IsMcp = par.IsMcp;
                     msg.IsMemory = par.IsMemory;
                     msg.IsImageGeneration = par.IsImageGeneration;
-                    msg.ImageGenModelID = par.ImageGenModelID;
+                    msg.ImageGenModelID = par.ImageGenModelID;   
                 }
                 else
                 {
@@ -425,7 +427,7 @@ namespace kevin.Application.Services.AI
         private static int GetAskTokenBudget(int maxAskPromptSize, int answerTokens, string? systemPrompt)
         {
             if (maxAskPromptSize <= 0) return 0;
-            var budget = maxAskPromptSize - (systemPrompt?.Length ?? 0) - answerTokens;
+            var budget = maxAskPromptSize - TokenEstimator.EstimateTokens(systemPrompt) - answerTokens;
             return budget > 0 ? budget : (int)(maxAskPromptSize * 0.6);
         }
         /// <summary>
@@ -464,12 +466,6 @@ namespace kevin.Application.Services.AI
                 systemPrompt += "\n" + SystemPrompt.ImageGenerationPromptText;
             }
             #endregion
-            #region 获取压缩聊天记录提示词
-            if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
-            {
-                systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString());
-            }
-            #endregion
             // Token配置来自模型配置（提问最大token数/回答最大token数）
             // Auto模式：解析为实际模型
             if (string.Equals(aiapp.ChatModelID, "auto", StringComparison.OrdinalIgnoreCase))
@@ -482,6 +478,15 @@ namespace kevin.Application.Services.AI
                 aiapp.ChatModelID = allModels[new Random().Next(allModels.Count)].Id.ToString();
             }
             var aiModel = await aIModelsService.GetNoPerDetails(aiapp.ChatModelID.ToTryInt64());
+            #region 获取压缩聊天记录提示词
+            if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
+            {
+                // 摘要也占 systemPrompt 预算：先按不含摘要的提示词估算可用预算，摘要最多占其中的 1/5
+                var promptBudget = GetAskTokenBudget(aiModel.MaxAskPromptSize, aiModel.AnswerTokens, systemPrompt);
+                var compactionMaxLength = promptBudget > 0 ? Math.Max(2000, TokenEstimator.ToCharCount(promptBudget / 5)) : 20000;
+                systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString(), compactionMaxLength);
+            }
+            #endregion
             var historyProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, GetAskTokenBudget(aiModel.MaxAskPromptSize, aiModel.AnswerTokens, systemPrompt), aiapp.ContentLengthLimit)
             {
                 ReadOnlyHistory = readOnlyHistory
@@ -515,7 +520,7 @@ namespace kevin.Application.Services.AI
                         }
                     }
                     if (!aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
-                    {
+                    { 
                         chatAgOs.ChatOptions.Tools.Add(AIFunctionFactory.Create(_aIChatMessageStoreCompactionService.GetAIToolThreadPrompt, new AIFunctionFactoryOptions
                         {
                             Name = "GetAIToolThreadPrompt",
@@ -646,8 +651,11 @@ namespace kevin.Application.Services.AI
             // 获取压缩聊天记录提示词
             if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
             {
-                systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString());
-            }
+                // 摘要也占 systemPrompt 预算：先按不含摘要的提示词估算可用预算，摘要最多占其中的 1/5
+                var promptBudget = GetAskTokenBudget(aIModels.MaxAskPromptSize, aIModels.AnswerTokens, systemPrompt);
+                var compactionMaxLength = promptBudget > 0 ? Math.Max(2000, TokenEstimator.ToCharCount(promptBudget / 5)) : 20000;
+                systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), compactionMaxLength);
+            } 
             var chatAgOs = new ChatClientAgentOptions
             {
                 Name = aiapp.Name,

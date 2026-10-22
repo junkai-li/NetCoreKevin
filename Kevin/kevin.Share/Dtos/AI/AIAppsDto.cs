@@ -210,9 +210,16 @@ namespace kevin.Domain.Share.Dtos.AI
         [Description("是否开启安全拦截，开启后会对python脚本和shell命令内容进行安全拦截，防止输入敏感信息，默认开启")]
         public bool IsSecurityIntercept { get; set; } = true;
 
-        [Description(" 用户轮次计数,默认10，超出后其余对话自动压缩")]
+        [Description(" 保底保留的用户轮数，默认10，最近N轮对话不参与压缩")]
         [DefaultValue(10)]
         public int ConversationTurnsExceed { get; set; } = 10;
+
+        /// <summary>
+        /// 压缩触发比例（%）：未压缩历史估算Token达到可用提问预算的该比例时触发压缩，默认70
+        /// </summary>
+        [Description("压缩触发比例（%）：未压缩历史估算Token达到可用提问预算的该比例时触发压缩，默认70")]
+        [DefaultValue(70)]
+        public int CompactionTriggerRatio { get; set; } = 70;
         /// <summary>
         /// 是否开启对话自动压缩，开启后会对历史对话，思考过程，工具结果，返回内容，自动压缩，默认不开启"
         /// </summary>

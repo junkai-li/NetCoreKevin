@@ -1,10 +1,12 @@
 ﻿
 using Common;
+using kevin.AI.AgentFramework.Agent.KevinChatMessageStore;
 using kevin.AI.AgentFramework.Const;
 using kevin.AI.AgentFramework.Dto;
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.AI.AgentFramework.Interfaces.Safety;
 using kevin.AI.AgentFramework.Modality;
+using kevin.AI.AgentFramework.TokenEstimation;
 using kevin.AI.AgentFramework.Tools;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.EventBus;
@@ -115,6 +117,58 @@ namespace kevin.Application.Services.AI
             {
                 item.aIChatHistorysBindLogs = logdata.Where(t => t.AIChatHistorysId == item.Id).ToList();
             }
+            return result;
+        }
+
+        /// <summary>
+        /// 获取当前会话的上下文使用量：未压缩历史消息 + 压缩摘要的估算 Token，与模型可用提问预算对比。
+        /// <para>
+        /// 估算口径与历史裁剪/压缩判定一致（统一按 1 字符≈0.6 Token），不含系统提示词、技能与工具定义，
+        /// 所以会略低于模型实际报告的输入 Tokens，最近一次真实输入单独返回供前端参考。
+        /// </para>
+        /// </summary>
+        public async Task<AIContextUsageDto> GetContextUsage(long aIChatsId)
+        {
+            var result = new AIContextUsageDto();
+            using var db = new KevinDbContext();
+            var chat = await db.Set<TAIChats>().Where(t => t.Id == aIChatsId && t.IsDelete == false && t.TenantId == CurrentUser.TenantId).FirstOrDefaultAsync();
+            if (chat == default) return result;
+            var aiapp = await db.Set<TAIApps>().Where(t => t.Id == chat.AppId && t.IsDelete == false).FirstOrDefaultAsync();
+            if (aiapp == default) return result;
+            var modelId = aiapp.ChatModelID.ToTryInt64();
+            // 直接查库而不走 GetNoPerDetails：智能体未绑模型或模型已删除时该方法会抛异常，这里只需静默降级为“无上限”
+            var aiModel = modelId > 0
+                ? await db.Set<TAIModels>().Where(t => t.Id == modelId && t.IsDelete == false).Select(t => new { t.MaxAskPromptSize, t.AnswerTokens }).FirstOrDefaultAsync()
+                : null;
+            if (aiModel != default && aiModel.MaxAskPromptSize > 0)
+            {
+                var budget = aiModel.MaxAskPromptSize - aiModel.AnswerTokens;
+                // 与 AIAppsService.GetAskTokenBudget 一致：预算≤0 时按提问上限的 60% 兜底，0 在裁剪逻辑里代表“不限制”
+                result.MaxTokens = budget > 0 ? budget : (int)(aiModel.MaxAskPromptSize * 0.6);
+            }
+            var threadId = aIChatsId.ToString();
+            // 只统计未被压缩的历史：已压缩消息已由摘要替代，再计入会重复
+            var historyRows = await db.Set<TAIChatMessageStore>()
+                .Where(t => t.ThreadId == threadId && t.IsDelete == false && t.IsCompaction == false)
+                .Select(t => t.SerializedMessage)
+                .ToListAsync();
+            result.HistoryTokens = historyRows.Sum(t => EstimateStoredMessageTokens(t, aiapp.ContentLengthLimit));
+            var compactionTexts = await db.Set<TAIChatMessageStoreCompaction>()
+                .Where(t => t.ThreadId == threadId && t.IsDelete == false)
+                .Select(t => t.CompactionResultMessageText)
+                .ToListAsync();
+            result.CompactionTokens = compactionTexts.Sum(t => TokenEstimator.EstimateTokens(t));
+            result.UsedTokens = result.HistoryTokens + result.CompactionTokens;
+            // 百分比只算未压缩历史：压缩触发判断的 totalTokens 也不含摘要，口径一致才不会出现“显示已超阈值却未压缩”
+            // 向下取整：历史刚好略低于触发线（如 69.7%）时不能四舍五入成 70% 造成误以为应该压缩
+            result.Percent = result.MaxTokens > 0 ? (int)Math.Min(100, Math.Floor(result.HistoryTokens * 100d / result.MaxTokens)) : 0;
+            result.TriggerRatio = aiapp.IsAIMessageCompaction ? Math.Clamp(aiapp.CompactionTriggerRatio <= 0 ? 70 : aiapp.CompactionTriggerRatio, 10, 95) : 0;
+            var lastInput = await db.Set<TAIChatHistorys>()
+                .Where(t => t.AIChatsId == aIChatsId && t.IsDelete == false && t.IsSend == false && t.InputTokenCount != null)
+                .OrderByDescending(t => t.CreateTime)
+                .Select(t => t.InputTokenCount)
+                .FirstOrDefaultAsync();
+            result.LastInputTokens = (int)(lastInput ?? 0);
             return result;
         }
 
@@ -547,20 +601,20 @@ namespace kevin.Application.Services.AI
                             });
                         }
                         catch (Exception ex)
-                        {
+                        { 
                             LogHelper.logger.Info("推荐问题入库失败（已忽略）:" + ex.Message);
                         }
                         await output.WriteAsync("recommendmsg", questionsJson);
                     }
                 }
                 catch (Exception ex)
-                {
+                { 
                     LogHelper.logger.Info("推荐问题下发失败（已忽略）:" + ex.Message);
                 }
             }
             var logdata = await _aIChatHistorysBindLogService.GetByIds(new List<long> { addAi.Id });
             // 聊天完成入库前发布领域事件：处理器按聊天历史记录 Id 记录 Token 使用明细并累加当月已用额度
-            if ((addAi.InputTokenCount ?? 0) + (addAi.OutputTokenCount ?? 0) > 0 && aichas.IsHidden == false)
+            if ((addAi.InputTokenCount ?? 0) + (addAi.OutputTokenCount ?? 0) > 0&& aichas.IsHidden==false)
             {
                 addAi.AddDomainEvent(new TAIChatHistorysCreatedEvent(addAi), EventBusEnums.Add);
             }
@@ -881,14 +935,6 @@ namespace kevin.Application.Services.AI
         }
 
         /// <summary>
-        /// 估算文本Token数（保守估算：1个字符≈1个Token，确保不超预算）
-        /// </summary>
-        private static int EstimateTokenCount(string text)
-        {
-            return string.IsNullOrEmpty(text) ? 0 : text.Length;
-        }
-
-        /// <summary>
         /// 按提问Token预算裁剪补充上下文（RAG/文件/联网搜索结果）：
         /// 预算 = 提问Token上限 - 系统提示词 - 用户问题 - 预留回答Token，
         /// 按顺序填充，不够放的内容截断后不再纳入后续内容，保证排在前面的高优先级内容完整。
@@ -905,14 +951,14 @@ namespace kevin.Application.Services.AI
             {
                 return contents;
             }
-            var budget = maxAskPromptSize - EstimateTokenCount(systemPrompt) - EstimateTokenCount(userContent) - answerTokens;
+            var budget = maxAskPromptSize - TokenEstimator.EstimateTokens(systemPrompt) - TokenEstimator.EstimateTokens(userContent) - answerTokens;
             foreach (var content in contents)
             {
                 if (string.IsNullOrEmpty(content) || budget <= 0)
                 {
                     continue;
                 }
-                var tokens = EstimateTokenCount(content);
+                var tokens = TokenEstimator.EstimateTokens(content);
                 if (tokens <= budget)
                 {
                     result.Add(content);
@@ -922,7 +968,7 @@ namespace kevin.Application.Services.AI
                 {
                     // 当前段放不下时截断保留，复用 SubstringText 追加“已截断”提示，
                     // 避免模型把半截内容当成全文；后续内容不再纳入，避免半截上下文干扰模型
-                    result.Add(StringHelper.SubstringText(content, budget));
+                    result.Add(StringHelper.SubstringText(content, TokenEstimator.ToCharCount(budget)));
                     break;
                 }
             }
@@ -1043,7 +1089,7 @@ namespace kevin.Application.Services.AI
                     IsAISkills = aiapp.IsSkill,
                     // 工具/技能/记忆全关：上面的 recommendOptions 本就未挂载，这里同步告知代理不需要能力层
                     IsAITools = aiapp.IsAITools,
-                    IsMcpTools = aiapp.IsMcp,
+                    IsMcpTools = aiapp.IsMcp, 
                     IsMemory = aiapp.IsMemory,
                     IsKnowledgeBase = aiapp.KmsId.HasValue && aiapp.KmsId.Value > 0,
                 };
@@ -1076,40 +1122,80 @@ namespace kevin.Application.Services.AI
         }
 
         /// <summary>
-        /// 异步消息压缩
+        /// 异步消息压缩：按“未压缩历史估算Token占可用提问预算的比例”触发，
+        /// 从最旧的完整用户轮开始压缩，直到占比降到目标比例；最近 ConversationTurnsExceed 轮保底不压缩。
         /// </summary>
         /// <returns></returns>
-        private async Task<bool> MessageStoreCompaction(AIAppsDto aiapp, AIModelsDto aIModels, string thread_id)
+        private async Task<bool> MessageStoreCompaction(AIAppsDto aiapp, AIModelsDto aIModels, string thread_id, string? systemPrompt = null)
         {
             //获取是否自动压缩
             if (!string.IsNullOrEmpty(thread_id) && aiapp.IsAIMessageCompaction)
             {
+                // 可用提问预算：提问上限 − 回答预留（调用方可传入 systemPrompt 进一步扣减；未传时略高估，
+                // 压缩会略晚触发，回放侧还有 Token 裁剪兜底）；差值≤0 时与 GetAskTokenBudget 一致退化到提问上限的60%
+                var rawBudget = aIModels.MaxAskPromptSize - aIModels.AnswerTokens - TokenEstimator.EstimateTokens(systemPrompt);
+                var askBudget = aIModels.MaxAskPromptSize > 0
+                    ? (rawBudget > 0 ? rawBudget : (int)(aIModels.MaxAskPromptSize * 0.6))
+                    : 0;
+                if (askBudget <= 0)
+                {
+                    // 模型不限制提问长度，无需压缩
+                    return true;
+                }
+                var triggerRatio = Math.Clamp(aiapp.CompactionTriggerRatio <= 0 ? 70 : aiapp.CompactionTriggerRatio, 10, 95);
+                // 压缩目标：最高降到可用预算的50%，且至少比触发比例低10个百分点，避免目标高于触发导致空压缩
+                var targetRatio = Math.Min(50, Math.Max(10, triggerRatio - 10));
                 using var db = new KevinDbContext();
-                //获取需要压缩的记录  
-                var msgData = await db.Set<TAIChatMessageStore>().Where(t => t.IsDelete == false && t.ThreadId == thread_id && t.IsCompaction == false).OrderByDescending(t => t.Timestamp).ToListAsync();
-                var comDataDic = new Dictionary<string, List<string>>();
-                var comDataList = new List<TAIChatMessageStore>();
-                int userTurns = aiapp.ConversationTurnsExceed;
+                //获取未压缩的记录（按时间升序，便于按完整用户轮分组）
+                var msgData = await db.Set<TAIChatMessageStore>().Where(t => t.IsDelete == false && t.ThreadId == thread_id && t.IsCompaction == false).OrderBy(t => t.Timestamp).ToListAsync();
+                if (msgData.Count == 0)
+                {
+                    return true;
+                }
+                // 按完整用户轮分组：遇到 user 开启新的一轮，开头的非 user 消息归入第一轮
+                var turns = new List<List<TAIChatMessageStore>>();
                 foreach (var item in msgData)
                 {
-                    if (userTurns > 0)
+                    if (turns.Count == 0 || item.Role == ChatRole.User.Value)
                     {
-                        if (item.Role == ChatRole.User.Value)
-                        {
-                            userTurns--;
-                        }
+                        turns.Add(new List<TAIChatMessageStore>());
                     }
-                    else
-                    {
-                        comDataList.Add(item);
-                        if (item.Role == ChatRole.User.Value)
-                        {
-                            item.IsCompaction = true;
-                            item.UpdateTime = DateTime.Now;
-                            comDataDic.Add(item.Timestamp?.ToString() ?? Guid.NewGuid().ToString(), comDataList.Where(t => !string.IsNullOrEmpty(t.SerializedMessage)).Select(t => t.SerializedMessage ?? "").ToList());
-                            comDataList = new List<TAIChatMessageStore>();
-                        }
-                    }
+                    turns[^1].Add(item);
+                }
+                // 最近 N 轮保底：不参与压缩
+                var keepTurns = Math.Max(1, aiapp.ConversationTurnsExceed);
+                var compactableTurns = Math.Max(0, turns.Count - keepTurns);
+                if (compactableTurns == 0)
+                {
+                    return true;
+                }
+                // 估算未压缩历史总量：与回放侧同一套估算，避免 JSON 转义把中文体积放大
+                var turnTokens = turns.Select(turn => turn.Sum(t => EstimateStoredMessageTokens(t.SerializedMessage, aiapp.ContentLengthLimit))).ToList();
+                var totalTokens = turnTokens.Sum();
+                var triggerTokens = (long)askBudget * triggerRatio / 100;
+                if (totalTokens <= triggerTokens)
+                {
+                    return true;
+                }
+                var targetTokens = (long)askBudget * targetRatio / 100;
+                // 从最旧的轮开始选择要压缩的轮，直到总量降到目标比例
+                var selectedTurns = new List<List<TAIChatMessageStore>>();
+                var remainTokens = totalTokens;
+                for (var i = 0; i < compactableTurns && remainTokens > targetTokens; i++)
+                {
+                    selectedTurns.Add(turns[i]);
+                    remainTokens -= turnTokens[i];
+                }
+                // 每轮生成一条摘要；只标记成功进入压缩列表的轮，避免压缩失败时消息被隐藏却没有摘要
+                var comDataDic = new Dictionary<string, List<string>>();
+                var compactedTurns = new List<List<TAIChatMessageStore>>();
+                foreach (var turn in selectedTurns)
+                {
+                    var serialized = turn.Where(t => !string.IsNullOrEmpty(t.SerializedMessage)).Select(t => t.SerializedMessage!).ToList();
+                    if (serialized.Count == 0) continue;
+                    var key = turn.FirstOrDefault(t => t.Role == ChatRole.User.Value)?.Timestamp?.ToString() ?? turn[0].Id.ToString();
+                    comDataDic[key] = serialized;
+                    compactedTurns.Add(turn);
                 }
                 if (comDataDic.Count > 0)
                 {
@@ -1195,13 +1281,44 @@ namespace kevin.Application.Services.AI
                             });
                         }
                     }
-                    db.Set<TAIChatMessageStoreCompaction>().AddRange(addList.ToList());
-                    db.SaveChanges();
+                    if (addList.Count > 0)
+                    {
+                        db.Set<TAIChatMessageStoreCompaction>().AddRange(addList);
+                        // 整轮标记：被压缩的 user/assistant/tool 消息全部排除出后续回放，摘要由压缩表提供；
+                        // 只在这里标记并保存，模型调用中途异常时不会落库，下轮会重试
+                        foreach (var turn in compactedTurns)
+                        {
+                            foreach (var item in turn)
+                            {
+                                item.IsCompaction = true;
+                                item.UpdateTime = DateTime.Now;
+                            }
+                        }
+                        db.SaveChanges();
+                    }
                     #endregion
                 }
 
             }
             return true;
+        }
+
+        /// <summary>
+        /// 估算入库消息占用的Token（与回放侧同一套估算：反序列化后按内容类型计算，避免JSON转义把中文体积放大；统一口径见 TokenEstimator）
+        /// </summary>
+        private static int EstimateStoredMessageTokens(string? serializedMessage, int toolResultLengthLimit)
+        {
+            if (string.IsNullOrEmpty(serializedMessage)) return 0;
+            try
+            {
+                var message = JsonSerializer.Deserialize<ChatMessage>(serializedMessage);
+                if (message == null) return serializedMessage.Length;
+                return KevinChatMessageStore.EstimateMessageSize(message, toolResultLengthLimit);
+            }
+            catch
+            {
+                return serializedMessage.Length;
+            }
         }
 
     }

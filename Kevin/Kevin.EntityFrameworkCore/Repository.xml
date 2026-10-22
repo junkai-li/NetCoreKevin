@@ -229,6 +229,18 @@
         <member name="M:Kevin.EntityFrameworkCore.Migrations.记忆自动召回.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:Kevin.EntityFrameworkCore.Migrations.百分比压缩对话">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.百分比压缩对话.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.百分比压缩对话.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Kevin.EntityFrameworkCore.Migrations.百分比压缩对话.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="T:Kevin.EntityFrameworkCore._.Data.Repository`2">
             <summary>
             仓储类与类型Id

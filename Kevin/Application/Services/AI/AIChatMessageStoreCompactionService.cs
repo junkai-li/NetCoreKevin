@@ -103,18 +103,33 @@ namespace kevin.Application.Services.AI
         /// 根据线程id获取提示词
         /// </summary>
         /// <param name="threadId"></param>
+        /// <param name="maxLength">摘要总长度上限（0=不限制）；超长时丢弃更早的摘要，优先保留最近的</param>
         /// <returns></returns>
-        public async Task<String> GetThreadPrompt(string threadId)
+        public async Task<String> GetThreadPrompt(string threadId, int maxLength = 0)
         {
-            var prompt = "";
             var data = await AIChatMessageStoreCompactionRp.Query(isDataPer: false, isTenant: false).Where(t => t.IsDelete == false && t.ThreadId == threadId).OrderBy(t => t.CreateTime).ToListAsync();
-            if (data != default && data.Count > 0)
+            if (data == default || data.Count == 0) return "";
+            // 摘要本身也计入 systemPrompt 预算：超长时从最新往回取，优先保留最近的摘要
+            var selected = new List<TAIChatMessageStoreCompaction>();
+            var totalLength = 0;
+            for (var i = data.Count - 1; i >= 0; i--)
             {
-                prompt = " 历史对话（压缩提取摘要版本）：";
-                for (int i = 1; i <= data.Count; i++)
-                {
-                    prompt += "\n " + i + $".时间{data[i - 1].CreateTime.ToString("yyyy-MM-dd HH:mm:ss")}：内容如下：" + data[i - 1].CompactionResultMessageText;
-                }
+                var itemLength = data[i].CompactionResultMessageText?.Length ?? 0;
+                if (maxLength > 0 && selected.Count > 0 && totalLength + itemLength > maxLength) break;
+                selected.Add(data[i]);
+                totalLength += itemLength;
+                if (maxLength > 0 && totalLength >= maxLength) break;
+            }
+            selected.Reverse();
+            var prompt = " 历史对话（压缩提取摘要版本）：";
+            var omitted = data.Count - selected.Count;
+            if (omitted > 0)
+            {
+                prompt += $"\n（更早的 {omitted} 条摘要因上下文预算已省略）";
+            }
+            for (int i = 1; i <= selected.Count; i++)
+            {
+                prompt += "\n " + i + $".时间{selected[i - 1].CreateTime.ToString("yyyy-MM-dd HH:mm:ss")}：内容如下：" + selected[i - 1].CompactionResultMessageText;
             }
             return prompt;
         }
@@ -125,18 +140,9 @@ namespace kevin.Application.Services.AI
         [Description("获取聊天对话历史记录，当用户询问聊天记录时调用，返回用户历史对话(压缩摘要版本)")]
         public async Task<String> GetAIToolThreadPrompt()
         {
-            var prompt = "";
             var id = (_aIShareInfoService.GetData()?.AIChatsId.ToString() ?? "");
-            var data = await AIChatMessageStoreCompactionRp.Query(isDataPer: false, isTenant: false).Where(t => t.IsDelete == false && t.ThreadId == id).OrderBy(t => t.CreateTime).ToListAsync();
-            if (data != default && data.Count > 0)
-            {
-                prompt = " 历史对话（压缩摘要版本）：";
-                for (int i = 1; i <= data.Count; i++)
-                {
-                    prompt += "\n " + i + $".时间{data[i - 1].CreateTime.ToString("yyyy-MM-dd HH:mm:ss")}：内容如下：" + data[i - 1].CompactionResultMessageText;
-                }
-            }
-            return prompt;
+            // 工具结果同样受上下文限制：摘要太长时只返回最近的，避免一次工具调用撑爆输入
+            return await GetThreadPrompt(id, 20000);
         }
     }
 }
