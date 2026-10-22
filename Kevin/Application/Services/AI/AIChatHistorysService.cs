@@ -920,8 +920,9 @@ namespace kevin.Application.Services.AI
                 }
                 else
                 {
-                    // 当前段放不下时截断保留，后续内容不再纳入，避免半截上下文干扰模型
-                    result.Add(content.Substring(0, budget));
+                    // 当前段放不下时截断保留，复用 SubstringText 追加“已截断”提示，
+                    // 避免模型把半截内容当成全文；后续内容不再纳入，避免半截上下文干扰模型
+                    result.Add(StringHelper.SubstringText(content, budget));
                     break;
                 }
             }
