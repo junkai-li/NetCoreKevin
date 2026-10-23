@@ -154,9 +154,9 @@ namespace Kevin.Web.Basics.Controllers
         [ActionDescription("新增编辑用户信息")]
         [Transactional]
         [HttpLog("用户管理", "新增编辑用户信息")]
-        public bool EditUser(dtoUser user)
+        public async Task<bool> EditUser(dtoUser user)
         {
-            return _userService.EditUser(user);
+            return await _userService.EditUser(user);
         }
 
         /// <summary>

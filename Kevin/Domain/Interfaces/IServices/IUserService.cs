@@ -87,12 +87,13 @@ namespace kevin.Domain.Interfaces.IServices
         /// <returns></returns> 
         Task<dtoUser> GetSysUserWhereId(long Id);
 
+
         /// <summary>
         /// 新增编辑用户信息 
         /// </summary>
         /// <param name="user">user</param>
         /// <returns></returns> 
-        bool EditUser(dtoUser user);
+        Task<bool> EditUser(dtoUser user);
 
         /// <summary>
         /// 删除用户信息 

@@ -400,7 +400,7 @@ namespace kevin.Application
         /// </summary>
         /// <param name="user">user</param>
         /// <returns></returns> 
-        public bool EditUser(dtoUser user)
+        public async Task<bool> EditUser(dtoUser user)
         {
             var data = userRp.Query().Where(x => x.Id == user.Id && x.IsDelete == false && x.IsSystem == true).FirstOrDefault();
             var UserPh = userRp.Query().Where(t => t.Phone == user.Phone && t.IsDelete == false && t.IsSystem == true).FirstOrDefault();
@@ -471,7 +471,9 @@ namespace kevin.Application
             //处理其他信息
             EditUserInfo(user);
             //处理处理职位信息
-            positionService.AddEditUserBindPosition(user.Id, user.Positions?.Select(t => t.Id).ToList() ?? new List<long>());
+            //必须 await：这里不 await 等于后台旁路，位置信息会在 [Transactional] 提交时与同一连接上的 COMMIT 抢用，
+            //报 This MySqlConnection is already in use，且这笔写也不会进事务
+            await positionService.AddEditUserBindPosition(user.Id, user.Positions?.Select(t => t.Id).ToList() ?? new List<long>());
             return true;
         }
         /// <summary>
