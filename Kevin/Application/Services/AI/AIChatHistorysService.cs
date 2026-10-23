@@ -502,6 +502,14 @@ namespace kevin.Application.Services.AI
                             {
                                 await output.WriteAsync("toolcalls", json);
                             },
+                            // 自带工具（网关执行）的调用：推给协议出口供 OpenAI 客户端展示工具调用（与网页端“工具调用”面板同一开关）
+                            LocalToolCallCallback = async (json) =>
+                            {
+                                if (aiapp.IsToolLog)
+                                {
+                                    await output.WriteAsync("localtoolcalls", json);
+                                }
+                            },
                         };
                         // 工具续轮：调用方回传了工具结果时，本轮模型输入用工具结果消息替代普通用户消息（assistant 调用帧已随上一轮回复入库）
                         var turnMessages = BuildTurnMessages(par, mgs);

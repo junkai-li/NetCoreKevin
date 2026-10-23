@@ -75,8 +75,8 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
             {
                 Data = myApps.Select(t => new OpenAICompatibleModelItem
                 {
-                    // 模型 Id 即智能体 Id（雪花 id 字符串），客户端原样回传以定位智能体
-                    Id = t.Id.ToString(),
+                    // 模型 Id 默认即智能体名称，客户端原样回传以定位智能体；名称为空时退回智能体 Id
+                    Id = string.IsNullOrWhiteSpace(t.Name) ? t.Id.ToString() : t.Name.Trim(),
                     Created = t.CreateTime == default ? 0 : new DateTimeOffset(t.CreateTime).ToUnixTimeSeconds(),
                     OwnedBy = "net_ai_web",
                 }).ToList()
@@ -100,7 +100,7 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
                 }
                 if (string.IsNullOrWhiteSpace(req.Model))
                 {
-                    throw new OpenAIProtocolException(400, "model 不能为空：请传智能体 Id（可从 GET /v1/models 获取）");
+                    throw new OpenAIProtocolException(400, "model 不能为空：请传智能体名称或 Id（可从 GET /v1/models 获取）");
                 }
 
                 // 最后一条 user 消息即本轮提问；首条 user 消息文本用于“无任何会话标识”时的窗口指纹
@@ -330,20 +330,21 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
         private static OpenAICompatibleSetting GetSetting()
             => ConfigHelper.GetSection<OpenAICompatibleSetting>("OpenAICompatibleSetting") ?? new OpenAICompatibleSetting();
 
-        /// <summary>智能体解析：model 即智能体 Id；兼容 agent-{id} 写法与名称匹配（先区分大小写、再忽略大小写）</summary>
+        /// <summary>智能体解析：model 默认即智能体名称；兼容智能体 Id 与 agent-{id} 历史写法（名称先区分大小写、再忽略大小写）</summary>
         private static AIAppsDto? ResolveAgent(List<AIAppsDto> myApps, string model)
         {
             var name = model.Trim();
-            // 主用法：model 即智能体 Id（GET /v1/models 的 id 字段）；agent-{id} 为历史写法，一并兼容
+            // 主用法：model 即智能体名称（GET /v1/models 的 id 字段），按名称定位智能体
+            var byName = myApps.FirstOrDefault(t => string.Equals(t.Name?.Trim(), name, StringComparison.Ordinal))
+                ?? myApps.FirstOrDefault(t => string.Equals(t.Name?.Trim(), name, StringComparison.OrdinalIgnoreCase));
+            if (byName != null) return byName;
+            // 兼容旧用法：model 传智能体 Id（雪花 id 字符串）或 agent-{id} 写法
             var idText = name.StartsWith("agent-", StringComparison.OrdinalIgnoreCase) ? name.Substring("agent-".Length) : name;
             if (long.TryParse(idText, out var agentId))
             {
-                var byId = myApps.FirstOrDefault(t => t.Id == agentId);
-                if (byId != null) return byId;
+                return myApps.FirstOrDefault(t => t.Id == agentId);
             }
-            // 容错：仍接受智能体名称
-            return myApps.FirstOrDefault(t => string.Equals(t.Name, name, StringComparison.Ordinal))
-                ?? myApps.FirstOrDefault(t => string.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase));
+            return null;
         }
 
         private static CapturedUserMessage? FindLastUserMessage(List<OpenAICompatibleMessage> messages)

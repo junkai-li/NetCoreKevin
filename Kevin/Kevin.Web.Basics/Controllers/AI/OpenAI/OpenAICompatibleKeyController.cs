@@ -97,7 +97,7 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
         public async Task<OpenAICompatibleIntegrationDocDto> GetIntegrationDoc()
         {
             // 拼当前请求的公网 URL，便于前端/外部按环境切换
-            var baseUrl = $"{Request.Scheme}://{Request.Host}/api/v1";
+            var baseUrl = $"https://{Request.Host}/api/v1";
             return await _service.GetMyIntegrationDoc(baseUrl);
         }
     }

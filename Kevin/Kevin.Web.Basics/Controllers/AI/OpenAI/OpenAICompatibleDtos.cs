@@ -11,7 +11,7 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
     /// </summary>
     public class OpenAICompatibleChatRequest
     {
-        /// <summary>模型名：即智能体 Id，取值来自 GET /v1/models 返回的列表</summary>
+        /// <summary>模型名：默认即智能体名称（兼容智能体 Id），取值来自 GET /v1/models 返回的列表</summary>
         public string? Model { get; set; }
 
         /// <summary>消息列表：取最后一条 role=user 的消息作为本轮提问，其余历史仅用于识别会话</summary>

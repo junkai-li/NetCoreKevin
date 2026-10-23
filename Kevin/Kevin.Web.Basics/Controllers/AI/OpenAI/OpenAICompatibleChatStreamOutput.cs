@@ -11,6 +11,8 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
     /// 把各通道分片翻译成 OpenAI 流式响应帧（chat.completion.chunk + 结尾 data: [DONE]）写入当前 HTTP 响应。
     /// <para>
     /// 通道映射：aimsg → delta.content；aIReasoningContentMsg → delta.reasoning_content（可开关）；
+    /// toolcalls → 调用方声明的透传工具调用（由调用方执行）；localtoolcalls → 智能体自带工具调用
+    /// （网关已执行，仅流式下发做展示，不影响 finish_reason）；
     /// processmsg / aIToolsContentMsg / recommendmsg 属于智能体内部过程信息，不进入协议输出。
     /// </para>
     /// <para>
@@ -36,6 +38,10 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
         private bool _firstChunkSent;
         // 本轮透传工具调用（网关不执行，收齐后下发/组装，由客户端执行）
         private readonly List<OpenAICompatibleToolCall> _collectedToolCalls = new();
+        // 工具调用 index 全局自增：透传工具与自带工具可能出现在同一响应里，共用一套序号避免按 index 分组时冲突
+        private int _nextToolCallIndex;
+        // 已下发的自带工具调用 id：同一调用可能多次回调，按 CallId 去重
+        private readonly HashSet<string> _emittedLocalToolCallIds = new(StringComparer.Ordinal);
         // 流式兑底：记录本轮是否真的下发过 delta.content，以及累加的 reasoning 文本。
         // reasoning 模型（如 DeepSeek-R1 / Qwen3）有时只输出思考过程、不输出最终 TextContent，
         // 此时 OpenAI 客户端不读 reasoning_content 字段会看到空 content = “无回复”。
@@ -89,7 +95,7 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
                     {
                         break;
                     }
-                    var index = _collectedToolCalls.Count;
+                    var index = _nextToolCallIndex++;
                     _collectedToolCalls.Add(toolCall);
                     if (_streamEnabled)
                     {
@@ -101,6 +107,26 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
                             }
                         }, null);
                     }
+                    break;
+                case "localtoolcalls":
+                    // 智能体自带工具（网关已执行）：仅流式下发 delta.tool_calls 供客户端展示工具调用；
+                    // 这些调用无需调用方执行，因此不进入 _collectedToolCalls、不影响 finish_reason 与非流式 message.tool_calls
+                    if (!_streamEnabled)
+                    {
+                        break;
+                    }
+                    var localToolCall = ParseToolCall(message);
+                    if (localToolCall == default || !_emittedLocalToolCallIds.Add(localToolCall.Id))
+                    {
+                        break;
+                    }
+                    await WriteChunkAsync(new OpenAICompatibleDelta
+                    {
+                        ToolCalls = new List<OpenAICompatibleDeltaToolCall>
+                        {
+                            new() { Index = _nextToolCallIndex++, Id = localToolCall.Id, Type = localToolCall.Type, Function = localToolCall.Function }
+                        }
+                    }, null);
                     break;
                 default:
                     // processmsg / aIToolsContentMsg / recommendmsg：智能体内部过程，不进入 OpenAI 协议输出

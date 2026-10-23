@@ -296,6 +296,8 @@
             把各通道分片翻译成 OpenAI 流式响应帧（chat.completion.chunk + 结尾 data: [DONE]）写入当前 HTTP 响应。
             <para>
             通道映射：aimsg → delta.content；aIReasoningContentMsg → delta.reasoning_content（可开关）；
+            toolcalls → 调用方声明的透传工具调用（由调用方执行）；localtoolcalls → 智能体自带工具调用
+            （网关已执行，仅流式下发做展示，不影响 finish_reason）；
             processmsg / aIToolsContentMsg / recommendmsg 属于智能体内部过程信息，不进入协议输出。
             </para>
             <para>
@@ -362,7 +364,7 @@
             <summary>写入/续期会话映射（滑动过期：每次命中都按配置时长重新计时）</summary>
         </member>
         <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.ResolveAgent(System.Collections.Generic.List{kevin.Domain.Share.Dtos.AI.AIAppsDto},System.String)">
-            <summary>智能体解析：model 即智能体 Id；兼容 agent-{id} 写法与名称匹配（先区分大小写、再忽略大小写）</summary>
+            <summary>智能体解析：model 默认即智能体名称；兼容智能体 Id 与 agent-{id} 历史写法（名称先区分大小写、再忽略大小写）</summary>
         </member>
         <member name="M:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController.CollectTrailingToolResults(System.Collections.Generic.List{Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleMessage})">
             <summary>
@@ -406,7 +408,7 @@
             </summary>
         </member>
         <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatRequest.Model">
-            <summary>模型名：即智能体 Id，取值来自 GET /v1/models 返回的列表</summary>
+            <summary>模型名：默认即智能体名称（兼容智能体 Id），取值来自 GET /v1/models 返回的列表</summary>
         </member>
         <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatRequest.Messages">
             <summary>消息列表：取最后一条 role=user 的消息作为本轮提问，其余历史仅用于识别会话</summary>

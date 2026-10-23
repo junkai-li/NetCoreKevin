@@ -132,9 +132,9 @@
             </a-form-item>
           </a-col>
           <a-col :span="10">
-            <a-form-item label="Model（智能体 Id）" required>
+            <a-form-item label="Model（智能体名称）" required>
               <a-select
-                v-model:value="selectedModelId"
+                v-model:value="selectedModelName"
                 placeholder="选择可用的智能体"
                 @change="renderSamples"
                 show-search
@@ -143,12 +143,12 @@
                 <a-select-option
                   v-for="m in integrationDoc.models"
                   :key="m.id"
-                  :value="m.id"
+                  :value="m.name"
                 >
-                  {{ m.id }} · {{ m.name }}
+                  {{ m.name }} · {{ m.id }}
                 </a-select-option>
               </a-select>
-              <div class="form-tip">客户端 <code>model</code> 字段直接传智能体 Id</div>
+              <div class="form-tip">客户端 <code>model</code> 字段直接传智能体名称（也兼容智能体 Id）</div>
             </a-form-item>
           </a-col>
         </a-row>
@@ -156,7 +156,7 @@
         <a-form-item label="可用模型列表（GET /v1/models）">
           <a-space wrap>
             <a-tag v-for="m in integrationDoc.models" :key="m.id" color="purple">
-              {{ m.id }} {{ m.name }}
+              {{ m.name }} {{ m.id }}
             </a-tag>
             <a-tag v-if="!integrationDoc.models.length" color="default">暂无可用智能体</a-tag>
           </a-space>
@@ -188,7 +188,7 @@
           type="info"
           show-icon
           message="对接要点"
-          description="1) Authorization 头传 Bearer &lt;key&gt;；2) model 即智能体 Id，可从 GET /v1/models 拉取；3) 流式/非流式都按 OpenAI 协议下发；4) 删除/禁用 Key 后网关约 5 分钟内使新缓存失效。"
+          description="1) Authorization 头传 Bearer &lt;key&gt;；2) model 默认传智能体名称（也兼容智能体 Id），可从 GET /v1/models 拉取；3) 流式/非流式都按 OpenAI 协议下发；4) 删除/禁用 Key 后网关约 5 分钟内使新缓存失效。"
         />
       </a-form>
     </a-card>
@@ -322,7 +322,7 @@ const regenerating = ref(false);
 const keyInfo = ref(null); // OpenAICompatibleKeyInfoDto
 const integrationDoc = ref(null); // OpenAICompatibleIntegrationDocDto
 const baseUrl = ref('');
-const selectedModelId = ref(null);
+const selectedModelName = ref(null);
 const sampleTab = ref('curl');
 
 // ===== 备注名编辑 =====
@@ -474,7 +474,7 @@ const filterModelOption = (input, option) => {
 const renderSamples = () => {
   if (!integrationDoc.value) return;
   const base = (baseUrl.value || '').replace(/\/+$/, '');
-  const model = selectedModelId.value != null ? String(selectedModelId.value) : '<model id>';
+  const model = selectedModelName.value != null ? String(selectedModelName.value) : '<model name>';
   // 明文 key 不直接进 store（无 plaintext 时用占位）
   const key = keyInfo.value?.maskKey || '<your-api-key>';
   integrationDoc.value.samples = {
@@ -551,7 +551,7 @@ const loadIntegrationDoc = async () => {
       integrationDoc.value = res.data;
       baseUrl.value = res.data.baseUrl || '';
       if (res.data.models && res.data.models.length > 0) {
-        selectedModelId.value = res.data.models[0].id;
+        selectedModelName.value = res.data.models[0].name;
       }
       renderSamples();
     }
@@ -560,7 +560,7 @@ const loadIntegrationDoc = async () => {
   }
 };
 
-watch(selectedModelId, () => renderSamples());
+watch(selectedModelName, () => renderSamples());
 watch(baseUrl, () => renderSamples());
 
 onMounted(async () => {

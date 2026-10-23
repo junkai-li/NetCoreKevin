@@ -160,9 +160,9 @@ namespace kevin.Application.Services.AI
             // 占位 key 与模型，文档展示时再替换成真实值（前端在复制按钮回调中替换）
             doc.Samples = new OpenAICompatibleIntegrationSamples
             {
-                Curl = BuildCurlSample(doc.BaseUrl, "<your-api-key>", "<model id>"),
-                Python = BuildPythonSample(doc.BaseUrl, "<your-api-key>", "<model id>"),
-                NodeJs = BuildNodeJsSample(doc.BaseUrl, "<your-api-key>", "<model id>"),
+                Curl = BuildCurlSample(doc.BaseUrl, "<your-api-key>", "<model name>"),
+                Python = BuildPythonSample(doc.BaseUrl, "<your-api-key>", "<model name>"),
+                NodeJs = BuildNodeJsSample(doc.BaseUrl, "<your-api-key>", "<model name>"),
             };
             return doc;
         }
