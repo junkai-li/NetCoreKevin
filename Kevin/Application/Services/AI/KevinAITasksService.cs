@@ -282,12 +282,12 @@ namespace kevin.Application.Services.AI
         /// <param name="taskName">任务名称</param>
         /// <param name="taskContent">任务内容</param>
         /// <returns></returns>
-        public Task<string> RunTask(string userId, string taskName, string taskContent, AIShareInfoDto taskdata)
+        public async Task<string> RunTask(string userId, string taskName, string taskContent, AIShareInfoDto taskdata)
         {
             var lock1 = distLock.TryAcquireLock("kevin.Application.Services.AI.RunTask:" + userId + taskName);
             if (lock1 == null)
             {
-                return Task.FromResult("执行定时任务失败：" + userId + taskName + ",异常信息：任务正在执行中，请勿重复执行");
+                return "执行定时任务失败：" + userId + taskName + ",异常信息：任务正在执行中，请勿重复执行";
             }
             using (lock1)
             {
@@ -302,12 +302,12 @@ namespace kevin.Application.Services.AI
                         var _aIAppsService = _serviceProvider?.GetService<IAIAppsService>();
                         if (_aIAppsService != null)
                         {
-                            var aiapp = _aIAppsService.GetNoPerDetails(aichat.AppId).Result;
+                            var aiapp = await _aIAppsService.GetNoPerDetails(aichat.AppId);
                             // Auto模式解析：随机选择一个可用模型
                             if (string.Equals(aiapp.ChatModelID, "auto", StringComparison.OrdinalIgnoreCase))
                             {
                                 var _aIModelsService = _serviceProvider?.GetService<IAIModelsService>();
-                                var allModels = _aIModelsService?.GetNoPerALLList(1).Result ?? new System.Collections.Generic.List<AIModelsDto>();
+                                var allModels = _aIModelsService == null ? new System.Collections.Generic.List<AIModelsDto>() : await _aIModelsService.GetNoPerALLList(1);
                                 if (allModels.Count == 0)
                                     throw new UserFriendlyException("当前没有可用的聊天模型，请联系管理员配置模型。");
                                 aiapp.ChatModelID = allModels[new Random().Next(allModels.Count)].Id.ToString();
@@ -315,19 +315,19 @@ namespace kevin.Application.Services.AI
                             var aIModels = _aIModelsRp.FirstOrDefault(t => t.Id == aiapp.ChatModelID.ToTryInt64(), isDataPer: false, isTenant: false);
                             var aIPrompts = _aIPromptsRp.FirstOrDefault(t => t.Id == aiapp.AIPromptID, isDataPer: false, isTenant: false).MapTo<AIPromptsDto>();
                             string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
-                            var chatAgOs = _aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, new Domain.Share.Dtos.AI.AIChatHistorysDto
+                            var chatAgOs = await _aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, new Domain.Share.Dtos.AI.AIChatHistorysDto
                             {
                                 AIChatsId = SnowflakeIdService.GetNextId(),
                                 Id = SnowflakeIdService.GetNextId(),
                                 CreateTime = DateTime.Now
-                            }).Result;
+                            });
                             switch (aIModels.AIType)
                             {
                                 case Domain.Share.Enums.AIType.OpenAI:
                                 case Domain.Share.Enums.AIType.ZhiPuAI:
                                 case Domain.Share.Enums.AIType.AzureOpenAI:
                                 default:
-                                    messageContent = _aIAgentService.CreateOpenAIAgentAndSendMSG(new AISetting
+                                    messageContent = (await _aIAgentService.CreateOpenAIAgentAndSendMSG(new AISetting
                                     {
                                         AIUrl = aIModels.EndPoint,
                                         AIKeySecret = aIModels.ModelKey,
@@ -341,12 +341,12 @@ namespace kevin.Application.Services.AI
                                         IsMemory = aiapp.IsMemory,
                                         IsKnowledgeBase = aiapp.KmsId.HasValue && aiapp.KmsId.Value > 0,
                                         NetworkTimeout = aiapp.NetworkTimeout,
-                                    }, chatAgOs, new ChatMessage(ChatRole.User, [new TextContent($"{taskContent} \n 必须根据相关技能，一次性完成所有步骤在返回结果")])).Result.Item2;
+                                    }, chatAgOs, new ChatMessage(ChatRole.User, [new TextContent($"{taskContent} \n 必须根据相关技能，一次性完成所有步骤在返回结果")]))).Item2;
                                     break;
                             }
                         }
                     }
-                    _messageService.AddAIMessage(new Domain.Share.Dtos.Msg.MessageDto
+                   await _messageService.AddAIMessage(new Domain.Share.Dtos.Msg.MessageDto
                     {
                         SendUserId = userId,
                         Title = "AI:RunTask：执行任务" + taskName,
@@ -354,12 +354,12 @@ namespace kevin.Application.Services.AI
                         SysMsgType = MessageType.AI,
                         RecipientUserId = userId
                     });
-                    return Task.FromResult($"执行任务：{taskName}，内容：{taskContent} 返回结果：{messageContent} 执行结果：成功");
+                    return $"执行任务：{taskName}，内容：{taskContent} 返回结果：{messageContent} 执行结果：成功";
                 }
                 catch (Exception ex)
                 {
                     LogHelper.logger.Error("执行定时任务失败：" + userId + taskName + ",异常信息：" + ex.Message, ex);
-                    return Task.FromResult("执行定时任务失败：" + userId + taskName + ",异常信息：" + ex.Message);
+                    return "执行定时任务失败：" + userId + taskName + ",异常信息：" + ex.Message;
                 }
             }
         }

@@ -52,10 +52,11 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
             JsonSerializer.SerializeToElement(this.ThreadDbKey);
         }
 
-        protected override ValueTask<IEnumerable<ChatMessage>> ProvideChatHistoryAsync(
+        protected override async ValueTask<IEnumerable<ChatMessage>> ProvideChatHistoryAsync(
          InvokingContext context, CancellationToken cancellationToken = default)
         {
-            var data = _chatMessageStore.GetMessagesAsync(this.ThreadDbKey, cancellationToken, MaxUserTurns).Result;
+            //必须 await：.Result 会阻塞线程池线程，模型调用期间容易造成线程饥饿甚至死锁
+            var data = await _chatMessageStore.GetMessagesAsync(this.ThreadDbKey, cancellationToken, MaxUserTurns);
             var messages = data.OrderByDescending(t => t.CreateTime).ToList().ConvertAll(x => JsonSerializer.Deserialize<ChatMessage>(x.SerializedMessage!)!);
             messages.Reverse();
             messages = messages.ToList();
@@ -150,7 +151,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
             //{
             //    messages.Add(new ChatMessage(ChatRole.User, "请简单介绍一下你自己")); // 可以根据需要自定义系统消息
             //}
-            return new(messages);
+            return messages;
         }
         protected override async ValueTask StoreChatHistoryAsync(InvokedContext context, CancellationToken cancellationToken = default)
         {

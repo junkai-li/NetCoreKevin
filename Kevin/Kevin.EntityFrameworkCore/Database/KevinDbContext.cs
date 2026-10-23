@@ -550,7 +550,9 @@ namespace Repository.Database
                 object result;
                 try
                 {
-                    result = new KevinDbContext().GetType().GetMethod("ComparisonEntity").MakeGenericMethod(type).Invoke(new KevinDbContext(), parameters);
+                    //复用当前上下文：这里每次修改实体都 new 一个 DbContext 会额外开一条连接，
+                    //在 [Transactional] 请求里会把环境事务升级成 XA 分布式事务，提交阶段极易失败并残留持锁
+                    result = GetType().GetMethod("ComparisonEntity").MakeGenericMethod(type).Invoke(this, parameters);
                 }
                 catch (Exception ex)
                 {
