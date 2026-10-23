@@ -88,8 +88,6 @@ namespace kevin.AI.AgentFramework
             var collectedToolCalls = new Dictionary<string, (string Name, Dictionary<string, object?> Arguments)>(StringComparer.Ordinal);
             // 框架已执行完成的调用集合：补偿执行时据此跳过，避免重复执行
             var completedToolCallIds = new HashSet<string>(StringComparer.Ordinal);
-            // 已回传协议出口的自带工具调用：同一调用可能分片到达/多路径回调，按 CallId 去重
-            var emittedLocalToolCallIds = new HashSet<string>(StringComparer.Ordinal);
             // openAIClientOptions 必须在 aiRun 内创建，确保模型切换后使用新的 Endpoint
             OpenAIClientOptions openAIClientOptions = new OpenAIClientOptions()
             {
@@ -163,12 +161,6 @@ namespace kevin.AI.AgentFramework
                                                     if (funcResult.CallId != default)
                                                     {
                                                         completedToolCallIds.Add(funcResult.CallId);
-                                                        // 自带工具执行完成：回传调用给协议出口（OpenAI 网关据此下发 delta.tool_calls）
-                                                        if (collectedToolCalls.TryGetValue(funcResult.CallId, out var localCall)
-                                                            && !IsExternalToolCall(aISetting, localCall.Name))
-                                                        {
-                                                            await EmitLocalToolCallAsync(aISetting, funcResult.CallId, localCall, emittedLocalToolCallIds);
-                                                        }
                                                     }
                                                     break;
 
@@ -251,12 +243,6 @@ namespace kevin.AI.AgentFramework
                                                 if (funcResult.CallId != default)
                                                 {
                                                     completedToolCallIds.Add(funcResult.CallId);
-                                                    // 自带工具执行完成：回传调用给协议出口（OpenAI 网关据此下发 delta.tool_calls）
-                                                    if (collectedToolCalls.TryGetValue(funcResult.CallId, out var localCall)
-                                                        && !IsExternalToolCall(aISetting, localCall.Name))
-                                                    {
-                                                        await EmitLocalToolCallAsync(aISetting, funcResult.CallId, localCall, emittedLocalToolCallIds);
-                                                    }
                                                 }
                                                 break;
                                             case TextReasoningContent reasoningContent:
@@ -281,9 +267,7 @@ namespace kevin.AI.AgentFramework
                 // 非流式路径同样回传外部工具调用：模型仅调工具不产出正文时 resultText 为空，调用必须独立回传
                 await EmitExternalToolCallsAsync(aISetting, collectedToolCalls);
                 // 终止轮补偿（与流式同逻辑）：被跳过的自带工具就地执行并落库
-                await ExecuteSkippedLocalToolCallsAsync(aISetting, chatClientAgentOptions, collectedToolCalls, completedToolCallIds, emittedLocalToolCallIds, cancellationToken);
-                // 兜底：始终没有执行结果的调用（如审批未通过、被框架丢弃）也补发一次，协议侧不丢工具调用
-                await EmitLocalToolCallsWithoutResultAsync(aISetting, collectedToolCalls, emittedLocalToolCallIds);
+                await ExecuteSkippedLocalToolCallsAsync(aISetting, chatClientAgentOptions, collectedToolCalls, completedToolCallIds, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -418,42 +402,13 @@ namespace kevin.AI.AgentFramework
             => !string.IsNullOrEmpty(name) && aISetting.ExternalToolNames?.Contains(name) == true;
 
         /// <summary>
-        /// 回传智能体自带工具（网关执行）的调用：payload 与外部工具回传格式一致（{"id","name","arguments"}，
-        /// arguments 为 JSON 字符串），由协议出口翻译成 OpenAI delta.tool_calls；同一 CallId 只回传一次。
-        /// <para>在拿到执行结果时回传：此时参数已按 CallId 聚合完整，避免流式分片导致的参数残缺。</para>
-        /// </summary>
-        private static async Task EmitLocalToolCallAsync(AISetting aISetting, string callId, (string Name, Dictionary<string, object?> Arguments) call, HashSet<string> emittedCallIds)
-        {
-            if (aISetting.LocalToolCallCallback == default) return;
-            if (string.IsNullOrEmpty(callId) || string.IsNullOrEmpty(call.Name)) return;
-            if (!emittedCallIds.Add(callId)) return;
-            var payload = System.Text.Json.JsonSerializer.Serialize(new
-            {
-                id = callId,
-                name = call.Name,
-                arguments = System.Text.Json.JsonSerializer.Serialize(call.Arguments)
-            });
-            await aISetting.LocalToolCallCallback.Invoke(payload);
-        }
-
-        /// <summary>兜底回传：收集到但始终没有执行结果的自带工具调用（正常执行路径已由结果分支回传）</summary>
-        private static async Task EmitLocalToolCallsWithoutResultAsync(AISetting aISetting, Dictionary<string, (string Name, Dictionary<string, object?> Arguments)> collectedToolCalls, HashSet<string> emittedCallIds)
-        {
-            foreach (var kv in collectedToolCalls)
-            {
-                if (IsExternalToolCall(aISetting, kv.Value.Name)) continue;
-                await EmitLocalToolCallAsync(aISetting, kv.Key, kv.Value, emittedCallIds);
-            }
-        }
-
-        /// <summary>
         /// 终止轮补偿执行：本轮把外部工具调用交还调用方时，FunctionInvokingChatClient 会跳过本轮全部工具调用
         /// （含智能体自带工具，模型同轮混调两类工具即命中），这里把"被跳过且未执行"的自带工具就地执行：
         /// 1) 结果追加落库（紧跟终止轮的助手调用帧之后），保证调用方续轮时工具调用与结果完整配对；
         /// 2) 执行结果照常输出"工具返回"日志，前端观感与框架执行一致。
         /// 补偿过程吞掉自身异常（执行失败转为错误结果），不影响本轮正常返回、不触发外层重试
         /// </summary>
-        private async Task ExecuteSkippedLocalToolCallsAsync(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, Dictionary<string, (string Name, Dictionary<string, object?> Arguments)> collectedToolCalls, HashSet<string> completedToolCallIds, HashSet<string> emittedLocalToolCallIds, CancellationToken cancellationToken)
+        private async Task ExecuteSkippedLocalToolCallsAsync(AISetting aISetting, ChatClientAgentOptions chatClientAgentOptions, Dictionary<string, (string Name, Dictionary<string, object?> Arguments)> collectedToolCalls, HashSet<string> completedToolCallIds, CancellationToken cancellationToken)
         {
             if (collectedToolCalls.Count == 0) return;
             // 只有"存在外部工具调用交还"才可能发生跳过；否则自带工具已被框架正常执行完毕
@@ -475,8 +430,6 @@ namespace kevin.AI.AgentFramework
             var results = new List<FunctionResultContent>(pending.Count);
             foreach (var (callId, name, arguments) in pending)
             {
-                // 被跳过的自带工具同样回传调用：协议侧才能看到这类工具调用（与框架直执行路径一致）
-                await EmitLocalToolCallAsync(aISetting, callId, (name, arguments), emittedLocalToolCallIds);
                 object? result = default;
                 string? errorMsg = default;
                 // 与框架执行一致：只执行可执行的 AIFunction；声明型/找不到的给出错误结果兜底（保证配对完整）

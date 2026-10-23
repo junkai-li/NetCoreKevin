@@ -7,17 +7,8 @@ using System.Text.Json;
 namespace Kevin.Web.Basics.Controllers.AI.OpenAI
 {
     /// <summary>
-    /// OpenAI 协议流式输出适配器：实现智能体管线的 <see cref="IChatStreamOutput"/> 端口，
-    /// 把各通道分片翻译成 OpenAI 流式响应帧（chat.completion.chunk + 结尾 data: [DONE]）写入当前 HTTP 响应。
-    /// <para>
-    /// 通道映射：aimsg → delta.content；aIReasoningContentMsg → delta.reasoning_content（可开关）；
-    /// toolcalls → 调用方声明的透传工具调用（由调用方执行）；localtoolcalls → 智能体自带工具调用
-    /// （网关已执行，仅流式下发做展示，不影响 finish_reason）；
-    /// processmsg / aIToolsContentMsg / recommendmsg 属于智能体内部过程信息，不进入协议输出。
-    /// </para>
-    /// <para>
-    /// 非流式请求时传 streamEnabled=false，实例退化为空实现（完整回复由控制器从落库结果组装）。
-    /// </para>
+    /// OpenAI 协议流式输出适配器：把智能体管线的通道分片翻译成 chat.completion.chunk 帧（结尾 data: [DONE]）。
+    /// aimsg → content；aIReasoningContentMsg → reasoning_content（可开关）；toolcalls → delta.tool_calls。
     /// </summary>
     internal sealed class OpenAICompatibleChatStreamOutput : IChatStreamOutput
     {
@@ -38,14 +29,11 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
         private bool _firstChunkSent;
         // 本轮透传工具调用（网关不执行，收齐后下发/组装，由客户端执行）
         private readonly List<OpenAICompatibleToolCall> _collectedToolCalls = new();
-        // 工具调用 index 全局自增：透传工具与自带工具可能出现在同一响应里，共用一套序号避免按 index 分组时冲突
+        // 透传工具调用的 index（delta.tool_calls 按 index 分组的序号）
         private int _nextToolCallIndex;
-        // 已下发的自带工具调用 id：同一调用可能多次回调，按 CallId 去重
-        private readonly HashSet<string> _emittedLocalToolCallIds = new(StringComparer.Ordinal);
-        // 流式兑底：记录本轮是否真的下发过 delta.content，以及累加的 reasoning 文本。
-        // reasoning 模型（如 DeepSeek-R1 / Qwen3）有时只输出思考过程、不输出最终 TextContent，
-        // 此时 OpenAI 客户端不读 reasoning_content 字段会看到空 content = “无回复”。
-        // CompleteAsync 阶段如果发现 content 一帧都没发过而 reasoning 有内容，就补一条 content 帧。
+        // 本轮是否出现过透传工具调用，用于跳过兜底文案
+        private bool _toolInvocationSeen;
+        // reasoning 兜底：本轮是否发过 content，以及累加的 reasoning 文本
         private bool _contentChunkSent;
         private readonly StringBuilder _accumulatedReasoning = new();
 
@@ -88,14 +76,14 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
                     }
                     break;
                 case "toolcalls":
-                    // 透传工具调用：非流式（streamEnabled=false）下也要收集，控制器据此组装非流式响应；
-                    // 流式下逐条下发 delta.tool_calls（网关侧已按 CallId 聚合，单帧携带完整调用，index 分组）
+                    // 透传工具调用：非流式仅收集，流式逐条下发 delta.tool_calls
                     var toolCall = ParseToolCall(message);
                     if (toolCall == default)
                     {
                         break;
                     }
                     var index = _nextToolCallIndex++;
+                    _toolInvocationSeen = true;
                     _collectedToolCalls.Add(toolCall);
                     if (_streamEnabled)
                     {
@@ -107,26 +95,6 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
                             }
                         }, null);
                     }
-                    break;
-                case "localtoolcalls":
-                    // 智能体自带工具（网关已执行）：仅流式下发 delta.tool_calls 供客户端展示工具调用；
-                    // 这些调用无需调用方执行，因此不进入 _collectedToolCalls、不影响 finish_reason 与非流式 message.tool_calls
-                    if (!_streamEnabled)
-                    {
-                        break;
-                    }
-                    var localToolCall = ParseToolCall(message);
-                    if (localToolCall == default || !_emittedLocalToolCallIds.Add(localToolCall.Id))
-                    {
-                        break;
-                    }
-                    await WriteChunkAsync(new OpenAICompatibleDelta
-                    {
-                        ToolCalls = new List<OpenAICompatibleDeltaToolCall>
-                        {
-                            new() { Index = _nextToolCallIndex++, Id = localToolCall.Id, Type = localToolCall.Type, Function = localToolCall.Function }
-                        }
-                    }, null);
                     break;
                 default:
                     // processmsg / aIToolsContentMsg / recommendmsg：智能体内部过程，不进入 OpenAI 协议输出
@@ -168,11 +136,9 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
             {
                 return;
             }
-            // reasoning 模型兑底：全程没下发过 delta.content 但 reasoning 有内容，
-            // 补一条 content 帧供不识别 reasoning_content 字段的 OpenAI 客户端读取。
-            if (!_contentChunkSent && _accumulatedReasoning.Length > 0)
+            // 全程没有 content 但有 reasoning 时补一条兜底帧；工具轮不补
+            if (!_contentChunkSent && !_toolInvocationSeen && _accumulatedReasoning.Length > 0)
             {
-                //兜底规定：如果 reasoning_content 有内容但 content 没有，补一条 content 帧，内容为“不太明白你的意思，请再详细描述一下。”
                 var fallback = "不太明白你的意思，请再详细描述一下。";
                 await WriteChunkAsync(new OpenAICompatibleDelta { Content = fallback }, null);
             }

@@ -10,8 +10,7 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// <summary>
         /// 下发一条流式分片。
         /// </summary>
-        /// <param name="channel">通道/事件名，与前端监听名一一对应：processmsg / aimsg / aIToolsContentMsg / aIReasoningContentMsg；
-        /// 另有仅 OpenAI 协议出口消费的结构化通道：toolcalls（调用方透传工具）、localtoolcalls（智能体自带工具）</param>
+        /// <param name="channel">通道/事件名：processmsg / aimsg / aIToolsContentMsg / aIReasoningContentMsg / toolcalls（透传工具）</param>
         /// <param name="message">分片内容</param>
         Task WriteAsync(string channel, string message);
     }

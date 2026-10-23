@@ -159,7 +159,7 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
                     {
                         // 失败路径没有可展示的正文：按错误回传，客户端可据 message 提示重试
                         throw new OpenAIProtocolException(500, result!.FailReason!, "server_error");
-                    } 
+                    }
                     // 透传工具调用轮：按 OpenAI 协议以 message.tool_calls + finish_reason=tool_calls 返回，
                     // 客户端执行完工具后把 role=tool 结果消息发回继续对话
                     var toolCalls = output.CollectedToolCalls;

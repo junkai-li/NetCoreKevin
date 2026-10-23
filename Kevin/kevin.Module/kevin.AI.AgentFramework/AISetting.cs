@@ -93,16 +93,6 @@
         public Func<string, Task>? ExternalToolCallCallback { get; set; }
 
         /// <summary>
-        /// 自带工具调用回调：智能体自身工具（网关执行）被模型调用并执行完成时触发，入参为单个调用的 JSON
-        /// （{"id","name","arguments"}，arguments 为 JSON 字符串）；语义同 <see cref="StreameCallback"/>。
-        /// <para>
-        /// 与 <see cref="ExternalToolCallCallback"/> 对称：后者回传调用方声明、由调用方执行的透传工具；
-        /// 本回调回传网关已执行的工具，供 OpenAI 协议网关下发 delta.tool_calls 做工具调用展示。
-        /// </para>
-        /// </summary>
-        public Func<string, Task>? LocalToolCallCallback { get; set; }
-
-        /// <summary>
         /// 思考过程流式请求回调（语义同 <see cref="StreameCallback"/>）
         /// </summary>
         public Func<string, Task>? ReasoningStreameCallback { get; set; }

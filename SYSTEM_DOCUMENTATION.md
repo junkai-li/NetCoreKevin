@@ -387,7 +387,6 @@ docker run -d --name qdrant -p 6333:6333 -v qdrant_storage:/qdrant/storage qdran
 
 - 路由：`GET /api/v1/models`（返回可调用的智能体列表，`model` 默认即智能体名称，同时兼容智能体 Id）、`POST /api/v1/chat/completions`（支持 `stream`）。
 - 鉴权：`Authorization: Bearer sk-kv-...`。Key 在后台「我的 OpenAI Key」页面自助生成，加密落库（依赖 `AESInfo`），支持查看明文、启用/禁用、删除；鉴权通过后网关内部换发等价 JWT，聊天记录、权限、租户过滤与网页端完全一致。
-- 工具调用对流：智能体内部工具（技能 / MCP / 知识库 / 记忆等，由网关执行）的调用会以 `delta.tool_calls` 帧流式下发，供客户端展示（受智能体「工具调用日志」开关控制）；这类调用已由网关执行完毕，不影响 `finish_reason`，也不会出现在非流式响应的 `message.tool_calls` 中（那里只回传调用方声明的透传工具）。
 - 智能体配置里的 `OpenAICompatibleSetting.SessionExpirationHours` 控制同一会话标识的最大空闲时长；`AIChatIsHidden=true` 时 API 对话在网页端列表隐藏。
 <!-- 第二部分续写 -->
 

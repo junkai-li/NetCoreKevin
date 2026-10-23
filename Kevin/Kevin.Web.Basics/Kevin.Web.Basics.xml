@@ -292,17 +292,8 @@
         </member>
         <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatStreamOutput">
             <summary>
-            OpenAI 协议流式输出适配器：实现智能体管线的 <see cref="T:kevin.Domain.Interfaces.IServices.AI.IChatStreamOutput"/> 端口，
-            把各通道分片翻译成 OpenAI 流式响应帧（chat.completion.chunk + 结尾 data: [DONE]）写入当前 HTTP 响应。
-            <para>
-            通道映射：aimsg → delta.content；aIReasoningContentMsg → delta.reasoning_content（可开关）；
-            toolcalls → 调用方声明的透传工具调用（由调用方执行）；localtoolcalls → 智能体自带工具调用
-            （网关已执行，仅流式下发做展示，不影响 finish_reason）；
-            processmsg / aIToolsContentMsg / recommendmsg 属于智能体内部过程信息，不进入协议输出。
-            </para>
-            <para>
-            非流式请求时传 streamEnabled=false，实例退化为空实现（完整回复由控制器从落库结果组装）。
-            </para>
+            OpenAI 协议流式输出适配器：把智能体管线的通道分片翻译成 chat.completion.chunk 帧（结尾 data: [DONE]）。
+            aimsg → content；aIReasoningContentMsg → reasoning_content（可开关）；toolcalls → delta.tool_calls。
             </summary>
         </member>
         <member name="P:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleChatStreamOutput.StreamStarted">
