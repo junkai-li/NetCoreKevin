@@ -14,8 +14,7 @@ An enterprise AI-agent platform on .NET 10 — RAG, skills, memory, multi-tenanc
 <img src="https://img.shields.io/badge/MySQL-8.0+-4479A1?logo=mysql&logoColor=white" alt="MySQL" />
 <img src="https://img.shields.io/badge/Redis-7.0+-DC382D?logo=redis&logoColor=white" alt="Redis" />
 <img src="https://img.shields.io/badge/Qdrant-vector_search-DC244C" alt="Qdrant" />
-<img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT" />
-
+<img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT" /> 
 </div>
 
 > [!NOTE]
@@ -583,3 +582,9 @@ MIT License，详见 [LICENSE](LICENSE)。
 欢迎提 Issue 和 PR。仓库还在持续迭代，改动会优先进入 `master` 分支。
 
 **版本**：v1.1（代码审查治理版）　**维护者**：NetCoreKevin 开发团队
+
+## 鸣谢
+<p>
+  <a href="https://atomgit.com/NetCoreKevin_li/NetCoreKevin/star/new_badge.svg">
+    <img alt="AtomGit G-Star" width="60"  src="https://atomgit.com/NetCoreKevin_li/NetCoreKevin/star/new_badge.svg"></a>
+</p>
