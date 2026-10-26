@@ -681,7 +681,7 @@ docker compose --profile mq up -d   # 额外启动 RabbitMQ
 - **依赖顺序**：`api` 通过 `depends_on` + `healthcheck` 等 MySQL、Redis 就绪后再启动；Qdrant 只需 `service_started`；RabbitMQ 用 `required: false`，未启用 profile 时不阻塞启动。
 
 > [!IMPORTANT]
-> 任何部署方式都 **不要** 把 `ASPNETCORE_ENVIRONMENT` 设为 `Production`：`EnvironmentConfigHelper` 只识别 `Development` / `Test` / 空值，空值即读取 `appsettings.json` 作为正式环境配置，设为 `Production` 会在启动阶段抛 KeyNotFoundException。compose 已刻意不设置该变量，9.2 的 systemd 示例中那行 `Environment=ASPNETCORE_ENVIRONMENT=Production` 同理需要删除。
+> 任何部署方式都 **不要** 把 `ASPNETCORE_ENVIRONMENT` 设为 `Production`：`EnvironmentConfigHelper` 只识别 `Development` / `Test` / 空值，空值即读取 `appsettings.json` 作为正式环境配置，设为 `Production` 会在启动阶段抛 KeyNotFoundException。compose 已刻意不设置该变量，9.2 的 systemd 示例同理不设置。
 
 #### 单镜像构建（不使用 compose）
 
@@ -720,11 +720,14 @@ WorkingDirectory=/var/www/kevin
 ExecStart=/usr/bin/dotnet /var/www/kevin/App.WebApi.dll
 Restart=always
 RestartSec=5
-Environment=ASPNETCORE_ENVIRONMENT=Production
+# 注意：不要设置 ASPNETCORE_ENVIRONMENT=Production，
+# 不设置即按正式环境读取 appsettings.json（详见 9.1）
 
 [Install]
 WantedBy=multi-user.target
 ```
+
+`ASPNETCORE_ENVIRONMENT` 保持不设置；确需区分环境时只能取 `Development` 或 `Test`，写成 `Production` 会让框架启动时抛 KeyNotFoundException。
 
 ```bash
 sudo systemctl daemon-reload

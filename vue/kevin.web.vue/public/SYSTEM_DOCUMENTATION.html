@@ -985,7 +985,7 @@ services:
     ports:
       - "9901:80"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      # 不要设置 ASPNETCORE_ENVIRONMENT=Production（只识别 Development / Test / 空值）
       - ConnectionStrings__dbConnection=server=mysql;port=3306;database=kevin_app;user id=root;password=admin123
     depends_on:
       - mysql
@@ -1017,7 +1017,7 @@ WorkingDirectory=/var/www/kevin
 ExecStart=/usr/bin/dotnet /var/www/kevin/App.WebApi.dll
 Restart=always
 RestartSec=5
-Environment=ASPNETCORE_ENVIRONMENT=Production
+# 不要设置 ASPNETCORE_ENVIRONMENT=Production，不设置即按正式环境读取 appsettings.json
 
 [Install]
 WantedBy=multi-user.target</code></pre>
