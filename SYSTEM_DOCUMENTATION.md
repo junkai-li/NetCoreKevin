@@ -154,7 +154,7 @@ kevin.abp.core/
 │   └── Kevin.Testing.Shared/       # 共享测试基础设施
 ├── vue/kevin.web.vue/              # 管理后台（Vue 3 + Ant Design Vue）
 ├── Doc/ · InitData/                # 文档截图 · logo 与省市区镇初始化数据
-└── docker-compose.yml              # 当前为空文件，依赖服务需自行编排
+└── docker-compose.yml              # 一键部署编排（前端 + 后端 + MySQL + Redis + Qdrant）
 ```
 
 ---
@@ -652,26 +652,57 @@ case "MyCustomTools.GetOrderStatus":
 
 ### 9.1 Docker 部署
 
+#### 一键部署（推荐）
+
+根目录 `docker-compose.yml` 已编排 **前端（Nginx）+ 后端（.NET WebApi）+ MySQL + Redis + Qdrant**，RabbitMQ 可选：
+
+```bash
+docker compose up -d --build        # 首次：构建前后端镜像并启动全部服务
+docker compose up -d                # 镜像已存在时只启动
+docker compose down                 # 停止（数据卷保留）
+docker compose --profile mq up -d   # 额外启动 RabbitMQ
+```
+
+| 服务 | 宿主机地址 |
+|---|---|
+| 管理后台（前端） | <http://localhost:8080> |
+| API / Swagger | <http://localhost:19901/swagger> |
+| Hangfire 面板 | <http://localhost:19901/pchangfire> |
+| Qdrant 控制台 | <http://localhost:16333/dashboard> |
+| MySQL | `127.0.0.1:13306`，库 `kevin_app` |
+| Redis | `127.0.0.1:16379` |
+
+编排要点：
+
+- **自动迁移**：`api` 容器通过 `DB_AUTO_MIGRATE=true` 在启动阶段执行 EF Core 迁移（带重试等待 MySQL 就绪），首次部署自动建表并写入种子数据；设为 `false` 可关闭。
+- **数据持久化**：`kevin_mysql_data` / `kevin_redis_data` / `kevin_qdrant_data` / `kevin_files`（上传文件）/ `kevin_logs`（log4net 日志）均为 named volume。
+- **同源反向代理**：`web` 容器内 Nginx 将 `/api`、`/KevinFlies`、`/VarApi` 转发到 `api:8080`；关闭 `proxy_buffering`、超时放到 3600s 以支持 SSE / SignalR；`Host` 用 `$http_host` 保留端口，保证后端生成的文件 URL 正确。
+- **配置覆盖**：端口、密码、镜像源集中在根目录 `.env`（模板 `.env.example`），键名沿用 `ConnectionStrings__dbConnection`、`SignalrRdisSetting__hostname`、`QdrantClientSetting__Url` 这类双下划线扁平形式。
+- **依赖顺序**：`api` 通过 `depends_on` + `healthcheck` 等 MySQL、Redis 就绪后再启动；Qdrant 只需 `service_started`；RabbitMQ 用 `required: false`，未启用 profile 时不阻塞启动。
+
+> [!IMPORTANT]
+> 任何部署方式都 **不要** 把 `ASPNETCORE_ENVIRONMENT` 设为 `Production`：`EnvironmentConfigHelper` 只识别 `Development` / `Test` / 空值，空值即读取 `appsettings.json` 作为正式环境配置，设为 `Production` 会在启动阶段抛 KeyNotFoundException。compose 已刻意不设置该变量，9.2 的 systemd 示例中那行 `Environment=ASPNETCORE_ENVIRONMENT=Production` 同理需要删除。
+
+#### 单镜像构建（不使用 compose）
+
 `App/WebApi/Dockerfile` 为多阶段构建，关键事实：
 
 - 基础镜像 `mcr.microsoft.com/dotnet/aspnet:10.0` / `sdk:10.0`。
-- 容器内固定监听 **8080**：`ENV ASPNETCORE_URLS=http://+:8080`、`EXPOSE 8080`。
-- 构建上下文为仓库根（csproj 中 `DockerfileContext=..\..`），构建时先 COPY 各 csproj 再 `dotnet restore`，利用层缓存。
-- 发布使用 `/p:UseAppHost=false`，入口 `dotnet App.WebApi.dll`。
+- 容器内固定监听 **8080**（`ENV ASPNETCORE_URLS=http://+:8080`、`EXPOSE 8080`）。
+- 构建上下文必须是 **仓库根**，先 COPY 各 csproj 再 `dotnet restore` 以利用层缓存。
+- 以非 root 用户（`$APP_UID`）运行，镜像内已预建 `/app/Log`、`/app/KevinFlies` 并 `chown`。
 
 ```bash
 docker build -f App/WebApi/Dockerfile -t netcore-kevin .
-docker run -d --name kevin-api -p 9901:8080 \
-  -e ASPNETCORE_ENVIRONMENT=Production \
+docker run -d --name kevin-api -p 19901:8080 \
   -e ConnectionStrings__dbConnection="server=mysql;port=3306;database=kevin_app;user id=root;password=admin123" \
   -e ConnectionStrings__redisConnection="redis:6379,DefaultDatabase=0,password=123456" \
+  -e QdrantClientSetting__Url=http://qdrant:6334 \
+  -v kevin_files:/app/KevinFlies \
   netcore-kevin
 ```
 
-> 注意：
-> 1. Dockerfile 中有一条 `COPY ["Kevin/kevin.Module/Kevin.CrawlingService/kevin.CrawlingService.csproj", ...]`，但当前源码树中没有该模块目录；如果构建报找不到该 csproj，删除这一行 COPY 即可与源码对齐。
-> 2. 根目录 `docker-compose.yml` 目前为空文件，MySQL / Redis / Qdrant / RabbitMQ 需要自行编排或接入已有环境。
-> 3. 容器内连接串建议全部用环境变量覆盖，`ASPNETCORE_ENVIRONMENT` 决定加载哪份 `appsettings.*.json`。
+数据库表需事先用 `Update-Database` 初始化，或额外传入 `-e DB_AUTO_MIGRATE=true` 交由启动阶段迁移；前端镜像为 `vue/kevin.web.vue/Dockerfile`（Node 构建 + Nginx 托管）。
 
 ### 9.2 Linux systemd 部署
 

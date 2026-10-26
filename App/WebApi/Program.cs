@@ -7,6 +7,7 @@ global using System;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Hosting;
@@ -88,6 +89,31 @@ namespace WebApi
 
                 //堆的硬限制设置为2G字节（AI应用需要更多内存，从1G调整为2G）
                 AppContext.SetData("GCHeapHardLimit", (ulong)2048 * 1_024 * 1_024);
+
+                //容器化部署：DB_AUTO_MIGRATE=true 时启动阶段自动执行 EF Core 迁移，首次部署即可自动建表并写入种子数据
+                //数据库已手工初始化（或需要严格管控升级窗口）时不设置该环境变量即可
+                if (bool.TryParse(Environment.GetEnvironmentVariable("DB_AUTO_MIGRATE"), out var autoMigrate) && autoMigrate)
+                {
+                    using (var scope = app.Services.CreateScope())
+                    {
+                        var dbContext = scope.ServiceProvider.GetRequiredService<Repository.Database.KevinDbContext>();
+                        for (var attempt = 1; ; attempt++)
+                        {
+                            try
+                            {
+                                dbContext.Database.Migrate();
+                                Console.WriteLine("数据库迁移完成");
+                                break;
+                            }
+                            catch (Exception ex) when (attempt < 10)
+                            {
+                                //容器首次启动时 MySQL 可能还在初始化，这里做有限次重试
+                                Console.WriteLine($"数据库迁移失败（第 {attempt} 次），5 秒后重试：{ex.Message}");
+                                Thread.Sleep(5000);
+                            }
+                        }
+                    }
+                }
 
                 //kevin初始化
                 app.UseKevin(builder.Configuration);

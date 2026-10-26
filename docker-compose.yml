@@ -1,0 +1,212 @@
+# =====================================================================
+# NetCoreKevin 一键部署编排
+# 组件：web(前端 Nginx) + api(.NET WebApi) + mysql + redis + qdrant
+#       可选：rabbitmq（--profile mq 时启动）
+#
+# 常用命令：
+#   docker compose up -d --build          # 首次构建镜像并后台启动全部服务
+#   docker compose up -d --build api      # 只重建/重启后端
+#   docker compose logs -f api            # 跟踪后端日志
+#   docker compose down                   # 停止并删除容器（数据卷保留）
+#   docker compose down -v                # 连数据一起删（数据库/上传文件会清空，慎用）
+#   docker compose --profile mq up -d     # 额外启动 RabbitMQ
+#
+# 账号密码/端口都可以在仓库根目录新建 .env 覆盖，例如：
+#   MYSQL_ROOT_PASSWORD=xxx
+#   REDIS_PASSWORD=xxx
+#   WEB_PORT=8080
+# 注意：宿主机端口默认避开了本地开发常用端口（MySQL 3306 / Redis 6379 / API 9901），
+#       避免和本机已安装的 MySQL、Redis 或 VS 调试中的后端冲突。
+# =====================================================================
+
+name: netcore-kevin
+
+services:
+  # ------------------------------------------------------------------
+  # MySQL 主数据库
+  # ------------------------------------------------------------------
+  mysql:
+    image: ${MYSQL_IMAGE:-mysql:8.0}
+    container_name: kevin-mysql
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      # AI 对话日志会写长文本，默认 4MB 的包上限太小
+      - --max_allowed_packet=64M
+      - --default-time-zone=+08:00
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-admin123}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-kevin_app}
+      TZ: Asia/Shanghai
+    ports:
+      - "${MYSQL_PORT:-13306}:3306" # 宿主机 13306 连接容器内 3306
+    volumes:
+      - kevin_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 40s
+    networks:
+      - kevin-net
+
+  # ------------------------------------------------------------------
+  # Redis（缓存 / 分布式锁 / SignalR 背板）
+  # ------------------------------------------------------------------
+  redis:
+    image: ${REDIS_IMAGE:-redis:7-alpine}
+    container_name: kevin-redis
+    restart: unless-stopped
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:-123456}", "--appendonly", "yes"]
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - "${REDIS_PORT:-16379}:6379" # 宿主机 16379 连接容器内 6379
+    volumes:
+      - kevin_redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a ${REDIS_PASSWORD:-123456} ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - kevin-net
+
+  # ------------------------------------------------------------------
+  # Qdrant 向量数据库（RAG 知识库检索）
+  # 后端通过 gRPC 连接：QdrantClientSetting__Url = http://qdrant:6334
+  # ------------------------------------------------------------------
+  qdrant:
+    image: ${QDRANT_IMAGE:-qdrant/qdrant:latest}
+    container_name: kevin-qdrant
+    restart: unless-stopped
+    environment:
+      QDRANT__TELEMETRY_DISABLED: "true"
+      TZ: Asia/Shanghai
+    ports:
+      # 宿主机端口默认 16333/16334，避免与本机其他 Qdrant 实例（6333/6334）冲突
+      - "${QDRANT_HTTP_PORT:-16333}:6333" # 控制台：http://localhost:16333/dashboard
+      - "${QDRANT_GRPC_PORT:-16334}:6334"
+    volumes:
+      - kevin_qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - kevin-net
+
+  # ------------------------------------------------------------------
+  # 后端 API（.NET WebApi，构建入口 App/WebApi/Dockerfile）
+  # ------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: App/WebApi/Dockerfile
+    image: netcore-kevin-api:${TAG:-latest}
+    container_name: kevin-api
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+      ASPNETCORE_URLS: http://+:8080
+      # 注意：不要设置 ASPNETCORE_ENVIRONMENT=Production。
+      # 框架的 EnvironmentConfigHelper 只识别 Development / Test / 空值，空值即「正式环境」读取 appsettings.json
+      # ------------------- 数据库 / 缓存 -------------------
+      ConnectionStrings__dbConnection: "server=mysql;port=3306;database=${MYSQL_DATABASE:-kevin_app};user id=root;password=${MYSQL_ROOT_PASSWORD:-admin123};Convert Zero Datetime=True;TreatTinyAsBoolean=false;AllowLoadLocalInfile=true;Charset=utf8;Command Timeout=120;"
+      ConnectionStrings__redisConnection: "redis:6379,DefaultDatabase=0,password=${REDIS_PASSWORD:-123456},connectTimeout=5000,syncTimeout=5000,connectRetry=3"
+      HangfireRedisSetting__RedisConnectionString: "redis:6379,DefaultDatabase=0,password=${REDIS_PASSWORD:-123456},syncTimeout=5000,connectTimeout=5000"
+      SignalrRdisSetting__hostname: redis
+      SignalrRdisSetting__port: "6379"
+      SignalrRdisSetting__password: ${REDIS_PASSWORD:-123456}
+      # ------------------- 向量库 -------------------
+      QdrantClientSetting__Url: http://qdrant:6334
+      # ------------------- 启动时自动建表 -------------------
+      # true：启动阶段执行 EF Core 迁移（首次部署自动建表 + 初始化种子数据，升级时自动增量迁移）
+      # 数据库已手工初始化过时可设为 false
+      DB_AUTO_MIGRATE: ${DB_AUTO_MIGRATE:-true}
+      # ------------------- RabbitMQ（可选，见文件末尾 profile） -------------------
+      RabbitMQ__HostName: ${RABBITMQ_HOST:-rabbitmq}
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: ${RABBITMQ_USER:-admin}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-admin}
+      RabbitMQ__VirtualHost: /app_webapi
+    volumes:
+      - kevin_files:/app/KevinFlies # 本地上传文件（对外路径 /KevinFlies）
+      - kevin_logs:/app/Log # log4net 日志
+    ports:
+      - "${API_PORT:-19901}:8080" # 直连后端/Swagger：http://localhost:19901/swagger
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+        required: false # 未启用 mq profile 时不阻塞启动
+    networks:
+      - kevin-net
+
+  # ------------------------------------------------------------------
+  # 前端（Vue 构建产物 + Nginx，反向代理 /api 到 api 容器）
+  # ------------------------------------------------------------------
+  web:
+    build:
+      context: ./vue/kevin.web.vue
+      dockerfile: Dockerfile
+      args:
+        # 留空 = 同源部署，前端所有 /api 请求由 Nginx 转发到后端容器
+        VUE_APP_API_BASE_URL: ${VUE_APP_API_BASE_URL:-}
+        # 国内默认使用 npmmirror，需要官方源时覆盖：NPM_REGISTRY=https://registry.npmjs.org
+        NPM_REGISTRY: ${NPM_REGISTRY:-https://registry.npmmirror.com}
+    image: netcore-kevin-web:${TAG:-latest}
+    container_name: kevin-web
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - "${WEB_PORT:-8080}:80" # 浏览器访问：http://localhost:8080
+    depends_on:
+      - api
+    networks:
+      - kevin-net
+
+  # ------------------------------------------------------------------
+  # RabbitMQ（可选）：docker compose --profile mq up -d
+  # ------------------------------------------------------------------
+  rabbitmq:
+    image: ${RABBITMQ_IMAGE:-rabbitmq:3.13-management-alpine}
+    container_name: kevin-rabbitmq
+    restart: unless-stopped
+    profiles: ["mq"]
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-admin}
+      # 与 appsettings.json 的 RabbitMQ.VirtualHost 保持一致
+      RABBITMQ_DEFAULT_VHOST: /app_webapi
+      TZ: Asia/Shanghai
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    volumes:
+      - kevin_rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - kevin-net
+
+volumes:
+  kevin_mysql_data:
+  kevin_redis_data:
+  kevin_qdrant_data:
+  kevin_files:
+  kevin_logs:
+  kevin_rabbitmq_data:
+
+networks:
+  kevin-net:
+    driver: bridge

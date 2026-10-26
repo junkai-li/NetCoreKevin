@@ -66,7 +66,7 @@ An enterprise AI-agent platform on .NET 10 — RAG, skills, memory, multi-tenanc
 - **25 个可插拔模块**：每个能力一个 csproj，通过 `IModuleInitializer` / `IModuleConfigTasks` 自行注册，加能力不用改入口文件。
 - **代码生成器**：按实体一键生成仓储接口、仓储实现、服务接口、服务实现与控制器。
 - **测试**：xUnit 单元测试 + 集成测试，共享测试基础设施。
-- **容器化**：`App/WebApi/Dockerfile` 可直接构建镜像。
+- **容器化**：`docker compose up -d --build` 一键拉起前端 + 后端 + MySQL + Redis + Qdrant；`App/WebApi/Dockerfile`、`vue/kevin.web.vue/Dockerfile` 也可单独构建镜像。
 
 ## 效果图
 
@@ -171,7 +171,129 @@ flowchart LR
 | [`Doc/`](Doc/) | 截图与文档资源 |
 | [`InitData/`](InitData/) | logo（svg + png）与省市区镇等初始化数据 |
 
+## 一键部署（Docker Compose）
+
+不想在本机装 .NET SDK、Node、MySQL、Redis？一条命令把 **前端 + 后端 + MySQL + Redis + Qdrant** 全套拉起来。
+
+### 1. 准备
+
+| 项 | 要求 |
+|---|---|
+| Docker | 20.10+，需带 `docker compose` v2（Docker Desktop 自带） |
+| 内存 | 建议 8GB 以上（前端 webpack 构建 + MySQL 比较吃内存） |
+| 磁盘 | 约 6GB（.NET SDK 基础镜像比较大） |
+
+### 2. 一条命令启动
+
+```bash
+git clone https://gitee.com/netkevin-li/NetCoreKevin.git
+cd NetCoreKevin
+docker compose up -d --build
+```
+
+这就是全部步骤。首次执行会构建前后端镜像并拉取依赖，视网络情况 10~30 分钟；之后再启动只需几秒。
+
+镜像已构建过、只想起服务时：
+
+```bash
+# 启动全部服务
+docker compose up -d
+
+# 停止（数据卷保留，不会丢数据）
+docker compose down
+```
+
+### 3. 访问地址
+
+| 服务 | 地址 |
+|---|---|
+| 管理后台（前端） | <http://localhost:8080> |
+| API / Swagger | <http://localhost:19901/swagger> |
+| Hangfire 面板 | <http://localhost:19901/pchangfire> |
+| Qdrant 控制台 | <http://localhost:16333/dashboard> |
+| MySQL | `127.0.0.1:13306`，库 `kevin_app` |
+| Redis | `127.0.0.1:16379` |
+
+默认账号 `admin` / `123456`，租户 `1000`。
+
+> [!NOTE]
+> 宿主机端口默认避开了本地开发常用端口（3306 / 6379 / 9901），可以和本机已装的 MySQL、Redis、VS 调试中的后端同时运行。
+
+### 4. 首次启动自动做了什么
+
+- **自动建表**：`api` 容器启动时执行 EF Core 迁移（`DB_AUTO_MIGRATE=true`），自动创建全部业务表并写入种子数据，不用手动 `Update-Database`；后续升级代码也会自动增量迁移。
+- **数据持久化**：MySQL、Redis、Qdrant 数据与上传文件（`/KevinFlies`）、log4net 日志（`Log`）都落在 named volume 里，`docker compose down` 不会丢。
+- **前后端同源**：前端容器内 Nginx 直接把 `/api`、`/KevinFlies`、`/VarApi` 反代到 `api:8080`（含 SSE / SignalR 所需的长连接配置），所以不存在跨域问题。
+
+### 5. 改端口 / 改密码
+
+所有可调项都在 `.env` 里，仓库提供了一份示例：
+
+```bash
+# Windows PowerShell
+Copy-Item .env.example .env
+
+# Linux / macOS
+cp .env.example .env
+```
+
+编辑 `.env`，常改的几个：
+
+```ini
+WEB_PORT=8080               # 前端入口
+API_PORT=19901              # 后端 / Swagger
+MYSQL_PORT=13306
+REDIS_PORT=16379
+MYSQL_ROOT_PASSWORD=admin123
+REDIS_PASSWORD=123456
+DB_AUTO_MIGRATE=true        # 设为 false 则启动时不自动迁移
+TAG=latest                  # 镜像 tag，便于升级回滚
+```
+
+改完重新执行 `docker compose up -d` 生效。
+
+> [!WARNING]
+> MySQL 密码只在**数据卷首次初始化**时生效。已经启动过再改 `MYSQL_ROOT_PASSWORD`，容器会用旧密码，需要 `docker compose down -v` 清空数据重来（会丢库），或进容器手动改账号。
+
+### 6. 可选：一起启动 RabbitMQ
+
+RabbitMQ 是懒加载的，不启动也不影响主流程；需要消息队列时加 `--profile mq`：
+
+```bash
+docker compose --profile mq up -d
+```
+
+管理台 <http://localhost:15672>，默认 `admin` / `admin`，vhost `/app_webapi`。
+
+### 7. 常用命令
+
+```bash
+docker compose ps                      # 查看各服务状态
+docker compose logs -f api             # 跟踪后端日志
+docker compose logs -f web             # 跟踪 Nginx 日志
+docker compose up -d --build api       # 只重建并重启后端
+docker compose up -d --build web       # 只重建并重启前端
+docker compose restart api             # 重启后端
+docker compose down                    # 停止全部（保留数据）
+docker compose down -v                 # 停止并删除数据卷（清库，慎用）
+```
+
+### 8. 常见问题
+
+| 现象 | 处理 |
+|---|---|
+| `port is already allocated` | 宿主机端口被占用，改 `.env` 里对应端口后 `docker compose up -d` |
+| 基础镜像拉不动 / 超时 | 配置 Docker 镜像加速，或在 `.env` 里用 `MYSQL_IMAGE` / `REDIS_IMAGE` / `QDRANT_IMAGE` 指定可用镜像站地址 |
+| 前端 `npm install` 很慢 | 默认走 npmmirror，可 `NPM_REGISTRY=https://registry.npmjs.org` 切换 |
+| `api` 一直重启 | `docker compose logs api` 看原因；多为连不上 MySQL 或迁移失败 |
+| 想重新初始化数据库 | `docker compose down -v` 再 `docker compose up -d` |
+
+> [!IMPORTANT]
+> 不要给 `api` 容器设置 `ASPNETCORE_ENVIRONMENT=Production`：框架的 `EnvironmentConfigHelper` 只识别 `Development` / `Test` / 空值，空值即读取 `appsettings.json` 作为正式环境配置。
+
 ## 快速开始
+
+以上是容器化部署。如果要在本机做二次开发、调试后端代码，按下面步骤本地运行。
 
 ### 你需要准备
 
@@ -273,6 +395,9 @@ docker run -d --name qdrant -p 6333:6333 -v qdrant_storage:/qdrant/storage qdran
 ```
 
 `QdrantClientSetting` 默认指向 `localhost`，本机跑的话不用改。
+
+> [!TIP]
+> 用 Docker Compose 一键部署时 Qdrant 已经包含在内，后端通过 `QdrantClientSetting__Url=http://qdrant:6334` 走 gRPC 直连，不需要本节操作。
 
 ### 2. 配置模型
 
@@ -422,9 +547,9 @@ kevin.abp.core/
 
 - **向量维度绑定模型**：`MemoryEmbeddingSize` 默认 2048，对应智谱 `embedding-3`；换 embedding 模型要同步改维度并重建集合，否则检索会报维度不匹配。
 - **模型 Key 要自备**：`OllamaApiSetting`、`AliRerankApiSetting`、`AliyunAsr`、`DoubaoSearchApiSetting` 默认留空或指向智谱示例，没配的能力不可用，也不会伪造结果。
-- **迁移不会自动跑**：项目没有启动时自动迁移，升级代码后要自己 `Update-Database`。
+- **迁移不会自动跑**：本地 `dotnet run` 没有自动迁移，升级代码后要自己 `Update-Database`（容器部署已通过 `DB_AUTO_MIGRATE` 开启自动迁移）。
 - **外部服务要自己开通**：短信、邮件、对象存储的密钥默认是空值，用到时再去 `appsettings.json` 填。
-- **一键部署还没做**：`docker-compose.yml` 目前是空文件，MySQL、Redis、Qdrant 需要自己准备，本地起三个容器即可。
+- **一键部署已支持**：根目录 `docker-compose.yml` 可一条命令拉起前端、后端、MySQL、Redis、Qdrant，详见上面[一键部署（Docker Compose）](#一键部署docker-compose)章节。
 - **前端构建链偏旧**：Vue CLI 5（webpack），还没迁到 Vite。
 - **AI 默认值按通用场景给**：提示词、上下文压缩阈值、工具编排这些默认值不一定适合你的业务，需要按场景调。
 
