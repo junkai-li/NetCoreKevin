@@ -4,12 +4,12 @@
 
 # NetCoreKevin
 
-**企业级 AI 智能体中台：.NET 9 做后端，Vue 3 做管理后台，知识库、技能、记忆、额度都在界面上配。**
+**企业级 AI 智能体中台：.NET 10 做后端，Vue 3 做管理后台，知识库、技能、记忆、额度都在界面上配。**
 
-An enterprise AI-agent platform on .NET 9 — RAG, skills, memory, multi-tenancy and scheduled tasks, with a Vue admin console.
+An enterprise AI-agent platform on .NET 10 — RAG, skills, memory, multi-tenancy and scheduled tasks, with a Vue admin console.
 
 <img src="https://img.shields.io/badge/status-actively--developed-orange" alt="status" />
-<img src="https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet&logoColor=white" alt=".NET 9" />
+<img src="https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&logoColor=white" alt=".NET 10" />
 <img src="https://img.shields.io/badge/Vue-3-4FC08D?logo=vuedotjs&logoColor=white" alt="Vue 3" />
 <img src="https://img.shields.io/badge/MySQL-8.0+-4479A1?logo=mysql&logoColor=white" alt="MySQL" />
 <img src="https://img.shields.io/badge/Redis-7.0+-DC382D?logo=redis&logoColor=white" alt="Redis" />
@@ -29,7 +29,7 @@ An enterprise AI-agent platform on .NET 9 — RAG, skills, memory, multi-tenancy
 
 把「企业里的 AI 助手」拆开，需要的东西其实就四样：
 
-- **后端**：`App/WebApi`。.NET 9 + EF Core + MySQL，按 Domain / Application / RepositorieRps / WebApi 四层拆分，API 带 v1、v2 版本。
+- **后端**：`App/WebApi`。.NET 10 + EF Core 10 + MySQL，按 Domain / Application / RepositorieRps / WebApi 四层拆分，API 带 v1、v2 版本。
 - **AI 能力**：`Kevin/kevin.Module`。kevin.AI.AgentFramework 基于 Microsoft Agent Framework，kevin.RAG 负责切分、向量化与重排，都在同一个进程里，不用额外起 Python 服务。
 - **管理后台**：`vue/kevin.web.vue`。Vue 3 + Ant Design Vue，租户、用户、角色、智能体、知识库、技能、任务、API Key 全在界面上配。
 - **底座**：25 个可插拔模块——权限、缓存、消息队列、分布式锁、SignalR、Hangfire、对象存储、短信、邮件、代码生成器。
@@ -120,7 +120,7 @@ flowchart LR
     UI["用户 / 租户 / 权限<br/>智能体 · 知识库 · 技能 · 任务"]
   end
 
-  subgraph API["App.WebApi（.NET 9）"]
+  subgraph API["App.WebApi（.NET 10）"]
     C["Controller v1 / v2<br/>JWT · 权限 · 全局异常"]
     A["Application<br/>业务编排"]
     D["Domain<br/>实体 / 接口契约"]
@@ -177,7 +177,7 @@ flowchart LR
 
 | 项 | 说明 |
 |---|---|
-| .NET SDK | 9.0+ |
+| .NET SDK | 10.0+ |
 | Node.js | 16+，只跑管理后台时需要 |
 | MySQL | 8.0+，建议 `utf8mb4` |
 | Redis | 7.0+，缓存、Hangfire、SignalR 都用它 |

@@ -23,7 +23,7 @@ namespace kevin.Permission.Permisson
                 "ICSharpCode",
                 "Newtonsoft.",
                 "Oracle.",
-                "Pomelo.",
+                "MySql.",
                 "SQLitePCLRaw."
             };
 

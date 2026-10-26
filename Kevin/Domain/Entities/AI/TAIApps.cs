@@ -194,7 +194,6 @@ namespace kevin.Domain.Entities.AI
         /// 自动压缩策略提示词
         /// </summary>
         [Description("自动压缩策略提示词")]
-        [DefaultValue(SystemPrompt.CompressPromptText)]
         public String AIMessageCompactionPrompt { get; set; } = SystemPrompt.CompressPromptText;
 
         /// <summary>

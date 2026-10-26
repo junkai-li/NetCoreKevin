@@ -6,7 +6,7 @@
 
 ### 1.1 项目简介
 
-**NetCoreKevin** 是基于 .NET 9 构建的企业级 AI 智能体中台（SaaS 前后端分离），核心能力包括：AI 智能体（Microsoft Agent Framework + 任意 OpenAI 协议兼容模型）、RAG 知识库（Qdrant 向量检索 + 重排）、Skill 技能包（SKILL.md + `.py` / `.ps1` / `.sh` 脚本动态加载）、智能体记忆（Qdrant 三维隔离）、MCP 工具接入、联网搜索（火山引擎豆包）、多模态（图片理解 / 语音转写 / 文生图）、一库多租户、RBAC 权限、分布式系统与定时任务。
+**NetCoreKevin** 是基于 .NET 10 构建的企业级 AI 智能体中台（SaaS 前后端分离），核心能力包括：AI 智能体（Microsoft Agent Framework + 任意 OpenAI 协议兼容模型）、RAG 知识库（Qdrant 向量检索 + 重排）、Skill 技能包（SKILL.md + `.py` / `.ps1` / `.sh` 脚本动态加载）、智能体记忆（Qdrant 三维隔离）、MCP 工具接入、联网搜索（火山引擎豆包）、多模态（图片理解 / 语音转写 / 文生图）、一库多租户、RBAC 权限、分布式系统与定时任务。
 
 对外还提供 **OpenAI 协议兼容网关**（`/api/v1/models`、`/api/v1/chat/completions`），Cherry Studio、Dify、自研客户端只要配置一个用户级 `sk-kv-` Key 即可接入。
 
@@ -19,7 +19,7 @@
 | **技能（Skill）** | `SKILL.md` + 脚本动态加载、在线编辑、地址白名单校验 | 文件系统 + Python/Shell 子进程执行器 |
 | **MCP** | 外部 MCP 服务接入智能体（http / sse / stdio） | ModelContextProtocol 1.4.1 |
 | **任务调度** | 定时 / 一次性任务、Hangfire 面板 | Hangfire 1.8.23（当前内存存储，Redis 存储代码保留） |
-| **认证授权** | JWT 登录、租户隔离、菜单与 API 双维度权限 | `Kevin.Authentication.Jwt`（JwtBearer 9.0.15）、`kevin.Permission` |
+| **认证授权** | JWT 登录、租户隔离、菜单与 API 双维度权限 | `Kevin.Authentication.Jwt`（JwtBearer 10.0.14）、`kevin.Permission` |
 | **消息通信** | RabbitMQ 消息、SignalR 实时推送（Redis 背板） | RabbitMQ.Client 6.8.1、SignalR + StackExchange.Redis |
 | **文件存储** | 本地静态文件（默认）/ 腾讯云 / 阿里云 / 七牛 | `kevin.FileStorage` 多实现，DI 切换 |
 | **代码生成器** | 按实体生成仓储接口/实现、服务接口/实现 | `kevin.CodeGenerator` |
@@ -60,15 +60,15 @@
 
 | 分类 | 技术 | 版本 | 说明 |
 |------|------|------|------|
-| 运行时 | .NET | 9.0 | 所有项目 `net9.0` |
-| Web 框架 | ASP.NET Core | 9.0 | Web API + SignalR |
-| ORM | EF Core | 9.0.11 | Pomelo.EntityFrameworkCore.MySql 9.0.0 |
+| 运行时 | .NET | 10.0 | 所有项目 `net10.0` |
+| Web 框架 | ASP.NET Core | 10.0 | Web API + SignalR |
+| ORM | EF Core | 10.0.14 | MySql.EntityFrameworkCore 10.0.12（Oracle 官方） |
 | 数据库 | MySQL | 8.0+ | 主库（连接串 `ConnectionStrings.dbConnection`） |
 | 缓存 | Redis | 7.0+ | 分布式锁、SignalR 背板、JWT 缓存；进程内缓存用 MemoryCache |
 | 向量数据库 | Qdrant | 1.17 客户端 | 知识库与记忆 |
 | 任务调度 | Hangfire | 1.8.23 | 当前 `Hangfire.MemoryStorage`，Redis 存储注册代码保留 |
 | 消息总线 | RabbitMQ | Client 6.8.1 | CAP 8.4.1 包已引用，启动装配默认未启用 |
-| 认证 | JWT | Microsoft.AspNetCore.Authentication.JwtBearer 9.0.15 | 无 IdentityServer4 |
+| 认证 | JWT | Microsoft.AspNetCore.Authentication.JwtBearer 10.0.14 | 无 IdentityServer4 |
 | API 版本 | Asp.Versioning.Mvc | 8.1.0 | Query/UrlSegment/Header(`X-API-Version`)/MediaType |
 | 接口文档 | Swashbuckle.AspNetCore | 9.0.6 | `/swagger` |
 | AI 框架 | Microsoft Agent Framework | Microsoft.Agents.AI.OpenAI 1.23.0 | `AIFunctionFactory` 工具调用 |
@@ -79,6 +79,24 @@
 
 > 版本以各 `.csproj` 的 `PackageReference` 为准，本表为主要依赖的实际取值。
 
+#### 2.1.1 .NET 10 配套升级核对
+
+所有参与编译的项目 TFM 均为 `net10.0`；`dotnet-ef` 工具为 10.0.14（见 `App/WebApi/.config/dotnet-tools.json`）；容器基础镜像为 `mcr.microsoft.com/dotnet/aspnet:10.0` / `sdk:10.0`。
+
+已跟随 .NET 10 齐套的依赖：EF Core 全家族 10.0.14、`Microsoft.Extensions.*` 10.0.14、`Microsoft.AspNetCore.Authentication.JwtBearer` / `Microsoft.AspNetCore.Mvc.Testing` / `Microsoft.AspNetCore.SignalR.StackExchangeRedis` 10.0.14、`System.Drawing.Common` 与 `System.Security.Cryptography.Xml` 10.0.14、MySQL 提供程序 `MySql.EntityFrameworkCore` 10.0.12、向量抽象 `Microsoft.Extensions.VectorData.Abstractions` 10.11.0。
+
+仍停留在旧版、建议后续跟进（不影响当前编译与运行）：
+
+| 包 | 当前 | 建议 | 说明 |
+|---|---|---|---|
+| `Microsoft.AspNetCore.*`（Authentication / Cors / Http / Mvc / Routing 等，共 22 处） | 2.3.0 | 删除引用，改为 `<FrameworkReference Include="Microsoft.AspNetCore.App" />` | .NET Core 2.x 时代的独立包，功能早已并入共享框架 |
+| `Asp.Versioning.Mvc` / `Asp.Versioning.Mvc.ApiExplorer` | 8.1.0 | 10.2.1 | 主版本号跟随 ASP.NET Core |
+| `Swashbuckle.AspNetCore` | 9.0.6 | 10.3.1 | 主版本号跟随 ASP.NET Core |
+| `DotNetCore.CAP*`（6 个包） | 8.4.1 | 10.0.2 | 版本号跟随 .NET 主线；启动装配默认未启用 |
+| `Microsoft.NET.Test.Sdk` / `xunit` / `xunit.runner.visualstudio` / `coverlet.collector` | 17.8.0 / 2.5.3 / 2.5.3 / 6.0.0 | 18.11.0 / 2.9.3 / 4.0.1 / 10.1.0 | 仅影响测试工程 |
+
+> 另有一批与 .NET 版本无关的包（`MediatR` 12、`AutoMapper` 15、`FluentAssertions` 6、`SixLabors.ImageSharp` 3、`SkiaSharp` 3、`Emgu.CV` 4、`RabbitMQ.Client` 6、`ModelContextProtocol` 1），无需跟随 .NET 升级；其更新的大版本中部分已转为商业许可或含破坏性变更，需单独评估后再动。
+
 ### 2.2 架构设计
 
 ```
@@ -88,7 +106,7 @@
 └───────────────────────────────┬──────────────────────────────────┘
                                 │ REST / SignalR（/VarApi 代理 → 9901）
 ┌───────────────────────────────▼──────────────────────────────────┐
-│                     App.WebApi（.NET 9，9901）                    │
+│                    App.WebApi（.NET 10，9901）                    │
 │  Swagger(/swagger) · Hangfire(/pchangfire) · 全局异常 · 权限过滤  │
 │  OpenAI 兼容网关(/api/v1) · SignalR Hub(/api/MySignalRHub)        │
 ├──────────────────────────────────────────────────────────────────┤
@@ -144,7 +162,7 @@ kevin.abp.core/
 
 | 依赖 | 版本要求 | 说明 |
 |------|----------|------|
-| .NET SDK | 9.0+ | 后端开发/运行 |
+| .NET SDK | 10.0+ | 后端开发/运行 |
 | MySQL | 8.0+ | 主数据库（建议 `utf8mb4`） |
 | Redis | 7.0+ | 分布式锁、SignalR 背板、缓存 |
 | Qdrant | 1.7+ | 知识库与记忆向量检索 |
@@ -633,7 +651,7 @@ case "MyCustomTools.GetOrderStatus":
 
 `App/WebApi/Dockerfile` 为多阶段构建，关键事实：
 
-- 基础镜像 `mcr.microsoft.com/dotnet/aspnet:9.0` / `sdk:9.0`。
+- 基础镜像 `mcr.microsoft.com/dotnet/aspnet:10.0` / `sdk:10.0`。
 - 容器内固定监听 **8080**：`ENV ASPNETCORE_URLS=http://+:8080`、`EXPOSE 8080`。
 - 构建上下文为仓库根（csproj 中 `DockerfileContext=..\..`），构建时先 COPY 各 csproj 再 `dotnet restore`，利用层缓存。
 - 发布使用 `/p:UseAppHost=false`，入口 `dotnet App.WebApi.dll`。

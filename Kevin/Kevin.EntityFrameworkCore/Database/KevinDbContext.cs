@@ -104,8 +104,8 @@ namespace Repository.Database
                     }
                 }
                 //optionsBuilder.UseSqlServer(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory"));
-                //optionsBuilder.UseMySQL(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory")); 
-                optionsBuilder.UseMySql(ConnectionString, new MySqlServerVersion(new Version(8, 0, 22)), o =>
+                //optionsBuilder.UseMySql(ConnectionString, new MySqlServerVersion(new Version(8, 0, 22)), o => 
+                optionsBuilder.UseMySQL(ConnectionString, o =>
                 {
                     o.MigrationsHistoryTable("__efmigrationshistory");
                     o.MigrationsAssembly(migrationsAssembly);
@@ -220,7 +220,7 @@ namespace Repository.Database
 
                     foreach (var property in entity.GetProperties().ToList())
                     {
-                        string columnName = StringHelper.ToGidelineLower(property.GetColumnName(StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table).Value));
+                        string columnName = StringHelper.ToGidelineLower(property.GetColumnName(StoreObjectIdentifier.Create((IMutableEntityType)property.DeclaringType, StoreObjectType.Table).Value));
                         //设置字段名 
                         property.SetColumnName(columnName);
                         //设置字段的备注

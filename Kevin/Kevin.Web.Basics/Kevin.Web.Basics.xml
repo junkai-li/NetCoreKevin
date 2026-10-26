@@ -1059,13 +1059,26 @@
             </summary>
         </member>
         <member name="T:Kevin.Web.Filters.TransactionScope.Attribute.TransactionalAttribute">
-             <summary>
-            启动事务
-             </summary>
+            <summary>
+            启动事务（ReadCommitted）：action 正常返回后统一提交，异常回滚。
+            方法体内必须 await 所有返回 Task 的调用，也不要 new KevinDbContext()，否则写不进事务。
+            </summary>
         </member>
         <member name="T:Kevin.Web.Filters.TransactionScope.TransactionScopeFilter">
             <summary>
             自动启用事务的筛选器
+            </summary>
+            <remarks>
+            用 EF 的数据库本地事务（开在请求作用域的 <see cref="T:Repository.Database.KevinDbContext"/> 上）替代 System.Transactions 的环境事务：
+            环境事务一旦在请求里出现第二条连接（项目里有多处 new KevinDbContext()），MySqlConnector 会把它升级成
+            XA 分布式事务；提交阶段 XA PREPARE 失败会抛 TransactionAbortedException，并可能在 MySQL 服务端留下
+            未回滚的 XA 分支持续持锁，表现为后续写操作 Lock wait timeout exceeded。
+            隔离级别取 ReadCommitted：普通 SELECT 走 MVCC 不加锁、也没有间隙锁，锁只落在真正被写的行上。
+            </remarks>
+        </member>
+        <member name="M:Kevin.Web.Filters.TransactionScope.TransactionScopeFilter.RollbackAsync(Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction)">
+            <summary>
+            回滚。连接已被服务端断开时回滚会再抛异常，这里只记日志，避免覆盖真正的业务异常
             </summary>
         </member>
         <member name="M:Web.Extension.ServiceConfiguration.UseKevin(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.Extensions.Configuration.IConfiguration)">

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -9,13 +9,11 @@
     <PackageReference Include="AutoFixture.AutoFakeItEasy" Version="4.18.1" />
     <PackageReference Include="AutoFixture.Xunit2" Version="4.18.1" />
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.11" />
-    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.10.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.14" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.11.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.2" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.0" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     <PackageReference Include="WireMock.Net" Version="1.6.0" />
   </ItemGroup>
 </Project>

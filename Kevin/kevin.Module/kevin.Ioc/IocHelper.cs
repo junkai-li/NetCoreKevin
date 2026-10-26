@@ -15,6 +15,21 @@ namespace kevin.Ioc
             return ser.GetTypes().Where(a => a.IsClass && !a.IsInterface && !a.IsAbstract && type.IsAssignableFrom(a));
         }
 
+        /// <summary>
+        /// 获取业务程序集（排除框架程序集）
+        /// </summary>
+        private static IEnumerable<Assembly> GetAppAssemblies()
+        {
+            return AppDomain.CurrentDomain.GetAssemblies().Where(x =>
+            {
+                var name = x.GetName().Name;
+                return name != null
+                    && !name.StartsWith("System", StringComparison.Ordinal)
+                    && !name.StartsWith("Microsoft", StringComparison.Ordinal)
+                    && !name.StartsWith("netstandard", StringComparison.OrdinalIgnoreCase);
+            });
+        }
+
 
         /// <summary>
         /// 批量根据传入T进行AddScoped的生命周期注册
@@ -42,7 +57,7 @@ namespace kevin.Ioc
             }
             if (isAllAssemblys)
             {
-                Assembly[] Assemblys = AppDomain.CurrentDomain.GetAssemblies();
+                Assembly[] Assemblys = GetAppAssemblies().ToArray();
                 foreach (var item in Assemblys)
                 {
                     try
@@ -103,7 +118,7 @@ namespace kevin.Ioc
             }
             if (isAllAssemblys)
             {
-                Assembly[] Assemblys = AppDomain.CurrentDomain.GetAssemblies();
+                Assembly[] Assemblys = GetAppAssemblies().ToArray();
                 foreach (var item in Assemblys)
                 {
                     try
@@ -164,7 +179,7 @@ namespace kevin.Ioc
             }
             if (isAllAssemblys)
             {
-                Assembly[] Assemblys = AppDomain.CurrentDomain.GetAssemblies();
+                Assembly[] Assemblys = GetAppAssemblies().ToArray();
                 foreach (var item in Assemblys)
                 {
                     try

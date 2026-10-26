@@ -42,7 +42,12 @@ namespace kevin.Ioc.TieredServiceRegistration
             //var companyName = ((AsmResolver.Utf8String?)asmCompanyAttr.Signature?.FixedArguments[0]?.Element)?.Value;
             //if (companyName is null) return false;
 
-            return assemblyPath.Contains("Microsoft");
+            var fileName = Path.GetFileNameWithoutExtension(assemblyPath);
+            return fileName.StartsWith("System", StringComparison.Ordinal)
+                || fileName.StartsWith("Microsoft", StringComparison.Ordinal)
+                || fileName.StartsWith("netstandard", StringComparison.OrdinalIgnoreCase)
+                || fileName.StartsWith("WindowsBase", StringComparison.OrdinalIgnoreCase)
+                || fileName.StartsWith("mscorlib", StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -78,6 +83,10 @@ namespace kevin.Ioc.TieredServiceRegistration
             {
                 Debug.WriteLine(ex);
             }
+            catch (FileNotFoundException ex)
+            {
+                Debug.WriteLine(ex);
+            }
 
             if (assembly is null)
             {
@@ -90,6 +99,10 @@ namespace kevin.Ioc.TieredServiceRegistration
                     Debug.WriteLine(ex);
                 }
                 catch (FileLoadException ex)
+                {
+                    Debug.WriteLine(ex);
+                }
+                catch (FileNotFoundException ex)
                 {
                     Debug.WriteLine(ex);
                 }
@@ -141,7 +154,8 @@ namespace kevin.Ioc.TieredServiceRegistration
                 }
             }
 
-            var assemblysInBaseDir = Directory.EnumerateFiles(AppContext.BaseDirectory, "*.dll", new EnumerationOptions { RecurseSubdirectories = true });
+            var assemblysInBaseDir = Directory.EnumerateFiles(AppContext.BaseDirectory, "*.dll", new EnumerationOptions { RecurseSubdirectories = true })
+                .Where(x => !x.Contains($"{Path.DirectorySeparatorChar}BuildHost-"));
 
             foreach (var assemblyPath in assemblysInBaseDir)
             {

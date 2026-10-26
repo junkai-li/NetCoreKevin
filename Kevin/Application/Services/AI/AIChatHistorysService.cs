@@ -137,6 +137,15 @@ namespace kevin.Application.Services.AI
             var aiapp = await db.Set<TAIApps>().Where(t => t.Id == chat.AppId && t.IsDelete == false).FirstOrDefaultAsync();
             if (aiapp == default) return result;
             var modelId = aiapp.ChatModelID.ToTryInt64();
+            if (modelId <= 0)
+            {
+                // Auto 模式（ChatModelID=auto）未落具体模型：聊天时随机选模型，展示取可用聊天模型中的第一个，保证预算稳定
+                modelId = await db.Set<TAIModels>()
+                    .Where(t => t.IsDelete == false && t.AIModelType == AIModelType.Chat)
+                    .OrderByDescending(t => t.CreateTime)
+                    .Select(t => t.Id)
+                    .FirstOrDefaultAsync();
+            }
             // 直接查库而不走 GetNoPerDetails：智能体未绑模型或模型已删除时该方法会抛异常，这里只需静默降级为“无上限”
             var aiModel = modelId > 0
                 ? await db.Set<TAIModels>().Where(t => t.Id == modelId && t.IsDelete == false).Select(t => new { t.MaxAskPromptSize, t.AnswerTokens }).FirstOrDefaultAsync()
