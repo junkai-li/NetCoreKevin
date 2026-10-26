@@ -14,9 +14,9 @@ namespace Kevin.Unit.Test.Kevin.RAG.Tools
         }
 
         [Fact]
-        public void LoadDocumentStreamFromUrlAsync_WithInvalidUrl_ThrowsException()
+        public async Task LoadDocumentStreamFromUrlAsync_WithInvalidUrl_ThrowsException()
         {
-            Assert.ThrowsAsync<HttpRequestException>(() =>
+            await Assert.ThrowsAsync<HttpRequestException>(() =>
                 RemoteDocumentLoader.LoadDocumentStreamFromUrlAsync("https://invalid-domain-that-does-not-exist-12345.com/file.pdf"));
         }
 

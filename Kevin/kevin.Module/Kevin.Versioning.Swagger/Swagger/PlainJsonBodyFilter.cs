@@ -1,4 +1,4 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
@@ -12,13 +12,32 @@ namespace Kevin.Api.Versioning.Swagger
     {
         public void Apply(OpenApiDocument doc, DocumentFilterContext ctx)
         {
+            if (doc.Paths == null)
+            {
+                return;
+            }
+
             foreach (var path in doc.Paths.Values)
+            {
+                if (path.Operations == null)
+                {
+                    continue;
+                }
+
                 foreach (var op in path.Operations.Values)
-                    if (op.RequestBody != null)
-                        foreach (var key in op.RequestBody.Content.Keys.ToList())
-                            if (key.Contains("json") && key != "application/json"
-                                && !op.RequestBody.Content.ContainsKey("application/json"))
-                                op.RequestBody.Content["application/json"] = op.RequestBody.Content[key];
+                {
+                    var content = op.RequestBody?.Content;
+                    if (content == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var key in content.Keys.ToList())
+                        if (key.Contains("json") && key != "application/json"
+                            && !content.ContainsKey("application/json"))
+                            content["application/json"] = content[key];
+                }
+            }
         }
     }
 }

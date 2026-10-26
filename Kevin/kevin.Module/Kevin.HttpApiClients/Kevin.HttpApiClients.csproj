@@ -8,8 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="log4net" Version="3.3.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.14" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 

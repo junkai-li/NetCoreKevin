@@ -23,13 +23,15 @@ namespace Kevin.Unit.Tests.Kevin.Module
             };
             using var rabbitMQConnection = new RabbitMQConnection(factory);
             var serv = new RabbitMQPublisherService(rabbitMQConnection);
-            serv.PublishList<string>("test_exchange", "test_routingkey", new List<string> { "hello", "world" }, exchangeType: ExchangeType.Direct, queue: "test_queue", isConfirmSelect: true, basicAcks: (sender, ea) =>
+            serv.PublishList<string>("test_exchange", "test_routingkey", new List<string> { "hello", "world" }, exchangeType: ExchangeType.Direct, queue: "test_queue", isConfirmSelect: true, basicAcks: async (sender, ea) =>
             {
                 isPublishOk = true;
                 Console.WriteLine($"message已发送:{sender} {ea.DeliveryTag}");
-            }, basicNacks: (sender, ea) =>
+                await Task.CompletedTask;
+            }, basicNacks: async (sender, ea) =>
             {
                 Console.WriteLine($"message发送失败:{sender} {ea.DeliveryTag}");
+                await Task.CompletedTask;
             });
             // Assert
             Assert.False(isPublishOk);

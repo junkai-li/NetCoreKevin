@@ -9,14 +9,14 @@ namespace kevin.RabbitMQ
     public class RabbitMQConsumerService : IRabbitMQConsumer, IDisposable
     {
         private readonly IRabbitMQConnection _connection;
-        private readonly IModel _channel;
+        private readonly IChannel _channel;
         private string? _consumerTag;
         private bool _isDisposed;
 
         public RabbitMQConsumerService(IRabbitMQConnection connection)
         {
             _connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            _channel = _connection.CreateModel();
+            _channel = _connection.CreateChannel();
         }
         /// <summary>
         /// 开始消费消息
@@ -32,28 +32,28 @@ namespace kevin.RabbitMQ
         public void StartConsume<T>(string exchange, string routingKey, string queue, Func<T, bool> messageHandler, string exchangeType = "", bool autoAck = false, ushort prefetchCount = 1)
         {
             // 设置QoS
-            _channel.BasicQos(0, prefetchCount, false);
+            _channel.BasicQosAsync(0, prefetchCount, false).GetAwaiter().GetResult();
 
             // 声明交换机（如果提供了交换机类型）
             if (!string.IsNullOrEmpty(exchangeType))
             {
-                _channel.ExchangeDeclare(exchange, exchangeType, true);
+                _channel.ExchangeDeclareAsync(exchange, exchangeType, true).GetAwaiter().GetResult();
             }
 
             // 声明队列
-            _channel.QueueDeclare(queue, true, false, false, null);
+            _channel.QueueDeclareAsync(queue, true, false, false, null).GetAwaiter().GetResult();
 
             // 绑定队列到交换机
             if (!string.IsNullOrEmpty(exchange))
             {
-                _channel.QueueBind(queue, exchange, routingKey);
+                _channel.QueueBindAsync(queue, exchange, routingKey).GetAwaiter().GetResult();
             }
 
             // 创建消费者
-            var consumer = new EventingBasicConsumer(_channel);
+            var consumer = new AsyncEventingBasicConsumer(_channel);
 
             // 注册接收消息事件
-            consumer.Received += (model, ea) =>
+            consumer.ReceivedAsync += async (model, ea) =>
             {
                 try
                 {
@@ -67,11 +67,11 @@ namespace kevin.RabbitMQ
 
                     if (result && !autoAck)
                     {
-                        _channel.BasicAck(ea.DeliveryTag, false);
+                        await _channel.BasicAckAsync(ea.DeliveryTag, false);
                     }
                     else if (!result && !autoAck)
                     {
-                        _channel.BasicNack(ea.DeliveryTag, false, true);
+                        await _channel.BasicNackAsync(ea.DeliveryTag, false, true);
                     }
                 }
                 catch (Exception ex)
@@ -79,32 +79,32 @@ namespace kevin.RabbitMQ
                     LogHelper<RabbitMQConsumerService>.logger.Error($"消息处理异常: {ex.Message}");
                     if (!autoAck)
                     {
-                        _channel.BasicNack(ea.DeliveryTag, false, false);
+                        await _channel.BasicNackAsync(ea.DeliveryTag, false, false);
                     }
                 }
             };
 
             // 开始消费
-            _consumerTag = _channel.BasicConsume(queue, autoAck, consumer);
+            _consumerTag = _channel.BasicConsumeAsync(queue, autoAck, string.Empty, false, false, null, consumer).GetAwaiter().GetResult();
         }
 
         public void StopConsume()
         {
             if (!string.IsNullOrEmpty(_consumerTag))
             {
-                _channel.BasicCancel(_consumerTag);
+                _channel.BasicCancelAsync(_consumerTag).GetAwaiter().GetResult();
                 _consumerTag = null;
             }
         }
 
         public void Ack(ulong deliveryTag)
         {
-            _channel.BasicAck(deliveryTag, false);
+            _channel.BasicAckAsync(deliveryTag, false).GetAwaiter().GetResult();
         }
 
         public void Nack(ulong deliveryTag, bool requeue = false)
         {
-            _channel.BasicNack(deliveryTag, false, requeue);
+            _channel.BasicNackAsync(deliveryTag, false, requeue).GetAwaiter().GetResult();
         }
 
         public void Dispose()
@@ -120,7 +120,7 @@ namespace kevin.RabbitMQ
                 if (disposing)
                 {
                     StopConsume();
-                    _channel?.Close();
+                    _channel?.CloseAsync().GetAwaiter().GetResult();
                     _channel?.Dispose();
                     _connection?.Dispose();
                 }

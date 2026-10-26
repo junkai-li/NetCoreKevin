@@ -10,13 +10,13 @@ namespace kevin.RabbitMQ
     public class RabbitMQPublisherService : IRabbitMQPublisherService, IDisposable
     {
         private readonly IRabbitMQConnection _connection;
-        private readonly IModel _channel;
+        private readonly IChannel _channel;
         private bool _isDisposed;
         public RabbitMQPublisherService(IRabbitMQConnection connection)
         {
             _connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            //创建通道
-            _channel = _connection.CreateModel();
+            //创建开启发布确认的通道
+            _channel = _connection.CreateChannel(publisherConfirmationsEnabled: true);
         }
 
         /// <summary>
@@ -40,11 +40,11 @@ namespace kevin.RabbitMQ
         /// <exception cref="UserFriendlyException">开启TTL机制消息过期必须传入死信交换机和死信路由</exception>
         public void PublishList<T>(string exchange, string routingKey, List<T> messages,
                                 string queue = "", string exchangeType = "", bool isTx = false, bool isConfirmSelect = false,
-                                EventHandler<BasicAckEventArgs>? basicAcks = default, EventHandler<BasicNackEventArgs>? basicNacks = default,
+                                AsyncEventHandler<BasicAckEventArgs>? basicAcks = default, AsyncEventHandler<BasicNackEventArgs>? basicNacks = default,
                                 bool isTtl = false, int ttl = 30000, string? dlxExchange = "", string? dlxRoutingKey = ""
             ) where T : class
         {
-            var args = new Dictionary<string, object>();
+            var args = new Dictionary<string, object?>();
 
             #region 校验
 
@@ -61,7 +61,7 @@ namespace kevin.RabbitMQ
                 {
                     throw new UserFriendlyException("开启TTL机制消息过期必须传入死信交换机和死信路由");
                 }
-                args = new Dictionary<string, object>
+                args = new Dictionary<string, object?>
                 {
                     { "x-dead-letter-exchange", dlxExchange }, //死信交换机});
                     { "x-dead-letter-routing-key", dlxRoutingKey } //死信路由键
@@ -76,22 +76,24 @@ namespace kevin.RabbitMQ
                 //声明队列
                 if (!string.IsNullOrEmpty(queue))
                 {
-                    _channel.QueueDeclare(queue, durable: true, exclusive: false, autoDelete: false, args);
-                    _channel.QueueBind(queue, exchange, routingKey);
+                    _channel.QueueDeclareAsync(queue, durable: true, exclusive: false, autoDelete: false, arguments: args).GetAwaiter().GetResult();
+                    _channel.QueueBindAsync(queue, exchange, routingKey).GetAwaiter().GetResult();
                 }
 
                 //默认声明交换机
-                _channel.ExchangeDeclare(exchange, ExchangeType.Direct);
+                _channel.ExchangeDeclareAsync(exchange, ExchangeType.Direct).GetAwaiter().GetResult();
 
                 //声明交换机类型
                 if (!string.IsNullOrEmpty(exchangeType))
                 {
-                    _channel.ExchangeDeclare(exchange, exchangeType);
+                    _channel.ExchangeDeclareAsync(exchange, exchangeType).GetAwaiter().GetResult();
                 }
                 //声明消息持久化
-                var properties = _channel.CreateBasicProperties();
-                properties.Persistent = true;
-                properties.ContentType = "application/json";
+                var properties = new BasicProperties
+                {
+                    Persistent = true,
+                    ContentType = "application/json"
+                };
                 if (isTtl)
                 {
                     properties.Expiration = ttl.ToString();
@@ -99,28 +101,27 @@ namespace kevin.RabbitMQ
                 //开启确认机制
                 if (isConfirmSelect)
                 {
-                    _channel.ConfirmSelect();
-                    _channel.BasicAcks += basicAcks;
-                    _channel.BasicNacks += basicNacks;
+                    _channel.BasicAcksAsync += basicAcks!;
+                    _channel.BasicNacksAsync += basicNacks!;
                 }
                 //开启事务
-                if (isTx) { _channel.TxSelect(); }
+                if (isTx) { _channel.TxSelectAsync().GetAwaiter().GetResult(); }
 
                 foreach (var message in messages)
                 {
                     var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
-                    _channel.BasicPublish(exchange, routingKey, false, properties, body);
+                    _channel.BasicPublishAsync(exchange, routingKey, false, properties, body).GetAwaiter().GetResult();
                 }
 
                 //提交事务
-                if (isTx) { _channel.TxCommit(); }
+                if (isTx) { _channel.TxCommitAsync().GetAwaiter().GetResult(); }
 
             }
             catch (Exception ex)
             {
                 LogHelper<RabbitMQPublisherService>.logger.Error($"消息发布失败:An error occurred: {ex.Message}");
                 //回滚事务
-                if (isTx) { _channel.TxRollback(); }
+                if (isTx) { _channel.TxRollbackAsync().GetAwaiter().GetResult(); }
                 throw;
             }
 
@@ -144,7 +145,7 @@ namespace kevin.RabbitMQ
         /// <param name="dlxRoutingKey">死信路由键</param>
         /// <exception cref="UserFriendlyException">确认机制开启，必须传入BasicAcks和BasicNacks</exception>
         /// <exception cref="UserFriendlyException">开启TTL机制消息过期必须传入死信交换机和死信路由</exception>
-        public Task PublishListAsync<T>(string exchange, string routingKey, List<T> messages, string queue = "", string exchangeType = "", bool isTx = false, bool isConfirmSelect = false, EventHandler<BasicAckEventArgs>? basicAcks = null, EventHandler<BasicNackEventArgs>? basicNacks = null, bool isTtl = false, int ttl = 30000, string? dlxExchange = "", string? dlxRoutingKey = "") where T : class
+        public Task PublishListAsync<T>(string exchange, string routingKey, List<T> messages, string queue = "", string exchangeType = "", bool isTx = false, bool isConfirmSelect = false, AsyncEventHandler<BasicAckEventArgs>? basicAcks = null, AsyncEventHandler<BasicNackEventArgs>? basicNacks = null, bool isTtl = false, int ttl = 30000, string? dlxExchange = "", string? dlxRoutingKey = "") where T : class
         {
             return Task.Run(() => PublishList(exchange, routingKey, messages, queue, exchangeType, isTx, isConfirmSelect, basicAcks, basicNacks, isTtl, ttl, dlxExchange, dlxRoutingKey));
         }
@@ -160,7 +161,7 @@ namespace kevin.RabbitMQ
             {
                 if (disposing)
                 {
-                    _channel?.Close();
+                    _channel?.CloseAsync().GetAwaiter().GetResult();
                     _channel?.Dispose();
                     _connection?.Dispose();
                 }

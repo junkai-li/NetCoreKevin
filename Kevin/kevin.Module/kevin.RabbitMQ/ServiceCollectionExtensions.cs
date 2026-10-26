@@ -16,13 +16,12 @@ namespace kevin.RabbitMQ
                 var options = sp.GetRequiredService<IOptions<RabbitMQOptions>>().Value;
                 var factory = new ConnectionFactory()
                 {
-                    HostName = options.HostName,
+                    HostName = options.HostName!,
                     Port = options.Port,
-                    UserName = options.UserName,
-                    Password = options.Password,
-                    VirtualHost = options.VirtualHost,
+                    UserName = options.UserName!,
+                    Password = options.Password!,
+                    VirtualHost = options.VirtualHost!,
                     HandshakeContinuationTimeout = TimeSpan.FromSeconds(30), // 握手超时
-                    DispatchConsumersAsync = true, // 启用异步消费者
                     AutomaticRecoveryEnabled = true, // 自动重连
                     NetworkRecoveryInterval = TimeSpan.FromSeconds(10) // 重连间隔
                 };

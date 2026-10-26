@@ -5,20 +5,21 @@ namespace kevin.RabbitMQ
 {
     public class RabbitMQConnection : IRabbitMQConnection
     {
-        private readonly ConnectionFactory _factory;
         private readonly IConnection _connection;
         private bool _isDisposed;
 
         public RabbitMQConnection(ConnectionFactory factory)
         {
-            _factory = factory ?? throw new ArgumentNullException(nameof(factory));
-            _connection = factory.CreateConnection();
+            ArgumentNullException.ThrowIfNull(factory);
+            // RabbitMQ.Client 7.x 仅提供异步建连，构造阶段同步等待完成
+            _connection = factory.CreateConnectionAsync().GetAwaiter().GetResult();
         }
 
-        public IModel CreateModel()
+        public IChannel CreateChannel(bool publisherConfirmationsEnabled = false)
         {
             EnsureNotDisposed();
-            return _connection.CreateModel();
+            var options = new CreateChannelOptions(publisherConfirmationsEnabled, publisherConfirmationsEnabled);
+            return _connection.CreateChannelAsync(options).GetAwaiter().GetResult();
         }
 
         public void Dispose()

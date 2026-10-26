@@ -7,15 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetCore.CAP" Version="8.4.1" />
-    <PackageReference Include="DotNetCore.CAP.Dashboard" Version="8.4.1" />
-    <PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="8.4.1" />
-    <PackageReference Include="DotNetCore.CAP.MySql" Version="8.4.1" />
-    <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="8.4.1" />
-    <PackageReference Include="DotNetCore.CAP.RedisStreams" Version="8.4.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.14" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.14" />
+    <PackageReference Include="DotNetCore.CAP" Version="10.0.2" />
+    <PackageReference Include="DotNetCore.CAP.Dashboard" Version="10.0.2" />
+    <PackageReference Include="DotNetCore.CAP.InMemoryStorage" Version="10.0.2" />
+    <PackageReference Include="DotNetCore.CAP.MySql" Version="10.0.2" />
+    <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="10.0.2" />
+    <PackageReference Include="DotNetCore.CAP.RedisStreams" Version="10.0.2" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 

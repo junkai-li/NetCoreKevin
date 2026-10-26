@@ -4,6 +4,6 @@ namespace kevin.RabbitMQ.Interfaces
 {
     public interface IRabbitMQConnection : IDisposable
     {
-        IModel CreateModel();
+        IChannel CreateChannel(bool publisherConfirmationsEnabled = false);
     }
 }

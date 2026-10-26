@@ -3,7 +3,7 @@ using Kevin.Api.Versioning.Swagger;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 namespace Kevin.Api.Versioning
 {
@@ -23,7 +23,7 @@ namespace Kevin.Api.Versioning
             {
                 options.OperationFilter<SwaggerOperationFilter>();
 
-                options.MapType<long>(() => new OpenApiSchema { Type = "string", Format = "long" });
+                options.MapType<long>(() => new OpenApiSchema { Type = JsonSchemaType.String, Format = "long" });
                 //其他类库的注释文件
                 foreach (var item in xmlFiles)
                 {
@@ -39,19 +39,9 @@ namespace Kevin.Api.Versioning
                     BearerFormat = "JWT",
                     Scheme = "Bearer"
                 });
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
                 {
-                    {
-                        new OpenApiSecurityScheme
-                            {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.SecurityScheme,
-                                    Id = "Bearer"
-                                }
-                            },
-                        new string[] { }
-                    }
+                    [new OpenApiSecuritySchemeReference("Bearer", document)] = new List<string>()
                 });
                 // 使用解决冲突的策略
                 options.ResolveConflictingActions(apiDescriptions =>

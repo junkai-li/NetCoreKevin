@@ -67,10 +67,10 @@
 | 缓存 | Redis | 7.0+ | 分布式锁、SignalR 背板、JWT 缓存；进程内缓存用 MemoryCache |
 | 向量数据库 | Qdrant | 1.17 客户端 | 知识库与记忆 |
 | 任务调度 | Hangfire | 1.8.23 | 当前 `Hangfire.MemoryStorage`，Redis 存储注册代码保留 |
-| 消息总线 | RabbitMQ | Client 6.8.1 | CAP 8.4.1 包已引用，启动装配默认未启用 |
+| 消息总线 | RabbitMQ | Client 7.2.1 | CAP 10.0.2 包已引用，启动装配默认未启用 |
 | 认证 | JWT | Microsoft.AspNetCore.Authentication.JwtBearer 10.0.14 | 无 IdentityServer4 |
-| API 版本 | Asp.Versioning.Mvc | 8.1.0 | Query/UrlSegment/Header(`X-API-Version`)/MediaType |
-| 接口文档 | Swashbuckle.AspNetCore | 9.0.6 | `/swagger` |
+| API 版本 | Asp.Versioning.Mvc | 10.2.1 | Query/UrlSegment/Header(`X-API-Version`)/MediaType |
+| 接口文档 | Swashbuckle.AspNetCore | 10.3.1 | `/swagger`，基于 Microsoft.OpenApi 2.x |
 | AI 框架 | Microsoft Agent Framework | Microsoft.Agents.AI.OpenAI 1.23.0 | `AIFunctionFactory` 工具调用 |
 | 本地模型 | OllamaSharp | 5.4.25 | 原生 Ollama 接口 |
 | MCP | ModelContextProtocol | 1.4.1 | http / sse / stdio |
@@ -85,17 +85,20 @@
 
 已跟随 .NET 10 齐套的依赖：EF Core 全家族 10.0.14、`Microsoft.Extensions.*` 10.0.14、`Microsoft.AspNetCore.Authentication.JwtBearer` / `Microsoft.AspNetCore.Mvc.Testing` / `Microsoft.AspNetCore.SignalR.StackExchangeRedis` 10.0.14、`System.Drawing.Common` 与 `System.Security.Cryptography.Xml` 10.0.14、MySQL 提供程序 `MySql.EntityFrameworkCore` 10.0.12、向量抽象 `Microsoft.Extensions.VectorData.Abstractions` 10.11.0。
 
-仍停留在旧版、建议后续跟进（不影响当前编译与运行）：
+原停留在旧版、已随本次升级一并处理：
 
-| 包 | 当前 | 建议 | 说明 |
+| 包 | 升级前 | 现状 | 处理方式 |
 |---|---|---|---|
-| `Microsoft.AspNetCore.*`（Authentication / Cors / Http / Mvc / Routing 等，共 22 处） | 2.3.0 | 删除引用，改为 `<FrameworkReference Include="Microsoft.AspNetCore.App" />` | .NET Core 2.x 时代的独立包，功能早已并入共享框架 |
-| `Asp.Versioning.Mvc` / `Asp.Versioning.Mvc.ApiExplorer` | 8.1.0 | 10.2.1 | 主版本号跟随 ASP.NET Core |
-| `Swashbuckle.AspNetCore` | 9.0.6 | 10.3.1 | 主版本号跟随 ASP.NET Core |
-| `DotNetCore.CAP*`（6 个包） | 8.4.1 | 10.0.2 | 版本号跟随 .NET 主线；启动装配默认未启用 |
-| `Microsoft.NET.Test.Sdk` / `xunit` / `xunit.runner.visualstudio` / `coverlet.collector` | 17.8.0 / 2.5.3 / 2.5.3 / 6.0.0 | 18.11.0 / 2.9.3 / 4.0.1 / 10.1.0 | 仅影响测试工程 |
+| `Microsoft.AspNetCore.*`（22 处，15 个 csproj） | 2.3.0 | 已移除 | 改为 `<FrameworkReference Include="Microsoft.AspNetCore.App" />`；同时清掉框架已自带的冗余 `Microsoft.Extensions.*` / `System.Security.Cryptography.Xml` 引用 |
+| `Asp.Versioning.Mvc` / `Asp.Versioning.Mvc.ApiExplorer` | 8.1.0 | 10.2.1 | `ApiDescriptionExtensions.IsDeprecated()` 改为属性 `IsDeprecated` |
+| `Swashbuckle.AspNetCore` | 9.0.6 | 10.3.1 | 适配 Microsoft.OpenApi 2.x：`Microsoft.OpenApi.Models` → `Microsoft.OpenApi`，`OpenApiSchema.Type` 用 `JsonSchemaType` 枚举，安全方案改 `OpenApiSecuritySchemeReference`，`AddSecurityRequirement` 改 `Func<OpenApiDocument, …>` 重载，过滤器里 `IOpenApiParameter`/`IOpenApiSchema` 只读属性改用具体实现类型写回 |
+| `DotNetCore.CAP`（6 个包） | 8.4.1 | 10.0.2 | 无代码改动；但它传递引入 `RabbitMQ.Client` 7.2.1 |
+| `RabbitMQ.Client`（`kevin.RabbitMQ`） | 6.8.1 | 7.2.1 | 必须同步升级，否则与 CAP 的 7.x 冲突导致 `MissingMethodException`；已适配 7.x 异步 API：`CreateConnectionAsync` / `CreateChannelAsync` / `IChannel`、`*Async` 方法族、`BasicProperties`、`AsyncEventingBasicConsumer.ReceivedAsync`、发布确认改由 `CreateChannelOptions` 开启 |
+| `Microsoft.NET.Test.Sdk` / `xunit` / `xunit.runner.visualstudio` / `coverlet.collector` | 17.8.0 / 2.5.3 / 2.5.3 / 6.0.0 | 18.11.0 / 2.9.3 / 4.0.1 / 10.1.0 | 修复 xunit 2.9 分析器报错（`Assert.ThrowsAsync` 必须 await） |
 
-> 另有一批与 .NET 版本无关的包（`MediatR` 12、`AutoMapper` 15、`FluentAssertions` 6、`SixLabors.ImageSharp` 3、`SkiaSharp` 3、`Emgu.CV` 4、`RabbitMQ.Client` 6、`ModelContextProtocol` 1），无需跟随 .NET 升级；其更新的大版本中部分已转为商业许可或含破坏性变更，需单独评估后再动。
+自测结论（Debug）：整解决方案编译 0 错误；`App.WebApi` 启动正常，`/swagger/v1/swagger.json`（145 个路径）、`/swagger/v2/swagger.json`、`/swagger/index.html` 均返回 200，JWT 安全方案 `Bearer` 生效；单元测试 134 个用例通过 117、失败 17（其中 1 个为 RabbitMQ 测试所需 vhost `/app_webapi_test` 不存在，其余为 RAG 工具类既有断言与实现不一致、Selenium 缺 `msedgedriver`、外网样例地址 404，与本次依赖升级无关）。
+
+> 另有一批与 .NET 版本无关的包（`MediatR` 12、`AutoMapper` 15、`FluentAssertions` 6、`SixLabors.ImageSharp` 3、`SkiaSharp` 3、`Emgu.CV` 4、`ModelContextProtocol` 1），无需跟随 .NET 升级；其更新的大版本中部分已转为商业许可或含破坏性变更，需单独评估后再动。
 
 ### 2.2 架构设计
 
