@@ -117,7 +117,7 @@ services:
       # 注意：不要设置 ASPNETCORE_ENVIRONMENT=Production。
       # 框架的 EnvironmentConfigHelper 只识别 Development / Test / 空值，空值即「正式环境」读取 appsettings.json
       # ------------------- 数据库 / 缓存 -------------------
-      ConnectionStrings__dbConnection: "server=mysql;port=3306;database=${MYSQL_DATABASE:-kevin_app};user id=root;password=${MYSQL_ROOT_PASSWORD:-admin123};Convert Zero Datetime=True;TreatTinyAsBoolean=false;AllowLoadLocalInfile=true;Charset=utf8;Command Timeout=120;"
+      ConnectionStrings__dbConnection: "server=mysql;port=3306;database=${MYSQL_DATABASE:-kevin_app};user id=root;password=${MYSQL_ROOT_PASSWORD:-admin123};Convert Zero Datetime=True;TreatTinyAsBoolean=false;AllowLoadLocalInfile=true;Charset=utf8mb4;Command Timeout=120;"
       ConnectionStrings__redisConnection: "redis:6379,DefaultDatabase=0,password=${REDIS_PASSWORD:-123456},connectTimeout=5000,syncTimeout=5000,connectRetry=3"
       HangfireRedisSetting__RedisConnectionString: "redis:6379,DefaultDatabase=0,password=${REDIS_PASSWORD:-123456},syncTimeout=5000,connectTimeout=5000"
       SignalrRdisSetting__hostname: redis
