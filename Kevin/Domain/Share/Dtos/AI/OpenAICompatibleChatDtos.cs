@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Kevin.Web.Basics.Controllers.AI.OpenAI
+namespace kevin.Domain.Share.Dtos.AI
 {
     #region 请求模型（OpenAI Chat Completions 协议子集）
 
@@ -32,7 +32,7 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
         public string? ConversationIdCamel { get; set; }
 
         /// <summary>
-        /// 调用方声明的工具（OpenAI tools 字段）：网关以“声明型工具”原样透传给上游模型，
+        /// 调用方声明的工具（OpenAI tools 字段）：网关以"声明型工具"原样透传给上游模型，
         /// 模型调用时网关不执行、按 tool_calls 响应交回调用方自行执行（function calling 透传）。
         /// </summary>
         [JsonPropertyName("tools")]
@@ -48,7 +48,7 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
 
     /// <summary>
     /// OpenAI 协议消息：content 可能是字符串或内容块数组（如 text/image_url 块），
-    /// 这里原样保留 JsonElement，由控制器按需解析。
+    /// 这里原样保留 JsonElement，由服务层按需解析。
     /// </summary>
     public class OpenAICompatibleMessage
     {
@@ -300,6 +300,31 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
 
         [JsonPropertyName("code")]
         public string? Code { get; set; }
+    }
+
+    /// <summary>
+    /// 非流式聊天处理的最终结果：由服务层从管线落库结果组装，
+    /// 供 Web 层翻译成 chat.completion 响应。
+    /// </summary>
+    public class OpenAICompatibleChatOutcome
+    {
+        /// <summary>最终回复正文</summary>
+        public string Content { get; set; } = "";
+
+        /// <summary>思考过程（开启智能体思考日志时才有值）</summary>
+        public string? ReasoningContent { get; set; }
+
+        /// <summary>透传工具调用（网关不执行，交回客户端执行）；无工具调用时为 null</summary>
+        public List<OpenAICompatibleToolCall>? ToolCalls { get; set; }
+
+        /// <summary>输入 Token 数</summary>
+        public long PromptTokens { get; set; }
+
+        /// <summary>输出 Token 数</summary>
+        public long CompletionTokens { get; set; }
+
+        /// <summary>总 Token 数</summary>
+        public long TotalTokens { get; set; }
     }
 
     #endregion

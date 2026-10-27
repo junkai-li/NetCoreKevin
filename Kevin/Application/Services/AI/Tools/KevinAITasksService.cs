@@ -22,7 +22,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 
-namespace kevin.Application.Services.AI
+namespace kevin.Application.Services.AI.Tools
 {
     public class KevinAITasksService : BaseService, IKevinAITaskService
     {
@@ -315,7 +315,7 @@ namespace kevin.Application.Services.AI
                             var aIModels = _aIModelsRp.FirstOrDefault(t => t.Id == aiapp.ChatModelID.ToTryInt64(), isDataPer: false, isTenant: false);
                             var aIPrompts = _aIPromptsRp.FirstOrDefault(t => t.Id == aiapp.AIPromptID, isDataPer: false, isTenant: false).MapTo<AIPromptsDto>();
                             string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
-                            var chatAgOs = await _aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, new Domain.Share.Dtos.AI.AIChatHistorysDto
+                            var chatAgOs = await _aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, new AIChatHistorysDto
                             {
                                 AIChatsId = SnowflakeIdService.GetNextId(),
                                 Id = SnowflakeIdService.GetNextId(),

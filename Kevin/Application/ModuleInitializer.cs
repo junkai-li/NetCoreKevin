@@ -1,6 +1,7 @@
 ﻿using kevin.AI.AgentFramework.Interfaces.Msg;
 using kevin.Application;
 using kevin.Application.Services.AI;
+using kevin.Application.Services.AI.Tools;
 using kevin.Domain.Interfaces.IServices.AI;
 using kevin.Domain.Share.Interfaces;
 using kevin.Ioc;

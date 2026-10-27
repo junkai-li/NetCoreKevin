@@ -11,7 +11,7 @@ using Microsoft.Extensions.AI;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace kevin.Application.Services.AI
+namespace kevin.Application.Services.AI.Tools
 {
     /// <summary>
     /// <see cref="IAKnowledgeSearchToolService"/> 默认实现：把知识库向量检索（RAG + 可选 Rerank）

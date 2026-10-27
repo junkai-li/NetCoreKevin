@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kevin.Application.Services.AI
+namespace kevin.Application.Services.AI.Tools
 {
     public class AIToolUserInfoServer : BaseService, IAIToolUserInfoServer
     {

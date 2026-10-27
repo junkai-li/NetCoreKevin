@@ -1,11 +1,10 @@
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories;
 using kevin.Domain.Interfaces.IServices;
+using kevin.Domain.Share.Dtos.AI;
 using Kevin.Common;
 using Kevin.Common.Helper;
 using Kevin.log4Net;
-using Kevin.Web.Basics.AI;
-using Kevin.Web.Basics.Controllers.AI.OpenAI;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -17,28 +16,6 @@ using System.Text.Json;
 
 namespace Web.Filters
 {
-    /// <summary>
-    /// OpenAI 协议兼容接口的非鉴权设置项（appsettings.json 的 OpenAICompatibleSetting）：
-    /// 外部客户端用 Authorization: Bearer {Key} 调用 /v1/chat/completions 等接口。
-    /// <para>
-    /// 注意：ApiKey 列表（ApiKeys）已下线，Key 改为由 <c>OpenAICompatibleKeyController</c> 维护、
-    /// 落库到 <c>TAIOpenAICompatibleKey</c>（AES 加密）。本类只保留网关运行所需的非鉴权设置项。
-    /// </para>
-    /// </summary>
-    public class OpenAICompatibleSetting
-    {
-        /// <summary>会话映射（会话标识 → 内部会话）的有效期，单位小时；过期后同一会话标识会自动新建会话</summary>
-        public int SessionExpirationHours { get; set; } = 24;
-
-        /// <summary>是否把模型思考过程以 reasoning_content 字段流式下发（不支持的客户端会自动忽略该字段）</summary>
-        public bool ReasoningOutput { get; set; } = true;
-
-        /// <summary>
-        /// //是否隐藏 AI 聊天对话（null=不限制，true=隐藏，false=显示）
-        /// </summary>
-        public bool AIChatIsHidden { get; set; } = true;
-    }
-
     /// <summary>
     /// OpenAI 协议兼容接口的 API 密钥鉴权过滤器：
     /// 校验 Authorization: Bearer {Key} 是否命中数据库 <c>TAIOpenAICompatibleKey</c>（AES 加密存储）。
@@ -285,17 +262,5 @@ namespace Web.Filters
                 Content = payload
             };
         }
-    }
-
-    public class OpenAICompatibleErrorResponse
-    {
-        public OpenAICompatibleErrorBody Error { get; set; }
-    }
-
-    public class OpenAICompatibleErrorBody
-    {
-        public string Message { get; set; }
-        public string Type { get; set; }
-        public string Code { get; set; }
     }
 }

@@ -10,7 +10,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Text.Json;
 
-namespace kevin.Application.Services.AI
+namespace kevin.Application.Services.AI.Tools
 {
     /// <summary>
     /// 智能体记忆服务（用户级长期与短期记忆）

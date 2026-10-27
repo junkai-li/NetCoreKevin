@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
-namespace kevin.Application.Services.AI
+namespace kevin.Application.Services.AI.Tools
 {
     public class AIMsgService : IAIMsgService
     {

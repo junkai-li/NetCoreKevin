@@ -11,7 +11,7 @@ using Microsoft.Extensions.Options;
 using Qdrant.Client;
 using Qdrant.Client.Grpc;
 
-namespace kevin.Application.Services.AI
+namespace kevin.Application.Services.AI.Tools
 {
     /// <summary>
     /// 智能体记忆向量服务 —— 基于 Qdrant 向量数据库的语义检索层。

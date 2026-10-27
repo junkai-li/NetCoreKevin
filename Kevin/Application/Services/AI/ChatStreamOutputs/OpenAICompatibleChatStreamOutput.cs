@@ -1,10 +1,11 @@
 using kevin.Domain.Interfaces.IServices.AI;
+using kevin.Domain.Share.Dtos.AI;
 using Microsoft.AspNetCore.Http;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
-namespace Kevin.Web.Basics.Controllers.AI.OpenAI
+namespace kevin.Application.Services.AI
 {
     /// <summary>
     /// OpenAI 协议流式输出适配器：把智能体管线的通道分片翻译成 chat.completion.chunk 帧（结尾 data: [DONE]）。
@@ -47,7 +48,7 @@ namespace Kevin.Web.Basics.Controllers.AI.OpenAI
             _created = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         }
 
-        /// <summary>流式响应是否已开始写数据（控制器据此判断出错时还能否改写状态码返回 JSON 错误）</summary>
+        /// <summary>流式响应是否已开始写数据（出错时据此判断还能否改写状态码返回 JSON 错误）</summary>
         public bool StreamStarted { get; private set; }
 
         /// <summary>本轮已收集的透传工具调用（非流式响应组装 message.tool_calls 用；流式下已随 delta 帧下发，此处保留供核对）</summary>
