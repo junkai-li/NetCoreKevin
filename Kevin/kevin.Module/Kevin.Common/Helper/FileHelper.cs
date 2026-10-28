@@ -365,6 +365,46 @@ namespace NetCore.Util
         }
         #endregion
 
+        /// <summary>
+        /// 按文件魔数嗅探图片 MIME 类型（用于从文档内提取出的字节流没有可靠 MIME 的场景）。
+        /// <para>
+        /// 仅覆盖视觉模型普遍支持的位置格式（png/jpeg/gif/webp/bmp），
+        /// svg/tiff/emf 等不确定支持的类型统一返回 null，由调用方决定跳过。
+        /// </para>
+        /// </summary>
+        /// <param name="bytes">图片字节，可为 null</param>
+        /// <returns>识别出的 MIME；识别失败返回 null</returns>
+        public static string SniffImageMime(byte[] bytes)
+        {
+            if (bytes == null || bytes.Length < 2)
+                return null;
+
+            // PNG: 89 50 4E 47 0D 0A 1A 0A
+            if (bytes.Length >= 8 && bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47
+                && bytes[4] == 0x0D && bytes[5] == 0x0A && bytes[6] == 0x1A && bytes[7] == 0x0A)
+                return "image/png";
+
+            // JPEG: FF D8 FF
+            if (bytes.Length >= 3 && bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF)
+                return "image/jpeg";
+
+            // GIF: GIF87a / GIF89a
+            if (bytes.Length >= 6 && bytes[0] == 'G' && bytes[1] == 'I' && bytes[2] == 'F'
+                && bytes[3] == '8' && (bytes[4] == '7' || bytes[4] == '9') && bytes[5] == 'a')
+                return "image/gif";
+
+            // WEBP: RIFF....WEBP
+            if (bytes.Length >= 12 && bytes[0] == 'R' && bytes[1] == 'I' && bytes[2] == 'F' && bytes[3] == 'F'
+                && bytes[8] == 'W' && bytes[9] == 'E' && bytes[10] == 'B' && bytes[11] == 'P')
+                return "image/webp";
+
+            // BMP: BM
+            if (bytes[0] == 'B' && bytes[1] == 'M')
+                return "image/bmp";
+
+            return null;
+        }
+
         public static string DetermineFileType(string fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName))

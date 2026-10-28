@@ -37,7 +37,19 @@ namespace kevin.AI.AgentFramework.Dto
         /// <summary>
         /// 单条消息内允许携带的媒体附件（图片+音频）总数上限，防止一次上传几十个文件把请求打爆
         /// </summary>
-        public int MaxMediaAttachmentsPerMessage { get; set; } = 10;
+        public int MaxMediaAttachmentsPerMessage { get; set; } = 20;
+
+        /// <summary>
+        /// 单个文档（pdf/word/excel/html/markdown）解析时最多提取的图片数（pdf 即最多渲染页数），
+        /// 与 MaxMediaAttachmentsPerMessage 保持同值，避免文档图片被消息级守卫二次截断
+        /// </summary>
+        public int MaxImagesPerDocument { get; set; } = 20;
+
+        /// <summary>
+        /// 无文字层的 PDF（转曲/扫描件）整页渲染分辨率，默认 150 DPI，对视觉模型识别转曲文字足够；
+        /// 会被夹取到 72~300 之间
+        /// </summary>
+        public int PdfRenderDpi { get; set; } = 150;
 
         private static readonly object _lock = new();
         private static ModalityOptions? _cached;
@@ -78,6 +90,8 @@ namespace kevin.AI.AgentFramework.Dto
                 setting.MaxAudioFileBytes = ReadLong(section[nameof(MaxAudioFileBytes)], setting.MaxAudioFileBytes);
                 setting.MaxImageFileBytes = ReadLong(section[nameof(MaxImageFileBytes)], setting.MaxImageFileBytes);
                 setting.MaxMediaAttachmentsPerMessage = ReadInt(section[nameof(MaxMediaAttachmentsPerMessage)], setting.MaxMediaAttachmentsPerMessage);
+                setting.MaxImagesPerDocument = ReadInt(section[nameof(MaxImagesPerDocument)], setting.MaxImagesPerDocument);
+                setting.PdfRenderDpi = Math.Clamp(ReadInt(section[nameof(PdfRenderDpi)], setting.PdfRenderDpi), 72, 300);
                 var mimeSection = section.GetSection(nameof(AllowedAudioMimeTypes));
                 if (mimeSection.Exists())
                 {

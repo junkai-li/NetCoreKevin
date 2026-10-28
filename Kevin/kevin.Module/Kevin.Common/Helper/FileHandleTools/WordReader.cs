@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using NetCore.Util;
 namespace Kevin.Common.Helper.FileHandleTools;
 
 public class WordReader
@@ -376,6 +377,79 @@ public class WordReader
                 markdownBuilder.AppendLine();
             }
         }
+    }
+
+    /// <summary>
+    /// 从Word文档流中按文档顺序提取内嵌图片字节与MIME，供多模态模型直接消费。
+    /// <para>
+    /// 只处理 w:drawing 里 a:blip 的 r:embed 内嵌关系，外链图片（r:link）不在提取范围；
+    /// MIME 优先取 ImagePart 的 ContentType，缺失时用魔数嗅探兜底。单张图片失败不影响后续提取。
+    /// </para>
+    /// </summary>
+    /// <param name="documentContents">Word文档流</param>
+    /// <returns>图片字节与MIME列表</returns>
+    public static List<(byte[] Bytes, string MimeType)> ExtractImages(Stream documentContents)
+    {
+        var images = new List<(byte[], string)>();
+        if (documentContents == null || !documentContents.CanRead || !documentContents.CanSeek)
+            return images;
+
+        documentContents.Position = 0;
+
+        try
+        {
+            using WordprocessingDocument wordDoc = WordprocessingDocument.Open(documentContents, false);
+            var mainPart = wordDoc.MainDocumentPart;
+            if (mainPart == null)
+                return images;
+
+            XmlDocument xmlDoc = new XmlDocument();
+            XmlNamespaceManager nsManager = new XmlNamespaceManager(xmlDoc.NameTable);
+            nsManager.AddNamespace("a", "http://schemas.openxmlformats.org/drawingml/2006/main");
+            nsManager.AddNamespace("r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
+            xmlDoc.Load(mainPart.GetStream());
+
+            XmlNodeList? blips = xmlDoc.SelectNodes("//a:blip", nsManager);
+            if (blips == null)
+                return images;
+
+            foreach (XmlNode blip in blips)
+            {
+                string imageId = blip.Attributes?["r:embed"]?.Value;
+                if (string.IsNullOrEmpty(imageId))
+                    continue;
+
+                try
+                {
+                    if (mainPart.GetPartById(imageId) is not ImagePart imagePart)
+                        continue;
+
+                    using var imageStream = imagePart.GetStream();
+                    using var ms = new MemoryStream();
+                    imageStream.CopyTo(ms);
+                    var bytes = ms.ToArray();
+                    if (bytes.Length == 0)
+                        continue;
+
+                    var mime = imagePart.ContentType;
+                    if (string.IsNullOrWhiteSpace(mime))
+                        mime = FileHelper.SniffImageMime(bytes);
+                    if (!string.IsNullOrWhiteSpace(mime))
+                        images.Add((bytes, mime));
+                }
+                catch (Exception)
+                {
+                    // 关系ID失效等单张图片异常跳过，不影响整份文档
+                    continue;
+                }
+            }
+        }
+        catch (Exception)
+        {
+            // 文档打开失败等由调用方按"无图片"处理
+        }
+
+        return images;
     }
 
     public static async Task<string> ReadFromUrlAsync(string url, CancellationToken cancellationToken = default)

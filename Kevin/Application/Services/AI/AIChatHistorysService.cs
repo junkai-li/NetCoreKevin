@@ -800,16 +800,32 @@ namespace kevin.Application.Services.AI
                     continue;
                 }
 
-                // 文档 / 错误：拼进文本上下文
+                // 文档 / 错误：拼进文本上下文；文档解析出的内嵌图片同时归集为媒体附件送入模型
                 EnsureHeader();
                 if (!string.IsNullOrEmpty(r.Error))
                 {
                     fileContents.AppendLine($"\n文件名：【{originalName}】\n文件地址：【{originalUrl}】\n({r.Error})");
                 }
-                else if (!string.IsNullOrEmpty(r.ExtractedText))
+                else
                 {
-                    fileContents.AppendLine($"\n文件名：【{originalName}】\n文件地址：【{originalUrl}】\n文件内容如下：");
-                    fileContents.AppendLine(r.ExtractedText);
+                    if (r.Images is { Count: > 0 })
+                    {
+                        foreach (var docImage in r.Images)
+                        {
+                            if (mediaCount >= options.MaxMediaAttachmentsPerMessage) break;
+                            mediaContents.Add(docImage);
+                            mediaCount++;
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(r.ExtractedText))
+                    {
+                        fileContents.AppendLine($"\n文件名：【{originalName}】\n文件地址：【{originalUrl}】\n文件内容如下：");
+                        fileContents.AppendLine(r.ExtractedText);
+                    }
+                    if (r.Images is { Count: > 0 })
+                    {
+                        fileContents.AppendLine($"(文档内提取 {r.Images.Count} 张图片，已作为多模态内容直接送入模型)");
+                    }
                 }
             }
 

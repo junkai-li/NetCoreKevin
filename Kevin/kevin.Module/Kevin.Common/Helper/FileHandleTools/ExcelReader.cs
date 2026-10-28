@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using NetCore.Util;
 
 namespace Kevin.Common.Helper.FileHandleTools;
 
@@ -279,6 +280,55 @@ public class ExcelReader
         text = Regex.Replace(text, @"\s+", " ");
 
         return text.Trim();
+    }
+
+    /// <summary>
+    /// 从Excel流中提取内嵌图片字节与MIME，供多模态模型直接消费。
+    /// <para>
+    /// MIME 优先取 NPOI PictureData 自带的 MimeType，缺失或不可用时用魔数嗅探兜底；
+    /// 解析失败按"无图片"处理，单张异常不影响其余图片。
+    /// </para>
+    /// </summary>
+    /// <param name="stream">Excel文件流</param>
+    /// <returns>图片字节与MIME列表</returns>
+    public static List<(byte[] Bytes, string MimeType)> ExtractImages(Stream stream)
+    {
+        var images = new List<(byte[], string)>();
+        if (stream == null)
+            return images;
+
+        stream.Position = 0;
+
+        try
+        {
+            var workbook = WorkbookFactory.Create(stream);
+            foreach (IPictureData picture in workbook.GetAllPictures())
+            {
+                try
+                {
+                    var bytes = picture.Data;
+                    if (bytes == null || bytes.Length == 0)
+                        continue;
+
+                    var mime = picture.MimeType;
+                    if (string.IsNullOrWhiteSpace(mime))
+                        mime = FileHelper.SniffImageMime(bytes);
+                    if (!string.IsNullOrWhiteSpace(mime))
+                        images.Add((bytes, mime));
+                }
+                catch (Exception)
+                {
+                    // 单张图片提取异常跳过，不影响其余图片
+                    continue;
+                }
+            }
+        }
+        catch (Exception)
+        {
+            // 工作簿打开失败等由调用方按"无图片"处理
+        }
+
+        return images;
     }
 
     public static bool IsExcelFile(string filePath)

@@ -10,6 +10,8 @@ using UglyToad.PdfPig;
 using UglyToad.PdfPig.Actions;
 using UglyToad.PdfPig.Annotations;
 using UglyToad.PdfPig.Content;
+using UglyToad.PdfPig.Rendering.Skia;
+using NetCore.Util;
 
 namespace Kevin.Common.Helper.FileHandleTools;
 /// <summary>
@@ -41,8 +43,6 @@ public class PDFReader
     public static string ReadPdfToMarkdown(Stream stream)
     {
         var markdown = new StringBuilder();
-        string imageDirectory = Path.Combine(Path.GetTempPath(), "pdf_images_" + Guid.NewGuid().ToString());
-        Directory.CreateDirectory(imageDirectory);
 
         try
         {
@@ -65,14 +65,6 @@ public class PDFReader
 
                     // 处理文本块，识别和应用Markdown格式
                     ProcessTextBlocks(blocks, markdown);
-
-                    // 提取图片
-                    var images = ExtractImagesFromPage(page, imageDirectory, pageNumber);
-                    foreach (var imagePath in images)
-                    {
-                        markdown.AppendLine($"![图片]({imagePath})");
-                        markdown.AppendLine();
-                    }
 
                     // 处理表格
                     ProcessTables(page, markdown);
@@ -406,6 +398,51 @@ public class PDFReader
         }
 
         return savedImages;
+    }
+
+    /// <summary>
+    /// 把 PDF 每一页整页渲染成 PNG，供视觉模型按页识别页面全部内容（含转曲/扫描件的正文图形）。
+    /// <para>
+    /// 最多渲染 maxPages 页；单页渲染失败跳过，不影响其余页面。
+    /// </para>
+    /// </summary>
+    /// <param name="stream">PDF文件流</param>
+    /// <param name="scale">渲染缩放系数（1.0 = 72 DPI）</param>
+    /// <param name="maxPages">最多渲染的页数</param>
+    /// <returns>每页渲染出的 PNG 字节与 MIME 列表</returns>
+    public static List<(byte[] Bytes, string MimeType)> RenderPagesToPng(Stream stream, float scale, int maxPages)
+    {
+        var images = new List<(byte[], string)>();
+
+        try
+        {
+            using (var document = PdfDocument.Open(stream, SkiaRenderingParsingOptions.Instance))
+            {
+                document.AddSkiaPageFactory();
+                var pageCount = Math.Min(document.NumberOfPages, maxPages);
+                for (int pageNumber = 1; pageNumber <= pageCount; pageNumber++)
+                {
+                    try
+                    {
+                        using var png = document.GetPageAsPng(pageNumber, scale, 100);
+                        var bytes = png.ToArray();
+                        if (bytes.Length > 0)
+                            images.Add((bytes, "image/png"));
+                    }
+                    catch (Exception)
+                    {
+                        // 单页渲染失败跳过，不影响其余页面
+                        continue;
+                    }
+                }
+            }
+        }
+        catch (Exception)
+        {
+            // 打开失败等由调用方按"无图片"处理
+        }
+
+        return images;
     }
 
     public static async Task<string> ReadPdfToMarkdownFromUrlAsync(string url, CancellationToken cancellationToken = default)
