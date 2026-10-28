@@ -96,9 +96,11 @@
 | `RabbitMQ.Client`（`kevin.RabbitMQ`） | 6.8.1 | 7.2.1 | 必须同步升级，否则与 CAP 的 7.x 冲突导致 `MissingMethodException`；已适配 7.x 异步 API：`CreateConnectionAsync` / `CreateChannelAsync` / `IChannel`、`*Async` 方法族、`BasicProperties`、`AsyncEventingBasicConsumer.ReceivedAsync`、发布确认改由 `CreateChannelOptions` 开启 |
 | `Microsoft.NET.Test.Sdk` / `xunit` / `xunit.runner.visualstudio` / `coverlet.collector` | 17.8.0 / 2.5.3 / 2.5.3 / 6.0.0 | 18.11.0 / 2.9.3 / 4.0.1 / 10.1.0 | 修复 xunit 2.9 分析器报错（`Assert.ThrowsAsync` 必须 await） |
 
-自测结论（Debug）：整解决方案编译 0 错误；`App.WebApi` 启动正常，`/swagger/v1/swagger.json`（145 个路径）、`/swagger/v2/swagger.json`、`/swagger/index.html` 均返回 200，JWT 安全方案 `Bearer` 生效；单元测试 134 个用例通过 117、失败 17（其中 1 个为 RabbitMQ 测试所需 vhost `/app_webapi_test` 不存在，其余为 RAG 工具类既有断言与实现不一致、Selenium 缺 `msedgedriver`、外网样例地址 404，与本次依赖升级无关）。
+自测结论（Debug）：整解决方案编译 0 错误；`App.WebApi` 启动正常，`/swagger/v1/swagger.json`（145 个路径）、`/swagger/v2/swagger.json`、`/swagger/index.html` 均返回 200，JWT 安全方案 `Bearer` 生效。
 
-> 另有一批与 .NET 版本无关的包（`MediatR` 12、`AutoMapper` 15、`FluentAssertions` 6、`SixLabors.ImageSharp` 3、`SkiaSharp` 3、`Emgu.CV` 4、`ModelContextProtocol` 1），无需跟随 .NET 升级；其更新的大版本中部分已转为商业许可或含破坏性变更，需单独评估后再动。
+> 另有一批与 .NET 版本无关的包（`MediatR` 12、`AutoMapper` 15、`FluentAssertions` 6、`SixLabors.ImageSharp` 3.2、`SkiaSharp` 3、`Emgu.CV` 4、`ModelContextProtocol` 1），无需跟随 .NET 升级；其更新的大版本中部分已转为商业许可或含破坏性变更，需单独评估后再动。
+>
+> 依赖安全治理（2026-10）：全仓 `dotnet restore` 已无 NuGet 漏洞审计警告（NU1902/1903/1904 清零）。`SixLabors.ImageSharp` 升级 3.2.0（修复 3.1.x 全部安全通告）；无实际使用的 `OpenTelemetry`（1.14.0 两个包）、`WireMock.Net`（1.6.0）直接移除，连带消除 Scriban.Signed 与 Microsoft.OpenApi.Readers 的传递漏洞；`System.Security.Cryptography.Pkcs` 在 `Kevin.Common` / `kevin.Cache` / `Kevin.EntityFrameworkCore` 钉 10.0.14。
 
 ### 2.2 架构设计
 
@@ -402,7 +404,7 @@ docker run -d --name qdrant -p 6333:6333 -v qdrant_storage:/qdrant/storage qdran
 
 任务通过实现 `IModuleConfigTasks.ConfigTasks` 在启动时自动注册（`Kevin/Application/TaskModuleConfigs/`）。
 
-> 注意：当前 `ServiceConfiguration` 注册的是 `AddKevinHangfireMemoryStorage()`，**进程重启后任务与执行记录会丢失**（周期性任务会在下次启动时重新注册）。需要持久化时改用被注释的 `AddKevinHangfireRedis()` 并配置 `HangfireRedisSetting`。
+> 说明：当前 `ServiceConfiguration` 注册的是 `AddKevinHangfireMemoryStorage()`（内存存储，周期性任务在每次启动时自动注册）。需要持久化时改用被注释的 `AddKevinHangfireRedis()` 并配置 `HangfireRedisSetting`。
 
 ### 6.6 OpenAI 协议兼容接口
 
@@ -775,7 +777,6 @@ sudo systemctl enable kevin-webapi
 | **提问超上下文窗口（400）** | 调大模型 `MaxAskPromptSize`，或开启智能体上下文压缩、新建对话 |
 | **向量维度不匹配** | `MemoryEmbeddingSize` / 模型 `EmbeddingValueSize` 与 Qdrant 集合维度保持一致，换模型要重建集合 |
 | **AI 回复不符合预期但无报错** | 检查智能体提示词、`Temperature`、工具开关（`IsAITools`/`IsSkill`/`IsMcp`）与日志开关 |
-| **Hangfire 任务重启后消失** | 当前为内存存储（`AddKevinHangfireMemoryStorage`），属预期；需持久化切 Redis 存储 |
 | **对话入库失败 / 请求过大** | MySQL `max_allowed_packet`（默认 4MB）限制；按 `AIChatStorageSetting` 调整或调大服务端包限制 |
 | **技能脚本保存被拦截** | 命中 `SkillToolSecuritySetting` URL 前缀白名单，或脚本包含受限文件/危险命令 |
 

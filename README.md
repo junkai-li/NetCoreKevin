@@ -18,7 +18,7 @@ An enterprise AI-agent platform on .NET 10 — RAG, skills, memory, multi-tenanc
 </div>
 
 > [!NOTE]
-> NetCoreKevin 面向「要在企业内网里落一个 AI 助手 / SaaS 智能体中台」的场景：多租户、登录鉴权、权限点、审计日志、定时任务、模型接入这些地基已经铺好，你只需要接自己的业务数据和业务系统。如果你只是想调一次大模型接口，这个仓库对你来说太重了。
+> NetCoreKevin 面向「要在企业内网里落一个 AI 助手 / SaaS 智能体中台」的场景：多租户、登录鉴权、权限点、审计日志、定时任务、模型接入这些地基已经铺好，你只需要接自己的业务数据和业务系统。
 
 <p align="center">
   <img src="Doc/Img/list1/3.png" width="880" alt="NetCoreKevin 智能体对话" />
@@ -455,7 +455,7 @@ ollama run qwen3:4b
 
 ### 5. 自动任务（Hangfire）
 
-默认以 Redis 作为 Hangfire 存储，注入方式可在 `Kevin.Hangfire/ServiceCollectionExtensions` 里调整。
+Hangfire 存储当前默认使用内存（`AddKevinHangfireMemoryStorage`），Redis 存储的注册代码已保留，可在 `ServiceConfiguration` 中切换。
 
 继承 `IModuleConfigTasks` 实现 `ConfigTasks`，任务会在启动时自动注册，并且可以直接调用应用服务：
 
@@ -471,9 +471,9 @@ public class AIKmssModuleConfigTasks : IModuleConfigTasks
     public Task<bool> ConfigTasks(IRecurringJobManager recurringJobManager)
     {
         recurringJobManager.AddOrUpdate<IAIKmssService>(
-            recurringJobId: "每6分钟检测是否有AI文档知识库需要处理",   // 唯一 ID，后续修改或删除都用它
+            recurringJobId: "每5分钟检测是否有AI文档知识库需要处理",   // 唯一 ID，后续修改或删除都用它
             (s) => s.ProcessKmssVectorData(default),
-            "0 0/6 0/1 * * ? ",
+            "0 0/5 0/1 * * ? ",
             new RecurringJobOptions
             {
                 TimeZone = TimeZoneInfo.Local,   // 指定时区，默认 UTC
@@ -539,18 +539,6 @@ kevin.abp.core/
 | **Token 额度** | 月度额度颁发、请求扣减 | ✅ |
 | **文件存储** | 腾讯云 / 阿里云 / 七牛 | ✅ |
 | **消息服务** | 钉钉消息、站内 SignalR 推送 | ✅ |
-
-## 现状与不足
-
-坦白说，下面这些是使用前应该知道的事实：
-
-- **向量维度绑定模型**：`MemoryEmbeddingSize` 默认 2048，对应智谱 `embedding-3`；换 embedding 模型要同步改维度并重建集合，否则检索会报维度不匹配。
-- **模型 Key 要自备**：`OllamaApiSetting`、`AliRerankApiSetting`、`AliyunAsr`、`DoubaoSearchApiSetting` 默认留空或指向智谱示例，没配的能力不可用，也不会伪造结果。
-- **迁移不会自动跑**：本地 `dotnet run` 没有自动迁移，升级代码后要自己 `Update-Database`（容器部署已通过 `DB_AUTO_MIGRATE` 开启自动迁移）。
-- **外部服务要自己开通**：短信、邮件、对象存储的密钥默认是空值，用到时再去 `appsettings.json` 填。
-- **一键部署已支持**：根目录 `docker-compose.yml` 可一条命令拉起前端、后端、MySQL、Redis、Qdrant，详见上面[一键部署（Docker Compose）](#一键部署docker-compose)章节。
-- **前端构建链偏旧**：Vue CLI 5（webpack），还没迁到 Vite。
-- **AI 默认值按通用场景给**：提示词、上下文压缩阈值、工具编排这些默认值不一定适合你的业务，需要按场景调。
 
 ## 文档资源
 
