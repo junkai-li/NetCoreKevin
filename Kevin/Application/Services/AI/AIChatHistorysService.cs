@@ -321,6 +321,22 @@ namespace kevin.Application.Services.AI
             {
                 throw new UserFriendlyException("智能体权限不足，无法使用");
             }
+            // 仅问答模式：先按原始配置收集能力清单（下面会关闭执行开关，模型看不到挂载工具，只能靠清单文本了解自己的工具箱）
+            string? askCapabilityList = null;
+            if (par.AgentMode == (int)AIChatWorkModeEnums.Ask)
+            {
+                askCapabilityList = await aIAppsService.BuildAskCapabilityListAsync(aiapp, cancellationToken);
+            }
+            // 会话工作模式：计划（计划轮）与仅问答只保留知识库检索，关闭全部执行类能力（工具/技能/MCP/记忆/文生图）；
+            // 确认执行轮（AgentMode 默认 + ConfirmedPlan）与普通默认轮保持全部能力，不进入此分支
+            if (par.AgentMode != (int)AIChatWorkModeEnums.Default)
+            {
+                aiapp.IsAITools = false;
+                aiapp.IsSkill = false;
+                aiapp.IsMcp = false;
+                aiapp.IsMemory = false;
+                aiapp.IsImageGeneration = false;
+            }
             // Auto模式：解析为实际模型并构建备选模型列表
             List<AIFallbackModel> fallbackModels = new();
             if (string.Equals(aiapp.ChatModelID, "auto", StringComparison.OrdinalIgnoreCase))
@@ -384,6 +400,23 @@ namespace kevin.Application.Services.AI
             try
             {
                 string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
+                // 会话工作模式：仅问答/计划轮注入模式协议提示词；确认执行轮注入已确认计划（执行严格以计划为依据）
+                if (par.AgentMode == (int)AIChatWorkModeEnums.Ask)
+                {
+                    systemPrompt += "\n" + SystemPrompt.AskPromptText;
+                    if (!string.IsNullOrWhiteSpace(askCapabilityList))
+                    {
+                        systemPrompt += "\n" + SystemPrompt.AskCapabilityListHeader + "\n" + askCapabilityList;
+                    }
+                }
+                else if (par.AgentMode == (int)AIChatWorkModeEnums.Plan)
+                {
+                    systemPrompt += "\n" + SystemPrompt.PlanPromptText;
+                }
+                if (!string.IsNullOrWhiteSpace(par.ConfirmedPlan))
+                {
+                    systemPrompt += "\n" + SystemPrompt.ConfirmedPlanHeader + "\n" + par.ConfirmedPlan;
+                }
                 await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = systemPrompt, LogType = AIChatHistorysBindLogEnums.SystemPrompt });
                 List<string> OtherContents = new List<string>();
 
@@ -589,7 +622,7 @@ namespace kevin.Application.Services.AI
             }
             var logdata = await _aIChatHistorysBindLogService.GetByIds(new List<long> { addAi.Id });
             // 聊天完成入库前发布领域事件：处理器按聊天历史记录 Id 记录 Token 使用明细并累加当月已用额度
-            if ((addAi.InputTokenCount ?? 0) + (addAi.OutputTokenCount ?? 0) > 0&& aichas.IsHidden==false)
+            if ((addAi.InputTokenCount ?? 0) + (addAi.OutputTokenCount ?? 0) > 0)
             {
                 addAi.AddDomainEvent(new TAIChatHistorysCreatedEvent(addAi), EventBusEnums.Add);
             }

@@ -45,6 +45,12 @@ namespace kevin.Domain.Interfaces.IServices.AI
         Task<ChatClientAgentOptions> GetOneShotAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// 仅问答模式能力清单：按智能体已开启的配置，把工具/MCP/技能/子智能体/记忆/文生图/知识库的名称与描述拼成文本，
+        /// 注入系统提示词让模型了解自己的工具箱，避免误答“没有可用工具”。
+        /// </summary>
+        Task<string> BuildAskCapabilityListAsync(AIAppsDto aiapp, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// 新增初始化
         /// </summary>
         /// <returns></returns>

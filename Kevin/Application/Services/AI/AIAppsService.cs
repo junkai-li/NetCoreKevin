@@ -598,6 +598,76 @@ namespace kevin.Application.Services.AI
         }
 
         /// <summary>
+        /// 仅问答模式能力清单：按智能体已开启的配置，把工具/MCP/技能/子智能体/记忆/文生图/知识库的名称与描述拼成文本。
+        /// 仅问答模式不挂载执行工具，模型只能靠这份清单了解自己的工具箱，避免误答“没有可用工具”。
+        /// </summary>
+        public async Task<string> BuildAskCapabilityListAsync(AIAppsDto aiapp, CancellationToken cancellationToken = default)
+        {
+            var lines = new List<string>();
+            var userId = (CurrentUser?.UserId ?? 0).ToString();
+            if (aiapp.IsAITools)
+            {
+                foreach (var tool in await _aIAgentToolSkillService.GetUserAIAgentToolsAsync(aiapp.Id.ToString(), userId))
+                {
+                    lines.Add($"- 工具 {tool.Name}：{ShortDescribe(tool.Description)}");
+                }
+                foreach (var agentId in aiapp.BindIds.Where(x => x.Contains("agent_")).Select(t => t.Replace("agent_", "")).ToList())
+                {
+                    var appitem = await GetNoPerDetails(agentId.ToTryInt64());
+                    if (appitem != default)
+                    {
+                        lines.Add($"- 子智能体 {appitem.Name}：{ShortDescribe(appitem.Describe)}");
+                    }
+                }
+            }
+            if (aiapp.IsMcp)
+            {
+                foreach (var tool in await _aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(aiapp.Id.ToString(), userId))
+                {
+                    lines.Add($"- MCP工具 {tool.Name}：{ShortDescribe(tool.Description)}");
+                }
+            }
+            if (aiapp.IsSkill)
+            {
+                var skillPaths = await _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(aiapp.Id.ToString(), userId);
+                foreach (var skillPath in skillPaths.Take(20))
+                {
+                    lines.Add($"- 技能 {Path.GetFileName(skillPath)}");
+                }
+                if (skillPaths.Count > 20)
+                {
+                    lines.Add($"- 技能（另有 {skillPaths.Count - 20} 个未列出）");
+                }
+            }
+            if (aiapp.IsMemory)
+            {
+                lines.Add("- 记忆管理（跨会话保存/检索/更新/删除用户偏好与经验）");
+            }
+            if (aiapp.IsImageGeneration)
+            {
+                lines.Add("- 文生图 GenerateImage（根据文字描述生成图片）");
+            }
+            if (aiapp.KmsId.HasValue && aiapp.KmsId.Value > 0)
+            {
+                lines.Add("- 知识库检索 SearchKnowledge（检索已绑定知识库的文档资料）");
+            }
+            var result = lines.Count > 0 ? string.Join("\n", lines) : "";
+            // 清单总长受控：工具过多时截断，避免挤占提问 Token 预算
+            return result.Length > CharLimits.AskCapabilityList
+                ? result.Substring(0, CharLimits.AskCapabilityList) + "\n（能力较多，清单已截断）"
+                : result;
+        }
+
+        /// <summary>
+        /// 能力清单单行描述截断：只保留名称后的简要说明，超长截断避免清单过长
+        /// </summary>
+        private static string ShortDescribe(string? description, int maxLength = 120)
+        {
+            var text = string.IsNullOrWhiteSpace(description) ? "暂无描述" : description;
+            return text.Length > maxLength ? text.Substring(0, maxLength) + "…" : text;
+        }
+
+        /// <summary>
         /// 一次性调用当前智能体用的配置：与主对话同模型、同系统提示词、同会话历史窗口，
         /// 但不挂工具/技能/记忆，且会话历史只读。
         /// <para>

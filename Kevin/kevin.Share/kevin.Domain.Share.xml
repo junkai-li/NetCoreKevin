@@ -372,6 +372,18 @@
         <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.ToolModeFunctionName">
             <summary>tool_choice 指定函数时的函数名（<see cref="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.ToolMode"/> 为 function 时生效）</summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.AgentMode">
+            <summary>
+            会话工作模式（<see cref="T:kevin.Domain.Share.Enums.AIChatWorkModeEnums"/>）：0.默认执行 1.计划（先出计划待确认） 2.仅问答（不执行）。
+            <para>会话级、仅作为本轮入参使用，不落库。</para>
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.ConfirmedPlan">
+            <summary>
+            已确认的执行计划（计划模式下用户点"开始执行"时回传）：非空时注入系统提示词，执行严格以该计划为依据。
+            <para>仅作为本轮入参使用，不落库。</para>
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIExternalToolDto">
             <summary>外部客户端声明的透传工具定义（OpenAI 兼容接口 tools[] 的 function 部分）</summary>
         </member>
@@ -1444,6 +1456,26 @@
         <member name="F:kevin.Domain.Share.Enums.AIChatHistorysSendStatusEnums.Retrying">
             <summary>
             重试中：本次是对上一轮失败的重新发送，还没拿到回复；若进程中途被打断，记录会停在这个状态
+            </summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Enums.AIChatWorkModeEnums">
+            <summary>
+            AI聊天会话工作模式（会话级、仅作本轮入参不落库）
+            </summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.AIChatWorkModeEnums.Default">
+            <summary>
+            默认模式：高效执行并完成任务，可调用全部已开启的能力
+            </summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.AIChatWorkModeEnums.Plan">
+            <summary>
+            计划模式：本轮只输出可审阅的执行计划，等待用户确认后才执行
+            </summary>
+        </member>
+        <member name="F:kevin.Domain.Share.Enums.AIChatWorkModeEnums.Ask">
+            <summary>
+            仅问答模式：只回答问题、给思路，不调用执行类工具（保留知识库检索）
             </summary>
         </member>
         <member name="T:kevin.Domain.Share.Enums.AIType">

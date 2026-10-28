@@ -158,6 +158,20 @@ namespace kevin.Domain.Share.Dtos.AI
 
         /// <summary>tool_choice 指定函数时的函数名（<see cref="ToolMode"/> 为 function 时生效）</summary>
         public string? ToolModeFunctionName { get; set; }
+
+        /// <summary>
+        /// 会话工作模式（<see cref="AIChatWorkModeEnums"/>）：0.默认执行 1.计划（先出计划待确认） 2.仅问答（不执行）。
+        /// <para>会话级、仅作为本轮入参使用，不落库。</para>
+        /// </summary>
+        [Description("会话工作模式 0.默认执行 1.计划 2.仅问答")]
+        public int AgentMode { get; set; } = (int)AIChatWorkModeEnums.Default;
+
+        /// <summary>
+        /// 已确认的执行计划（计划模式下用户点"开始执行"时回传）：非空时注入系统提示词，执行严格以该计划为依据。
+        /// <para>仅作为本轮入参使用，不落库。</para>
+        /// </summary>
+        [Description("已确认的执行计划")]
+        public string? ConfirmedPlan { get; set; }
     }
 
     /// <summary>外部客户端声明的透传工具定义（OpenAI 兼容接口 tools[] 的 function 部分）</summary>

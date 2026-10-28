@@ -71,6 +71,8 @@ namespace kevin.AI.AgentFramework.TextLimits
         public const int WebSearchErrorBody = 200;
         /// <summary>联网搜索结果摘要展示上限</summary>
         public const int SearchSnippetPreview = 500;
+        /// <summary>仅问答模式注入系统提示词的能力清单总长度上限</summary>
+        public const int AskCapabilityList = 10000;
 
         #endregion
 

@@ -766,6 +766,51 @@
   color: var(--chat-brand);
 }
 
+/* ============ 计划操作条（计划模式回复气泡下方：开始执行 / 调整计划） ============ */
+.plan-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.plan-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  line-height: 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.plan-btn-execute {
+  background: var(--chat-brand);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.plan-btn-execute:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+}
+
+.plan-btn-adjust {
+  background: #fff;
+  color: rgba(0, 0, 0, 0.65);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.plan-btn-adjust:hover {
+  color: var(--chat-brand);
+  border-color: var(--chat-brand);
+  background: rgba(255, 255, 255, 0.9);
+}
+
 /* ============ 推荐问题（AI 回复气泡下方，点击直接发送） ============ */
 .recommend-questions {
   display: flex;

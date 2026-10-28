@@ -221,6 +221,15 @@
                       @click="useRecommendQuestion(q)"
                     >{{ q }}</span>
                   </div>
+                  <!-- 计划操作条：仅最新一条计划回复显示；确认后以默认模式回传计划全文执行，调整则留在计划模式继续对话 -->
+                  <div v-if="message.isSend === false && message.isPlan && message.id === latestPlanId && !isSending" class="plan-actions">
+                    <button class="plan-btn plan-btn-execute" @click="confirmPlanExecute(message)">
+                      <PlayCircleOutlined /> 开始执行
+                    </button>
+                    <button class="plan-btn plan-btn-adjust" @click="adjustPlan">
+                      <EditOutlined /> 调整计划
+                    </button>
+                  </div>
                   <!-- hover 操作行：默认隐藏，悬停消息行时出现；失败时的 ⚠ / ⟳ 常显 -->
                   <div class="msg-actions-row">
                     <button class="msg-action-btn" title="复制" @click="copyMessageContent(message.content)">
@@ -433,6 +442,15 @@
                   <template #checkedChildren>推荐问题</template>
                   <template #unCheckedChildren>推荐问题</template>
                 </a-switch>
+                <!-- 会话工作模式：默认执行 / 计划（先规划待确认）/ 仅问答（不执行），三选一 -->
+                <div class="stream-mode-selector agent-mode-selector">
+                  <span
+                    v-for="m in agentModeOptions"
+                    :key="m.value"
+                    :class="['stream-mode-option', { active: agentMode === m.value }]"
+                    @click="agentMode = m.value"
+                  >{{ m.label }}</span>
+                </div>
                 <a-switch v-model:checked="isOnlineSearch" class="online-search-switch">
                   <template #checkedChildren>联网搜索</template>
                   <template #unCheckedChildren>联网搜索</template>
@@ -629,6 +647,7 @@ import {
   MoreOutlined,
   PushpinFilled,
   CloseOutlined,
+  PlayCircleOutlined,
 } from "@ant-design/icons-vue";
 import FileUpload from "../../components/FileUpload.vue";
 import { message, Modal, Select } from "ant-design-vue";
@@ -810,6 +829,21 @@ const streamModeOptions = [
   { value: 'sse', label: 'SSE 流式' },
   { value: 'signalr', label: 'SignalR' },
 ];
+
+// 会话工作模式：0 默认执行 / 1 计划（先出计划待确认）/ 2 仅问答（不执行），三选一互斥，与后端 AIChatWorkModeEnums 对齐
+const agentMode = ref(0);
+const agentModeOptions = [
+  { value: 0, label: '默认' },
+  { value: 1, label: '计划' },
+  { value: 2, label: '仅问答' },
+];
+// 最新一条计划回复的 id：只在这条上挂"开始执行/调整计划"操作条，避免旧版本计划被误执行
+const latestPlanId = computed(() => {
+  for (let i = messages.value.length - 1; i >= 0; i--) {
+    if (!messages.value[i].isSend && messages.value[i].isPlan) return messages.value[i].id;
+  }
+  return null;
+});
 
 // 语音模式相关变量
 const isVoiceMode = ref(false); // 语音模式开关
@@ -2607,12 +2641,14 @@ const sendMessage = async () => {
     sendStatus: 0,
     failReason: '',
     retryCount: 0,
+    agentMode: agentMode.value,
   };
   messages.value.push(userMessage);
   await postChatMessage(userMessage, {
     content: messageToSend,
     fileNames: currentFileNames,
     contentFileUrls: currentFileUrls,
+    agentMode: agentMode.value,
   });
 };
 
@@ -2639,10 +2675,53 @@ const retryMessage = async (failed) => {
       fileNames: (target.fileNames || '').split(',').filter(Boolean),
       contentFileUrls: (target.contentFileUrls || '').split(',').filter(Boolean),
       retryOfId: target.dbId || target.id,
+      agentMode: target.agentMode || 0,
+      confirmedPlan: target.confirmedPlan || '',
     });
   } finally {
     retryingMsgId.value = null;
   }
+};
+
+// 计划确认执行：以默认模式发送“开始执行”，并回传计划全文，服务端注入系统提示词严格按计划执行
+const confirmPlanExecute = async (planMsg) => {
+  if (isSending.value) return;
+  const planText = planMsg.content || '';
+  const content = '请按照已确认的计划开始执行';
+  const userMessage = {
+    id: Date.now(),
+    conversationId: activeConversationId.value,
+    isSend: true,
+    content,
+    fileNames: '',
+    contentFileUrls: '',
+    totalTokenCount: 0,
+    createdAt: new Date().toISOString(),
+    dbId: null,
+    sendStatus: 0,
+    failReason: '',
+    retryCount: 0,
+    agentMode: 0,
+    confirmedPlan: planText,
+  };
+  messages.value.push(userMessage);
+  await postChatMessage(userMessage, {
+    content,
+    fileNames: [],
+    contentFileUrls: [],
+    agentMode: 0,
+    confirmedPlan: planText,
+  });
+};
+
+// 调整计划：保持计划模式，聚焦输入框让用户直接描述修改点，下一轮继续产出计划
+const adjustPlan = () => {
+  agentMode.value = 1;
+  nextTick(() => {
+    // a-textarea 渲染为 textarea.msg-input，直接按类名定位
+    const textarea = document.querySelector('textarea.msg-input');
+    if (textarea) textarea.focus();
+  });
 };
 
 // 只有提问气泡上给重试入口：sendStatus 1/2 来自库里，请求层就没通的由本地补上
@@ -2668,7 +2747,7 @@ const retryTitle = (msg) =>
  * sendStatus/failReason，保证任意一层出错都能在那条提问上留下一个可点的红色重试按钮。
  */
 const postChatMessage = async (userMessage, par) => {
-  const { content, fileNames = [], contentFileUrls = [], retryOfId = 0 } = par;
+  const { content, fileNames = [], contentFileUrls = [], retryOfId = 0, agentMode: msgAgentMode = 0, confirmedPlan = '' } = par;
   isSending.value = true;
   userStoppedSending = false; // 重置停止标志，允许自动播放
   expandedReasoning.value = false;
@@ -2702,6 +2781,8 @@ const postChatMessage = async (userMessage, par) => {
         fileNames,
         contentFileUrls,
         retryOfId,
+        agentMode: msgAgentMode,
+        confirmedPlan,
       }, abortController.signal);
       finalizeAiReply(data, userMessage, content, snowflakeId);
     } else {
@@ -2716,6 +2797,8 @@ const postChatMessage = async (userMessage, par) => {
         fileNames: fileNames.join(','),
         contentFileUrls: contentFileUrls.join(','),
         retryOfId: retryOfId,
+        agentMode: msgAgentMode,
+        confirmedPlan: confirmedPlan,
       }, abortController.signal);
       if (reulst?.code !== 200 || !reulst?.data) {
         throw new Error(reulst?.errMsg || '发送失败');
@@ -2865,7 +2948,7 @@ const dispatchSSEEvent = ({ event, data }) => {
  * 收到 done（携带与 Add 的 reulst.data 同构的最终记录）后返回它；error 事件则抛业务异常。
  */
 const sendViaSSE = async (snowflakeId, par, signal) => {
-  const { content, fileNames = [], contentFileUrls = [], retryOfId = 0 } = par;
+  const { content, fileNames = [], contentFileUrls = [], retryOfId = 0, agentMode = 0, confirmedPlan = '' } = par;
   const resp = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/AIChatHistorys/AddSSE`, {
     method: 'POST',
     headers: {
@@ -2883,6 +2966,8 @@ const sendViaSSE = async (snowflakeId, par, signal) => {
       fileNames: fileNames.join(','),
       contentFileUrls: contentFileUrls.join(','),
       retryOfId,
+      agentMode,
+      confirmedPlan,
     }),
   });
   if (!resp.ok || !resp.body) {
@@ -2981,6 +3066,8 @@ const finalizeAiReply = (data, userMessage, content, snowflakeId) => {
     failReason: data.failReason || '',
     retryCount: data.retryCount || 0,
     recommendQuestions: recFromLogs.recommend,
+    // 计划模式轮出的回复：标记后由 latestPlanId 定位到最新一条挂“开始执行/调整计划”操作条
+    isPlan: userMessage.agentMode === 1,
   };
   if (aiMessage.aiReasoningContent) {
     expandedReasoning.value = true;
