@@ -21,7 +21,7 @@ An enterprise AI-agent platform on .NET 10 — RAG, skills, memory, multi-tenanc
 > NetCoreKevin 面向「要在企业内网里落一个 AI 助手 / SaaS 智能体中台」的场景：多租户、登录鉴权、权限点、审计日志、定时任务、模型接入这些地基已经铺好，你只需要接自己的业务数据和业务系统。
 
 <p align="center">
-  <img src="Doc/Img/list1/3.png" width="880" alt="NetCoreKevin 智能体对话" />
+  <img src="Doc/Img/list1/3.png" width="881" alt="NetCoreKevin 智能体对话" />
 </p>
 
 ## NetCoreKevin 是什么
@@ -50,7 +50,7 @@ An enterprise AI-agent platform on .NET 10 — RAG, skills, memory, multi-tenanc
 
 ### 能当企业底座用
 
-- **一库多租户**：共享库按 `TenantId` 隔离，接口层强制过滤，不用每个租户各建一套库。
+- **一库多租户**：共享库按 `TenantId` 隔离，接口层强制过滤，不用每个租户一套库。
 - **RBAC 权限**：菜单与 API 两个维度，权限点跟角色走；调试期可以用 `IsOpenPermission` 一把关掉。
 - **额度与审计**：每用户每月 Token 额度由定时任务颁发、请求时扣减；审计日志、慢查询告警、分环境文件日志都内置。
 - **对外集成**：腾讯云 / 阿里云 / 七牛三种对象存储，腾讯与阿里短信，钉钉消息，RabbitMQ / CAP 消息总线，Consul 服务发现，SignalR 实时推送。
