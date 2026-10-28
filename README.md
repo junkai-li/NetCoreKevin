@@ -21,7 +21,7 @@ An enterprise AI-agent platform on .NET 10 — RAG, skills, memory, multi-tenanc
 > NetCoreKevin 面向「要在企业内网里落一个 AI 助手 / SaaS 智能体中台」的场景：多租户、登录鉴权、权限点、审计日志、定时任务、模型接入这些地基已经铺好，你只需要接自己的业务数据和业务系统。
 
 <p align="center">
-  <img src="Doc/Img/list1/3.png" width="880" alt="NetCoreKevin 智能体对话" />
+  <img src="Doc/Img/list1/3.png" width="881" alt="NetCoreKevin 智能体对话" />
 </p>
 
 ## NetCoreKevin 是什么
