@@ -3,11 +3,11 @@ schema_version: 1
 locale: zh-CN
 branch: master
 nodes_managed: true
-exported_at: "2026-09-17T06:59:40Z"
+exported_at: "2026-10-28T08:21:26Z"
 modules:
     "":
-        dir_name: NetCoreKevin 企业级 AI 中台 SaaS 工程根
-        title: NetCoreKevin 企业级 AI 中台 SaaS 工程根
+        dir_name: NetCoreKevin 全模态 AI 平台（解决方案根）
+        title: NetCoreKevin 全模态 AI 平台（解决方案根）
         scope:
             - SYSTEM_DOCUMENTATION.md
             - .dockerignore
@@ -27,8 +27,8 @@ modules:
         depends_on: []
         related_to: []
     app_project:
-        dir_name: 基于 kevin 框架的 .NET WebApi 分层应用
-        title: 基于 kevin 框架的 .NET WebApi 分层应用
+        dir_name: App 示例应用（基于 NetCoreKevin 的分层 WebApi）
+        title: App 示例应用（基于 NetCoreKevin 的分层 WebApi）
         scope:
             - App/
         source_files: []
@@ -39,8 +39,8 @@ modules:
             - path: frontend_vue
             - path: tests
     docs_and_init_data:
-        dir_name: 项目文档与初始化静态数据
-        title: 项目文档与初始化静态数据
+        dir_name: 项目文档与初始化静态资源
+        title: 项目文档与初始化静态资源
         scope:
             - Doc/
             - InitData/
@@ -50,8 +50,8 @@ modules:
         related_to:
             - path: app_project
     frontend_vue:
-        dir_name: Kevin 管理后台 Vue 前端应用
-        title: Kevin 管理后台 Vue 前端应用
+        dir_name: Kevin 管理后台前端（Vue 3 + Ant Design Vue）
+        title: Kevin 管理后台前端（Vue 3 + Ant Design Vue）
         scope:
             - vue/
         source_files: []
@@ -60,8 +60,8 @@ modules:
         related_to:
             - path: app_project
     tests:
-        dir_name: 单元测试与集成测试套件
-        title: 单元测试与集成测试套件
+        dir_name: xUnit 测试工程集合（单元测试 _ 集成测试 _ 共享基础设施）
+        title: xUnit 测试工程集合（单元测试 / 集成测试 / 共享基础设施）
         scope:
             - Test/
         source_files: []

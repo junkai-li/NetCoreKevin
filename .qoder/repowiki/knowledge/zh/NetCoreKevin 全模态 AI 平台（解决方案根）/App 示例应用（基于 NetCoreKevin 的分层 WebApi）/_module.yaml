@@ -1,6 +1,6 @@
 schema_version: 1
 module_path: app_project
-title: 基于 kevin 框架的 .NET WebApi 分层应用
+title: App 示例应用（基于 NetCoreKevin 的分层 WebApi）
 scope:
     - App/
 source_files: []

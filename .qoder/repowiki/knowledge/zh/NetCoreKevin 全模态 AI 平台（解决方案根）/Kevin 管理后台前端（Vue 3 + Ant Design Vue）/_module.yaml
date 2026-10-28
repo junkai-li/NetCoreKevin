@@ -1,6 +1,6 @@
 schema_version: 1
 module_path: frontend_vue
-title: Kevin 管理后台 Vue 前端应用
+title: Kevin 管理后台前端（Vue 3 + Ant Design Vue）
 scope:
     - vue/
 source_files: []

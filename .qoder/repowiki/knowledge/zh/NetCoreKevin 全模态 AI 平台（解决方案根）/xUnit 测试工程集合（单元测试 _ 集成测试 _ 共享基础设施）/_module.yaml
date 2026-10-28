@@ -1,6 +1,6 @@
 schema_version: 1
 module_path: tests
-title: 单元测试与集成测试套件
+title: xUnit 测试工程集合（单元测试 / 集成测试 / 共享基础设施）
 scope:
     - Test/
 source_files: []
