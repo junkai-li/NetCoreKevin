@@ -1,4 +1,4 @@
-using SixLabors.ImageSharp;
+using SkiaSharp;
 using System;
 using System.Collections.Generic; 
 using System.IO;
@@ -180,12 +180,17 @@ public class ImageReader
 
         try
         {
-            using var image = Image.Load(imageBytes);
-            info["宽度"] = $"{image.Width} px";
-            info["高度"] = $"{image.Height} px";
-            info["格式"] = image.Metadata.DecodedImageFormat?.Name ?? "Unknown";
+            using var data = SKData.CreateCopy(imageBytes);
+            using var codec = SKCodec.Create(data);
+            if (codec == null)
+            {
+                throw new InvalidOperationException("无法解析图片");
+            }
+            info["宽度"] = $"{codec.Info.Width} px";
+            info["高度"] = $"{codec.Info.Height} px";
+            info["格式"] = codec.EncodedFormat.ToString().ToUpperInvariant();
 
-            if (image.Metadata.ExifProfile != null)
+            if (HasExifProfile(imageBytes))
             {
                 info["状态"] = "存在EXIF信息";
             }
@@ -196,6 +201,14 @@ public class ImageReader
         }
 
         return info;
+    }
+
+    /// <summary>
+    /// 判断图片字节流是否带 EXIF 标识
+    /// </summary>
+    private static bool HasExifProfile(byte[] imageBytes)
+    {
+        return imageBytes.AsSpan().IndexOf("Exif"u8) >= 0;
     }
 
     public static bool IsImageFile(string filePath)
@@ -235,15 +248,19 @@ public class ImageReader
         string mimeType = "image/png";
         try
         {
-            using var image = Image.Load(imageBytes);
-            mimeType = image.Metadata.DecodedImageFormat?.Name?.ToLowerInvariant() switch
+            using var data = SKData.CreateCopy(imageBytes);
+            using var codec = SKCodec.Create(data);
+            if (codec != null)
             {
-                "jpeg" or "jpg" => "image/jpeg",
-                "gif" => "image/gif",
-                "bmp" => "image/bmp",
-                "webp" => "image/webp",
-                _ => "image/png"
-            };
+                mimeType = codec.EncodedFormat switch
+                {
+                    SKEncodedImageFormat.Jpeg => "image/jpeg",
+                    SKEncodedImageFormat.Gif => "image/gif",
+                    SKEncodedImageFormat.Bmp => "image/bmp",
+                    SKEncodedImageFormat.Webp => "image/webp",
+                    _ => "image/png"
+                };
+            }
         }
         catch { }
 

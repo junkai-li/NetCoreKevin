@@ -14,6 +14,8 @@
     <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="10.0.2" />
     <PackageReference Include="DotNetCore.CAP.RedisStreams" Version="10.0.2" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <!-- DotNetCore.CAP.MySql 传递引入 MySqlConnector 2.6.0，此处显式抬到 2.6.2 修复 GHSA-473q-m89c-ghf8 -->
+    <PackageReference Include="MySqlConnector" Version="2.6.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
