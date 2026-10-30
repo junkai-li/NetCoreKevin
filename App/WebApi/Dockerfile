@@ -16,6 +16,8 @@ WORKDIR /src
 
 # 先只拷贝各项目文件（不拷源码），让 NuGet 还原结果可以被缓存。
 # 新增/删除项目时必须同步维护这份清单，否则 restore 会找不到项目。
+# 中央包版本管理文件，restore 时必需
+COPY ["Directory.Packages.props", "./"]
 COPY ["App/WebApi/App.WebApi.csproj", "App/WebApi/"]
 COPY ["App/Application/App.Application.csproj", "App/Application/"]
 COPY ["App/Domain/App.Domain.csproj", "App/Domain/"]

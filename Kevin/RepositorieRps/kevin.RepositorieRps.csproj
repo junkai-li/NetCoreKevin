@@ -7,9 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.2" />
-    <PackageReference Include="TencentCloudSDK" Version="3.0.1363" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.14" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+    <PackageReference Include="TencentCloudSDK" />
   </ItemGroup>
 
   <ItemGroup>

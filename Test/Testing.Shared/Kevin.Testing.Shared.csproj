@@ -6,13 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AutoFixture.AutoFakeItEasy" Version="4.18.1" />
-    <PackageReference Include="AutoFixture.Xunit2" Version="4.18.1" />
-    <PackageReference Include="FluentAssertions" Version="6.12.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.14" />
-    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.11.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.2" />
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.0" />
+    <PackageReference Include="AutoFixture.AutoFakeItEasy" />
+    <PackageReference Include="AutoFixture.Xunit2" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+    <PackageReference Include="System.Linq.Dynamic.Core" />
   </ItemGroup>
 </Project>

@@ -8,13 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aliyun.OSS.SDK.NetCore" Version="2.14.1" />
+    <PackageReference Include="Aliyun.OSS.SDK.NetCore" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Qiniu" Version="8.7.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.2" />
-    <PackageReference Include="Tencent.QCloud.Cos.Sdk" Version="5.4.49" />
-    <PackageReference Include="Microsoft.Web.Administration" Version="11.1.0" />
-    <PackageReference Include="TencentCloudSDK" Version="3.0.1363" />
+    <PackageReference Include="Qiniu" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+    <PackageReference Include="Tencent.QCloud.Cos.Sdk" />
+    <PackageReference Include="Microsoft.Web.Administration" />
+    <PackageReference Include="TencentCloudSDK" />
   </ItemGroup>
 
   <ItemGroup>

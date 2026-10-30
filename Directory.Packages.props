@@ -1,0 +1,115 @@
+﻿<Project>
+
+  <PropertyGroup>
+    <!-- 各 csproj 的 PackageReference 只写包名，版本统一在此维护 -->
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- 传递依赖也按此处版本对齐，避免传递依赖取最低版本导致的漏洞告警 -->
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageVersion Include="AlipaySDKNet.Standard" Version="4.9.511" />
+    <PackageVersion Include="Aliyun.OSS.SDK.NetCore" Version="2.14.1" />
+    <PackageVersion Include="aliyun-net-sdk-alidns" Version="2.6.32" />
+    <PackageVersion Include="aliyun-net-sdk-core" Version="1.6.2" />
+    <PackageVersion Include="AngleSharp" Version="1.7.1" />
+    <PackageVersion Include="Asp.Versioning.Mvc" Version="10.2.1" />
+    <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.2.1" />
+    <PackageVersion Include="AutoFixture.AutoFakeItEasy" Version="4.18.1" />
+    <PackageVersion Include="AutoFixture.Xunit2" Version="4.18.1" />
+    <PackageVersion Include="AutoMapper" Version="15.1.3" />
+    <PackageVersion Include="Azure.Identity" Version="1.17.1" />
+    <PackageVersion Include="Baidu.AI" Version="4.15.16" />
+    <PackageVersion Include="Certes" Version="3.0.4" />
+    <PackageVersion Include="Consul" Version="1.8.0" />
+    <PackageVersion Include="coverlet.collector" Version="10.1.0" />
+    <PackageVersion Include="DistributedLock.Core" Version="1.0.9" />
+    <PackageVersion Include="DistributedLock.Redis" Version="1.1.1" />
+    <PackageVersion Include="DnsClient" Version="1.8.0" />
+    <PackageVersion Include="DocumentFormat.OpenXml" Version="3.5.1" />
+    <PackageVersion Include="DotNetCore.CAP" Version="10.0.2" />
+    <PackageVersion Include="DotNetCore.CAP.Dashboard" Version="10.0.2" />
+    <PackageVersion Include="DotNetCore.CAP.InMemoryStorage" Version="10.0.2" />
+    <PackageVersion Include="DotNetCore.CAP.MySql" Version="10.0.2" />
+    <PackageVersion Include="DotNetCore.CAP.RabbitMQ" Version="10.0.2" />
+    <PackageVersion Include="DotNetCore.CAP.RedisStreams" Version="10.0.2" />
+    <PackageVersion Include="DynamicExpresso.Core" Version="2.19.0" />
+    <PackageVersion Include="Emgu.CV" Version="4.10.0.5680" />
+    <PackageVersion Include="Emgu.CV.Bitmap" Version="4.10.0.5680" />
+    <PackageVersion Include="Emgu.CV.runtime.ubuntu-x64" Version="4.10.0.5680" />
+    <PackageVersion Include="Emgu.CV.runtime.windows" Version="4.10.0.5680" />
+    <PackageVersion Include="FluentAssertions" Version="6.12.0" />
+    <PackageVersion Include="Hangfire.AspNetCore" Version="1.8.23" />
+    <PackageVersion Include="Hangfire.Dashboard.BasicAuthorization" Version="1.0.2" />
+    <PackageVersion Include="Hangfire.MemoryStorage" Version="1.8.1.2" />
+    <PackageVersion Include="Hangfire.Redis.StackExchange" Version="1.12.0" />
+    <PackageVersion Include="HtmlAgilityPack" Version="1.12.4" />
+    <PackageVersion Include="HttpMataki.NET.Auto" Version="1.0.3" />
+    <PackageVersion Include="log4net" Version="3.3.2" />
+    <PackageVersion Include="log4net.ElasticSearch" Version="2.5.0" />
+    <PackageVersion Include="Mapster" Version="7.4.0" />
+    <PackageVersion Include="MediatR" Version="12.4.1" />
+    <PackageVersion Include="Microsoft.Agents.AI.OpenAI" Version="1.23.0" />
+    <PackageVersion Include="Microsoft.Agents.AI.Tools.Shell" Version="1.20.0-preview.260831.1" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.7" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Proxies" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.SqlServer" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.11.0" />
+    <PackageVersion Include="Microsoft.Extensions.VectorData.Abstractions" Version="10.11.0" />
+    <PackageVersion Include="Microsoft.Identity.Client" Version="4.84.2" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+    <PackageVersion Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+    <PackageVersion Include="Microsoft.Web.Administration" Version="11.1.0" />
+    <PackageVersion Include="ModelContextProtocol" Version="1.4.1" />
+    <PackageVersion Include="MySql.EntityFrameworkCore" Version="10.0.12" />
+    <PackageVersion Include="MySqlConnector" Version="2.6.2" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageVersion Include="NPOI" Version="2.8.1" />
+    <PackageVersion Include="OllamaSharp" Version="5.4.25" />
+    <PackageVersion Include="PdfPig" Version="0.1.16" />
+    <PackageVersion Include="PdfPig.Rendering.Skia" Version="0.1.16.7" />
+    <PackageVersion Include="Qdrant.Client" Version="1.17.0" />
+    <PackageVersion Include="Qiniu" Version="8.7.0" />
+    <PackageVersion Include="RabbitMQ.Client" Version="7.2.1" />
+    <PackageVersion Include="Selenium.Support" Version="4.32.0" />
+    <PackageVersion Include="Selenium.WebDriver" Version="4.32.0" />
+    <PackageVersion Include="Selenium.WebDriver.MSEdgeDriver" Version="136.0.3240.50" />
+    <PackageVersion Include="SkiaSharp" Version="3.119.4" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Linux" Version="3.119.4" />
+    <PackageVersion Include="SkiaSharp.QrCode" Version="0.7.0" />
+    <PackageVersion Include="SSH.NET" Version="2026.0.0" />
+    <PackageVersion Include="Summerdawn.Mcpifier.AspNetCore" Version="1.2.1" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.3.1" />
+    <PackageVersion Include="System.Device.Gpio" Version="3.2.0" />
+    <PackageVersion Include="System.Drawing.Common" Version="10.0.14" />
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.19.2" />
+    <PackageVersion Include="System.Linq.Async" Version="7.0.0" />
+    <PackageVersion Include="System.Linq.Dynamic.Core" Version="1.7.0" />
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.14" />
+    <PackageVersion Include="Tencent.QCloud.Cos.Sdk" Version="5.4.49" />
+    <PackageVersion Include="TencentCloudSDK" Version="3.0.1363" />
+    <PackageVersion Include="Tesseract" Version="5.2.0" />
+    <PackageVersion Include="Vintasoft.Imaging.Pdf" Version="11.0.11.1" />
+    <PackageVersion Include="WebDriverManager" Version="2.17.5" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.1" />
+  </ItemGroup>
+
+</Project>

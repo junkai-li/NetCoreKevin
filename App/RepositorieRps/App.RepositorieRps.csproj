@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.14" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\Kevin\Kevin.EntityFrameworkCore\Kevin.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\Domain\App.Domain.csproj" />
   </ItemGroup>

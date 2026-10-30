@@ -12,10 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.14" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\AppShare\App.Share.csproj" />
     <ProjectReference Include="..\..\Kevin\Kevin.Web.Basics\Kevin.Web.Basics.csproj" />
   </ItemGroup>

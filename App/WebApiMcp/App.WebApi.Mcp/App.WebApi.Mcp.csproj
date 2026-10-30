@@ -6,6 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Summerdawn.Mcpifier.AspNetCore" Version="1.2.1" />
+    <PackageReference Include="Summerdawn.Mcpifier.AspNetCore" />
   </ItemGroup>
 </Project>
