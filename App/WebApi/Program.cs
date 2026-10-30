@@ -18,6 +18,7 @@ using Kevin.Common.App.Global;
 using Kevin.Common.App.IO;
 using Kevin.log4Net;
 using System.Threading;
+using System.Linq;
 namespace WebApi
 {
     public class Program
@@ -101,7 +102,16 @@ namespace WebApi
                         {
                             try
                             {
-                                dbContext.Database.Migrate();
+                                //迁移程序集里没有任何迁移文件时 Migrate() 不会建表，改用 EnsureCreated 按实体模型建表（含种子数据）
+                                if (!dbContext.Database.GetMigrations().Any())
+                                {
+                                    Console.WriteLine("未发现EF迁移文件，改用 EnsureCreated 建表");
+                                    dbContext.Database.EnsureCreated();
+                                }
+                                else
+                                {
+                                    dbContext.Database.Migrate();
+                                }
                                 Console.WriteLine("数据库迁移完成");
                                 break;
                             }

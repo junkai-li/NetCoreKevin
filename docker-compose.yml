@@ -77,7 +77,7 @@ services:
 
   # ------------------------------------------------------------------
   # Qdrant 向量数据库（RAG 知识库检索）
-  # 后端通过 gRPC 连接：QdrantClientSetting__Url = http://qdrant:6334
+  # 后端通过 gRPC 连接：QdrantClientSetting__Url = qdrant（主机名，端口默认 6334）
   # ------------------------------------------------------------------
   qdrant:
     image: ${QDRANT_IMAGE:-qdrant/qdrant:latest}
@@ -124,7 +124,8 @@ services:
       SignalrRdisSetting__port: "6379"
       SignalrRdisSetting__password: ${REDIS_PASSWORD:-123456}
       # ------------------- 向量库 -------------------
-      QdrantClientSetting__Url: http://qdrant:6334
+      # 只填主机名（端口固定走代码里的默认 gRPC 端口 6334），带 http:// 会被当成主机名导致客户端初始化失败
+      QdrantClientSetting__Url: qdrant
       # ------------------- 启动时自动建表 -------------------
       # true：启动阶段执行 EF Core 迁移（首次部署自动建表 + 初始化种子数据，升级时自动增量迁移）
       # 数据库已手工初始化过时可设为 false

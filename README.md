@@ -396,7 +396,7 @@ docker run -d --name qdrant -p 6333:6333 -v qdrant_storage:/qdrant/storage qdran
 `QdrantClientSetting` 默认指向 `localhost`，本机跑的话不用改。
 
 > [!TIP]
-> 用 Docker Compose 一键部署时 Qdrant 已经包含在内，后端通过 `QdrantClientSetting__Url=http://qdrant:6334` 走 gRPC 直连，不需要本节操作。
+> 用 Docker Compose 一键部署时 Qdrant 已经包含在内，后端通过 `QdrantClientSetting__Url=qdrant`（只填主机名，端口默认 6334）走 gRPC 直连，不需要本节操作。
 
 ### 2. 配置模型
 

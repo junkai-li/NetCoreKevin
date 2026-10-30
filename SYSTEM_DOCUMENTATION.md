@@ -699,7 +699,7 @@ docker build -f App/WebApi/Dockerfile -t netcore-kevin .
 docker run -d --name kevin-api -p 19901:8080 \
   -e ConnectionStrings__dbConnection="server=mysql;port=3306;database=kevin_app;user id=root;password=admin123" \
   -e ConnectionStrings__redisConnection="redis:6379,DefaultDatabase=0,password=123456" \
-  -e QdrantClientSetting__Url=http://qdrant:6334 \
+  -e QdrantClientSetting__Url=qdrant \
   -v kevin_files:/app/KevinFlies \
   netcore-kevin
 ```

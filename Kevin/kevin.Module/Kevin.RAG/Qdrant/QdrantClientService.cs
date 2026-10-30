@@ -13,7 +13,7 @@ namespace Kevin.RAG.Qdrant
         private readonly string? Url;
         private readonly string? ApiKey;
         private readonly string? CertificateThumbprint;
-        private readonly QdrantClient QdrantClient;
+        private readonly QdrantClient? QdrantClient;
         public QdrantClientService(IOptionsMonitor<QdrantClientSetting> config)
         {
             try
@@ -39,16 +39,16 @@ namespace Kevin.RAG.Qdrant
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Console.WriteLine("Kevin.RAG请检查Qdrant配置是否正确");
+                Console.WriteLine($"Kevin.RAG请检查Qdrant配置是否正确：{ex.Message}");
             }
 
         }
 
         public async Task<bool> AddData(string collectionName, List<DocumentChunkDto> data, ulong embeddingValueSize = 2048)
         {
-            if (QdrantClient == default)
+            if (QdrantClient is null)
             {
                 throw new ArgumentException($"请检查QdrantClient配置是否正确");
             }
@@ -82,7 +82,7 @@ namespace Kevin.RAG.Qdrant
         // 验证集合是否存在
         public async Task<bool> IsValidateCollectionExists(string collectionName)
         {
-            if (QdrantClient == default)
+            if (QdrantClient is null)
             {
                 throw new ArgumentException($"请检查OllamaApiQdrantClientQdrantClient配置是否正确");
             }
@@ -102,7 +102,7 @@ namespace Kevin.RAG.Qdrant
         public async Task<List<DocumentChunkDto>> Search(string collectionName,
             Embedding<float> query, ulong limit = 10, double? Score = null)
         {
-            if (QdrantClient == default)
+            if (QdrantClient is null)
             {
                 throw new ArgumentException($"请检查QdrantClient配置是否正确");
             }
@@ -131,7 +131,8 @@ namespace Kevin.RAG.Qdrant
 
         public void Dispose()
         {
-            QdrantClient.Dispose();
+            //配置无效时构造函数会吞掉异常，客户端为空，这里必须判空
+            QdrantClient?.Dispose();
         }
     }
 }
