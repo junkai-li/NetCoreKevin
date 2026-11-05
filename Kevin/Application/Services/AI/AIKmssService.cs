@@ -57,10 +57,6 @@ namespace kevin.Application.Services.AI
             int skip = dtoPagePar.GetSkip();
             var result = new dtoPageData<AIKmssDto>();
             var data = AIKmssRp.Query(isDataPer: true).Where(t => t.IsDelete == false);
-            if (!string.IsNullOrEmpty(dtoPagePar.searchKey))
-            {
-                data = data.Where(t => (t.Name ?? "").Contains(dtoPagePar.searchKey));
-            }
             result.total = await data.CountAsync();
             var dbdata = await data.OrderByDescending(x => x.CreateTime).Skip(skip).Take(dtoPagePar.pageSize).Include(t => t.CreateUser).Include(t => t.UpdateUser).ToListAsync();
             result.data = dbdata.MapToList<TAIKmss, AIKmssDto>();
@@ -143,7 +139,7 @@ namespace kevin.Application.Services.AI
                 add.MaxTokensPerLine = data.MaxTokensPerLine;
                 add.OverlappingTokens = data.OverlappingTokens;
                 add.aIModelsId = data.aIModelsId;
-                add.aIRerankModelsId = data.aIRerankModelsId;   
+                add.aIRerankModelsId = data.aIRerankModelsId;
                 AIKmssRp.Add(add);
                 var addTAIKmsDetailss = new List<TAIKmsDetails>();
                 foreach (var item in data.AIKmssDetailsList)
@@ -322,6 +318,9 @@ namespace kevin.Application.Services.AI
                                                     break;
                                                 case "excel":
                                                     content = ExcelReader.ReadExcelToMarkdown(stream, FileName);
+                                                    break;
+                                                case "pptx":
+                                                    content = PptxReader.ReadSlidesToMarkdown(stream);
                                                     break;
                                                 default:
                                                     content = TextStreamReader.ReadTextFromStream(stream);

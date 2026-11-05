@@ -25,6 +25,15 @@ namespace kevin.AI.AgentFramework.Dto
         /// <summary>是否隐藏 AI 聊天对话（null=不限制，true=隐藏，false=显示）</summary>
         public bool AIChatIsHidden { get; set; } = true;
 
+        /// <summary>
+        /// 单条消息内联附件（data URI base64）的字节上限，单位 MB。
+        /// 客户端本地文件没有公网地址只能内联发送，超限按协议错误返回而不是静默丢弃。
+        /// </summary>
+        public int MaxInlineAttachmentMB { get; set; } = 20;
+
+        /// <summary>单条消息最多处理的附件数量（含内联图片），超出部分忽略并记日志</summary>
+        public int MaxInlineAttachmentCount { get; set; } = 5;
+
         private static readonly object _lock = new();
         private static OpenAICompatibleSetting? _cached;
         private static IChangeToken? _cachedToken;
@@ -65,6 +74,10 @@ namespace kevin.AI.AgentFramework.Dto
                     setting.ReasoningOutput = reasoning;
                 if (bool.TryParse(section[nameof(AIChatIsHidden)], out var hidden))
                     setting.AIChatIsHidden = hidden;
+                if (int.TryParse(section[nameof(MaxInlineAttachmentMB)], out var maxMb) && maxMb > 0)
+                    setting.MaxInlineAttachmentMB = maxMb;
+                if (int.TryParse(section[nameof(MaxInlineAttachmentCount)], out var maxCount) && maxCount > 0)
+                    setting.MaxInlineAttachmentCount = maxCount;
             }
             catch
             {

@@ -49,6 +49,7 @@ namespace kevin.AI.AgentFramework.Modality
                     case "excel":
                     case "pdf":
                     case "word":
+                    case "pptx":
                     case "html":
                     case "markdown":
                     case "text":
@@ -135,6 +136,7 @@ namespace kevin.AI.AgentFramework.Modality
                 "excel" => await ExcelReader.ReadExcelToMarkdownAsync(stream, fileName, ct),
                 "pdf" => PDFReader.ReadPdfToMarkdown(stream),
                 "word" => WordReader.ReadParagraphs(stream),
+                "pptx" => PptxReader.ReadSlidesToMarkdown(stream),
                 "html" => await HtmlReader.ExtractTextFromStreamAsync(stream),
                 "markdown" => TextStreamReader.ReadMarkdownFromStream(stream).RawContent,
                 _ => TextStreamReader.ReadTextFromStream(stream)
@@ -168,11 +170,15 @@ namespace kevin.AI.AgentFramework.Modality
                     break;
                 case "word":
                 case "excel":
+                case "pptx":
                     // 文本解析已消费过流，重置位置后由 Reader 从头提取内嵌图片字节
                     TrySeekStart(stream);
-                    extracted.AddRange(fileType == "word"
-                        ? WordReader.ExtractImages(stream)
-                        : ExcelReader.ExtractImages(stream));
+                    extracted.AddRange(fileType switch
+                    {
+                        "word" => WordReader.ExtractImages(stream),
+                        "pptx" => PptxReader.ExtractImages(stream),
+                        _ => ExcelReader.ExtractImages(stream)
+                    });
                     break;
                 case "html":
                 {

@@ -406,7 +406,7 @@
                   :key-value="activeConversationId || ''"
                   sign="chat"
                   :multiple="true"
-                  :accept="'.txt,.pdf,.md,.docx,.html,.doc,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.bmp,.webp,.svg,.mp3,.wav,.m4a,.ogg,.flac,.aac,.opus,.amr'"
+                  :accept="'.txt,.pdf,.md,.ppt,.pptx,.docx,.html,.doc,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.bmp,.webp,.svg,.mp3,.wav,.m4a,.ogg,.flac,.aac,.opus,.amr'"
                   :show-upload-list="false"
                   upload-button-text=""
                   @upload-success="handleFileUploadSuccess"

@@ -420,6 +420,9 @@ namespace NetCore.Util
                 ".xlsx" or ".xls" => "excel",
                 ".pdf" => "pdf",
                 ".doc" or ".docx" => "word",
+                // 演示文稿：.ppt(97-2003 二进制) 也归到 pptx 分支，由 PptxReader 显式回复“请另存为 .pptx”，
+                // 不能落到默认 text 分支（会把 OLE 二进制当 UTF-8 读成乱码）
+                ".pptx" or ".ppt" => "pptx",
                 ".html" or ".htm" => "html",
                 ".md" or ".markdown" => "markdown",
                 ".txt" or ".csv" or ".json" or ".xml" or ".log" => "text",
