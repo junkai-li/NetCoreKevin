@@ -100,7 +100,7 @@ namespace kevin.AI.AgentFramework.Tools
             var needConvert = false;
             foreach (var c in value)
             {
-                if (c > 0x7F || c == '\r' || c == '\n' || (c < 0x20 && c != '\t'))
+                if (c > 0x7F || c == '\r' || c == '\n' || c == 0x7F || (c < 0x20 && c != '\t'))
                 {
                     needConvert = true;
                     break;
@@ -113,7 +113,7 @@ namespace kevin.AI.AgentFramework.Tools
             {
                 var c = value[i];
                 // 剔除控制字符，避免头部注入与非法字符
-                if (c == '\r' || c == '\n' || (c < 0x20 && c != '\t')) continue;
+                if (c == '\r' || c == '\n' || c == 0x7F || (c < 0x20 && c != '\t')) continue;
                 if (c <= 0x7F)
                 {
                     sb.Append(c);
