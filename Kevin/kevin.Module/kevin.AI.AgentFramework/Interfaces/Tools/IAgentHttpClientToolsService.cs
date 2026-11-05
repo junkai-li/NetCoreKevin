@@ -15,7 +15,7 @@ namespace kevin.AI.AgentFramework.Interfaces.Tools
         Task<string> GetAsync(
             [Description("目标完整 URL 或相对 URL 不能为 null")][Required] string url,
             [Description("查询参数字典，映射为 URL 查询字符串（可为 null）")] IDictionary<string, string>? queryParams = null,
-            [Description("自定义请求头字典（可为 null），Key/Value 均为字符串")] IDictionary<string, string>? headers = null,
+            [Description("自定义请求头字典（可为 null），Key/Value 均为字符串；Key 必须是纯 ASCII，Value 中的非 ASCII 字符会按 UTF-8 百分号编码发送")] IDictionary<string, string>? headers = null,
             [Description("请求超时（秒），最小为 1 秒,默认三十秒")] int timeoutSeconds = 30,
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default);
 
@@ -25,7 +25,7 @@ namespace kevin.AI.AgentFramework.Interfaces.Tools
            [Description("请求体字符串（通常为 JSON 或表单），可为 null")] string? body = null,
            [Description("Content-Type，默认 \"application/json; charset=utf-8\"")] string contentType = "application/json; charset=utf-8",
            [Description("查询参数字典，映射为 URL 查询字符串（可为 null）")] IDictionary<string, string>? queryParams = null,
-           [Description("自定义请求头字典（可为 null），Key/Value 均为字符串")] IDictionary<string, string>? headers = null,
+           [Description("自定义请求头字典（可为 null），Key/Value 均为字符串；Key 必须是纯 ASCII，Value 中的非 ASCII 字符会按 UTF-8 百分号编码发送")] IDictionary<string, string>? headers = null,
            [Description("请求超时（秒），最小为 1 秒,默认三十秒")] int timeoutSeconds = 30,
            [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default);
 
@@ -36,7 +36,7 @@ namespace kevin.AI.AgentFramework.Interfaces.Tools
            [Description("请求体字符串（通常为 JSON 或表单），可为 null")] string? body = null,
            [Description("Content-Type，默认 \"application/json; charset=utf-8\"")] string contentType = "application/json; charset=utf-8",
            [Description("查询参数字典，映射为 URL 查询字符串（可为 null）")] IDictionary<string, string>? queryParams = null,
-           [Description("自定义请求头字典（可为 null），Key/Value 均为字符串")] IDictionary<string, string>? headers = null,
+           [Description("自定义请求头字典（可为 null），Key/Value 均为字符串；Key 必须是纯 ASCII，Value 中的非 ASCII 字符会按 UTF-8 百分号编码发送")] IDictionary<string, string>? headers = null,
            [Description("请求超时（秒），最小为 1 秒")] int timeoutSeconds = 30,
            [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default);
 
@@ -44,7 +44,7 @@ namespace kevin.AI.AgentFramework.Interfaces.Tools
         Task<string> DeleteAsync(
             [Description("目标完整 URL 或相对 URL 不能为 null")][Required] string url,
             [Description("查询参数字典，映射为 URL 查询字符串（可为 null）")] IDictionary<string, string>? queryParams = null,
-            [Description("自定义请求头字典（可为 null），Key/Value 均为字符串")] IDictionary<string, string>? headers = null,
+            [Description("自定义请求头字典（可为 null），Key/Value 均为字符串；Key 必须是纯 ASCII，Value 中的非 ASCII 字符会按 UTF-8 百分号编码发送")] IDictionary<string, string>? headers = null,
             [Description("请求超时（秒），最小为 1 秒")] int timeoutSeconds = 30,
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default);
     }

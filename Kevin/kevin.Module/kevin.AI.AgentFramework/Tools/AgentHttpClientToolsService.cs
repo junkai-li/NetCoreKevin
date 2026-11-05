@@ -65,18 +65,69 @@ namespace kevin.AI.AgentFramework.Tools
             client.DefaultRequestHeaders.Add("Accept-Language", "zh-CN,zh;q=0.9");
             foreach (var kv in headers)
             {
-                try
+                // 跳过空 key
+                if (string.IsNullOrWhiteSpace(kv.Key)) continue;
+                var name = kv.Key.Trim();
+                // 名称必须是 RFC 7230 token（纯 ASCII），否则发送阶段一样会失败，这里提前给出可读错误
+                if (!IsValidHeaderName(name))
+                    throw new ArgumentException($"请求头名称 '{name}' 含非法字符，只允许 ASCII 字母、数字与 !#$%&'*+-.^_`|~");
+                // TryAddWithoutValidation 只跳过添加时校验，发送时仍要求值全为 ASCII，需先把非 ASCII 值转成 ASCII
+                client.DefaultRequestHeaders.TryAddWithoutValidation(name, ToAsciiHeaderValue(kv.Value));
+            }
+        }
+
+        /// <summary>
+        /// 请求头名称是否合法（RFC 7230 token，纯 ASCII）
+        /// </summary>
+        private static bool IsValidHeaderName(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return false;
+            const string extraAllowed = "!#$%&'*+-.^_`|~";
+            foreach (var c in name)
+            {
+                if (c > 0x7F) return false;
+                if (!char.IsLetterOrDigit(c) && extraAllowed.IndexOf(c) < 0) return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 把请求头值转成纯 ASCII：剔除换行等控制字符，非 ASCII 字符按 UTF-8 逐字节百分号编码
+        /// </summary>
+        private static string ToAsciiHeaderValue(string? value)
+        {
+            if (string.IsNullOrEmpty(value)) return "";
+            var needConvert = false;
+            foreach (var c in value)
+            {
+                if (c > 0x7F || c == '\r' || c == '\n' || (c < 0x20 && c != '\t'))
                 {
-                    // 跳过空 key
-                    if (string.IsNullOrWhiteSpace(kv.Key)) continue;
-                    // TryAddWithoutValidation 允许自定义 header 名称和值
-                    client.DefaultRequestHeaders.TryAddWithoutValidation(kv.Key, kv.Value ?? "");
-                }
-                catch
-                {
-                    // 忽略单个 header 添加失败，继续添加其它 header
+                    needConvert = true;
+                    break;
                 }
             }
+            if (!needConvert) return value;
+
+            var sb = new StringBuilder(value.Length + 16);
+            for (var i = 0; i < value.Length; i++)
+            {
+                var c = value[i];
+                // 剔除控制字符，避免头部注入与非法字符
+                if (c == '\r' || c == '\n' || (c < 0x20 && c != '\t')) continue;
+                if (c <= 0x7F)
+                {
+                    sb.Append(c);
+                    continue;
+                }
+                // 代理对（如 emoji）需整体按 UTF-8 编码
+                var len = char.IsHighSurrogate(c) && i + 1 < value.Length && char.IsLowSurrogate(value[i + 1]) ? 2 : 1;
+                foreach (var b in Encoding.UTF8.GetBytes(value.Substring(i, len)))
+                {
+                    sb.Append('%').Append(b.ToString("X2"));
+                }
+                i += len - 1;
+            }
+            return sb.ToString();
         }
 
         private void AuthorizedDomainsCheck(string url)
@@ -91,7 +142,7 @@ namespace kevin.AI.AgentFramework.Tools
         public async Task<string> GetAsync(
             [Description("目标完整 URL 或相对 URL")] string url,
             [Description("查询参数字典，映射为 URL 查询字符串（可为 null）")] IDictionary<string, string>? queryParams = null,
-            [Description("自定义请求头字典（可为 null），Key/Value 均为字符串")] IDictionary<string, string>? headers = null,
+            [Description("自定义请求头字典（可为 null），Key/Value 均为字符串；Key 必须是纯 ASCII，Value 中的非 ASCII 字符会按 UTF-8 百分号编码发送")] IDictionary<string, string>? headers = null,
             [Description("请求超时（秒），最小为 1 秒,默认三十秒")] int timeoutSeconds = 30,
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default)
         { 
@@ -120,7 +171,7 @@ namespace kevin.AI.AgentFramework.Tools
             [Description("请求体字符串（通常为 JSON 或表单），可为 null")] string body = "",
             [Description("Content-Type，默认 \"application/json; charset=utf-8\"")] string contentType = "application/json; charset=utf-8",
             [Description("查询参数字典，映射为 URL 查询字符串（可为 null）")] IDictionary<string, string>? queryParams = null,
-            [Description("自定义请求头字典（可为 null），Key/Value 均为字符串")] IDictionary<string, string>? headers = null,
+            [Description("自定义请求头字典（可为 null），Key/Value 均为字符串；Key 必须是纯 ASCII，Value 中的非 ASCII 字符会按 UTF-8 百分号编码发送")] IDictionary<string, string>? headers = null,
             [Description("请求超时（秒），最小为 1 秒")] int timeoutSeconds = 30,
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default)
         { 
@@ -158,7 +209,7 @@ namespace kevin.AI.AgentFramework.Tools
             [Description("请求体字符串（通常为 JSON 或表单），可为 null")] string? body = null,
             [Description("Content-Type，默认 \"application/json; charset=utf-8\"")] string contentType = "application/json; charset=utf-8",
             [Description("查询参数字典，映射为 URL 查询字符串（可为 null）")] IDictionary<string, string>? queryParams = null,
-            [Description("自定义请求头字典（可为 null），Key/Value 均为字符串")] IDictionary<string, string>? headers = null,
+            [Description("自定义请求头字典（可为 null），Key/Value 均为字符串；Key 必须是纯 ASCII，Value 中的非 ASCII 字符会按 UTF-8 百分号编码发送")] IDictionary<string, string>? headers = null,
             [Description("请求超时（秒），最小为 1 秒")] int timeoutSeconds = 30,
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default)
         { 
@@ -193,7 +244,7 @@ namespace kevin.AI.AgentFramework.Tools
         public async Task<string> DeleteAsync(
             [Description("目标完整 URL 或相对 URL")] string url,
             [Description("查询参数字典，映射为 URL 查询字符串（可为 null）")] IDictionary<string, string>? queryParams = null,
-            [Description("自定义请求头字典（可为 null），Key/Value 均为字符串")] IDictionary<string, string>? headers = null,
+            [Description("自定义请求头字典（可为 null），Key/Value 均为字符串；Key 必须是纯 ASCII，Value 中的非 ASCII 字符会按 UTF-8 百分号编码发送")] IDictionary<string, string>? headers = null,
             [Description("请求超时（秒），最小为 1 秒")] int timeoutSeconds = 30,
             [Description("用于取消请求的 CancellationToken")] CancellationToken cancellationToken = default)
         { 
