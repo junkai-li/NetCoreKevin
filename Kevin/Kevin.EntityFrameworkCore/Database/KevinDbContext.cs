@@ -104,7 +104,7 @@ namespace Repository.Database
                     }
                 }
                 //optionsBuilder.UseSqlServer(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory"));
-                //optionsBuilder.UseMySql(ConnectionString, new MySqlServerVersion(new Version(8, 0, 22)), o => 
+                //optionsBuilder.UseMySQL(ConnectionString, o => o.MigrationsHistoryTable("__efmigrationshistory")); 
                 optionsBuilder.UseMySQL(ConnectionString, o =>
                 {
                     o.MigrationsHistoryTable("__efmigrationshistory");
@@ -402,6 +402,23 @@ namespace Repository.Database
         }
 
 
+        /// <summary>
+        /// 为「新增」与「修改」的实体统一分配行版本（乐观并发令牌）。
+        /// <para>
+        /// 只给「修改」赋值时，新增行会以 row_version = NULL 落库：EF 对空版本生成的是
+        /// <c>WHERE row_version IS NULL</c>，首次更新不会报错，但并发双方都能命中，
+        /// 等于这一行在被更新过一次之前没有任何并发保护。
+        /// </para>
+        /// </summary>
+        private void AssignRowVersions()
+        {
+            var list = ChangeTracker.Entries().Where(t => t.State == EntityState.Added || t.State == EntityState.Modified).ToList();
+            foreach (var item in list)
+            {
+                item.Entity.GetType().GetProperty("RowVersion")?.SetValue(item.Entity, Guid.NewGuid());
+            }
+        }
+
         public override int SaveChanges()
         {
 
@@ -417,11 +434,7 @@ namespace Repository.Database
 
             #region 更改值时处理乐观并发
 
-            var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
-            foreach (var item in list)
-            {
-                item.Entity.GetType().GetProperty("RowVersion")?.SetValue(item.Entity, Guid.NewGuid());
-            }
+            AssignRowVersions();
 
             #endregion
 
@@ -460,11 +473,7 @@ namespace Repository.Database
 
             #region 更改值时处理乐观并发
 
-            var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
-            foreach (var item in list)
-            {
-                item.Entity.GetType().GetProperty("RowVersion")?.SetValue(item.Entity, Guid.NewGuid());
-            }
+            AssignRowVersions();
 
             #endregion
 
@@ -535,13 +544,11 @@ namespace Repository.Database
             }
             #endregion
 
+            AssignRowVersions();
+
             var list = db.ChangeTracker.Entries().Where(t => t.State == EntityState.Modified).ToList();
             foreach (var item in list)
             {
-                #region 更改值时处理乐观并发
-                item.Entity.GetType().GetProperty("RowVersion")?.SetValue(item.Entity, Guid.NewGuid());
-                #endregion
-
                 var type = item.Entity.GetType();
                 var oldEntity = item.OriginalValues.ToObject();
                 var newEntity = item.CurrentValues.ToObject();

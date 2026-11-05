@@ -10,7 +10,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Text.Json;
 
-namespace kevin.Application.Services.AI.Tools
+namespace kevin.Application.Services.AI
 {
     /// <summary>
     /// 智能体记忆服务（用户级长期与短期记忆）
@@ -30,6 +30,13 @@ namespace kevin.Application.Services.AI.Tools
         /// Qdrant 向量记忆服务（可选，为 null 时自动降级到数据库关键词搜索）
         /// </summary>
         public IAIQdrantAgentMemoryService? QdrantVectorService { get; set; }
+
+        /// <summary>
+        /// 独立作用域工厂：SaveMemory/UpdateMemory/DeleteMemory 是模型在对话中途调用的工具，
+        /// 写入必须与请求作用域的 DbContext 解耦——共用同一上下文时，任意一次写失败都会让本请求
+        /// 后续所有 SaveChanges（含本轮回复落库）跟着失败，整轮对话内容丢失。
+        /// </summary>
+        private readonly IServiceScopeFactory _scopeFactory;
 
         /// <summary>
         /// 数据库无精确匹配时 fallback 返回的最低重要度（9-10 核心约束 / 7-8 重要决策偏好）
@@ -83,10 +90,11 @@ namespace kevin.Application.Services.AI.Tools
             "我", "怕", "用", "住"
         };
 
-        public AIAgentMemoryService(IHttpContextAccessor _httpContextAccessor, IAIAgentMemoryRp _AIAgentMemoryRp, IAIShareInfoService aIShareInfoService, IServiceProvider serviceProvider) : base(_httpContextAccessor)
+        public AIAgentMemoryService(IHttpContextAccessor _httpContextAccessor, IAIAgentMemoryRp _AIAgentMemoryRp, IAIShareInfoService aIShareInfoService, IServiceScopeFactory scopeFactory, IServiceProvider serviceProvider) : base(_httpContextAccessor)
         {
             this.AIAgentMemoryRp = _AIAgentMemoryRp;
             AIShareInfoService = aIShareInfoService;
+            _scopeFactory = scopeFactory;
             // 从服务容器解析 Qdrant 向量服务（可选依赖，未注册时为 null，自动降级到数据库搜索）。
             // HTTP 请求内优先用请求作用域；Hangfire 等无 HttpContext 场景回退到 DI 注入的容器。
             var provider = _serviceProvider ?? serviceProvider;
@@ -232,8 +240,19 @@ namespace kevin.Application.Services.AI.Tools
             add.MemoryType = normalizedType;
             add.Importance = importance;
             add.ExpireTime = parsedExpireTime;
-            AIAgentMemoryRp.Add(add);
-            await AIAgentMemoryRp.SaveChangesAsync();
+            // 独立作用域落库（见 _scopeFactory 字段注释）：失败只影响本次工具调用
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var writeRp = scope.ServiceProvider.GetRequiredService<IAIAgentMemoryRp>();
+                writeRp.Add(add);
+                await writeRp.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AIAgentMemory] 保存记忆失败（不影响对话）：{ex.Message}");
+                return "❌ 保存记忆失败：数据库写入异常，请稍后重试。";
+            }
 
             // 同步向量到 Qdrant（失败不影响数据库主流程）
             await TrySyncVectorAsync(add);
@@ -496,20 +515,25 @@ namespace kevin.Application.Services.AI.Tools
             try
             {
                 var share = AIShareInfoService.GetData();
-                var list = await AIAgentMemoryRp.Query(isDataPer: false, isTenant: false)
-                    .Where(t => t.IsDelete == false && ids.Contains(t.Id)
-                        && t.UserId == share.UserId && t.TenantId == share.TenantId && t.AIAppsId == share.AIAppsId)
-                    .ToListAsync();
-                if (list.Count == 0) return result;
-
                 var now = DateTime.Now;
-                foreach (var memory in list)
+                // 用 ExecuteUpdate 直接在库里自增，不走“读出实体→改属性→SaveChanges”：
+                // 1) 实体带 [ConcurrencyCheck] RowVersion，同一用户多终端/多轮并行召回同一批记忆时，
+                // 后一次更新会因行版本已变而命中 0 行，抛 DbUpdateConcurrencyException；
+                // 2) 更致命的是失败实体仍留在请求作用域的 DbContext 里保持 Modified，本请求后续每一次
+                // SaveChanges（包括对话历史落库）都会跟着失败，模型重试也救不回来，整轮对话内容丢失。
+                var query = AIAgentMemoryRp.Query(isDataPer: false, isTenant: false)
+                    .Where(t => t.IsDelete == false && ids.Contains(t.Id)
+                        && t.UserId == share.UserId && t.TenantId == share.TenantId && t.AIAppsId == share.AIAppsId);
+                await query.ExecuteUpdateAsync(setters => setters
+                    .SetProperty(t => t.HitCount, t => t.HitCount + 1)
+                    .SetProperty(t => t.LastHitTime, (DateTime?)now));
+
+                // 回读累加后的次数：只投影两列，不把实体放进跟踪器
+                var counts = await query.Select(t => new { t.Id, t.HitCount }).ToListAsync();
+                foreach (var item in counts)
                 {
-                    memory.HitCount += 1;
-                    memory.LastHitTime = now;
-                    result[memory.Id] = memory.HitCount;
+                    result[item.Id] = item.HitCount;
                 }
-                await AIAgentMemoryRp.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -545,7 +569,11 @@ namespace kevin.Application.Services.AI.Tools
                 return $"❌ 更新记忆失败：importance 必须在 0-10 之间（传 -1 表示不修改），当前值 {importance}。";
             }
             // 归属校验与搜索/保存保持一致：租户+智能体+用户三维，防止跨智能体操作自己的记忆
-            var data = await AIAgentMemoryRp.Query(isDataPer: false, isTenant: false)
+            // 读写都在独立作用域（见 _scopeFactory 字段注释）：既断言不污染请求上下文，
+            // 也保证乐观锁用的行版本与本次写入来自同一个上下文
+            using var scope = _scopeFactory.CreateScope();
+            var writeRp = scope.ServiceProvider.GetRequiredService<IAIAgentMemoryRp>();
+            var data = await writeRp.Query(isDataPer: false, isTenant: false)
                 .Where(t => t.IsDelete == false && t.Id == id
                     && t.UserId == AIShareInfoService.GetData().UserId
                     && t.TenantId == AIShareInfoService.GetData().TenantId
@@ -565,7 +593,15 @@ namespace kevin.Application.Services.AI.Tools
                 data.Importance = importance;
             }
             data.UpdateTime = DateTime.Now;
-            await AIAgentMemoryRp.SaveChangesAsync();
+            try
+            {
+                await writeRp.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AIAgentMemory] 更新记忆失败（不影响对话）：{ex.Message}");
+                return $"❌ 更新记忆失败：数据库写入异常，请稍后重试（Id：{id}）。";
+            }
 
             // 同步向量到 Qdrant（内容/关键词变更后需更新向量）
             await TrySyncVectorAsync(data);
@@ -583,7 +619,10 @@ namespace kevin.Application.Services.AI.Tools
                 return "❌ 删除记忆失败：无法获取当前用户，请在登录后使用。";
             }
             // 归属校验与搜索/保存保持一致：租户+智能体+用户三维，防止跨智能体操作自己的记忆
-            var data = await AIAgentMemoryRp.Query(isDataPer: false, isTenant: false)
+            // 读写都在独立作用域（见 _scopeFactory 字段注释）
+            using var scope = _scopeFactory.CreateScope();
+            var writeRp = scope.ServiceProvider.GetRequiredService<IAIAgentMemoryRp>();
+            var data = await writeRp.Query(isDataPer: false, isTenant: false)
                 .Where(t => t.IsDelete == false && t.Id == id
                     && t.UserId == AIShareInfoService.GetData().UserId
                     && t.TenantId == AIShareInfoService.GetData().TenantId
@@ -595,7 +634,15 @@ namespace kevin.Application.Services.AI.Tools
             }
             data.IsDelete = true;
             data.DeleteTime = DateTime.Now;
-            await AIAgentMemoryRp.SaveChangesAsync();
+            try
+            {
+                await writeRp.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AIAgentMemory] 删除记忆失败（不影响对话）：{ex.Message}");
+                return $"❌ 删除记忆失败：数据库写入异常，请稍后重试（Id：{id}）。";
+            }
 
             // 同步删除 Qdrant 中的向量
             await TryDeleteVectorAsync(data);

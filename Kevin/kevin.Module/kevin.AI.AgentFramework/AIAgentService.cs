@@ -284,8 +284,10 @@ namespace kevin.AI.AgentFramework
                 }
                 Ailogger?.LogError(ex, "模型调用失败，模型：{Model}，第{Retries}次尝试。", aISetting.AIDefaultModel, retries);
                 // 参数类错误（输入长度越界、max_tokens 超模型范围）由请求内容本身决定，重试或换模型都不会改变结果，直接终止并友好提示；
+                // 数据库写入类异常（并发冲突、唯一键约束等）与模型无关，而且失败的实体仍留在请求作用域的 DbContext 里保持 Modified，
+                // 重试只会把同一批必失败的写操作再提交一遍（还白白消耗备选模型与重试次数），同样直接终止；
                 // 其他错误（网络、限流、5xx）才按 Auto 模式切换备选模型继续重试
-                if (!IsParameterInvalidException(ex) && retries <= maxRetries)
+                if (!IsParameterInvalidException(ex) && !IsDatabaseWriteException(ex) && retries <= maxRetries)
                 {
                     // Auto模式：从备选模型中随机切换一个未使用过的模型
                     if (aISetting.FallbackModels?.Count > 0)
@@ -312,7 +314,7 @@ namespace kevin.AI.AgentFramework
                     retries++;
                     goto aiRun;
                 }
-                // 走到这里有两种情况：参数类错误（未重试），或非参数错误但重试次数已耗尽。
+                // 走到这里有三种情况：参数类错误（未重试）、数据库写入异常（未重试），或非上述错误但重试次数已耗尽。
                 // 统一把异常转成友好提示，避免前端只看到空回复
                 var friendlyMsg = BuildFriendlyAIMsg(ex);
                 // 友好文案照常推给前端，同时把原始异常带出去：调用方据此把本轮标记为失败并给出重试入口，
@@ -489,11 +491,36 @@ namespace kevin.AI.AgentFramework
         }
 
         /// <summary>
+        /// 判断是否为数据库写入类异常（乐观并发冲突、唯一键/外键约束等）。
+        /// <para>
+        /// 这类错误由本次请求的数据状态决定，换模型或重试都不会改变结果；本模块不引用 EF Core，
+        /// 故按异常类型名识别（<c>DbUpdateException</c> / <c>DbUpdateConcurrencyException</c>），与
+        /// <see cref="IsParameterInvalidException"/> 按文案识别的做法保持一致。
+        /// </para>
+        /// </summary>
+        private static bool IsDatabaseWriteException(Exception ex)
+        {
+            for (var current = ex; current != null; current = current.InnerException)
+            {
+                var typeName = current.GetType().Name;
+                if (typeName == "DbUpdateException" || typeName == "DbUpdateConcurrencyException")
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// 将模型调用异常转成用户可读的友好提示
         /// </summary>
         private static string BuildFriendlyAIMsg(Exception ex)
         {
             var msg = ex.InnerException?.Message ?? ex.Message ?? "";
+            if (IsDatabaseWriteException(ex))
+            {
+                return "\n❌ 本轮对话的数据保存失败（数据库写入冲突或约束冲突），与模型无关，因此没有切换模型重试，请稍后重新发送。";
+            }
             if (msg.Contains("max_tokens") || msg.Contains("max_completion_tokens"))
             {
                 // 提取模型返回的允许范围，如 "Range of max_tokens should be [1, 32768]"

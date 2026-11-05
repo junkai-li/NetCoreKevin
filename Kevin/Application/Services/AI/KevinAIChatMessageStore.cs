@@ -5,6 +5,7 @@ using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.RepositorieRps.Repositories.AI;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using TencentCloud.Lke.V20231130.Models;
 
 namespace kevin.Application.Services.AI
@@ -12,11 +13,26 @@ namespace kevin.Application.Services.AI
     public class KevinAIChatMessageStore : BaseService, IKevinAIChatMessageStore
     {
 
+        /// <summary>
+        /// 读取历史的仓储：读不产生待提交状态，直接用请求作用域即可
+        /// </summary>
         public IAIChatMessageStoreRp aIChatMessageStoreRp { get; set; }
-        public KevinAIChatMessageStore(IHttpContextAccessor _httpContextAccessor, IAIChatMessageStoreRp _aIChatMessageStoreRp) : base(_httpContextAccessor)
-        {
 
+        /// <summary>
+        /// 独立作用域工厂：对话历史的写入必须与请求作用域的 DbContext 解耦。
+        /// <para>
+        /// 请求作用域的 DbContext 是整条流式回答链路共用的（一聊就是几分钟），只要里面残留一条“行版本已失效”
+        /// 的待提交实体（例如并发召回时命中计数更新失败），本请求内每次 SaveChanges 都会整体抛
+        /// DbUpdateConcurrencyException；历史消息的 INSERT 会被一起回滚，模型重试几次也同样失败，
+        /// 表现为连不上模型、整轮对话内容丢失。用独立作用域落库后，历史写入不再受任何残留状态牵连。
+        /// </para>
+        /// </summary>
+        private readonly IServiceScopeFactory _scopeFactory;
+
+        public KevinAIChatMessageStore(IHttpContextAccessor _httpContextAccessor, IAIChatMessageStoreRp _aIChatMessageStoreRp, IServiceScopeFactory scopeFactory) : base(_httpContextAccessor)
+        {
             aIChatMessageStoreRp = _aIChatMessageStoreRp;
+            _scopeFactory = scopeFactory;
         }
         public async Task AddMessagesAsync(List<ChatHistoryItemDto> chatHistoryItems, CancellationToken cancellationToken)
         {
@@ -34,6 +50,10 @@ namespace kevin.Application.Services.AI
                 MessageText = t.MessageText,
                 MessageId = t.MessageId ?? SnowflakeIdService.GetNextId().ToString()
             }).ToList();
+            if (adddata.Count == 0) return;
+            // 独立作用域（独立 DbContext）落库：见 _scopeFactory 字段注释
+            using var scope = _scopeFactory.CreateScope();
+            var writeRp = scope.ServiceProvider.GetRequiredService<IAIChatMessageStoreRp>();
 
             // 按累计体积分批提交，避免一次长会话的工具消息把单条 INSERT 包撑爆：
             // AddRange 后的一次提交会被 EF 批处理成一条多值 INSERT 发给 MySQL，累计体积一旦超过
@@ -46,8 +66,8 @@ namespace kevin.Application.Services.AI
                 var size = (item.SerializedMessage?.Length ?? 0) + (item.MessageText?.Length ?? 0);
                 if (batch.Count > 0 && batchSize + size > maxCharsPerSave)
                 {
-                    aIChatMessageStoreRp.AddRange(batch);
-                    await aIChatMessageStoreRp.SaveChangesAsync(cancellationToken);
+                    writeRp.AddRange(batch);
+                    await writeRp.SaveChangesAsync(cancellationToken);
                     batch.Clear();
                     batchSize = 0;
                 }
@@ -56,8 +76,8 @@ namespace kevin.Application.Services.AI
             }
             if (batch.Count > 0)
             {
-                aIChatMessageStoreRp.AddRange(batch);
-                await aIChatMessageStoreRp.SaveChangesAsync(cancellationToken);
+                writeRp.AddRange(batch);
+                await writeRp.SaveChangesAsync(cancellationToken);
             }
         }
 

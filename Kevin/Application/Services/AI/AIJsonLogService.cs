@@ -2,6 +2,7 @@
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
+using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
@@ -16,10 +17,19 @@ namespace kevin.Application.Services.AI
         public IAIJsonLogRp AIJsonLogRp { get; set; }
 
         public IAIShareInfoService aIShareInfoService { get; set; } 
-        public AIJsonLogService(IHttpContextAccessor _httpContextAccessor, IAIJsonLogRp _AIJsonLogRp, IAIShareInfoService aIShareInfoService) : base(_httpContextAccessor)
+
+        /// <summary>
+        /// 独立作用域工厂：Add 被注册为智能体可调用的工具，在流式回答中途随时可能写入。
+        /// 与请求作用域的 DbContext 共用时，一次日志写入失败会让本请求后续所有 SaveChanges
+        /// （含本轮回复落库）跟着失败；这里改用独立作用域的仓储写入。
+        /// </summary>
+        private readonly IServiceScopeFactory _scopeFactory;
+
+        public AIJsonLogService(IHttpContextAccessor _httpContextAccessor, IAIJsonLogRp _AIJsonLogRp, IAIShareInfoService aIShareInfoService, IServiceScopeFactory scopeFactory) : base(_httpContextAccessor)
         {
             this.AIJsonLogRp = _AIJsonLogRp;
             this.aIShareInfoService = aIShareInfoService;
+            _scopeFactory = scopeFactory;
         }
 
         public async Task<dtoPageData<TAIJsonLog>> GetPageData(dtoPagePar<string> dtoPagePar)
@@ -45,8 +55,19 @@ namespace kevin.Application.Services.AI
             add.AIChatsId = aIShareInfoService.GetData().AIChatsId;
             add.AIAppsId = aIShareInfoService.GetData().AIAppsId;
             add.TenantId = aIShareInfoService.GetData().TenantId;
-            AIJsonLogRp.Add(add);
-            await AIJsonLogRp.SaveChangesAsync();
+            // 独立作用域落库（见 _scopeFactory 字段注释）：失败只影响本次工具调用
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var writeRp = scope.ServiceProvider.GetRequiredService<IAIJsonLogRp>();
+                writeRp.Add(add);
+                await writeRp.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AIJsonLog] 保存 Json 日志失败（不影响对话）：{ex.Message}");
+                return "保存失败：数据库写入异常，请稍后重试";
+            }
             return "保存成功";
         }
         public async Task<bool> AddEdit(TAIJsonLog data)

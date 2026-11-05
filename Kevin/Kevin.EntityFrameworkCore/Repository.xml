@@ -49,6 +49,16 @@
             默认需要添加索引的字段
             </summary>
         </member>
+        <member name="M:Repository.Database.KevinDbContext.AssignRowVersions">
+            <summary>
+            为「新增」与「修改」的实体统一分配行版本（乐观并发令牌）。
+            <para>
+            只给「修改」赋值时，新增行会以 row_version = NULL 落库：EF 对空版本生成的是
+            <c>WHERE row_version IS NULL</c>，首次更新不会报错，但并发双方都能命中，
+            等于这一行在被更新过一次之前没有任何并发保护。
+            </para>
+            </summary>
+        </member>
         <member name="M:Repository.Database.KevinDbContext.MediatorEventBus(System.Collections.Generic.List{Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry{kevin.Domain.EventBus.IDomainEvents}})">
             <summary>
             领域事件调用
