@@ -1234,8 +1234,7 @@ namespace kevin.Application.Services.AI
                         Name = " 你是一款专业的压缩消息记录工具。",
                         Description = aiapp.AIMessageCompactionPrompt,
                         ChatOptions = GetAppChatOptions(aiapp, aIModels, aiapp.AIMessageCompactionPrompt)
-                    });
-                    var snowflakeIdService1 = new Kevin.SnowflakeId.Service.SnowflakeIdService();
+                    }); 
                     var addList = new List<TAIChatMessageStoreCompaction>();
                     foreach (var item in comDataDic)
                     {
@@ -1287,7 +1286,7 @@ namespace kevin.Application.Services.AI
                             var reslut = await aiAgent.RunAsync(content.ToString());
                             addList.Add(new TAIChatMessageStoreCompaction
                             {
-                                Id = snowflakeIdService1.GetNextId(),
+                                Id = SnowflakeIdService.GetNextId(),
                                 IsDelete = false,
                                 CreateTime = DateTime.Now,
                                 TenantId = aiapp.TenantId,

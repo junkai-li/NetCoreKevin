@@ -16,15 +16,40 @@ namespace Kevin.SnowflakeId.Service
         private static readonly long timestampLeftShift = sequenceBits + workerIdBits + datacenterIdBits; // 时间戳左移位数
         private static readonly long sequenceMask = -1L ^ (-1L << (int)sequenceBits); // 用于掩码序列号
 
-        private long lastTimestamp = -1L; // 上次生成ID的时间戳
+        /// <summary>
+        /// 进程级共享的生成状态：应用内确实存在多个实例（无 HttpContext 的兜底路径会直接 new，见 BaseService）。
+        /// 若每个实例各持一份 lastTimestamp/sequence，同一毫秒内多个实例都从 sequence=0 开始，会生成完全相同的 Id，
+        /// 落库即报 Duplicate entry for key 'PRIMARY'。因此时间戳、序列号与锁对象都必须由所有实例共享，
+        /// 不能再用 lock(this)（两个实例各自锁自己，互不排斥）。
+        /// </summary>
+        private static readonly object syncRoot = new object();
+        private static long lastTimestamp = -1L; // 上次生成ID的时间戳
+        private static long sequence = 0L; // 序列号
         private long workerId; // 节点ID
         private long datacenterId; // 数据中心ID
-        private long sequence = 0L; // 序列号
+
+        /// <summary>
+        /// 兜底配置快照：由 AddKevinSnowflakeId 在启动时写入。
+        /// 无参构造（无 DI 上下文时直接 new）读不到 IOptions，只能靠它拿到与容器内单例一致的节点ID，
+        /// 否则兜底实例会退化成默认的 MachineId/DataCenterId。
+        /// </summary>
+        private static SnowflakeIdSetting? _fallbackSetting;
+
+        /// <summary>
+        /// 写入兜底配置快照（启动期调用一次）
+        /// </summary>
+        public static void SetFallbackSetting(SnowflakeIdSetting setting)
+        {
+            if (setting != default)
+            {
+                _fallbackSetting = setting;
+            }
+        }
 
         private SnowflakeIdSetting _config;
         public SnowflakeIdService()
         {
-            _config = new SnowflakeIdSetting();
+            _config = _fallbackSetting ?? new SnowflakeIdSetting();
             this.workerId = _config.MachineId;
             this.datacenterId = _config.DataCenterId;
             if (workerId > maxWorkerId || workerId < 0)
@@ -58,7 +83,7 @@ namespace Kevin.SnowflakeId.Service
 
         public long GetNextId()
         {
-            lock (this) // 加锁保证多线程安全
+            lock (syncRoot) // 加锁保证多线程安全：必须是所有实例共享的同一把锁
             {
                 long timestamp = TimeGen();
                 if (timestamp < lastTimestamp)
@@ -82,7 +107,7 @@ namespace Kevin.SnowflakeId.Service
             }
         }
 
-        private long TilNextMillis(long lastTimestamp)
+        private static long TilNextMillis(long lastTimestamp)
         {
             long timestamp = TimeGen();
             while (timestamp <= lastTimestamp)
@@ -92,7 +117,7 @@ namespace Kevin.SnowflakeId.Service
             return timestamp;
         }
 
-        private long TimeGen() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); // 获取当前时间戳（毫秒）
+        private static long TimeGen() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); // 获取当前时间戳（毫秒）
 
     }
 }
