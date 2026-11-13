@@ -137,10 +137,11 @@
       <a-table 
         :columns="detailColumns" 
         :data-source="form.kmsDetailsList" 
-        :pagination="false"
+        :pagination="detailPagination"
         row-key="id"
+        @change="onTableChange"
       >
-        <template #bodyCell="{ column, record, index }">
+        <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'fileName'">
             <template   v-if="record.contentName" > 
              <a   @click="getFileById(record.fileId,record.contentName)" >{{ record.contentName }}</a> 
@@ -162,7 +163,7 @@
             <a-popconfirm 
               
               title="确定要删除这条记录吗?" 
-              @confirm="onDeleteDetail(index)"
+              @confirm="onDeleteDetail(record)"
             >
               <a-button type="link" danger>删除</a-button>
             </a-popconfirm>
@@ -321,6 +322,21 @@ const rerankModelOptions = computed(() => {
     value: model.id
   }));
 });
+// 详情表格分页（前端分页）
+const detailPagination = reactive({
+  current: 1,
+  pageSize: 5,
+  showSizeChanger: true,
+  pageSizeOptions: ['5', '10', '20', '50'],
+  showTotal: (total) => `共 ${total} 条`
+});
+
+// 受控分页需要手动回写页码，否则翻页无效
+const onTableChange = (pag) => {
+  detailPagination.current = pag.current;
+  detailPagination.pageSize = pag.pageSize;
+};
+
 // 详情表格列
 const detailColumns = [
   {
@@ -356,6 +372,8 @@ watch(() => props.open, async (newVal) => {
   if (newVal) {
     // 重置表单
     resetFields(); 
+    // 重新打开弹窗时回到第一页
+    detailPagination.current = 1;
     // 如果是编辑模式，填充表单数据
     if (props.modalType === 'edit' && props.knowledgeBaseData) {
       Object.keys(form).forEach(key => {
@@ -476,6 +494,7 @@ const beforeUploadSuccess = (file) => {
   };
   
   form.kmsDetailsList.push(detailItem);
+  detailPagination.current = Math.ceil(form.kmsDetailsList.length / detailPagination.pageSize);
   return false; // 返回false以阻止自动上传
 };
 
@@ -514,6 +533,7 @@ const handleAddContent = () => {
   };
   
   form.kmsDetailsList.push(detailItem);
+  detailPagination.current = Math.ceil(form.kmsDetailsList.length / detailPagination.pageSize);
   contentModalVisible.value = false;
 };
 
@@ -558,6 +578,7 @@ const handleAddUrl = () => {
   };
   
   form.kmsDetailsList.push(detailItem);
+  detailPagination.current = Math.ceil(form.kmsDetailsList.length / detailPagination.pageSize);
   urlModalVisible.value = false;
 };
 
@@ -566,9 +587,17 @@ const handleCancelUrl = () => {
   urlModalVisible.value = false;
 };
 
-// 删除详情
-const onDeleteDetail = (index) => {
-  form.kmsDetailsList.splice(index, 1);
+// 删除详情（按记录引用删除，避免分页后行号错位）
+const onDeleteDetail = (record) => {
+  const index = form.kmsDetailsList.indexOf(record);
+  if (index !== -1) {
+    form.kmsDetailsList.splice(index, 1);
+    // 删除当前页最后一条后回退页码
+    const maxPage = Math.max(1, Math.ceil(form.kmsDetailsList.length / detailPagination.pageSize));
+    if (detailPagination.current > maxPage) {
+      detailPagination.current = maxPage;
+    }
+  }
 };
 
 // 查看详情
