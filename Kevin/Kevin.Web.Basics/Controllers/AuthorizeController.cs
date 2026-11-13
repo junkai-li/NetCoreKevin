@@ -58,5 +58,16 @@ namespace Kevin.Web.Basics.Controllers
             return _IAuthorizeService.SendSmsVerifyPhone(keyValue);
 
         }
+        /// <summary>
+        /// 退出登录：删除当前 token 的刷新凭证，之后无法再自动续发
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("Logout")]
+        public bool Logout()
+        {
+            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            return _IAuthorizeService.Logout(token);
+
+        }
     }
 }

@@ -9,5 +9,6 @@
         public const string UserId = "userid";
         public const string issuperadmin = "issuperadmin";
         public const string CreatedTime = "createdTime";
+        public const string TokenVersion = "tokenversion";
     }
 }

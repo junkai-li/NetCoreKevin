@@ -7,9 +7,10 @@ namespace Web.Filters
 {
 
     /// <summary>
-    /// 队列过滤器
+    /// 队列过滤器：同一 Action（可选按 Token 区分）同一时刻只放行一个请求，
+    /// 排队模式异步等待锁不占用线程池线程；请求结束后 finally 中释放锁
     /// </summary>
-    public class QueueLimitFilter : Attribute, IActionFilter
+    public class QueueLimitFilter : Attribute, IAsyncActionFilter
     {
 
 
@@ -28,58 +29,86 @@ namespace Web.Filters
 
 
 
-        void IActionFilter.OnActionExecuting(ActionExecutingContext context)
+        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            string key = context.ActionDescriptor.DisplayName;
-
-            if (UseToken)
-            {
-                var token = context.HttpContext.Request.Headers.Where(t => t.Key == "Authorization").Select(t => t.Value).FirstOrDefault();
-
-                key = key + "_" + token;
-            }
-
-            key = "QueueLimit_" + Common.CryptoHelper.GetMd5(key);
+            string key = BuildKey(context);
 
             try
             {
-
-                bool isAction = false;
-
-                while (isAction == false)
+                var lockProvider = context.HttpContext.RequestServices.GetService<IDistributedLockProvider>();
+                if (lockProvider == null)
                 {
-                    var lock1 = context.HttpContext.RequestServices.GetService<IDistributedLockProvider>().AcquireLock(key, TimeSpan.FromSeconds(60));
-                    if (lock1 != null)
+                    await next();
+                    return;
+                }
+
+                var distributedLock = lockProvider.CreateLock(key);
+
+                if (IsBlock)
+                {
+                    // 阻断模式：拿不到锁立即返回友好提示
+                    var handle = await distributedLock.TryAcquireAsync(TimeSpan.Zero, context.HttpContext.RequestAborted);
+                    if (handle == null)
                     {
-                        isAction = true;
+                        context.Result = new BadRequestObjectResult(new { errMsg = "Please do not request frequently" });
+                        return;
                     }
-                    else
+                    try
                     {
-                        if (IsBlock)
+                        await next();
+                    }
+                    finally
+                    {
+                        handle.Dispose();
+                    }
+                }
+                else
+                {
+                    // 排队模式：异步等待锁（单次等待 60 秒，超时继续下一轮等待），不阻塞线程池线程
+                    while (true)
+                    {
+                        IDistributedSynchronizationHandle? handle;
+                        try
                         {
-                            isAction = true;
-                            context.Result = new BadRequestObjectResult(new { errMsg = "Please do not request frequently" });
+                            handle = await distributedLock.AcquireAsync(TimeSpan.FromSeconds(60), context.HttpContext.RequestAborted);
                         }
-                        else
+                        catch (TimeoutException)
                         {
-                            Thread.Sleep(500);
+                            // 60 秒内未获取到锁，继续等待
+                            continue;
+                        }
+                        try
+                        {
+                            await next();
+                            return;
+                        }
+                        finally
+                        {
+                            handle.Dispose();
                         }
                     }
                 }
             }
+            catch (OperationCanceledException)
+            {
+                // 客户端已断开，无需处理
+            }
             catch
             {
                 Console.WriteLine("队列限制模块异常");
+                await next();
             }
         }
 
 
 
-        void IActionFilter.OnActionExecuted(ActionExecutedContext context)
+        /// <summary>
+        /// 构造锁 Key：Action 名（可选 Token）的 MD5
+        /// </summary>
+        private string BuildKey(ActionExecutingContext context)
         {
             try
             {
-
                 string key = context.ActionDescriptor.DisplayName;
 
                 if (UseToken)
@@ -88,13 +117,13 @@ namespace Web.Filters
 
                     key = key + "_" + token;
                 }
-                key = "QueueLimit_" + Common.CryptoHelper.GetMd5(key);
+                return "QueueLimit_" + Common.CryptoHelper.GetMd5(key);
             }
             catch
             {
                 Console.WriteLine("队列限制模块异常");
+                return "QueueLimit_" + Guid.NewGuid().ToString("N");
             }
-
         }
 
 

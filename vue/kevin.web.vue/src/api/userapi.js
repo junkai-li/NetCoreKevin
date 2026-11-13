@@ -4,6 +4,11 @@ export const login = (acctount, password,tenantId) =>
 {
   return http.post(`/api/Authorize/GetToken`,{ name:acctount, passWord: password,tenantId:tenantId });
 };
+
+// 退出登录：通知后端拉黑当前 token，使其立即失效
+export const logout = () => {
+  return http.post('/api/Authorize/Logout', {});
+};
 export const getTokenUser = () => {
   return http.get(`/api/User/GetUser`);
 };

@@ -32,6 +32,13 @@ namespace kevin.Domain.Interfaces.IServices
         /// <returns></returns>
         Task<string> GetTokenById(long userId, long tenantId);
 
+        /// <summary>
+        /// 退出登录：删除当前 token 的刷新凭证，之后无法再自动续发
+        /// </summary>
+        /// <param name="tokenStr"></param>
+        /// <returns></returns>
+        bool Logout(string tokenStr);
+
 
     }
 }

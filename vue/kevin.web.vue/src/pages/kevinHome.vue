@@ -277,6 +277,7 @@ import {
   CheckOutlined,
 } from "@ant-design/icons-vue";
 import { GetMyNoReadCount } from "@/api/message";
+import { logout } from "@/api/userapi";
 //import { Button } from 'ant-design-vue';
 import { useRouter } from "vue-router";
 import "../css/kevinHome.css";
@@ -673,6 +674,12 @@ const handleMenuClick = ({ key }) => {
 // 退出登录
 const handleLogout = async () => {
   console.log("用户退出登录");
+  try {
+    // 通知后端拉黑当前 token，使旧 token 立即失效
+    await logout();
+  } catch (e) {
+    // 后端退出失败（如网络异常）不阻塞本地清理
+  }
   await localStorage.removeItem("token");
   await localStorage.removeItem("user");
  await localStorage.removeItem("UserPermissions");

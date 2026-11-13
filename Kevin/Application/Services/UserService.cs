@@ -5,6 +5,7 @@ using kevin.Domain.Share.Dtos.User;
 using kevin.Permission.Interfaces;
 using kevin.Permission.Permission.Enums;
 using kevin.Share.Dtos.System;
+using Kevin.Authentication.Jwt.IService;
 using Kevin.Common.Helper;
 using Repository.Database;
 
@@ -29,9 +30,11 @@ namespace kevin.Application
         public IUserBindPositionRp userBindPositionRp { get; set; }
 
         public IKevinPermissionService permissionService { get; set; }
+
+        public ITokenService tokenService { get; set; }
         public UserService(IHttpContextAccessor _httpContextAccessor, IUserRp _userRp, IWeiXinKeyRp _weiXinKeyRp, IFileRp _IFileRp, IRoleRp _IRoleRp,
             IUserBindRoleRp userBindRoleRp, IPositionService _positionService,
-            IUserBindPositionRp _userBindPositionRp, IDepartmentService _departmentService, IUserInfoRp _userInfoRp, IKevinPermissionService _permissionService) : base(_httpContextAccessor)
+            IUserBindPositionRp _userBindPositionRp, IDepartmentService _departmentService, IUserInfoRp _userInfoRp, IKevinPermissionService _permissionService, ITokenService tokenService) : base(_httpContextAccessor)
         {
             userRp = _userRp;
             weiXinKeyRp = _weiXinKeyRp;
@@ -43,6 +46,7 @@ namespace kevin.Application
             this.departmentService = _departmentService;
             this.userInfoRp = _userInfoRp;
             this.permissionService = _permissionService;
+            this.tokenService = tokenService;
         }
 
 
@@ -215,6 +219,8 @@ namespace kevin.Application
                         {
                             user.ChangePassword(password);
                             userRp.SaveChanges();
+                            // 改密后吊销该用户全部登录凭证，旧 token 立即失效
+                            tokenService.RevokeUserTokens(user.Id.ToString());
                         }
                         return true;
                     }
@@ -402,6 +408,8 @@ namespace kevin.Application
         /// <returns></returns> 
         public async Task<bool> EditUser(dtoUser user)
         {
+            var statusChanged = false;
+            var passwordChanged = false;
             var data = userRp.Query().Where(x => x.Id == user.Id && x.IsDelete == false && x.IsSystem == true).FirstOrDefault();
             var UserPh = userRp.Query().Where(t => t.Phone == user.Phone && t.IsDelete == false && t.IsSystem == true).FirstOrDefault();
             if (data != null)
@@ -423,6 +431,8 @@ namespace kevin.Application
                 data.Email = user.Email;
                 data.UpdateTime = DateTime.Now;
                 data.NickName = user.NickName;
+                statusChanged = data.Status != user.Status;
+                passwordChanged = !string.IsNullOrEmpty(user.PassWord);
                 data.Status = user.Status;
                 if (!string.IsNullOrEmpty(user.PassWord))
                 {
@@ -466,6 +476,11 @@ namespace kevin.Application
                 userRp.Add(data);
             }
             userRp.SaveChangesWithSaveLog();
+            // 状态变更（封禁/解封）或重置密码时，吊销该用户全部登录凭证
+            if (statusChanged || passwordChanged)
+            {
+                tokenService.RevokeUserTokens(data.Id.ToString());
+            }
             //处理角色信息
             EditUserRoles(user);
             //处理其他信息
@@ -575,6 +590,8 @@ namespace kevin.Application
                 data.IsDelete = true;
                 data.DeleteTime = DateTime.Now;
                 userRp.SaveChanges();
+                // 删除用户后吊销其全部登录凭证
+                tokenService.RevokeUserTokens(Id.ToString());
                 var deleteRoleData = userBindRoleRp.Query().Where(t => t.UserId == data.Id && t.IsDelete == false).ToList();
                 foreach (var item in deleteRoleData)
                 {
@@ -739,6 +756,8 @@ namespace kevin.Application
             }
             user.ChangePassword(newPwd);
             userRp.SaveChanges();
+            // 改密后吊销该用户全部登录凭证，旧 token 立即失效（前端收到 401 后自动重新登录）
+            tokenService.RevokeUserTokens(user.Id.ToString());
             return Task.FromResult(true);
         }
         /// <summary>

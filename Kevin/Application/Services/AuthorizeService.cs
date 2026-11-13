@@ -143,6 +143,14 @@ namespace kevin.Application.Services
 
         }
         /// <summary>
+        /// 退出登录：删除当前 token 的刷新凭证
+        /// </summary>
+        public bool Logout(string tokenStr)
+        {
+            return _TokenService.Logout(tokenStr);
+        }
+
+        /// <summary>
         /// 发送短信验证手机号码所有权
         /// </summary>
         /// <param name="keyValue">key 为手机号，value 可为空</param>

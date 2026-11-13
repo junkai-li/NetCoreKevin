@@ -4,6 +4,7 @@ using kevin.Domain.Entities.Organizational;
 using kevin.Domain.EventBus;
 using kevin.Domain.Events;
 using kevin.Domain.Share.Enums;
+using Kevin.Authentication.Jwt.IService;
 using Repository.Database;
 
 namespace kevin.Application
@@ -17,13 +18,16 @@ namespace kevin.Application
         public IUserBindRoleRp userBindRoleRp { get; set; }
 
         public IPermissionService permissionService { get; set; }
-        public TenantService(IHttpContextAccessor _httpContextAccessor, ITenantRp _tenantRp, IUserRp _userRp, IRoleRp _roleRp, IUserBindRoleRp _userBindRoleRp, IPermissionService permissionService) : base(_httpContextAccessor)
+
+        public ITokenService tokenService { get; set; }
+        public TenantService(IHttpContextAccessor _httpContextAccessor, ITenantRp _tenantRp, IUserRp _userRp, IRoleRp _roleRp, IUserBindRoleRp _userBindRoleRp, IPermissionService permissionService, ITokenService tokenService) : base(_httpContextAccessor)
         {
             tenantRp = _tenantRp;
             this.userRp = _userRp;
             this.roleRp = _roleRp;
             this.userBindRoleRp = _userBindRoleRp;
             this.permissionService = permissionService;
+            this.tokenService = tokenService;
         }
         public async Task<dtoPageData<dtoTenant>> GetPageData(dtoPagePar<string> par)
         {
@@ -55,6 +59,12 @@ namespace kevin.Application
                 tenant.Status = TenantStatusEnums.Inactive;
                 tenant.UpdateTime = DateTime.Now;
                 tenantRp.SaveChangesWithSaveLog();
+                // 租户禁用后吊销该租户所有用户的登录凭证，旧 token 立即失效
+                var userIds = userRp.Query(false).Where(t => t.IsDelete == false && t.TenantId == tenant.Code).Select(t => t.Id).ToList();
+                foreach (var userId in userIds)
+                {
+                    tokenService.RevokeUserTokens(userId.ToString());
+                }
                 return true;
             }
             else
