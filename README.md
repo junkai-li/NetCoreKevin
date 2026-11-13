@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="InitData/logo.png" width="140" alt="NetCoreKevin" />
+<img src="InitData/logo.png" width="141" alt="NetCoreKevin" />
 
 # NetCoreKevin
 
