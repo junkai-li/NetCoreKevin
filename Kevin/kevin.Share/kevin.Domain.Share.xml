@@ -313,6 +313,11 @@
             推理标记应计入<see cref="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.OutputTokenCount"/>中。
             </remarks>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.DurationSeconds">
+            <summary>
+            本轮回复耗时（秒）
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.aIChatHistorysBindLogs">
             <summary>
             相关日志记录

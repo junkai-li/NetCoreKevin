@@ -82,6 +82,12 @@ namespace kevin.Domain.Entities.AI
         public long? ReasoningTokenCount { get; set; }
 
         /// <summary>
+        /// 本轮回复耗时（秒）
+        /// </summary>
+        [Description("耗时（秒）")]
+        public double? DurationSeconds { get; set; }
+
+        /// <summary>
         /// 发送状态：0.正常 1.失败(可重试) 2.重试中
         /// <para>
         /// 失败不再由模型层吞掉转成正文，而是显式落库，前端据此在提问气泡上给出重试入口

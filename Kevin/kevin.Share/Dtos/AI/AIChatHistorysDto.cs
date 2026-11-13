@@ -97,6 +97,12 @@ namespace kevin.Domain.Share.Dtos.AI
         public long? ReasoningTokenCount { get; set; }
 
         /// <summary>
+        /// 本轮回复耗时（秒）
+        /// </summary>
+        [Description("耗时（秒）")]
+        public double? DurationSeconds { get; set; }
+
+        /// <summary>
         /// 相关日志记录
         /// </summary> 
         public List<AIChatHistorysBindLogDto> aIChatHistorysBindLogs { get; set; } = new List<AIChatHistorysBindLogDto>();

@@ -265,6 +265,7 @@
                   </div>
                   <div class="msg-meta">
                     {{ formatTime(message.createdAt) }}
+                    <span v-if="message.isSend === false && message.durationSeconds" class="token-count">耗时: {{ formatDuration(message.durationSeconds) }}</span>
                     <span v-if="message.totalTokenCount" class="token-count">消耗: {{ formatTokenCount(message.totalTokenCount) }} tokens</span>
                     <span v-if="tokenDetail(message)" class="token-count token-detail">{{ tokenDetail(message) }}</span>
                   </div>
@@ -294,7 +295,7 @@
                       <span class="voice-msg-duration">播放中...</span>
                     </div>
                   </div>
-                  <div class="msg-meta stream-status">{{ aimessage }}</div>
+                  <div class="msg-meta stream-status">{{ aimessage }}<span v-if="sendElapsedSeconds" class="token-count">已耗时: {{ sendElapsedSeconds }} 秒</span></div>
                   <a-collapse v-model:active-key="reasoningActiveKey" class="message-collapse" ghost v-if="aIReasoningContentMsg">
                     <a-collapse-panel key="reasoning" header="思考过程">
                       <div class="collapse-content">
@@ -2527,6 +2528,7 @@ const loadChatHistory = async (chatId, page) => {
           failReason: item.failReason || '',
           retryCount: item.retryCount || 0,
           createdAt: item.createTime || new Date().toISOString(),
+          durationSeconds: item.durationSeconds || 0,
           cachedInputTokenCount: item.cachedInputTokenCount || 0,
           inputTokenCount: item.inputTokenCount || 0,
           outputTokenCount: item.outputTokenCount || 0,
@@ -2742,6 +2744,29 @@ const showFailDetail = (msg) => {
 const retryTitle = (msg) =>
   msg.retryCount > 0 ? `已重试 ${msg.retryCount} 次，点击再次重试` : '发送失败，点击重试';
 
+// 发送耗时计时：发送即开始计时，流式占位区每秒跳动；回复返回后停表，气泡改显服务端耗时
+let sendStartTime = 0;
+let sendTimer = null;
+const sendElapsedSeconds = ref(0);
+
+const startSendTimer = () => {
+  stopSendTimer();
+  sendStartTime = Date.now();
+  sendElapsedSeconds.value = 0;
+  sendTimer = setInterval(() => {
+    sendElapsedSeconds.value = Math.floor((Date.now() - sendStartTime) / 1000);
+  }, 1000);
+};
+
+const stopSendTimer = () => {
+  if (sendTimer) {
+    clearInterval(sendTimer);
+    sendTimer = null;
+  }
+  sendElapsedSeconds.value = 0;
+  sendStartTime = 0;
+};
+
 /**
  * 新发送与重试共用的发送实现：userMessage 必须已在 messages 中，本函数只就地更新它的
  * sendStatus/failReason，保证任意一层出错都能在那条提问上留下一个可点的红色重试按钮。
@@ -2749,6 +2774,7 @@ const retryTitle = (msg) =>
 const postChatMessage = async (userMessage, par) => {
   const { content, fileNames = [], contentFileUrls = [], retryOfId = 0, agentMode: msgAgentMode = 0, confirmedPlan = '' } = par;
   isSending.value = true;
+  startSendTimer();
   userStoppedSending = false; // 重置停止标志，允许自动播放
   expandedReasoning.value = false;
   expandedTools.value = false;
@@ -2837,6 +2863,7 @@ const postChatMessage = async (userMessage, par) => {
     if (!retryOfId) {
       restoreUploadedFiles();
     }
+    stopSendTimer();
     isSending.value = false;
   }
 };
@@ -3055,6 +3082,7 @@ const finalizeAiReply = (data, userMessage, content, snowflakeId) => {
     aiToolsContent: data.aiToolsContent,
     aiReasoningContent: data.aiReasoningContent,
     createdAt: data.createTime,
+    durationSeconds: data.durationSeconds || 0,
     aIChatHistorysBindLogs: recFromLogs.logs,
     cachedInputTokenCount: data.cachedInputTokenCount || 0,
     inputTokenCount: data.inputTokenCount || 0,
@@ -3083,6 +3111,7 @@ const finalizeAiReply = (data, userMessage, content, snowflakeId) => {
   // 记下配对关系，重试时能精确把这次失败的回复换掉
   userMessage.aiMsgId = aiMessage.id;
   currentReceivingMsgId.value = aiMessage.id;
+  stopSendTimer();
   isSending.value = false;
 
   // 先保存流式文本（stopAiMySignalRHubMsg 会清空 aimessage2）
@@ -3213,6 +3242,7 @@ const stopMessage = () => {
   // 直接点那条上的红色按钮原地重试，和刷新后从库里读到的状态保持一致
   lastSentMessageId.value = null;
   lastSentMessage.value = "";
+  stopSendTimer();
   isSending.value = false;
   aimessage.value='';
   aimessage2.value='';
@@ -3245,6 +3275,13 @@ const tokenDetail = (msg) => {
   return parts.length ? `（${parts.join(" / ")}）` : "";
 };
 
+// 耗时展示：后端单位是秒（含小数），保留 1 位小数
+const formatDuration = (sec) => {
+  const n = Number(sec);
+  if (!Number.isFinite(n) || n <= 0) return "";
+  return `${n.toFixed(1)} 秒`;
+};
+
 // 监听消息变化，自动滚动到底部
 watch(messages, () => {
   scrollToBottom();
@@ -3266,6 +3303,7 @@ onUnmounted(() => {
   if (messagesContainer.value) {
     messagesContainer.value.removeEventListener("scroll", handleScroll);
   }
+  stopSendTimer(); // 清理发送耗时计时器
   if (pendingStopTimer) {
     clearTimeout(pendingStopTimer);
     pendingStopTimer = null;

@@ -888,6 +888,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("delete_user_id")
                         .HasComment("删除人ID");
 
+                    b.Property<double?>("DurationSeconds")
+                        .HasColumnType("double")
+                        .HasColumnName("duration_seconds")
+                        .HasComment("耗时（秒）");
+
                     b.Property<string>("FailReason")
                         .HasColumnType("longtext")
                         .HasColumnName("fail_reason")

@@ -397,6 +397,8 @@ namespace kevin.Application.Services.AI
             // 推荐问题的生成任务在上下文就绪后发起（见下面 chatAgOs 之后），与本轮回答并行；这里先声明占位，因为收割在 try 之外
             Task<string?>? recommendTask = null;
             AISetting? aiSetting = default;
+            // 本轮处理耗时起点：覆盖系统提示词构建、文件/联网/RAG、模型调用，回答完成时结算为秒数
+            var turnStart = DateTime.UtcNow;
             try
             {
                 string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt;
@@ -567,6 +569,7 @@ namespace kevin.Application.Services.AI
                         var sendFail = aiSetting.LastError != default;
                         addAi.FailReason = sendFail ? BuildFailReason(aiSetting.LastError!, aiSetting, add.RetryCount) : null;
                         SetSendStatus(add, addAi, sendFail, addAi.FailReason);
+                        addAi.DurationSeconds = Math.Round((DateTime.UtcNow - turnStart).TotalSeconds, 1);
                         break;
                 }
             }
@@ -584,6 +587,7 @@ namespace kevin.Application.Services.AI
                 var failReason = BuildFailReason(ex, aiSetting, add.RetryCount);
                 await output.WriteAsync("processmsg", "发送失败，可点红色按钮重试");
                 SetSendStatus(add, addAi, true, failReason);
+                addAi.DurationSeconds = Math.Round((DateTime.UtcNow - turnStart).TotalSeconds, 1);
                 aIChatHistorysRp.Add(addAi);
                 // 这里不能用 cancellationToken：客户端中止进来时它已被置位，用它写库会直接抛回异常
                 await aIChatHistorysRp.SaveChangesAsync(CancellationToken.None);
