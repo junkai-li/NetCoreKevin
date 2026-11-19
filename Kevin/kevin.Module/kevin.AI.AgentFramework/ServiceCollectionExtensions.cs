@@ -20,6 +20,7 @@ namespace Kevin.AI
             services.TryAddScoped<IPythonToolsService, PythonToolsService>();
             services.TryAddScoped<IShellToolsService, ShellToolsService>();
             services.TryAddScoped<IAgentHttpClientToolsService, AgentHttpClientToolsService>();
+            services.TryAddScoped<IAgentFileParseToolsService, AgentFileParseToolsService>();
             services.TryAddScoped<IAIAgentService, AIAgentService>();
             services.TryAddScoped<IAuthorizedToolsService, AuthorizedToolsService>();
             services.TryAddScoped<IWebSearchEngine, WebSearchEngine>();

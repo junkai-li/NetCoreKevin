@@ -35,6 +35,8 @@ namespace kevin.Application.Services.AI
 
         private readonly IAgentHttpClientToolsService _agentHttpClientToolsService;
 
+        private readonly IAgentFileParseToolsService _agentFileParseToolsService;
+
         private readonly IUserService _userService;
 
         private readonly IAIFileToolService _iAIFileToolService;
@@ -54,7 +56,8 @@ namespace kevin.Application.Services.AI
         private readonly IAIShareInfoService _aIShareInfoService;
         public AIAgentToolSkillService(IKevinAITaskService kevinAITaskService, IAISkillToolBindIdService iAISkillToolBindIdService,
             IAISkillToolManagementService iAISkillToolManagementService, ICommonToolsService commonTools, IPythonToolsService pythonTools,
-            IShellToolsService shellTools, IAgentHttpClientToolsService agentHttpClientToolsService, IUserService userService, IAIJsonLogService aIJsonLogService,
+            IShellToolsService shellTools, IAgentHttpClientToolsService agentHttpClientToolsService, IAgentFileParseToolsService agentFileParseToolsService,
+            IUserService userService, IAIJsonLogService aIJsonLogService,
             IAIFileToolService iAIFileToolService, IAIMsgService iAIMsgService, IAuthorizedToolsService authorizedToolsService,
             IWebSearchEngine webSearchEngine, IAIAgentMemoryService aiAgentMemoryService, IAuthorizeService authorizeService,
             IAIShareInfoService aIShareInfoService, IHttpContextAccessor _httpContextAccessor) : base(_httpContextAccessor)
@@ -66,6 +69,7 @@ namespace kevin.Application.Services.AI
             _iPythonTools = pythonTools;
             _iShellTools = shellTools;
             _agentHttpClientToolsService = agentHttpClientToolsService;
+            _agentFileParseToolsService = agentFileParseToolsService;
             _userService = userService;
             _iAIFileToolService = iAIFileToolService;
             _IAIMsgService = iAIMsgService;
@@ -127,6 +131,14 @@ namespace kevin.Application.Services.AI
                 {
                     Name = "SendDDToMyMsg",
                     Description = "发送消息到（当前用户/我/自己）钉钉，当用户需要发送钉钉消息到（当前用户/我/自己）时调用。"
+                }
+          ));
+            aiTools.Add(
+                AIFunctionFactory.Create(_agentFileParseToolsService.ParseRemoteFileAsync,
+                new AIFunctionFactoryOptions
+                {
+                    Name = "ParseRemoteFileAsync",
+                    Description = "解析远程文件。下载指定 URL 的文件并解析内容，支持 PDF、Word、Excel、PPT、HTML、Markdown、文本等文档类型；当用户提供文件链接并需要读取、总结、分析文件内容时调用。"
                 }
           ));
             foreach (var item in toolNames)
