@@ -83,64 +83,58 @@ namespace kevin.Application.Services.AI
         }
         private async Task<List<AITool>> GetAITools(List<string> toolNames)
         {
-            var aiTools = new List<AITool>();
-            aiTools.Add(
-                 AIFunctionFactory.Create(_aIJsonLogService.Add,
+            var aiTools = new List<AITool>
+            {
+                AIFunctionFactory.Create(_aIJsonLogService.Add,
                  new AIFunctionFactoryOptions
                  {
                      Name = "AddJson",
                      Description = "专门用于保存 Json 数据。"
                  }
-          ));
-            aiTools.Add(
+          ),
                 AIFunctionFactory.Create(_authorizedToolsService.GetUrlAuthorizedCodeAsync,
                 new AIFunctionFactoryOptions
                 {
                     Name = "GetUrlAuthorizedCodeAsync",
                     Description = "获取授权登录代码：当使用Python，Shell工具，http工具发起Http请求时，需要先获取401授权代码， 返回授权码：输出JSON明确指示Token值和放置位置（URL参数或Headers） 失败异常返回以 ❌ 开头的错误信息"
                 }
-         ));
-            aiTools.Add(
-                    AIFunctionFactory.Create(_iCommonTools.GetCurrentTime,
+         ),
+                AIFunctionFactory.Create(_iCommonTools.GetCurrentTime,
                     new AIFunctionFactoryOptions
                     {
                         Name = "GetCurrentTime",
                         Description = "获取当前时间信息，当用户询问当前时间、日期、星期，或需要基于当下时刻进行计算与判断时调用"
                     }
-             ));
-            aiTools.Add(
-                   AIFunctionFactory.Create(_userService.GetCurrentUserInfo,
+             ),
+                AIFunctionFactory.Create(_userService.GetCurrentUserInfo,
                    new AIFunctionFactoryOptions
                    {
                        Name = "GetCurrentUserInfo",
                        Description = "获取当前登录用户信息，当用户询问或者其他技能需要当前登录用户信息时调用"
                    }
-             ));
-
-            aiTools.Add(
-               AIFunctionFactory.Create(_iAIFileToolService.SaveFileContent,
+             ),
+                AIFunctionFactory.Create(_iAIFileToolService.SaveFileContent,
                new AIFunctionFactoryOptions
                {
                    Name = "SaveFileContent",
                    Description = "保存文件(本地文件地址和文件内容二选一（必须有一个必填）)并返回远程访问url，当用户需要将内容保存为文件或者把本地文件上传到远程时调用。"
                }
-         ));
-            aiTools.Add(
+         ),
                 AIFunctionFactory.Create(_IAIMsgService.SendDDToMyMsg,
                 new AIFunctionFactoryOptions
                 {
                     Name = "SendDDToMyMsg",
                     Description = "发送消息到（当前用户/我/自己）钉钉，当用户需要发送钉钉消息到（当前用户/我/自己）时调用。"
                 }
-          ));
-            aiTools.Add(
+          ),
                 AIFunctionFactory.Create(_agentFileParseToolsService.ParseRemoteFileAsync,
                 new AIFunctionFactoryOptions
                 {
                     Name = "ParseRemoteFileAsync",
                     Description = "解析远程文件。下载指定 URL 的文件并解析内容，支持 PDF、Word、Excel、PPT、HTML、Markdown、文本等文档类型；当用户提供文件链接并需要读取、总结、分析文件内容时调用。"
                 }
-          ));
+          )
+            };
             foreach (var item in toolNames)
             {
                 if (!string.IsNullOrEmpty(item))
