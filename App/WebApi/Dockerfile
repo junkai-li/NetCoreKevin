@@ -4,6 +4,11 @@
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 8080
+# SkiaSharp(PDF整页渲染/图片处理) 的原生依赖：基础镜像不带 fontconfig，
+# 缺 libfontconfig.so.1 会导致 SkiaSharp 初始化失败并在 GC finalizer 线程上崩溃进程
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libfontconfig1 \
+    && rm -rf /var/lib/apt/lists/*
 # 强制将监听端口设置为 8080（对外由反向代理/端口映射暴露）
 ENV ASPNETCORE_URLS=http://+:8080
 
