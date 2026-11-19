@@ -766,6 +766,193 @@
   color: var(--chat-brand);
 }
 
+/* ============ 工具调用结构化日志：调用与返回按调用ID一一对应 ============ */
+/* 手风琴式工具条目：头部只占一行（序号+名称+状态），展开才显示参数/结果 */
+.tool-log-collapse :deep(.ant-collapse-header) {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 8px !important;
+}
+
+/* 条目之间留出呼吸空间：多工具堆叠时不会挤成一团 */
+.tool-log-collapse :deep(.ant-collapse-item) {
+  margin-bottom: 8px;
+}
+
+.tool-log-collapse :deep(.ant-collapse-item:last-child) {
+  margin-bottom: 0;
+}
+
+.tool-log-collapse :deep(.ant-collapse-content-box) {
+  padding: 2px 12px 10px !important;
+}
+
+.tool-log-index {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  border-radius: 50%;
+  background: var(--chat-brand, #e85d75);
+  color: #fff;
+  font-size: 11px;
+}
+
+.tool-log-name {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.tool-log-status {
+  flex: none;
+  font-size: 11px;
+  line-height: 1;
+  padding: 2px 7px;
+  border-radius: 8px;
+}
+
+.tool-log-status.ok {
+  color: #389e0d;
+  background: #f6ffed;
+}
+
+.tool-log-status.running {
+  color: #d46b08;
+  background: #fff7e6;
+}
+
+.tool-log-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.tool-log-label {
+  flex: none;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.tool-log-value {
+  color: rgba(0, 0, 0, 0.65);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.tool-log-error {
+  color: #cf1322;
+}
+
+.tool-log-text {
+  color: rgba(0, 0, 0, 0.45);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.tool-log-detail-link {
+  display: inline-block;
+  margin-top: 6px;
+  cursor: pointer;
+}
+
+/* 详情弹窗内的工具手风琴：默认收起，头部只占一行（序号+名称+调用ID+状态） */
+.tool-detail-collapse :deep(.ant-collapse-header) {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 8px !important;
+}
+
+/* 条目之间留出呼吸空间：多工具堆叠时不会挤成一团 */
+.tool-detail-collapse :deep(.ant-collapse-item) {
+  margin-bottom: 8px;
+}
+
+.tool-detail-collapse :deep(.ant-collapse-item:last-child) {
+  margin-bottom: 0;
+}
+
+.tool-detail-collapse :deep(.ant-collapse-content-box) {
+  padding: 2px 12px 10px !important;
+}
+
+.tool-detail-index {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  border-radius: 50%;
+  background: var(--chat-brand, #e85d75);
+  color: #fff;
+  font-size: 12px;
+}
+
+.tool-detail-name {
+  font-weight: 500;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.tool-detail-callid {
+  color: rgba(0, 0, 0, 0.35);
+  font-size: 12px;
+}
+
+.tool-detail-status {
+  flex: none;
+  font-size: 11px;
+  line-height: 1;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.tool-detail-status.ok {
+  color: #389e0d;
+  background: #f6ffed;
+}
+
+.tool-detail-status.running {
+  color: #d46b08;
+  background: #fff7e6;
+}
+
+.tool-detail-block {
+  margin-top: 8px;
+}
+
+.tool-detail-block:first-of-type {
+  margin-top: 0;
+}
+
+.tool-detail-label {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+
+.tool-detail-value {
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
+  padding: 6px 8px;
+}
+
+.tool-detail-error {
+  color: #cf1322;
+}
+
+.tool-detail-text {
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 12px;
+}
+
 /* ============ 计划操作条（计划模式回复气泡下方：开始执行 / 调整计划） ============ */
 .plan-actions {
   display: flex;

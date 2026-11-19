@@ -475,7 +475,9 @@ namespace kevin.Application.Services.AI
             }
             var aiModel = await aIModelsService.GetNoPerDetails(aiapp.ChatModelID.ToTryInt64());
             #region 获取压缩聊天记录提示词
-            if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
+            // 工具结果回传轮跳过摘要注入（与记忆召回同口径）：摘要随历史增长每轮重算，
+            // 注入会使 system prompt 每轮漂移，导致回传轮之间的提示词缓存失效
+            if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction && par.ExternalMessages is not { Count: > 0 })
             {
                 // 摘要也占 systemPrompt 预算：先按不含摘要的提示词估算可用预算，摘要最多占其中的 1/5
                 var compactionMaxLength = GetCompactionMaxLength(aiModel.MaxAskPromptSize, aiModel.AnswerTokens, systemPrompt);

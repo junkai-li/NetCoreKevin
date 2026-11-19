@@ -175,7 +175,31 @@
                   <a-collapse v-if="message.aiToolsContent" class="message-collapse" ghost :default-active-key="expandedTools ? ['tools'] : []">
                     <a-collapse-panel key="tools" header="工具调用">
                       <div class="collapse-content">
-                        <div v-if="message.aiToolsContent.length > 350">{{ truncateContent(message.aiToolsContent) }}<a @click="showDetailModal('工具调用详情', message.aiToolsContent)">点击查看详情</a></div>
+                        <template v-if="toolLogs(message.aiToolsContent).length">
+                          <!-- 每个工具一个手风琴：头部只占一行（序号+名称+状态），点开才看参数与结果 -->
+                          <a-collapse ghost class="tool-log-collapse" :bordered="false">
+                            <template v-for="(item, i) in toolLogs(message.aiToolsContent)" :key="'tool-' + i">
+                              <a-collapse-panel v-if="item.type === 'call'" :key="'tool-' + i">
+                                <template #header>
+                                  <span class="tool-log-index">{{ item.order }}</span>
+                                  <span class="tool-log-name">{{ item.name }}</span>
+                                  <span v-if="item.result !== null" class="tool-log-status ok">已返回</span>
+                                  <span v-else class="tool-log-status running">执行中…</span>
+                                </template>
+                                <div class="tool-log-row"><span class="tool-log-label">参数</span><span class="tool-log-value">{{ item.args || '（无）' }}</span></div>
+                                <div class="tool-log-row" v-if="item.result !== null">
+                                  <span class="tool-log-label">结果</span>
+                                  <span class="tool-log-value">{{ item.result }}</span>
+                                </div>
+                                <div class="tool-log-row" v-if="item.resultError"><span class="tool-log-label">异常</span><span class="tool-log-value tool-log-error">{{ item.resultError }}</span></div>
+                              </a-collapse-panel>
+                            </template>
+                          </a-collapse>
+                          <template v-for="(item, i) in toolLogs(message.aiToolsContent)" :key="'text-' + i">
+                            <div v-if="item.type !== 'call'" class="tool-log-text">{{ item.content }}</div>
+                          </template>
+                          <a class="tool-log-detail-link" @click="showDetailModal('工具调用详情', message.aiToolsContent)">查看全部工具详情</a>
+                        </template>
                         <div v-else>{{ message.aiToolsContent }}</div>
                       </div>
                     </a-collapse-panel>
@@ -307,7 +331,30 @@
                   <a-collapse v-model:active-key="toolsActiveKey" class="message-collapse" ghost v-if="aIToolsContentMsg">
                     <a-collapse-panel key="tools" header="工具调用">
                       <div class="collapse-content">
-                        <div v-if="aIToolsContentMsg.length > 350">{{ truncateContent(aIToolsContentMsg) }}<a @click="showDetailModal('工具调用详情', aIToolsContentMsg)">点击查看详情</a></div>
+                        <template v-if="toolLogs(aIToolsContentMsg).length">
+                          <!-- 每个工具一个手风琴：头部只占一行（序号+名称+状态），点开才看参数与结果 -->
+                          <a-collapse ghost class="tool-log-collapse" :bordered="false">
+                            <template v-for="(item, i) in toolLogs(aIToolsContentMsg)" :key="'tool-' + i">
+                              <a-collapse-panel v-if="item.type === 'call'" :key="'tool-' + i">
+                                <template #header>
+                                  <span class="tool-log-index">{{ item.order }}</span>
+                                  <span class="tool-log-name">{{ item.name }}</span>
+                                  <span v-if="item.result !== null" class="tool-log-status ok">已返回</span>
+                                  <span v-else class="tool-log-status running">执行中…</span>
+                                </template>
+                                <div class="tool-log-row"><span class="tool-log-label">参数</span><span class="tool-log-value">{{ item.args || '（无）' }}</span></div>
+                                <div class="tool-log-row" v-if="item.result !== null">
+                                  <span class="tool-log-label">结果</span>
+                                  <span class="tool-log-value">{{ item.result }}</span>
+                                </div>
+                                <div class="tool-log-row" v-if="item.resultError"><span class="tool-log-label">异常</span><span class="tool-log-value tool-log-error">{{ item.resultError }}</span></div>
+                              </a-collapse-panel>
+                            </template>
+                          </a-collapse>
+                          <template v-for="(item, i) in toolLogs(aIToolsContentMsg)" :key="'text-' + i">
+                            <div v-if="item.type !== 'call'" class="tool-log-text">{{ item.content }}</div>
+                          </template>
+                        </template>
                         <div v-else>{{ aIToolsContentMsg }}</div>
                       </div>
                     </a-collapse-panel>
@@ -517,7 +564,38 @@
         </div>
 
         <a-modal v-model:open="detailModalVisible" :title="detailModalTitle" :footer="null" width="1000px">
-          <div class="detail-modal-body">{{ detailModalContent }}</div>
+          <div v-if="detailModalTitle === '工具调用详情' && toolLogs(detailModalContent).length" class="detail-modal-body">
+            <!-- 每个工具一个手风琴：默认收起（头部只占一行），点开才看参数与结果 -->
+            <a-collapse ghost class="tool-detail-collapse" :bordered="false">
+              <template v-for="(item, i) in toolLogs(detailModalContent)" :key="'tool-' + i">
+                <a-collapse-panel v-if="item.type === 'call'" :key="'tool-' + i">
+                  <template #header>
+                    <span class="tool-detail-index">{{ item.order }}</span>
+                    <span class="tool-detail-name">{{ item.name }}</span>
+                    <span class="tool-detail-callid">{{ item.callId }}</span>
+                    <span v-if="item.result !== null" class="tool-detail-status ok">已返回</span>
+                    <span v-else class="tool-detail-status running">执行中…</span>
+                  </template>
+                  <div class="tool-detail-block">
+                    <div class="tool-detail-label">参数</div>
+                    <div class="tool-detail-value">{{ item.args || '（无）' }}</div>
+                  </div>
+                  <div class="tool-detail-block" v-if="item.result !== null">
+                    <div class="tool-detail-label">结果</div>
+                    <div class="tool-detail-value">{{ item.result }}</div>
+                  </div>
+                  <div class="tool-detail-block" v-if="item.resultError">
+                    <div class="tool-detail-label">异常</div>
+                    <div class="tool-detail-value tool-detail-error">{{ item.resultError }}</div>
+                  </div>
+                </a-collapse-panel>
+              </template>
+            </a-collapse>
+            <template v-for="(item, i) in toolLogs(detailModalContent)" :key="'text-' + i">
+              <div v-if="item.type !== 'call'" class="tool-detail-text">{{ item.content }}</div>
+            </template>
+          </div>
+          <div v-else class="detail-modal-body">{{ detailModalContent }}</div>
         </a-modal>
       </div>
     </div>
@@ -2888,6 +2966,71 @@ const showDetailModal = (title, content) => {
   detailModalTitle.value = title;
   detailModalContent.value = content;
   detailModalVisible.value = true;
+};
+
+// ==== 工具调用日志结构化：把 [工具调用]/[工具返回] 平铺文本按调用ID配对，前端一一对应展示 ====
+// 段起点之外的杂项文本（如备用模型切换通知）原样保留为 text 条目
+const parseToolLogs = (text) => {
+  if (!text) return [];
+  const marks = [];
+  const markRe = /\[工具调用\]|\[工具返回\]/g;
+  let m;
+  while ((m = markRe.exec(text)) !== null) {
+    marks.push({ tag: m[0], start: m.index });
+  }
+  const items = [];
+  let cursor = 0;
+  let callOrder = 0;
+  for (let i = 0; i < marks.length; i++) {
+    const end = i + 1 < marks.length ? marks[i + 1].start : text.length;
+    if (marks[i].start > cursor) {
+      const raw = text.slice(cursor, marks[i].start).trim();
+      if (raw) items.push({ type: 'text', content: raw });
+    }
+    const seg = text.slice(marks[i].start, end).trim();
+    if (marks[i].tag === '[工具调用]') {
+      // 流式追加中参数可能还没写完：解析失败时整段按杂项文本展示，等下一片补全后重新解析
+      const cm = seg.match(/^\[工具调用\]\s*名称：([^，,\n]+)[，,]\s*调用ID：([^，,\n]+)[，,]\s*参数：（([\s\S]*?)）\s*(?:异常信息：([^\n]*))?$/);
+      if (cm) {
+        callOrder += 1;
+        items.push({ type: 'call', order: callOrder, name: cm[1].trim(), callId: cm[2].trim(), args: (cm[3] || '').trim(), error: (cm[4] || '').trim(), result: null, resultError: '' });
+      } else {
+        items.push({ type: 'text', content: seg });
+      }
+    } else {
+      const rm = seg.match(/^\[工具返回\]\s*调用ID：([^，,\n]+)[，,]\s*结果：([\s\S]*?)(?:\s*异常信息：([^\n]*))?$/);
+      const callId = rm ? rm[1].trim() : '';
+      const result = rm ? (rm[2] || '').trim() : '';
+      const err = rm ? (rm[3] || '').trim() : '';
+      // 按调用ID回挂到最近的未配对调用；找不到（孤立结果/解析失败）时按杂项文本展示
+      const callItem = [...items].reverse().find((it) => it.type === 'call' && it.result === null && it.callId === callId);
+      if (callItem) {
+        callItem.result = result;
+        callItem.resultError = err;
+      } else {
+        items.push({ type: 'text', content: seg });
+      }
+    }
+    cursor = end;
+  }
+  if (cursor < text.length) {
+    const raw = text.slice(cursor).trim();
+    if (raw) items.push({ type: 'text', content: raw });
+  }
+  return items;
+};
+
+// 解析结果按文本缓存：消息列表/流式渲染会反复取同一段日志，避免每条消息每帧重复解析
+const toolLogCache = new Map();
+const toolLogs = (text) => {
+  if (!text) return [];
+  let items = toolLogCache.get(text);
+  if (items === undefined) {
+    items = parseToolLogs(text);
+    if (toolLogCache.size > 200) toolLogCache.clear();
+    toolLogCache.set(text, items);
+  }
+  return items;
 };
 
 const truncateContent = (content, maxLength = 350) => {

@@ -484,8 +484,9 @@ namespace kevin.Application.Services.AI
                 }
                 userContents.AddRange(aiFilData.MediaContents);
                 ChatMessage mgs = new(ChatRole.User, userContents);
-                // 传入本轮用户提问：开启记忆的智能体会先自动召回高相关记忆再构建系统提示词
-                var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par, userQuery: add.Content);
+                // 传入本轮用户提问：开启记忆的智能体会先自动召回高相关记忆再构建系统提示词。
+                // 工具结果回传轮不是新提问：跳过召回，避免占位文案召回使 system prompt 每轮漂移导致提示词缓存失效
+                var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par, userQuery: par.ExternalMessages is { Count: > 0 } ? null : add.Content);
                 // 推荐问题交给当前智能体自己生成，并在主模型调用之前发起，与本轮回答并行跑；
                 // 回答结束后只做收割（见下面），done 事件不再被它拖住
                 if (par.IsRecommendQuestion)
@@ -548,7 +549,7 @@ namespace kevin.Application.Services.AI
                             },
                         };
                         // 工具续轮：调用方回传了工具结果时，本轮模型输入用工具结果消息替代普通用户消息（assistant 调用帧已随上一轮回复入库）
-                        var turnMessages = BuildTurnMessages(par, mgs);
+                        var turnMessages = BuildTurnMessages(par, mgs, aiapp.ContentLengthLimit);
                         var reslut = (await aIAgentService.CreateOpenAIAgentAndSendMSG(aiSetting, chatAgOs, turnMessages, cancellationToken: cancellationToken));
                         var reslutAiCheck = await _aIInputOutputSafetyService.CheckAIOutput(reslut.Item2);
                         if (!reslutAiCheck.Item1)
@@ -715,14 +716,17 @@ namespace kevin.Application.Services.AI
         /// 该调用的 assistant 工具调用帧已随上一轮回复入库，历史加载时会先行下发，这里无需重复补齐。
         /// <para>未回传工具结果（普通提问）时仍为用户消息，行为与改造前一致。</para>
         /// </summary>
-        private static List<ChatMessage> BuildTurnMessages(AIChatHistorysDto par, ChatMessage userMessage)
+        private static List<ChatMessage> BuildTurnMessages(AIChatHistorysDto par, ChatMessage userMessage, int contentLengthLimit)
         {
             if (par.ExternalMessages == null || par.ExternalMessages.Count == 0) return new List<ChatMessage> { userMessage };
             var messages = new List<ChatMessage>(par.ExternalMessages.Count);
             foreach (var item in par.ExternalMessages)
             {
                 if (item == default || string.IsNullOrEmpty(item.ToolCallId)) continue;
-                messages.Add(new ChatMessage(ChatRole.Tool, new List<AIContent> { new FunctionResultContent(item.ToolCallId, item.Content ?? "") }));
+                // 外部工具结果按智能体内容上限截断（与内部工具同口径）：调用方（如 IDE 插件）回传的单条结果
+                // 可能是文件全文，全文进模型会把当轮输入 token 直接打满；截断后入库副本同样更小，后续轮次重发也更省
+                var content = CharLimits.TruncateToolResult(item.Content, contentLengthLimit);
+                messages.Add(new ChatMessage(ChatRole.Tool, new List<AIContent> { new FunctionResultContent(item.ToolCallId, content) }));
             }
             return messages.Count > 0 ? messages : new List<ChatMessage> { userMessage };
         }
