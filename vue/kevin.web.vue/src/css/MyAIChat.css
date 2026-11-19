@@ -833,6 +833,11 @@
   background: #fff7e6;
 }
 
+.tool-log-status.error {
+  color: #cf1322;
+  background: #fff1f0;
+}
+
 .tool-log-row {
   display: flex;
   gap: 6px;
@@ -931,6 +936,11 @@
 .tool-detail-status.running {
   color: #d46b08;
   background: #fff7e6;
+}
+
+.tool-detail-status.error {
+  color: #cf1322;
+  background: #fff1f0;
 }
 
 .tool-detail-block {

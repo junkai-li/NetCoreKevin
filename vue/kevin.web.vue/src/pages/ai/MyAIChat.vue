@@ -184,6 +184,7 @@
                                   <span class="tool-log-index">{{ item.order }}</span>
                                   <span class="tool-log-name">{{ item.name }}</span>
                                   <span v-if="item.result !== null" class="tool-log-status ok">已返回</span>
+                                  <span v-else-if="item.error" class="tool-log-status error">调用异常</span>
                                   <span v-else class="tool-log-status running">执行中…</span>
                                 </template>
                                 <div class="tool-log-row"><span class="tool-log-label">参数</span><span class="tool-log-value">{{ item.args || '（无）' }}</span></div>
@@ -191,7 +192,7 @@
                                   <span class="tool-log-label">结果</span>
                                   <span class="tool-log-value">{{ item.result }}</span>
                                 </div>
-                                <div class="tool-log-row" v-if="item.resultError"><span class="tool-log-label">异常</span><span class="tool-log-value tool-log-error">{{ item.resultError }}</span></div>
+                                <div class="tool-log-row" v-if="item.error || item.resultError"><span class="tool-log-label">异常</span><span class="tool-log-value tool-log-error">{{ item.error || item.resultError }}</span></div>
                               </a-collapse-panel>
                             </template>
                           </a-collapse>
@@ -340,6 +341,7 @@
                                   <span class="tool-log-index">{{ item.order }}</span>
                                   <span class="tool-log-name">{{ item.name }}</span>
                                   <span v-if="item.result !== null" class="tool-log-status ok">已返回</span>
+                                  <span v-else-if="item.error" class="tool-log-status error">调用异常</span>
                                   <span v-else class="tool-log-status running">执行中…</span>
                                 </template>
                                 <div class="tool-log-row"><span class="tool-log-label">参数</span><span class="tool-log-value">{{ item.args || '（无）' }}</span></div>
@@ -347,7 +349,7 @@
                                   <span class="tool-log-label">结果</span>
                                   <span class="tool-log-value">{{ item.result }}</span>
                                 </div>
-                                <div class="tool-log-row" v-if="item.resultError"><span class="tool-log-label">异常</span><span class="tool-log-value tool-log-error">{{ item.resultError }}</span></div>
+                                <div class="tool-log-row" v-if="item.error || item.resultError"><span class="tool-log-label">异常</span><span class="tool-log-value tool-log-error">{{ item.error || item.resultError }}</span></div>
                               </a-collapse-panel>
                             </template>
                           </a-collapse>
@@ -574,6 +576,7 @@
                     <span class="tool-detail-name">{{ item.name }}</span>
                     <span class="tool-detail-callid">{{ item.callId }}</span>
                     <span v-if="item.result !== null" class="tool-detail-status ok">已返回</span>
+                    <span v-else-if="item.error" class="tool-detail-status error">调用异常</span>
                     <span v-else class="tool-detail-status running">执行中…</span>
                   </template>
                   <div class="tool-detail-block">
@@ -584,9 +587,9 @@
                     <div class="tool-detail-label">结果</div>
                     <div class="tool-detail-value">{{ item.result }}</div>
                   </div>
-                  <div class="tool-detail-block" v-if="item.resultError">
+                  <div class="tool-detail-block" v-if="item.error || item.resultError">
                     <div class="tool-detail-label">异常</div>
-                    <div class="tool-detail-value tool-detail-error">{{ item.resultError }}</div>
+                    <div class="tool-detail-value tool-detail-error">{{ item.error || item.resultError }}</div>
                   </div>
                 </a-collapse-panel>
               </template>
@@ -2990,7 +2993,7 @@ const parseToolLogs = (text) => {
     const seg = text.slice(marks[i].start, end).trim();
     if (marks[i].tag === '[工具调用]') {
       // 流式追加中参数可能还没写完：解析失败时整段按杂项文本展示，等下一片补全后重新解析
-      const cm = seg.match(/^\[工具调用\]\s*名称：([^，,\n]+)[，,]\s*调用ID：([^，,\n]+)[，,]\s*参数：（([\s\S]*?)）\s*(?:异常信息：([^\n]*))?$/);
+      const cm = seg.match(/^\[工具调用\]\s*名称：([^，,\n]+)[，,]\s*调用ID：([^，,\n]+)[，,]\s*参数：（([\s\S]*?)）\s*(?:异常信息：([\s\S]*))?$/);
       if (cm) {
         callOrder += 1;
         items.push({ type: 'call', order: callOrder, name: cm[1].trim(), callId: cm[2].trim(), args: (cm[3] || '').trim(), error: (cm[4] || '').trim(), result: null, resultError: '' });
@@ -2998,7 +3001,7 @@ const parseToolLogs = (text) => {
         items.push({ type: 'text', content: seg });
       }
     } else {
-      const rm = seg.match(/^\[工具返回\]\s*调用ID：([^，,\n]+)[，,]\s*结果：([\s\S]*?)(?:\s*异常信息：([^\n]*))?$/);
+      const rm = seg.match(/^\[工具返回\]\s*调用ID：([^，,\n]+)[，,]\s*结果：([\s\S]*?)(?:\s*异常信息：([\s\S]*))?$/);
       const callId = rm ? rm[1].trim() : '';
       const result = rm ? (rm[2] || '').trim() : '';
       const err = rm ? (rm[3] || '').trim() : '';
