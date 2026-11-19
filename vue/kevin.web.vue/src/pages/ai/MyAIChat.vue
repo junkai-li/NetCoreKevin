@@ -2148,7 +2148,7 @@ watch([() => phoneMessages.value.length, () => {
 const currentPage = ref(1);
 const hasMoreMessages = ref(true);
 const loadingMessages = ref(false);
-const pageSize = ref(20); // 每页消息数量
+const pageSize = ref(100); // 每页消息数量
 
 // 智能体相关
 const aiApps = ref([]); // 存储智能体列表
@@ -2541,6 +2541,9 @@ const loadChatHistory = async (chatId, page) => {
       if (page === 1) {
         messages.value = historyMessages.reverse();
       } else {
+        // 翻页插入历史消息：跳过 messages watch 的自动滚底，滚动位置在下面手动恢复
+        skipNextAutoScroll = true;
+
         // 保存当前滚动位置
         const container = messagesContainer.value;
         const beforeScrollHeight = container.scrollHeight;
@@ -3282,8 +3285,15 @@ const formatDuration = (sec) => {
   return `${n.toFixed(1)} 秒`;
 };
 
+// 翻页加载历史消息时跳过自动滚底（滚动位置由 loadChatHistory 手动恢复）
+let skipNextAutoScroll = false;
+
 // 监听消息变化，自动滚动到底部
 watch(messages, () => {
+  if (skipNextAutoScroll) {
+    skipNextAutoScroll = false;
+    return;
+  }
   scrollToBottom();
 });
 
