@@ -768,11 +768,15 @@
 
 /* ============ 工具调用结构化日志：调用与返回按调用ID一一对应 ============ */
 /* 手风琴式工具条目：头部只占一行（序号+名称+状态），展开才显示参数/结果 */
+/* 标题用极浅灰：比外层"工具调用"面板的内容区（rgba(0,0,0,0.02)）浅一半，层次微妙不突兀 */
 .tool-log-collapse :deep(.ant-collapse-header) {
   display: flex !important;
   align-items: center;
   gap: 8px;
   padding: 9px 8px !important;
+  background: rgba(0, 0, 0, 0.01) !important;
+  border-radius: 4px;
+  font-size: 12px !important;
 }
 
 /* 条目之间留出呼吸空间：多工具堆叠时不会挤成一团 */
@@ -788,20 +792,26 @@
   padding: 2px 12px 10px !important;
 }
 
+/* 序号：浅灰底小胶囊，min-width 自适应两位数不溢出，低对比度不抢工具名的注意力 */
 .tool-log-index {
   flex: none;
-  width: 18px;
-  height: 18px;
-  line-height: 18px;
+  min-width: 20px;
+  height: 20px;
+  line-height: 20px;
   text-align: center;
-  border-radius: 50%;
-  background: var(--chat-brand, #e85d75);
-  color: #fff;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.45);
   font-size: 11px;
+  font-weight: 500;
+  padding: 0 5px;
+  box-sizing: border-box;
+  font-variant-numeric: tabular-nums;
 }
 
 .tool-log-name {
   font-weight: 500;
+  font-size: 12px;
   color: rgba(0, 0, 0, 0.45);
 }
 
@@ -877,16 +887,21 @@
   padding: 2px 12px 10px !important;
 }
 
+/* 序号：浅灰底小胶囊，min-width 自适应两位数不溢出，低对比度不抢工具名的注意力 */
 .tool-detail-index {
   flex: none;
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
+  min-width: 22px;
+  height: 22px;
+  line-height: 22px;
   text-align: center;
-  border-radius: 50%;
-  background: var(--chat-brand, #e85d75);
-  color: #fff;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.45);
   font-size: 12px;
+  font-weight: 500;
+  padding: 0 5px;
+  box-sizing: border-box;
+  font-variant-numeric: tabular-nums;
 }
 
 .tool-detail-name {
