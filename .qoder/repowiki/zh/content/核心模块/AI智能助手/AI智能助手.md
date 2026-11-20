@@ -10,6 +10,11 @@
 - [AIModelsService.cs](file://Kevin/Application/Services/AI/AIModelsService.cs)
 - [AIAgentToolSkillService.cs](file://Kevin/Application/Services/AI/AIAgentToolSkillService.cs)
 - [AIFileToolService.cs](file://Kevin/Application/Services/AI/AIFileToolService.cs)
+- [AgentFileParseToolsService.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AgentFileParseToolsService.cs)
+- [IAgentFileParseToolsService.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Interfaces/Tools/IAgentFileParseToolsService.cs)
+- [PptxReader.cs](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\PptxReader.cs)
+- [ImageReader.cs](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\ImageReader.cs)
+- [DocumentProcessor.cs](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\DocumentProcessor.cs)
 - [TextStreamReader.cs](file://Kevin/kevin.Module/Kevin.Common/Helper/FileHandleTools/TextStreamReader.cs)
 - [CommonToolsService.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/CommonToolsService.cs)
 - [PythonToolsService.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/PythonToolsService.cs)
@@ -23,8 +28,6 @@
 - [AIChatHistorysService.cs](file://Kevin/Application/Services/AI/AIChatHistorysService.cs)
 - [ModalityContentBuilder.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Modality/ModalityContentBuilder.cs)
 - [ModalityOptions.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Dto/ModalityOptions.cs)
-- [ImageReader.cs](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\ImageReader.cs)
-- [PDFReader.cs](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\PDFReader.cs)
 - [AIAgentMemoryService.cs](file://Kevin/Application/Services/AI/Tools/AIAgentMemoryService.cs)
 - [IModalityContentBuilder.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Modality/IModalityContentBuilder.cs)
 - [ModalityContentResult.cs](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Modality/ModalityContentResult.cs)
@@ -33,10 +36,11 @@
 
 ## 更新摘要
 **变更内容**
-- 新增完整的多模态AI能力，包括文档图片提取、PDF整页渲染、媒体内容处理
-- 增强Agent框架和内存管理机制，支持向量语义检索和智能自动召回
-- 改进文件处理管道，支持图片OCR识别、PDF可视化渲染、多媒体附件处理
-- 优化上下文管理，通过ModalityContentBuilder统一处理文本、图片、音频、文档等多模态内容
+- 新增 AgentFileParseToolsService 提供远程文件解析能力，支持通过URL下载并解析PDF、Word、Excel、PPT、HTML、Markdown等文档类型
+- 新增 PptxReader 支持PPTX文档处理，可提取幻灯片文本、备注和内嵌图片
+- ImageReader从SixLabors.ImageSharp迁移到SkiaSharp提升性能，优化图片处理和OCR功能
+- DocumentProcessor优化了分块逻辑防止无限循环，增加重叠上限锁和句子边界切分
+- 增强多模态处理能力，支持更丰富的文档格式和媒体类型处理
 
 ## 目录
 1. [简介](#简介)
@@ -51,7 +55,7 @@
 10. [附录：API与配置要点](#附录api与配置要点)
 
 ## 简介
-本模块提供企业级AI智能助手能力，覆盖AI应用管理、聊天对话、知识库（RAG）管理、技能与工具注册使用等核心功能。系统支持多模型接入、流式响应、上下文记忆压缩、文件处理、代码执行、MCP协议工具集成等高级特性，并提供完整的Web API与前端页面支撑。**最新更新**：大幅增强了多模态AI能力，包括文档图片提取、PDF整页渲染、媒体内容处理，以及改进的Agent框架和内存管理机制，显著提升了对复杂文档和多媒体内容的处理能力。
+本模块提供企业级AI智能助手能力，覆盖AI应用管理、聊天对话、知识库（RAG）管理、技能与工具注册使用等核心功能。系统支持多模型接入、流式响应、上下文记忆压缩、文件处理、代码执行、MCP协议工具集成等高级特性，并提供完整的Web API与前端页面支撑。**最新更新**：大幅增强了多模态AI能力和文档处理功能，新增了远程文件解析服务、PPTX文档支持、图片处理性能优化以及文档分块逻辑改进，显著提升了对复杂文档和多媒体内容的处理能力。
 
 ## 项目结构
 - 应用服务层（Application/Services/AI）：封装业务编排、数据持久化、外部服务调用（如向量库、文件存储、消息推送）。
@@ -76,10 +80,12 @@ SvcChats --> Store
 SvcApps --> SkillMgr["AISkillToolManagementService"]
 SvcChats --> SignalR["SignalR消息服务"]
 SvcApps --> FileSvc["AIFileToolService"]
+SvcTools --> RemoteParse["AgentFileParseToolsService"]
 subgraph "多模态处理"
-Modality["ModalityContentBuilder"] --> ImageProc["图片处理"]
+Modality["ModalityContentBuilder"] --> ImageProc["图片处理(SkiaSharp)"]
 Modality --> PDFProc["PDF渲染"]
 Modality --> MediaProc["媒体处理"]
+Modality --> PPTProc["PPTX处理"]
 end
 subgraph "知识库"
 SvcKms["AIKmssService"] --> DocProc["文档处理器"]
@@ -102,6 +108,7 @@ end
 - [AIAgentToolSkillService.cs:303-436](file://Kevin/Application/Services/AI/AIAgentToolSkillService.cs#L303-L436)
 - [ModalityContentBuilder.cs:11-332](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Modality/ModalityContentBuilder.cs#L11-L332)
 - [AIAgentMemoryService.cs:15-784](file://Kevin/Application/Services/AI/Tools/AIAgentMemoryService.cs#L15-L784)
+- [AgentFileParseToolsService.cs:15-63](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AgentFileParseToolsService.cs#L15-L63)
 
 章节来源
 - [AIAppsController.cs:14-122](file://Kevin/ Kevin.Web.Basics/Controllers/AI/AIAppsController.cs#L14-L122)
@@ -111,7 +118,10 @@ end
 - AI应用管理：创建/编辑/删除智能体，绑定模型、提示词、工具/技能/MCP工具，配置温度、最大输出、响应格式、重试次数、网络超时、消息压缩策略等。
 - 聊天对话：创建会话、维护对话历史、流式或一次性返回结果、更新主题与最后一条消息。
 - **多模态内容处理**：**新增**完整的文档图片提取、PDF整页渲染、媒体内容处理功能，支持图片OCR识别、PDF可视化渲染、多媒体附件统一处理。
-- 知识库管理：上传/导入文档，文本/Markdown/PDF/Word/HTML/图片/Excel等多格式解析，按段落/行分块，生成向量并入库Qdrant。
+- **远程文件解析**：**新增**AgentFileParseToolsService提供远程文件下载和解析能力，支持多种文档格式。
+- **PPTX文档处理**：**新增**PptxReader支持PowerPoint文档解析，可提取幻灯片文本、备注和内嵌图片。
+- **图片处理优化**：**新增**ImageReader从SixLabors.ImageSharp迁移到SkiaSharp，提升性能和兼容性。
+- 知识库管理：上传/导入文档，文本/Markdown/PDF/Word/HTML/图片/Excel/PPT等多格式解析，按段落/行分块，生成向量并入库Qdrant。
 - 技能与工具：动态注册内置工具（HTTP、Shell、Python、桌面操作、定时任务、钉钉消息等），以及通过MCP协议接入第三方工具；支持技能包解压与脚本执行。
 - 模型与提示词：集中管理模型端点、密钥、类型（含Embedding）、提示词模板与描述。
 - Agent框架：统一构建OpenAI兼容Agent，支持工具自动审批、流式回调、思考过程提取、Token用量统计、失败重试。
@@ -129,6 +139,9 @@ end
 - [AIModelsService.cs:8-160](file://Kevin/Application/Services/AI/AIModelsService.cs#L8-L160)
 - [AIAgentService.cs:21-491](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AIAgentService.cs#L21-L491)
 - [AIFileToolService.cs:10-76](file://Kevin/Application/Services/AI/AIFileToolService.cs#L10-L76)
+- [AgentFileParseToolsService.cs:15-63](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AgentFileParseToolsService.cs#L15-L63)
+- [PptxReader.cs:24-286](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\PptxReader.cs#L24-L286)
+- [ImageReader.cs:11-275](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\ImageReader.cs#L11-L275)
 - [AIAgentMemoryService.cs:15-784](file://Kevin/Application/Services/AI/Tools/AIAgentMemoryService.cs#L15-L784)
 - [TAIModels.cs:54-66](file://Kevin/Domain/Entities/AI/TAIModels.cs#L54-L66)
 
@@ -155,6 +168,8 @@ S->>MCB : 处理多模态内容
 MCB-->>S : 文本/图片/音频内容
 S->>A : 获取应用配置/提示词/模型
 A->>T : 组装工具/技能/MCP
+T->>RemoteParse["AgentFileParseToolsService"]
+RemoteParse-->>T : 远程文件解析结果
 A->>G : 创建Agent并发送消息
 G->>Model : 流式/非流式调用
 Model-->>G : 增量文本/工具调用/思考过程
@@ -169,6 +184,7 @@ S-->>U : 实时推送或最终结果
 - [AIAgentToolSkillService.cs:16-381](file://Kevin/Application/Services/AI/AIAgentToolSkillService.cs#L16-381)
 - [AIAgentService.cs:21-491](file://Kevin/kevin.Module/kevin.AI.AgentFramework/AIAgentService.cs#L21-L491)
 - [ModalityContentBuilder.cs:28-79](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Modality/ModalityContentBuilder.cs#L28-L79)
+- [AgentFileParseToolsService.cs:27-60](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AgentFileParseToolsService.cs#L27-L60)
 
 ## 详细组件分析
 
@@ -249,6 +265,148 @@ Ctrl-->>UI : 返回结果
 章节来源
 - [AIChatsService.cs:46-207](file://Kevin/Application/Services/AI/AIChatsService.cs#L46-L207)
 
+### 远程文件解析服务（AgentFileParseToolsService）
+**重要更新** 系统新增了AgentFileParseToolsService，为智能体提供远程文件解析能力。
+
+- **核心功能**
+  - URL安全验证：检查URL是否在授权域名白名单内，防止恶意链接访问。
+  - 多格式支持：复用ModalityContentBuilder解析管线，支持PDF、Word、Excel、PPT、HTML、Markdown、文本等文档类型。
+  - 内容提取：下载远程文件并转换为纯文本，过滤图片和音频等非文档类型。
+  - 长度限制：应用ContentLengthLimit配置，截断过长的解析结果。
+  - 错误处理：统一的错误信息格式，以"❌ "开头标识解析失败。
+
+- **安全机制**
+  - 域名护栏：与HTTP工具保持一致的安全策略，防止SSRF攻击。
+  - 取消支持：支持CancellationToken，避免长时间阻塞。
+  - 异常捕获：详细的错误信息便于调试和问题定位。
+
+```mermaid
+flowchart TD
+Input["接收URL请求"] --> Validate["域名安全验证"]
+Validate --> |通过| Download["下载远程文件"]
+Validate --> |拒绝| Error["返回未授权错误"]
+Download --> Parse["调用ModalityContentBuilder解析"]
+Parse --> CheckType{"文件类型检查"}
+CheckType --> |文档类型| ExtractText["提取文本内容"]
+CheckType --> |图片/音频| TypeError["返回类型不匹配错误"]
+ExtractText --> Limit["应用长度限制"]
+Limit --> Success["返回解析结果"]
+TypeError --> Error
+```
+
+图表来源
+- [AgentFileParseToolsService.cs:27-60](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AgentFileParseToolsService.cs#L27-L60)
+
+章节来源
+- [AgentFileParseToolsService.cs:15-63](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AgentFileParseToolsService.cs#L15-L63)
+- [IAgentFileParseToolsService.cs:11-19](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Interfaces/Tools/IAgentFileParseToolsService.cs#L11-L19)
+
+### PPTX文档处理（PptxReader）
+**重要更新** 系统新增了PptxReader，专门处理PowerPoint文档。
+
+- **核心功能**
+  - 幻灯片文本提取：按页顺序提取幻灯片正文，保持段落结构和换行。
+  - 备注提取：读取演讲者备注，过滤纯数字页码占位符。
+  - 图片提取：提取幻灯片内嵌图片，限制最大数量（50张）避免内存溢出。
+  - 格式检测：区分.pptx（OOXML）和.ppt（OLE复合文档），提供友好的错误提示。
+  - Markdown输出：将幻灯片内容转换为按页分节的Markdown格式。
+
+- **技术特点**
+  - 使用DocumentFormat.OpenXml库解析.pptx文件。
+  - 按SlideIdList顺序处理，保证放映顺序一致性。
+  - 支持XML命名空间处理，准确提取DrawingML元素。
+  - 异常隔离：单张图片处理失败不影响整体解析。
+
+```mermaid
+flowchart TD
+Input["PPTX文件流"] --> FormatCheck{"格式检测"}
+FormatCheck --> |.pptx| OpenDoc["打开PresentationDocument"]
+FormatCheck --> |.ppt| ReturnHint["返回格式不支持提示"]
+OpenDoc --> ReadSlides["读取SlideIdList"]
+ReadSlides --> ProcessPages["逐页处理"]
+ProcessPages --> ExtractText["提取段落文本"]
+ProcessPages --> ExtractNotes["提取备注"]
+ProcessPages --> ExtractImages["提取内嵌图片"]
+ExtractText --> BuildMD["构建Markdown"]
+ExtractNotes --> BuildMD
+ExtractImages --> BuildMD
+BuildMD --> Output["返回Markdown文本"]
+```
+
+图表来源
+- [PptxReader.cs:38-102](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\PptxReader.cs#L38-L102)
+- [PptxReader.cs:111-192](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\PptxReader.cs#L111-L192)
+
+章节来源
+- [PptxReader.cs:24-286](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\PptxReader.cs#L24-L286)
+
+### 图片处理优化（ImageReader）
+**重要更新** ImageReader从SixLabors.ImageSharp迁移到SkiaSharp，显著提升性能。
+
+- **核心改进**
+  - 性能提升：SkiaSharp提供更高效的图像处理能力，减少内存占用和处理时间。
+  - 格式支持：原生支持PNG、JPEG、GIF、BMP、WebP等多种图像格式。
+  - OCR集成：保持Tesseract OCR功能，支持图片文字识别。
+  - 元数据处理：通过SKCodec获取图片详细信息（尺寸、格式、EXIF等）。
+
+- **功能特性**
+  - 多格式输入：支持文件路径、字节数组、Stream等多种输入方式。
+  - 异步处理：提供Async方法支持异步IO操作。
+  - Base64转换：内置Base64编解码功能。
+  - Markdown生成：自动生成包含图片数据的Markdown格式。
+
+```mermaid
+flowchart TD
+Input["图片输入"] --> SkiaDecode["SkiaSharp解码"]
+SkiaDecode --> OCR["Tesseract OCR识别"]
+SkiaDecode --> MetaInfo["提取图片元信息"]
+OCR --> Combine["合并识别结果"]
+MetaInfo --> Combine
+Combine --> Output["结构化图片信息"]
+```
+
+图表来源
+- [ImageReader.cs:124-155](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\ImageReader.cs#L124-L155)
+- [ImageReader.cs:177-204](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\ImageReader.cs#L177-L204)
+
+章节来源
+- [ImageReader.cs:11-275](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\ImageReader.cs#L11-L275)
+
+### 文档分块优化（DocumentProcessor）
+**重要更新** DocumentProcessor优化了分块逻辑，防止无限循环问题。
+
+- **核心改进**
+  - 重叠上限锁：设置maxOverlap = chunkSize / 2，防止大重叠配置导致的死循环。
+  - 句子边界切分：优先在句号、感叹号、问号处切分，保持语义完整性。
+  - 尾部保护：最后一个块不再回退overlap，避免重复切分。
+  - 最小步进：确保start至少前进1个字符，防止停滞。
+
+- **算法优化**
+  - ChunkByParagraph：改进段落重叠计算，避免不必要的重复。
+  - ChunkBySize：增加句子边界检测和尾部特殊处理。
+  - 内存优化：减少中间对象创建，提升处理效率。
+
+```mermaid
+flowchart TD
+Input["文档内容"] --> Clean["清理文档"]
+Clean --> ParagraphSplit["段落分割"]
+ParagraphSplit --> SizeChunk["按大小分块"]
+SizeChunk --> SentenceBoundary["句子边界检测"]
+SentenceBoundary --> OverlapCalc["计算有效重叠"]
+OverlapCalc --> LastChunk{"是否最后一个块"}
+LastChunk --> |是| NoOverlap["不回退重叠"]
+LastChunk --> |否| NormalOverlap["正常重叠处理"]
+NoOverlap --> Output["输出分块结果"]
+NormalOverlap --> Output
+```
+
+图表来源
+- [DocumentProcessor.cs:103-140](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\DocumentProcessor.cs#L103-L140)
+- [DocumentProcessor.cs:46-98](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\DocumentProcessor.cs#L46-L98)
+
+章节来源
+- [DocumentProcessor.cs:11-143](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\DocumentProcessor.cs#L11-L143)
+
 ### 多模态内容处理（ModalityContentBuilder）
 **重要更新** 系统新增了完整的多模态内容处理能力，通过ModalityContentBuilder统一处理文本、图片、音频、文档等多种媒体类型。
 
@@ -297,7 +455,7 @@ Result --> Output["ModalityContentResult"]
 - 功能要点
   - 知识库列表/分页/详情，包含关联明细与文件信息。
   - 新增/编辑知识库：设置分段大小、重叠token数、向量模型、重排模型。
-  - 处理上传内容：读取本地文件或远程URL，按类型解析（text/markdown/pdf/word/html/image/excel）。
+  - 处理上传内容：读取本地文件或远程URL，按类型解析（text/markdown/pdf/word/html/image/excel/ppt）。
   - 文档分块与向量化：DocumentProcessor清理与分块，Ollama嵌入生成向量，批量写入Qdrant。
   - 分布式锁：避免并发重复处理同一知识库。
 - 错误处理
@@ -315,6 +473,7 @@ Parse --> |word| Doc["段落读取"]
 Parse --> |html| Html["HTML文本提取"]
 Parse --> |image| Img["图像描述"]
 Parse --> |excel| Xls["Excel转Markdown"]
+Parse --> |ppt| Ppt["PPTX解析"]
 Txt --> Chunk["清理与分块"]
 Md --> Chunk
 Pdf --> Chunk
@@ -322,6 +481,7 @@ Doc --> Chunk
 Html --> Chunk
 Img --> Chunk
 Xls --> Chunk
+Ppt --> Chunk
 Chunk --> Embed["调用Ollama生成向量"]
 Embed --> Store["写入Qdrant集合"]
 Store --> Done["标记成功/失败"]
@@ -631,10 +791,13 @@ Trim --> Optimize["优化上下文质量"]
   - AIChatsService依赖AIAppsService（应用配置）、AIAgentService（对话执行）、SignalR（实时推送）。
   - AIKmssService依赖文件服务、向量库（Qdrant）、Ollama嵌入、分布式锁。
   - AIFileToolService：被AIAgentToolSkillService集成，作为AI工具之一提供文件保存功能。
+  - **AgentFileParseToolsService**：新增的远程文件解析服务，被AIAgentToolSkillService集成。
   - **ModalityContentBuilder**：被AIChatHistorysService集成，提供多模态内容处理能力。
   - **AIAgentMemoryService**：被AIAgentToolSkillService集成，提供智能记忆管理能力。
 - 外部依赖：
   - OpenAI SDK（兼容接口）、Microsoft.Extensions.AI、ModelContextProtocol（MCP）、Qdrant、SignalR、文件存储。
+  - **SkiaSharp**：替代SixLabors.ImageSharp，提供高性能图像处理。
+  - **DocumentFormat.OpenXml**：用于PPTX文档解析。
 
 ```mermaid
 graph LR
@@ -650,10 +813,14 @@ SvcChats --> SignalR["SignalR"]
 SvcKms["AIKmssService"] --> Qdrant["Qdrant"]
 SvcKms --> Ollama["Ollama"]
 ToolSvc --> FileSvc["AIFileToolService"]
+ToolSvc --> RemoteParse["AgentFileParseToolsService"]
 ToolSvc --> MCP["MCP工具集成"]
 ToolSvc --> MemorySvc["AIAgentMemoryService"]
 SvcChats --> Modality["ModalityContentBuilder"]
 ModelSvc --> Tokens["令牌管理"]
+RemoteParse --> Modality
+Modality --> Skia["SkiaSharp图像处理"]
+Modality --> PPT["PptxReader文档解析"]
 ```
 
 图表来源
@@ -664,12 +831,14 @@ ModelSvc --> Tokens["令牌管理"]
 - [AIKmssService.cs:18-449](file://Kevin/Application/Services/AI/AIKmssService.cs#L18-L449)
 - [AIAgentToolSkillService.cs:115-125](file://Kevin/Application/Services/AI/AIAgentToolSkillService.cs#L115-L125)
 - [AIChatHistorysService.cs:58-65](file://Kevin/Application/Services/AI/AIChatHistorysService.cs#L58-L65)
+- [AgentFileParseToolsService.cs:15-63](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AgentFileParseToolsService.cs#L15-L63)
 
 章节来源
 - [AIAppsService.cs:16-544](file://Kevin/Application/Services/AI/AIAppsService.cs#L16-L544)
 - [AIChatsService.cs:14-212](file://Kevin/Application/Services/AI/AIChatsService.cs#L14-L212)
 - [AIKmssService.cs:18-449](file://Kevin/Application/Services/AI/AIKmssService.cs#L18-L449)
 - [AIAgentToolSkillService.cs:115-125](file://Kevin/Application/Services/AI/AIAgentToolSkillService.cs#L115-L125)
+- [AgentFileParseToolsService.cs:15-63](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AgentFileParseToolsService.cs#L15-L63)
 
 ## 性能与优化建议
 - 流式响应优先：开启MsgType=2以启用流式输出，降低首字延迟，提升用户体验。
@@ -685,6 +854,10 @@ ModelSvc --> Tokens["令牌管理"]
 - MCP工具优化：合理使用MCP工具，注意网络连接和认证配置，避免不必要的远程调用开销。
 - **多模态优化**：合理配置ModalityOptions，控制图片和音频文件大小、数量限制，避免请求过大。
 - **记忆优化**：启用Qdrant向量记忆服务，利用语义检索提升记忆召回准确率；合理设置自动召回阈值，避免无关记忆注入。
+- **远程文件解析优化**：合理使用AgentFileParseToolsService，注意URL安全配置和域名白名单设置。
+- **PPTX处理优化**：对于大型PPTX文件，注意图片数量限制（50张）和内存使用。
+- **SkiaSharp性能优化**：充分利用SkiaSharp的高性能图像处理能力，避免频繁的图像格式转换。
+- **文档分块优化**：使用优化后的DocumentProcessor，避免无限循环和过度分块。
 
 [本节为通用指导，不直接分析具体文件]
 
@@ -704,6 +877,10 @@ ModelSvc --> Tokens["令牌管理"]
 - **图片OCR失败**：检查Tesseract语言训练数据是否安装，确认图片格式支持。
 - **记忆检索失败**：检查Qdrant服务是否可用，确认向量索引是否正常同步。
 - **自动召回异常**：检查ShouldAutoRecall过滤逻辑，确认查询是否被误判为寒暄或短查询。
+- **远程文件解析失败**：检查URL是否在授权域名白名单内，确认网络连接和文件格式支持。
+- **PPTX解析失败**：确认文件格式为.pptx而非.ppt，检查文件是否损坏或加密。
+- **SkiaSharp初始化失败**：检查依赖库是否安装，确认Linux环境下libfontconfig.so.1可用性。
+- **文档分块异常**：检查chunkSize和chunkOverlap配置，避免过大重叠导致的问题。
 
 章节来源
 - [AIAppsService.cs:85-117](file://Kevin/Application/Services/AI/AIAppsService.cs#L85-L117)
@@ -714,9 +891,12 @@ ModelSvc --> Tokens["令牌管理"]
 - [AIAgentToolSkillService.cs:428-433](file://Kevin/Application/Services/AI/AIAgentToolSkillService.cs#L428-L433)
 - [ModalityContentBuilder.cs:66-78](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Modality/ModalityContentBuilder.cs#L66-L78)
 - [AIAgentMemoryService.cs:397-402](file://Kevin/Application/Services/AI/Tools/AIAgentMemoryService.cs#L397-L402)
+- [AgentFileParseToolsService.cs:32-60](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AgentFileParseToolsService.cs#L32-L60)
+- [PptxReader.cs:47-51](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\PptxReader.cs#L47-L51)
+- [DocumentProcessor.cs:112-137](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\DocumentProcessor.cs#L112-L137)
 
 ## 结论
-本AI智能助手模块提供了完整的AI应用生命周期管理与对话能力，结合RAG、工具/技能扩展、流式响应与上下文压缩，满足企业级复杂场景需求。**最新改进**：大幅增强了多模态AI能力，通过ModalityContentBuilder统一处理文本、图片、音频、文档等多种媒体类型，支持PDF整页渲染、图片OCR识别、多媒体附件处理；改进了Agent框架和内存管理机制，通过AIAgentMemoryService提供向量语义检索和智能自动召回功能，显著提升了对复杂文档和多媒体内容的处理能力。通过统一的Agent框架与模块化设计，系统具备良好的可扩展性与可维护性。建议在生产环境结合业务特点调优模型参数、工具范围、知识库策略和多模态处理配置，以获得最佳性能与体验。
+本AI智能助手模块提供了完整的AI应用生命周期管理与对话能力，结合RAG、工具/技能扩展、流式响应与上下文压缩，满足企业级复杂场景需求。**最新改进**：大幅增强了多模态AI能力和文档处理功能，新增了AgentFileParseToolsService远程文件解析服务、PptxReader PowerPoint文档支持、ImageReader从SixLabors.ImageSharp迁移到SkiaSharp的性能优化，以及DocumentProcessor分块逻辑的无限循环防护。这些改进显著提升了系统对复杂文档和多媒体内容的处理能力，增强了安全性和性能表现。通过统一的Agent框架与模块化设计，系统具备良好的可扩展性与可维护性。建议在生产环境结合业务特点调优模型参数、工具范围、知识库策略和多模态处理配置，以获得最佳性能与体验。
 
 [本节为总结，不直接分析具体文件]
 
@@ -737,6 +917,10 @@ ModelSvc --> Tokens["令牌管理"]
   - 保存文件内容：通过AI工具调用SaveFileContent方法
   - 支持本地文件路径和文件内容两种方式
   - 返回远程文件访问URL或错误信息
+- **远程文件解析接口**
+  - 解析远程文件：通过AgentFileParseToolsService.ParseRemoteFileAsync方法
+  - 支持URL安全验证和域名白名单
+  - 返回解析后的文本内容或错误信息
 - **多模态配置项**
   - Modality.MaxAudioFileBytes：音频文件大小上限（默认20MB）
   - Modality.MaxImageFileBytes：图片文件大小上限（默认10MB）
@@ -752,6 +936,9 @@ ModelSvc --> Tokens["令牌管理"]
   - 知识库：MaxTokensPerParagraph、OverlappingTokens、aIModelsId（Embedding）、aIRerankModelsId。
   - 工具/技能/MCP：ClassMethod、McpType、McpUrl、McpHeaders、McpCommand、McpArguments、McpEnvironment。
   - 文件编码：UTF-8带BOM用于需要中文显示的文件，UTF-8无BOM用于Python脚本等需要跨平台兼容的场景。
+  - **远程文件解析**：AuthorizedDomainsList域名白名单、ContentLengthLimit内容长度限制。
+  - **PPTX处理**：MaxExtractedImages最大图片提取数量（默认50）。
+  - **文档分块**：chunkSize块大小、chunkOverlap重叠大小、maxOverlap最大重叠限制。
 
 章节来源
 - [AIAppsController.cs:31-119](file://Kevin/ Kevin.Web.Basics/Controllers/AI/AIAppsController.cs#L31-L119)
@@ -762,6 +949,9 @@ ModelSvc --> Tokens["令牌管理"]
 - [AIKmssService.cs:112-240](file://Kevin/Application/Services/AI/AIKmssService.cs#L112-L240)
 - [AIAgentToolSkillService.cs:119-247](file://Kevin/Application/Services/AI/AIAgentToolSkillService.cs#L119-L247)
 - [AIFileToolService.cs:17-76](file://Kevin/Application/Services/AI/AIFileToolService.cs#L17-76)
+- [AgentFileParseToolsService.cs:27-60](file://Kevin/kevin.Module/kevin.AI.AgentFramework/Tools/AgentFileParseToolsService.cs#L27-L60)
+- [PptxReader.cs:29-30](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\PptxReader.cs#L29-L30)
+- [DocumentProcessor.cs:16-20](file://Kevin/kevin.Module/Kevin.Common\Helper\FileHandleTools\DocumentProcessor.cs#L16-L20)
 - [TAIApps.cs:211-215](file://Kevin/Domain/Entities/AI/TAIApps.cs#L211-L215)
 - [AIAppsDto.cs:113-117](file://Kevin/kevin.Share/Dtos/AI/AIAppsDto.cs#L113-L117)
 - [TAIModels.cs:54-66](file://Kevin/Domain/Entities/AI/TAIModels.cs#L54-L66)

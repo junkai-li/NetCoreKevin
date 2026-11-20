@@ -5,6 +5,7 @@
 - [docker-compose.yml](file://docker-compose.yml)
 - [App/WebApi/Dockerfile](file://App/WebApi/Dockerfile)
 - [.dockerignore](file://.dockerignore)
+- [Directory.Packages.props](file://Directory.Packages.props)
 - [App/WebApi/appsettings.json](file://App/WebApi/appsettings.json)
 - [README.md](file://README.md)
 - [Doc/项目相关/docker说明.txt](file://Doc/项目相关/docker说明.txt)
@@ -12,10 +13,10 @@
 
 ## 更新摘要
 **变更内容**
-- 新增完整的Docker Compose一键部署支持，包含MySQL、Redis、Qdrant、前端Nginx等服务编排
-- 简化多服务部署流程，提供标准化的环境配置和端口管理
-- 保持原有的Dockerfile构建方式，支持独立镜像构建
-- 增强健康检查和依赖管理服务启动顺序
+- Dockerfile新增fontconfig库安装以支持SkiaSharp依赖，解决容器化环境中的PDF渲染和图像处理问题
+- 引入Directory.Packages.props进行中央包版本管理，统一维护所有NuGet包版本
+- 保持原有的Docker Compose一键部署支持，包含MySQL、Redis、Qdrant、前端Nginx等服务编排
+- 优化多阶段构建流程，提升构建效率和镜像安全性
 
 ## 目录
 1. [简介](#简介)
@@ -32,19 +33,20 @@
 ## 简介
 本文件面向 NetCoreKevin 框架的容器化部署，重点说明多阶段 Dockerfile 构建流程、基础镜像选择、依赖安装、应用编译与发布优化；解释容器环境变量（如 ASPNETCORE_URLS 端口、ASPNETCORE_ENVIRONMENT）与运行时用户权限管理；描述 .dockerignore 的作用与优化策略；提供完整的镜像构建命令、容器运行参数、网络配置；给出基于 Docker Compose 的 MySQL、Redis、Qdrant、前端 Nginx、后端 API 服务编排示例；并总结生产环境最佳实践（镜像安全扫描、资源限制与健康检查）。
 
-**更新** 新增了完整的Docker Compose一键部署支持，简化了多服务部署流程。
+**更新** Dockerfile新增了fontconfig库安装以支持SkiaSharp依赖，解决了容器化环境中的PDF渲染和图像处理问题；引入了Directory.Packages.props进行中央包版本管理。
 
 ## 项目结构
 - Web API 入口位于 App/WebApi，包含 Dockerfile、配置文件与启动逻辑。
 - 解决方案包含多个模块（Domain/Application/Infrastructure/Module 等），Dockerfile 通过精确 COPY 仅引入必要的 csproj 以利用缓存加速 restore/build。
 - 根目录提供 docker-compose.yml，实现一键部署完整的服务栈。
+- 根目录提供 Directory.Packages.props，集中管理所有 NuGet 包版本。
 - 根目录提供 .dockerignore，用于排除不必要的构建上下文内容，减小镜像体积。
 - Vue 前端位于 vue/kevin.web.vue，包含独立的 Dockerfile 和 Nginx 配置。
 
 ```mermaid
 graph TB
 A["宿主机"] --> B["Docker 引擎"]
-B --> C["镜像: base(aspnet runtime)"]
+B --> C["镜像: base(aspnet runtime + fontconfig)"]
 B --> D["镜像: build(含 SDK)"]
 B --> E["镜像: publish(发布产物)"]
 B --> F["容器: App.WebApi.dll"]
@@ -56,16 +58,17 @@ J["Vue Nginx(容器)"] --> F
 
 **图表来源**
 - [docker-compose.yml:24-213](file://docker-compose.yml#L24-L213)
-- [App/WebApi/Dockerfile:3-72](file://App/WebApi/Dockerfile#L3-L72)
+- [App/WebApi/Dockerfile:3-79](file://App/WebApi/Dockerfile#L3-L79)
 
 **章节来源**
-- [App/WebApi/Dockerfile:1-72](file://App/WebApi/Dockerfile#L1-L72)
+- [App/WebApi/Dockerfile:1-79](file://App/WebApi/Dockerfile#L1-L79)
 - [.dockerignore:1-25](file://.dockerignore#L1-L25)
 - [docker-compose.yml:1-213](file://docker-compose.yml#L1-L213)
+- [Directory.Packages.props:1-118](file://Directory.Packages.props#L1-L118)
 
 ## 核心组件
 - **多阶段构建**
-  - base：使用 aspnet 运行时镜像，暴露 8080 端口，设置监听地址与环境变量，非 root 用户运行。
+  - base：使用 aspnet 运行时镜像，安装 fontconfig 库以支持 SkiaSharp，暴露 8080 端口，设置监听地址与环境变量，非 root 用户运行。
   - build：使用 SDK 镜像，关闭遥测与全球化不变量，COPY 必要 csproj 后执行 dotnet restore，再复制源码并构建。
   - publish：在 build 基础上发布为自包含/可移植输出（UseAppHost=false）。
   - final：从 base 阶段复制发布产物，设置工作目录与入口点。
@@ -86,7 +89,7 @@ J["Vue Nginx(容器)"] --> F
   - .dockerignore 排除 .git、bin/obj、IDE 配置、node_modules、其他 Dockerfile/compose 等，减少上下文大小与误拷贝风险。
 
 **章节来源**
-- [App/WebApi/Dockerfile:3-72](file://App/WebApi/Dockerfile#L3-L72)
+- [App/WebApi/Dockerfile:3-79](file://App/WebApi/Dockerfile#L3-L79)
 - [docker-compose.yml:24-213](file://docker-compose.yml#L24-L213)
 - [.dockerignore:1-25](file://.dockerignore#L1-L25)
 
@@ -114,12 +117,12 @@ Web-->>Client : HTTP 响应
 
 **图表来源**
 - [docker-compose.yml:107-178](file://docker-compose.yml#L107-L178)
-- [App/WebApi/Dockerfile:7-8](file://App/WebApi/Dockerfile#L7-L8)
+- [App/WebApi/Dockerfile:7-13](file://App/WebApi/Dockerfile#L7-L13)
 
 ## 详细组件分析
 
 ### Docker Compose 一键部署
-**新增功能** Docker Compose 提供了完整的服务编排，支持一键启动所有依赖服务。
+Docker Compose 提供了完整的服务编排，支持一键启动所有依赖服务。
 
 - **服务定义**
   - mysql：MySQL 8.0，配置 utf8mb4 字符集、时区、最大包大小等参数。
@@ -158,9 +161,11 @@ Ready --> Access["访问服务<br/>前端:8080, API:19901"]
 ### 多阶段 Dockerfile 构建流程
 - **基础镜像选择**
   - base 阶段采用 aspnet 运行时镜像，最小化运行依赖。
+  - **新增** 安装 fontconfig 库以支持 SkiaSharp 依赖，解决 PDF 渲染和图像处理问题。
   - build 阶段采用 SDK 镜像，启用 DOTNET_CLI_TELEMETRY_OPTOUT 与 DOTNET_SYSTEM_GLOBALIZATION_INVARIANT 以提升构建速度与稳定性。
 - **依赖安装与缓存优化**
-  - 先 COPY 所有 csproj 文件，再执行 dotnet restore，充分利用 Docker 层缓存，避免每次构建都重新下载依赖。
+  - 先 COPY 所有 csproj 文件和 Directory.Packages.props，再执行 dotnet restore，充分利用 Docker 层缓存，避免每次构建都重新下载依赖。
+  - **新增** Directory.Packages.props 文件用于中央包版本管理，确保所有项目使用一致的包版本。
 - **应用编译与发布优化**
   - 构建阶段输出到 /app/build，发布阶段输出到 /app/publish，最终只将发布产物复制到 final 镜像，显著减小镜像体积。
   - 使用 UseAppHost=false 避免生成宿主包装器，进一步精简。
@@ -170,8 +175,8 @@ Ready --> Access["访问服务<br/>前端:8080, API:19901"]
 
 ```mermaid
 flowchart TD
-Start(["开始构建"]) --> Base["base: 加载 aspnet 运行时<br/>设置端口与环境变量"]
-Base --> Build["build: 安装SDK<br/>COPY csproj 并 restore"]
+Start(["开始构建"]) --> Base["base: 加载 aspnet 运行时<br/>安装 fontconfig<br/>设置端口与环境变量"]
+Base --> Build["build: 安装SDK<br/>COPY csproj + Directory.Packages.props<br/>并 restore"]
 Build --> CopySrc["COPY 源码"]
 CopySrc --> Compile["dotnet build"]
 Compile --> Publish["dotnet publish"]
@@ -180,10 +185,11 @@ Final --> End(["完成"])
 ```
 
 **图表来源**
-- [App/WebApi/Dockerfile:11-72](file://App/WebApi/Dockerfile#L11-L72)
+- [App/WebApi/Dockerfile:11-79](file://App/WebApi/Dockerfile#L11-L79)
 
 **章节来源**
-- [App/WebApi/Dockerfile:1-72](file://App/WebApi/Dockerfile#L1-L72)
+- [App/WebApi/Dockerfile:1-79](file://App/WebApi/Dockerfile#L1-L79)
+- [Directory.Packages.props:1-118](file://Directory.Packages.props#L1-L118)
 
 ### 环境变量与运行时配置
 - **ASPNETCORE_URLS**
@@ -199,8 +205,8 @@ Final --> End(["完成"])
   - 支持通过 .env 文件覆盖默认值。
 
 **章节来源**
-- [App/WebApi/Dockerfile:7-8](file://App/WebApi/Dockerfile#L7-L8)
-- [App/WebApi/Dockerfile:69-71](file://App/WebApi/Dockerfile#L69-L71)
+- [App/WebApi/Dockerfile:7-13](file://App/WebApi/Dockerfile#L7-L13)
+- [App/WebApi/Dockerfile:76-78](file://App/WebApi/Dockerfile#L76-L78)
 - [App/WebApi/appsettings.json:14-17](file://App/WebApi/appsettings.json#L14-L17)
 - [docker-compose.yml:114-154](file://docker-compose.yml#L114-L154)
 
@@ -209,7 +215,7 @@ Final --> End(["完成"])
 - 建议结合只读文件系统、最小权限原则挂载卷，避免写入敏感路径。
 
 **章节来源**
-- [App/WebApi/Dockerfile:69-70](file://App/WebApi/Dockerfile#L69-L70)
+- [App/WebApi/Dockerfile:76-77](file://App/WebApi/Dockerfile#L76-L77)
 
 ### .dockerignore 的作用与优化策略
 - 排除 IDE 与版本控制相关文件（.vs、.git、*.user 等），避免污染构建上下文。
@@ -232,6 +238,26 @@ Final --> End(["完成"])
 - [docker-compose.yml:46-51](file://docker-compose.yml#L46-L51)
 - [docker-compose.yml:69-74](file://docker-compose.yml#L69-L74)
 - [docker-compose.yml:95-100](file://docker-compose.yml#L95-L100)
+
+### 中央包版本管理
+**新增功能** 引入 Directory.Packages.props 进行中央包版本管理，统一管理所有 NuGet 包版本。
+
+- **版本集中管理**
+  - 所有包的版本号集中在 Directory.Packages.props 文件中维护。
+  - 启用 CentralPackageTransitivePinningEnabled 确保传递依赖也使用指定版本。
+- **安全性提升**
+  - 避免传递依赖取最低版本导致的安全漏洞告警。
+  - 便于统一升级和降级包版本。
+- **构建优化**
+  - Dockerfile 中 COPY Directory.Packages.props 以确保 restore 能正确解析包版本。
+- **支持的包类型**
+  - 包含 SkiaSharp、PdfPig、Emgu.CV 等图像处理相关包。
+  - 包含数据库、缓存、消息队列等基础设施包。
+  - 包含测试框架和开发工具包。
+
+**章节来源**
+- [Directory.Packages.props:1-118](file://Directory.Packages.props#L1-L118)
+- [App/WebApi/Dockerfile:24-25](file://App/WebApi/Dockerfile#L24-L25)
 
 ## 依赖关系分析
 - **应用对外部服务的依赖**
@@ -265,9 +291,11 @@ Web["Nginx (容器)"] --> WebAPI
   - 使用多阶段构建，仅将运行时所需文件放入 final 镜像。
   - 先恢复依赖再复制源码，最大化利用缓存。
   - 禁用遥测与设置不变文化，提升构建速度。
+  - **新增** 通过 Directory.Packages.props 集中管理包版本，提升构建一致性。
 - **运行时优化**
   - 固定监听端口 8080，便于反向代理统一入口。
   - 使用非 root 用户运行，提高安全性。
+  - **新增** 安装 fontconfig 库支持 SkiaSharp，确保 PDF 渲染和图像处理功能正常。
   - 合理设置 GCHeapHardLimit（已在 Program 中设置堆硬限制）。
 - **资源限制**
   - 在生产环境中为容器设置 CPU 与内存限制，避免单实例占用过多资源。
@@ -276,7 +304,8 @@ Web["Nginx (容器)"] --> WebAPI
   - 最小化基础镜像，移除不必要工具与调试信息。
 
 **章节来源**
-- [App/WebApi/Dockerfile:11-72](file://App/WebApi/Dockerfile#L11-L72)
+- [App/WebApi/Dockerfile:11-79](file://App/WebApi/Dockerfile#L11-L79)
+- [Directory.Packages.props:1-118](file://Directory.Packages.props#L1-L118)
 
 ## 故障排查指南
 - **无法访问服务**
@@ -287,6 +316,9 @@ Web["Nginx (容器)"] --> WebAPI
   - 在 Compose 环境下，使用服务名作为主机名（如 mysql、redis、qdrant）。
 - **权限问题**
   - 确认以非 root 用户运行，必要时调整卷挂载权限。
+- **PDF 渲染或图像处理失败**
+  - **新增** 确认容器已安装 fontconfig 库，这是 SkiaSharp 的必要依赖。
+  - 检查 SkiaSharp 相关包版本是否与 Directory.Packages.props 中定义的一致。
 - **日志定位**
   - 查看容器日志：docker logs <容器名>。
   - 应用日志路径与级别由 log4net 与 appsettings 控制。
@@ -296,19 +328,19 @@ Web["Nginx (容器)"] --> WebAPI
   - 服务启动失败：查看具体服务的日志输出。
 
 **章节来源**
-- [App/WebApi/Dockerfile:7-8](file://App/WebApi/Dockerfile#L7-L8)
+- [App/WebApi/Dockerfile:7-13](file://App/WebApi/Dockerfile#L7-L13)
 - [App/WebApi/appsettings.json:14-17](file://App/WebApi/appsettings.json#L14-L17)
 - [docker-compose.yml:1-213](file://docker-compose.yml#L1-L213)
 
 ## 结论
-NetCoreKevin 的容器化方案采用标准的多阶段构建，结合 .dockerignore 优化上下文，确保镜像体积小、构建快、运行安全。通过 Docker Compose 实现了完整的一键部署体验，包含 MySQL、Redis、Qdrant、前端 Nginx 和后端 API 服务。环境变量与配置分离支持多环境部署。在生产环境建议加入镜像扫描、资源限制与健康检查，进一步提升可靠性与安全性。
+NetCoreKevin 的容器化方案采用标准的多阶段构建，结合 .dockerignore 优化上下文，确保镜像体积小、构建快、运行安全。通过 Docker Compose 实现了完整的一键部署体验，包含 MySQL、Redis、Qdrant、前端 Nginx 和后端 API 服务。**新增的 fontconfig 库安装解决了 SkiaSharp 依赖问题，确保 PDF 渲染和图像处理功能在容器中正常工作**。通过 Directory.Packages.props 实现的中央包版本管理提升了构建一致性和安全性。环境变量与配置分离支持多环境部署。在生产环境建议加入镜像扫描、资源限制与健康检查，进一步提升可靠性与安全性。
 
-**更新** 新增的 Docker Compose 一键部署功能大大简化了部署流程，开发者只需一条命令即可启动完整的服务栈。
+**更新** Dockerfile新增了fontconfig库安装以支持SkiaSharp依赖，解决了容器化环境中的PDF渲染和图像处理问题；引入了Directory.Packages.props进行中央包版本管理，提升了构建一致性和安全性。
 
 ## 附录：构建与运行命令、编排示例
 
 ### Docker Compose 一键部署
-**新增功能** 推荐使用 Docker Compose 进行一键部署：
+推荐使用 Docker Compose 进行一键部署：
 
 ```bash
 # 首次构建并启动所有服务
@@ -387,9 +419,11 @@ docker run -d --name webapi -p 8080:8080 \
 - **日志与监控**：集中收集日志，接入监控系统（Prometheus/Grafana）。
 - **数据备份**：定期备份 MySQL、Redis、Qdrant 的数据卷。
 - **网络安全**：配置防火墙规则，只开放必要的端口。
+- **包版本管理**：使用 Directory.Packages.props 统一管理包版本，确保安全性和一致性。
 
 **章节来源**
 - [docker-compose.yml:1-213](file://docker-compose.yml#L1-L213)
-- [App/WebApi/Dockerfile:1-72](file://App/WebApi/Dockerfile#L1-L72)
+- [App/WebApi/Dockerfile:1-79](file://App/WebApi/Dockerfile#L1-L79)
+- [Directory.Packages.props:1-118](file://Directory.Packages.props#L1-L118)
 - [README.md:173-292](file://README.md#L173-L292)
 - [Doc/项目相关/docker说明.txt:1-44](file://Doc/项目相关/docker说明.txt#L1-L44)
