@@ -69,6 +69,16 @@ namespace kevin.Domain.Share.Dtos.User
         public DateTime? RecentLoginTime { get; set; }
 
         /// <summary>
+        /// 登录失败次数（锁定后保留累计值，登录成功归零）
+        /// </summary>
+        public int FailedCount { get; set; }
+
+        /// <summary>
+        /// 账号锁定截止时间，null 或已过期表示未锁定
+        /// </summary>
+        public DateTime? LockoutEnd { get; set; }
+
+        /// <summary>
         /// 是否超级管理员
         /// </summary> 
         public bool IsSuperAdmin { get; set; }

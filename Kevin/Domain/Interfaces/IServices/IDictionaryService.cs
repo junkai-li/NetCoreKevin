@@ -34,5 +34,13 @@ namespace kevin.Domain.Interfaces.IServices
         /// <param name="dic"></param>
         /// <returns></returns>
         Task<bool> Delete(long id);
+
+        /// <summary>
+        /// 按 Type + Key 读取单条字典 Value，取不到返回 null
+        /// </summary>
+        /// <param name="type">字典类型</param>
+        /// <param name="key">字典键</param>
+        /// <returns></returns>
+        string? GetValueByKey(string type, string key);
     }
 }

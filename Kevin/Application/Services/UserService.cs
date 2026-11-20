@@ -7,7 +7,6 @@ using kevin.Permission.Permission.Enums;
 using kevin.Share.Dtos.System;
 using Kevin.Authentication.Jwt.IService;
 using Kevin.Common.Helper;
-using Repository.Database;
 
 namespace kevin.Application
 {
@@ -32,9 +31,11 @@ namespace kevin.Application
         public IKevinPermissionService permissionService { get; set; }
 
         public ITokenService tokenService { get; set; }
+
+        public IDictionaryService dictionaryService { get; set; }
         public UserService(IHttpContextAccessor _httpContextAccessor, IUserRp _userRp, IWeiXinKeyRp _weiXinKeyRp, IFileRp _IFileRp, IRoleRp _IRoleRp,
             IUserBindRoleRp userBindRoleRp, IPositionService _positionService,
-            IUserBindPositionRp _userBindPositionRp, IDepartmentService _departmentService, IUserInfoRp _userInfoRp, IKevinPermissionService _permissionService, ITokenService tokenService) : base(_httpContextAccessor)
+            IUserBindPositionRp _userBindPositionRp, IDepartmentService _departmentService, IUserInfoRp _userInfoRp, IKevinPermissionService _permissionService, ITokenService tokenService, IDictionaryService _dictionaryService) : base(_httpContextAccessor)
         {
             userRp = _userRp;
             weiXinKeyRp = _weiXinKeyRp;
@@ -47,6 +48,7 @@ namespace kevin.Application
             this.userInfoRp = _userInfoRp;
             this.permissionService = _permissionService;
             this.tokenService = tokenService;
+            this.dictionaryService = _dictionaryService;
         }
 
 
@@ -137,37 +139,99 @@ namespace kevin.Application
         /// <returns></returns>
         public dtoUser LoginUser(string name, string pwd, Int32 tenantId, string passwordHash)
         {
-            var user = userRp.Query().Where(t => (t.Name == name || t.Phone == name) && t.PasswordHash == new HashHelper().SHA256Hash(pwd) && t.IsDelete == false && t.TenantId == tenantId).Select(t => new dtoUser
-            {
-                Name = t.Name,
-                NickName = t.NickName,
-                Phone = t.Phone,
-                Email = t.Email,
-                CreateTime = t.CreateTime,
-                Id = t.Id,
-                IsSuperAdmin = t.IsSuperAdmin,
-                TenantId = t.TenantId,
-            }).FirstOrDefault();
-            if (!string.IsNullOrEmpty(passwordHash))
-            {
-                user = userRp.Query().Where(t => (t.Name == name || t.Phone == name) && t.PasswordHash == passwordHash && t.IsDelete == false && t.TenantId == tenantId).Select(t => new dtoUser
-                {
-                    Name = t.Name,
-                    NickName = t.NickName,
-                    Phone = t.Phone,
-                    Email = t.Email,
-                    CreateTime = t.CreateTime,
-                    Id = t.Id
-                }).FirstOrDefault();
-            }
-            if (user == default)
+            // 1. 先按 Name/Phone + TenantId 查实体（区分账号不存在与密码错误）
+            var entity = userRp.Query().Where(t => (t.Name == name || t.Phone == name) && t.IsDelete == false && t.TenantId == tenantId).FirstOrDefault();
+            if (entity == null)
             {
                 throw new UserFriendlyException("账户或密码错误");
             }
+
+            // 2. 检查账号锁定（超管不豁免）
+            if (entity.LockoutEnd != null && entity.LockoutEnd > DateTime.Now)
+            {
+                throw new UserFriendlyException("账号已被锁定，请稍后再试");
+            }
+
+            // 3. 校验密码
+            bool passwordValid;
+            if (!string.IsNullOrEmpty(passwordHash))
+            {
+                passwordValid = entity.PasswordHash == passwordHash;
+            }
+            else
+            {
+                passwordValid = entity.ValidatePassword(pwd);
+            }
+
+            if (!passwordValid)
+            {
+                // 密码错误：累计失败次数，达到阈值锁定账号
+                entity.FailedCount++;
+                int accountFailedCount = GetAccountFailedCount();
+                int accountLockMinutes = GetAccountLockMinutes();
+                if (entity.FailedCount > accountFailedCount)
+                {
+                    entity.LockoutEnd = DateTime.Now.AddMinutes(accountLockMinutes);
+                    // 保留 FailedCount 累计值用于展示，仅在登录成功时归零
+                }
+                userRp.SaveChanges();
+                throw new UserFriendlyException("账户或密码错误");
+            }
+
+            // 4. 密码正确：先构造 dtoUser 并校验账号状态（R-01 修复：必须映射 Status，
+            //    否则 dtoUser.Status 默认 true 导致禁用账号也能通过 LoginUserCheck）。
+            //    状态校验前移到落库之前：禁用账号不刷新 RecentLoginTime、不清失败计数、不触发 SaveChanges。
+            var user = new dtoUser
+            {
+                Name = entity.Name,
+                NickName = entity.NickName,
+                Phone = entity.Phone,
+                Email = entity.Email,
+                CreateTime = entity.CreateTime,
+                Id = entity.Id,
+                IsSuperAdmin = entity.IsSuperAdmin,
+                TenantId = entity.TenantId,
+                Status = entity.Status,
+            };
             user.LoginUserCheck();
+
+            var now = DateTime.Now;
+            entity.FailedCount = 0;
+            entity.LockoutEnd = null;
+            entity.RecentLoginTime = now;
+            entity.UpdateTime = now;
+            // 四项变更同一次提交，避免"计数已清但时间未写"的中间态
+            userRp.SaveChanges();
+
             var roleData = userBindRoleRp.Query().Where(t => t.UserId == user.Id && t.IsDelete == false).Include(u => u.Role).ToList();
             user.Roles = roleData.Where(r => r.Role != default).Select(r => new dtoRole { Id = r.RoleId, Name = r.Role?.Name ?? "", Remarks = r.Role?.Remarks ?? "", CreateTime = r.Role?.CreateTime ?? DateTime.Now }).ToList();
             return user;
+        }
+
+        /// <summary>
+        /// 读取账号最大失败次数，配置缺失时回退默认 5
+        /// </summary>
+        private int GetAccountFailedCount()
+        {
+            var value = dictionaryService.GetValueByKey("LoginSecurity", "AccountFailedCount");
+            return int.TryParse(value, out var n) ? n : 5;
+        }
+
+        /// <summary>
+        /// 读取账号锁定时长（分钟），配置缺失时回退默认 15
+        /// </summary>
+        private int GetAccountLockMinutes()
+        {
+            var value = dictionaryService.GetValueByKey("LoginSecurity", "AccountLockMinutes");
+            return int.TryParse(value, out var n) ? n : 15;
+        }
+
+        /// <summary>
+        /// 读取密码复杂度正则，配置缺失时返回 null（走 ChangePassword 内置默认）
+        /// </summary>
+        private string? GetPasswordRegex()
+        {
+            return dictionaryService.GetValueByKey("LoginSecurity", "PasswordRegex");
         }
 
         /// <summary>
@@ -217,7 +281,7 @@ namespace kevin.Application
                     {
                         if (user != default)
                         {
-                            user.ChangePassword(password);
+                            user.ChangePassword(password, GetPasswordRegex());
                             userRp.SaveChanges();
                             // 改密后吊销该用户全部登录凭证，旧 token 立即失效
                             tokenService.RevokeUserTokens(user.Id.ToString());
@@ -261,6 +325,8 @@ namespace kevin.Application
                     Key = f.Id,
                     Value = f.Url ?? ""
                 }).Take(1).ToList(),
+                FailedCount = t.FailedCount,
+                LockoutEnd = t.LockoutEnd,
                 CreateTime = t.CreateTime
             }).ToList();
 
@@ -303,6 +369,8 @@ namespace kevin.Application
                 NickName = t.NickName,
                 Status = t.Status,
                 RecentLoginTime = t.RecentLoginTime,
+                FailedCount = t.FailedCount,
+                LockoutEnd = t.LockoutEnd,
                 CreateTime = t.CreateTime
             }).ToList();
             var listflie = fileRp.Query(true, false).Where(f => f.Table == "TUser" && f.IsDelete == false && f.Sign == "head" && dtoPage.data.Select(t => t.Id.ToString()).ToList().Contains(f.TableId)).OrderByDescending(x => x.CreateTime).Select(f => new FileDto
@@ -436,7 +504,7 @@ namespace kevin.Application
                 data.Status = user.Status;
                 if (!string.IsNullOrEmpty(user.PassWord))
                 {
-                    data.ChangePassword(user.PassWord);
+                    data.ChangePassword(user.PassWord, GetPasswordRegex());
                 }
             }
             else
@@ -466,7 +534,7 @@ namespace kevin.Application
                 data.CreateTime = DateTime.Now;
                 if (!string.IsNullOrEmpty(user.PassWord))
                 {
-                    data.ChangePassword(user.PassWord);
+                    data.ChangePassword(user.PassWord, GetPasswordRegex());
                 }
                 else
                 {
@@ -754,32 +822,12 @@ namespace kevin.Application
             {
                 throw new UserFriendlyException("旧密码错误");
             }
-            user.ChangePassword(newPwd);
+            user.ChangePassword(newPwd, GetPasswordRegex());
             userRp.SaveChanges();
             // 改密后吊销该用户全部登录凭证，旧 token 立即失效（前端收到 401 后自动重新登录）
             tokenService.RevokeUserTokens(user.Id.ToString());
             return Task.FromResult(true);
         }
-        /// <summary>
-        /// 更新登录时间
-        /// </summary>
-        /// <param name="guid"></param>
-        /// <returns></returns>
-        /// <exception cref="UserFriendlyException"></exception>
-        public Task<bool> UpdateRecentLoginTime(long guid)
-        {
-            using var db = new KevinDbContext();
-            var user = db.Set<TUser>().Where(t => t.Id == guid).FirstOrDefault();
-            if (user == default)
-            {
-                throw new UserFriendlyException("用户不存在");
-            }
-            user.UpdateTime = DateTime.Now;
-            user.RecentLoginTime = DateTime.Now;
-            db.SaveChanges();
-            return Task.FromResult(true);
-        }
-
         /// <summary>
         /// 获取用户数量
         /// </summary>

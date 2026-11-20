@@ -103,6 +103,14 @@
               {{ formatDate(record.recentLoginTime) }}
             </template>
 
+            <template v-else-if="column.dataIndex === 'lockoutEnd'">
+              {{ formatLockoutEnd(record.lockoutEnd) }}
+            </template>
+
+            <template v-else-if="column.dataIndex === 'failedCount'">
+              {{ record.failedCount ?? 0 }}
+            </template>
+
             <template v-else-if="column.dataIndex === 'action'">
               <div class="action-buttons">
                 <a-button
@@ -294,6 +302,20 @@ const columns = ref([
     width: 180,
   },
   {
+    title: "锁定时间",
+    dataIndex: "lockoutEnd",
+    key: "lockoutEnd",
+    sorter: true,
+    width: 180,
+  },
+  {
+    title: "失败次数",
+    dataIndex: "failedCount",
+    key: "failedCount",
+    sorter: true,
+    width: 100,
+  },
+  {
     title: "操作",
     dataIndex: "action",
     key: "action",
@@ -364,6 +386,14 @@ const formatDate = (dateString) => {
   return date.toLocaleString("zh-CN");
 };
 
+// 锁定时间：LockoutEnd 为空或已过期均视为未锁定（与后端 LockoutEnd > now 判定一致）
+const formatLockoutEnd = (lockoutEnd) => {
+  if (!lockoutEnd) return "未锁定";
+  const end = new Date(lockoutEnd);
+  if (Number.isNaN(end.getTime()) || end <= new Date()) return "未锁定";
+  return formatDate(lockoutEnd);
+};
+
 // 搜索处理
 const onSearch = (value) => {
   searchKey.value = value;
@@ -408,6 +438,8 @@ const fetchUserList = async () => {
         status: user.status, 
         createTime: user.createTime,
         recentLoginTime: user.recentLoginTime,
+        lockoutEnd: user.lockoutEnd,
+        failedCount: user.failedCount ?? 0,
         avatar: hedeImage,
       }));
 

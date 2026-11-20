@@ -17,7 +17,7 @@
         /// <summary>
         /// 值
         /// </summary>
-        [StringLength(200)]
+        [StringLength(500)]
         [Description("值")]
         public string? Value { get; set; }
 

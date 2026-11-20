@@ -1,4 +1,5 @@
 ﻿using Kevin.Common.Helper;
+using Web.Global.Exceptions;
 
 namespace kevin.Domain.Entities
 {
@@ -73,8 +74,30 @@ namespace kevin.Domain.Entities
         [Description("第三方关联Id：钉钉、微信、QQ等")]
         public string? CorrelationId { get; set; } = "";
 
-        public void ChangePassword(string newPassword)
+        /// <summary>
+        /// 登录失败次数
+        /// </summary>
+        [Description("登录失败次数")]
+        public int FailedCount { get; set; } = 0;
+
+        /// <summary>
+        /// 账号锁定截止时间，null 表示未锁定
+        /// </summary>
+        [Description("账号锁定截止时间")]
+        public DateTime? LockoutEnd { get; set; }
+
+        /// <summary>
+        /// 密码复杂度默认正则（数字/大写/小写/特殊符号至少三种，长度>=8）
+        /// </summary>
+        private const string DefaultPasswordRegex = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{8,}$|^(?=.*[A-Z])(?=.*[a-z])(?=.*[^A-Za-z0-9]).{8,}$|^(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$|^(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$";
+
+        public void ChangePassword(string newPassword, string? passwordRegex = null)
         {
+            var regex = string.IsNullOrWhiteSpace(passwordRegex) ? DefaultPasswordRegex : passwordRegex;
+            if (!System.Text.RegularExpressions.Regex.IsMatch(newPassword ?? "", regex))
+            {
+                throw new UserFriendlyException("密码不符合复杂度要求");
+            }
             PasswordHash = new HashHelper().SHA256Hash(newPassword);
         }
 

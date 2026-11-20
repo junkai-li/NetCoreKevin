@@ -136,5 +136,19 @@
             return true;
         }
 
+        /// <summary>
+        /// 按 Type + Key 读取单条字典 Value，取不到返回 null
+        /// </summary>
+        /// <param name="type">字典类型</param>
+        /// <param name="key">字典键</param>
+        /// <returns></returns>
+        public string? GetValueByKey(string type, string key)
+        {
+            return dictionaryRp.Query()
+                .Where(t => t.IsDelete == false && t.Type == type && t.Key == key)
+                .Select(t => t.Value)
+                .FirstOrDefault();
+        }
+
     }
 }

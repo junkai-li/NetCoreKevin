@@ -3454,8 +3454,8 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasComment("编辑人ID");
 
                     b.Property<string>("Value")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
                         .HasColumnName("value")
                         .HasComment("值");
 
@@ -3498,6 +3498,76 @@ namespace Kevin.EntityFrameworkCore.Migrations
                             TenantId = 1000,
                             Type = "UploadFileLimit",
                             Value = "50",
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514140354257227772L,
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            IsDelete = 0ul,
+                            IsSystem = 1ul,
+                            Key = "PasswordRegex",
+                            Sort = 1,
+                            TenantId = 1000,
+                            Type = "LoginSecurity",
+                            Value = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{8,}$|^(?=.*[A-Z])(?=.*[a-z])(?=.*[^A-Za-z0-9]).{8,}$|^(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$|^(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$",
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514140354257227773L,
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            IsDelete = 0ul,
+                            IsSystem = 1ul,
+                            Key = "AccountFailedCount",
+                            Sort = 2,
+                            TenantId = 1000,
+                            Type = "LoginSecurity",
+                            Value = "5",
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514140354257227774L,
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            IsDelete = 0ul,
+                            IsSystem = 1ul,
+                            Key = "AccountLockMinutes",
+                            Sort = 3,
+                            TenantId = 1000,
+                            Type = "LoginSecurity",
+                            Value = "15",
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514140354257227775L,
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            IsDelete = 0ul,
+                            IsSystem = 1ul,
+                            Key = "IpFailedCount",
+                            Sort = 4,
+                            TenantId = 1000,
+                            Type = "LoginSecurity",
+                            Value = "50",
+                            xmin = 0u
+                        },
+                        new
+                        {
+                            Id = 4514140354257227776L,
+                            CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
+                            CreateUserId = 4514140314251222771L,
+                            IsDelete = 0ul,
+                            IsSystem = 1ul,
+                            Key = "IpLockMinutes",
+                            Sort = 5,
+                            TenantId = 1000,
+                            Type = "LoginSecurity",
+                            Value = "30",
                             xmin = 0u
                         });
                 });
@@ -5340,6 +5410,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnName("email")
                         .HasComment("邮箱");
 
+                    b.Property<int>("FailedCount")
+                        .HasColumnType("int")
+                        .HasColumnName("failed_count")
+                        .HasComment("登录失败次数");
+
                     b.Property<ulong>("IsDelete")
                         .HasColumnType("bit")
                         .HasColumnName("is_delete")
@@ -5354,6 +5429,11 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         .HasColumnType("bit")
                         .HasColumnName("is_system")
                         .HasComment("is_system");
+
+                    b.Property<DateTime?>("LockoutEnd")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("lockout_end")
+                        .HasComment("账号锁定截止时间");
 
                     b.Property<string>("Name")
                         .HasColumnType("longtext")
@@ -5428,6 +5508,7 @@ namespace Kevin.EntityFrameworkCore.Migrations
                             CorrelationId = "",
                             CreateTime = new DateTime(2020, 1, 1, 0, 0, 1, 0, DateTimeKind.Unspecified),
                             Email = "admin",
+                            FailedCount = 0,
                             IsDelete = 0ul,
                             IsSuperAdmin = 1ul,
                             IsSystem = 1ul,

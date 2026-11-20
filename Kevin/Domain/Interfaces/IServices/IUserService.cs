@@ -144,13 +144,6 @@ namespace kevin.Domain.Interfaces.IServices
         List<dtoKeyValue> GetUserSystemKey();
 
         /// <summary>
-        /// 最近登录时间
-        /// </summary>
-        /// <param name="long"></param>
-        /// <returns></returns>
-        Task<bool> UpdateRecentLoginTime(long id);
-
-        /// <summary>
         /// 获取系统用户数量
         /// </summary>
         /// <param name="userId">用户ID</param>
