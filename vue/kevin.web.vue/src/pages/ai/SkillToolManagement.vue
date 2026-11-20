@@ -162,6 +162,7 @@
             :disabled="skillScanning"
             :initialFiles="form.skillFile ? [form.skillFile] : []"
             uploadButtonText="上传技能压缩包"
+            @delete-success="onFileDeleteSuccess"
             @upload-success="onFileUploadSuccess"
             @upload-error="onFileUploadError"
             @zip-updated="onZipUpdated"
@@ -756,7 +757,10 @@ const showDeleteConfirm = (record) => {
     onOk: () => handleDelete(record.id, record.name),
   });
 };
-
+//文件在弹窗内被删除后同步清空，避免提交时仍带着已删除的文件
+const onFileDeleteSuccess = () => {
+  form.skillFile = null;
+};
 const handleDelete = async (id, name) => {
   try {
     await deleteAISkillToolManagement(id);
@@ -824,28 +828,18 @@ const submitForm = async () => {
   try {
     const mcpToolsPayload = form.skillToolType === 3 ? JSON.stringify(mcpToolList.value.map((t) => t.name)) : "";
     const mcpSelectedPayload = form.skillToolType === 3 ? JSON.stringify(form.mcpSelectedTools || []) : "";
-    await addEditAISkillToolManagement(currentRecord.value ? {
+    await addEditAISkillToolManagement({
       id: form.id,
       name: form.name,
       classMethod: form.classMethod,
       description: form.description,
       activeStatus: form.activeStatus,
       skillToolType: form.skillToolType,
-      mcpUrl: form.mcpUrl,
-      mcpType: form.mcpType,
-      mcpHeaders: form.mcpHeaders,
-      mcpCommand: form.mcpCommand,
-      mcpArguments: form.mcpArguments,
-      mcpEnvironment: form.mcpEnvironment,
-      mcpTools: mcpToolsPayload,
-      mcpSelectedTools: mcpSelectedPayload,
-    } : {
-      id: form.id,
-      name: form.name,
-      classMethod: form.classMethod,
-      description: form.description,
-      activeStatus: form.activeStatus,
-      skillToolType: form.skillToolType,
+      //回传当前界面上的压缩包（含Id），后端按Id精确定位，避免取到已删除的旧包
+      skillFile:
+        form.skillToolType === 2 && form.skillFile
+          ? { id: form.skillFile.id, name: form.skillFile.name, url: form.skillFile.url }
+          : null,
       mcpUrl: form.mcpUrl,
       mcpType: form.mcpType,
       mcpHeaders: form.mcpHeaders,
@@ -855,6 +849,7 @@ const submitForm = async () => {
       mcpTools: mcpToolsPayload,
       mcpSelectedTools: mcpSelectedPayload,
     });
+
 
 
     message.success(currentRecord.value ? "更新成功" : "添加成功");
