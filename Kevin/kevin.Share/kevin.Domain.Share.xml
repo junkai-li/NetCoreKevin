@@ -1353,6 +1353,16 @@
             最近登陆时间
              </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.FailedCount">
+            <summary>
+            登录失败次数（锁定后保留累计值，登录成功归零）
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.LockoutEnd">
+            <summary>
+            账号锁定截止时间，null 或已过期表示未锁定
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.User.dtoUser.IsSuperAdmin">
             <summary>
             是否超级管理员

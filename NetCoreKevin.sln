@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197
+# Visual Studio Version 18
+VisualStudioVersion = 18.10.12224.181 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "App", "App", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -90,8 +90,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kevin.Asr", "Kevin\kevin.Module\Kevin.Asr\Kevin.Asr.csproj", "{CDC14972-D14D-4139-A4C0-5A297C2F1888}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.WebApi.Mcp", "App\WebApiMcp\App.WebApi.Mcp\App.WebApi.Mcp.csproj", "{6CEC6398-BD83-4D55-AE3E-BD94EDFCB307}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "kevin.Module", "kevin.Module", "{BA7A86F2-EDE4-6D67-603D-546598276403}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -629,7 +627,6 @@ Global
 		{FB870E79-27D6-41E1-890C-83C51FAC2C36} = {52538984-57B4-4B42-8D6D-86B07E33B4A6}
 		{CDC14972-D14D-4139-A4C0-5A297C2F1888} = {52538984-57B4-4B42-8D6D-86B07E33B4A6}
 		{6CEC6398-BD83-4D55-AE3E-BD94EDFCB307} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
-		{BA7A86F2-EDE4-6D67-603D-546598276403} = {643747C7-0307-8931-84D8-A7D1915E22E5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9A57BA34-E6D0-4E76-AA55-1A573F3CC798}
