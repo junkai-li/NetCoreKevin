@@ -130,20 +130,36 @@ namespace kevin.AI.AgentFramework.Modality
         private static async Task<ModalityContentResult> BuildDocumentAsync(string fileUrl, string fileName, string fileType, CancellationToken ct)
         {
             var remote = await FileHelper.GetRemoteFileAsync(fileUrl, ct);
-            using var stream = remote.Stream;
-            string content = fileType switch
+
+            // 先一次性把远程字节读入数组：excel(NPOI)/word/pptx(OpenXml) 等 Reader 在解析时
+            // 可能关闭/复用传入流，文本解析与图片提取若共享同一个流，二次读取会命中已关闭流
+            // （Cannot access a closed Stream）。这里以字节数组为源，每次消费都新建独立 MemoryStream，
+            // 彻底隔离两段读取的生命周期。
+            byte[] bytes;
+            using (var stream = remote.Stream)
+            using (var ms = new MemoryStream())
             {
-                "excel" => await ExcelReader.ReadExcelToMarkdownAsync(stream, fileName, ct),
-                "pdf" => PDFReader.ReadPdfToMarkdown(stream),
-                "word" => WordReader.ReadParagraphs(stream),
-                "pptx" => PptxReader.ReadSlidesToMarkdown(stream),
-                "html" => await HtmlReader.ExtractTextFromStreamAsync(stream),
-                "markdown" => TextStreamReader.ReadMarkdownFromStream(stream).RawContent,
-                _ => TextStreamReader.ReadTextFromStream(stream)
-            };
+                await stream.CopyToAsync(ms, ct);
+                bytes = ms.ToArray();
+            }
+
+            string content;
+            using (var textStream = new MemoryStream(bytes, writable: false))
+            {
+                content = fileType switch
+                {
+                    "excel" => await ExcelReader.ReadExcelToMarkdownAsync(textStream, fileName, ct),
+                    "pdf" => PDFReader.ReadPdfToMarkdown(textStream),
+                    "word" => WordReader.ReadParagraphs(textStream),
+                    "pptx" => PptxReader.ReadSlidesToMarkdown(textStream),
+                    "html" => await HtmlReader.ExtractTextFromStreamAsync(textStream),
+                    "markdown" => TextStreamReader.ReadMarkdownFromStream(textStream).RawContent,
+                    _ => TextStreamReader.ReadTextFromStream(textStream)
+                };
+            }
 
             // 模型已支持图片输入：把文档内嵌图片提取出来，与文本一起送入模型
-            var images = await ExtractDocumentImagesAsync(stream, fileUrl, fileType, content, ct);
+            var images = await ExtractDocumentImagesAsync(bytes, fileUrl, fileType, content, ct);
             return new ModalityContentResult(ModalityKind.Document, fileName, null, content, null, images.Count > 0 ? images : null);
         }
 
@@ -155,7 +171,7 @@ namespace kevin.AI.AgentFramework.Modality
         /// 全部图片经 MIME 白名单、体积上限（<see cref="ModalityOptions.MaxImageFileBytes"/>）、
         /// 数量上限（<see cref="ModalityOptions.MaxImagesPerDocument"/>）三重守卫后构造 DataContent。
         /// </summary>
-        private static async Task<List<AIContent>> ExtractDocumentImagesAsync(Stream stream, string fileUrl, string fileType, string content, CancellationToken ct)
+        private static async Task<List<AIContent>> ExtractDocumentImagesAsync(byte[] bytes, string fileUrl, string fileType, string content, CancellationToken ct)
         {
             var options = ModalityOptions.Current;
             var extracted = new List<(byte[] Bytes, string Mime)>();
@@ -165,25 +181,30 @@ namespace kevin.AI.AgentFramework.Modality
                 case "pdf":
                     // PDF 一律整页渲染成图送视觉模型：渲染图包含页面上的全部信息（文字/图片/表格），
                     // 且转曲/扫描 PDF 的正文只在渲染图里可见，内嵌位图提取反而不完整
-                    TrySeekStart(stream);
-                    extracted.AddRange(PDFReader.RenderPagesToPng(stream, options.PdfRenderDpi / 72f, options.MaxImagesPerDocument));
+                    using (var pdfStream = new MemoryStream(bytes, writable: false))
+                    {
+                        extracted.AddRange(PDFReader.RenderPagesToPng(pdfStream, options.PdfRenderDpi / 72f, options.MaxImagesPerDocument));
+                    }
                     break;
                 case "word":
                 case "excel":
                 case "pptx":
-                    // 文本解析已消费过流，重置位置后由 Reader 从头提取内嵌图片字节
-                    TrySeekStart(stream);
-                    extracted.AddRange(fileType switch
+                    // 文本解析已消费过自己的流，这里以字节数组新建独立流从头提取内嵌图片字节
+                    using (var imageStream = new MemoryStream(bytes, writable: false))
                     {
-                        "word" => WordReader.ExtractImages(stream),
-                        "pptx" => PptxReader.ExtractImages(stream),
-                        _ => ExcelReader.ExtractImages(stream)
-                    });
+                        extracted.AddRange(fileType switch
+                        {
+                            "word" => WordReader.ExtractImages(imageStream),
+                            "pptx" => PptxReader.ExtractImages(imageStream),
+                            _ => ExcelReader.ExtractImages(imageStream)
+                        });
+                    }
                     break;
                 case "html":
                 {
                     // HTML 图片可能是 data URI 或远程 URL，相对路径已由 Reader 结合文件 URL 解析为绝对地址
-                    var sources = await HtmlReader.ExtractImageSourcesAsync(stream, fileUrl);
+                    using var htmlStream = new MemoryStream(bytes, writable: false);
+                    var sources = await HtmlReader.ExtractImageSourcesAsync(htmlStream, fileUrl);
                     foreach (var source in sources)
                     {
                         var resolved = await ResolveImageSourceAsync(source, ct);
@@ -204,14 +225,14 @@ namespace kevin.AI.AgentFramework.Modality
             }
 
             var images = new List<AIContent>();
-            foreach (var (bytes, mime) in extracted)
+            foreach (var (imgBytes, mime) in extracted)
             {
                 if (images.Count >= options.MaxImagesPerDocument) break;
-                if (bytes.Length == 0) continue;
-                var mimeType = NormalizeImageMime(mime, bytes);
+                if (imgBytes.Length == 0) continue;
+                var mimeType = NormalizeImageMime(mime, imgBytes);
                 if (mimeType == null) continue;
-                if (options.MaxImageFileBytes > 0 && bytes.Length > options.MaxImageFileBytes) continue;
-                using var ms = new MemoryStream(bytes, writable: false);
+                if (options.MaxImageFileBytes > 0 && imgBytes.Length > options.MaxImageFileBytes) continue;
+                using var ms = new MemoryStream(imgBytes, writable: false);
                 images.Add(await DataContent.LoadFromAsync(ms, mimeType, ct));
             }
             return images;
@@ -310,12 +331,6 @@ namespace kevin.AI.AgentFramework.Modality
 
             var sniffed = FileHelper.SniffImageMime(bytes);
             return sniffed != null && SupportedImageMimes.Contains(sniffed, StringComparer.OrdinalIgnoreCase) ? sniffed : null;
-        }
-
-        /// <summary>流可定位时重置到起始位置，供文档解析完文本后再次从头提取图片</summary>
-        private static void TrySeekStart(Stream stream)
-        {
-            if (stream.CanSeek) stream.Position = 0;
         }
 
         /// <summary>

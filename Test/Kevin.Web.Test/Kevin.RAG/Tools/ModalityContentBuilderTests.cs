@@ -107,6 +107,11 @@ namespace Kevin.Unit.Test.Kevin.RAG.Tools
                             context.Response.StatusCode = 200;
                             await context.Response.OutputStream.WriteAsync(BuildTextPdf());
                             break;
+                        case "/docs/sample.xlsx":
+                            context.Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                            context.Response.StatusCode = 200;
+                            await context.Response.OutputStream.WriteAsync(BuildXlsxWithImage());
+                            break;
                         default:
                             context.Response.StatusCode = 404;
                             break;
@@ -219,6 +224,20 @@ namespace Kevin.Unit.Test.Kevin.RAG.Tools
             return ms.ToArray();
         }
 
+        /// <summary>用 NPOI 生成一份含文字 + 内嵌 1 张 PNG 的 xlsx 字节，用于复现"文本解析后流被关闭"回归场景</summary>
+        private static byte[] BuildXlsxWithImage()
+        {
+            using var ms = new MemoryStream();
+            var workbook = new NPOI.XSSF.UserModel.XSSFWorkbook();
+            var sheet = workbook.CreateSheet("Sheet1");
+            sheet.CreateRow(0).CreateCell(0).SetCellValue("Hello Excel");
+            var patriarch = sheet.CreateDrawingPatriarch();
+            var pictureIndex = workbook.AddPicture(PngBytes, NPOI.SS.UserModel.PictureType.PNG);
+            patriarch.CreatePicture(new NPOI.XSSF.UserModel.XSSFClientAnchor(0, 0, 0, 0, 0, 0, 2, 2), pictureIndex);
+            workbook.Write(ms, leaveOpen: true);
+            return ms.ToArray();
+        }
+
         [Fact]
         public async Task BuildAsync_WithMarkdownRemoteImage_ReturnsTextAndImage()
         {
@@ -293,6 +312,20 @@ namespace Kevin.Unit.Test.Kevin.RAG.Tools
 
             Assert.NotNull(result.ExtractedText);
             Assert.Contains("Hello", result.ExtractedText);
+            var image = Assert.Single(result.Images!);
+            Assert.Equal("image/png", ((DataContent)image).MediaType);
+        }
+
+        [Fact]
+        public async Task BuildAsync_WithXlsx_ReturnsTextAndImage()
+        {
+            // 回归：NPOI 在文本解析时关闭流，旧实现复用同一流导致图片提取抛
+            // ObjectDisposedException("Cannot access a closed Stream")；修复后文本与内嵌图片都应正常返回
+            var result = await _builder.BuildAsync($"{_baseUrl}/docs/sample.xlsx", "sample.xlsx");
+
+            Assert.NotNull(result.ExtractedText);
+            Assert.Null(result.Error);
+            Assert.Contains("Hello Excel", result.ExtractedText);
             var image = Assert.Single(result.Images!);
             Assert.Equal("image/png", ((DataContent)image).MediaType);
         }
