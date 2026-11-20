@@ -157,8 +157,8 @@ namespace kevin.Application.Services.AI
             if (data.SkillToolType == AISkillToolTypeEnums.Skill)
             {
 
-                //处理skill技能附件包
-                var flieData = _FileRp.Query().Where(t => t.IsDelete == false && t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && data.Id.ToString() == t.TableId).OrderByDescending(t => t.CreateTime).FirstOrDefault(); ;
+                //处理skill技能附件包：优先使用前端回传的文件，避免历史记录有多条时取到旧包或已删除的包
+                var flieData = GetSkillZipFile(data);
                 if (flieData != default && !string.IsNullOrEmpty(flieData.Url))
                 {
                     //拼接路径
@@ -198,7 +198,7 @@ namespace kevin.Application.Services.AI
                         using (var fileStream = File.OpenRead(pathCheckFlieZip))
                         {
                             FileZipHelper.ExtractZipStreamToDirectory(fileStream, skillPath);
-                        } 
+                        }
                         #endregion
                     }
                     catch (Exception ex)
@@ -241,6 +241,42 @@ namespace kevin.Application.Services.AI
             return true;
 
 
+        }
+
+        /// <summary>
+        /// 定位本次保存要使用的skill压缩包。
+        /// 优先按前端回传的文件Id精确定位，避免同一技能存在多条历史文件记录时取到旧包；
+        /// 未回传时退回取最新一条记录，若最新一条已被删除则直接报错，不再静默使用更早的旧压缩包。
+        /// </summary>
+        private TFile GetSkillZipFile(AISkillToolManagementDto data)
+        {
+            var tableId = data.Id.ToString();
+            if (data.SkillFile != null && data.SkillFile.Id > 0)
+            {
+                //带Id查询：已删除的文件同样要查出来，才能明确告知“已被删除”，而不是退回旧包
+                var fileId = data.SkillFile.Id;
+                var file = _FileRp.Query().Where(t => t.Id == fileId).FirstOrDefault();
+                if (file == default || file.Table != "AISkillToolManagement" || file.Sign != "SkillZip" || file.TableId != tableId)
+                {
+                    throw new UserFriendlyException("技能压缩包不存在，请重新上传");
+                }
+                if (file.IsDelete)
+                {
+                    throw new UserFriendlyException("技能压缩包已被删除，请重新上传");
+                }
+                return file;
+            }
+            //兜底：取该技能最新的文件记录（含已删除记录），据此判断当前是否还有可用压缩包
+            var latestFile = _FileRp.Query().Where(t => t.Table == "AISkillToolManagement" && t.Sign == "SkillZip" && tableId == t.TableId).OrderByDescending(t => t.CreateTime).FirstOrDefault();
+            if (latestFile == default)
+            {
+                throw new UserFriendlyException("请上传skill技能附件包");
+            }
+            if (latestFile.IsDelete)
+            {
+                throw new UserFriendlyException("技能压缩包已被删除，请重新上传");
+            }
+            return latestFile;
         }
 
         public async Task<bool> Delete(long id)
