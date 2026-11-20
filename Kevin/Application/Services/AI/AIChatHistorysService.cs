@@ -346,8 +346,8 @@ namespace kevin.Application.Services.AI
                 {
                     throw new UserFriendlyException("当前没有可用的聊天模型，请联系管理员配置模型。");
                 }
-                // 随机打乱模型顺序
-                var random = new Random();
+                // auto 模型按会话稳定解析：同一会话固定同一主模型（跨轮命中提示词缓存），不同会话仍随机分摊负载
+                var random = new Random(AIAppsService.StableSeed(par.AIChatsId.ToString()));
                 allModels = allModels.OrderBy(_ => random.Next()).ToList();
                 // 第一个模型作为主模型
                 aiapp.ChatModelID = allModels[0].Id.ToString();
@@ -460,7 +460,17 @@ namespace kevin.Application.Services.AI
                 var lastRecommendContext = await BuildLastRecommendQuestionsContextAsync(par.AIChatsId, add.CreateTime, cancellationToken);
 
                 // 按提问Token预算裁剪补充上下文，确保输入总量不超过模型的上下文窗口预算（模型配置的MaxAskPromptSize）
-                OtherContents = TrimContentsByAskTokenBudget(OtherContents, systemPrompt, add.Content, aIModels.MaxAskPromptSize, aIModels.AnswerTokens);
+                // 自动召回文本、自动摘要稍后才注入历史尾部（不在 systemPrompt 里），这里按最坏长度先预留，
+                // 避免“补充上下文 + 召回 + 摘要”一起顶过窗口
+                var tailReserveTokens = 0;
+                if (par.ExternalMessages is not { Count: > 0 })
+                {
+                    if (aiapp.IsMemory)
+                        tailReserveTokens += TokenEstimator.EstimateTokensByCharCount(CharLimits.AutoRecallReserve);
+                    if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
+                        tailReserveTokens += TokenEstimator.EstimateTokensByCharCount(AIAppsService.GetCompactionMaxLength(aIModels.MaxAskPromptSize, aIModels.AnswerTokens, systemPrompt));
+                }
+                OtherContents = TrimContentsByAskTokenBudget(OtherContents, systemPrompt, add.Content, aIModels.MaxAskPromptSize, aIModels.AnswerTokens, tailReserveTokens);
 
                 // 空输入保护
                 if (string.IsNullOrWhiteSpace(add.Content) && OtherContents.Count == 0 && aiFilData.MediaContents.Count == 0)
@@ -484,8 +494,9 @@ namespace kevin.Application.Services.AI
                 }
                 userContents.AddRange(aiFilData.MediaContents);
                 ChatMessage mgs = new(ChatRole.User, userContents);
-                // 传入本轮用户提问：开启记忆的智能体会先自动召回高相关记忆再构建系统提示词。
-                // 工具结果回传轮不是新提问：跳过召回，避免占位文案召回使 system prompt 每轮漂移导致提示词缓存失效
+                // 传入本轮用户提问：开启记忆的智能体会自动召回高相关记忆，并以独立消息追加在历史尾部
+                //（不拼进 system prompt：召回内容每轮随提问变化，拼进去会让提示词前缀每轮漂移、跨轮缓存全部失效）。
+                // 工具结果回传轮不是新提问：跳过召回，避免占位文案召回无关记忆
                 var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par, userQuery: par.ExternalMessages is { Count: > 0 } ? null : add.Content);
                 // 推荐问题交给当前智能体自己生成，并在主模型调用之前发起，与本轮回答并行跑；
                 // 回答结束后只做收割（见下面），done 事件不再被它拖住
@@ -966,8 +977,9 @@ namespace kevin.Application.Services.AI
         /// 预算 = 提问Token上限 - 系统提示词 - 用户问题 - 预留回答Token，
         /// 按顺序填充，不够放的内容截断后不再纳入后续内容，保证排在前面的高优先级内容完整。
         /// </summary>
-        private static List<string> TrimContentsByAskTokenBudget(List<string> contents, string systemPrompt, string userContent, int maxAskPromptSize, int answerTokens)
+        private static List<string> TrimContentsByAskTokenBudget(List<string> contents, string systemPrompt, string userContent, int maxAskPromptSize, int answerTokens, int reserveTokens = 0)
         {
+            reserveTokens = Math.Max(reserveTokens, 0);
             var result = new List<string>();
             if (contents == null || contents.Count == 0)
             {
@@ -979,7 +991,8 @@ namespace kevin.Application.Services.AI
                 return contents;
             }
             // 这里要的是原始差值：放不下就不放，不能走 60% 兜底（那会继续往已经超限的上下文里塞内容）
-            var budget = TokenEstimator.ComputeAskBudget(maxAskPromptSize, answerTokens, systemPrompt) - TokenEstimator.EstimateTokens(userContent);
+            // reserveTokens：留给本轮稍后注入的自动召回文本（不在 systemPrompt 里，不扣就会被算漏）
+            var budget = TokenEstimator.ComputeAskBudget(maxAskPromptSize, answerTokens, systemPrompt) - TokenEstimator.EstimateTokens(userContent) - reserveTokens;
             foreach (var content in contents)
             {
                 if (string.IsNullOrEmpty(content) || budget <= 0)

@@ -107,7 +107,9 @@ namespace Kevin.Unit.Test.Kevin.RAG.Tools
             Assert.Equal(content, result.RawContent);
             Assert.True(result.IsMarkdown);
             Assert.Equal("Test Title", result.Title);
-            Assert.Equal(3, result.LineCount);
+            // "# Test Title" / "" / "- List item 1" / "- List item 2" 共 4 行（空行也算一行，
+            // 与 ReadMarkdownFromStream 的计数口径一致：3 行文本得到 3）
+            Assert.Equal(4, result.LineCount);
         }
 
         [Fact]

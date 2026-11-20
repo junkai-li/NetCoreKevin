@@ -346,3 +346,7 @@ healthchecksdb
 /Auth/AuthorizationService/keys/is-signing-key-06460EA514AFF0186053E6B019063554.json
 KevinFlies
 /App/WebApi/Files
+
+# DevFlow（loopforge）本地/私有内容：工作流定义、钩子、运行时状态与安装记录均不随仓库共享
+.codebuddy/
+.devflow/

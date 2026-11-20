@@ -22,22 +22,45 @@ public class ExcelReader
         return ReadExcelToMarkdown(stream, Path.GetFileName(filePath));
     }
 
+    /// <summary>
+    /// 读取 Excel 并转成 Markdown。
+    /// <para>
+    /// 解析失败不抛异常：知识库按文档逐条入库，一份坏 Excel 不应该让整批任务失败；
+    /// 这里返回带失败说明的 Markdown，既保证调用方拿到可入库文本，也能在知识库里定位到问题文档。
+    /// 入参流为 null（根本没有文件）时返回空串，与“有文件但内容为空/损坏”区分开。
+    /// </para>
+    /// </summary>
     public static string ReadExcelToMarkdown(Stream stream, string fileName = "Sheet")
     {
         if (stream == null)
-            throw new ArgumentNullException(nameof(stream));
-
-        stream.Position = 0;
+            return string.Empty;
 
         try
         {
+            if (stream.CanSeek)
+            {
+                if (stream.Length == 0)
+                    return BuildReadFailureMarkdown(fileName);
+                stream.Position = 0;
+            }
+
             var workbook = WorkbookFactory.Create(stream);
             return ConvertWorkbookToMarkdown(workbook, fileName);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            throw new InvalidOperationException($"读取Excel文件失败: {ex.Message}", ex);
+            return BuildReadFailureMarkdown(fileName);
         }
+    }
+
+    /// <summary>无法解析时输出的 Markdown：保留标题，正文说明失败原因（显式用 \n，不受平台换行符影响）</summary>
+    private static string BuildReadFailureMarkdown(string? fileName)
+    {
+        var markdown = new StringBuilder();
+        markdown.Append("# ").Append(Path.GetFileNameWithoutExtension(fileName ?? "")).Append('\n');
+        markdown.Append('\n');
+        markdown.Append("（无法读取Excel文件：文件为空或格式不正确）").Append('\n');
+        return markdown.ToString();
     }
 
     public static async Task<string> ReadExcelToMarkdownAsync(string filePath, CancellationToken cancellationToken = default)

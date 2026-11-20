@@ -107,25 +107,47 @@ public class RemoteFileDownloader : IDisposable
         };
     }
 
-    public static DocumentType? DetermineDocumentType(string urlOrContentType)
+    /// <summary>
+    /// 根据 URL 或 Content-Type 判断文档类型，无法识别时返回 <see cref="DocumentType.Unknown"/>。
+    /// <para>
+    /// 匹配顺序敏感：xlsx 的 Content-Type 是 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet，
+    /// 其中含有 "document"，若把 word/doc 规则排在前面，Excel 会被误判成 Word 走错解析器。
+    /// 因此 Excel 必须先于 Word 判断，且 Word 只认 wordprocessing / ms-word / msword。
+    /// </para>
+    /// </summary>
+    public static DocumentType DetermineDocumentType(string? urlOrContentType)
     {
+        if (string.IsNullOrWhiteSpace(urlOrContentType))
+            return DocumentType.Unknown;
+
         var contentType = urlOrContentType;
 
+        // 传入的是 URL 时，先换成扩展名对应的 Content-Type
         if (Uri.TryCreate(urlOrContentType, UriKind.Absolute, out _))
         {
             contentType = DetermineFileTypeFromUrl(urlOrContentType) ?? "";
         }
 
-        return contentType.ToLowerInvariant() switch
-        {
-            var ct when ct.Contains("pdf") => DocumentType.Pdf,
-            var ct when ct.Contains("word") || ct.Contains("doc") => DocumentType.Word,
-            var ct when ct.Contains("excel") || ct.Contains("spreadsheet") || ct.Contains("xls") => DocumentType.Excel,
-            var ct when ct.Contains("image") || ct.Contains("png") || ct.Contains("jpeg") || ct.Contains("jpg") || ct.Contains("gif") || ct.Contains("bmp") || ct.Contains("webp") => DocumentType.Image,
-            var ct when ct.Contains("html") => DocumentType.Html,
-            var ct when ct.Contains("text") || ct.Contains("markdown") || ct.Contains("md") => DocumentType.Text,
-            _ => null
-        };
+        if (string.IsNullOrWhiteSpace(contentType))
+            return DocumentType.Unknown;
+
+        var ct = contentType.ToLowerInvariant();
+
+        if (ct.Contains("pdf"))
+            return DocumentType.Pdf;
+        // Excel 必须排在 Word 之前（xlsx 的类型串里含 "officedocument"）
+        if (ct.Contains("spreadsheet") || ct.Contains("ms-excel") || ct.Contains("xlsx") || ct.Contains("xls"))
+            return DocumentType.Excel;
+        if (ct.Contains("wordprocessing") || ct.Contains("ms-word") || ct.Contains("msword") || ct.Contains("word"))
+            return DocumentType.Word;
+        if (ct.StartsWith("image/") || ct.Contains("png") || ct.Contains("jpeg") || ct.Contains("jpg") || ct.Contains("gif") || ct.Contains("bmp") || ct.Contains("webp"))
+            return DocumentType.Image;
+        if (ct.Contains("html"))
+            return DocumentType.Html;
+        if (ct.Contains("text") || ct.Contains("markdown"))
+            return DocumentType.Text;
+
+        return DocumentType.Unknown;
     }
 
     private static string? ExtractFileNameFromUrl(string url)

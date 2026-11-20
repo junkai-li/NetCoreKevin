@@ -421,10 +421,21 @@ namespace kevin.Application.Services.AI
         /// 压缩摘要的字符上限：可用提问预算的 1/5（摘要也占 systemPrompt 预算），最少 2000 字符；
         /// 模型未配置提问预算时给 20000（仅作兜底，不代表真实预算）。
         /// </summary>
-        private static int GetCompactionMaxLength(int maxAskPromptSize, int answerTokens, string? systemPrompt)
+        internal static int GetCompactionMaxLength(int maxAskPromptSize, int answerTokens, string? systemPrompt)
         {
             var promptBudget = TokenEstimator.ResolveAskBudget(maxAskPromptSize, answerTokens, systemPrompt);
             return promptBudget > 0 ? Math.Max(CharLimits.CompactionSummaryMin, TokenEstimator.ToCharCount(promptBudget / 5)) : CharLimits.CompactionSummaryNoBudget;
+        }
+
+        /// <summary>
+        /// 把会话标识转成稳定随机种子（SHA256 前 4 字节）：同一会话得到同一模型，跨轮命中提示词缓存；
+        /// 不同会话种子不同，仍能随机分摊到不同模型，不破坏 auto 模型的负载均衡。
+        /// </summary>
+        internal static int StableSeed(string text)
+        {
+            using var sha = System.Security.Cryptography.SHA256.Create();
+            var bytes = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(text ?? ""));
+            return BitConverter.ToInt32(bytes, 0);
         }
         /// <summary>
         /// 获取ai应用配置
@@ -446,14 +457,12 @@ namespace kevin.Application.Services.AI
                 systemPrompt += "\n" + SystemPrompt.MemoryPromptText;
             }
             #endregion
-            #region 记忆自动召回（按当前提问召回高相关记忆并注入，避免依赖模型主动调用 SearchMemory）
+            #region 记忆自动召回（按当前提问召回高相关记忆，追加在历史尾部注入，避免依赖模型主动调用 SearchMemory）
+            // 不拼进 system prompt：召回文本每轮随提问变化，注入会让提示词前缀每轮漂移、跨轮缓存全部失效
+            var recallContext = string.Empty;
             if (aiapp.IsMemory && withCapabilities && !string.IsNullOrWhiteSpace(userQuery))
             {
-                var recallContext = await _aIAgentMemoryService.BuildAutoRecallContextAsync(userQuery!);
-                if (!string.IsNullOrWhiteSpace(recallContext))
-                {
-                    systemPrompt += "\n" + recallContext;
-                }
+                recallContext = await _aIAgentMemoryService.BuildAutoRecallContextAsync(userQuery!);
             }
             #endregion
             #region 文生图协议提示词（仅在开启 IsImageGeneration 时注入，约束模型把工具返回的 markdown 图片链接原样透传）
@@ -463,7 +472,8 @@ namespace kevin.Application.Services.AI
             }
             #endregion
             // Token配置来自模型配置（提问最大token数/回答最大token数）
-            // Auto模式：解析为实际模型
+            // Auto模式：解析为实际模型。按会话固定随机种子：同一会话稳定命中同一模型（跨轮命中提示词缓存），
+            // 不同会话仍随机分摊到不同模型，不破坏负载均衡
             if (string.Equals(aiapp.ChatModelID, "auto", StringComparison.OrdinalIgnoreCase))
             {
                 var allModels = await aIModelsService.GetNoPerALLList(1);
@@ -471,22 +481,31 @@ namespace kevin.Application.Services.AI
                 {
                     throw new UserFriendlyException("当前没有可用的聊天模型，请联系管理员配置模型。");
                 }
-                aiapp.ChatModelID = allModels[new Random().Next(allModels.Count)].Id.ToString();
+                var random = new Random(StableSeed(par.AIChatsId.ToString()));
+                aiapp.ChatModelID = allModels[random.Next(allModels.Count)].Id.ToString();
             }
             var aiModel = await aIModelsService.GetNoPerDetails(aiapp.ChatModelID.ToTryInt64());
             #region 获取压缩聊天记录提示词
-            // 工具结果回传轮跳过摘要注入（与记忆召回同口径）：摘要随历史增长每轮重算，
-            // 注入会使 system prompt 每轮漂移，导致回传轮之间的提示词缓存失效
+            // 摘要不再拼进 system prompt，改为追加在历史尾部（与记忆召回同口径）：
+            // 摘要随历史增长每轮重算，拼进 system prompt 会让前缀每轮漂移、跨轮缓存失效；放尾部则前缀稳定
+            var compactionContext = string.Empty;
             if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction && par.ExternalMessages is not { Count: > 0 })
             {
-                // 摘要也占 systemPrompt 预算：先按不含摘要的提示词估算可用预算，摘要最多占其中的 1/5
+                // 摘要也占模型输入预算：按不含摘要的提示词估算可用预算，摘要最多占其中的 1/5
                 var compactionMaxLength = GetCompactionMaxLength(aiModel.MaxAskPromptSize, aiModel.AnswerTokens, systemPrompt);
-                systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString(), compactionMaxLength);
+                compactionContext = await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString(), compactionMaxLength);
             }
             #endregion
-            var historyProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, TokenEstimator.ResolveAskBudget(aiModel.MaxAskPromptSize, aiModel.AnswerTokens, systemPrompt), aiapp.ContentLengthLimit)
+            // 召回文本/摘要都在历史尾部注入、不在 systemPrompt 里，但同样占模型输入：必须并入提问预算，
+            // 否则历史裁剪按“不含它们”的预算放行，加上后就会顶过模型窗口（表现为模型报输入长度越界）
+            var promptForBudget = systemPrompt
+                + (string.IsNullOrWhiteSpace(recallContext) ? "" : "\n" + recallContext)
+                + (string.IsNullOrWhiteSpace(compactionContext) ? "" : "\n" + compactionContext);
+            var historyProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, TokenEstimator.ResolveAskBudget(aiModel.MaxAskPromptSize, aiModel.AnswerTokens, promptForBudget), aiapp.ContentLengthLimit)
             {
-                ReadOnlyHistory = readOnlyHistory
+                ReadOnlyHistory = readOnlyHistory,
+                RecallContext = recallContext,
+                CompactionContext = compactionContext
             };
             var chatAgOs = new ChatClientAgentOptions
             {
@@ -595,6 +614,12 @@ namespace kevin.Application.Services.AI
                     _ => ChatToolMode.Auto,
                 };
             }
+            // 工具列表顺序稳定化：MCP server 返回的工具顺序无规范保证，工具定义属于提示词前缀的一部分，
+            // 顺序抖动会导致缓存前缀变化、命中率下降；统一按 Name 排序保证跨轮稳定
+            if (chatAgOs.ChatOptions?.Tools is { Count: > 1 })
+            {
+                chatAgOs.ChatOptions.Tools = chatAgOs.ChatOptions.Tools.OrderBy(t => t.Name, StringComparer.Ordinal).ToList();
+            }
             #endregion
             return chatAgOs;
         }
@@ -700,7 +725,8 @@ namespace kevin.Application.Services.AI
                 {
                     throw new UserFriendlyException("当前没有可用的聊天模型，请联系管理员配置模型。");
                 }
-                aiapp.ChatModelID = allModels[new Random().Next(allModels.Count)].Id.ToString();
+                var random = new Random(StableSeed(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString()));
+                aiapp.ChatModelID = allModels[random.Next(allModels.Count)].Id.ToString();
             }
             var aIModels = await aIModelsService.GetNoPerDetails(aiapp.ChatModelID.ToTryInt64());
             var aIPrompts = await aIPromptsService.GetNoPerDetails(aiapp.AIPromptID);
@@ -715,19 +741,24 @@ namespace kevin.Application.Services.AI
             {
                 systemPrompt += "\n" + SystemPrompt.ImageGenerationPromptText;
             }
-            // 获取压缩聊天记录提示词
+            // 获取压缩聊天记录提示词：追加在历史尾部（与主路径同口径），摘要每轮重算，放 system prompt 会让前缀漂移、缓存失效
+            var compactionContext = string.Empty;
             if (aiapp.IsAutoGetAIMessageCompaction && aiapp.IsAIMessageCompaction)
             {
-                // 摘要也占 systemPrompt 预算：先按不含摘要的提示词估算可用预算，摘要最多占其中的 1/5
+                // 摘要也占模型输入预算：按不含摘要的提示词估算可用预算，摘要最多占其中的 1/5
                 var compactionMaxLength = GetCompactionMaxLength(aIModels.MaxAskPromptSize, aIModels.AnswerTokens, systemPrompt);
-                systemPrompt += "\n" + await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), compactionMaxLength);
-            } 
+                compactionContext = await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), compactionMaxLength);
+            }
+            var promptForBudget = systemPrompt + (string.IsNullOrWhiteSpace(compactionContext) ? "" : "\n" + compactionContext);
             var chatAgOs = new ChatClientAgentOptions
             {
                 Name = aiapp.Name,
                 Description = aIPrompts.Description ?? "你是一个智能体,请根据你的问题进行相关回答",
                 ChatOptions = GetAppChatOptions(aiapp, aIModels, systemPrompt),
-                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, TokenEstimator.ResolveAskBudget(aIModels.MaxAskPromptSize, aIModels.AnswerTokens, systemPrompt), aiapp.ContentLengthLimit)
+                ChatHistoryProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, TokenEstimator.ResolveAskBudget(aIModels.MaxAskPromptSize, aIModels.AnswerTokens, promptForBudget), aiapp.ContentLengthLimit)
+                {
+                    CompactionContext = compactionContext
+                }
             };
             #region AI配置
             if (aiapp.IsAITools)
@@ -794,6 +825,11 @@ namespace kevin.Application.Services.AI
                 }
                 var sk = skillsProvider.Build();
                 chatAgOs.AIContextProviders = [sk];
+            }
+            // 工具列表顺序稳定化：与主路径同口径，MCP 工具顺序无保证，统一按 Name 排序保证跨轮稳定
+            if (chatAgOs.ChatOptions?.Tools is { Count: > 1 })
+            {
+                chatAgOs.ChatOptions.Tools = chatAgOs.ChatOptions.Tools.OrderBy(t => t.Name, StringComparer.Ordinal).ToList();
             }
             #endregion
 

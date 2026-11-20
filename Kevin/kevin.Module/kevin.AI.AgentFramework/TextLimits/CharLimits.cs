@@ -86,6 +86,12 @@ namespace kevin.AI.AgentFramework.TextLimits
         public const int AutoRecallQuery = 500;
         /// <summary>自动召回时单条记忆内容上限（字符）</summary>
         public const int AutoRecallContent = 400;
+        /// <summary>
+        /// 自动召回注入文本的最坏长度估算（字符）：单条上限 × 召回条数（AIAgentMemoryService.AutoRecallTopN=3）
+        /// + 每条 Id/类型/重要度前缀 + 抬头与使用规则说明。
+        /// 召回文本追加在历史尾部、不拼进 systemPrompt，提问预算必须为它预留空间，否则输入会顶过模型窗口。
+        /// </summary>
+        public const int AutoRecallReserve = AutoRecallContent * 3 + 400;
         /// <summary>重复记忆提示里展示已有内容的长度（字符）</summary>
         public const int MemoryDuplicatePreview = 80;
 

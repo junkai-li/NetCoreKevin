@@ -103,14 +103,23 @@ namespace Kevin.Common.Helper.FileHandleTools
         public List<string> ChunkBySize(string content)
         {
             var chunks = new List<string>();
+            if (string.IsNullOrEmpty(content))
+                return chunks;
+
             var start = 0;
+            // 重叠上限锁在块长的一半：重叠接近块长时步进会退化成 1 个字符，
+            // 短文本被切成逐字碎片，长文本也几乎不推进（大重叠配置下直接退化成死循环似的长尾）
+            var maxOverlap = Math.Max(0, _chunkSize / 2);
 
             while (start < content.Length)
             {
-                var length = Math.Min(_chunkSize, content.Length - start);
+                var remaining = content.Length - start;
+                var length = Math.Min(_chunkSize, remaining);
+                // 本次已能取到文末：不再回退 overlap，否则尾部会被反复切出重复碎片
+                var isLastChunk = length >= remaining;
 
                 // 尝试在句子边界处切分
-                if (start + length < content.Length)
+                if (!isLastChunk)
                 {
                     var lastPeriod = content.LastIndexOfAny(new[] { '。', '！', '？', '.', '!', '?' },
                                                             start + length, length);
@@ -120,8 +129,10 @@ namespace Kevin.Common.Helper.FileHandleTools
                     }
                 }
 
-            var effectiveOverlap = Math.Min(_chunkOverlap, length - 1);
+                var effectiveOverlap = Math.Min(_chunkOverlap, Math.Min(maxOverlap, Math.Max(0, length - 1)));
                 chunks.Add(content.Substring(start, length).Trim());
+                if (isLastChunk)
+                    break;
                 start += Math.Max(1, length - effectiveOverlap);
             }
 

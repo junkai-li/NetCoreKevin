@@ -35,6 +35,16 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         /// </summary>
         public bool ReadOnlyHistory { get; set; } = false;
         /// <summary>
+        /// 本轮记忆自动召回文本：以独立消息追加在历史尾部（不入库、前端不可见），
+        /// 不注入 system prompt，保持提示词前缀跨轮稳定，使提示词缓存可以命中到历史尾。
+        /// </summary>
+        public string? RecallContext { get; set; }
+        /// <summary>
+        /// 本轮自动摘要上下文（历史压缩摘要）：与 RecallContext 同策略追加在历史尾部而非 system prompt。
+        /// 摘要随历史增长每轮重算，注入 system prompt 会让提示词前缀每轮漂移、缓存失效。
+        /// </summary>
+        public string? CompactionContext { get; set; }
+        /// <summary>
         /// 入库副本实际采用的工具结果上限
         /// </summary>
         private int StoreResultLengthLimit => ToolResultLengthLimit > 0 ? ToolResultLengthLimit : CharLimits.ToolResultStoreFallback;
@@ -151,7 +161,25 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
             //{
             //    messages.Add(new ChatMessage(ChatRole.User, "请简单介绍一下你自己")); // 可以根据需要自定义系统消息
             //}
+            // 自动摘要 / 记忆自动召回以独立消息追加在历史尾部：不占 system prompt，提示词前缀跨轮稳定，
+            // 提示词缓存可命中到历史尾；这两类文本每轮随当轮状态变化，放在尾部损失最小。
+            // 顺序由返回列表的位置决定（框架按 Provider 返回顺序拼接，不按 CreatedAt 排序），
+            // 时间戳只给按时间渲染的消费方兜底，取值统一用 DateTimeOffset 本地基准，避免与本类其他时间口径混用
+            var tailCreatedAt = messages.Count > 0 ? messages[^1].CreatedAt : null;
+            AppendTailSystemMessage(messages, CompactionContext, ref tailCreatedAt);
+            AppendTailSystemMessage(messages, RecallContext, ref tailCreatedAt);
             return messages;
+        }
+
+        /// <summary>
+        /// 追加一条 System 消息到历史尾部，并让时间戳逐条递增 1 tick，保证按时间排序时仍排在本轮提问之前。
+        /// 空文本跳过（不追加）。
+        /// </summary>
+        private static void AppendTailSystemMessage(List<ChatMessage> messages, string? text, ref DateTimeOffset? createdAt)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return;
+            createdAt = createdAt?.AddTicks(1) ?? DateTimeOffset.Now.AddSeconds(-2);
+            messages.Add(new ChatMessage(ChatRole.System, text) { CreatedAt = createdAt });
         }
         protected override async ValueTask StoreChatHistoryAsync(InvokedContext context, CancellationToken cancellationToken = default)
         {
