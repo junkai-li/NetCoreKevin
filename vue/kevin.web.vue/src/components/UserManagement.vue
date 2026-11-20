@@ -124,7 +124,20 @@
                     <EditOutlined />
                   </template>
                   编辑
-                </a-button> 
+                </a-button>
+                <a-button
+                  v-if="showSwitchLoginButton && isCurrentUserSuperAdmin && !isSwitchLogin
+                        && record.id !== currentUserId && record.isSuperAdmin !== true"
+                  type="link"
+                  size="small"
+                  class="action-button"
+                  @click="showSwitchLoginConfirm(record)"
+                >
+                  <template #icon>
+                    <SwapOutlined />
+                  </template>
+                  切换登录
+                </a-button>
                 <a-popconfirm
                   v-if="showDeleteButton"
                   title="确定要删除这个用户吗?"
@@ -166,9 +179,11 @@ import {
   DownloadOutlined,
   BarsOutlined,
   EditOutlined,
+  SwapOutlined,
 } from "@ant-design/icons-vue";
-import { message } from "ant-design-vue";
-import { getUserList, DeleteUser, ExportGetSysUserList } from "../api/userapi";
+import { message, Modal } from "ant-design-vue";
+import { getUserList, DeleteUser, ExportGetSysUserList, switchLoginUser, getTokenUser } from "../api/userapi";
+import { getUserPermissions } from "../api/baseapi";
 import hedeImage from "../assets/hede.png"; // 导入图片
 import UserAddEdit from "./UserAddEdit.vue";
 
@@ -205,6 +220,11 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
+  // 是否显示切换登录按钮（仅超管且非代登录态可见）
+  showSwitchLoginButton: {
+    type: Boolean,
+    default: true
+  },
   // 外部传入的查询参数
   queryParams: {
     type: Object,
@@ -220,6 +240,19 @@ const props = defineProps({
 // Emit事件
 // eslint-disable-next-line no-undef
 const emit = defineEmits(['user-added', 'user-updated', 'user-deleted', 'user-exported', 'load-success', 'load-error']);
+
+// 切换登录（代登录）相关状态：初始化时从 localStorage 读取
+let currentUserId = null;
+let isCurrentUserSuperAdmin = false;
+try {
+  const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+  isCurrentUserSuperAdmin = localUser.isSuperAdmin === true;
+  currentUserId = localUser.id;
+} catch (e) {
+  // user 数据解析失败时按非超管处理
+}
+// 是否处于代登录态（判定唯一依据：originToken 非空）
+const isSwitchLogin = !!localStorage.getItem('originToken');
 
 // 数据加载状态
 const loading = ref(false);
@@ -320,7 +353,7 @@ const columns = ref([
     dataIndex: "action",
     key: "action",
     fixed: "right",
-    width: 200,
+    width: 240,
   },
 ]);
 
@@ -440,6 +473,7 @@ const fetchUserList = async () => {
         recentLoginTime: user.recentLoginTime,
         lockoutEnd: user.lockoutEnd,
         failedCount: user.failedCount ?? 0,
+        isSuperAdmin: user.isSuperAdmin,
         avatar: hedeImage,
       }));
 
@@ -510,6 +544,49 @@ const handleDelete = (key) => {
   }).catch(error => {
     message.error("删除用户失败: " + error.message);
   });
+};
+
+// 切换登录：二次确认
+const showSwitchLoginConfirm = (record) => {
+  Modal.confirm({
+    title: '切换登录确认',
+    content: `确认切换登录到用户「${record.name}」？切换后将以该用户身份操作系统。`,
+    okText: '确认切换',
+    cancelText: '取消',
+    onOk: () => handleSwitchLogin(record),
+  });
+};
+
+// 执行切换登录：写 origin 快照 → 换目标 token → 重建 user/UserPermissions → 整页 reload
+const handleSwitchLogin = async (record) => {
+  try {
+    const response = await switchLoginUser(record.id);
+    if (response && response.code == 200 && response.isSuccess) {
+      // 成功分支（同步块内，顺序不可变）：先原样复制当前凭证到 origin 快照，再写目标 token
+      localStorage.setItem('originToken', localStorage.getItem('token') || '');
+      localStorage.setItem('originUser', localStorage.getItem('user') || '');
+      localStorage.setItem('originUserPermissions', localStorage.getItem('UserPermissions') || '');
+      localStorage.setItem('token', response.data);
+      // 拉取目标账号 user / UserPermissions（沿用 kevinLogin.vue 登录成功重建模式）
+      const userRes = await getTokenUser();
+      if (userRes && userRes.code == 200) {
+        localStorage.setItem('user', JSON.stringify(userRes.data));
+      }
+      const permRes = await getUserPermissions();
+      if (permRes && permRes.code == 200) {
+        localStorage.setItem('UserPermissions', JSON.stringify(permRes.data));
+      }
+      message.success('已切换登录至 ' + record.name);
+      // 整页 reload 重建权限菜单（菜单在 onMounted 读 localStorage，禁 router.push）
+      window.location.href = '/home';
+    } else {
+      // 业务失败：后端 400 errMsg 已由 http.js 拦截器弹出，不重复提示，不动任何 localStorage
+      console.error('切换登录失败:', response);
+    }
+  } catch (error) {
+    // 请求异常（含后端 400 reject）：拦截器已弹 errMsg，仅记录日志，localStorage 零变更
+    console.error('切换登录请求异常:', error);
+  }
 };
 
 // 导出数据

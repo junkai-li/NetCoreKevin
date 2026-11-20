@@ -153,6 +153,7 @@
           <div class="user-info">
             <a-avatar :size="28" :src="userInfo.avatar" />
             <span v-if="!collapsed" class="user-name">{{ userInfo.name }}</span>
+            <a-tag v-if="isSwitchLogin" color="orange">代登录</a-tag>
           </div>
           <template #overlay>
             <a-menu class="user-menu">
@@ -163,6 +164,10 @@
               <a-menu-item key="settings">
                 <SettingOutlined />
                 设置
+              </a-menu-item>
+              <a-menu-item v-if="isSwitchLogin" key="backToOrigin" @click="handleBackToOrigin">
+                <RollbackOutlined />
+                返回我的账号
               </a-menu-item>
               <a-menu-divider />
               <a-menu-item key="logout" @click="handleLogout">
@@ -275,7 +280,9 @@ import {
   CloseSquareOutlined,
   MinusSquareOutlined,
   CheckOutlined,
+  RollbackOutlined,
 } from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
 import { GetMyNoReadCount } from "@/api/message";
 import { logout } from "@/api/userapi";
 //import { Button } from 'ant-design-vue';
@@ -520,6 +527,8 @@ const userInfo = reactive({
 
 const noReadCount = ref(0);
 const isFullScreen = ref(false);
+// 是否处于代登录态（判定唯一依据：originToken 非空），onMounted 中初始化
+const isSwitchLogin = ref(false);
 
 const toggleFullScreen = () => {
   if (!document.fullscreenElement) {
@@ -682,8 +691,42 @@ const handleLogout = async () => {
   }
   await localStorage.removeItem("token");
   await localStorage.removeItem("user");
- await localStorage.removeItem("UserPermissions");
+await localStorage.removeItem("UserPermissions");
+  // 代登录态退出时同步清理 origin 快照（非代登录态这三个 key 本就不存在，行为不变）
+  localStorage.removeItem("originToken");
+  localStorage.removeItem("originUser");
+  localStorage.removeItem("originUserPermissions");
   router.push("/login");
+};
+// 返回原账号：拉黑代登录 token → 恢复 origin 快照 → 清 origin key → 整页回 /home
+const handleBackToOrigin = async () => {
+  const originToken = localStorage.getItem('originToken');
+  const originUser = localStorage.getItem('originUser');
+  const originUserPermissions = localStorage.getItem('originUserPermissions');
+  try {
+    // 通知后端拉黑代登录 token，失败不阻塞本地恢复
+    await logout();
+  } catch (e) {
+    // 后端退出失败（如网络异常）不阻塞本地清理
+  }
+  if (originToken) {
+    // 快照存在：原样字符串恢复原账号凭证（不解析重组）
+    localStorage.setItem('token', originToken);
+    localStorage.setItem('user', originUser);
+    localStorage.setItem('UserPermissions', originUserPermissions);
+    localStorage.removeItem('originToken');
+    localStorage.removeItem('originUser');
+    localStorage.removeItem('originUserPermissions');
+    // 整页 reload 重建权限菜单（菜单在 onMounted 读 localStorage，禁 router.push）
+    window.location.href = '/home';
+  } else {
+    // 快照缺失兜底（异常态）：清全部登录 key 回登录页
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('UserPermissions');
+    message.error('未找到原账号凭证，请重新登录');
+    router.push('/login');
+  }
 };
 // 个人中心
 const handleUserInfo = () => {
@@ -702,6 +745,9 @@ const handleUserInfo = () => {
 const ALLOWED_THEMES = ["enterprise", "blackblue", "default", "green", "purple", "darkblue", "simple-white"];
 
 onMounted(() => {
+  // 初始化代登录态标识（账号名旁「代登录」标识与「返回我的账号」入口依赖此值）
+  isSwitchLogin.value = !!localStorage.getItem('originToken');
+
   const savedTheme = localStorage.getItem("app-theme");
   if (savedTheme && ALLOWED_THEMES.includes(savedTheme)) {
     currentTheme.value = `theme-${savedTheme}`;

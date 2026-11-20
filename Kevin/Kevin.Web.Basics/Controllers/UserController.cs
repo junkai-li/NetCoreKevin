@@ -145,6 +145,21 @@ namespace Kevin.Web.Basics.Controllers
             return await _userService.GetSysUserWhereId(Id);
         }
 
+
+        /// <summary>
+        /// 超级管理员切换登录到指定用户账号（代登录）
+        /// </summary>
+        /// <param name="userId">被切换的用户Id</param>
+        /// <returns>被切换用户的访问Token</returns>
+        [HttpPost("SwitchLoginUser")]
+        [ActionDescription("超级管理员切换登录")]
+        [HttpLog("用户管理", "超级管理员切换登录")]
+        [SkipAuthority]
+        public async Task<string> SwitchLoginUser([Required] long userId)
+        {
+            return await _userService.SwitchLoginUser(userId);
+        }
+
         /// <summary>
         /// 新增编辑用户信息 
         /// </summary>

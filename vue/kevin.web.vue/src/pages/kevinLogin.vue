@@ -255,6 +255,10 @@ const handlePasswordLogin = (values) => {
           if(response.isSuccess){
             console.log(response);
             localStorage.setItem('token',response.data);
+            // 清除可能残留的代登录快照，防止新会话被误判为代登录态
+            localStorage.removeItem('originToken');
+            localStorage.removeItem('originUser');
+            localStorage.removeItem('originUserPermissions');
             getTokenUser().then((response) => 
             {
                 if (response.code == 200) {

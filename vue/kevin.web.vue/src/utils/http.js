@@ -54,6 +54,10 @@ myAxios.interceptors.response.use(
         localStorage.removeItem('user');
         localStorage.removeItem('UserPermissions');
         localStorage.removeItem('token');
+        // 代登录快照同步清理（不自动恢复原账号，防止二次 401 循环）
+        localStorage.removeItem('originToken');
+        localStorage.removeItem('originUser');
+        localStorage.removeItem('originUserPermissions');
         
         // 不是获取用户信息的请求，并且用户目前不是已经在用户登录页面，则跳转到登录页面
         if (
@@ -80,7 +84,11 @@ myAxios.interceptors.response.use(
         localStorage.removeItem('user');
         localStorage.removeItem('UserPermissions');
         localStorage.removeItem('token');
-        
+        // 代登录快照同步清理（不自动恢复原账号，防止二次 401 循环）
+        localStorage.removeItem('originToken');
+        localStorage.removeItem('originUser');
+        localStorage.removeItem('originUserPermissions');
+
         // 不是获取用户信息的请求，并且用户目前不是已经在用户登录页面，则跳转到登录页面
         if (
           !response.request.responseURL.includes('user/get/login') &&
@@ -113,7 +121,11 @@ myAxios.interceptors.response.use(
         // 清理 localStorage 中的用户相关信息
         localStorage.removeItem('user');
         localStorage.removeItem('UserPermissions');
-        localStorage.removeItem('token'); 
+        localStorage.removeItem('token');
+        // 代登录快照同步清理（不自动恢复原账号，防止二次 401 循环）
+        localStorage.removeItem('originToken');
+        localStorage.removeItem('originUser');
+        localStorage.removeItem('originUserPermissions');
         // 不是获取用户信息的请求，并且用户目前不是已经在用户登录页面，则跳转到登录页面
          message.error('请先登录')
           window.location.href = `/login?redirect=${window.location.href}`

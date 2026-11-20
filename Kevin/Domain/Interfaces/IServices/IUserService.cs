@@ -34,6 +34,14 @@ namespace kevin.Domain.Interfaces.IServices
         /// <returns></returns>
         dtoUser LoginUser(string name, string pwd, Int32 tenantId, string passwordHash);
 
+
+        /// <summary>
+        /// 超级管理员切换登录到指定用户账号（代登录），返回该账号的访问Token
+        /// </summary>
+        /// <param name="userId">被切换的用户Id</param>
+        /// <returns></returns>
+        Task<string> SwitchLoginUser(long userId);
+
         /// <summary>
         /// 修改当前用户密码
         /// </summary>

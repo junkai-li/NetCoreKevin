@@ -5,6 +5,7 @@ using kevin.Domain.Share.Dtos.User;
 using kevin.Permission.Interfaces;
 using kevin.Permission.Permission.Enums;
 using kevin.Share.Dtos.System;
+using Kevin.Authentication.Jwt.Dto;
 using Kevin.Authentication.Jwt.IService;
 using Kevin.Common.Helper;
 
@@ -118,6 +119,48 @@ namespace kevin.Application
                 userId = CurrentUser?.UserId ?? 0;
             }
             return await GetSysUserWhereId(userId);
+        }
+
+        /// <summary>
+        /// 超级管理员切换登录到指定用户账号（代登录），返回该账号的访问Token
+        /// </summary>
+        /// <param name="userId">被切换的用户Id</param>
+        /// <returns></returns>
+        public async Task<string> SwitchLoginUser(long userId)
+        {
+            if (!CurrentUser.IsSuperAdmin)
+            {
+                throw new UserFriendlyException("仅超级管理员可以切换登录账号");
+            }
+            var operatorIsSuperAdmin = await userRp.Query().Where(t => t.Id == CurrentUser.UserId && t.IsDelete == false).Select(t => t.IsSuperAdmin).FirstOrDefaultAsync();
+            if (!operatorIsSuperAdmin)
+            {
+                throw new UserFriendlyException("仅超级管理员可以切换登录账号");
+            }
+            var user = await userRp.Query().Where(t => t.Id == userId && t.IsDelete == false).FirstOrDefaultAsync();
+            if (user == default)
+            {
+                throw new UserFriendlyException("待切换的用户不存在");
+            }
+            if (!user.Status)
+            {
+                throw new UserFriendlyException("待切换的用户已被禁用");
+            }
+            if (user.Id == CurrentUser.UserId)
+            {
+                throw new UserFriendlyException("已是当前登录账号，无需切换");
+            }
+            var accessToken = tokenService.GenerateAccessToken(new UserDto
+            {
+                Id = user.Id.ToString(),
+                Name = user.Name ?? "",
+                IsSuperAdmin = user.IsSuperAdmin,
+                Password = "",
+                Phone = user.Phone ?? "",
+                CreatedTime = user.CreateTime,
+                TenantId = user.TenantId,
+            });
+            return accessToken ?? "获取AccessToken失败";
         }
 
         /// <summary>

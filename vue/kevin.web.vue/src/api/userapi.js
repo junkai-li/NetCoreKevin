@@ -46,3 +46,8 @@ export const changePassword = (data) => {
 export const getAllUserCount = () => {
   return http.get('/api/User/GetAllUserCount');
 };
+
+// 切换登录：超管以当前凭证换取目标账号 token
+export const switchLoginUser = (userId) => {
+  return http.post(`/api/User/SwitchLoginUser?userId=${userId}`);
+};
