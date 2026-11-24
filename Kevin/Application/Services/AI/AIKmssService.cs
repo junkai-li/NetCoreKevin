@@ -351,13 +351,13 @@ namespace kevin.Application.Services.AI
                                         FileName = item.ContentName;
                                     }
                                     var allChunks = new List<DocumentChunkDto>();
-                                    // 2. 初始化服务
-                                    var documentProcessor = new DocumentProcessor(chunkSize: kmss.MaxTokensPerParagraph, chunkOverlap: kmss.OverlappingTokens);
+                                    // 2. 初始化服务（行最大数参与超长行切断，与段落/重叠配置一起生效）
+                                    var documentProcessor = new DocumentProcessor(chunkSize: kmss.MaxTokensPerParagraph, chunkOverlap: kmss.OverlappingTokens, maxLineSize: kmss.MaxTokensPerLine);
                                     // 清理文档
                                     var cleanedContent = documentProcessor.CleanDocument(content);
                                     // 分块
                                     var chunks = documentProcessor.ChunkByParagraph(cleanedContent).Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
-                                    Console.WriteLine($"文档 '{FileName}' 分成了 {chunks.Count} 个块");
+                                    Console.WriteLine($"文档 '{FileName}' 分成了 {chunks.Count} 个块，最大块长度 {(chunks.Count > 0 ? chunks.Max(t => t.Length) : 0)}（配置块上限 {kmss.MaxTokensPerParagraph}）");
                                     if (chunks.Count > 0)
                                     {    // 创建文档块对象
                                         for (int i = 0; i < chunks.Count; i++)
