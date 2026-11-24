@@ -13,7 +13,7 @@ namespace Kevin.RAG.Qdrant
         private readonly string? Url;
         private readonly string? ApiKey;
         private readonly string? CertificateThumbprint;
-        private readonly QdrantClient? QdrantClient;
+        private readonly QdrantClient QdrantClient;
         public QdrantClientService(IOptionsMonitor<QdrantClientSetting> config)
         {
             try
@@ -39,16 +39,16 @@ namespace Kevin.RAG.Qdrant
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine($"Kevin.RAG请检查Qdrant配置是否正确：{ex.Message}");
+                Console.WriteLine("Kevin.RAG请检查Qdrant配置是否正确");
             }
 
         }
 
         public async Task<bool> AddData(string collectionName, List<DocumentChunkDto> data, ulong embeddingValueSize = 2048)
         {
-            if (QdrantClient is null)
+            if (QdrantClient == default)
             {
                 throw new ArgumentException($"请检查QdrantClient配置是否正确");
             }
@@ -82,7 +82,7 @@ namespace Kevin.RAG.Qdrant
         // 验证集合是否存在
         public async Task<bool> IsValidateCollectionExists(string collectionName)
         {
-            if (QdrantClient is null)
+            if (QdrantClient == default)
             {
                 throw new ArgumentException($"请检查OllamaApiQdrantClientQdrantClient配置是否正确");
             }
@@ -102,7 +102,7 @@ namespace Kevin.RAG.Qdrant
         public async Task<List<DocumentChunkDto>> Search(string collectionName,
             Embedding<float> query, ulong limit = 10, double? Score = null)
         {
-            if (QdrantClient is null)
+            if (QdrantClient == default)
             {
                 throw new ArgumentException($"请检查QdrantClient配置是否正确");
             }
@@ -129,10 +129,55 @@ namespace Kevin.RAG.Qdrant
             return relust.OrderByDescending(t => t.Score).ToList();
         }
 
+        /// <summary>
+        /// 按来源文件删除向量点：多文件知识库重导/移除单个文件时只清该文件的块。
+        /// 集合不存在时直接返回成功，重复调用不会报错。
+        /// </summary>
+        public async Task<bool> DeleteData(string collectionName, string sourceFile)
+        {
+            if (QdrantClient == default)
+            {
+                throw new ArgumentException($"请检查QdrantClient配置是否正确");
+            }
+            if (string.IsNullOrWhiteSpace(collectionName) || string.IsNullOrWhiteSpace(sourceFile))
+            {
+                return false;
+            }
+            if (!await IsValidateCollectionExists(collectionName))
+            {
+                return true;
+            }
+            // 按 payload 的 SourceFile 精确匹配（写入时已落在 payload 上，无需额外索引）
+            var filter = new Filter { Must = { Conditions.MatchKeyword("SourceFile", sourceFile) } };
+            await QdrantClient.DeleteAsync(collectionName, filter);
+            return true;
+        }
+
+        /// <summary>
+        /// 删除整个集合：知识库删除时调用，避免集合永久残留（否则重导会把旧块/旧维度点一起检出来）。
+        /// 集合不存在时直接返回成功，重复删除不会报错。
+        /// </summary>
+        public async Task<bool> DeleteCollection(string collectionName)
+        {
+            if (QdrantClient == default)
+            {
+                throw new ArgumentException($"请检查QdrantClient配置是否正确");
+            }
+            if (string.IsNullOrWhiteSpace(collectionName))
+            {
+                return false;
+            }
+            if (!await IsValidateCollectionExists(collectionName))
+            {
+                return true;
+            }
+            await QdrantClient.DeleteCollectionAsync(collectionName);
+            return true;
+        }
+
         public void Dispose()
         {
-            //配置无效时构造函数会吞掉异常，客户端为空，这里必须判空
-            QdrantClient?.Dispose();
+            QdrantClient.Dispose();
         }
     }
 }

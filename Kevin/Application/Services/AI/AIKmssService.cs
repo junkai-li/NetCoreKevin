@@ -113,6 +113,8 @@ namespace kevin.Application.Services.AI
         {
             var isAdd = data.Id == default;
             long id = data.Id;
+            // 本次被移除的明细文件名：保存后按文件清掉它们已入库的向量块（否则数据库已看不到、检索仍能检到）
+            var removedSourceFiles = new List<string>();
             if (!isAdd)
             {
                 var msg = AIKmssRp.Query().Where(t => t.IsDelete == false && t.Id == data.Id).FirstOrDefault();
@@ -186,6 +188,7 @@ namespace kevin.Application.Services.AI
                             t.IsDelete = true;
                             t.DeleteTime = DateTime.Now;
                             t.DeleteUserId = CurrentUser.UserId;
+                            removedSourceFiles.Add(t.ContentName ?? "");
                         }
                         else
                         {
@@ -236,6 +239,11 @@ namespace kevin.Application.Services.AI
             }
             await AIKmssRp.SaveChangesAsync();
             await AIKmsDetailsRp.SaveChangesAsync();
+
+            foreach (var sourceFile in removedSourceFiles.Where(t => !string.IsNullOrWhiteSpace(t)).Distinct())
+            {
+                await RemoveVectorData(id, GetCollectionName(id), sourceFile);
+            }
             return true;
         }
         /// <summary>
@@ -391,7 +399,7 @@ namespace kevin.Application.Services.AI
                                         }
                                         Console.WriteLine($"\n正在上传 {allChunks.Count} 个文档块到向量数据库...");
                                         // 上传到向量数据库
-                                        var isaddok = await QdrantClientService.AddData("AIKmss-" + kmss.Id, allChunks, embeddingValueSize);
+                                        var isaddok = await QdrantClientService.AddData(GetCollectionName(kmss.Id), allChunks, embeddingValueSize);
                                         if (isaddok)
                                         {
                                             item.Status = ImportKmsStatus.Success;
@@ -440,12 +448,71 @@ namespace kevin.Application.Services.AI
                 data.IsDelete = true;
                 data.DeleteTime = DateTime.Now;
                 AIKmssRp.SaveChangesWithSaveLog();
+
+                // 明细一并软删：否则主表已删而明细仍存留，后续导入流程会把它们重新扫出来写回向量库
+                var details = await AIKmsDetailsRp.Query().Where(t => t.IsDelete == false && t.KmsId == id).ToListAsync();
+                if (details.Count > 0)
+                {
+                    details.ForEach(t =>
+                    {
+                        t.IsDelete = true;
+                        t.DeleteTime = DateTime.Now;
+                        t.DeleteUserId = CurrentUser.UserId;
+                    });
+                    await AIKmsDetailsRp.SaveChangesAsync();
+                }
+
+                // 向量库不在数据库事务内：删除失败只记日志，不能把知识库删除卡住（否则数据库已删、接口报错，重试也删不掉）
+                var collectionName = GetCollectionName(id);
+                await RemoveVectorData(id, collectionName, sourceFile: null);
             }
             else
             {
                 throw new UserFriendlyException("数据不存在或已删除");
             }
             return true;
+        }
+
+        /// <summary>知识库向量集合名：与 <see cref="ProcessKmssVectorData"/> 写入时保持一致</summary>
+        private static string GetCollectionName(long kmsId)
+        {
+            return "AIKmss-" + kmsId;
+        }
+
+        /// <summary>
+        /// 清理向量库数据：<paramref name="sourceFile"/> 为空时删除整个集合（删知识库），
+        /// 否则只删该来源文件的块（移除单个文档）。
+        /// <para>
+        /// 与导入共用同一把分布式锁，避免删除与导入并发时点被重新写回去；
+        /// 异常全部包住并落日志，向量库故障不影响数据库侧的删除结果。
+        /// </para>
+        /// </summary>
+        private async Task RemoveVectorData(long kmsId, string collectionName, string? sourceFile)
+        {
+            var lock1 = distLock.TryAcquireLock("kevin.Application.Services.AI.ProcessKmssVectorData:" + kmsId);
+            if (lock1 == null)
+            {
+                LogHelper.logger.Error($"清理知识库向量数据获取分布式锁失败，已跳过: {collectionName}");
+                return;
+            }
+            using (lock1)
+            {
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(sourceFile))
+                    {
+                        await QdrantClientService.DeleteCollection(collectionName);
+                    }
+                    else
+                    {
+                        await QdrantClientService.DeleteData(collectionName, sourceFile);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.logger.Error($"清理知识库向量数据失败(数据库侧已处理): {collectionName} {sourceFile}", ex);
+                }
+            }
         }
     }
 }

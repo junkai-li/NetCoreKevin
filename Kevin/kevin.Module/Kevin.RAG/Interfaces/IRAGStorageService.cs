@@ -25,5 +25,20 @@ namespace Kevin.RAG.Interfaces
         Task<List<DocumentChunkDto>> Search(string collectionName,
             Embedding<float> query, ulong limit = 20, double? Score = null);
 
+        /// <summary>
+        /// 按来源文件删除向量点（知识库移除单个文件时使用，其他文件的块不受影响）
+        /// </summary>
+        /// <param name="collectionName">集合名</param>
+        /// <param name="sourceFile">来源文件名（写入时落在 payload 的 SourceFile 上）</param>
+        /// <returns></returns>
+        Task<bool> DeleteData(string collectionName, string sourceFile);
+
+        /// <summary>
+        /// 删除整个集合（删除知识库时使用）
+        /// </summary>
+        /// <param name="collectionName">集合名</param>
+        /// <returns></returns>
+        Task<bool> DeleteCollection(string collectionName);
+
     }
 }
