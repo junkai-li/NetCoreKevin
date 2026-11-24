@@ -131,7 +131,7 @@ namespace kevin.Application.Services.AI
                 new AIFunctionFactoryOptions
                 {
                     Name = "ParseRemoteFileAsync",
-                    Description = "解析远程文件。下载指定 URL 的文件并解析内容，支持 PDF、Word、Excel、PPT、HTML、Markdown、文本等文档类型；当用户提供文件链接并需要读取、总结、分析文件内容时调用。"
+                    Description = "解析远程文件。下载指定 URL 的文件并解析内容，支持 PDF、Word、Excel、PPT、HTML、Markdown、文本等文档类型；图片会调用多模态模型解析为文字描述，音频会调用音频理解模型转录为文字；扫描件/转曲类 PDF 等文档会结合页面渲染图调用当前会话模型逐页转录；当用户提供文件/媒体链接并需要读取、总结、分析其内容时调用。"
                 }
           )
             };

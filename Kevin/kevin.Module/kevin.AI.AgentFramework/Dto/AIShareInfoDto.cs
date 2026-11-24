@@ -59,5 +59,33 @@ namespace kevin.AI.AgentFramework.Dto
         /// 内容长度限制，0表示不限制，
         /// </summary>
         public int ContentLengthLimit = 0;
+
+        /// <summary>
+        /// 当前会话智能体使用的模型服务地址（EndPoint）。工具需要"用当前会话的模型"做媒体解析等二次调用时从这里取；
+        /// 空表示无会话模型上下文（如非对话链路的后台任务），工具应降级返回友好错误。
+        /// </summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string AIUrl { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 当前会话智能体模型的密钥。JsonIgnore 双标：该 DTO 会进后台任务参数等 ToJson 日志路径，密钥绝不能落日志。
+        /// </summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string AIKeySecret { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 当前会话智能体使用的模型名。
+        /// </summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string AIDefaultModel { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 当前会话模型是否具备音频理解能力（AIModelType.AudioUnderstanding 位），
+        /// 供工具在解析音频前做能力门禁，避免向不支持的模型发送音频触发 400。
+        /// </summary>
+        public bool EnableAudioInput { get; set; } = false;
     }
 }

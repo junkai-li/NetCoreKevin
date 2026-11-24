@@ -422,7 +422,11 @@ namespace kevin.Application.Services.AI
                 await _aIChatHistorysBindLogService.AddEdit(new TAIChatHistorysBindLog() { AIChatHistorysId = addAi.Id, LogContent = systemPrompt, LogType = AIChatHistorysBindLogEnums.SystemPrompt });
                 List<string> OtherContents = new List<string>();
 
+                // 音频模态门禁：由模型 AIModelType 位标记决定；关闭时 Builder 会把音频转成文本提示，避免向不支持音频的模型发送 DataContent 触发 400
+                var enableAudioInput = aIModels.AIModelType.HasFlag(AIModelType.AudioUnderstanding);
+
                 // 知识库不再预注入：绑定知识库时 AIAppsService 会挂载 SearchKnowledge 工具，由模型按需检索
+                // 同时注入当前会话模型连接：工具（如 ParseRemoteFileAsync 媒体解析）复用本会话智能体的同一模型，而非另查 TAIModels
                 _aIShareInfoService.InitData(new AIShareInfoDto
                 {
                     AIAppsId = aiapp.Id,
@@ -433,12 +437,14 @@ namespace kevin.Application.Services.AI
                     AuthorizedDomains = aiapp.AuthorizedDomains,
                     ContentLengthLimit = aiapp.ContentLengthLimit,
                     IsSecurityIntercept = aiapp.IsSecurityIntercept,
-                    ChatMessageLimit = aiapp.ChatMessageLimit
+                    ChatMessageLimit = aiapp.ChatMessageLimit,
+                    AIUrl = aIModels.EndPoint,
+                    AIKeySecret = aIModels.ModelKey,
+                    AIDefaultModel = aIModels.ModelName,
+                    EnableAudioInput = enableAudioInput
                 });
                 #region 文件处理
 
-                // 音频模态门禁：由模型 AIModelType 位标记决定；关闭时 Builder 会把音频转成文本提示，避免向不支持音频的模型发送 DataContent 触发 400
-                var enableAudioInput = aIModels.AIModelType.HasFlag(AIModelType.AudioUnderstanding);
                 var aiFilData = await AIFileUrlsHandle(add, aiapp, addAi, enableAudioInput, output, cancellationToken);
                 if (aiFilData.ExtractedTexts.Count > 0)
                     OtherContents.AddRange(aiFilData.ExtractedTexts);

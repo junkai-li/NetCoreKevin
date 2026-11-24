@@ -196,7 +196,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
                     ThreadId = this.ThreadDbKey,
                     MessageId = x.MessageId,
                     Role = x.Role.Value,
-                    SerializedMessage = JsonSerializer.Serialize(ShrinkToolResultsForStore(x)),
+                    SerializedMessage = JsonSerializer.Serialize(ShrinkMediaForStore(ShrinkToolResultsForStore(x), CharLimits.MediaContentStoreFallback, CharLimits.MediaStoreTotalBudget)),
                     MessageText = x.Text
                 }).ToList();
                 await _chatMessageStore.AddMessagesAsync(adddata, cancellationToken);
@@ -379,6 +379,86 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
                 MessageId = message.MessageId,
                 AdditionalProperties = message.AdditionalProperties,
             };
+        }
+
+        /// <summary>
+        /// 媒体附件超限时，返回一份仅用于入库的副本：把超过 <paramref name="limit"/> 字节的 DataContent（base64）
+        /// 替换为占位文本（不改动当轮已交给模型的原始消息）。无超限附件时直接返回原消息。
+        /// <para>
+        /// 根因背景：大 PDF 整页渲染或多图上传时，base64 图片累计可达十几 MB，全部内嵌在同一条 user 消息里；
+        /// t_a_i_chat_message_store 的整行 INSERT 受 MySQL max_allowed_packet（默认 4MB）限制，直接落库必失败
+        /// （DbUpdateException，前端表现为"本轮对话的数据保存失败"）。完整二进制只服务当轮对话，
+        /// 写回历史时用占位版，占位文本中保留类型与体积信息供后续轮次参考。
+        /// </para>
+        /// </summary>
+        /// <param name="message">当轮原始消息（只读，不改动）</param>
+        /// <param name="limit">单媒体阈值（字节）：超限整段替换占位（既有语义）</param>
+        /// <param name="totalBudget">单条消息媒体总量预算（字节）；≤0 表示不做总量预算（兼容既有调用）</param>
+        public static ChatMessage ShrinkMediaForStore(ChatMessage message, int limit, long totalBudget = 0)
+        {
+            var sourceContents = message.Contents;
+            if (sourceContents == null || sourceContents.Count == 0 || limit <= 0) return message;
+            var contents = sourceContents;
+            ChatMessage? shrunk = null;
+            // 阶段一：单媒体阈值——超限整段替换占位（语义与既有实现一致）
+            for (var i = 0; i < contents.Count; i++)
+            {
+                // 仅收缩内嵌 base64 的附件：URI 引用型 DataContent 的 Data 为空（长度 0），天然跳过
+                if (contents[i] is not DataContent data || data.Data.Length <= limit) continue;
+                if (shrunk == null)
+                {
+                    contents = sourceContents.ToList();
+                    shrunk = new ChatMessage(message.Role, contents)
+                    {
+                        AuthorName = message.AuthorName,
+                        CreatedAt = message.CreatedAt,
+                        MessageId = message.MessageId,
+                        AdditionalProperties = message.AdditionalProperties,
+                    };
+                }
+                var sizeKb = data.Data.Length / 1024;
+                contents[i] = new TextContent($"[媒体附件（{data.MediaType ?? "未知类型"}，约 {sizeKb}KB）体积过大，已从历史回放中省略，仅本轮对话可见]");
+            }
+            // 阶段二：总量预算——剩余媒体累计超预算时，按体积从大到小逐个替换，直至预算内（必然终止）
+            if (totalBudget > 0)
+            {
+                var remaining = new List<(int Index, DataContent Data)>();
+                long sum = 0;
+                for (var i = 0; i < contents.Count; i++)
+                {
+                    if (contents[i] is DataContent data)
+                    {
+                        remaining.Add((i, data));
+                        sum += data.Data.Length;
+                    }
+                }
+                while (sum > totalBudget && remaining.Count > 0)
+                {
+                    // 取体积最大者（并列取索引靠前）
+                    var pickIdx = 0;
+                    for (var r = 1; r < remaining.Count; r++)
+                    {
+                        if (remaining[r].Data.Data.Length > remaining[pickIdx].Data.Data.Length) pickIdx = r;
+                    }
+                    var pick = remaining[pickIdx];
+                    var sizeKb = pick.Data.Data.Length / 1024;
+                    if (shrunk == null)
+                    {
+                        contents = sourceContents.ToList();
+                        shrunk = new ChatMessage(message.Role, contents)
+                        {
+                            AuthorName = message.AuthorName,
+                            CreatedAt = message.CreatedAt,
+                            MessageId = message.MessageId,
+                            AdditionalProperties = message.AdditionalProperties,
+                        };
+                    }
+                    contents[pick.Index] = new TextContent($"[媒体附件（{pick.Data.MediaType ?? "未知类型"}，约 {sizeKb}KB）体积过大，已从历史回放中省略，仅本轮对话可见]");
+                    sum -= pick.Data.Data.Length;
+                    remaining.RemoveAt(pickIdx);
+                }
+            }
+            return shrunk ?? message;
         }
     }
 }

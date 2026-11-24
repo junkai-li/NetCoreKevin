@@ -119,6 +119,20 @@ namespace Kevin.HttpApiClients.Helper
         }
 
         /// <summary>
+        /// POST JSON 并返回原始响应（状态码 + 响应文本），不做任何 JSON 反序列化：
+        /// 供调用方需要自行解析响应体、按 HTTP 状态码分类错误的场景（如嵌入向量接口的错误响应诊断）。
+        /// 注意：PostAsync&lt;T&gt; 是按 JSON 反序列化 T，T=string 遇到对象响应会抛
+        /// "The JSON value could not be converted to System.String"，需要原始文本时必须用本方法。
+        /// </summary>
+        public async Task<(int StatusCode, string Body)> PostAsyncRaw(string url, string data)
+        {
+            var content = new StringContent(data, Encoding.UTF8, "application/json");
+            using var httpResponse = await _httpClient.PostAsync(url, content);
+            var body = await httpResponse.Content.ReadAsStringAsync() ?? "";
+            return ((int)httpResponse.StatusCode, body);
+        }
+
+        /// <summary>
         /// 发送PUT请求
         /// </summary>
         public async Task<TResponse> PutAsync<TRequest, TResponse>(string url, TRequest data)

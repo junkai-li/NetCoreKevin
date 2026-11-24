@@ -812,6 +812,13 @@
             <param name="Id">用户ID</param>
             <returns></returns>
         </member>
+        <member name="M:Kevin.Web.Basics.Controllers.UserController.SwitchLoginUser(System.Int64)">
+            <summary>
+            超级管理员切换登录到指定用户账号（代登录）
+            </summary>
+            <param name="userId">被切换的用户Id</param>
+            <returns>被切换用户的访问Token</returns>
+        </member>
         <member name="M:Kevin.Web.Basics.Controllers.UserController.EditUser(kevin.Domain.Share.Dtos.User.dtoUser)">
             <summary>
             新增编辑用户信息 

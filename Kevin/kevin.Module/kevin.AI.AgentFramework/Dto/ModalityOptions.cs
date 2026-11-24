@@ -39,6 +39,12 @@ namespace kevin.AI.AgentFramework.Dto
         /// </summary>
         public int MaxMediaAttachmentsPerMessage { get; set; } = 20;
 
+        /// <summary>单媒体附件（DataContent）入库收缩阈值（字节），默认 512KB；入库副本超限整段替换为占位文本</summary>
+        public long MediaStoreThresholdBytes { get; set; } = 512 * 1024;
+
+        /// <summary>单条消息媒体附件入库总量预算（字节），默认 1.5MB；超预算按体积从大到小逐个替换</summary>
+        public long MediaStoreTotalBudgetBytes { get; set; } = 1536 * 1024;
+
         /// <summary>
         /// 单个文档（pdf/word/excel/html/markdown）解析时最多提取的图片数（pdf 即最多渲染页数），
         /// 与 MaxMediaAttachmentsPerMessage 保持同值，避免文档图片被消息级守卫二次截断
@@ -90,6 +96,8 @@ namespace kevin.AI.AgentFramework.Dto
                 setting.MaxAudioFileBytes = ReadLong(section[nameof(MaxAudioFileBytes)], setting.MaxAudioFileBytes);
                 setting.MaxImageFileBytes = ReadLong(section[nameof(MaxImageFileBytes)], setting.MaxImageFileBytes);
                 setting.MaxMediaAttachmentsPerMessage = ReadInt(section[nameof(MaxMediaAttachmentsPerMessage)], setting.MaxMediaAttachmentsPerMessage);
+                setting.MediaStoreThresholdBytes = ClampLong(section[nameof(MediaStoreThresholdBytes)], setting.MediaStoreThresholdBytes, MediaStoreUpperBound);
+                setting.MediaStoreTotalBudgetBytes = ClampLong(section[nameof(MediaStoreTotalBudgetBytes)], setting.MediaStoreTotalBudgetBytes, MediaStoreUpperBound);
                 setting.MaxImagesPerDocument = ReadInt(section[nameof(MaxImagesPerDocument)], setting.MaxImagesPerDocument);
                 setting.PdfRenderDpi = Math.Clamp(ReadInt(section[nameof(PdfRenderDpi)], setting.PdfRenderDpi), 72, 300);
                 var mimeSection = section.GetSection(nameof(AllowedAudioMimeTypes));
@@ -111,5 +119,12 @@ namespace kevin.AI.AgentFramework.Dto
 
         private static int ReadInt(string? value, int defaultValue)
             => int.TryParse(value, out var result) && result > 0 ? result : defaultValue;
+
+        /// <summary>入库阈值/预算上限（3MB）：max_allowed_packet 4MB 减去同消息文本余量，配置超过视为非法回退默认值</summary>
+        private const long MediaStoreUpperBound = 3 * 1024 * 1024;
+
+        /// <summary>非法（非数字、≤0、超上限）时退回默认值——这些值是防落库失败的兜底，不提供关闭能力</summary>
+        private static long ClampLong(string? value, long defaultValue, long upperBound)
+            => long.TryParse(value, out var result) && result > 0 && result <= upperBound ? result : defaultValue;
     }
 }

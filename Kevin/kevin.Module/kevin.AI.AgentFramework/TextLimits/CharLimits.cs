@@ -10,6 +10,7 @@ namespace kevin.AI.AgentFramework.TextLimits
     /// <para>
     /// 注意：这里是字符数，不是 Token；Token 估算见 <see cref="TokenEstimation.TokenEstimator"/>。
     /// 入库类上限来自 <see cref="AIChatStorageSetting"/>（appsettings 的 AIChatStorageSetting 节，可热更新）；
+    /// 媒体入库类上限来自 <see cref="ModalityOptions"/>（appsettings 的 Modality 节，可热更新）；
     /// 其余是提示词、展示与工具结果的固定上限。
     /// </para>
     /// <para>
@@ -40,6 +41,15 @@ namespace kevin.AI.AgentFramework.TextLimits
 
         /// <summary>工具结果写回历史时的兜底上限（字符）：ContentLengthLimit 配 0（不截断）时仍要防止 INSERT 撑爆 4MB 包</summary>
         public const int ToolResultStoreFallback = 200_000;
+        /// <summary>
+        /// 媒体附件（DataContent）入库字节阈值：来自 appsettings 的 Modality 节（可热更新），默认 512KB；
+        /// 入库副本中超限的 base64 整段替换为占位文本。
+        /// <para>大 PDF 整页渲染/多图上传时，base64 累计可达十几 MB，而整行 INSERT 受 MySQL
+        /// max_allowed_packet（默认 4MB）限制，直接落库必失败；完整二进制只服务当轮对话，写回历史时用占位版。</para>
+        /// </summary>
+        public static int MediaContentStoreFallback => checked((int)ModalityOptions.Current.MediaStoreThresholdBytes);
+        /// <summary>单条消息媒体附件入库总量预算（字节）：超预算按体积从大到小逐个替换，防多图累计撑爆 max_allowed_packet</summary>
+        public static long MediaStoreTotalBudget => ModalityOptions.Current.MediaStoreTotalBudgetBytes;
         /// <summary>技能脚本单个输出流保留的最大字符数（超出丢弃并标记截断）</summary>
         public const int ScriptOutputBuffer = 200_000;
         /// <summary>压缩摘要工具返回给模型的字符上限</summary>

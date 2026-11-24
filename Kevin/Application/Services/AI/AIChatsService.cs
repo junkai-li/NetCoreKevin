@@ -183,7 +183,12 @@ namespace kevin.Application.Services.AI
                         AuthorizedDomains = aiapp.AuthorizedDomains,
                         ContentLengthLimit = aiapp.ContentLengthLimit,
                         IsSecurityIntercept = aiapp.IsSecurityIntercept,
-                        ChatMessageLimit = aiapp.ChatMessageLimit
+                        ChatMessageLimit = aiapp.ChatMessageLimit,
+                        // 预热与真实对话保持一致：注入当前会话模型连接，供工具媒体解析复用本会话智能体模型
+                        AIUrl = aIModels.EndPoint,
+                        AIKeySecret = aIModels.ModelKey,
+                        AIDefaultModel = aIModels.ModelName,
+                        EnableAudioInput = aIModels.AIModelType.HasFlag(Domain.Share.Enums.AIModelType.AudioUnderstanding)
                     });
                     string systemPrompt = SystemPrompt.SystemPromptText + "\n 智能体提示词规则：\n" + aIPrompts.Prompt; 
                     var chatAgOs = await provider.GetRequiredService<IAIAppsService>().GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt,
