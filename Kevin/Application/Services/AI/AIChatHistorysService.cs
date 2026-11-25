@@ -503,7 +503,9 @@ namespace kevin.Application.Services.AI
                 // 传入本轮用户提问：开启记忆的智能体会自动召回高相关记忆，并以独立消息追加在历史尾部
                 //（不拼进 system prompt：召回内容每轮随提问变化，拼进去会让提示词前缀每轮漂移、跨轮缓存全部失效）。
                 // 工具结果回传轮不是新提问：跳过召回，避免占位文案召回无关记忆
-                var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par, userQuery: par.ExternalMessages is { Count: > 0 } ? null : add.Content);
+                // perRound：由 DTO 新增字段构造的本轮覆盖上下文（/弹层动态选择知识库与 Skill），
+                // 不传新字段时 From 返回等价于空的 override，行为与现状一致
+                var chatAgOs = await aIAppsService.GetAppAIAgentOptions(aiapp, aIPrompts, systemPrompt, par, userQuery: par.ExternalMessages is { Count: > 0 } ? null : add.Content, perRound: AIPerRoundOverride.From(par));
                 // 推荐问题交给当前智能体自己生成，并在主模型调用之前发起，与本轮回答并行跑；
                 // 回答结束后只做收割（见下面），done 事件不再被它拖住
                 if (par.IsRecommendQuestion)

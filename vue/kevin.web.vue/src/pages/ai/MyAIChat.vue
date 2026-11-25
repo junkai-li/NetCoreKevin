@@ -396,6 +396,34 @@
 
         <div class="chat-input" v-if="activeConversation">
           <div class="input-wrapper">
+            <!-- 本轮动态选择的知识库/Skill chips：内存态跨消息保留，单个×移除，可一键清空 -->
+            <div v-if="selectedKmsItems.length > 0 || selectedSkillItems.length > 0 || selectedMcpItems.length > 0 || excludeDefaultKmss || excludeDefaultSkills" class="kms-skill-chips-bar">
+              <span v-for="item in selectedKmsItems" :key="'kms-' + item.id" class="kms-skill-chip kms-chip">
+                知识库·{{ item.name }}
+                <CloseOutlined class="chip-remove" @click="removeSelectedKms(item.id)" />
+              </span>
+              <span v-for="item in selectedSkillItems" :key="'skill-' + item.id" class="kms-skill-chip skill-chip">
+                技能·{{ item.name }}
+                <CloseOutlined class="chip-remove" @click="removeSelectedSkill(item.id)" />
+              </span>
+              <span v-for="item in selectedMcpItems" :key="'mcp-' + item.id" class="kms-skill-chip mcp-chip">
+                MCP·{{ item.name }}
+                <CloseOutlined class="chip-remove" @click="removeSelectedMcp(item.id)" />
+              </span>
+              <span v-if="excludeDefaultKmss" class="kms-skill-chip exclude-chip">忽略默认知识库</span>
+              <span v-if="excludeDefaultSkills" class="kms-skill-chip exclude-chip">忽略默认技能</span>
+              <a class="chips-clear-all" @click="clearAllSelection">清空</a>
+            </div>
+            <!-- 本轮知识库/技能选择弹层 -->
+            <ChatKmsSkillSelector
+              v-model:open="selectorOpen"
+              :kms-ids="selectedKmsIds"
+              :skill-ids="selectedSkillIds"
+              :mcp-ids="selectedMcpIds"
+              :exclude-default-kmss="excludeDefaultKmss"
+              :exclude-default-skills="excludeDefaultSkills"
+              @confirm="handleSelectorConfirm"
+            />
             <div v-if="uploadedFileList.length > 0" class="uploaded-files-bar">
               <a-tag
                 v-for="(file, index) in uploadedFileList"
@@ -414,9 +442,10 @@
               <a-textarea
                 v-if="!isVoiceMode"
                 v-model:value="newMessage"
-                :placeholder="isSending ? '输入消息…（生成中，回车加入等待队列）' : '输入消息…'"
+                :placeholder="isSending ? '输入消息…（生成中，回车加入等待队列）' : '输入消息…（输入 / 选择本轮知识库与技能）'"
                 class="msg-input"
                 @pressEnter="handlePressEnter"
+                @keydown="handleInputKeydown"
                 :auto-size="{ minRows: 2, maxRows: 6 }"
                 allow-clear
               />
@@ -472,6 +501,17 @@
                   @upload-success="handleFileUploadSuccess"
                   @upload-error="handleFileUploadError"
                 />
+                <!-- 知识库/技能选择入口：随时打开/关闭本轮挂载弹层 -->
+                <a-tooltip placement="top">
+                  <template #title>选择本轮知识库与技能</template>
+                  <button
+                    class="kms-skill-trigger-btn"
+                    :class="{ active: selectedKmsItems.length > 0 || selectedSkillItems.length > 0 }"
+                    @click="selectorOpen = !selectorOpen"
+                  >
+                    <BookOutlined />
+                  </button>
+                </a-tooltip>
                 <!-- 上下文使用量：圆圈展示已用百分比，鼠标悬浮看明细（估算口径：未压缩历史 + 压缩摘要） -->
                 <a-tooltip
                   v-if="contextUsage && contextUsage.maxTokens > 0"
@@ -743,8 +783,10 @@ import {
   PushpinFilled,
   CloseOutlined,
   PlayCircleOutlined,
+  BookOutlined,
 } from "@ant-design/icons-vue";
 import FileUpload from "../../components/FileUpload.vue";
+import ChatKmsSkillSelector from "../../components/ai/ChatKmsSkillSelector.vue";
 import { message, Modal, Select } from "ant-design-vue";
 import { getMyAIAppsALLList } from "../../api/ai/aiapps.js";
 import { getAIChatsMyPageData, addAIChats, deleteAIChats } from "../../api/ai/aichats.js";
@@ -929,6 +971,62 @@ const streamModeOptions = [
 
 // 会话工作模式：0 默认执行 / 1 计划（先出计划待确认）/ 2 仅问答（不执行），三选一互斥，与后端 AIChatWorkModeEnums 对齐
 const agentMode = ref(0);
+
+// ===== 本轮动态选择知识库与技能（/ 弹层） =====
+// 内存态跨消息保留：发送后不清除，下一条消息继续生效；离开页面随组件销毁；不进消息正文、不落库
+const selectorOpen = ref(false);
+const selectedKmsIds = ref([]); // 已选知识库 Id（string，随请求透传）
+const selectedSkillIds = ref([]); // 已选技能 Id（string，随请求透传）
+const selectedMcpIds = ref([]); // 已选 MCP Id（string，随请求透传）
+const selectedKmsItems = ref([]); // [{id, name}] 供 chips 展示
+const selectedSkillItems = ref([]);
+const selectedMcpItems = ref([]);
+const excludeDefaultKmss = ref(false); // 忽略智能体默认知识库（本轮）
+const excludeDefaultSkills = ref(false); // 忽略智能体默认技能（本轮）
+
+// / 触发弹层：阻止 / 进入消息正文；中文输入法组合态（打"1/2"、网址等）不拦截
+const handleInputKeydown = (e) => {
+  if (e.key === "/" && !e.isComposing) {
+    e.preventDefault();
+    selectorOpen.value = true;
+  }
+};
+
+// 弹层确认：写入内存态（chips 与发送透传共用）
+const handleSelectorConfirm = (payload) => {
+  if (!payload) return;
+  selectedKmsIds.value = payload.kmsIds || [];
+  selectedSkillIds.value = payload.skillIds || [];
+  selectedMcpIds.value = payload.mcpIds || [];
+  selectedKmsItems.value = payload.kmsItems || [];
+  selectedSkillItems.value = payload.skillItems || [];
+  selectedMcpItems.value = payload.mcpItems || [];
+  excludeDefaultKmss.value = !!payload.excludeDefaultKmss;
+  excludeDefaultSkills.value = !!payload.excludeDefaultSkills;
+};
+
+const removeSelectedKms = (id) => {
+  selectedKmsIds.value = selectedKmsIds.value.filter((t) => t !== id);
+  selectedKmsItems.value = selectedKmsItems.value.filter((t) => t.id !== id);
+};
+const removeSelectedSkill = (id) => {
+  selectedSkillIds.value = selectedSkillIds.value.filter((t) => t !== id);
+  selectedSkillItems.value = selectedSkillItems.value.filter((t) => t.id !== id);
+};
+const removeSelectedMcp = (id) => {
+  selectedMcpIds.value = selectedMcpIds.value.filter((t) => t !== id);
+  selectedMcpItems.value = selectedMcpItems.value.filter((t) => t.id !== id);
+};
+const clearAllSelection = () => {
+  selectedKmsIds.value = [];
+  selectedSkillIds.value = [];
+  selectedMcpIds.value = [];
+  selectedKmsItems.value = [];
+  selectedSkillItems.value = [];
+  selectedMcpItems.value = [];
+  excludeDefaultKmss.value = false;
+  excludeDefaultSkills.value = false;
+};
 const agentModeOptions = [
   { value: 0, label: '默认' },
   { value: 1, label: '计划' },
@@ -2872,7 +2970,16 @@ const stopSendTimer = () => {
  * sendStatus/failReason，保证任意一层出错都能在那条提问上留下一个可点的红色重试按钮。
  */
 const postChatMessage = async (userMessage, par) => {
-  const { content, fileNames = [], contentFileUrls = [], retryOfId = 0, agentMode: msgAgentMode = 0, confirmedPlan = '' } = par;
+  // 本轮动态挂载参数：调用方（含重试链路）不显式传入时自动取当前内存态（跨消息保留），与后端 4 个不落库字段对齐
+  const {
+    content, fileNames = [], contentFileUrls = [], retryOfId = 0,
+    agentMode: msgAgentMode = 0, confirmedPlan = '',
+    selectedKmsIds: parKmsIds = selectedKmsIds.value,
+    selectedSkillIds: parSkillIds = selectedSkillIds.value,
+    selectedMcpIds: parMcpIds = selectedMcpIds.value,
+    excludeDefaultKmss: parExcludeKmss = excludeDefaultKmss.value,
+    excludeDefaultSkills: parExcludeSkills = excludeDefaultSkills.value,
+  } = par;
   isSending.value = true;
   startSendTimer();
   userStoppedSending = false; // 重置停止标志，允许自动播放
@@ -2909,6 +3016,11 @@ const postChatMessage = async (userMessage, par) => {
         retryOfId,
         agentMode: msgAgentMode,
         confirmedPlan,
+        selectedKmsIds: parKmsIds,
+        selectedSkillIds: parSkillIds,
+        selectedMcpIds: parMcpIds,
+        excludeDefaultKmss: parExcludeKmss,
+        excludeDefaultSkills: parExcludeSkills,
       }, abortController.signal);
       finalizeAiReply(data, userMessage, content, snowflakeId);
     } else {
@@ -2925,6 +3037,11 @@ const postChatMessage = async (userMessage, par) => {
         retryOfId: retryOfId,
         agentMode: msgAgentMode,
         confirmedPlan: confirmedPlan,
+        selectedKmsIds: parKmsIds,
+        selectedSkillIds: parSkillIds,
+        selectedMcpIds: parMcpIds,
+        excludeDefaultKmss: parExcludeKmss,
+        excludeDefaultSkills: parExcludeSkills,
       }, abortController.signal);
       if (reulst?.code !== 200 || !reulst?.data) {
         throw new Error(reulst?.errMsg || '发送失败');
@@ -3214,7 +3331,11 @@ const dispatchSSEEvent = ({ event, data }) => {
  * 收到 done（携带与 Add 的 reulst.data 同构的最终记录）后返回它；error 事件则抛业务异常。
  */
 const sendViaSSE = async (snowflakeId, par, signal) => {
-  const { content, fileNames = [], contentFileUrls = [], retryOfId = 0, agentMode = 0, confirmedPlan = '' } = par;
+  const {
+    content, fileNames = [], contentFileUrls = [], retryOfId = 0, agentMode = 0, confirmedPlan = '',
+    selectedKmsIds = [], selectedSkillIds = [], selectedMcpIds = [],
+    excludeDefaultKmss = false, excludeDefaultSkills = false,
+  } = par;
   const resp = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/AIChatHistorys/AddSSE`, {
     method: 'POST',
     headers: {
@@ -3234,6 +3355,11 @@ const sendViaSSE = async (snowflakeId, par, signal) => {
       retryOfId,
       agentMode,
       confirmedPlan,
+      selectedKmsIds,
+      selectedSkillIds,
+      selectedMcpIds,
+      excludeDefaultKmss,
+      excludeDefaultSkills,
     }),
   });
   if (!resp.ok || !resp.body) {
@@ -3765,3 +3891,82 @@ const deleteConversation = async (conversationId, event) => {
 </script>
 
 <style scoped src="../../css/MyAIChat.css"></style>
+
+<!-- 本轮知识库/技能选择（chips 与触发按钮）：样式内联在本组件，避免改动白名单外的 MyAIChat.css -->
+<style scoped>
+/* 内联命令面板锚定：/ 面板绝对定位在输入框上方（组件内部 bottom:100%） */
+.input-wrapper {
+  position: relative;
+}
+.kms-skill-chips-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 6px;
+}
+.kms-skill-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.03);
+}
+.kms-skill-chip.kms-chip {
+  color: #1677ff;
+  border-color: rgba(22, 119, 255, 0.25);
+  background: rgba(22, 119, 255, 0.06);
+}
+.kms-skill-chip.skill-chip {
+  color: #722ed1;
+  border-color: rgba(114, 46, 209, 0.25);
+  background: rgba(114, 46, 209, 0.06);
+}
+.kms-skill-chip.mcp-chip {
+  color: #13c2c2;
+  border-color: rgba(19, 194, 194, 0.25);
+  background: rgba(19, 194, 194, 0.06);
+}
+.kms-skill-chip.exclude-chip {
+  color: #fa8c16;
+  border-color: rgba(250, 140, 22, 0.25);
+  background: rgba(250, 140, 22, 0.06);
+}
+.chip-remove {
+  cursor: pointer;
+  font-size: 10px;
+  opacity: 0.6;
+}
+.chip-remove:hover {
+  opacity: 1;
+}
+.chips-clear-all {
+  font-size: 12px;
+  color: #999;
+}
+.chips-clear-all:hover {
+  color: #1677ff;
+}
+.kms-skill-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  color: inherit;
+}
+.kms-skill-trigger-btn:hover,
+.kms-skill-trigger-btn.active {
+  color: #1677ff;
+  border-color: rgba(22, 119, 255, 0.4);
+}
+</style>

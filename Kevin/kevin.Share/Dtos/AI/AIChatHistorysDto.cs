@@ -178,6 +178,44 @@ namespace kevin.Domain.Share.Dtos.AI
         /// </summary>
         [Description("已确认的执行计划")]
         public string? ConfirmedPlan { get; set; }
+
+        /// <summary>
+        /// 本轮追加挂载的知识库 Id 列表（字符串数字，非法忽略）：发送时临时叠加知识库检索工具，仅本轮生效，
+        /// 与智能体默认绑定的 TAIApps.KmsId 合并挂载。
+        /// <para>仅作为本轮入参使用，不落库。</para>
+        /// </summary>
+        [Description("本轮追加知识库Id列表，仅入参不落库")]
+        public List<string>? SelectedKmsIds { get; set; }
+
+        /// <summary>
+        /// 本轮追加挂载的 Skill Id 列表（字符串数字，非法忽略）：发送时临时叠加技能，仅本轮生效，
+        /// 与智能体默认绑定的 Skill 合并挂载。
+        /// <para>仅作为本轮入参使用，不落库。</para>
+        /// </summary>
+        [Description("本轮追加Skill Id列表，仅入参不落库")]
+        public List<string>? SelectedSkillIds { get; set; }
+
+        /// <summary>
+        /// 本轮追加挂载的 MCP Id 列表（字符串数字，非法忽略）：发送时临时叠加 MCP 服务，仅本轮生效，
+        /// 与智能体默认绑定的 MCP 合并挂载（该 MCP 服务下勾选的工具列表照常生效）。
+        /// <para>仅作为本轮入参使用，不落库。</para>
+        /// </summary>
+        [Description("本轮追加MCP Id列表，仅入参不落库")]
+        public List<string>? SelectedMcpIds { get; set; }
+
+        /// <summary>
+        /// 忽略智能体默认绑定知识库 TAIApps.KmsId（仅本轮生效，true 时本轮只挂载追加的知识库）。
+        /// <para>仅作为本轮入参使用，不落库。</para>
+        /// </summary>
+        [Description("忽略智能体默认知识库，仅入参不落库")]
+        public bool ExcludeDefaultKmss { get; set; }
+
+        /// <summary>
+        /// 忽略智能体默认绑定 Skill（仅本轮生效，true 时本轮只挂载追加的技能）。
+        /// <para>仅作为本轮入参使用，不落库。</para>
+        /// </summary>
+        [Description("忽略智能体默认技能，仅入参不落库")]
+        public bool ExcludeDefaultSkills { get; set; }
     }
 
     /// <summary>外部客户端声明的透传工具定义（OpenAI 兼容接口 tools[] 的 function 部分）</summary>

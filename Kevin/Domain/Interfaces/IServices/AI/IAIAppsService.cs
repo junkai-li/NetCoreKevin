@@ -30,8 +30,9 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// <param name="withCapabilities">是否挂载工具/技能/记忆/文生图</param>
         /// <param name="readOnlyHistory">会话历史是否只读（只读不写回）</param>
         /// <param name="userQuery">当前用户提问：开启记忆时用于自动召回高相关记忆，为空则跳过召回</param>
+        /// <param name="perRound">本轮覆盖上下文：聊天发送时由 DTO 字段构造的临时知识库/Skill 追加配置（不落库、仅本轮生效），为 null 表示沿用智能体默认绑定</param>
         /// <returns></returns>
-        Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default, bool withCapabilities = true, bool readOnlyHistory = false, string? userQuery = null);
+        Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default, bool withCapabilities = true, bool readOnlyHistory = false, string? userQuery = null, AIPerRoundOverride? perRound = null);
 
         /// <summary>
         /// 一次性调用当前智能体用的配置：同模型、同提示词、同会话历史，但不挂工具且历史只读（供推荐问题这类元任务用）

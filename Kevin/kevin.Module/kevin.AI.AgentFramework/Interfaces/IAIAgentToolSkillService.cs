@@ -44,8 +44,10 @@ namespace kevin.AI.AgentFramework.Interfaces
         /// <param name="data">用于传递数据</param>
         /// <param name="agentId"></param>
         /// <param name="userId"></param>
-        /// <returns></returns>
-        Task<List<string>> GetUserAIAgentSkillsAsync(string agentId, string userId);
+        /// <param name="additionalSkillIds">本轮追加挂载的 Skill Id 列表（聊天发送时动态选择；查不到的 Id 跳过并记 Warn 日志，不阻断消息）</param>
+        /// <param name="excludeDefault">true 时剔除智能体默认绑定的 Skill，仅挂载追加的</param>
+        /// <returns>去重后的 Skill Name 列表（Name 即 Skills/ 目录名）</returns>
+        Task<List<string>> GetUserAIAgentSkillsAsync(string agentId, string userId, List<long>? additionalSkillIds = null, bool excludeDefault = false);
 
         /// <summary>
         /// 获取所有的Skill技能 skillPath地址
@@ -55,13 +57,14 @@ namespace kevin.AI.AgentFramework.Interfaces
         Task<List<string>> GetAllAIAgentSkillsAsync();
 
         /// <summary>
-        /// 获取智能体的MCP工具
+        /// 获取智能体的MCP工具（含本轮 / 弹层动态追加的 MCP）
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="agentId"></param>
-        /// <param name="userId"></param>
-        /// <returns></returns>
-        Task<List<AITool>> GetUserAIAgentMcpToolsAsync(string agentId, string userId);
+        /// <param name="agentId">智能体 Id</param>
+        /// <param name="userId">当前用户 Id</param>
+        /// <param name="additionalMcpIds">本轮追加挂载的 MCP Id（聊天 / 弹层动态选择，经 isDataPer 按 Id 加载，查不到静默跳过）</param>
+        /// <param name="excludeDefault">true 时本轮忽略智能体默认绑定的 MCP，只挂载追加部分</param>
+        /// <returns>合并后的 MCP 工具列表</returns>
+        Task<List<AITool>> GetUserAIAgentMcpToolsAsync(string agentId, string userId, List<long>? additionalMcpIds = null, bool excludeDefault = false);
 
         /// <summary>
         /// 获取智能体记忆工具（SaveMemory/SearchMemory/UpdateMemory/DeleteMemory）。

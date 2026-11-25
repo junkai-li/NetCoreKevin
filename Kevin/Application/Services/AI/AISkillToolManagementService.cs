@@ -330,6 +330,26 @@ namespace kevin.Application.Services.AI
 
         }
         /// <summary>
+        /// 受数据权限控制的按 Id 批量取 Skill：Query(isDataPer: true) 隐式校验归属，
+        /// 请求 Id 中已删除/无权限/非 Skill 类型/未启用的不会出现在返回结果中（调用方按差集记 Warn 日志跳过）。
+        /// 写法仿 <see cref="GetNotDataPerAllSkills"/>，仅多一个 ids 过滤与数据权限。
+        /// </summary>
+        public async Task<List<AISkillToolManagementDto>> GetDataPerSkillsByIds(List<long> ids)
+        {
+            if (ids is not { Count: > 0 }) return new List<AISkillToolManagementDto>();
+            return (await AISkillToolManagementRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Skill && t.ActiveStatus == InActiveStatusEnums.Active && ids.Contains(t.Id)).OrderByDescending(t => t.CreateTime).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
+
+        }
+
+        /// <summary>
+        /// 按 Id 加载本轮追加挂载的 MCP（isDataPer 数据权限 + Mcp 类型 + Active），仿 <see cref="GetDataPerSkillsByIds"/>。
+        /// </summary>
+        public async Task<List<AISkillToolManagementDto>> GetDataPerMcpsByIds(List<long> ids)
+        {
+            if (ids is not { Count: > 0 }) return new List<AISkillToolManagementDto>();
+            return (await AISkillToolManagementRp.Query(isDataPer: true).Where(t => t.IsDelete == false && t.SkillToolType == AISkillToolTypeEnums.Mcp && t.ActiveStatus == InActiveStatusEnums.Active && ids.Contains(t.Id)).OrderByDescending(t => t.CreateTime).ToListAsync()).MapToList<TAISkillToolManagement, AISkillToolManagementDto>();
+        }
+        /// <summary>
         /// 不受数据权限控制的技能工具列表（主要用于系统管理员等特殊角色使用）
         /// </summary>
         /// <returns></returns>

@@ -458,9 +458,37 @@ namespace kevin.Application.Services.AI
             return await GetAITools(tools.Select(t => t.ClassMethod ?? "").ToList());
         }
 
-        public async Task<List<string>> GetUserAIAgentSkillsAsync(string agentId, string userId)
+        public async Task<List<string>> GetUserAIAgentSkillsAsync(string agentId, string userId, List<long>? additionalSkillIds = null, bool excludeDefault = false)
         {
-            return await GetAIAgentSkillsAsync(agentId);
+            // 默认绑定原样保留（excludeDefault=false 时与旧行为完全一致）
+            var names = new List<string>();
+            if (!excludeDefault)
+            {
+                names.AddRange(await GetAIAgentSkillsAsync(agentId));
+            }
+            // 本轮追加挂载：按 Id 走 isDataPer 数据权限加载，查不到（已删/无权限/未启用）静默跳过并记 Warn 日志
+            if (additionalSkillIds is { Count: > 0 })
+            {
+                // 硬上限：与知识库挂载口径一致，防止本轮工具列表无限膨胀
+                const int MaxPerRoundSkillMountCount = 20;
+                var skillIds = additionalSkillIds.Distinct().ToList();
+                if (skillIds.Count > MaxPerRoundSkillMountCount)
+                {
+                    Kevin.log4Net.LogHelper.logger.Warn($"本轮追加技能数 {skillIds.Count} 超上限 {MaxPerRoundSkillMountCount}，仅挂载前 {MaxPerRoundSkillMountCount} 个");
+                    skillIds = skillIds.Take(MaxPerRoundSkillMountCount).ToList();
+                }
+                var skills = await _iAISkillToolManagementService.GetDataPerSkillsByIds(skillIds);
+                var foundIds = skills.Select(t => t.Id).ToHashSet();
+                foreach (var id in skillIds)
+                {
+                    if (!foundIds.Contains(id))
+                    {
+                        Kevin.log4Net.LogHelper.logger.Warn($"本轮追加的技能 Id={id} 不存在、已删除或无数据权限，跳过挂载");
+                    }
+                }
+                names.AddRange(skills.Select(t => t.Name));
+            }
+            return names.Distinct().ToList();
         }
 
         public async Task<List<AITool>> GetUserAIAgentToolsAsync(string agentId, string userId)
@@ -477,9 +505,37 @@ namespace kevin.Application.Services.AI
             return aiTools;
         }
 
-        public async Task<List<AITool>> GetUserAIAgentMcpToolsAsync(string agentId, string userId)
+        public async Task<List<AITool>> GetUserAIAgentMcpToolsAsync(string agentId, string userId, List<long>? additionalMcpIds = null, bool excludeDefault = false)
         {
-            return await GetAIAgentMcpToolsAsync(agentId);
+            // 默认绑定原样保留（excludeDefault=false 时与旧行为完全一致）
+            var aiTools = new List<AITool>();
+            if (!excludeDefault)
+            {
+                aiTools.AddRange(await GetAIAgentMcpToolsAsync(agentId));
+            }
+            // 本轮追加挂载：按 Id 走 isDataPer 数据权限加载，查不到（已删/无权限/未启用）静默跳过并记 Warn 日志
+            if (additionalMcpIds is { Count: > 0 })
+            {
+                // 硬上限：与知识库/技能挂载口径一致，防止本轮工具列表无限膨胀
+                const int MaxPerRoundMcpMountCount = 20;
+                var mcpIds = additionalMcpIds.Distinct().ToList();
+                if (mcpIds.Count > MaxPerRoundMcpMountCount)
+                {
+                    Kevin.log4Net.LogHelper.logger.Warn($"本轮追加 MCP 数 {mcpIds.Count} 超上限 {MaxPerRoundMcpMountCount}，仅挂载前 {MaxPerRoundMcpMountCount} 个");
+                    mcpIds = mcpIds.Take(MaxPerRoundMcpMountCount).ToList();
+                }
+                var mcps = await _iAISkillToolManagementService.GetDataPerMcpsByIds(mcpIds);
+                var foundIds = mcps.Select(t => t.Id).ToHashSet();
+                foreach (var id in mcpIds)
+                {
+                    if (!foundIds.Contains(id))
+                    {
+                        Kevin.log4Net.LogHelper.logger.Warn($"本轮追加的 MCP Id={id} 不存在、已删除或无数据权限，跳过挂载");
+                    }
+                }
+                aiTools.AddRange(await GetMcpTools(mcps));
+            }
+            return aiTools;
         }
 
         /// <summary>

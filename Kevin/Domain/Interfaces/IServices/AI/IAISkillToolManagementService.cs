@@ -52,6 +52,23 @@ namespace kevin.Domain.Interfaces.IServices.AI
 
         Task<List<AISkillToolManagementDto>> GetNotDataPerAllSkills();
 
+        /// <summary>
+        /// 受数据权限控制的按 Id 批量取 Skill（isDataPer: true 隐式校验归属）：
+        /// 请求 Id 中已删除/无权限/非 Skill 类型/未启用的不会出现在返回结果中（调用方按差集记 Warn 日志跳过，不阻断主流程）。
+        /// </summary>
+        /// <param name="ids">要加载的 Skill Id 集合（空集合直接返回空列表）</param>
+        /// <returns>命中的 Skill 列表</returns>
+        Task<List<AISkillToolManagementDto>> GetDataPerSkillsByIds(List<long> ids);
+
+        /// <summary>
+        /// 按 Id 加载本轮追加挂载的 MCP（isDataPer 数据权限 + Mcp 类型 + Active）：
+        /// 传进来别人的/已删除/未启用的 Id 自然查不到，调用方跳过挂载即可，实现"隐式归属校验"。
+        /// 写法仿 <see cref="GetDataPerSkillsByIds"/>，仅 Skill 类型换为 Mcp 类型。
+        /// </summary>
+        /// <param name="ids">要加载的 MCP Id 集合（空集合直接返回空列表）</param>
+        /// <returns>命中的 MCP 列表</returns>
+        Task<List<AISkillToolManagementDto>> GetDataPerMcpsByIds(List<long> ids);
+
         Task<List<AISkillToolManagementDto>> GetNotDataPerAllTools();
 
         Task<List<AISkillToolManagementDto>> GetNotDataPerAllMcps();

@@ -389,6 +389,39 @@
             <para>仅作为本轮入参使用，不落库。</para>
             </summary>
         </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.SelectedKmsIds">
+            <summary>
+            本轮追加挂载的知识库 Id 列表（字符串数字，非法忽略）：发送时临时叠加知识库检索工具，仅本轮生效，
+            与智能体默认绑定的 TAIApps.KmsId 合并挂载。
+            <para>仅作为本轮入参使用，不落库。</para>
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.SelectedSkillIds">
+            <summary>
+            本轮追加挂载的 Skill Id 列表（字符串数字，非法忽略）：发送时临时叠加技能，仅本轮生效，
+            与智能体默认绑定的 Skill 合并挂载。
+            <para>仅作为本轮入参使用，不落库。</para>
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.SelectedMcpIds">
+            <summary>
+            本轮追加挂载的 MCP Id 列表（字符串数字，非法忽略）：发送时临时叠加 MCP 服务，仅本轮生效，
+            与智能体默认绑定的 MCP 合并挂载（该 MCP 服务下勾选的工具列表照常生效）。
+            <para>仅作为本轮入参使用，不落库。</para>
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.ExcludeDefaultKmss">
+            <summary>
+            忽略智能体默认绑定知识库 TAIApps.KmsId（仅本轮生效，true 时本轮只挂载追加的知识库）。
+            <para>仅作为本轮入参使用，不落库。</para>
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.ExcludeDefaultSkills">
+            <summary>
+            忽略智能体默认绑定 Skill（仅本轮生效，true 时本轮只挂载追加的技能）。
+            <para>仅作为本轮入参使用，不落库。</para>
+            </summary>
+        </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.AIExternalToolDto">
             <summary>外部客户端声明的透传工具定义（OpenAI 兼容接口 tools[] 的 function 部分）</summary>
         </member>
@@ -617,6 +650,41 @@
             <summary>
             回答最大token数（模型最大输出长度）
             </summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.AI.AIPerRoundOverride">
+            <summary>
+            聊天本轮覆盖上下文（Per-Round Override）：随单条消息入参透传、不落库的临时挂载配置
+            （仿 <see cref="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.AgentMode"/> / <see cref="P:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto.ExternalTools"/> 的“仅本轮入参”模式）。
+            <para>
+            由 <see cref="T:kevin.Domain.Share.Dtos.AI.AIChatHistorysDto"/> 的新增字段经 <see cref="M:kevin.Domain.Share.Dtos.AI.AIPerRoundOverride.From(kevin.Domain.Share.Dtos.AI.AIChatHistorysDto)"/> 构造后透传至
+            <c>IAIAppsService.GetAppAIAgentOptions</c>，仅影响本轮知识库检索工具与 Skill 的挂载集合；
+            下一条消息不携带时回退智能体默认绑定。未来聊天室 / OpenAI 兼容接口可复用。
+            </para>
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIPerRoundOverride.SelectedKmsIds">
+            <summary>本轮追加挂载的知识库 Id 列表（已解析、去重）</summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIPerRoundOverride.SelectedSkillIds">
+            <summary>本轮追加挂载的 Skill Id 列表（已解析、去重）</summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIPerRoundOverride.SelectedMcpIds">
+            <summary>本轮追加挂载的 MCP Id 列表（已解析、去重）</summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIPerRoundOverride.ExcludeDefaultKmss">
+            <summary>忽略智能体默认绑定知识库 TAIApps.KmsId</summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIPerRoundOverride.ExcludeDefaultSkills">
+            <summary>忽略智能体默认绑定 Skill</summary>
+        </member>
+        <member name="M:kevin.Domain.Share.Dtos.AI.AIPerRoundOverride.From(kevin.Domain.Share.Dtos.AI.AIChatHistorysDto)">
+            <summary>
+            从聊天入参构造本轮覆盖上下文：字符串 Id 逐个 long.TryParse（非法/非正数忽略）并去重；
+            源字段均为空/默认时返回等价于空的 override（旧客户端不传新字段 → 行为与现状一致）。
+            </summary>
+        </member>
+        <member name="M:kevin.Domain.Share.Dtos.AI.AIPerRoundOverride.ParseIds(System.Collections.Generic.List{System.String})">
+            <summary>字符串 Id 解析：非法或非正数忽略，结果去重保序</summary>
         </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIPromptsDto.Name">
             <summary>

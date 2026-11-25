@@ -464,8 +464,9 @@ namespace kevin.Application.Services.AI
         /// <param name="withCapabilities">是否挂载工具/技能/记忆/文生图：一次性元任务（如推荐问题）传 false，省掉一轮工具枚举</param>
         /// <param name="readOnlyHistory">会话历史是否只读：true 时本次调用读得到历史但不写回去，不至于把元指令污染进对话</param>
         /// <param name="userQuery">当前用户提问：开启记忆时用于自动召回高相关记忆，为空则跳过召回</param>
+        /// <param name="perRound">本轮覆盖上下文：聊天发送时由 DTO 字段构造的临时知识库/Skill 追加配置（不落库、仅本轮生效），为 null 表示沿用智能体默认绑定</param>
         /// <returns></returns>
-        public async Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default, bool withCapabilities = true, bool readOnlyHistory = false, string? userQuery = null)
+        public async Task<ChatClientAgentOptions> GetAppAIAgentOptions(AIAppsDto aiapp, AIPromptsDto aIPrompts, string systemPrompt, AIChatHistorysDto par, CancellationToken cancellationToken = default, bool withCapabilities = true, bool readOnlyHistory = false, string? userQuery = null, AIPerRoundOverride? perRound = null)
         {
             #region 记忆管理协议提示词（仅在开启智能体记忆 IsMemory 时注入）
             if (aiapp.IsMemory)
@@ -566,11 +567,11 @@ namespace kevin.Application.Services.AI
                 if (chatAgOs.ChatOptions != default)
                 {
                     chatAgOs.ChatOptions.Tools ??= new List<AITool>();
-                    chatAgOs.ChatOptions.Tools.AddRange(await _aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString()));
+                    chatAgOs.ChatOptions.Tools.AddRange(await _aIAgentToolSkillService.GetUserAIAgentMcpToolsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString(), perRound?.SelectedMcpIds));
                 }
             }
             #region 知识库工具（绑定了 KmsId 就挂载，独立于 IsAITools）
-            await TryMountKnowledgeSearchToolAsync(aiapp, chatAgOs);
+            await TryMountKnowledgeSearchToolAsync(aiapp, chatAgOs, perRound);
             #endregion
             #region 记忆工具（仅在开启智能体记忆 IsMemory 时注入，独立于 IsAITools）
             if (aiapp.IsMemory)
@@ -584,7 +585,7 @@ namespace kevin.Application.Services.AI
             #endregion
             if (aiapp.IsSkill)
             {
-                var skillPaths = await _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString());
+                var skillPaths = await _aIAgentToolSkillService.GetUserAIAgentSkillsAsync(aiapp.Id.ToString(), (CurrentUser?.UserId ?? 0).ToString(), perRound?.SelectedSkillIds, perRound?.ExcludeDefaultSkills ?? false);
                 var skillsProvider = new AgentSkillsProviderBuilder()
                                          .UseOptions(t =>
                                          {
@@ -691,7 +692,7 @@ namespace kevin.Application.Services.AI
             }
             if (aiapp.KmsId.HasValue && aiapp.KmsId.Value > 0)
             {
-                lines.Add("- 知识库检索 SearchKnowledge（检索已绑定知识库的文档资料）");
+                lines.Add("- 知识库检索（工具名 SearchKnowledge_{知识库名后缀}，检索已绑定知识库的文档资料）");
             }
             var result = lines.Count > 0 ? string.Join("\n", lines) : "";
             // 清单总长受控：工具过多时截断，避免挤占提问 Token 预算
@@ -866,31 +867,53 @@ namespace kevin.Application.Services.AI
         }
 
         /// <summary>
-        /// 按智能体绑定的知识库挂载 SearchKnowledge AIFunction（<see cref="GetAppAIAgentOptions"/> 与 <see cref="GetAppAIAgent"/> 共用）。
+        /// 按合并后的知识库集合挂载 SearchKnowledge AIFunction（<see cref="GetAppAIAgentOptions"/> 与 <see cref="GetAppAIAgent"/> 共用）。
         /// <para>
-        /// 容错策略与文生图工具一致：未绑定知识库、知识库不存在或构建异常都不抛错打断主流程，只写警告日志跳过挂载。
+        /// 集合 = 智能体默认绑定 KmsId（可被 perRound.ExcludeDefaultKmss 排除）∪ perRound.SelectedKmsIds（本轮追加），
+        /// 去重后逐个挂载；perRound 为 null 时即原单库挂载行为。合并集合为空 → 不挂载任何知识库工具。
+        /// </para>
+        /// <para>
+        /// 容错策略与文生图工具一致：知识库不存在/无数据权限或构建异常都不抛错打断主流程，只写警告日志跳过该库。
         /// </para>
         /// </summary>
-        private async Task TryMountKnowledgeSearchToolAsync(AIAppsDto aiapp, ChatClientAgentOptions chatAgOs)
+        private async Task TryMountKnowledgeSearchToolAsync(AIAppsDto aiapp, ChatClientAgentOptions chatAgOs, AIPerRoundOverride? perRound = null)
         {
-            if (aiapp.KmsId == default) return;
             if (chatAgOs.ChatOptions == null) return;
-            try
+            // 合并挂载集合：默认绑定（可被“忽略默认”开关排除）∪ 本轮追加，去重
+            var kmsIds = new List<long>();
+            if ((perRound == null || !perRound.ExcludeDefaultKmss) && aiapp.KmsId > 0)
             {
-                var kmsTool = await _knowledgeSearchToolService.BuildSearchFunction(aiapp);
-                if (kmsTool != null)
-                {
-                    chatAgOs.ChatOptions.Tools ??= new List<AITool>();
-                    chatAgOs.ChatOptions.Tools.Add(kmsTool);
-                }
-                else
-                {
-                    LogHelper.logger.Warn($"智能体 {aiapp.Name}(Id={aiapp.Id}) 绑定了知识库 KmsId={aiapp.KmsId} 但知识库不存在或不可用，跳过 SearchKnowledge 工具挂载");
-                }
+                kmsIds.Add(aiapp.KmsId.GetValueOrDefault());
             }
-            catch (Exception ex)
+            if (perRound != null) kmsIds.AddRange(perRound.SelectedKmsIds);
+            kmsIds = kmsIds.Distinct().ToList();
+            // 硬上限：防止本轮工具列表无限膨胀拖慢模型调用，超出部分跳过并告警
+            const int MaxPerRoundKmsMountCount = 20;
+            if (kmsIds.Count > MaxPerRoundKmsMountCount)
             {
-                LogHelper.logger.Warn($"智能体 {aiapp.Name}(Id={aiapp.Id}) 挂载知识库搜索工具失败，跳过: {ex.Message}");
+                LogHelper.logger.Warn($"智能体 {aiapp.Name}(Id={aiapp.Id}) 本轮知识库挂载数 {kmsIds.Count} 超上限 {MaxPerRoundKmsMountCount}，仅挂载前 {MaxPerRoundKmsMountCount} 个");
+                kmsIds = kmsIds.Take(MaxPerRoundKmsMountCount).ToList();
+            }
+            if (kmsIds.Count == 0) return;
+            foreach (var kmsId in kmsIds)
+            {
+                try
+                {
+                    var kmsTool = await _knowledgeSearchToolService.BuildSearchFunction(aiapp, kmsId);
+                    if (kmsTool != null)
+                    {
+                        chatAgOs.ChatOptions.Tools ??= new List<AITool>();
+                        chatAgOs.ChatOptions.Tools.Add(kmsTool);
+                    }
+                    else
+                    {
+                        LogHelper.logger.Warn($"智能体 {aiapp.Name}(Id={aiapp.Id}) 的知识库 KmsId={kmsId} 不存在、已删除或无数据权限，跳过 SearchKnowledge 工具挂载");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.logger.Warn($"智能体 {aiapp.Name}(Id={aiapp.Id}) 挂载知识库 KmsId={kmsId} 搜索工具失败，跳过: {ex.Message}");
+                }
             }
         }
 
