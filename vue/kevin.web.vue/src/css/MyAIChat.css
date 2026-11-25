@@ -1090,6 +1090,9 @@
 .file-link {
   color: var(--chat-brand);
   text-decoration: none;
+  /* 长名字不撑破面板：允许收缩并在任意处换行，名字完整显示 */
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .audio-player {
@@ -1105,6 +1108,11 @@
 
 .file-link:hover {
   text-decoration: underline;
+}
+
+/* 附件整行都是链接：图标保持原来的中性色，只有文件名用品牌色 */
+.file-item.file-link :deep(.anticon) {
+  color: rgba(0, 0, 0, 0.55);
 }
 
 .log-item {

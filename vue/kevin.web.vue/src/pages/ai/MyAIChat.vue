@@ -208,19 +208,29 @@
                   <a-collapse v-if="message.fileNames && message.contentFileUrls" class="message-collapse" ghost>
                     <a-collapse-panel key="files" header="附件">
                       <div class="collapse-content file-list-content">
-                        <div v-for="(fileName, index) in message.fileNames.split(',')" :key="index" class="file-item">
-                          <template v-if="isAudioFile(fileName)">
+                        <template v-for="(file, index) in parseAttachmentList(message)" :key="index">
+                          <div v-if="isAudioFile(file.name)" class="file-item">
                             <SoundOutlined />
-                            <audio controls :src="message.contentFileUrls.split(',')[index]" class="audio-player"></audio>
-                            <span class="file-name">{{ fileName }}</span>
-                          </template>
-                          <template v-else>
+                            <audio controls :src="file.url" class="audio-player"></audio>
+                            <span class="file-name">{{ file.name }}</span>
+                          </div>
+                          <!-- 整行（图标+文件名）都是链接：名字过长换行后第二行同样可点 -->
+                          <a
+                            v-else-if="file.url"
+                            class="file-item file-link"
+                            :href="file.url"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            :title="file.name"
+                          >
                             <FileTextOutlined />
-                            <a :href="message.contentFileUrls.split(',')[index]" target="_blank" class="file-link">
-                              {{ fileName }}
-                            </a>
-                          </template>
-                        </div>
+                            <span>{{ file.name }}</span>
+                          </a>
+                          <div v-else class="file-item">
+                            <FileTextOutlined />
+                            <span class="file-name">{{ file.name }}</span>
+                          </div>
+                        </template>
                       </div>
                     </a-collapse-panel>
                   </a-collapse>
@@ -2763,8 +2773,9 @@ const retryMessage = async (failed) => {
   try {
     await postChatMessage(target, {
       content: target.content,
-      fileNames: (target.fileNames || '').split(',').filter(Boolean),
-      contentFileUrls: (target.contentFileUrls || '').split(',').filter(Boolean),
+      // 重试沿用展示层的解析结果，名字与链接一一对应，不再把逗号名切成两条附件
+      fileNames: parseAttachmentList(target).map((f) => f.name).filter(Boolean),
+      contentFileUrls: parseAttachmentList(target).map((f) => f.url).filter(Boolean),
       retryOfId: target.dbId || target.id,
       agentMode: target.agentMode || 0,
       confirmedPlan: target.confirmedPlan || '',
@@ -3059,6 +3070,65 @@ const visibleToolLogs = (text) => {
 const truncateContent = (content, maxLength = 350) => {
   if (!content || content.length <= maxLength) return content;
   return content.substring(0, maxLength) + '...';
+};
+
+// 附件名串、链接串各拆一次：逗号拼接存储，名字或链接内部都可能带逗号
+const splitAttachmentField = (raw) =>
+  (raw || '').split(',').map((s) => s.trim()).filter(Boolean);
+
+// 从链接末端取扩展名（.md / .pdf），用来判断名字在哪一段结束；取不到返回空串
+const urlFileExtension = (url) => {
+  if (!url) return '';
+  const path = url.split(/[?#]/)[0];
+  const segment = path.substring(path.lastIndexOf('/') + 1);
+  const dot = segment.lastIndexOf('.');
+  return dot > 0 ? segment.slice(dot).toLowerCase() : '';
+};
+
+/**
+ * 名字段数多于链接数，说明有文件名内部带逗号被切开了：按链接数量把相邻段合回完整名字。
+ * 合并在哪断：优先取“该段以对应链接的扩展名结尾”处，并给后面的链接留够至少一段；
+ * 扩展名一个都对不上时本组只取一段，把多余段兜底并入最后一组。
+ */
+const rebuildAttachmentNames = (names, urls) => {
+  if (!urls.length || names.length <= urls.length) return names;
+  const groups = [];
+  let start = 0;
+  for (let i = 0; i < urls.length; i++) {
+    const restGroups = urls.length - 1 - i; // 后面还要留的组数
+    if (restGroups === 0) {
+      groups.push(names.slice(start).join(','));
+      break;
+    }
+    const maxLen = names.length - start - restGroups; // 本组最多能取几段
+    const ext = urlFileExtension(urls[i]);
+    let take = 0;
+    for (let len = 1; ext && len <= maxLen; len++) {
+      if (names[start + len - 1].toLowerCase().endsWith(ext)) {
+        take = len;
+        break;
+      }
+    }
+    if (!take) take = 1;
+    groups.push(names.slice(start, start + take).join(','));
+    start += take;
+  }
+  return groups;
+};
+
+// 附件展示列表：名字与链接一一对应；没有对应链接的条目降级成纯文本
+const parseAttachmentList = (message) => {
+  const names = splitAttachmentField(message?.fileNames);
+  const urls = splitAttachmentField(message?.contentFileUrls);
+  const rebuilt = rebuildAttachmentNames(names, urls);
+  const rows = [];
+  const count = Math.max(rebuilt.length, urls.length);
+  for (let i = 0; i < count; i++) {
+    const url = urls[i] || '';
+    const name = rebuilt[i] || url.split(/[?#]/)[0].split('/').pop() || '未命名文件';
+    rows.push({ name, url });
+  }
+  return rows;
 };
 
 // 判断文件是否为音频类型
