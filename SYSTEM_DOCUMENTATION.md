@@ -411,6 +411,36 @@ docker run -d --name qdrant -p 6333:6333 -v qdrant_storage:/qdrant/storage qdran
 - 路由：`GET /api/v1/models`（返回可调用的智能体列表，`model` 默认即智能体名称，同时兼容智能体 Id）、`POST /api/v1/chat/completions`（支持 `stream`）。
 - 鉴权：`Authorization: Bearer sk-kv-...`。Key 在后台「我的 OpenAI Key」页面自助生成，加密落库（依赖 `AESInfo`），支持查看明文、启用/禁用、删除；鉴权通过后网关内部换发等价 JWT，聊天记录、权限、租户过滤与网页端完全一致。
 - 智能体配置里的 `OpenAICompatibleSetting.SessionExpirationHours` 控制同一会话标识的最大空闲时长；`AIChatIsHidden=true` 时 API 对话在网页端列表隐藏。
+
+### 6.7 聊天中本轮动态挂载（`/` 内联面板）
+
+用户在 MyAIChat 聊天时可通过 `/`（或输入框上方图标按钮）唤出内联命令面板，**按需追加**当前用户自己创建的知识库、技能（Skill）与 MCP 服务：
+
+**交互**：非模态面板锚定在输入框上方，顶部搜索框过滤（`↑`/`↓` 移动高亮、`回车` 选中），点选即时生效；已选项以 chips 展示在输入框上方，可单个移除或一键清空；跨消息保留（发送后不清除），Esc 或点击面板外关闭。
+
+**生效规则**：
+
+| 规则 | 说明 |
+|---|---|
+| 仅本轮生效 | 5 个字段均为请求入参，**不落库**、不进消息正文 |
+| 叠加合并 | 本轮 = 智能体默认绑定 ∪ 用户追加选择（去重），默认行为不变 |
+| 临时排除 | 「忽略默认知识库 / 技能」开关，仅本轮屏蔽默认绑定 |
+| 开关管控 | 技能 / MCP 追加挂载仍受智能体级 `IsSkill` / `IsMcp` 开关限制（开关关闭时 `/` 选择不挂载，不可突破）；知识库挂载不受开关限制 |
+| 隐式权限 | 追加的 Id 均经 `isDataPer` 数据权限查询加载，他人的 / 已删除 / 未启用的 Id 查不到即静默跳过并记 Warn 日志 |
+| 数量上限 | 知识库 / 技能 / MCP 本轮追加各上限 20 个，超出截断并告警 |
+
+**请求字段**（`POST /api/AIChatHistorys/Add`、`AddSSE` 及 SignalR 通道均支持，全部可选）：
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `selectedKmsIds` | string[] | 本轮追加知识库 Id |
+| `selectedSkillIds` | string[] | 本轮追加技能 Id |
+| `selectedMcpIds` | string[] | 本轮追加 MCP 服务 Id（该服务下勾选的工具白名单照常生效） |
+| `excludeDefaultKmss` | bool | 忽略智能体默认知识库（仅本轮） |
+| `excludeDefaultSkills` | bool | 忽略智能体默认技能（仅本轮） |
+
+**实现要点**：字段由 `AIPerRoundOverride`（`kevin.Share/Dtos/AI/`）承载并在挂载层合并；多知识库检索工具命名为 `SearchKnowledge_{知识库名净化后缀}`（同轮重名自动加序号，避免 function name 冲突），description 携带完整知识库名供模型语义区分。
+
 <!-- 第二部分续写 -->
 
 ---
@@ -459,8 +489,8 @@ docker run -d --name qdrant -p 6333:6333 -v qdrant_storage:/qdrant/storage qdran
 | `/api/AIApps/GetDetails` | GET | 智能体详情 |
 | `/api/AIChats/GetMyPageData` | POST | 我的对话分页 |
 | `/api/AIChats/Add` | POST | 新建对话（返回首条历史 DTO） |
-| `/api/AIChatHistorys/Add` | POST | 发送消息（非流式） |
-| `/api/AIChatHistorys/AddSSE` | POST | 发送消息（SSE 流式） |
+| `/api/AIChatHistorys/Add` | POST | 发送消息（非流式；可选 `selectedKmsIds` / `selectedSkillIds` / `selectedMcpIds` / `excludeDefaultKmss` / `excludeDefaultSkills`，见 6.7） |
+| `/api/AIChatHistorys/AddSSE` | POST | 发送消息（SSE 流式；字段同上） |
 | `/api/AIChatHistorys/GetPageData` | POST | 历史消息分页 |
 | `/api/AIKmss/GetList` / `GetMyPageData` | POST | 知识库列表 / 分页 |
 | `/api/AIKmss/AddEdit` / `GetDetails` / `Delete` | POST/GET/DELETE | 知识库维护 |
@@ -795,6 +825,7 @@ sudo systemctl enable kevin-webapi
 2. 确认依赖的配置节已填（如豆包 Key、ASR Key、OSS）。
 3. 查看日志中工具异常堆栈；工具返回以 `❌` 开头的文案说明是业务拦截（如域名白名单、危险命令）。
 4. MCP 工具检查 `McpType` 与 `McpUrl`/`McpCommand`，可用「测试 MCP 连接」验证。
+5. 聊天中 `/` 选择技能 / MCP 后模型没调用：检查智能体 `IsSkill` / `IsMcp` 开关是否开启（动态追加受其管控，见 6.7）；后端日志会有「本轮追加的 MCP/Skill Id=... 不存在或无数据权限，跳过挂载」Warn 可定位。
 
 #### 10.4.3 知识库检索异常
 
@@ -916,6 +947,9 @@ sudo systemctl enable kevin-webapi
 | AI 对话 | `Kevin/kevin.Module/kevin.AI.AgentFramework/AIAgentService.cs` |
 | AI 工具注册 | `Kevin/Application/Services/AI/AIAgentToolSkillService.cs` |
 | 智能体编排 | `Kevin/Application/Services/AI/AIAppsService.cs` |
+| 本轮动态挂载上下文 | `Kevin/kevin.Share/Dtos/AI/AIPerRoundOverride.cs` |
+| 知识库检索工具工厂（工具名唯一化） | `Kevin/Application/Services/AI/Tools/KnowledgeSearchToolService.cs` |
+| 前端 `/` 选择面板 | `vue/kevin.web.vue/src/components/ai/ChatKmsSkillSelector.vue` |
 | 定时任务注册 | `Kevin/Application/TaskModuleConfigs/*.cs` |
 | OpenAI 兼容网关 | `Kevin/Kevin.Web.Basics/Controllers/AI/OpenAI/` |
 | 种子数据 | `Kevin/Domain/BaseDatas/` |
@@ -929,5 +963,5 @@ sudo systemctl enable kevin-webapi
 ---
 
 **版本**: v1.1（按当前框架代码校准）
-**最后更新**: 2026年10月
+**最后更新**: 2026年11月（新增 6.7 聊天中本轮动态挂载）
 **维护团队**: NetCoreKevin 开发团队
