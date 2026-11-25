@@ -112,8 +112,8 @@ const props = defineProps({
   excludeDefaultSkills: { type: Boolean, default: false },
 });
 
-// emit：update:open（关闭面板）+ confirm（任一选择变化即时透出，面板保持打开便于连续多选）
-const emit = defineEmits(["update:open", "confirm"]);
+// emit：update:open（关闭面板）+ confirm（任一选择变化即时透出，面板保持打开便于连续多选）+ esc-close（Esc 关闭，供父组件把光标还给输入框）
+const emit = defineEmits(["update:open", "confirm", "esc-close"]);
 
 const searchRef = ref(null);
 const kmsList = ref([]);
@@ -222,7 +222,10 @@ const onOutsideMousedown = (e) => {
 };
 
 const onEscKeydown = (e) => {
-  if (e.key === "Escape") emit("update:open", false);
+  if (e.key === "Escape") {
+    emit("update:open", false);
+    emit("esc-close"); // 面板打开时焦点在搜索框，关闭后由父组件把光标还给消息输入框
+  }
 };
 
 const loadKmsList = async () => {

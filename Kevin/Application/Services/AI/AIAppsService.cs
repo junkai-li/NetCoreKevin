@@ -512,16 +512,21 @@ namespace kevin.Application.Services.AI
                 compactionContext = await _aIChatMessageStoreCompactionService.GetThreadPrompt(par.AIChatsId.ToString(), compactionMaxLength);
             }
             #endregion
-            // 召回文本/摘要都在历史尾部注入、不在 systemPrompt 里，但同样占模型输入：必须并入提问预算，
+            #region 本轮动态挂载说明（用户 / 面板动态选择的知识库/技能/MCP，按选择顺序，历史尾部注入）
+            var dynamicMountContext = withCapabilities ? await BuildDynamicMountContextAsync(aiapp, perRound) : string.Empty;
+            #endregion
+            // 召回文本/摘要/动态挂载说明都在历史尾部注入、不在 systemPrompt 里，但同样占模型输入：必须并入提问预算，
             // 否则历史裁剪按“不含它们”的预算放行，加上后就会顶过模型窗口（表现为模型报输入长度越界）
             var promptForBudget = systemPrompt
                 + (string.IsNullOrWhiteSpace(recallContext) ? "" : "\n" + recallContext)
-                + (string.IsNullOrWhiteSpace(compactionContext) ? "" : "\n" + compactionContext);
+                + (string.IsNullOrWhiteSpace(compactionContext) ? "" : "\n" + compactionContext)
+                + (string.IsNullOrWhiteSpace(dynamicMountContext) ? "" : "\n" + dynamicMountContext);
             var historyProvider = new KevinChatMessageStore(kevinAIChatMessageStore, par.AIChatsId.ToString(), aiapp.IsAIMessageCompaction ? aiapp.ConversationTurnsExceed : 0, TokenEstimator.ResolveAskBudget(aiModel.MaxAskPromptSize, aiModel.AnswerTokens, promptForBudget), aiapp.ContentLengthLimit)
             {
                 ReadOnlyHistory = readOnlyHistory,
                 RecallContext = recallContext,
-                CompactionContext = compactionContext
+                CompactionContext = compactionContext,
+                DynamicMountContext = string.IsNullOrWhiteSpace(dynamicMountContext) ? null : dynamicMountContext
             };
             var chatAgOs = new ChatClientAgentOptions
             {
@@ -915,6 +920,61 @@ namespace kevin.Application.Services.AI
                     LogHelper.logger.Warn($"智能体 {aiapp.Name}(Id={aiapp.Id}) 挂载知识库 KmsId={kmsId} 搜索工具失败，跳过: {ex.Message}");
                 }
             }
+        }
+
+        /// <summary>
+        /// 本轮动态挂载说明（<see cref="KevinChatMessageStore.DynamicMountContext"/>，历史尾部注入）：
+        /// 把用户 / 面板动态选择的知识库/技能/MCP 按【前端点击选择顺序】解析出名称，合成为面向模型的提示文本，
+        /// 让模型知道本轮临时挂载了什么——用户问"我选了哪些技能/MCP/知识库"时模型可以按清单如实回答。
+        /// <para>
+        /// 名称解析不出来（无数据权限/已删除）的 Id 按实际挂载结果跳过；技能/MCP 受智能体开关管控，
+        /// 开关关闭时按未生效如实标注，避免模型对已挂载/未挂载产生错觉。
+        /// </para>
+        /// </summary>
+        private async Task<string> BuildDynamicMountContextAsync(AIAppsDto aiapp, AIPerRoundOverride? perRound)
+        {
+            if (perRound == null) return string.Empty;
+            var lines = new List<string>();
+            if (perRound.SelectedKmsIds is { Count: > 0 })
+            {
+                var kmsNames = await _knowledgeSearchToolService.GetKmsNamesByIds(perRound.SelectedKmsIds);
+                lines.Add($"- 追加知识库（按选择顺序）：{(kmsNames.Count > 0 ? string.Join("、", kmsNames) : "（所选知识库均不可用）")}");
+            }
+            if (perRound.SelectedSkillIds is { Count: > 0 })
+            {
+                if (aiapp.IsSkill)
+                {
+                    var skills = await aISkillToolManagementService.GetDataPerSkillsByIds(perRound.SelectedSkillIds);
+                    var nameById = skills.ToDictionary(t => t.Id, t => t.Name);
+                    var skillNames = perRound.SelectedSkillIds.Where(nameById.ContainsKey).Select(t => nameById[t]).ToList();
+                    lines.Add($"- 追加技能（按选择顺序）：{(skillNames.Count > 0 ? string.Join("、", skillNames) : "（所选技能均不可用）")}");
+                }
+                else
+                {
+                    lines.Add("- 用户追加了技能，但本智能体未开启技能能力，本轮技能选择未生效");
+                }
+            }
+            if (perRound.SelectedMcpIds is { Count: > 0 })
+            {
+                if (aiapp.IsMcp)
+                {
+                    var mcps = await aISkillToolManagementService.GetDataPerMcpsByIds(perRound.SelectedMcpIds);
+                    var nameById = mcps.ToDictionary(t => t.Id, t => t.Name);
+                    var mcpNames = perRound.SelectedMcpIds.Where(nameById.ContainsKey).Select(t => nameById[t]).ToList();
+                    lines.Add($"- 追加MCP服务（按选择顺序）：{(mcpNames.Count > 0 ? string.Join("、", mcpNames) : "（所选MCP均不可用）")}");
+                }
+                else
+                {
+                    lines.Add("- 用户追加了MCP服务，但本智能体未开启MCP能力，本轮MCP选择未生效");
+                }
+            }
+            if (perRound.ExcludeDefaultKmss) lines.Add("- 本轮已忽略智能体默认绑定的知识库");
+            if (perRound.ExcludeDefaultSkills) lines.Add("- 本轮已忽略智能体默认绑定的技能");
+            if (lines.Count == 0) return string.Empty;
+            var text = "# 本轮动态挂载说明\n用户在本轮对话前通过面板动态选择了以下内容（仅本轮生效，不改变智能体默认配置）：\n"
+                + string.Join("\n", lines)
+                + "\n回答时优先使用以上本轮挂载的能力；当用户询问\"我本轮挂载/选择了哪些知识库、技能或MCP\"时，按本清单如实回答。";
+            return text.Length > CharLimits.AskCapabilityList ? text.Substring(0, CharLimits.AskCapabilityList) + "\n（清单已截断）" : text;
         }
 
         /// <summary>

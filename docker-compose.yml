@@ -139,6 +139,7 @@ services:
     volumes:
       - kevin_files:/app/KevinFlies # 本地上传文件（对外路径 /KevinFlies）
       - kevin_logs:/app/Log # log4net 日志
+      - kevin_skills:/app/Skills # 技能文件（后台在线新建/编辑/上传 zip 都写在这里，必须持久化）
     ports:
       - "${API_PORT:-19901}:8080" # 直连后端/Swagger：http://localhost:19901/swagger
     depends_on:
@@ -206,6 +207,7 @@ volumes:
   kevin_qdrant_data:
   kevin_files:
   kevin_logs:
+  kevin_skills:
   kevin_rabbitmq_data:
 
 networks:

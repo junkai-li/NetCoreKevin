@@ -417,6 +417,7 @@
             <!-- 本轮知识库/技能选择弹层 -->
             <ChatKmsSkillSelector
               v-model:open="selectorOpen"
+              @esc-close="focusMsgInput"
               :kms-ids="selectedKmsIds"
               :skill-ids="selectedSkillIds"
               :mcp-ids="selectedMcpIds"
@@ -2919,6 +2920,14 @@ const adjustPlan = () => {
   agentMode.value = 1;
   nextTick(() => {
     // a-textarea 渲染为 textarea.msg-input，直接按类名定位
+    const textarea = document.querySelector('textarea.msg-input');
+    if (textarea) textarea.focus();
+  });
+};
+
+// Esc 关闭 / 选择面板后把光标还给消息输入框（面板打开时焦点在面板搜索框上，关闭后需主动归还）
+const focusMsgInput = () => {
+  nextTick(() => {
     const textarea = document.querySelector('textarea.msg-input');
     if (textarea) textarea.focus();
   });

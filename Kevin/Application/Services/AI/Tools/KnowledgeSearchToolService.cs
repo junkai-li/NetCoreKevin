@@ -88,6 +88,29 @@ namespace kevin.Application.Services.AI.Tools
             });
         }
 
+        /// <inheritdoc />
+        public async Task<List<string>> GetKmsNamesByIds(List<long> kmsIds)
+        {
+            var names = new List<string>();
+            if (kmsIds is not { Count: > 0 }) return names;
+            foreach (var kmsId in kmsIds)
+            {
+                try
+                {
+                    var kmss = await _aIKmssService.GetDetails(kmsId);
+                    if (kmss != default && !string.IsNullOrWhiteSpace(kmss.Name))
+                    {
+                        names.Add(kmss.Name);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.logger.Warn($"按 Id 解析知识库名称失败 KmsId={kmsId}，跳过: {ex.Message}");
+                }
+            }
+            return names;
+        }
+
         /// <summary>
         /// 生成唯一的 SearchKnowledge 工具名：SearchKnowledge_{后缀}。
         /// 后缀取知识库名净化结果（仅保留 ASCII 字母/数字/下划线，中文等非法字符过滤后为空则用 kms_{kmsId} 兜底），

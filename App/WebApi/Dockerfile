@@ -70,8 +70,9 @@ RUN dotnet publish "./App.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish
 # 最终阶段
 FROM base AS final
 WORKDIR /app
-# 运行用户需要对日志/上传目录有写权限（这两个目录运行时挂载数据卷）
-RUN mkdir -p /app/Log /app/KevinFlies
+# 运行用户需要对日志/上传/技能目录有写权限（这些目录运行时挂载数据卷；
+# 预建空 Skills 目录使首次挂载空数据卷时能继承镜像内目录内容与属主）
+RUN mkdir -p /app/Log /app/KevinFlies /app/Skills
 COPY --from=build /app/publish .
 RUN chown -R $APP_UID:$APP_UID /app
 USER $APP_UID

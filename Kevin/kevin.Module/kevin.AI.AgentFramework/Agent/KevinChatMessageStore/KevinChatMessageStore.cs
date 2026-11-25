@@ -45,6 +45,11 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
         /// </summary>
         public string? CompactionContext { get; set; }
         /// <summary>
+        /// 本轮动态挂载说明（用户 / 面板动态选择的知识库/技能/MCP，按选择顺序）：与 RecallContext 同策略
+        /// 以独立消息追加在历史尾部（不入库、前端不可见），保持提示词前缀跨轮稳定。
+        /// </summary>
+        public string? DynamicMountContext { get; set; }
+        /// <summary>
         /// 入库副本实际采用的工具结果上限
         /// </summary>
         private int StoreResultLengthLimit => ToolResultLengthLimit > 0 ? ToolResultLengthLimit : CharLimits.ToolResultStoreFallback;
@@ -168,6 +173,7 @@ namespace kevin.AI.AgentFramework.Agent.KevinChatMessageStore
             var tailCreatedAt = messages.Count > 0 ? messages[^1].CreatedAt : null;
             AppendTailSystemMessage(messages, CompactionContext, ref tailCreatedAt);
             AppendTailSystemMessage(messages, RecallContext, ref tailCreatedAt);
+            AppendTailSystemMessage(messages, DynamicMountContext, ref tailCreatedAt);
             return messages;
         }
 

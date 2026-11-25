@@ -29,5 +29,13 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// <param name="kmsId">要挂载的知识库 Id</param>
         /// <returns>可直接加入 <c>ChatOptions.Tools</c> 的 AITool，无可用知识库时为 null</returns>
         Task<AITool?> BuildSearchFunction(AIAppsDto aiapp, long kmsId);
+
+        /// <summary>
+        /// 按传入顺序解析知识库名称（本轮动态挂载提示词用）：逐个经 <c>GetDetails</c>（内部 isDataPer 数据权限）加载，
+        /// 不存在/无权限的 Id 静默跳过；返回顺序与传入 Id 顺序一致（即用户前端点击选择的顺序）。
+        /// </summary>
+        /// <param name="kmsIds">知识库 Id 列表（保持调用方传入顺序）</param>
+        /// <returns>与传入顺序一致的知识库名列表</returns>
+        Task<List<string>> GetKmsNamesByIds(List<long> kmsIds);
     }
 }
