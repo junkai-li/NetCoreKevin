@@ -41,7 +41,10 @@
           @mouseenter="highlightIndex = filteredKmsList.length + i"
         >
           <ThunderboltOutlined class="selector-item-icon" />
-          <span class="selector-item-name">{{ item.name }}</span>
+          <span class="selector-item-text">
+            <span class="selector-item-name">{{ item.name }}</span>
+            <span v-if="item.description" class="selector-item-desc">{{ briefDesc(item.description) }}</span>
+          </span>
           <CheckOutlined v-if="checkedSkillIds.includes(String(item.id))" class="selector-item-check" />
         </div>
       </template>
@@ -56,7 +59,10 @@
           @mouseenter="highlightIndex = filteredKmsList.length + filteredSkillList.length + i"
         >
           <ApiOutlined class="selector-item-icon" />
-          <span class="selector-item-name">{{ item.name }}</span>
+          <span class="selector-item-text">
+            <span class="selector-item-name">{{ item.name }}</span>
+            <span v-if="item.description" class="selector-item-desc">{{ briefDesc(item.description) }}</span>
+          </span>
           <CheckOutlined v-if="checkedMcpIds.includes(String(item.id))" class="selector-item-check" />
         </div>
       </template>
@@ -127,6 +133,12 @@ const matchKeyword = (item) => {
   if (!kw) return true;
   return (item.name || "").toLowerCase().includes(kw);
 };
+// 描述截断：超过 20 字用 ... 结尾（避免长描述撑爆面板行高）
+const briefDesc = (text) => {
+  const t = String(text || "").trim();
+  return t.length > 20 ? t.slice(0, 20) + "..." : t;
+};
+
 const filteredKmsList = computed(() => kmsList.value.filter(matchKeyword));
 const filteredSkillList = computed(() => skillList.value.filter(matchKeyword));
 const filteredMcpList = computed(() => mcpList.value.filter(matchKeyword));
@@ -352,8 +364,24 @@ const emitSelection = () => {
 .selector-item.selected .selector-item-icon {
   color: #1677ff;
 }
-.selector-item-name {
+.selector-item-text {
   flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+.selector-item-name {
+  flex-shrink: 0;
+  max-width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.selector-item-desc {
+  flex: 1;
+  font-size: 11px;
+  color: #999;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
