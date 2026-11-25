@@ -660,13 +660,13 @@ namespace kevin.Application.Services.AI
                     var appitem = await aIAppsService.GetDetails(item.ToTryInt64());
                     if (appitem != default)
                     {
-                        // Auto模式解析：子智能体如果是auto则随机选一个模型
+                        // Auto模式解析：子智能体 auto 走统一稳定解析（scopeId 与 MessageStoreCompaction 的 "_agent_" key 一致，跨轮模型固定）
                         if (string.Equals(appitem.ChatModelID, "auto", StringComparison.OrdinalIgnoreCase))
                         {
                             var allModels = await aIModelsService.GetNoPerALLList(1);
                             if (allModels.Count == 0)
                                 throw new UserFriendlyException("当前没有可用的聊天模型，请联系管理员配置模型。");
-                            appitem.ChatModelID = allModels[new Random().Next(allModels.Count)].Id.ToString();
+                            appitem.ChatModelID = AIAppsService.ResolveAutoChatModelId(allModels, par.AIChatsId.ToString() + "_agent_" + appitem.Id.ToString());
                         }
                         BindApps.Add(appitem, await aIModelsService.GetNoPerDetails(appitem.ChatModelID.ToTryInt64()));
                     }

@@ -437,6 +437,22 @@ namespace kevin.Application.Services.AI
             var bytes = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(text ?? ""));
             return BitConverter.ToInt32(bytes, 0);
         }
+
+        /// <summary>
+        /// auto 模型的统一解析入口：按 scopeId 稳定种子洗牌后取第一个模型。
+        /// <para>
+        /// ⭐ 所有 auto 解析调用点必须经本方法，禁止各自 new Random() 或换选择算法——
+        /// 此前「对话主路径洗牌取首 / 压缩路径取随机下标 / 预热与绑定智能体压缩无种子随机」三种实现并存，
+        /// 同一会话在不同链路解析出不同模型：压缩摘要与主对话模型错位导致提示词缓存失效，
+        /// 无种子路径每轮换模型。scopeId 约定：主对话/预热用 AIChatsId；
+        /// 绑定智能体的独立上下文用 "{AIChatsId}_agent_{appId}"（与 MessageStoreCompaction 的 key 一致）。
+        /// </para>
+        /// </summary>
+        internal static string ResolveAutoChatModelId(List<AIModelsDto> allModels, string scopeId)
+        {
+            var random = new Random(StableSeed(scopeId));
+            return allModels.OrderBy(_ => random.Next()).First().Id.ToString();
+        }
         /// <summary>
         /// 获取ai应用配置
         /// </summary>
@@ -481,8 +497,7 @@ namespace kevin.Application.Services.AI
                 {
                     throw new UserFriendlyException("当前没有可用的聊天模型，请联系管理员配置模型。");
                 }
-                var random = new Random(StableSeed(par.AIChatsId.ToString()));
-                aiapp.ChatModelID = allModels[random.Next(allModels.Count)].Id.ToString();
+                aiapp.ChatModelID = ResolveAutoChatModelId(allModels, par.AIChatsId.ToString());
             }
             var aiModel = await aIModelsService.GetNoPerDetails(aiapp.ChatModelID.ToTryInt64());
             #region 获取压缩聊天记录提示词
@@ -725,8 +740,7 @@ namespace kevin.Application.Services.AI
                 {
                     throw new UserFriendlyException("当前没有可用的聊天模型，请联系管理员配置模型。");
                 }
-                var random = new Random(StableSeed(par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString()));
-                aiapp.ChatModelID = allModels[random.Next(allModels.Count)].Id.ToString();
+                aiapp.ChatModelID = ResolveAutoChatModelId(allModels, par.AIChatsId.ToString() + "_agent_" + aiapp.Id.ToString());
             }
             var aIModels = await aIModelsService.GetNoPerDetails(aiapp.ChatModelID.ToTryInt64());
             var aIPrompts = await aIPromptsService.GetNoPerDetails(aiapp.AIPromptID);

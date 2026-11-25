@@ -82,18 +82,19 @@ namespace kevin.Application.Services.AI
             {
                 throw new UserFriendlyException("智能体权限不足，无法使用");
             }
-            // Auto模式解析：随机选择一个可用模型
+            // 先确定会话 Id（与后续对话轮次 par.AIChatsId 同值），auto 解析种子才能与主链路对齐
+            var add = par.MapTo<TAIChats>();
+            add.Id = par.Id == default ? SnowflakeIdService.GetNextId() : par.Id;
+            // Auto模式解析：统一稳定种子（同一会话预热模型 = 后续对话主模型，跨轮命中提示词缓存）
             if (string.Equals(aiapp.ChatModelID, "auto", StringComparison.OrdinalIgnoreCase))
             {
                 var allModels = await aIModelsService.GetNoPerALLList(1);
                 if (allModels.Count == 0)
                     throw new UserFriendlyException("当前没有可用的聊天模型，请联系管理员配置模型。");
-                aiapp.ChatModelID = allModels[new Random().Next(allModels.Count)].Id.ToString();
+                aiapp.ChatModelID = AIAppsService.ResolveAutoChatModelId(allModels, add.Id.ToString());
             }
             var aIModels = await aIModelsService.GetDetails(aiapp.ChatModelID.ToTryInt64());
             var aIPrompts = await aIPromptsService.GetDetails(aiapp.AIPromptID);
-            var add = par.MapTo<TAIChats>();
-            add.Id = par.Id == default ? SnowflakeIdService.GetNextId() : par.Id;
             add.IsDelete = false;
             add.CreateTime = DateTime.Now;
             add.CreateUserId = CurrentUser.UserId;
