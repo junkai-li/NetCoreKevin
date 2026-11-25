@@ -14,7 +14,7 @@
         <template #prefix><SearchOutlined /></template>
       </a-input>
     </div>
-    <div class="selector-body">
+    <div ref="bodyRef" class="selector-body">
       <template v-if="filteredKmsList.length">
         <div class="selector-group-title">知识库</div>
         <div
@@ -116,6 +116,7 @@ const props = defineProps({
 const emit = defineEmits(["update:open", "confirm", "esc-close"]);
 
 const searchRef = ref(null);
+const bodyRef = ref(null);
 const kmsList = ref([]);
 const skillList = ref([]);
 const mcpList = ref([]);
@@ -148,6 +149,18 @@ const highlightIndex = ref(0);
 const flatCount = computed(() => filteredKmsList.value.length + filteredSkillList.value.length + filteredMcpList.value.length);
 watch(search, () => {
   highlightIndex.value = 0;
+  // 搜索重排后列表回到第一项，滚动位置也回到顶部，避免第一项停在可视区外
+  nextTick(() => {
+    if (bodyRef.value) bodyRef.value.scrollTop = 0;
+  });
+});
+// ↑↓ 移动高亮时让高亮项自动滚入可视区（到顶/到底时列表跟着滚动）；block:"nearest" 已可见时不动，鼠标悬停触发也无害
+watch(highlightIndex, () => {
+  nextTick(() => {
+    const body = bodyRef.value;
+    const el = body && body.querySelector(".selector-item.highlighted");
+    if (el && el.scrollIntoView) el.scrollIntoView({ block: "nearest" });
+  });
 });
 const onSearchKeydown = (e) => {
   if (e.key === "ArrowDown") {
