@@ -441,6 +441,27 @@ docker run -d --name qdrant -p 6333:6333 -v qdrant_storage:/qdrant/storage qdran
 
 **实现要点**：字段由 `AIPerRoundOverride`（`kevin.Share/Dtos/AI/`）承载并在挂载层合并；多知识库检索工具命名为 `SearchKnowledge_{知识库名净化后缀}`（同轮重名自动加序号，避免 function name 冲突），description 携带完整知识库名供模型语义区分。
 
+### 6.8 智能体记忆管理（管理端）
+
+智能体开启 `IsMemory` 后，AI 对话中通过内置记忆工具（`SaveMemory` / `SearchMemory` / `UpdateMemory` / `DeleteMemory`）自动沉淀记忆，落 MySQL（`TAIAgentMemory`）并同步写入 Qdrant（collection 按 `{租户}_{智能体}_{用户}` 三维命名）。后台「我的 → 我的智能体记忆」页面提供管理端入口：
+
+**页面（`MyAgentMemories.vue`，左右分栏）**：
+- 左栏：列出开启记忆且有有效记忆的智能体，带记忆数徽标（`GetCountsByAIApps`），AIAppsId=0 且有计数时追加「全局记忆」节点
+- 右栏：该智能体的记忆列表——重要程度三档筛选（低 0-4 / 中 5-7 / 高 8-10 + 全部，映射后端 `ImportanceMin`/`ImportanceMax` 区间）、关键词搜索、分页；期限列区分长期 / 短期（短期展示过期时间）
+- 编辑：仅记忆内容（100 字截断展示、悬停看全文）与关键词可改，其余字段只读；保存后 MySQL 与 Qdrant 双更新
+- 删除：二次确认，软删 + 同步删除 Qdrant 向量
+- 无新增入口：记忆仅由 AI 自动沉淀
+
+**长期 / 短期口径**：`ExpireTime` 为空即长期记忆；有值即短期，到期由 Hangfire 定时任务「每天清理过期的智能体短期记忆」软删清理（列表只展示未过期记忆）。记忆工具协议约定：`task` 类型必须传过期时间；任意类型的内容含明确时间范围（本周 / 今天 / 未来 X 天等）时，AI 必须推算具体截止时间传入 `expireTime`（如"本周不想喝咖啡"→ 传本周最后一天 23:59），使其成为到期自动清理的短期记忆。
+
+**接口**（见 7.2）：`/api/AIAgentMemories/*`，入参 `AIAgentMemoryDto` / `dtoAIAgentMemoryQuery` 白名单 DTO。
+
+**安全语义**：
+- 管理端归属权威源为登录上下文 `CurrentUser`（UserId + TenantId），`AIShareInfoService` 仅用于 AI 工具调用场景——纯 HTTP 请求下 `UserId <= 0` 抛异常
+- 查询、计数、编辑、删除全部按当前用户过滤，越权与不存在返回相同提示（防枚举）
+- 归属三维（UserId / TenantId / AIAppsId）与命中统计由服务端强制维护：编辑时无条件保留原值，前端传入被忽略
+- 菜单权限 `Menu/MyMenu/MyAiMemories` 由 EF 迁移种子写入（`TPermissionBaseDatas.cs`），需重新登录生效
+
 <!-- 第二部分续写 -->
 
 ---
@@ -507,6 +528,10 @@ docker run -d --name qdrant -p 6333:6333 -v qdrant_storage:/qdrant/storage qdran
 | `/api/OpenAICompatibleKey/Generate` / `Reveal` | POST | 生成 Key / 查看明文（AES 解密） |
 | `/api/OpenAICompatibleKey/UpdateName` / `SetEnabled` | POST | 改名 / 启停 |
 | `/api/OpenAICompatibleKey/GetIntegrationDoc` | GET | 获取对接文档（BaseUrl、示例代码） |
+| `/api/AIAgentMemories/GetPageData` | POST | 我的记忆分页（入参 `dtoAIAgentMemoryQuery`：`aiAppsId`、`importanceMin/Max`、`searchKey`，固定按当前用户过滤） |
+| `/api/AIAgentMemories/GetCountsByAIApps` | GET | 按智能体分组统计当前用户有效记忆数（左栏徽标） |
+| `/api/AIAgentMemories/AddEdit` | POST | 编辑记忆（入参 `AIAgentMemoryDto` 白名单：`id`/`aiAppsId`(仅新增)/`content`/`keywords`/`memoryType`/`importance`/`expireTime`；归属三维服务端强制维护，保存后同步 Qdrant 向量） |
+| `/api/AIAgentMemories/Delete?id=` | DELETE | 删除记忆（软删 + 删 Qdrant 向量，按当前用户归属校验） |
 | `GET /api/v1/models` | GET | OpenAI 协议：可用智能体列表 |
 | `POST /api/v1/chat/completions` | POST | OpenAI 协议：对话（支持 stream） |
 
@@ -949,6 +974,11 @@ sudo systemctl enable kevin-webapi
 | 智能体编排 | `Kevin/Application/Services/AI/AIAppsService.cs` |
 | 本轮动态挂载上下文 | `Kevin/kevin.Share/Dtos/AI/AIPerRoundOverride.cs` |
 | 知识库检索工具工厂（工具名唯一化） | `Kevin/Application/Services/AI/Tools/KnowledgeSearchToolService.cs` |
+| 智能体记忆服务（AI 工具 + 管理端） | `Kevin/Application/Services/AI/Tools/AIAgentMemoryService.cs` |
+| 记忆管理端 Controller / DTO | `Kevin/Kevin.Web.Basics/Controllers/AI/AIAgentMemoriesController.cs`、`Kevin/kevin.Share/Dtos/AI/AIAgentMemoryDto.cs`、`dtoAIAgentMemoryQuery.cs` |
+| 记忆工具描述与注册 | `Kevin/Domain/Interfaces/IServices/AI/IAIAgentMemoryService.cs`、`Kevin/Application/Services/AI/AIAgentToolSkillService.cs`（GetMemoryToolsAsync） |
+| 记忆协议提示词 | `Kevin/kevin.Module/kevin.AI.AgentFramework/Const/SystemPrompt.cs`（MemoryPromptText） |
+| 记忆管理页 | `vue/kevin.web.vue/src/pages/ai/MyAgentMemories.vue`、`src/api/ai/aiagentmemories.js` |
 | 前端 `/` 选择面板 | `vue/kevin.web.vue/src/components/ai/ChatKmsSkillSelector.vue` |
 | 定时任务注册 | `Kevin/Application/TaskModuleConfigs/*.cs` |
 | OpenAI 兼容网关 | `Kevin/Kevin.Web.Basics/Controllers/AI/OpenAI/` |
@@ -963,5 +993,5 @@ sudo systemctl enable kevin-webapi
 ---
 
 **版本**: v1.1（按当前框架代码校准）
-**最后更新**: 2026年11月（新增 6.7 聊天中本轮动态挂载）
+**最后更新**: 2026年11月（新增 6.8 智能体记忆管理）
 **维护团队**: NetCoreKevin 开发团队
