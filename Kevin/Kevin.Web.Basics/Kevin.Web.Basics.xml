@@ -4,6 +4,38 @@
         <name>Kevin.Web.Basics</name>
     </assembly>
     <members>
+        <member name="T:Kevin.Web.Basics.AI.AIAgentMemoriesController">
+            <summary>
+            智能体记忆管理
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.AI.AIAgentMemoriesController.GetPageData(kevin.Domain.Share.Dtos.AI.dtoAIAgentMemoryQuery)">
+            <summary>
+            获取智能体记忆列表（分页，支持 AIAppsId / 重要程度区间 / 关键词筛选，固定按当前用户过滤）
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Kevin.Web.Basics.AI.AIAgentMemoriesController.AddEdit(kevin.Domain.Share.Dtos.AI.AIAgentMemoryDto)">
+            <summary>
+            新增或编辑智能体记忆（AIAgentMemoryDto 白名单入参：归属三维与命中统计由服务端强制维护，编辑时不可变更；新增/编辑均同步 Qdrant 向量）
+            </summary>
+            <param name="par"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Kevin.Web.Basics.AI.AIAgentMemoriesController.Delete(System.Int64)">
+            <summary>
+            删除智能体记忆（软删 + 同步删除 Qdrant 向量）
+            </summary>
+            <param name="Id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Kevin.Web.Basics.AI.AIAgentMemoriesController.GetCountsByAIApps">
+            <summary>
+            按智能体分组统计当前用户的有效记忆数（左栏记忆数徽标）
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:Kevin.Web.Basics.AI.AIAppsController">
             <summary>
             AI应用管理

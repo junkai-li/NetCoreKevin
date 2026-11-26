@@ -85,7 +85,8 @@
                                                     ### 五、字段（不符合会被工具拒绝）
                                                     memoryType 必填：preference/fact/decision/pitfall/skill/task/other，不得一律用 other。
                                                     importance 必填 0-10：9-10 核心约束；7-8 重要偏好、决策、教训；5-6 一般事实；3-4 边缘信息；0-2 不保存。
-                                                    task 是短期记忆：必须传 expireTime 且晚于当前时间（yyyy-MM-dd HH:mm 或 ISO 8601）；其他类型禁止传 expireTime。
+                                                    task 是短期记忆：必须传 expireTime 且晚于当前时间（yyyy-MM-dd HH:mm 或 ISO 8601）。
+                                                    任意类型的内容含明确时间范围（今天/本周/本月/未来 X 天或 X 小时、截止日期等）时，必须按当前时间推算出具体截止时间传 expireTime（如用户说“本周不想喝咖啡”，周六为本周最后一天则传本周六 23:59）——有 expireTime 即为短期记忆，到期自动清理；无时间范围则不传（长期记忆）。
 
                                                     ### 六、纠正、合并与删除
                                                     用户说“不对/不是这样/我说过”时立即定位并更正对应记忆；用户要求忘记则 DeleteMemory。重复记忆保留信息最完整的一条（用 UpdateMemory 合并），其余删除。UpdateMemory 只能改 content、keywords、importance，不能改 memoryType、expireTime；需变更这些字段时先 DeleteMemory 再 SaveMemory。

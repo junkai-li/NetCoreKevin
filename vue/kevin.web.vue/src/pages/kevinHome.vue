@@ -308,6 +308,7 @@ import MyMessages from "./MyMessages.vue";
 import MyAIChat from "./ai/MyAIChat.vue";
 import MyAITasks from "./ai/MyAITasks.vue";
 import MyAgentList from "./ai/MyAgentList.vue";
+import MyAgentMemories from "./ai/MyAgentMemories.vue";
 import OpenAICompatibleKey from "./ai/OpenAICompatibleKey.vue";
 import PositionManagement from "./organizational/PositionManagement.vue";
 import DepartmentManagement from "./organizational/DepartmentManagement.vue";
@@ -349,6 +350,7 @@ const routeComponentMap = {
   'my-ai-chat-room': ChatRoom,
   'my-ai-tasks': MyAITasks,
   'my-ai-agents': MyAgentList,
+  'my-ai-memories': MyAgentMemories,
     'my-openai-compatible-key': OpenAICompatibleKey,
   'organizational-position': PositionManagement,
   'organizational-department': DepartmentManagement,
@@ -391,6 +393,7 @@ const pageTitleMap = {
   'my-ai-tasks': '我的AI自动任务',
   'my-ai-chat-room': '智能体聊天室',
   'my-ai-agents': '我的可用智能体',
+  'my-ai-memories': '我的智能体记忆',
     'my-openai-compatible-key': 'OpenAI 对接密钥',
   'organizational-position': '岗位管理',
   'organizational-department': '部门管理',
@@ -462,6 +465,7 @@ const routePathMap = {
   'my-ai-chat': '/home/my/ai-chat',
   'my-ai-tasks': '/home/my/ai-tasks',
   'my-ai-agents': '/home/my/ai-agents',
+  'my-ai-memories': '/home/my/ai-memories',
     'my-openai-compatible-key': '/home/my/openai-compatible-key',
   'my-ai-chat-room': '/home/my/ai-chat-room',
   'organizational-position': '/home/position/management',
@@ -586,7 +590,8 @@ const menuList = ref([
       { key: 'my-ai-chat-room', title: '智能体聊天室', permission: 'Menu/MyMenu/MyAiChat', icon: MessageOutlined },
       { key: 'my-ai-tasks', title: '我的AI自动任务', permission: 'Menu/MyMenu/MyAiTasks', icon: ScheduleOutlined },
       { key: 'my-ai-agents', title: '我的可用智能体', permission: 'Menu/MyMenu/MyAiAgents', icon: AppstoreOutlined },
-      { key: 'my-openai-compatible-key', title: 'OpenAI 对接密钥', permission: 'Menu/MyMenu/MyOpenAICompatibleKey', icon: KeyOutlined }
+      { key: 'my-openai-compatible-key', title: 'OpenAI 对接密钥', permission: 'Menu/MyMenu/MyOpenAICompatibleKey', icon: KeyOutlined },
+      { key: 'my-ai-memories', title: '我的智能体记忆', permission: 'Menu/MyMenu/MyAiMemories', icon: BookOutlined }
     ]
   },
   {

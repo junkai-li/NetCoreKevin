@@ -1,5 +1,6 @@
 using kevin.AI.AgentFramework.Interfaces;
 using kevin.Domain.Entities.AI;
+using kevin.Domain.Share.Dtos.AI;
 namespace kevin.Domain.Interfaces.IServices.AI
 {
     /// <summary>
@@ -21,15 +22,15 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// <param name="keywords">关键词，逗号分隔</param>
         /// <param name="memoryType">记忆类型（必填，7 种合法值；task 为短期记忆）</param>
         /// <param name="importance">重要程度 0~10（必填）</param>
-        /// <param name="expireTime">task 必填；其他长期记忆不得传入</param>
+        /// <param name="expireTime">task 必填；任意类型内容含明确时间范围（本周/今天/未来 X 天等）时必填；空表示长期记忆</param>
         /// <returns></returns>
-        [Description("保存用户的长期或短期记忆。调用前必须先 SearchMemory 检查是否已存在类似记忆，若存在则改用 UpdateMemory。长期记忆须满足可复用、非显然、稳定、用户意图明确；task 为有过期时间的短期记忆。失败返回以 ❌ 开头的错误信息")]
+        [Description("保存用户的长期或短期记忆。调用前必须先 SearchMemory 检查是否已存在类似记忆，若存在则改用 UpdateMemory。长期记忆须满足可复用、非显然、稳定、用户意图明确；内容含明确时间范围（本周/今天/未来 X 天等）时必须推算截止时间传 expireTime 使其成为短期记忆，到期自动清理。失败返回以 ❌ 开头的错误信息")]
         Task<string> SaveMemoryAsync(
             [Description("记忆内容，用一句话完整描述要记住的信息，说明“是什么/为什么”")][Required] string content,
             [Description("记忆关键词，2-5 个核心实体/概念/技术术语，英文逗号分隔，优先专有名词避免泛词，如：UserFriendlyException,HTTP 400,登录失败")][Required] string keywords,
             [Description("记忆类型（必填，禁止全用 other）：preference偏好/fact事实/task短期记忆/decision决策/pitfall踩坑/skill技能/other其他")][Required] string memoryType,
             [Description("重要程度 0-10（必填）：9-10核心约束/7-8重要决策偏好/5-6一般事实经验/3-4边缘信息/0-2低价值不该保存")][Required] int importance,
-            [Description("短期记忆（task）必须传过期时间字符串；长期记忆不得传。支持格式：yyyy-MM-dd HH:mm，yyyy-MM-dd HH:mm:ss，ISO 8601。例如：2026-12-31 23:59。必须大于当前时间，否则拒绝")] string expireTime = "");
+            [Description("过期时间字符串：task 必传；任意类型内容含明确时间范围（本周/今天/未来 X 天等）时必须推算具体截止时间传入，使其成为到期自动清理的短期记忆；无时间范围则不传（长期记忆）。支持格式：yyyy-MM-dd HH:mm，yyyy-MM-dd HH:mm:ss，ISO 8601。必须大于当前时间，否则拒绝")] string expireTime = "");
 
         /// <summary>
         /// 搜索记忆
@@ -81,11 +82,25 @@ namespace kevin.Domain.Interfaces.IServices.AI
         Task<bool> AddEdit(TAIAgentMemory data);
 
         /// <summary>
+        /// 管理端新增/编辑（AIAgentMemoryDto 白名单口径，对齐 AIAppsService.AddEdit 惯例）：
+        /// DTO→实体映射在服务端完成，归属三维（UserId/TenantId/AIAppsId 编辑时）与 HitCount/LastHitTime 由服务端强制维护，编辑时不可变更
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        Task<bool> AddEdit(AIAgentMemoryDto data);
+
+        /// <summary>
         /// 删除
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         Task<bool> Delete(long id);
+
+        /// <summary>
+        /// 按智能体分组统计当前用户的有效记忆数（管理端左栏徽标，统计口径与 GetPageData 记忆查询一致）
+        /// </summary>
+        /// <returns></returns>
+        Task<List<dtoAIAgentMemoryCount>> GetCountGroupByAIApps();
 
         /// <summary>
         /// 清理已过期的短期记忆（Hangfire 定时任务调用）

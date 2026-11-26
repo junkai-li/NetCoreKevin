@@ -135,6 +135,22 @@ namespace kevin.Domain.BaseDatas
                IsManual=true,
                CreateUserId=TUserBaseData.TUsers[0].Id
            },
+            new TPermission() {
+               Id=TenantHelper.GetSettingsTenantId()+"/Menu/MyMenu/MyAiMemories",
+               PermissionType= 1,
+               Area="Menu",
+               AreaName="菜单",
+               Module="MyMenu",
+               ModuleName="我的",
+               Action="MyAiMemories",
+               ActionName="我的智能体记忆",
+               FullName="菜单/我的/我的智能体记忆",
+               TenantId=TenantHelper.GetSettingsTenantId().ToTryInt32(),
+               CreateTime = DateTime.Parse("2020-01-01 00:00:01"),
+               IsDelete=false,
+               IsManual=true,
+               CreateUserId=TUserBaseData.TUsers[0].Id
+           },
                new TPermission() {
                Id=TenantHelper.GetSettingsTenantId()+"/Menu/AIManagement",
                PermissionType= 1,

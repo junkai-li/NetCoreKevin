@@ -3,6 +3,7 @@ using kevin.AI.AgentFramework.TextLimits;
 using kevin.Domain.Entities.AI;
 using kevin.Domain.Interfaces.IRepositories.AI;
 using kevin.Domain.Interfaces.IServices.AI;
+using kevin.Domain.Share.Dtos.AI;
 using kevin.Domain.Share.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
@@ -110,6 +111,33 @@ namespace kevin.Application.Services.AI
             var data = AIAgentMemoryRp.Query(isDataPer: true)
                 .Where(t => t.IsDelete == false && (t.ExpireTime == null || t.ExpireTime > now));
 
+            // 管理端记忆查询（dtoAIAgentMemoryQuery）：在 SQL 层叠加 AIAppsId / 重要程度区间 / 当前用户过滤；
+            // pattern-match 实现，传普通 dtoPagePar<string> 时行为与现状完全一致（接口签名不变）
+            if (dtoPagePar is dtoAIAgentMemoryQuery query)
+            {
+                if (query.AIAppsId > 0)
+                {
+                    data = data.Where(t => t.AIAppsId == query.AIAppsId);
+                }
+                if (query.ImportanceMin.HasValue)
+                {
+                    data = data.Where(t => t.Importance >= query.ImportanceMin.Value);
+                }
+                if (query.ImportanceMax.HasValue)
+                {
+                    data = data.Where(t => t.Importance <= query.ImportanceMax.Value);
+                }
+                // “我的记忆”语义：isDataPer 只做租户/数据权限，记忆查询固定叠加当前用户过滤；
+                // 管理端纯 HTTP 请求用 CurrentUser（用户架构口径：AIShareInfoService 仅用于 AI 工具调用场景）；
+                // 管理端接口必有登录态，取不到用户时禁止静默放大为租户全量（CR-005）
+                var myUserId = CurrentUser?.UserId ?? 0;
+                if (myUserId <= 0)
+                {
+                    throw new UserFriendlyException("无法获取当前登录用户，请重新登录后再管理记忆");
+                }
+                data = data.Where(t => t.UserId == myUserId);
+            }
+
             // searchKey 模糊匹配关键词或内容（原先该参数未生效）
             var keyword = dtoPagePar.searchKey?.Trim();
             if (!string.IsNullOrWhiteSpace(keyword))
@@ -130,11 +158,33 @@ namespace kevin.Application.Services.AI
         }
 
         /// <summary>
+        /// 按智能体分组统计当前用户的有效记忆数（管理端左栏徽标）。
+        /// 统计口径与 GetPageData 的记忆查询一致：isDataPer + 未删除 + 未过期 + 当前用户，保证徽标数与列表一致。
+        /// </summary>
+        public async Task<List<dtoAIAgentMemoryCount>> GetCountGroupByAIApps()
+        {
+            var now = DateTime.Now;
+            var data = AIAgentMemoryRp.Query(isDataPer: true)
+                .Where(t => t.IsDelete == false && (t.ExpireTime == null || t.ExpireTime > now));
+            // 管理端纯 HTTP 请求用 CurrentUser（用户架构口径：AIShareInfoService 仅用于 AI 工具调用场景）
+            var myUserId = CurrentUser?.UserId ?? 0;
+            if (myUserId <= 0)
+            {
+                throw new UserFriendlyException("无法获取当前登录用户，请重新登录后再管理记忆");
+            }
+            data = data.Where(t => t.UserId == myUserId);
+            return await data
+                .GroupBy(t => t.AIAppsId)
+                .Select(g => new dtoAIAgentMemoryCount { AIAppsId = g.Key, Count = g.Count() })
+                .ToListAsync();
+        }
+
+        /// <summary>
         /// 保存记忆
         /// </summary>
         /// <remarks>
-        /// 校验顺序：用户身份 → content 非空/长度 → memoryType 合法性 → importance 范围 → keywords 非空/长度 → expireTime 解析与类型匹配 → 去重检查 → 写入。
-        /// task 是跨会话可复用的短期记忆，必须设置 expireTime；其他类型为长期记忆，禁止设置 expireTime。
+        /// 校验顺序：用户身份 → content 非空/长度 → memoryType 合法性 → importance 范围 → keywords 非空/长度 → expireTime 解析 → 去重检查 → 写入。
+        /// task 是跨会话可复用的短期记忆，必须设置 expireTime；其余类型 expireTime 可选——内容含明确时间范围（本周/今天/未来 X 天等）即为带过期时间的短期记忆，为空则为长期记忆。
         /// 去重规则：用 keywords 查询同用户/租户/智能体下已有记忆，若 content 高度相似（互相包含或前 30 字符相同）则拒绝并提示改用 UpdateMemory。
         /// </remarks>
         public async Task<string> SaveMemoryAsync(string content, string keywords, string memoryType, int importance, string expireTime = "")
@@ -170,15 +220,11 @@ namespace kevin.Application.Services.AI
             {
                 return $"❌ 保存记忆失败：keywords 过长（{keywords.Trim().Length} 字符），请精简到 {CharLimits.MemoryKeywords} 字符以内（2-5 个核心词即可）。";
             }
-            // task 是短期记忆，必须设置 expireTime；其他类型是长期记忆，禁止设置 expireTime。
+            // task 是短期记忆，必须设置 expireTime；其余类型 expireTime 可选（内容含时间范围时应传入，有值即为短期记忆）。
             var hasExpireTime = !string.IsNullOrWhiteSpace(expireTime);
             if (normalizedType == MemoryTypes.Task && !hasExpireTime)
             {
                 return "❌ 保存记忆失败：短期记忆（task）必须设置 expireTime。";
-            }
-            if (normalizedType != MemoryTypes.Task && hasExpireTime)
-            {
-                return $"❌ 保存记忆失败：{normalizedType} 是长期记忆，不允许设置 expireTime；只有短期记忆（task）可以设置过期时间。";
             }
 
             DateTime? parsedExpireTime = null;
@@ -661,12 +707,25 @@ namespace kevin.Application.Services.AI
                 throw new UserFriendlyException($"记忆关键词过长，最多 {CharLimits.MemoryKeywords} 字符");
             }
             var isAdd = data.Id == default;
+            // 登录上下文（CR-007 + 用户架构纠偏）：管理端纯 HTTP 请求用 CurrentUser 取归属
+            // （AIShareInfoService 语义为 AI 工具调用场景，不用于管理端归属判定），全程不信任 payload 归属字段
+            if (CurrentUser == null || CurrentUser.UserId <= 0)
+            {
+                throw new UserFriendlyException("无法获取当前登录用户，请重新登录后再操作记忆");
+            }
             if (!isAdd)
             {
-                var msg = AIAgentMemoryRp.Query(isDataPer: false, isTenant: false).Where(t => t.IsDelete == false && t.Id == data.Id).FirstOrDefault();
+                // 归属校验（CR-001）：对齐 AI 工具侧 UpdateMemoryAsync 的 UserId+TenantId 口径
+                // （管理端编辑不强制 AIAppsId），防止跨用户/跨租户越权篡改记忆；
+                // 传了 Id 但按归属查不到时直接报错，禁止降级为新增绕过归属校验
+                var msg = AIAgentMemoryRp.Query(isDataPer: false, isTenant: false)
+                    .Where(t => t.IsDelete == false && t.Id == data.Id
+                        && t.UserId == CurrentUser.UserId
+                        && t.TenantId == CurrentUser.TenantId)
+                    .FirstOrDefault();
                 if (msg == default)
                 {
-                    isAdd = true;
+                    throw new UserFriendlyException("数据不存在或已删除");
                 }
             }
             TAIAgentMemory affected;
@@ -677,12 +736,13 @@ namespace kevin.Application.Services.AI
                 add.IsDelete = false;
                 add.CreateTime = DateTime.Now;
                 add.AIChatsId = AIShareInfoService.GetData().AIChatsId;
-                add.AIAppsId = AIShareInfoService.GetData().AIAppsId;
-                // 归属用户兜底：管理端未显式指定 UserId 时取当前登录用户，避免 UserId=0 的记忆任何用户都检索不到
-                if (add.UserId <= 0)
-                {
-                    add.UserId = AIShareInfoService.GetData().UserId;
-                }
+                // 归属智能体兜底：管理端显式传入 AIAppsId>0 时优先使用，未传（=0）时回落到上下文值
+                // （HTTP 管理上下文无对话 AIAppsId，直接取上下文会把新增记忆错误归属到 0）
+                add.AIAppsId = data.AIAppsId > 0 ? data.AIAppsId : AIShareInfoService.GetData().AIAppsId;
+                // 归属强制（CR-007 + 用户架构纠偏）：UserId/TenantId 一律取当前登录用户上下文，不信任 payload 正值
+                // ——正值 payload 可把记忆伪造归属给其他用户/租户，进入其"我的记忆"列表与自动召回上下文
+                add.UserId = CurrentUser.UserId;
+                add.TenantId = CurrentUser.TenantId;
                 AIAgentMemoryRp.Add(add);
                 affected = add;
             }
@@ -693,12 +753,16 @@ namespace kevin.Application.Services.AI
                 {
                     var originalUserId = upData.UserId;
                     var originalTenantId = upData.TenantId;
+                    var originalAIAppsId = upData.AIAppsId;
                     var originalHitCount = upData.HitCount;
                     var originalLastHitTime = upData.LastHitTime;
                     upData = data.MapTo(upData);
-                    // 编辑时前端未传归属字段会把 UserId/TenantId 覆盖为 0，这里保留原值防止记忆失去归属
-                    if (upData.UserId <= 0) upData.UserId = originalUserId;
-                    if (upData.TenantId <= 0) upData.TenantId = originalTenantId;
+                    // 编辑时归属三维一律无条件保留原值（CR-007 + 用户安全口径）：不信任 payload 传入的归属，
+                    // 防止跨用户/租户伪造归属，或把记忆改挂到其他智能体（AIAppsId 变更会导致
+                    // Qdrant collection 归属错乱：向量仍留在旧 collection，新旧召回都会错位）
+                    upData.UserId = originalUserId;
+                    upData.TenantId = originalTenantId;
+                    upData.AIAppsId = originalAIAppsId;
                     // 命中次数由自动召回维护，管理端编辑不感知这两个字段，映射后回填防止被清零
                     upData.HitCount = originalHitCount;
                     upData.LastHitTime = originalLastHitTime;
@@ -717,9 +781,108 @@ namespace kevin.Application.Services.AI
             return true;
         }
 
+        /// <summary>
+        /// 管理端新增/编辑（AIAgentMemoryDto 白名单口径，流程仿 AIAppsService.AddEdit：par.Check() → isAdd 分支）。
+        /// DTO→实体映射在服务端完成，payload 不可能携带归属字段（防 mass assignment）。
+        /// <para>
+        /// 空值语义：编辑分支 Content/Keywords/MemoryType 传空保留原值；
+        /// Importance 传 0 或负值保留原值（防前端只传 Content 时被清零）；ExpireTime 传 null 保留原值。
+        /// 归属三维（UserId/TenantId/AIAppsId）与 HitCount/LastHitTime 由服务端强制维护：新增时归属取 CurrentUser
+        /// （AIAppsId 仅新增分支按入参生效、=0 时无默认智能体上下文置 0；管理端上下文无 AIAppsId 语义），
+        /// 编辑时无条件保留 original 原值（AIAppsId 变更会导致 Qdrant collection 归属错乱）。
+        /// </para>
+        /// </summary>
+        public async Task<bool> AddEdit(AIAgentMemoryDto data)
+        {
+            // 入参校验（对齐 AIAppsService.AddEdit 惯例：par.Check() 在服务层首行调用）
+            data.Check();
+            if (CurrentUser == null || CurrentUser.UserId <= 0)
+            {
+                throw new UserFriendlyException("无法获取当前登录用户，请重新登录后再操作记忆");
+            }
+
+            TAIAgentMemory affected;
+            if (data.Id == default)
+            {
+                // 新增：由 DTO 白名单字段构造实体，归属强制当前登录用户（AIAppsId 来自入参，仅新增生效）
+                var add = new TAIAgentMemory
+                {
+                    Id = SnowflakeIdService.GetNextId(),
+                    Content = data.Content.Trim(),
+                    Keywords = data.Keywords?.Trim() ?? "",
+                    MemoryType = MemoryTypes.Normalize(data.MemoryType),
+                    Importance = data.Importance,
+                    ExpireTime = data.ExpireTime,
+                    IsDelete = false,
+                    CreateTime = DateTime.Now,
+                    // 管理端纯 HTTP 上下文无对话来源，AIChatsId 置 0（AIShareInfoService 仅用于 AI 工具调用场景）
+                    AIChatsId = 0,
+                    // 归属智能体：入参 >0 时优先使用；管理端无默认智能体上下文，未传置 0
+                    AIAppsId = data.AIAppsId > 0 ? data.AIAppsId : 0,
+                    UserId = CurrentUser.UserId,
+                    TenantId = CurrentUser.TenantId
+                };
+                AIAgentMemoryRp.Add(add);
+                affected = add;
+            }
+            else
+            {
+                // 编辑：归属校验沿用管理端口径（CurrentUser UserId+TenantId），查不到抛异常
+                var upData = await AIAgentMemoryRp.Query(isDataPer: false, isTenant: false)
+                    .Where(t => t.IsDelete == false && t.Id == data.Id
+                        && t.UserId == CurrentUser.UserId
+                        && t.TenantId == CurrentUser.TenantId)
+                    .FirstOrDefaultAsync();
+                if (upData == default)
+                {
+                    throw new UserFriendlyException("数据不存在或已删除");
+                }
+                // 只赋值 DTO 白名单字段；空值语义见方法注释（传空保留原值，防字段被清零）
+                if (!string.IsNullOrWhiteSpace(data.Content))
+                {
+                    upData.Content = data.Content.Trim();
+                }
+                if (!string.IsNullOrWhiteSpace(data.Keywords))
+                {
+                    upData.Keywords = data.Keywords.Trim();
+                }
+                if (!string.IsNullOrWhiteSpace(data.MemoryType))
+                {
+                    upData.MemoryType = MemoryTypes.Normalize(data.MemoryType);
+                }
+                if (data.Importance > 0)
+                {
+                    upData.Importance = data.Importance;
+                }
+                if (data.ExpireTime.HasValue)
+                {
+                    upData.ExpireTime = data.ExpireTime;
+                }
+                // 归属三维与 HitCount/LastHitTime 不赋值，天然保留 original 原值（DTO 已不可能携带）
+                upData.UpdateTime = DateTime.Now;
+                affected = upData;
+            }
+            await AIAgentMemoryRp.SaveChangesAsync();
+
+            // 同步向量到 Qdrant（仅写 affected 当前三维 collection，归属保留后语义自洽；失败静默降级）
+            await TrySyncVectorAsync(affected);
+            return true;
+        }
+
         public async Task<bool> Delete(long id)
         {
-            var data = await AIAgentMemoryRp.Query(isDataPer: false, isTenant: false).Where(t => t.IsDelete == false && t.Id == id).FirstOrDefaultAsync();
+            // 归属校验（CR-001 + 用户架构纠偏）：管理端纯 HTTP 请求用 CurrentUser 取归属
+            // （AIShareInfoService 语义为 AI 工具调用场景），对齐 AI 工具侧 DeleteMemoryAsync 的
+            // UserId+TenantId 口径（管理端不强制 AIAppsId），防止通过枚举雪花 Id 跨用户/跨租户越权删除记忆
+            if (CurrentUser == null || CurrentUser.UserId <= 0)
+            {
+                throw new UserFriendlyException("无法获取当前登录用户，请重新登录后再操作记忆");
+            }
+            var data = await AIAgentMemoryRp.Query(isDataPer: false, isTenant: false)
+                .Where(t => t.IsDelete == false && t.Id == id
+                    && t.UserId == CurrentUser.UserId
+                    && t.TenantId == CurrentUser.TenantId)
+                .FirstOrDefaultAsync();
             if (data != default)
             {
                 data.IsDelete = true;

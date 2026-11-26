@@ -547,7 +547,7 @@ namespace kevin.Application.Services.AI
             var aiTools = new List<AITool>
             {
                 AIFunctionFactory.Create(_aiAgentMemoryService.SaveMemoryAsync,
-                    new AIFunctionFactoryOptions { Name = "SaveMemory", Description = "保存长期或短期记忆。先 SearchMemory；重复则 UpdateMemory。memoryType、importance 必填；task 是短期记忆且必须传 expireTime，其他类型禁止传 expireTime。" }),
+                    new AIFunctionFactoryOptions { Name = "SaveMemory", Description = "保存长期或短期记忆。先 SearchMemory；重复则 UpdateMemory。memoryType、importance 必填；task 必须传 expireTime；任意类型内容含明确时间范围（本周/今天/未来 X 天等）时必须按当前时间推算截止时间传 expireTime，使其成为到期自动清理的短期记忆；无时间范围不传即为长期记忆。" }),
                 AIFunctionFactory.Create(_aiAgentMemoryService.SearchMemoryAsync,
                     new AIFunctionFactoryOptions { Name = "SearchMemory", Description = "搜索当前用户有效记忆（长期与未过期短期记忆）；可按 memoryType 过滤（多类型逗号分隔）。" }),
                 AIFunctionFactory.Create(_aiAgentMemoryService.UpdateMemoryAsync,
