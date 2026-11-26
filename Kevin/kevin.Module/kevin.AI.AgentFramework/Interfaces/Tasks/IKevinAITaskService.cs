@@ -42,9 +42,30 @@ namespace kevin.AI.AgentFramework.Interfaces.Tasks
         Task<string> TriggerCronTask([Description("name：可传入具体的任务名称，不可为空（同时兼容周期性任务和一次性任务） 比如：每六分钟AI热门资讯总结")][Required] string name);
 
         /// <summary>
-        /// 获取我的所有任务列表（包含周期性任务和未执行的一次性任务），返回任务名称列表 
+        /// 获取我的所有任务列表（包含周期性任务和未执行的一次性任务），返回任务名称列表
         /// </summary>
         Task<List<string>> GetTaskList();
+
+        /// <summary>
+        /// 管理端：分页查询当前用户的任务（权威源为 TAITaskConfig 落库配置，Hangfire 侧仅补充下次/上次执行时间），state 支持 running/paused/空
+        /// </summary>
+        Task<dtoAITaskPage> GetMyTaskPage(dtoAITaskPagePar par);
+
+        /// <summary>
+        /// 管理端：暂停任务（暂停后不再执行；Hangfire 侧作业被移除，元数据保留在 TAITaskConfig，恢复时重新注册）
+        /// </summary>
+        Task<string> PauseTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")][Required] string name);
+
+        /// <summary>
+        /// 管理端：恢复已暂停的任务（按 TAITaskConfig 落库元数据重新注册到 Hangfire；已过期的一次性任务恢复后不再执行）
+        /// </summary>
+        Task<string> ResumeTask([Description("name：可传入具体的任务名称，不可为空 比如：每六分钟AI热门资讯总结")][Required] string name);
+
+        /// <summary>
+        /// 基础设施：启动对账——以 TAITaskConfig 为权威源把任务状态同步到 Hangfire。
+        /// 内存存储重启后由本方法重建全部未暂停任务；Redis 持久化存储下 AddOrUpdate 幂等重放等于 no-op，一次性任务先去重防双排
+        /// </summary>
+        Task<string> ReconcileTasksFromConfigAsync();
 
         /// <summary>
         /// 执行任务, 返回任务执行结果

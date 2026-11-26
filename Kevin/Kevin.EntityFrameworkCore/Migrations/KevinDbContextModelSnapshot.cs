@@ -2758,6 +2758,123 @@ namespace Kevin.EntityFrameworkCore.Migrations
                         });
                 });
 
+            modelBuilder.Entity("kevin.Domain.Entities.AI.TAITaskConfig", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasComment("主键标识ID");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("create_time")
+                        .HasComment("创建时间");
+
+                    b.Property<string>("CronExpression")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("cron_expression")
+                        .HasComment("cron 表达式（周期性任务专用）");
+
+                    b.Property<DateTime?>("DeleteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("delete_time")
+                        .HasComment("删除时间");
+
+                    b.Property<DateTime?>("ExecuteTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("execute_time")
+                        .HasComment("一次性任务执行时间点");
+
+                    b.Property<ulong>("IsDelete")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_delete")
+                        .HasComment("是否删除");
+
+                    b.Property<ulong>("IsPaused")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_paused")
+                        .HasComment("是否暂停");
+
+                    b.Property<DateTime?>("LastRunTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("last_run_time")
+                        .HasComment("最近一次实际执行时间");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("name")
+                        .HasComment("任务名称，同用户下唯一");
+
+                    b.Property<Guid?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("char(36)")
+                        .HasColumnName("row_version")
+                        .HasComment("行版本标记");
+
+                    b.Property<string>("TaskContent")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("task_content")
+                        .HasComment("任务内容");
+
+                    b.Property<string>("TaskData")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("task_data")
+                        .HasComment("创建任务时的 AI 上下文快照 JSON");
+
+                    b.Property<string>("TaskType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("task_type")
+                        .HasComment("任务类型：cron 周期性 / once 一次性");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int")
+                        .HasColumnName("tenant_id")
+                        .HasComment("租户ID_Code");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("update_time")
+                        .HasComment("更新时间");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("user_id")
+                        .HasComment("任务归属用户Id");
+
+                    b.Property<uint>("xmin")
+                        .HasColumnType("int unsigned")
+                        .HasColumnName("xmin")
+                        .HasComment("行版本标记");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateTime");
+
+                    b.HasIndex("DeleteTime");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UpdateTime");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId", "Name");
+
+                    b.ToTable("t_a_i_task_config", null, t =>
+                        {
+                            t.HasComment("AI 自动任务配置（任务权威注册表：Hangfire 只负责调度，暂停状态与恢复所需元数据落库）");
+                        });
+                });
+
             modelBuilder.Entity("kevin.Domain.Entities.AI.TAIUserTokenQuota", b =>
                 {
                     b.Property<long>("Id")

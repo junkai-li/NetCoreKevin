@@ -4,6 +4,59 @@
         <name>kevin.Domain.Share</name>
     </assembly>
     <members>
+        <member name="T:kevin.Domain.Share.Dtos.AI.AIAgentMemoryDto">
+            <summary>
+            智能体记忆新增/编辑 DTO（管理端专用，对齐 AIAppsDto 惯例：字段白名单 + Check() 校验）。
+            <para>
+            白名单仅含：Id / AIAppsId / Content / Keywords / MemoryType / Importance / ExpireTime；
+            归属三维 UserId/TenantId/AIAppsId（编辑时）、HitCount/LastHitTime 等一律不进 DTO，
+            由服务端强制维护（编辑时无条件保留 original 原值，AIAppsId 仅新增分支生效、编辑分支忽略）。
+            </para>
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAgentMemoryDto.Id">
+            <summary>
+            记忆 Id；0 或不传表示新增，传已有 Id 表示编辑
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAgentMemoryDto.AIAppsId">
+            <summary>
+            归属智能体 Id；仅新增分支生效（指定记忆挂到哪个智能体，=0 时无默认智能体上下文置 0）；
+            编辑分支忽略此字段，服务端无条件保留原值（防止 Qdrant collection 归属错乱）
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAgentMemoryDto.Content">
+            <summary>
+            记忆内容，最长 4000 字符（CharLimits.MemoryContent）；新增必填，编辑传空保留原值
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAgentMemoryDto.Keywords">
+            <summary>
+            关键词，英文逗号分隔，最长 200 字符（CharLimits.MemoryKeywords）；编辑传空保留原值
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAgentMemoryDto.MemoryType">
+            <summary>
+            记忆类型，枚举：preference/fact/task/decision/pitfall/skill/other；编辑传空保留原值
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAgentMemoryDto.Importance">
+            <summary>
+            重要程度 0-10；编辑传 0 或负值时服务端保留原值（防止前端只传 Content 时被清零）
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.AIAgentMemoryDto.ExpireTime">
+            <summary>
+            过期时间（短期记忆 task 用）；编辑传 null 时服务端保留原值（纠偏口径下前端只传 Content）
+            </summary>
+        </member>
+        <member name="M:kevin.Domain.Share.Dtos.AI.AIAgentMemoryDto.Check">
+            <summary>
+            入参校验（仿 AIAppsDto.Check 惯例，由服务层 AddEdit 调用）：
+            新增时 Content 必填；Content/Keywords 长度边界；Importance 0-10 边界；MemoryType 合法值。
+            空值语义（传空保留原值）在服务层处理，本方法只校验"传入值本身"的合法性。
+            </summary>
+        </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIAppsBindSkillToolsDto.AISkillToolManagementId">
              <summary>
             技能工具ID
@@ -784,6 +837,41 @@
         <member name="M:kevin.Domain.Share.Dtos.AI.AISkillToolManagementDto.ParseJsonArray(System.String)">
             <summary>
             解析JSON字符串数组，非法或空时返回空列表
+            </summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.AI.dtoAIAgentMemoryCount">
+            <summary>
+            智能体维度记忆计数（管理端左栏记忆数徽标）
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.dtoAIAgentMemoryCount.AIAppsId">
+            <summary>
+            智能体Id；0 表示全局记忆（未归属具体智能体）
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.dtoAIAgentMemoryCount.Count">
+            <summary>
+            该智能体下的有效记忆条数（未删除且未过期）
+            </summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.AI.dtoAIAgentMemoryQuery">
+            <summary>
+            智能体记忆分页查询参数（继承通用分页 DTO，扩展记忆专属筛选字段；通用 dtoPagePar&lt;T&gt; 零改动）
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.dtoAIAgentMemoryQuery.AIAppsId">
+            <summary>
+            记忆归属智能体Id；0 表示不过滤（0 也可用于查看全局记忆）
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.dtoAIAgentMemoryQuery.ImportanceMin">
+            <summary>
+            重要程度下界（含边界）；null 表示不过滤。三档映射：高=8 / 中=5 / 低=0
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.dtoAIAgentMemoryQuery.ImportanceMax">
+            <summary>
+            重要程度上界（含边界）；null 表示不过滤。三档映射：高=10 / 中=7 / 低=4
             </summary>
         </member>
         <member name="T:kevin.Domain.Share.Dtos.AI.McpConnectionTestDto">

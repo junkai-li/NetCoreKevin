@@ -319,8 +319,23 @@
         <member name="M:Kevin.Web.Basics.Controllers.AI.AITasksController.TriggerCronTask(System.String)">
              <summary>
             执行我的AI任务
-             </summary> 
+             </summary>
              <returns></returns>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.AITasksController.GetMyTaskPage(kevin.AI.AgentFramework.Dto.dtoAITaskPagePar)">
+            <summary>
+            分页查询我的AI任务（结构化返回：类型/暂停状态/下次与上次执行时间；权威源 TAITaskConfig，state 支持 running/paused/空）
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.AITasksController.PauseTask(System.String)">
+            <summary>
+            暂停我的AI任务（暂停后不再执行，任务列表保留，可随时恢复）
+            </summary>
+        </member>
+        <member name="M:Kevin.Web.Basics.Controllers.AI.AITasksController.ResumeTask(System.String)">
+            <summary>
+            恢复我的AI任务（按落库配置重新注册到调度器）
+            </summary>
         </member>
         <member name="T:Kevin.Web.Basics.Controllers.AI.OpenAI.OpenAICompatibleController">
             <summary>

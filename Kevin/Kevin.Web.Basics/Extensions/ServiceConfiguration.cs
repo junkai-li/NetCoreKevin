@@ -281,6 +281,8 @@ namespace Web.Extension
             //    }
             //});
             services.AddKevinHangfireMemoryStorage();
+            // AI 自动任务启动对账：以 TAITaskConfig 为权威源同步任务到 Hangfire（内存存储重启重建 / Redis 持久化幂等重放，双存储兼容）
+            services.AddHostedService<kevin.Application.Services.AI.Tools.AITaskStartupReconcileService>();
             #endregion
 
             #region 反射统一注入，最后注入可以替换掉之前注册的服务，达到全局替换的目的
