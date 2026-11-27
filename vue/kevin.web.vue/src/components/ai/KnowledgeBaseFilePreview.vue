@@ -8,12 +8,18 @@
     @cancel="handleCancel"
   >
     <a-spin :spinning="loading">
+      <!-- 预览边界：文件过大无法安全渲染时，降级为下载模式 -->
+      <div v-if="previewBlocked" class="office-fallback">
+        <a-empty :description="previewBlocked" />
+        <a-button type="primary" @click="downloadFile">下载原文件</a-button>
+      </div>
+
       <!-- Markdown：marked 渲染（DOMPurify 清洗防 XSS），文档内容为用户自传文件 -->
-      <div v-if="renderType === 'markdown'" class="md-content" v-html="markdownHtml"></div>
+      <div v-else-if="renderType === 'markdown'" class="md-content" v-html="markdownHtml"></div>
 
       <!-- 文本/Html：渲染抽取文本（后端 HtmlReader 抽取结果为纯文本，
            但 DeEntitize 会复活源文档中被转义的字面量标签，必须文本插值渲染，禁止 v-html 防 XSS） -->
-      <pre v-else-if="renderType === 'text' || renderType === 'html'" class="content-text">{{ displayContent }}</pre>
+      <pre v-else-if="renderType === 'text' || renderType === 'html'" class="content-text">{{ truncatedText }}</pre>
 
       <!-- Pdf：blob 预览 -->
       <iframe
@@ -86,9 +92,9 @@ const displayContent = computed(() => {
   return (c && c.length > 0) ? c : textContent.value;
 });
 
-// Markdown 渲染：marked 转 HTML + DOMPurify 清洗防 XSS
+// Markdown 渲染：marked 转 HTML + DOMPurify 清洗防 XSS（渲染前先截断，防止超大 DOM 卡死）
 const markdownHtml = computed(() => {
-  const raw = displayContent.value || '';
+  const raw = truncatedText.value || '';
   try {
     return DOMPurify.sanitize(marked.parse(raw));
   } catch (e) {
@@ -100,6 +106,21 @@ const markdownHtml = computed(() => {
 // Word/Excel 在线预览状态
 const docxContainer = ref(null);
 const excelHtml = ref('');
+
+// 预览边界：超大内容/文件不做 DOM 渲染（会卡死页面），降级为下载模式
+const PREVIEW_MAX_CHARS = 100000;          // 文本/Markdown 最多渲染 10 万字符
+const OFFICE_MAX_BYTES = 10 * 1024 * 1024; // Word/Excel 原文件超过 10MB 不渲染
+const EXCEL_MAX_ROWS = 1000;               // Excel 每个 sheet 最多渲染 1000 行
+const previewBlocked = ref('');
+
+// 超长文本截断（含截断提示后缀）
+const truncatedText = computed(() => {
+  const raw = displayContent.value || '';
+  if (raw.length > PREVIEW_MAX_CHARS) {
+    return raw.slice(0, PREVIEW_MAX_CHARS) + '\n\n……（内容过大已截断，仅显示前 ' + PREVIEW_MAX_CHARS + ' 字符，请下载查看完整内容）';
+  }
+  return raw;
+});
 
 // 类型归一：小写后分发
 const renderType = computed(() => {
@@ -155,6 +176,7 @@ const loadPreview = async () => {
   const fileId = file.fileId;
   const hasUrl = !!file.url;
   textContent.value = '';
+  previewBlocked.value = '';
   // 文本/Markdown/Html：Content 为空（存量文件型数据未回写）时拉原文件流读取文本
   if (renderType.value === 'text' || renderType.value === 'markdown' || renderType.value === 'html') {
     const c = file.content;
@@ -187,12 +209,16 @@ const loadPreview = async () => {
     }
     return;
   }
-  // Word：docx-preview 在线渲染
+  // Word：docx-preview 在线渲染（超大文件降级下载，避免渲染卡死）
   if (renderType.value === 'word') {
     if (!fileId && !hasUrl) return;
     loading.value = true;
     try {
       const blob = fileId ? await fetchFileBlob(fileId) : await (await fetch(file.url)).blob();
+      if (blob.size > OFFICE_MAX_BYTES) {
+        previewBlocked.value = '文件过大（超过 10MB），已切换为下载模式';
+        return;
+      }
       const buffer = await blob.arrayBuffer();
       await nextTick();
       if (docxContainer.value) {
@@ -208,18 +234,33 @@ const loadPreview = async () => {
     }
     return;
   }
-  // Excel：SheetJS 全部 sheet 转 HTML 表格
+  // Excel：SheetJS 全部 sheet 转 HTML 表格（超大文件降级下载、超长行数截断渲染）
   if (renderType.value === 'excel') {
     if (!fileId && !hasUrl) return;
     loading.value = true;
     try {
       const blob = fileId ? await fetchFileBlob(fileId) : await (await fetch(file.url)).blob();
+      if (blob.size > OFFICE_MAX_BYTES) {
+        previewBlocked.value = '文件过大（超过 10MB），已切换为下载模式';
+        return;
+      }
       const XLSX = await import('xlsx');
       const workbook = XLSX.read(await blob.arrayBuffer(), { type: 'array' });
       let html = '';
       workbook.SheetNames.forEach((name) => {
         html += '<div class="excel-sheet-name">' + String(name).replace(/[<>&]/g, '') + '</div>';
-        html += XLSX.utils.sheet_to_html(workbook.Sheets[name]);
+        const ws = workbook.Sheets[name];
+        // 行数裁剪：超过上限的 sheet 只渲染前 N 行（通过收缩 !ref 范围实现）
+        const ref = ws && ws['!ref'];
+        if (ref) {
+          const range = XLSX.utils.decode_range(ref);
+          if (range.e.r - range.s.r + 1 > EXCEL_MAX_ROWS) {
+            range.e.r = range.s.r + EXCEL_MAX_ROWS - 1;
+            ws['!ref'] = XLSX.utils.encode_range(range);
+            html += '<div class="excel-note">该 sheet 超过 ' + EXCEL_MAX_ROWS + ' 行，仅渲染前 ' + EXCEL_MAX_ROWS + ' 行，请下载查看完整内容</div>';
+          }
+        }
+        html += XLSX.utils.sheet_to_html(ws);
       });
       excelHtml.value = html;
     } catch (error) {
@@ -383,6 +424,11 @@ onUnmounted(() => {
   font-weight: 600;
   font-size: 14px;
   margin: 12px 0 6px;
+}
+.excel-note {
+  font-size: 12px;
+  color: #d48806;
+  margin-bottom: 6px;
 }
 .excel-wrap :deep(table) {
   border-collapse: collapse;
