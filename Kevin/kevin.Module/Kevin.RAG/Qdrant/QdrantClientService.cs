@@ -155,7 +155,6 @@ namespace Kevin.RAG.Qdrant
             }
             // 按 payload 的 SourceFile 精确匹配（写入时已落在 payload 上，与 DeleteData 一致）
             var filter = new Filter { Must = { Conditions.MatchKeyword("SourceFile", sourceFile) } };
-            var total = await QdrantClient.CountAsync(collectionName, filter, exact: true);
             // 不使用服务端 order_by：Qdrant Server 要求 ChunkIndex 已建 range payload 索引，否则
             // Scroll 直接报错（Wrong input: No range index for `order_by` key）。集合创建时未建该索引，
             // 故拉取全部匹配点后在内存中按 ChunkIndex 排序分页（单文件碎片量级小，代价可忽略）。
@@ -167,20 +166,27 @@ namespace Kevin.RAG.Qdrant
                 null,
                 null,
                 null)).Result;
-            var chunks = points.Select(p =>
-            {
-                var payload = p.Payload;
-                return new DocumentChunkDto
+            // 同一文件被重复导入时会产生两组 ChunkIndex 相同的点（历史数据中确实存在）：
+            // 按 (ChunkIndex, Content) 去重，保留最早导入的一组；total 也按去重后计数，分页才准确
+            var uniqueChunks = points.Select(p =>
                 {
-                    Id = long.Parse(p.Id.Num.ToString()),
-                    Content = payload["Content"].StringValue,
-                    SourceFile = payload["SourceFile"].StringValue,
-                    Title = payload["Title"].StringValue,
-                    Category = payload["Category"].StringValue,
-                    ChunkIndex = Convert.ToInt32(payload["ChunkIndex"].IntegerValue),
-                    CreatedAt = DateTimeOffset.Parse(payload["CreatedAt"].StringValue ?? string.Empty)
-                };
-            })
+                    var payload = p.Payload;
+                    return new DocumentChunkDto
+                    {
+                        Id = long.Parse(p.Id.Num.ToString()),
+                        Content = payload["Content"].StringValue,
+                        SourceFile = payload["SourceFile"].StringValue,
+                        Title = payload["Title"].StringValue,
+                        Category = payload["Category"].StringValue,
+                        ChunkIndex = Convert.ToInt32(payload["ChunkIndex"].IntegerValue),
+                        CreatedAt = DateTimeOffset.Parse(payload["CreatedAt"].StringValue ?? string.Empty)
+                    };
+                })
+                .GroupBy(c => c.ChunkIndex + "|" + c.Content)
+                .Select(g => g.OrderBy(c => c.CreatedAt).First())
+                .ToList();
+            var total = (ulong)uniqueChunks.Count;
+            var chunks = uniqueChunks
             // 服务端 OrderBy 不可用（低版本 Qdrant Server）时靠内存排序兜底
             .OrderBy(c => c.ChunkIndex)
             .Skip(offset > int.MaxValue ? int.MaxValue : (int)offset)

@@ -25,12 +25,15 @@
       </div>
 
       <div v-if="total > 0" class="chunk-pagination">
+        <span class="chunk-total">共 {{ total }} 条碎片 · 第 {{ pageNum }} / {{ totalPages }} 页</span>
         <a-pagination
-          v-model:current="pageNum"
-          :total="total"
+          :current="pageNum"
+          :total="Number(total)"
           :page-size="pageSize"
-          show-total="(t) => `共 ${t} 条碎片`"
-          @change="loadChunks"
+          :page-size-options="['10', '20', '50']"
+          show-size-changer
+          @change="handlePageChange"
+          @show-size-change="handleSizeChange"
         />
       </div>
     </a-spin>
@@ -59,7 +62,8 @@ const loading = ref(false);
 const total = ref(0);
 const list = ref([]);
 const pageNum = ref(1);
-const pageSize = 10;
+const pageSize = ref(10);
+const totalPages = computed(() => Math.max(1, Math.ceil((Number(total.value) || 0) / pageSize.value)));
 
 const loadChunks = async () => {
   if (!props.open || props.kmsId == null || !props.sourceFile) return;
@@ -69,12 +73,13 @@ const loadChunks = async () => {
       kmsId: props.kmsId,
       sourceFile: props.sourceFile,
       pageNum: pageNum.value,
-      pageSize: pageSize,
+      pageSize: pageSize.value,
     });
     if (response && response.code === 200) {
-      const data = response.data || {};
-      total.value = Number(data.total) || 0;
-      list.value = Array.isArray(data.list) ? data.list : [];
+      // 兼容一层/两层 data 包装（不同后端封装版本）
+      const payload = (response.data && response.data.data) ? response.data.data : (response.data || {});
+      total.value = Number(payload.total) || 0;
+      list.value = Array.isArray(payload.list) ? payload.list : [];
     } else {
       total.value = 0;
       list.value = [];
@@ -89,6 +94,17 @@ const loadChunks = async () => {
   }
 };
 
+const handlePageChange = (page) => {
+  pageNum.value = page;
+  loadChunks();
+};
+
+const handleSizeChange = (page, size) => {
+  pageNum.value = 1;
+  pageSize.value = size;
+  loadChunks();
+};
+
 const handleCancel = () => {
   emit('cancel');
 };
@@ -98,6 +114,7 @@ watch(
   (val) => {
     if (val) {
       pageNum.value = 1;
+      pageSize.value = 10;
       list.value = [];
       total.value = 0;
       loadChunks();
@@ -113,7 +130,7 @@ onUnmounted(() => {
 
 <style scoped>
 .chunk-list {
-  max-height: 74vh;
+  max-height: 56vh;
   overflow: auto;
 }
 
@@ -155,6 +172,15 @@ onUnmounted(() => {
 .chunk-pagination {
   margin-top: 12px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 12px;
+  min-height: 44px;
+}
+
+.chunk-total {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.65);
 }
 </style>

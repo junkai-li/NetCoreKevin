@@ -210,6 +210,24 @@ namespace kevin.Application.Services.AI
                     {
                         if (!UpAIKmsDetails.Select(t => t.Id).ToList().Contains(item.Id))
                         {
+                            // 同名文件重新导入：复用已有明细并重置为待处理，避免产生重复明细
+                            // （重复明细会各自触发一次向量化，导致同一文件的 chunkIndex 出现两组点）
+                            var sameFile = !string.IsNullOrWhiteSpace(item.ContentName)
+                                ? UpAIKmsDetails.FirstOrDefault(t => !t.IsDelete && t.ContentName == item.ContentName)
+                                : null;
+                            if (sameFile != default)
+                            {
+                                sameFile.FileId = item.FileId;
+                                sameFile.FileType = item.FileType;
+                                sameFile.Content = item.Content;
+                                sameFile.Url = item.Url;
+                                sameFile.ContentName = item.ContentName;
+                                sameFile.Status = ImportKmsStatus.Loadding;
+                                sameFile.ErrorMessage = "";
+                                sameFile.UpdateTime = DateTime.Now;
+                                sameFile.UpdateUserId = CurrentUser.UserId;
+                                return;
+                            }
                             var additem = new TAIKmsDetails();
                             additem.Id = additem.Id == default ? SnowflakeIdService.GetNextId() : additem.Id;
                             additem.IsDelete = false;
@@ -398,6 +416,9 @@ namespace kevin.Application.Services.AI
                                             chunk.ContentVector = await OllamaApiService.GetEmbedding(chunk.Content);
                                         }
                                         Console.WriteLine($"\n正在上传 {allChunks.Count} 个文档块到向量数据库...");
+                                        // 写入前先清掉该文件的旧块：重复导入/重复明细时保证幂等，避免同 ChunkIndex 的点叠加。
+                                        // 此处不能直接调用 RemoveVectorData（内部会再次获取同一把锁导致死锁），直接走 RAG 层。
+                                        await QdrantClientService.DeleteData(GetCollectionName(kmss.Id), FileName);
                                         // 上传到向量数据库
                                         var isaddok = await QdrantClientService.AddData(GetCollectionName(kmss.Id), allChunks, embeddingValueSize);
                                         if (isaddok)
