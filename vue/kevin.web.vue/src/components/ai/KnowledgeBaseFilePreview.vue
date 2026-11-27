@@ -8,9 +8,12 @@
     @cancel="handleCancel"
   >
     <a-spin :spinning="loading">
-      <!-- 文本/Markdown/Html：渲染抽取文本（后端 HtmlReader 抽取结果为纯文本，
+      <!-- Markdown：marked 渲染（DOMPurify 清洗防 XSS），文档内容为用户自传文件 -->
+      <div v-if="renderType === 'markdown'" class="md-content" v-html="markdownHtml"></div>
+
+      <!-- 文本/Html：渲染抽取文本（后端 HtmlReader 抽取结果为纯文本，
            但 DeEntitize 会复活源文档中被转义的字面量标签，必须文本插值渲染，禁止 v-html 防 XSS） -->
-      <pre v-if="renderType === 'text' || renderType === 'markdown' || renderType === 'html'" class="content-text">{{ displayContent }}</pre>
+      <pre v-else-if="renderType === 'text' || renderType === 'html'" class="content-text">{{ displayContent }}</pre>
 
       <!-- Pdf：blob 预览 -->
       <iframe
@@ -25,8 +28,20 @@
         <img :src="imageUrl" class="image-preview" />
       </div>
 
-      <!-- Word/Excel/Pptx：仅下载 -->
-      <div v-else-if="isOfficeType" class="office-fallback">
+      <!-- Word：docx-preview 在线渲染 -->
+      <div v-else-if="renderType === 'word'" class="office-preview">
+        <div ref="docxContainer" class="docx-container"></div>
+        <div class="office-actions"><a-button type="primary" @click="downloadFile">下载原文件</a-button></div>
+      </div>
+
+      <!-- Excel：SheetJS 转 HTML 表格渲染 -->
+      <div v-else-if="renderType === 'excel'" class="office-preview">
+        <div class="excel-wrap" v-html="excelHtml"></div>
+        <div class="office-actions"><a-button type="primary" @click="downloadFile">下载原文件</a-button></div>
+      </div>
+
+      <!-- Pptx：仅下载 -->
+      <div v-else-if="renderType === 'pptx' || renderType === 'ppt'" class="office-fallback">
         <a-empty description="该类型仅支持下载原文件" />
         <a-button type="primary" class="office-download" @click="downloadFile">下载原文件</a-button>
       </div>
@@ -42,9 +57,14 @@
 
 <script setup>
 /* global defineProps, defineEmits */
-import { ref, computed, watch, onUnmounted } from 'vue';
+import { ref, computed, watch, nextTick, onUnmounted } from 'vue';
 import { message } from 'ant-design-vue';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 import { getFileById, getImageById } from '@/api/file';
+
+// marked 配置（与 MyAIChat 同口径：GFM + 换行转 <br>）
+marked.setOptions({ gfm: true, breaks: true });
 
 const props = defineProps({
   open: { type: Boolean, default: false },
@@ -66,6 +86,21 @@ const displayContent = computed(() => {
   return (c && c.length > 0) ? c : textContent.value;
 });
 
+// Markdown 渲染：marked 转 HTML + DOMPurify 清洗防 XSS
+const markdownHtml = computed(() => {
+  const raw = displayContent.value || '';
+  try {
+    return DOMPurify.sanitize(marked.parse(raw));
+  } catch (e) {
+    console.warn('markdown 渲染失败，降级为纯文本:', e);
+    return raw;
+  }
+});
+
+// Word/Excel 在线预览状态
+const docxContainer = ref(null);
+const excelHtml = ref('');
+
 // 类型归一：小写后分发
 const renderType = computed(() => {
   const t = (props.file && props.file.fileType ? props.file.fileType : '').trim().toLowerCase();
@@ -74,14 +109,11 @@ const renderType = computed(() => {
   return 'unknown';
 });
 
-const isOfficeType = computed(
-  () => renderType.value === 'word' || renderType.value === 'excel' || renderType.value === 'pptx'
-);
-
 // 弹窗宽度：屏幕占比 + 像素上限，小屏按比例、大屏不超上限
 const fitWidth = (pct, max) => Math.min(Math.round(window.innerWidth * pct), max) + 'px';
 const modalWidth = computed(() => {
   if (renderType.value === 'pdf') return fitWidth(0.85, 1400);
+  if (renderType.value === 'word' || renderType.value === 'excel') return fitWidth(0.8, 1200);
   if (renderType.value === 'image') return fitWidth(0.6, 960);
   if (renderType.value === 'text' || renderType.value === 'markdown' || renderType.value === 'html') return fitWidth(0.7, 1100);
   return '640px';
@@ -113,6 +145,8 @@ const revokeAll = () => {
   blobUrls.value = [];
   pdfUrl.value = '';
   imageUrl.value = '';
+  excelHtml.value = '';
+  if (docxContainer.value) docxContainer.value.innerHTML = '';
 };
 
 const loadPreview = async () => {
@@ -148,6 +182,49 @@ const loadPreview = async () => {
     } catch (error) {
       console.error('文本预览加载失败:', error);
       message.error('预览加载失败，请下载查看');
+    } finally {
+      loading.value = false;
+    }
+    return;
+  }
+  // Word：docx-preview 在线渲染
+  if (renderType.value === 'word') {
+    if (!fileId && !hasUrl) return;
+    loading.value = true;
+    try {
+      const blob = fileId ? await fetchFileBlob(fileId) : await (await fetch(file.url)).blob();
+      const buffer = await blob.arrayBuffer();
+      await nextTick();
+      if (docxContainer.value) {
+        docxContainer.value.innerHTML = '';
+        const { renderAsync } = await import('docx-preview');
+        await renderAsync(buffer, docxContainer.value);
+      }
+    } catch (error) {
+      console.error('Word预览加载失败:', error);
+      message.error('Word 预览加载失败，请下载查看');
+    } finally {
+      loading.value = false;
+    }
+    return;
+  }
+  // Excel：SheetJS 全部 sheet 转 HTML 表格
+  if (renderType.value === 'excel') {
+    if (!fileId && !hasUrl) return;
+    loading.value = true;
+    try {
+      const blob = fileId ? await fetchFileBlob(fileId) : await (await fetch(file.url)).blob();
+      const XLSX = await import('xlsx');
+      const workbook = XLSX.read(await blob.arrayBuffer(), { type: 'array' });
+      let html = '';
+      workbook.SheetNames.forEach((name) => {
+        html += '<div class="excel-sheet-name">' + String(name).replace(/[<>&]/g, '') + '</div>';
+        html += XLSX.utils.sheet_to_html(workbook.Sheets[name]);
+      });
+      excelHtml.value = html;
+    } catch (error) {
+      console.error('Excel预览加载失败:', error);
+      message.error('Excel 预览加载失败，请下载查看');
     } finally {
       loading.value = false;
     }
@@ -265,6 +342,59 @@ onUnmounted(() => {
 
 .office-fallback {
   padding: 24px 0;
+  text-align: center;
+}
+
+/* Markdown 渲染样式 */
+.md-content {
+  max-height: 74vh;
+  overflow: auto;
+  font-size: 14px;
+  line-height: 1.8;
+  color: rgba(0, 0, 0, 0.88);
+}
+.md-content h1, .md-content h2, .md-content h3 { margin: 16px 0 8px; }
+.md-content p { margin: 8px 0; }
+.md-content pre {
+  background: #f6f8fa;
+  padding: 12px;
+  border-radius: 6px;
+  overflow: auto;
+}
+.md-content code { background: #f6f8fa; padding: 2px 4px; border-radius: 4px; }
+.md-content pre code { padding: 0; background: none; }
+.md-content table { border-collapse: collapse; margin: 8px 0; }
+.md-content th, .md-content td { border: 1px solid #e8e8e8; padding: 6px 10px; }
+.md-content img { max-width: 100%; }
+
+/* Word / Excel 在线预览 */
+.office-preview {
+  max-height: 78vh;
+  overflow: auto;
+}
+.docx-container {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  padding: 16px;
+  min-height: 200px;
+}
+.excel-sheet-name {
+  font-weight: 600;
+  font-size: 14px;
+  margin: 12px 0 6px;
+}
+.excel-wrap :deep(table) {
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.excel-wrap :deep(td) {
+  border: 1px solid #e8e8e8;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+.office-actions {
+  margin-top: 12px;
   text-align: center;
 }
 
