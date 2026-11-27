@@ -405,6 +405,8 @@ namespace kevin.Application.Services.AI
                                             item.Status = ImportKmsStatus.Success;
                                             item.UpdateTime = DateTime.Now;
                                             item.ContentName = FileName ?? "";
+                                            // 回写抽取文本：预览接口直接展示 Content，文件型导入时前端未传 Content
+                                            item.Content = cleanedContent;
                                         }
 
                                     }
@@ -413,6 +415,7 @@ namespace kevin.Application.Services.AI
                                         item.Status = ImportKmsStatus.Success;
                                         item.UpdateTime = DateTime.Now;
                                         item.ContentName = FileName ?? "";
+                                        item.Content = cleanedContent;
                                     }
 
                                 }
@@ -437,6 +440,51 @@ namespace kevin.Application.Services.AI
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// 知识库文件碎片分页预览：只读实时查询向量库，不与导入互斥（不获取分布式锁）。
+        /// 归属校验失败抛 UserFriendlyException；Qdrant 异常/集合不存在/无碎片时归一为空结果。
+        /// </summary>
+        /// <param name="kmsId">知识库Id</param>
+        /// <param name="sourceFile">来源文件名（导入成功后回写的 ContentName）</param>
+        /// <param name="pageNum">页码，从 1 开始</param>
+        /// <param name="pageSize">每页条数（钳制在 1..100）</param>
+        /// <returns>碎片总数与当前页碎片列表（按 ChunkIndex 升序）</returns>
+        public async Task<KmsChunksDto> GetKmsChunks(long kmsId, string sourceFile, int pageNum = 1, int pageSize = 10)
+        {
+            // 归属校验：与 GetDetails 一致，数据权限 + 租户隔离
+            var kmss = AIKmssRp.Query(isDataPer: true)
+                .Where(t => t.IsDelete == false && t.Id == kmsId && t.TenantId == CurrentUser.TenantId)
+                .FirstOrDefault();
+            if (kmss == default)
+            {
+                throw new UserFriendlyException("不存在或已删除");
+            }
+            pageNum = Math.Max(1, pageNum);
+            pageSize = Math.Clamp(pageSize, 1, 100);
+            var result = new KmsChunksDto();
+            try
+            {
+                var (total, chunks) = await QdrantClientService.GetChunksBySourceFile(
+                    GetCollectionName(kmsId), sourceFile,
+                    (ulong)pageSize, (ulong)((pageNum - 1) * pageSize));
+                result.Total = (long)total;
+                result.List = chunks.OrderBy(c => c.ChunkIndex).Select(c => new KmsChunkItemDto
+                {
+                    Id = c.Id,
+                    Content = c.Content,
+                    ChunkIndex = c.ChunkIndex,
+                    Category = c.Category,
+                    CreatedAt = c.CreatedAt
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                // Qdrant 未配置/停服/网络故障时归一为空结果，不阻断预览
+                LogHelper.logger.Warn("预览碎片查询失败:" + ex);
+            }
+            return result;
         }
 
         public async Task<bool> Delete(long id)

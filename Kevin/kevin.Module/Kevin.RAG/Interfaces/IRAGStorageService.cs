@@ -40,5 +40,16 @@ namespace Kevin.RAG.Interfaces
         /// <returns></returns>
         Task<bool> DeleteCollection(string collectionName);
 
+        /// <summary>
+        /// 按来源文件分页拉取文档碎片（知识库文件碎片预览使用，实时 Scroll 查询，不依赖向量）
+        /// </summary>
+        /// <param name="collectionName">集合名</param>
+        /// <param name="sourceFile">来源文件名（写入时落在 payload 的 SourceFile 上）</param>
+        /// <param name="limit">每页条数</param>
+        /// <param name="offset">偏移量（按 ChunkIndex 升序跳过的块数）</param>
+        /// <returns>碎片总数与当前页碎片列表（按 ChunkIndex 升序）</returns>
+        Task<(ulong Total, List<DocumentChunkDto> Chunks)> GetChunksBySourceFile(
+            string collectionName, string sourceFile, ulong limit, ulong offset);
+
     }
 }

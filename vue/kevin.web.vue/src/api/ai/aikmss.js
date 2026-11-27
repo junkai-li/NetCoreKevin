@@ -24,3 +24,10 @@ export const addEditAIKmss = (data) => {
 export const deleteAIKmss = (id) => {
   return http.delete(`/api/AIKmss/Delete?Id=${id}`);
 };
+
+// 获取知识库文件碎片分页列表
+export const getKmsChunks = (params) => {
+  return http.get(
+    `/api/AIKmss/GetKmsChunks?kmsId=${params.kmsId}&sourceFile=${encodeURIComponent(params.sourceFile)}&pageNum=${params.pageNum || 1}&pageSize=${params.pageSize || 10}`
+  );
+};

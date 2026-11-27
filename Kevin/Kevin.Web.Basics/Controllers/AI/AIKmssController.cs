@@ -72,6 +72,28 @@ namespace Kevin.Web.Basics.AI
         }
 
         /// <summary>
+        /// 获取知识库文件碎片分页列表（只读实时查询向量库）
+        /// </summary>
+        /// <param name="kmsId">知识库Id</param>
+        /// <param name="sourceFile">来源文件名（导入成功后回写的 ContentName）</param>
+        /// <param name="pageNum">页码，从 1 开始，默认 1</param>
+        /// <param name="pageSize">每页条数，默认 10，上限 100</param>
+        /// <returns>total 为碎片总数；list 为当前页碎片 [{ id, content, chunkIndex, category, createdAt }]；
+        /// 集合不存在/Qdrant 异常/无碎片时 total=0 且 list 为空</returns>
+        [HttpGet("GetKmsChunks")]
+        [ActionDescription("获取知识库文件碎片列表")]
+        [SkipAuthority]
+        public async Task<KmsChunksDto> GetKmsChunks(
+            [FromQuery][Required] long kmsId,
+            [FromQuery][Required] string sourceFile,
+            [FromQuery] int pageNum = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            var result = await _service.GetKmsChunks(kmsId, sourceFile, pageNum, pageSize);
+            return result;
+        }
+
+        /// <summary>
         /// 新增编辑AI知识库
         /// </summary>
         /// <param name="par"></param>

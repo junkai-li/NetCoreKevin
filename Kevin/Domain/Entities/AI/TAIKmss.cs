@@ -15,19 +15,19 @@
         /// <summary>
         /// 每个段落的最大标记数。
         /// </summary>
-        [DefaultValue(299)]
-        public int MaxTokensPerParagraph { get; set; } = 299;
+        [DefaultValue(500)]
+        public int MaxTokensPerParagraph { get; set; } = 500;
         /// <summary>
         /// 每行，也就是每句话的最大标记数
         /// </summary>
-        [DefaultValue(99)]
-        public int MaxTokensPerLine { get; set; } = 99;
+        [DefaultValue(120)]
+        public int MaxTokensPerLine { get; set; } = 120;
 
         /// <summary>
         /// 段落之间重叠标记的数量。
         /// </summary>
-        [DefaultValue(49)]
-        public int OverlappingTokens { get; set; } = 49;
+        [DefaultValue(80)]
+        public int OverlappingTokens { get; set; } = 80;
 
         /// <summary>
         /// 矢量化模型Id

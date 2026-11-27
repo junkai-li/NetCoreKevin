@@ -270,9 +270,9 @@ const confirmLoading = ref(false);
 const form = reactive({
   id: null,
   name: '',
-  maxTokensPerParagraph: 299,
-  maxTokensPerLine: 99,
-  overlappingTokens: 49,
+  maxTokensPerParagraph: 500,
+  maxTokensPerLine: 120,
+  overlappingTokens: 80,
   kmsDetailsList: [],
   aIModelsId: undefined,
   aIRerankModelsId: undefined,
@@ -398,9 +398,9 @@ watch(() => props.open, async (newVal) => {
       
       Object.assign(form, {
         name: '',
-        maxTokensPerParagraph: 299,
-        maxTokensPerLine: 99,
-        overlappingTokens: 49,
+        maxTokensPerParagraph: 500,
+        maxTokensPerLine: 120,
+        overlappingTokens: 80,
         kmsDetailsList: []
       });
     }

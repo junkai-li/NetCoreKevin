@@ -47,5 +47,15 @@ namespace kevin.Domain.Interfaces.IServices.AI
         /// <param name="KmsId"></param>
         /// <returns></returns>
         Task<bool> ProcessKmssVectorData(long KmsId = default);
+
+        /// <summary>
+        /// 知识库文件碎片分页预览（只读实时查询向量库）
+        /// </summary>
+        /// <param name="kmsId">知识库Id</param>
+        /// <param name="sourceFile">来源文件名（导入成功后回写的 ContentName）</param>
+        /// <param name="pageNum">页码，从 1 开始</param>
+        /// <param name="pageSize">每页条数（1..100）</param>
+        /// <returns>碎片总数与当前页碎片列表；Qdrant 异常/无碎片时返回空结果</returns>
+        Task<KmsChunksDto> GetKmsChunks(long kmsId, string sourceFile, int pageNum = 1, int pageSize = 10);
     }
 }

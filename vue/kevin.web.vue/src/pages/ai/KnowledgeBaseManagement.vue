@@ -54,12 +54,15 @@
                       <a-menu-item @click="handleDelete(kb)">
                         <DeleteOutlined /> 删除
                       </a-menu-item>
+                      <a-menu-item @click="openFileDrawer(kb)">
+                        <FileAddOutlined /> 查看文档
+                      </a-menu-item>
                     </a-menu>
                   </template>
                 </a-dropdown>
               </div>
             </div>
-            <div class="octop-card-body" @click="handleEdit(kb)">
+            <div class="octop-card-body" @click="openFileDrawer(kb)">
               <div class="octop-card-rows">
                 <div class="octop-card-row">
                   <span class="octop-card-row-label">段落Token</span>
@@ -111,26 +114,126 @@
       @ok="handleModalOk"
       @cancel="handleModalCancel"
     />
- 
+
+    <!-- 文档列表抽屉 -->
+    <a-drawer
+      :open="fileDrawerVisible"
+      :title="currentKb ? currentKb.name : '文档列表'"
+      width="60%"
+      destroy-on-close
+      @close="handleDrawerClose"
+    >
+      <a-spin :spinning="drawerLoading">
+        <!-- 抽屉内直接上传文档：与编辑弹窗同口径（全量列表 + 新文件，后端增量合并） -->
+        <div class="drawer-upload">
+          <FileUpload
+            business="AIKmss"
+            :keyValue="currentKb ? currentKb.id : null"
+            sign="AIKmssDetailFlies"
+            :accept="'.txt,.pdf,.md,.docx,.html,.ppt,.pptx,.doc,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.bmp,.webp,.svg'"
+            :multiple="true"
+            :max-count="30"
+            @upload-success="handleDrawerUploadSuccess"
+            @upload-error="(e) => message.error('文件上传失败')"
+          />
+        </div>
+        <a-table
+          :columns="fileColumns"
+          :data-source="fileDetails"
+          row-key="id"
+          :pagination="false"
+          size="middle"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'contentName'">
+              {{ record.contentName || '未命名文件' }}
+            </template>
+            <template v-else-if="column.key === 'fileType'">
+              <a-tag>{{ (record.fileType || '未知').toUpperCase() }}</a-tag>
+            </template>
+            <template v-else-if="column.key === 'status'">
+              <a-tooltip v-if="record.status === 2 && record.errorMessage" :title="record.errorMessage">
+                <a-tag :color="getDetailStatusColor(record.status)">{{ getDetailStatusText(record.status) }}</a-tag>
+              </a-tooltip>
+              <a-tag v-else :color="getDetailStatusColor(record.status)">{{ getDetailStatusText(record.status) }}</a-tag>
+            </template>
+            <template v-else-if="column.key === 'dataCount'">
+              {{ record.dataCount || 0 }}
+            </template>
+            <template v-else-if="column.key === 'action'">
+              <a-space>
+                <a-button
+                  type="link"
+                  size="small"
+                  :disabled="!record.fileId && !record.url"
+                  @click="handlePreviewFile(record)"
+                >预览</a-button>
+                <a-tooltip
+                  v-if="record.status !== 1"
+                  title="文件导入完成后才可查看碎片"
+                >
+                  <a-button type="link" size="small" disabled>碎片</a-button>
+                </a-tooltip>
+                <a-button
+                  v-else
+                  type="link"
+                  size="small"
+                  @click="handleViewChunks(record)"
+                >碎片</a-button>
+                <a-button
+                  type="link"
+                  size="small"
+                  :disabled="!record.fileId && !record.url"
+                  @click="handleDownloadFile(record)"
+                >下载</a-button>
+              </a-space>
+            </template>
+          </template>
+        </a-table>
+      </a-spin>
+    </a-drawer>
+
+    <!-- 文件混合预览 -->
+    <KnowledgeBaseFilePreview
+      :open="filePreviewVisible"
+      :file="currentFile"
+      @cancel="filePreviewVisible = false"
+    />
+
+    <!-- 碎片分页预览 -->
+    <KnowledgeBaseChunkPreview
+      :open="chunkPreviewVisible"
+      :kmsId="chunkTarget.kmsId"
+      :sourceFile="chunkTarget.sourceFile"
+      :contentName="chunkTarget.contentName"
+      @cancel="chunkPreviewVisible = false"
+    />
+
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
-import { 
+import {
   BookOutlined,
-  PlusOutlined, 
+  PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  EllipsisOutlined, 
+  EllipsisOutlined,
+  FileAddOutlined,
 } from '@ant-design/icons-vue';
 import { message, Modal } from 'ant-design-vue';
-import {  
-  getAIKmssPageData, 
-  addEditAIKmss, 
-  deleteAIKmss 
+import {
+  getAIKmssPageData,
+  addEditAIKmss,
+  deleteAIKmss,
+  getAIKmssDetails,
 } from '@/api/ai/aikmss';
+import { getFileById } from '@/api/file';
 import KnowledgeBaseAddEdit from '@/components/ai/KnowledgeBaseAddEdit.vue';
+import KnowledgeBaseFilePreview from '@/components/ai/KnowledgeBaseFilePreview.vue';
+import KnowledgeBaseChunkPreview from '@/components/ai/KnowledgeBaseChunkPreview.vue';
+import FileUpload from '@/components/FileUpload.vue';
 
 // 搜索参数
 const searchParams = reactive({
@@ -285,6 +388,190 @@ const getStatusText = (status) => {
   }
 };
 
+// 文档明细状态（ImportKmsStatus 枚举：0=Loadding 1=Success 2=Fail）
+// 注意与上方卡片 kb.status（后端 AIKmssDto.GetStatus 的 4 态计算值）区分，不可混用
+const getDetailStatusColor = (status) => {
+  switch(status) {
+    case 0: return 'orange'; // 导入中
+    case 1: return 'green';  // 成功
+    case 2: return 'red';    // 失败
+    default: return 'default';
+  }
+};
+
+const getDetailStatusText = (status) => {
+  switch(status) {
+    case 0: return '导入中';
+    case 1: return '成功';
+    case 2: return '失败';
+    default: return '未知';
+  }
+};
+
+// ==================== 文档抽屉与预览 ====================
+
+// 文档抽屉
+const fileDrawerVisible = ref(false);
+const currentKb = ref(null);
+const drawerLoading = ref(false);
+const fileDetails = ref([]);
+
+// 文件混合预览
+const filePreviewVisible = ref(false);
+const currentFile = ref({});
+
+// 碎片分页预览
+const chunkPreviewVisible = ref(false);
+const chunkTarget = ref({ kmsId: null, sourceFile: '', contentName: '' });
+
+// 文档表格列
+const fileColumns = [
+  { title: '文件名', key: 'contentName', dataIndex: 'contentName' },
+  { title: '类型', key: 'fileType', width: 90 },
+  { title: '状态', key: 'status', width: 100 },
+  { title: '碎片数', key: 'dataCount', width: 90 },
+  { title: '操作', key: 'action', width: 180 },
+];
+
+// 打开文档抽屉
+const openFileDrawer = (kb) => {
+  currentKb.value = kb;
+  fileDrawerVisible.value = true;
+  loadFileDetails(kb);
+};
+
+// 加载文档列表（复用 GetDetails）
+const loadFileDetails = async (kb) => {
+  drawerLoading.value = true;
+  try {
+    const response = await getAIKmssDetails(kb.id);
+    if (response && response.code === 200) {
+      const data = response.data || {};
+      fileDetails.value = Array.isArray(data.aiKmssDetailsList) ? data.aiKmssDetailsList : [];
+    } else {
+      fileDetails.value = [];
+    }
+  } catch (error) {
+    console.error('加载文档列表失败:', error);
+    message.error('加载文档列表失败: ' + (error.message || '未知错误'));
+    fileDetails.value = [];
+  } finally {
+    drawerLoading.value = false;
+  }
+};
+
+// 抽屉内上传文档（与编辑弹窗同口径：全量列表 + 新文件，后端增量合并，不误删已有文档）
+const drawerUploading = ref(false);
+let drawerSubmitChain = Promise.resolve(); // 多文件并发上传时串行提交，避免相互覆盖列表
+
+const getKmsFileType = (fileName) => {
+  const ext = (fileName || '').split('.').pop()?.toLowerCase();
+  if (['pdf'].includes(ext)) return 'PDF';
+  if (['doc', 'docx'].includes(ext)) return 'Word';
+  if (['xls', 'xlsx'].includes(ext)) return 'Excel';
+  if (['txt'].includes(ext)) return 'Text';
+  if (['md'].includes(ext)) return 'Markdown';
+  if (['html', 'htm'].includes(ext)) return 'Html';
+  if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(ext)) return 'Image';
+  return 'Other';
+};
+
+const handleDrawerUploadSuccess = (file) => {
+  drawerSubmitChain = drawerSubmitChain
+    .then(() => submitDrawerFile(file))
+    .catch(() => {});
+};
+
+const submitDrawerFile = async (file) => {
+  const kb = currentKb.value;
+  if (!kb) return;
+  drawerUploading.value = true;
+  try {
+    // 每次提交前重新拉取最新全量文档列表（含上一次刚入库的文件，防止误删/重复）
+    const response = await getAIKmssDetails(kb.id);
+    const existing = (response && response.code === 200 && Array.isArray(response.data?.aiKmssDetailsList))
+      ? response.data.aiKmssDetailsList
+      : (kb.aiKmssDetailsList || []);
+    const details = existing.map(d => ({ ...d }));
+    details.push({
+      id: Date.now(),
+      kmsId: kb.id,
+      fileId: file.fileId,
+      fileType: getKmsFileType(file.fileName),
+      content: '',
+      url: '',
+      dataCount: null,
+      status: 0,
+      errorMessage: ''
+    });
+    await addEditAIKmss({
+      id: kb.id,
+      name: kb.name,
+      maxTokensPerParagraph: kb.maxTokensPerParagraph,
+      maxTokensPerLine: kb.maxTokensPerLine,
+      aIModelsId: kb.aIModelsId,
+      aIRerankModelsId: kb.aIRerankModelsId,
+      overlappingTokens: kb.overlappingTokens,
+      aIKmssDetailsList: details
+    });
+    message.success('「' + file.fileName + '」已上传，后台解析入库中');
+    await loadFileDetails(kb);
+    loadKnowledgeBaseList();
+  } catch (error) {
+    console.error('抽屉上传导入失败:', error);
+    message.error('文档导入失败: ' + (error.message || '未知错误'));
+  } finally {
+    drawerUploading.value = false;
+  }
+};
+
+// 关闭抽屉清空临时状态
+const handleDrawerClose = () => {
+  fileDrawerVisible.value = false;
+  currentKb.value = null;
+  fileDetails.value = [];
+  currentFile.value = {};
+  chunkTarget.value = { kmsId: null, sourceFile: '', contentName: '' };
+};
+
+// 文件预览
+const handlePreviewFile = (record) => {
+  currentFile.value = { ...record };
+  filePreviewVisible.value = true;
+};
+
+// 碎片预览（仅导入成功可用：ImportKmsStatus.Success=1）
+const handleViewChunks = (record) => {
+  if (record.status !== 1) return;
+  chunkTarget.value = {
+    kmsId: currentKb.value ? currentKb.value.id : null,
+    sourceFile: record.contentName || '',
+    contentName: record.contentName || '',
+  };
+  chunkPreviewVisible.value = true;
+};
+
+// 下载原文件
+const handleDownloadFile = (record) => {
+  if (!record.fileId && !record.url) {
+    message.error('文件不存在，无法下载');
+    return;
+  }
+  if (record.fileId) {
+    getFileById(record.fileId, record.contentName).catch((error) => {
+      console.error('下载失败:', error);
+      message.error('下载失败，请稍后重试');
+    });
+  } else if (record.url) {
+    const a = document.createElement('a');
+    a.href = record.url;
+    a.download = record.contentName || 'downloaded_file';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+};
+
 // 初始化
 onMounted(() => {
   loadKnowledgeBaseList();
@@ -295,6 +582,12 @@ onMounted(() => {
 .management-container {
   padding: 0;
   background-color: transparent;
+}
+
+.drawer-upload {
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .management-card {

@@ -72,8 +72,29 @@ namespace kevin.Application.Services
                 string path = Kevin.Common.App.IO.Path.ContentRootPath() + file.Path;
                 if (!string.IsNullOrEmpty(file.Url))
                 {
+                    // 下载前确保目标目录存在（容器重建后 /app/Files 可能整个缺失）
+                    var localDir = Path.GetDirectoryName(path);
+                    if (!string.IsNullOrEmpty(localDir) && !Directory.Exists(localDir))
+                    {
+                        Directory.CreateDirectory(localDir);
+                    }
                     //下载文件
                     fileStorage.FileDownload(file.Url, path);
+                }
+                // 兜底：本地副本仍不存在时，从持久化静态目录（KevinFlies 卷）中同相对路径复制回本地。
+                // file.Url 的访问前缀会随请求 Host 变化（端口/IP 不同），按前缀 Replace 的方式可能拼错物理路径
+                if (!System.IO.File.Exists(path))
+                {
+                    var persisted = System.IO.Path.Combine(Kevin.Common.App.IO.Path.ContentRootPath(), "KevinFlies", file.Path.TrimStart('/', '\\'));
+                    if (System.IO.File.Exists(persisted))
+                    {
+                        var localDir2 = Path.GetDirectoryName(path);
+                        if (!string.IsNullOrEmpty(localDir2) && !Directory.Exists(localDir2))
+                        {
+                            Directory.CreateDirectory(localDir2);
+                        }
+                        System.IO.File.Copy(persisted, path, true);
+                    }
                 }
                 //读取文件入流
                 var stream = System.IO.File.OpenRead(path);

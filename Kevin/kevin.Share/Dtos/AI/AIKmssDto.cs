@@ -60,8 +60,55 @@ namespace kevin.Domain.Share.Dtos.AI
 
         /// <summary>
         /// Rerank重排模型Id
-        /// </summary> 
+        /// </summary>
         [Description("Rerank重排模型Id")]
-        public long? aIRerankModelsId { get; set; } 
+        public long? aIRerankModelsId { get; set; }
+    }
+
+    /// <summary>
+    /// 知识库文件碎片分页预览结果
+    /// </summary>
+    public class KmsChunksDto
+    {
+        /// <summary>
+        /// 该文件碎片总数
+        /// </summary>
+        public long Total { get; set; }
+
+        /// <summary>
+        /// 当前页碎片列表（按 ChunkIndex 升序）
+        /// </summary>
+        public List<KmsChunkItemDto> List { get; set; } = new List<KmsChunkItemDto>();
+    }
+
+    /// <summary>
+    /// 知识库文件碎片项
+    /// </summary>
+    public class KmsChunkItemDto
+    {
+        /// <summary>
+        /// 碎片点 Id
+        /// </summary>
+        public long Id { get; set; }
+
+        /// <summary>
+        /// 碎片内容
+        /// </summary>
+        public string Content { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 块在原文档中的序号
+        /// </summary>
+        public int ChunkIndex { get; set; }
+
+        /// <summary>
+        /// 所属章节或类别（payload Category，写入时为知识库名称）
+        /// </summary>
+        public string Category { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 入库时间
+        /// </summary>
+        public DateTimeOffset CreatedAt { get; set; }
     }
 }

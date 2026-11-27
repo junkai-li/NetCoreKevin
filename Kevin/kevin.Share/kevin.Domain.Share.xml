@@ -657,7 +657,52 @@
         <member name="P:kevin.Domain.Share.Dtos.AI.AIKmssDto.aIRerankModelsId">
             <summary>
             Rerank重排模型Id
-            </summary> 
+            </summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.AI.KmsChunksDto">
+            <summary>
+            知识库文件碎片分页预览结果
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.KmsChunksDto.Total">
+            <summary>
+            该文件碎片总数
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.KmsChunksDto.List">
+            <summary>
+            当前页碎片列表（按 ChunkIndex 升序）
+            </summary>
+        </member>
+        <member name="T:kevin.Domain.Share.Dtos.AI.KmsChunkItemDto">
+            <summary>
+            知识库文件碎片项
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.KmsChunkItemDto.Id">
+            <summary>
+            碎片点 Id
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.KmsChunkItemDto.Content">
+            <summary>
+            碎片内容
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.KmsChunkItemDto.ChunkIndex">
+            <summary>
+            块在原文档中的序号
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.KmsChunkItemDto.Category">
+            <summary>
+            所属章节或类别（payload Category，写入时为知识库名称）
+            </summary>
+        </member>
+        <member name="P:kevin.Domain.Share.Dtos.AI.KmsChunkItemDto.CreatedAt">
+            <summary>
+            入库时间
+            </summary>
         </member>
         <member name="P:kevin.Domain.Share.Dtos.AI.AIModelsDto.AIType">
             <summary>

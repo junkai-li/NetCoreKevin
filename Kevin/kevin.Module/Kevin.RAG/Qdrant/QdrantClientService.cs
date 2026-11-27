@@ -130,6 +130,66 @@ namespace Kevin.RAG.Qdrant
         }
 
         /// <summary>
+        /// 按来源文件分页拉取文档碎片：CountAsync 精确计数 + ScrollAsync 按 ChunkIndex 升序取当前页
+        /// （预览只读，不加分布式锁）。集合不存在或参数为空时返回空结果，不抛异常（与 DeleteData 容错一致）。
+        /// <para>
+        /// Qdrant.Client 1.17.0 的 ScrollAsync offset 参数是 PointId（点 ID 起点）而非数值偏移，
+        /// 因此按 ChunkIndex 排序预取 offset+limit 条，再在内存中切出 [offset, offset+limit) 页；
+        /// Scroll 后仍做一次内存排序兜底，块序在服务端排序不可用时也保持稳定。
+        /// </para>
+        /// </summary>
+        public async Task<(ulong Total, List<DocumentChunkDto> Chunks)> GetChunksBySourceFile(
+            string collectionName, string sourceFile, ulong limit, ulong offset)
+        {
+            if (QdrantClient == default)
+            {
+                throw new ArgumentException($"请检查QdrantClient配置是否正确");
+            }
+            if (string.IsNullOrWhiteSpace(collectionName) || string.IsNullOrWhiteSpace(sourceFile))
+            {
+                return (0, new List<DocumentChunkDto>());
+            }
+            if (!await IsValidateCollectionExists(collectionName))
+            {
+                return (0, new List<DocumentChunkDto>());
+            }
+            // 按 payload 的 SourceFile 精确匹配（写入时已落在 payload 上，与 DeleteData 一致）
+            var filter = new Filter { Must = { Conditions.MatchKeyword("SourceFile", sourceFile) } };
+            var total = await QdrantClient.CountAsync(collectionName, filter, exact: true);
+            // 不使用服务端 order_by：Qdrant Server 要求 ChunkIndex 已建 range payload 索引，否则
+            // Scroll 直接报错（Wrong input: No range index for `order_by` key）。集合创建时未建该索引，
+            // 故拉取全部匹配点后在内存中按 ChunkIndex 排序分页（单文件碎片量级小，代价可忽略）。
+            var points = (await QdrantClient.ScrollAsync(collectionName, filter,
+                100000u,
+                null,
+                new WithPayloadSelector { Enable = true },
+                new WithVectorsSelector { Enable = false },
+                null,
+                null,
+                null)).Result;
+            var chunks = points.Select(p =>
+            {
+                var payload = p.Payload;
+                return new DocumentChunkDto
+                {
+                    Id = long.Parse(p.Id.Num.ToString()),
+                    Content = payload["Content"].StringValue,
+                    SourceFile = payload["SourceFile"].StringValue,
+                    Title = payload["Title"].StringValue,
+                    Category = payload["Category"].StringValue,
+                    ChunkIndex = Convert.ToInt32(payload["ChunkIndex"].IntegerValue),
+                    CreatedAt = DateTimeOffset.Parse(payload["CreatedAt"].StringValue ?? string.Empty)
+                };
+            })
+            // 服务端 OrderBy 不可用（低版本 Qdrant Server）时靠内存排序兜底
+            .OrderBy(c => c.ChunkIndex)
+            .Skip(offset > int.MaxValue ? int.MaxValue : (int)offset)
+            .Take(limit > int.MaxValue ? int.MaxValue : (int)limit)
+            .ToList();
+            return (total, chunks);
+        }
+
+        /// <summary>
         /// 按来源文件删除向量点：多文件知识库重导/移除单个文件时只清该文件的块。
         /// 集合不存在时直接返回成功，重复调用不会报错。
         /// </summary>

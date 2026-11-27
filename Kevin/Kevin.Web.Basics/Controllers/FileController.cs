@@ -132,57 +132,59 @@ namespace Kevin.Web.Basics.Controllers
         /// <remarks>不指定宽高参数,返回原图</remarks>
         [AllowAnonymous]
         [HttpGet("GetImage")]
-        public FileResult GetImage([Required] long fileId, int width, int height, CancellationToken cancellationToken)
+        public async Task<FileResult> GetImage([Required] long fileId, int width, int height, CancellationToken cancellationToken)
         {
+            // 复用 FileService.GetFile：本地副本缺失（容器重建后 /app/Files 非持久化）时，
+            // 会按 TFile.Url 自动从持久存储拉回文件，与 GetFile 行为保持一致，避免 404/500
+            var data = await _fileService.GetFile(fileId, cancellationToken);
+            if (data.Item1 == default)
+            {
+                throw new global::Web.Global.Exceptions.UserFriendlyException("图片不存在或已删除");
+            }
+            await using var sourceStream = data.Item1;
+            var memi = data.Item2 ?? "image/png";
+            var fileName = data.Item3 ?? "image.png";
 
-            var file = db.Set<TFile>().Where(t => t.Id == fileId).FirstOrDefault();
-            var path = Kevin.Common.App.IO.Path.ContentRootPath() + file.Path;
-
-            var stream = System.IO.File.OpenRead(path);
-
-            string fileExt = Path.GetExtension(path);
-
-            var provider = new FileExtensionContentTypeProvider();
-
-            var memi = provider.Mappings[fileExt];
+            // 返回前底层流会被 using 关闭，需先复制到内存流
+            MemoryStream CopyToMemory()
+            {
+                var ms = new MemoryStream();
+                sourceStream.CopyTo(ms);
+                ms.Position = 0;
+                return ms;
+            }
 
             if (width == 0 && height == 0)
             {
-                return File(stream, memi, file.Name);
+                return File(CopyToMemory(), memi, fileName);
             }
-            else
+
+            using var original = SKBitmap.Decode(sourceStream);
+            if (original == null || original.Width < width || original.Height < height)
             {
-                using var original = SKBitmap.Decode(path);
-                if (original.Width < width || original.Height < height)
-                {
-                    return File(stream, memi, file.Name);
-                }
-                else
-                {
-
-                    if (width != 0 && height == 0)
-                    {
-                        var percent = ((float)width / (float)original.Width);
-
-                        width = (int)(original.Width * percent);
-                        height = (int)(original.Height * percent);
-                    }
-
-                    if (width == 0 && height != 0)
-                    {
-                        var percent = ((float)height / (float)original.Height);
-
-                        width = (int)(original.Width * percent);
-                        height = (int)(original.Height * percent);
-                    }
-                    var SKSamplingOptions = new SKSamplingOptions();
-                    using var resizeBitmap = original.Resize(new SKImageInfo(width, height), SKSamplingOptions);
-                    using var image = SKImage.FromBitmap(resizeBitmap);
-                    using var imageData = image.Encode(SKEncodedImageFormat.Png, 100);
-                    return File(imageData.ToArray(), "image/png");
-                }
-
+                return File(CopyToMemory(), memi, fileName);
             }
+
+            if (width != 0 && height == 0)
+            {
+                var percent = ((float)width / (float)original.Width);
+
+                width = (int)(original.Width * percent);
+                height = (int)(original.Height * percent);
+            }
+
+            if (width == 0 && height != 0)
+            {
+                var percent = ((float)height / (float)original.Height);
+
+                width = (int)(original.Width * percent);
+                height = (int)(original.Height * percent);
+            }
+            var SKSamplingOptions = new SKSamplingOptions();
+            using var resizeBitmap = original.Resize(new SKImageInfo(width, height), SKSamplingOptions);
+            using var image = SKImage.FromBitmap(resizeBitmap);
+            using var imageData = image.Encode(SKEncodedImageFormat.Png, 100);
+            return File(imageData.ToArray(), "image/png");
         }
 
         /// <summary>
